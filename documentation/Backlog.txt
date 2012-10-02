@@ -1,0 +1,149 @@
+-------------------------------------------------------------------------------------------------------------------------------
+the following issues are solved by 6/13/11:
+
+WOTK ITEMS:
+	1. Rewrite synapse interface:
+ 		- spikeHit(): computes PSR and applies it. Called when queue generates spike arrival
+ 		- advance(): decays, add to summation point, inactivate if psr < threshold. Call only for active synapses
+	2. Implement spike queue (move spike application/arrival delay into queue)
+		Notes:
+ 		- Queue's purpose is for when two spike arrive (are scheduled to
+   		arrive) within "delay" of each other. Both must be remembered,
+   		applied to synapse at proper times.
+ 		- summation point should get sum of synapses every time step.
+	3. Run sim on MacOS
+	4. Validate refactored codebase against original codebase , using an identical seed to confirm that the output is 
+	  also identical (Ethan, in progress)
+	5. Qualitatively validate simulation results (generate plots and compare images to previous versions) (Ethan, in progress)
+	6. Refactor code to enable measuring error drift between doubles vs. floats (Ethan, in progress)
+		Note:
+		- This will be related to the remaining works items 1. below.
+	7. Investigate thread-related seeding issues (delta between single and multi-threaded output)
+	8. Run long (100 secs, 300 growth cycles) simulations, both double and float. Record output.
+		Note:
+		- This is related to 6 above. 
+	9. Resolve build issues: make single build script for multiple versions.
+	10. CUDA development
+		a. Integrate GPU v1 (Fumitaka and Sean). Integrate Allan's single-block CUDA code into GpuSim.cpp.
+		b. copy data structures to C style data structures
+			1) copy C style data structures from host to device
+			2) copy C style data structures from device back to host 
+		c. convert c-style advance functions into kernels
+		d. Copy C++ collection objects to C-style data structures (we believe this is done; Ethan will confirm). 
+		   This may not be needed, as some C++ support exists in CUDA. There is also an STL-style library called Thrust that makes this easy.
+		e. Create C style functions to perform Advance() functions on C style data structs (we believe this is done; Ethan will confirm)
+	11. Refactoring
+		a.Review refactoring suggestions with team and incorporate feedback (done on 4/28/2010; see "BrainGrid Class Diagram.vsd") (Done)
+		b.Implement refactor (Scheduled for week of April 26th)
+		c.Move unused code into legacy directory
+
+
+STANDING QUESTIONS:
+	1. can we get a thread-safe random number generator? 
+		--> We are using MersenneTwister, which is thread safe. 
+
+OPTIMIZATION:
+	1. Currently, ~40% of the run time is spent generating p-rngs:
+	Perhaps we could try a multiply-with-carry	style rng instead.  Also, we could try a
+	multi-threaded approach, either with a thread-safe rng - or - with a dedicated rng
+	thread.  The thread-safe rng approach is more scalable.
+		--> We are using thread-safe random number geranetor (MersenneTwister). For multi-threaded simulator,
+		we create one instance of rng object for each thread. 
+
+-------------------------------------------------------------------------------------------------------------------------------
+The following are remaining issues:
+
+WORK ITEMS:	
+	1. Refactor all time constants to be integer-based and use tick count rather than double-based using fractions of a second. 
+	   This should address some of the endless loop issues seen when moving between float and double.
+	2. Re-run sim on Linux multiple times to check RNG influence on results (how sensitive to rand sequence?)
+	3. Confirm Matlab final firing rate plot parameters (2007/2008 plots are horked.)
+		a. Run single thread with other parameters.
+	4. Health: during growth, sort synapses at each coordinate by distance to summation point and dispose of those whose strength has gone to 0.
+		Note: 
+		- may affect the way that the delay list handles synapses.
+	5. Implement streaming XML writer (required to write large history files one growth cycle at a time.)
+		Note: 
+		- when buffer is full, flush.
+		- performance issue too.
+	6. Save synapse and neuron state to support simulation pause and resume (useful for storing pre-work to get a simulation into 
+		Note:
+		- low priority now.
+	   an interesting state and required to modify runtime parameters later.)
+	7. NVIDIA Tesla/CUDA development
+		a. http://code.google.com/p/thrust/ is an STL-style library for efficient marshaling of vector types.
+	8. Documentation:
+		a. Document existing feature set
+		b. Mention BrainGrid project and status on biocomputing website (http://depts.washington.edu/biocomp/). 
+		   Use Prof. Fukuda's site as a template (Prof. Stiber can add more detail here.)
+		c. Complete documenting all major methods in Network.cpp.
+		d. Resolve remaining formatting inconsistencies in Network.cs
+		e. Add Javadoc-style comments to all C++ functions.
+		f. Re-run Doxygen  on codebase after
+	9. Complete performance evaluation of single and multi thread simulator.
+	10. Complete validation of single and multi thread simulator.
+		a. Check we get identical results on different OSs and compilers(Linux, Windows,MAC)
+	11. Complete code view and implement the feedback
+	12. Add other options (optimization level, float/double, profile/debug, etc) to Makefile
+
+STANDING QUESTIONS:
+	1. When running as a single process on a multi-core machine, the process
+	frequently migrates cores when running single process/single thread.
+	This causes a few seconds of very slow execution. (The Portable Linux
+	Processor Affinity library wraps 2 types of processor affinity system
+	calls and may be the solution to this problem. See
+	http://www.open-mpi.org/projects/plpa/). (Probably safe to ignore, as
+	we are not focused on the single-threaded sim.)
+
+
+CUDA ISSUES:
+	1. How do we plan to track spike events?  We will need to dynamically allocate memory for each neuron
+	  to record events, in a similar fashion to the c-style neuron code.
+		--> Currently we allocate a fixed sized memory (500 spikes/sec * 100 * 1000 * 10 * sizeof(FLOAT) for each neuron) to track spike events. 
+	2. How will we notify synapses of spikes?
+		a. a global memory area for kernels to write spike events to?
+								or
+		b. a local (to the block) memory area for kernels to write events to?
+			1) upon spiking event, write the pair of outgoing synapses indices (begin, end) into global mem
+			2) after all neurons have been advanced, notify synapses of spiking events
+		this raises an issue:
+		  when copying the cstyle neurons into device memory, we need to remap their pointers
+		  to their outgoing synapse arrays.
+
+		--> We have to implement a global spiking queue to the CUDA. 
+	3. RNG: how will we calculate noise?
+		a. Each kernel could calculate their own rng.  This would require that each kernel somehow
+	   	   has a unique seed.  We could use the tid to accomplish this.
+								or
+		b. Before each time step, we can compute a random number for each neuron and actually
+		   store this number in the neuron struct.  When the number is needed, we just look it up.
+
+		--> Currently, we call normrnd() to generae random numbers at the sequential part and save them to pass the kernel function 
+                    (strategy b above). We will eventually cretae a kernel function version of the random number generator (strategy a), 
+		    in which global memory is used to store state of the random number for each thread.   
+	4. Optimization issues:
+		a. Optimize data transfer between host memory and cuda device memory.
+		b. Utilize optimizing technics
+			- shared memory
+			- registers
+			- constant memory
+			- data access patters (coalescing)
+			- data preftech
+			- instruction mix
+			- thread granularity
+		c. Atomic operation on summation points is the major performance bottleneck. Need to investigate the solution. 
+		     
+
+-------------------------------------------------------------------------------------------------------------------------------
+OVERALL PLAN: (Summer in 2011)
+	1. Implement global spike queueing to CUDA (priority 1, fumik)
+	2. Single-threaded precise result repeatability (priority 1, Warner)
+	3. Profiling and baseline performance comparison (priority 2, Warner)
+	4. Implement integer-base time (total step count vs. epoch, steps within epoch) (priority 2, fumik)
+	5. Optimization priorities (e.g. streaming history) (priority 3, Warner)
+	6. Parameter file update for 10,000 neurons (priority 3)
+	7. Save/restore state (serialization/deserialization) (priority 4 low)
+	8. Code review, documentation write-ups
+	9. Parametric re-exploration (100 neurons)
+	10. Parametric re-exploration (10,000 neurons) 
+		start with "key" values from 100 neurons

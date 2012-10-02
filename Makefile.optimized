@@ -1,0 +1,70 @@
+#
+# build test version
+#
+
+#
+# Source directories
+#
+MATRIXDIR = Matrix
+XMLDIR = tinyxml
+PCDIR = paramcontainer
+SVDIR = SourceVersions
+RNGDIR = RNG
+UTILDIR = Utils
+#
+# Build tools
+#
+
+CXX = g++
+LD = g++
+OPT = g++ 
+
+CXXFLAGS = -I$(UTILDIR) -I$(MATRIXDIR) -I$(XMLDIR) -I$(PCDIR) -I$(SVDIR) -I$(RNGDIR) -DTIXML_USE_STL -O3
+LDFLAGS = -lstdc++
+
+#
+# here are all the objects
+#
+MATRIXOBJS = $(MATRIXDIR)/Matrix.o $(MATRIXDIR)/VectorMatrix.o \
+             $(MATRIXDIR)/CompleteMatrix.o $(MATRIXDIR)/SparseMatrix.o \
+             $(MATRIXDIR)/MatrixFactory.o  
+
+
+XMLOBJS = $(XMLDIR)/tinyxml.o $(XMLDIR)/tinyxmlparser.o $(XMLDIR)/tinyxmlerror.o $(XMLDIR)/tinystr.o
+
+OTHEROBJS = $(SVDIR)/SourceVersions.o $(RNGDIR)/MersenneTwister.o $(RNGDIR)/norm.o $(PCDIR)/ParamContainer.o $(UTILDIR)/Timer.o
+
+
+OBJS = DynamicSpikingSynapse.o Network.o \
+       BGDriver.o LifNeuron.o global.o DynamicSpikingSynapse_struct.o LifNeuron_struct.o
+
+#
+# how to make the target
+#
+
+all: $(OBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
+	$(LD) -o growth -g $(LDFLAGS) $(OBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
+
+#
+# some default targets
+#
+clean:
+	rm -f *.o RNG/*.o Matrix/*.o
+
+paramcontainer/ParamContainer.o: paramcontainer/ParamContainer.h paramcontainer/ParamContainer.cpp
+    
+DynamicSpikingSynapse.o: DynamicSpikingSynapse.cpp DynamicSpikingSynapse.h 
+
+Network.o: Network.cpp Network.h global.h
+
+BGDriver.o: BGDriver.cpp 
+
+LifNeuron.o: LifNeuron.cpp LifNeuron.h 
+
+global.o: global.h 
+
+DynamicSpikingSynapse_struct.o: DynamicSpikingSynapse_struct.cpp DynamicSpikingSynapse.h
+
+LifNeuron_struct.o: LifNeuron_struct.cpp LifNeuron_struct.h
+
+Utils/Timer.o: Utils/Timer.cpp Utils/Timer.h
