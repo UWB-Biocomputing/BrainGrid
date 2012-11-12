@@ -28,9 +28,8 @@
 #ifndef _MULTITHREADEDSIM_H_
 #define _MULTITHREADEDSIM_H_
 
-#include "ISimulation.h"
-#include "Matrix/VectorMatrix.h"
 #include "HostSim.h"
+#include <omp.h>
 
 class MultiThreadedSim : public HostSim
 {

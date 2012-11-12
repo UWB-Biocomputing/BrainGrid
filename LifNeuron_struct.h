@@ -1,4 +1,4 @@
-/**
+  /**
  **
  ** \brief A leaky-integrate-and-fire (I&F) neuron structure.
  **
@@ -20,7 +20,7 @@
  ** noise.
  **
  ** At time \f$t=0\f$ \f$V_m\f$ is set to \f$V_{init}\f$. If
- ** \f$V_m\f$ exceeds the threshold voltage \f$V_{thresh}\f$ it is
+ ** \f$V_m\f$ exceeds the threshold voltage \f$V_{thresh}\f$ it is 
  ** reset to \f$V_{reset}\f$ and hold there for the length
  ** \f$T_{refract}\f$ of the absolute refractory period.
  **

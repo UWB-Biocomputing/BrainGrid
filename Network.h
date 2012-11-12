@@ -41,19 +41,9 @@
 #ifndef _NETWORK_H_
 #define _NETWORK_H_
 
-#include "global.h"
-#include "LifNeuron.h"
-#include "LifNeuron_struct.h"
-#include "DynamicSpikingSynapse.h"
-#include "DynamicSpikingSynapse_struct.h"
-#include "Matrix/VectorMatrix.h"
-#include "Timer.h"
-#include "SimulationInfo.h"
-#include "ISimulation.h"
-#include "GpuSim.h"
+#include "include/Timer.h"
 #include "SingleThreadedSim.h"
 #include "MultiThreadedSim.h"
-#include <vector>
 
 class Network
 {

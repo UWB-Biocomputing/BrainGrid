@@ -5,12 +5,7 @@
  *
  *      \brief A class that performs the simulation on GPU.
  */
-#include <cstdio>
-#include <cassert>
-#include <cstdlib>
-#include "global.h"
 #include "GpuSim.h"
-#include "LifNeuron_struct.h"
 
 extern "C" {
 void advanceGPU( 
@@ -45,7 +40,7 @@ void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, uns
 
 void deleteDeviceStruct( );
 
-void  getSpikeCounts(int neuron_count, int* spikeCounts);
+void getSpikeCounts(int neuron_count, int* spikeCounts);
 
 void clearSpikeCounts(int neuron_count);
 

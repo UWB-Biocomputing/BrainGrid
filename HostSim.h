@@ -28,7 +28,6 @@
 #define _HOSTSIM_H_
 
 #include "ISimulation.h"
-#include "Matrix/VectorMatrix.h"
 
 class HostSim : public ISimulation
 {

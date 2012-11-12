@@ -23,6 +23,16 @@
 #define DOUBLEPRECISION
 #define FLOAT double
 
-typedef FLOAT* PFLOAT;
+// solution to get rid of typedef redefine errors on different platforms
+#ifdef TARGET_OS_MAC
+  
+#elif defined __linux__
+	typedef FLOAT* PFLOAT;
+#elif defined _WIN32 || defined _WIN64
+	typedef __int32 int32_t;
+	typedef unsigned __int32 uint32_t;
+#else
+#error "unknown platform"
+#endif
 
 #endif // __BGTYPES_H_

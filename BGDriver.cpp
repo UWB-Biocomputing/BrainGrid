@@ -9,20 +9,9 @@
  **  @authors Allan Ortiz and Cory Mayberry.
  **/
 
-#include <iostream>
 #include <fstream>
-#include <sstream>
-#include <assert.h>
-#include <time.h>
-#include <deque>
-#include <ctime>
-
 #include "global.h"
-#include "tinyxml/tinyxml.h"
-#include "Matrix/VectorMatrix.h"
-#include "paramcontainer/ParamContainer.h"
-#include "DynamicSpikingSynapse.h"
-#include "LifNeuron.h"
+#include "include/ParamContainer.h"
 #include "Network.h"
 
 using namespace std;

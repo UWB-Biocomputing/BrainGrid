@@ -28,7 +28,6 @@
 #ifndef _SINGLETHREADEDSIM_H_
 #define _SINGLETHREADEDSIM_H_
 
-#include "ISimulation.h"
 #include "HostSim.h"
 
 class SingleThreadedSim : public HostSim

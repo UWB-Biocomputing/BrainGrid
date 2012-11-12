@@ -4,6 +4,9 @@
 #include "global.h"
 #include "DynamicSpikingSynapse_struct.h"
 #include "LifNeuron_struct.h"
+#include "cuda.h"
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 
 #include <iostream>
 #include <fstream>

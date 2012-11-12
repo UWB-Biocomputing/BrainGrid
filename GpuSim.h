@@ -29,10 +29,15 @@
 #ifndef _GPUSIM_H_
 #define _GPUSIM_H_
 
+#include <cstdio>
+#include <cassert>
+#include <cstdlib>
 #include "ISimulation.h"
 #include "DynamicSpikingSynapse_struct.h"
 #include "LifNeuron_struct.h"
 #include "HostSim.h"
+#include "global.h"
+
 
 class GpuSim : public ISimulation
 {

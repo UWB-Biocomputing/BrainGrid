@@ -41,10 +41,6 @@
 #include "KIIexceptions.h"
 #include "VectorMatrix.h"
 
-#include "SourceVersions.h"
-
-static VersionInfo version("$Id: VectorMatrix.cpp,v 1.1.1.1 2006/11/18 04:42:32 fumik Exp $");
-
 // Classwide normal RNG
 Norm VectorMatrix::nRng;
 

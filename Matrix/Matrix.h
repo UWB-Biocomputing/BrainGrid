@@ -30,7 +30,7 @@
 #include "KIIexceptions.h"
 
 // The tinyXML library, for deserialization via a MatrixFactory
-#include "tinyxml.h"
+#include "../include/tinyxml.h"
 
 using namespace std;
 

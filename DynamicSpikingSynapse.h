@@ -25,7 +25,6 @@
 #define _DYNAMICSPIKINGSYNAPSE_H_
 
 #include "global.h"
-#include <cmath>
 #ifdef _WIN32
 typedef unsigned _int8 uint8_t;
 #endif

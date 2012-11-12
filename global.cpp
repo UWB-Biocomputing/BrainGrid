@@ -8,7 +8,6 @@
  *
  */
 #include "global.h"
-#include <sstream>
 
 string index2dToString(int i, int width, int height) {
 	stringstream ss;

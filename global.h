@@ -11,9 +11,8 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 
-#include <iostream>
+
 #include <sstream>
-#include <cmath>
 #include <cassert>
 #include <vector>
 #ifdef _WIN32	//needs to be before #include "bgtypes.h" or the #define FLOAT will cause problems
@@ -22,11 +21,9 @@ typedef unsigned long long int uint64_t;	//included in inttypes.h, which is not 
 #else
 #include <inttypes.h>	//used for uint64_t, unavailable in WIN32
 #endif
-#include "bgtypes.h"
-#include "RNG/MersenneTwister.h"
-#include "RNG/norm.h"
+#include "include/bgtypes.h"
+#include "include/norm.h"
 #include "Coordinate.h"
-#include "DynamicArray.cpp"
 
 using namespace std;
 

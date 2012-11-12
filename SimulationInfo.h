@@ -48,8 +48,7 @@ struct SimulationInfo
         minRadius(0),
         startRadius(0),
         rgSynapseMap(NULL),
-        pSummationMap(NULL)
-		
+        pSummationMap(NULL)		
     {
     }
 

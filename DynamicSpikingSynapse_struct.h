@@ -26,6 +26,7 @@
 
 
 #include "DynamicSpikingSynapse.h"
+#include <string.h>
 
 // forward declaration
 struct DynamicSpikingSynapse_struct;

@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="CUDA">
+      <UniqueIdentifier>{caefaf4b-9400-444f-8925-d39bb2cdd599}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes">
+      <UniqueIdentifier>{4ebe31fd-576e-41df-b5a1-b78ffa737b0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\Matrix Files">
+      <UniqueIdentifier>{89a3418b-f2ff-4d65-a450-c327080f193a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\Matrix Files\Source">
+      <UniqueIdentifier>{eb595c4d-8046-4d33-83bc-7aa540fb9193}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\Matrix Files\Headers">
+      <UniqueIdentifier>{aef5577a-07f8-4603-9f29-b6bb8b74af84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\Include Source">
+      <UniqueIdentifier>{524e84c0-dda5-4573-b664-da23c650d3cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\Include Headers">
+      <UniqueIdentifier>{de9465ae-2bd2-4f82-abfb-62d27dc97045}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{d60dce9a-6183-4d03-a6a0-207e0beacabc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main\Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Main\Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="BGDriver.cpp">
+      <Filter>Main\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicSpikingSynapse.cpp">
+      <Filter>Main\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="global.cpp">
+      <Filter>Main\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HostSim.cpp">
+      <Filter>Main\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LifNeuron.cpp">
+      <Filter>Main\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiThreadedSim.cpp">
+      <Filter>Main\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Network.cpp">
+      <Filter>Main\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SingleThreadedSim.cpp">
+      <Filter>Main\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\norm.cpp">
+      <Filter>Includes\Include Source</Filter>
+    </ClCompile>
+    <ClCompile Include="include\ParamContainer.cpp">
+      <Filter>Includes\Include Source</Filter>
+    </ClCompile>
+    <ClCompile Include="include\RNG.cpp">
+      <Filter>Includes\Include Source</Filter>
+    </ClCompile>
+    <ClCompile Include="include\Timer.cpp">
+      <Filter>Includes\Include Source</Filter>
+    </ClCompile>
+    <ClCompile Include="include\tinystr.cpp">
+      <Filter>Includes\Include Source</Filter>
+    </ClCompile>
+    <ClCompile Include="include\tinyxml.cpp">
+      <Filter>Includes\Include Source</Filter>
+    </ClCompile>
+    <ClCompile Include="include\tinyxmlerror.cpp">
+      <Filter>Includes\Include Source</Filter>
+    </ClCompile>
+    <ClCompile Include="include\tinyxmlparser.cpp">
+      <Filter>Includes\Include Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix\CompleteMatrix.cpp">
+      <Filter>Includes\Matrix Files\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix\Matrix.cpp">
+      <Filter>Includes\Matrix Files\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GpuSim.cpp">
+      <Filter>CUDA</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix\VectorMatrix.cpp">
+      <Filter>Includes\Matrix Files\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix\SparseMatrix.cpp">
+      <Filter>Includes\Matrix Files\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="LifNeuron_struct.cpp">
+      <Filter>CUDA</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicSpikingSynapse_struct.cpp">
+      <Filter>CUDA</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Coordinate.h">
+      <Filter>Main\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicSpikingSynapse.h">
+      <Filter>Main\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="global.h">
+      <Filter>Main\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HostSim.h">
+      <Filter>Main\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ISimulation.h">
+      <Filter>Main\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LifNeuron.h">
+      <Filter>Main\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiThreadedSim.h">
+      <Filter>Main\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Network.h">
+      <Filter>Main\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationInfo.h">
+      <Filter>Main\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SingleThreadedSim.h">
+      <Filter>Main\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bgtypes.h">
+      <Filter>Includes\Include Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ParamContainer.h">
+      <Filter>Includes\Include Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RNG.h">
+      <Filter>Includes\Include Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Timer.h">
+      <Filter>Includes\Include Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tinystr.h">
+      <Filter>Includes\Include Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tinyxml.h">
+      <Filter>Includes\Include Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix\CompleteMatrix.h">
+      <Filter>Includes\Matrix Files\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix\KIIexceptions.h">
+      <Filter>Includes\Matrix Files\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix\Matrix.h">
+      <Filter>Includes\Matrix Files\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GpuSim.h">
+      <Filter>CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="book.h">
+      <Filter>CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix\VectorMatrix.h">
+      <Filter>Includes\Matrix Files\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix\SparseMatrix.h">
+      <Filter>Includes\Matrix Files\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="lock.h">
+      <Filter>CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="LifNeuron_struct.h">
+      <Filter>CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicSpikingSynapse_struct.h">
+      <Filter>CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="DelayIdx.h">
+      <Filter>CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MersenneTwister.h">
+      <Filter>Includes\Include Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="DynamicSpikingSynapse_struct_d.cu">
+      <Filter>CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="GpuSim_CUDA.cu">
+      <Filter>CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="GpuSim_struct.cu">
+      <Filter>CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="LifNeuron_struct_d.cu">
+      <Filter>CUDA</Filter>
+    </CudaCompile>
+  </ItemGroup>
+</Project>

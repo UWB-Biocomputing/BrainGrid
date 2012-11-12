@@ -41,7 +41,6 @@
 #ifndef _LIFNEURON_H_
 #define _LIFNEURON_H_
 
-#include <cstdlib>
 #include "global.h"
 
 class LifNeuron {

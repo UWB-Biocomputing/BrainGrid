@@ -6,7 +6,6 @@
  **/
 
 #include "DynamicSpikingSynapse_struct.h"
-#include <string.h>
 
 /**
  * Allocate data members in the DynamicSpikingSynapse_struct.
