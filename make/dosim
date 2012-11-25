@@ -1,2 +1,2 @@
 #!/bin/bash
-time -p ./growth -t configfiles/test_config.xml
+time -p ../growth -t ../config/test_config.xml

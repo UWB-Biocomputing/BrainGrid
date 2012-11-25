@@ -20,7 +20,7 @@
  ** Synapses in the synapse map are located at the coordinates of the neuron
  ** from which they receive output.  Each synapse stores a pointer into a
  ** m_summationMap bin.  Bins in the m_summationMap map directly to their output neurons.
- **
+ ** 
  ** If, during an advance cycle, a neuron \f$A\f$ at coordinates \f$x,y\f$ fires, every synapse
  ** \f$B\f$ at \f$x,y\f$ in the m_rgSynapseMap is notified of the spike. Those synapses then hold
  ** the spike until their delay period is completed.  At a later advance cycle, once the delay
@@ -44,6 +44,7 @@
 #include "include/Timer.h"
 #include "SingleThreadedSim.h"
 #include "MultiThreadedSim.h"
+#include "GpuSim.h"
 
 class Network
 {
@@ -54,7 +55,7 @@ public:
 			FLOAT starter_Vreset[2], FLOAT m_epsilon, FLOAT m_beta, FLOAT m_rho, FLOAT m_targetRate, FLOAT m_maxRate,
 			FLOAT m_minRadius, FLOAT m_startRadius, FLOAT m_deltaT, ostream& new_outstate, 
 			ostream& new_memoutput, bool fWriteMemImage, istream& new_meminput, bool fReadMemImage, bool fFixedLayout, 
-            		vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout);
+            		vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout, long seed);
 	~Network();
 
 	//! Frees dynamically allocated memory associated with the maps.
@@ -174,6 +175,8 @@ public:
 	vector<int>* m_pEndogenouslyActiveNeuronLayout;
 
 	vector<int>* m_pInhibitoryNeuronLayout;
+
+	long m_seed;
 
 private:
 	// Struct that holds information about a simulation

@@ -141,6 +141,7 @@
     <ClInclude Include="HostSim.h" />
     <ClInclude Include="include\bgtypes.h" />
     <ClInclude Include="include\MersenneTwister.h" />
+    <ClInclude Include="include\norm.h" />
     <ClInclude Include="include\ParamContainer.h" />
     <ClInclude Include="include\RNG.h" />
     <ClInclude Include="include\Timer.h">
@@ -186,6 +187,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </CudaCompile>
     <CudaCompile Include="GpuSim_struct.cu">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </CudaCompile>
+    <CudaCompile Include="include\MersenneTwister.cu">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </CudaCompile>
+    <CudaCompile Include="include\MersenneTwister_kernel.cu">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </CudaCompile>
     <CudaCompile Include="LifNeuron_struct_d.cu">

@@ -194,6 +194,9 @@
     <ClInclude Include="include\MersenneTwister.h">
       <Filter>Includes\Include Headers</Filter>
     </ClInclude>
+    <ClInclude Include="include\norm.h">
+      <Filter>Includes\Include Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="DynamicSpikingSynapse_struct_d.cu">
@@ -206,6 +209,12 @@
       <Filter>CUDA</Filter>
     </CudaCompile>
     <CudaCompile Include="LifNeuron_struct_d.cu">
+      <Filter>CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="include\MersenneTwister.cu">
+      <Filter>CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="include\MersenneTwister_kernel.cu">
       <Filter>CUDA</Filter>
     </CudaCompile>
   </ItemGroup>

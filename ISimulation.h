@@ -28,7 +28,7 @@
 #define _ISIMULATION_H_
 
 #include "SimulationInfo.h"
-#include "Matrix/VectorMatrix.h"
+#include "matrix/VectorMatrix.h"
 
 class ISimulation
 {

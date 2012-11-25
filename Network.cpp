@@ -16,7 +16,7 @@ Network::Network(int cols, int rows, FLOAT inhFrac, FLOAT excFrac, FLOAT startFr
         FLOAT starter_Vthresh[2], FLOAT starter_Vreset[2], FLOAT new_epsilon, FLOAT new_beta, FLOAT new_rho,
         FLOAT new_targetRate, FLOAT new_maxRate, FLOAT new_minRadius, FLOAT new_startRadius, FLOAT new_deltaT,
         ostream& new_stateout, ostream& new_memoutput, bool fWriteMemImage, istream& new_meminput, bool fReadMemImage, 
-	bool fFixedLayout, vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout) :
+	bool fFixedLayout, vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout, long seed) :
     m_width(cols),
     m_height(rows),
     m_cNeurons(cols * rows),
@@ -42,7 +42,8 @@ Network::Network(int cols, int rows, FLOAT inhFrac, FLOAT excFrac, FLOAT startFr
     m_fReadMemImage(fReadMemImage),
     m_fFixedLayout(fFixedLayout),
     m_pEndogenouslyActiveNeuronLayout(pEndogenouslyActiveNeuronLayout),
-    m_pInhibitoryNeuronLayout(pInhibitoryNeuronLayout)
+    m_pInhibitoryNeuronLayout(pInhibitoryNeuronLayout),
+	m_seed(seed)
 {
     cout << "Neuron count: " << m_cNeurons << endl;
  
@@ -167,12 +168,12 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFi
 
     // Create normalized random number generators for each thread
     for (int i = 0; i < max_threads; i++)
-        rgNormrnd.push_back(new Norm(0, 1, 1));
+        rgNormrnd.push_back(new Norm(0, 1, m_seed));
 #else
     pSim = new SingleThreadedSim(&m_si);
 
     // Create a normalized random number generator
-    rgNormrnd.push_back(new Norm(0, 1, 1));
+    rgNormrnd.push_back(new Norm(0, 1, m_seed));
 #endif
 
     pSim->init(&m_si, xloc, yloc);

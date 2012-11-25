@@ -58,6 +58,7 @@ FLOAT Tsim; // Simulation time (s) (between growth updates)
 int numSims; // Number of Tsim simulation to run
 int maxFiringRate; // Maximum firing rate (only used by GPU version)
 int maxSynapsesPerNeuron; //Maximum number of synapses per neuron (only used by GPU version)
+long seed; // Seed for random generator
 
 // functions
 void LoadSimParms(TiXmlElement*);
@@ -114,7 +115,7 @@ int main(int argc, char* argv[]) {
 	// create the network
 	Network network( poolsize[0], poolsize[1], inhFrac, excFrac, startFrac, Iinject, Inoise, Vthresh, Vresting, Vreset,
 			Vinit, starter_vthresh, starter_vreset, epsilon, beta, rho, targetRate, maxRate, minRadius, startRadius,
-			DEFAULT_dt, state_out, memory_out, fWriteMemImage, memory_in, fReadMemImage, fFixedLayout, &endogenouslyActiveNeuronLayout, &inhibitoryNeuronLayout);
+			DEFAULT_dt, state_out, memory_out, fWriteMemImage, memory_in, fReadMemImage, fFixedLayout, &endogenouslyActiveNeuronLayout, &inhibitoryNeuronLayout, seed);
 
 	time_t start_time, end_time;
 	time(&start_time);
@@ -399,6 +400,16 @@ void LoadSimParms(TiXmlElement* parms)
 	} else {
 		fSet = false;
 		cerr << "missing OutputParams" << endl;
+	}
+
+	if (( temp = parms->FirstChildElement( "Seed" ) ) != NULL) {
+		if (temp->QueryValueAttribute( "value", &seed ) != TIXML_SUCCESS) {
+			fSet = false;
+			cerr << "error value" << endl;
+		}
+	} else {
+		fSet = false;
+		cerr << "missing Seed" << endl;
 	}
 
     // Parse fixed layout (overrides random layouts)

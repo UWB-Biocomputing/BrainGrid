@@ -1,16 +1,12 @@
-all: growth growth_omp growth_gpu
+all: growth growth_omp clean
+# growth_gpu
 
 #
 # Source directories
 #
-INCDIR = include
-MATRIXDIR = Matrix
-XMLDIR = tinyxml
-PCDIR = paramcontainer
-SVDIR = SourceVersions
-RNGDIR = RNG
-UTILDIR = Utils
-MTWIST = MersenneTwister
+MAIN = ..
+INCDIR = $(MAIN)/include
+MATRIXDIR = $(MAIN)/matrix
 EXECS = all
 
 #
@@ -23,7 +19,7 @@ OPT = g++
 #
 # Flags
 #
-CXXFLAGS = -I$(INCDIR) -I$(UTILDIR) -I$(MATRIXDIR) -I$(XMLDIR) -I$(PCDIR) -I$(SVDIR) -I$(RNGDIR) -DTIXML_USE_STL -DCDEBUG -Wall -DSTORE_SPIKEHISTORY
+CXXFLAGS = -I$(INCDIR) -I$(MATRIXDIR) -DTIXML_USE_STL -DCDEBUG -Wall -DSTORE_SPIKEHISTORY
 #CXXFLAGS = -I$(INCDIR) -I$(UTILDIR) -I$(MATRIXDIR) -I$(XMLDIR) -I$(PCDIR) -I$(SVDIR) -I$(RNGDIR) -DTIXML_USE_STL -DCDEBUG -Wall
 #CXXFLAGS = -I$(INCDIR) -I$(UTILDIR) -I$(MATRIXDIR) -I$(XMLDIR) -I$(PCDIR) -I$(SVDIR) -I$(RNGDIR) -DTIXML_USE_STL -DCDEBUG -Wall -DPERFORMANCE_METRICS
 #CXXFLAGS = -I$(INCDIR) -I$(UTILDIR) -I$(MATRIXDIR) -I$(XMLDIR) -I$(PCDIR) -I$(SVDIR) -I$(RNGDIR) -DTIXML_USE_STL -DCDEBUG -Wall -g -pg
@@ -39,39 +35,38 @@ LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
 #
 MATRIXOBJS = $(MATRIXDIR)/Matrix.o $(MATRIXDIR)/VectorMatrix.o \
              $(MATRIXDIR)/CompleteMatrix.o $(MATRIXDIR)/SparseMatrix.o \
-             $(MATRIXDIR)/MatrixFactory.o  
 
-XMLOBJS = $(XMLDIR)/tinyxml.o $(XMLDIR)/tinyxmlparser.o $(XMLDIR)/tinyxmlerror.o $(XMLDIR)/tinystr.o
+XMLOBJS = $(INCDIR)/tinyxml.o $(INCDIR)/tinyxmlparser.o $(INCDIR)/tinyxmlerror.o $(INCDIR)/tinystr.o
 
-OTHEROBJS = $(SVDIR)/SourceVersions.o $(RNGDIR)/norm.o $(PCDIR)/ParamContainer.o $(UTILDIR)/Timer.o
+OTHEROBJS = $(INCDIR)/norm.o $(INCDIR)/ParamContainer.o $(INCDIR)/Timer.o
 
-GPUOBJS = GpuSim.o \
-       HostSim.o \
-       DynamicSpikingSynapse_struct.o \
-       LifNeuron_struct.o \
-       DynamicSpikingSynapse.o \
-       LifNeuron.o \
-       Network_gpu.o \
-       GpuSim_struct.o \
-       BGDriver_gpu.o \
-       global_gpu.o \
-       MersenneTwister_kernel.o
+GPUOBJS = $(MAIN)/GpuSim.o \
+       $(MAIN)/HostSim.o \
+       $(MAIN)/DynamicSpikingSynapse_struct.o \
+       $(MAIN)/LifNeuron_struct.o \
+       $(MAIN)/DynamicSpikingSynapse.o \
+       $(MAIN)/LifNeuron.o \
+       $(MAIN)/Network_gpu.o \
+       $(MAIN)/GpuSim_struct.o \
+       $(MAIN)/BGDriver_gpu.o \
+       $(MAIN)/global_gpu.o \
+#       $(MAIN)/MersenneTwister_kernel.o
 
-SINGLEOBJS = HostSim.o \
-       SingleThreadedSim.o \
-       DynamicSpikingSynapse.o \
-       Network.o \
-       BGDriver.o \
-       global.o \
-       LifNeuron.o 
+SINGLEOBJS = $(MAIN)/HostSim.o \
+       $(MAIN)/SingleThreadedSim.o \
+       $(MAIN)/DynamicSpikingSynapse.o \
+       $(MAIN)/Network.o \
+       $(MAIN)/BGDriver.o \
+       $(MAIN)/global.o \
+       $(MAIN)/LifNeuron.o 
 
-MULTIOBJS = HostSim.o \
-       MultiThreadedSim.o \
-       DynamicSpikingSynapse_omp.o \
-       Network_omp.o \
-       BGDriver.o \
-       global.o \
-       LifNeuron_omp.o 
+MULTIOBJS = $(MAIN)/HostSim.o \
+       $(MAIN)/MultiThreadedSim.o \
+       $(MAIN)/DynamicSpikingSynapse_omp.o \
+       $(MAIN)/Network_omp.o \
+       $(MAIN)/BGDriver.o \
+       $(MAIN)/global.o \
+       $(MAIN)/LifNeuron_omp.o 
 
 OBJS =  \
        
@@ -80,75 +75,76 @@ OBJS =  \
 # how to make the target
 #
 growth:$(OBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS) $(SINGLEOBJS)
-	$(LD) -o growth -g $(LDFLAGS) $(OBJS) $(SINGLEOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
+	$(LD) -o $(MAIN)/growth -g $(LDFLAGS) $(OBJS) $(SINGLEOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
 
 growth_omp:$(OBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS) $(MULTIOBJS)
-	$(LD) -o growth_omp -g $(LDFLAGS) $(LOMPFLAGS) $(OBJS) $(MULTIOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
+	$(LD) -o $(MAIN)/growth_omp -g $(LDFLAGS) $(LOMPFLAGS) $(OBJS) $(MULTIOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
 
 growth_gpu:$(OBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS) $(GPUOBJS)
-	nvcc -o growth_gpu -g -G $(LDFLAGS) $(LGPUFLAGS) $(OBJS) $(GPUOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
+	nvcc -o $(MAIN)/growth_gpu -g -G $(LDFLAGS) $(LGPUFLAGS) $(OBJS) $(GPUOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
 
 #
 # some default targets
 #
 clean:
-	rm -f *.o growth growth_omp growth_gpu $(INCDIR)/*.o $(MATRIXDIR)/*.o $(XMLDIR)/*.o $(PCDIR)/*.o $(SVDIR)/*.o $(RNGDIR)/*.o $(UTILDIR)/*.o 
+	rm -f $(MAIN)/*.o $(INCDIR)/*.o $(MATRIXDIR)/*.o
+	#$(MAIN)/growth $(MAIN)/growth_omp
 
-paramcontainer/ParamContainer.o: paramcontainer/ParamContainer.h paramcontainer/ParamContainer.cpp
+$(MAIN)/ParamContainer.o: $(INCDIR)/ParamContainer.h $(INCDIR)/ParamContainer.cpp
     
-BGDriver.o: BGDriver.cpp global.h DynamicSpikingSynapse.h LifNeuron.h Network.h
+$(MAIN)/BGDriver.o: $(MAIN)/BGDriver.cpp $(MAIN)/global.h $(MAIN)/DynamicSpikingSynapse.h $(MAIN)/LifNeuron.h $(MAIN)/Network.h
 
-DynamicSpikingSynapse.o: DynamicSpikingSynapse.cpp DynamicSpikingSynapse.h 
+$(MAIN)/DynamicSpikingSynapse.o: $(MAIN)/DynamicSpikingSynapse.cpp $(MAIN)/DynamicSpikingSynapse.h 
 
-DynamicSpikingSynapse_omp.o: DynamicSpikingSynapse.cpp DynamicSpikingSynapse.h 
-	$(CXX) $(CXXFLAGS) $(COMPFLAGS) -c DynamicSpikingSynapse.cpp -o DynamicSpikingSynapse_omp.o
+$(MAIN)/DynamicSpikingSynapse_omp.o: $(MAIN)/DynamicSpikingSynapse.cpp $(MAIN)/DynamicSpikingSynapse.h 
+	$(CXX) $(CXXFLAGS) $(COMPFLAGS) -c $(MAIN)/DynamicSpikingSynapse.cpp -o $(MAIN)/DynamicSpikingSynapse_omp.o
 
-DynamicSpikingSynapse_struct.o: DynamicSpikingSynapse_struct.cpp DynamicSpikingSynapse_struct.h
+$(MAIN)/DynamicSpikingSynapse_struct.o: $(MAIN)/DynamicSpikingSynapse_struct.cpp $(MAIN)/DynamicSpikingSynapse_struct.h
 
-global.o: global.h 
+$(MAIN)/global.o: $(MAIN)/global.h 
 
-global_gpu.o: global.h 
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -c global.cpp -o global_gpu.o
+$(MAIN)/global_gpu.o: $(MAIN)/global.h 
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -c $(MAIN)/global.cpp -o $(MAIN)/global_gpu.o
 
-GpuSim.o: GpuSim.cpp GpuSim.h global.h LifNeuron_struct.h
+$(MAIN)/GpuSim.o: $(MAIN)/GpuSim.cpp $(MAIN)/GpuSim.h $(MAIN)/global.h $(MAIN)/LifNeuron_struct.h
 
-GpuSim_struct.o: GpuSim_struct.cu global.h DynamicSpikingSynapse_struct.h LifNeuron_struct.h LifNeuron_struct_d.cu DynamicSpikingSynapse_struct_d.cu
-#	nvcc -c -g -G -arch=sm_13 -Xptxas=-v GpuSim_struct.cu $(CGPUFLAGS) -Iinclude -I$(XMLDIR) -I$(MATRIXDIR) -I$(RNGDIR)
-#	nvcc -c -g -G -arch=sm_13 -Xptxas=-v GpuSim_struct.cu $(CGPUFLAGS) -Iinclude -I$(XMLDIR) -I$(MATRIXDIR) -I$(RNGDIR) -DPERFORMANCE_METRICS
-#	nvcc -c -g -G -arch=sm_13 -maxrregcount=16 -Xptxas=-v GpuSim_struct.cu $(CGPUFLAGS) -Iinclude -I$(XMLDIR) -I$(MATRIXDIR) -I$(RNGDIR)
-	nvcc -c -g -G -arch=sm_13 -maxrregcount=16 -Xptxas=-v GpuSim_struct.cu $(CGPUFLAGS) -Iinclude -I$(XMLDIR) -I$(MATRIXDIR) -I$(RNGDIR) -DSTORE_SPIKEHISTORY
+$(MAIN)/GpuSim_struct.o: $(MAIN)/GpuSim_struct.cu $(MAIN)/global.h $(MAIN)/DynamicSpikingSynapse_struct.h $(MAIN)/LifNeuron_struct.h $(MAIN)/LifNeuron_struct_d.cu $(MAIN)/DynamicSpikingSynapse_struct_d.cu
+#	nvcc -c -g -G -arch=sm_13 -Xptxas=-v GpuSim_struct.cu $(CGPUFLAGS) -Iinclude -I$(INCDIR) -I$(MATRIXDIR)
+#	nvcc -c -g -G -arch=sm_13 -Xptxas=-v GpuSim_struct.cu $(CGPUFLAGS) -Iinclude -I$(INCDIR) -I$(MATRIXDIR)-DPERFORMANCE_METRICS
+#	nvcc -c -g -G -arch=sm_13 -maxrregcount=16 -Xptxas=-v GpuSim_struct.cu $(CGPUFLAGS) -I$(INCDIR) -I$(MATRIXDIR)
+	nvcc -c -g -G -arch=sm_13 -maxrregcount=16 -Xptxas=-v $(MAIN)/GpuSim_struct.cu $(CGPUFLAGS) -Iinclude -I$(INCDIR) -I$(MATRIXDIR) -DSTORE_SPIKEHISTORY -o $(MAIN)/GpuSim_struct.o
 
-LifNeuron.o: LifNeuron.cpp LifNeuron.h 
+$(MAIN)/LifNeuron.o: $(MAIN)/LifNeuron.cpp $(MAIN)/LifNeuron.h 
 
-LifNeuron_omp.o: LifNeuron.cpp LifNeuron.h 
-	$(CXX) $(CXXFLAGS) $(COMPFLAGS) -c LifNeuron.cpp -o LifNeuron_omp.o
+$(MAIN)/LifNeuron_omp.o: $(MAIN)/LifNeuron.cpp $(MAIN)/LifNeuron.h 
+	$(CXX) $(CXXFLAGS) $(COMPFLAGS) -c $(MAIN)/LifNeuron.cpp -o $(MAIN)/LifNeuron_omp.o
 
-LifNeuron_struct.o: LifNeuron_struct.cpp LifNeuron_struct.h
+$(MAIN)/LifNeuron_struct.o: $(MAIN)/LifNeuron_struct.cpp $(MAIN)/LifNeuron_struct.h
 
-MersenneTwister_kernel.o: $(MTWIST)/MersenneTwister_kernel.cu $(MTWIST)/MersenneTwister.h
-#	nvcc -c -g -G -arch=sm_13 -Xptxas=-v $(MTWIST)/MersenneTwister_kernel.cu -I$(MTWIST)
-	nvcc -c -g -G -arch=sm_13 -maxrregcount=16 -Xptxas=-v $(MTWIST)/MersenneTwister_kernel.cu -I$(MTWIST)
+#$(MAIN)/MersenneTwister_kernel.o: $(INCDIR)/MersenneTwister_kernel.cu $(INCDIR)/MersenneTwister.h
+#	nvcc -c -g -G -arch=sm_13 -Xptxas=-v $(INCDIR)/MersenneTwister_kernel.cu -I$(INCDIR)
+#	nvcc -c -g -G -arch=sm_13 -maxrregcount=16 -Xptxas=-v $(INCDIR)/MersenneTwister_kernel.cu -I$(INCDIR)
 
-MultiThreadedSim.o: MultiThreadedSim.cpp MultiThreadedSim.h
-	$(CXX) $(CXXFLAGS) $(COMPFLAGS) -c MultiThreadedSim.cpp 
+$(MAIN)/MultiThreadedSim.o: $(MAIN)/MultiThreadedSim.cpp $(MAIN)/MultiThreadedSim.h
+	$(CXX) $(CXXFLAGS) $(COMPFLAGS) -c $(MAIN)/MultiThreadedSim.cpp -o $(MAIN)/MultiThreadedSim.o
 
-Network.o: Network.cpp Network.h global.h
+$(MAIN)/Network.o: $(MAIN)/Network.cpp $(MAIN)/Network.h $(MAIN)/global.h
 
-Network_omp.o: Network.cpp Network.h global.h
-	$(CXX) $(CXXFLAGS) $(COMPFLAGS) -c Network.cpp -o Network_omp.o
+$(MAIN)/Network_omp.o: $(MAIN)/Network.cpp $(MAIN)/Network.h $(MAIN)/global.h
+	$(CXX) $(CXXFLAGS) $(COMPFLAGS) -c $(MAIN)/Network.cpp -o $(MAIN)/Network_omp.o
 
-Network_gpu.o: Network.cpp Network.h global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -c Network.cpp -o Network_gpu.o
+$(MAIN)/Network_gpu.o: $(MAIN)/Network.cpp $(MAIN)/Network.h $(MAIN)/global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -c $(MAIN)/Network.cpp -o $(MAIN)/Network_gpu.o
 
-BGDriver.o: BGDriver.cpp global.h DynamicSpikingSynapse.h LifNeuron.h Network.h
+$(MAIN)/BGDriver.o: $(MAIN)/BGDriver.cpp $(MAIN)/global.h $(MAIN)/DynamicSpikingSynapse.h $(MAIN)/LifNeuron.h $(MAIN)/Network.h
 
-BGDriver_gpu.o: BGDriver.cpp global.h DynamicSpikingSynapse.h LifNeuron.h Network.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -c BGDriver.cpp -o BGDriver_gpu.o
+$(MAIN)/BGDriver_gpu.o: $(MAIN)/BGDriver.cpp $(MAIN)/global.h $(MAIN)/DynamicSpikingSynapse.h $(MAIN)/LifNeuron.h $(MAIN)/Network.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -c $(MAIN)/BGDriver.cpp -o $(MAIN)/BGDriver_gpu.o
 
-HostSim.o: HostSim.cpp HostSim.h ISimulation.h
+$(MAIN)/HostSim.o: $(MAIN)/HostSim.cpp $(MAIN)/HostSim.h $(MAIN)/ISimulation.h
 
-SingleThreadedSim.o: SingleThreadedSim.cpp SingleThreadedSim.h
+$(MAIN)/SingleThreadedSim.o: $(MAIN)/SingleThreadedSim.cpp $(MAIN)/SingleThreadedSim.h
 
-Utils/Timer.o: Utils/Timer.cpp Utils/Timer.h
+$(MAIN)/Timer.o: $(INCDIR)/Timer.cpp $(INCDIR)/Timer.h
 
-RNG/norm.o: $(RNGDIR)/norm.cpp $(RNGDIR)/norm.h $(RNGDIR)/MersenneTwister.cpp $(RNGDIR)/MersenneTwister.h
+$(MAIN)/norm.o: $(INCDIR)/norm.cpp $(INCDIR)/norm.h $(INCDIR)/MersenneTwister.cpp $(INCDIR)/MersenneTwister.h
