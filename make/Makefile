@@ -75,13 +75,13 @@ OBJS =  \
 # how to make the target
 #
 growth:$(OBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS) $(SINGLEOBJS)
-	$(LD) -o $(MAIN)/growth -g $(LDFLAGS) $(OBJS) $(SINGLEOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
+	$(LD) -o growth -g $(LDFLAGS) $(OBJS) $(SINGLEOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
 
 growth_omp:$(OBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS) $(MULTIOBJS)
-	$(LD) -o $(MAIN)/growth_omp -g $(LDFLAGS) $(LOMPFLAGS) $(OBJS) $(MULTIOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
+	$(LD) -o growth_omp -g $(LDFLAGS) $(LOMPFLAGS) $(OBJS) $(MULTIOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
 
 growth_gpu:$(OBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS) $(GPUOBJS)
-	nvcc -o $(MAIN)/growth_gpu -g -G $(LDFLAGS) $(LGPUFLAGS) $(OBJS) $(GPUOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
+	nvcc -o growth_gpu -g -G $(LDFLAGS) $(LGPUFLAGS) $(OBJS) $(GPUOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
 
 #
 # some default targets
@@ -114,7 +114,7 @@ $(MAIN)/GpuSim_struct.o: $(MAIN)/GpuSim_struct.cu $(MAIN)/global.h $(MAIN)/Dynam
 #	nvcc -c -g -G -arch=sm_13 -maxrregcount=16 -Xptxas=-v GpuSim_struct.cu $(CGPUFLAGS) -I$(INCDIR) -I$(MATRIXDIR)
 	nvcc -c -g -G -arch=sm_13 -maxrregcount=16 -Xptxas=-v $(MAIN)/GpuSim_struct.cu $(CGPUFLAGS) -Iinclude -I$(INCDIR) -I$(MATRIXDIR) -DSTORE_SPIKEHISTORY -o $(MAIN)/GpuSim_struct.o
 
-$(MAIN)/LifNeuron.o: $(MAIN)/LifNeuron.cpp $(MAIN)/LifNeuron.h 
+$(MAIN)/LifNeuron.o: $(MAIN)/LifNeuron.cpp $(MAIN)/LifNeuron.h $(MAIN)/INeuron.h $(MAIN)/INeuron.h
 
 $(MAIN)/LifNeuron_omp.o: $(MAIN)/LifNeuron.cpp $(MAIN)/LifNeuron.h 
 	$(CXX) $(CXXFLAGS) $(COMPFLAGS) -c $(MAIN)/LifNeuron.cpp -o $(MAIN)/LifNeuron_omp.o

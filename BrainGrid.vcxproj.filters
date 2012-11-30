@@ -108,6 +108,12 @@
     <ClCompile Include="DynamicSpikingSynapse_struct.cpp">
       <Filter>CUDA</Filter>
     </ClCompile>
+    <ClCompile Include="INeuron.cpp">
+      <Filter>Main\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ISynapse.cpp">
+      <Filter>Main\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Coordinate.h">
@@ -196,6 +202,12 @@
     </ClInclude>
     <ClInclude Include="include\norm.h">
       <Filter>Includes\Include Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ISynapse.h">
+      <Filter>Main\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="INeuron.h">
+      <Filter>Main\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

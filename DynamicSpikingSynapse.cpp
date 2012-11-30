@@ -24,25 +24,8 @@ DynamicSpikingSynapse::DynamicSpikingSynapse(int source_x, int source_y,
                                              FLOAT& sum_point,
                                              FLOAT delay, FLOAT new_deltaT, 
                                              synapseType s_type) :
-    summationPoint( sum_point ),
-    deltaT( new_deltaT ),
-    W( 10.0e-9 ),
-    psr( 0.0 ),
-    decay(0),
-    total_delay( static_cast<int>( delay / new_deltaT )), 
-    tau( DEFAULT_tau ),
-    r( 1.0 ),
-    u(0),
-    D( 1.0 ),
-    U( DEFAULT_U ),
-    F( 0.01 ),
-    lastSpike( ULONG_MAX )
+    ISynapse(source_x, source_y, sumX, sumY, sum_point, delay, new_deltaT, s_type)
 {
-	synapseCoord.x = source_x;
-	synapseCoord.y = source_y;
-	summationCoord.x = sumX;
-	summationCoord.y = sumY;
-
 	type = s_type;
 	switch (type) {
 	case II:
@@ -76,15 +59,6 @@ DynamicSpikingSynapse::DynamicSpikingSynapse(int source_x, int source_y,
 	default:
 		assert( false );
 	}
-
-	// calculate the discrete delay (time steps)
-	FLOAT tmpFLOAT = ( delay / new_deltaT);	//needed to be done in 2 lines or may cause incorrect results in linux
-	total_delay = static_cast<int> (tmpFLOAT) + 1;
-
-	// initialize spike queue
-	initSpikeQueue();
-
-	reset( );
 }
 
 DynamicSpikingSynapse::~DynamicSpikingSynapse() {
@@ -95,46 +69,7 @@ DynamicSpikingSynapse::~DynamicSpikingSynapse() {
  * @post The synapse is setup according to the state of the source synapse.
  * @param[in] other	The source synapse.
  */
-DynamicSpikingSynapse::DynamicSpikingSynapse(const DynamicSpikingSynapse &other) :
-	summationPoint( other.summationPoint ), summationCoord( other.summationCoord ), synapseCoord( other.synapseCoord ),
-			deltaT( other.deltaT ), W( other.W ), psr( other.psr ), decay( other.decay ), total_delay( other.total_delay ), 
-					delayIdx( other.delayIdx ), ldelayQueue( other.ldelayQueue ), type( other.type ),
-					tau( other.tau ), r( other.r ), u( other.u ), D( other.D ), U( other.U ), F( other.F ), lastSpike(
-					other.lastSpike ) {
-	delayQueue[0] = other.delayQueue[0];
-}
-
-/**
- * Reconstruct self using placement new and copy constructor.
- * @param[in] rhs	Overloaded = operator.
- */
-DynamicSpikingSynapse& DynamicSpikingSynapse::operator=(const DynamicSpikingSynapse & rhs) {
-	if (this == &rhs) // avoid aliasing
-	return *this;
-
-	this->~DynamicSpikingSynapse( ); // destroy self
-	new ( this ) DynamicSpikingSynapse( rhs ); //reconstruct self using placement new and copy constructor
-
-	return *this;
-}
-
-/**
- * Reset time varying state vars and recompute decay.
- */
-void DynamicSpikingSynapse::reset() {
-	psr = 0.0;
-	assert( updateInternal() );
-	u = DEFAULT_U;
-	r = 1.0;
-	lastSpike = ULONG_MAX;
-}
-
-/**
- * Add an input spike event to the queue.
- */
-void DynamicSpikingSynapse::preSpikeHit() {
-	// add an input spike event to the queue
-	addSpikeQueue();
+DynamicSpikingSynapse::DynamicSpikingSynapse(const DynamicSpikingSynapse &other) : ISynapse(other) {
 }
 
 /**
@@ -179,69 +114,17 @@ bool DynamicSpikingSynapse::updateInternal() {
 }
 
 /**
- * Clear events in the queue, and initialize the queue. 
+ * Reconstruct self using placement new and copy constructor.
+ * @param[in] rhs	Overloaded = operator.
  */
-void DynamicSpikingSynapse::initSpikeQueue()
-{
-	size_t size = total_delay / ( sizeof(uint8_t) * 8 ) + 1;
-	assert( size <= BYTES_OF_DELAYQUEUE );
-	delayQueue[0] = 0;
-	delayIdx = 0;
-	ldelayQueue = LENGTH_OF_DELAYQUEUE;
-}
+DynamicSpikingSynapse& DynamicSpikingSynapse::operator=(const DynamicSpikingSynapse & rhs) {
+	if (this == &rhs) // avoid aliasing
+	return *this;
 
-/**
- * Add an input spike event to the queue according to the current index and delay.
- */
-void DynamicSpikingSynapse::addSpikeQueue()
-{
-	// calculate index where to insert the spike into delayQueue
-	int idx = delayIdx +  total_delay;
-	if ( idx >= ldelayQueue )
-		idx -= ldelayQueue;
+	this->~DynamicSpikingSynapse( ); // destroy self
+	new ( this ) DynamicSpikingSynapse( rhs ); //reconstruct self using placement new and copy constructor
 
-	// set a spike
-	assert( !(delayQueue[0] & (0x1 << idx)) );
-	delayQueue[0] |= (0x1 << idx);
-}
-
-/**
- * Check if there is an input spike in the queue.
- * @post The queue index is incremented. 
- * @return true if there is an input spike event.
- */
-bool DynamicSpikingSynapse::isSpikeQueue()
-{
-	bool r = delayQueue[0] & (0x1 << delayIdx);
-	delayQueue[0] &= ~(0x1 << delayIdx);
-	if ( ++delayIdx >= ldelayQueue )
-		delayIdx = 0;
-	return r;
-}
-
-/**
- * Write the synapse data to the stream
- * @param[in] os	The filestream to write
- */
-void DynamicSpikingSynapse::write( ostream& os ) {
-	os.write( reinterpret_cast<const char*>(&summationCoord), sizeof(summationCoord) );
-	os.write( reinterpret_cast<const char*>(&synapseCoord), sizeof(synapseCoord) );
-	os.write( reinterpret_cast<const char*>(&deltaT), sizeof(deltaT) );
-	os.write( reinterpret_cast<const char*>(&W), sizeof(W) );
-	os.write( reinterpret_cast<const char*>(&psr), sizeof(psr) );
-	os.write( reinterpret_cast<const char*>(&decay), sizeof(decay) );
-	os.write( reinterpret_cast<const char*>(&total_delay), sizeof(total_delay) );
-	os.write( reinterpret_cast<const char*>(delayQueue), sizeof(uint32_t) );
-	os.write( reinterpret_cast<const char*>(&delayIdx), sizeof(delayIdx) );
-	os.write( reinterpret_cast<const char*>(&ldelayQueue), sizeof(ldelayQueue) );
-	os.write( reinterpret_cast<const char*>(&type), sizeof(type) );
-	os.write( reinterpret_cast<const char*>(&tau), sizeof(tau) );
-	os.write( reinterpret_cast<const char*>(&r), sizeof(r) );
-	os.write( reinterpret_cast<const char*>(&u), sizeof(u) );
-	os.write( reinterpret_cast<const char*>(&D), sizeof(D) );
-	os.write( reinterpret_cast<const char*>(&U), sizeof(U) );
-	os.write( reinterpret_cast<const char*>(&F), sizeof(F) );
-	os.write( reinterpret_cast<const char*>(&lastSpike), sizeof(lastSpike) );
+	return *this;
 }
 
 /**

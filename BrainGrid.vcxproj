@@ -52,6 +52,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>cudart.lib;cuda.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <SubSystem>Console</SubSystem>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>32</TargetMachinePlatform>
@@ -104,6 +105,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="INeuron.cpp" />
+    <ClInclude Include="INeuron.h" />
+    <ClCompile Include="ISynapse.cpp" />
     <ClCompile Include="LifNeuron.cpp" />
     <ClCompile Include="LifNeuron_struct.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -156,6 +160,7 @@
       </ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="ISimulation.h" />
+    <ClInclude Include="ISynapse.h" />
     <ClInclude Include="LifNeuron.h" />
     <ClInclude Include="LifNeuron_struct.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
