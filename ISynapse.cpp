@@ -4,7 +4,7 @@
  ** \brief A interface for synapsse
  **/
 
-#include "ISynapse.h"	
+#include "ISynapse.h"
 
 /**
  * Create a synapse and initialize all internal state vars according to the synapse type.
@@ -51,6 +51,18 @@ ISynapse::ISynapse(int source_x, int source_y,
 	reset( );
 }
 
+/**
+ * Read the synapse data from the stream
+ * @param[in] os	The filestream to read
+ */
+ISynapse::ISynapse( istream& is, FLOAT* pSummationMap, int width ) : summationPoint( pSummationMap[0] ) {
+	// initialize spike queue
+	initSpikeQueue();
+	reset( );
+
+	read(is, pSummationMap, width);
+}
+
 ISynapse::~ISynapse() {
 }
 
@@ -91,6 +103,59 @@ void ISynapse::write( ostream& os ) {
 	os.write( reinterpret_cast<const char*>(&U), sizeof(U) );
 	os.write( reinterpret_cast<const char*>(&F), sizeof(F) );
 	os.write( reinterpret_cast<const char*>(&lastSpike), sizeof(lastSpike) );
+}
+
+/**
+ * Read the synapse data from the stream
+ * @param[in] os	The filestream to read
+ */
+void ISynapse::read( istream& is, FLOAT* pSummationMap, int width ) {
+	Coordinate t_summationCoord, t_synapseCoord;
+	FLOAT t_deltaT, t_W, t_psr, t_decay, t_tau, t_r, t_u, t_D, t_U, t_F;
+	int t_total_delay, t_delayIdx, t_ldelayQueue;
+	uint32_t t_delayQueue[1];
+	uint64_t t_lastSpike;
+	synapseType t_type;
+
+	is.read( reinterpret_cast<char*>(&t_summationCoord), sizeof(t_summationCoord) );
+	is.read( reinterpret_cast<char*>(&t_synapseCoord), sizeof(t_synapseCoord) );
+	is.read( reinterpret_cast<char*>(&t_deltaT), sizeof(t_deltaT) );
+	is.read( reinterpret_cast<char*>(&t_W), sizeof(t_W) );
+	is.read( reinterpret_cast<char*>(&t_psr), sizeof(t_psr) );
+	is.read( reinterpret_cast<char*>(&t_decay), sizeof(t_decay) );
+	is.read( reinterpret_cast<char*>(&t_total_delay), sizeof(t_total_delay) );
+	is.read( reinterpret_cast<char*>(t_delayQueue), sizeof(uint32_t) );
+	is.read( reinterpret_cast<char*>(&t_delayIdx), sizeof(t_delayIdx) );
+	is.read( reinterpret_cast<char*>(&t_ldelayQueue), sizeof(t_ldelayQueue) );
+	is.read( reinterpret_cast<char*>(&t_type), sizeof(t_type) );
+	is.read( reinterpret_cast<char*>(&t_tau), sizeof(t_tau) );
+	is.read( reinterpret_cast<char*>(&t_r), sizeof(t_r) );
+	is.read( reinterpret_cast<char*>(&t_u), sizeof(t_u) );
+	is.read( reinterpret_cast<char*>(&t_D), sizeof(t_D) );
+	is.read( reinterpret_cast<char*>(&t_U), sizeof(t_U) );
+	is.read( reinterpret_cast<char*>(&t_F), sizeof(t_F) );
+	is.read( reinterpret_cast<char*>(&t_lastSpike), sizeof(t_lastSpike) );
+
+	// locate summation point
+	summationPoint = *&(pSummationMap[t_summationCoord.x + t_summationCoord.y * width]);
+
+	// copy read values
+	W = t_W;
+	psr = t_psr;
+	decay = t_decay;
+	total_delay = t_total_delay;
+	delayQueue[0] = t_delayQueue[0];
+	delayIdx = t_delayIdx;
+	ldelayQueue = t_ldelayQueue;
+	tau = t_tau;
+	r = t_r;
+	u = t_u;
+	D = t_D;
+	U = t_U;
+	F = t_F;
+	lastSpike = t_lastSpike;
+	summationCoord.x = t_summationCoord.x;
+	summationCoord.y = t_summationCoord.y;
 }
 
 /**

@@ -58,6 +58,9 @@
       <TargetMachinePlatform>32</TargetMachinePlatform>
       <UseHostInclude>false</UseHostInclude>
     </CudaCompile>
+    <PostBuildEvent>
+      <Command>time -p ./growth -t ./config/test.xml</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -186,9 +189,6 @@
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="DynamicSpikingSynapse_struct_d.cu">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </CudaCompile>
-    <CudaCompile Include="GpuSim_CUDA.cu">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </CudaCompile>
     <CudaCompile Include="GpuSim_struct.cu">

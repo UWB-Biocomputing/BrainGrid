@@ -107,7 +107,7 @@ struct SimulationInfo
 	FLOAT startRadius;
 
 	//! List of lists of synapses (3d array)
-	vector<DynamicSpikingSynapse>* rgSynapseMap;
+	vector<ISynapse*>* rgSynapseMap;
 
 	//! List of summation points
 	FLOAT* pSummationMap;

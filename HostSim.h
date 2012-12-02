@@ -47,7 +47,7 @@ public:
 
 protected:
     //! Adds a synapse to the network.  Requires the locations of the source and destination neurons.
-    DynamicSpikingSynapse& addSynapse(SimulationInfo* psi, int source_x, int source_y, int dest_x, int dest_y);
+    ISynapse* addSynapse(SimulationInfo* psi, int source_x, int source_y, int dest_x, int dest_y);
 
     //! Returns the type of synapse at the given coordinates.
     synapseType synType(SimulationInfo* psi, Coordinate a, Coordinate b);

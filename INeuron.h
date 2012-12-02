@@ -2,6 +2,10 @@
  * \file INeuron.h
  *
  * Header file for INeuron
+ * INeuron is the base interface for a Neuron to be used with the Simulator.
+ *
+	DATE		VERSION		NAME		COMMENT
+ *	11/24/2012	1.0			dwise		Initial stab at creating an INeuron in the simulator
  */
 
 #pragma once
@@ -64,6 +68,7 @@ public:
 	virtual bool isRefractory();
 
 	#ifdef STORE_SPIKEHISTORY
+
 	//! The history of spike times.
 	virtual vector <uint64_t> spikeHistory;
 
@@ -75,6 +80,7 @@ public:
 
 	//! Return the count of spikes that occur at or after begin_time
 	virtual int nSpikesSince(uint64_t begin_step);
+
 	#endif // STORE_SPIKEHISTORY
 
 	//! Clear the spike count

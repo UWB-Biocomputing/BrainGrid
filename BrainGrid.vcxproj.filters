@@ -214,9 +214,6 @@
     <CudaCompile Include="DynamicSpikingSynapse_struct_d.cu">
       <Filter>CUDA</Filter>
     </CudaCompile>
-    <CudaCompile Include="GpuSim_CUDA.cu">
-      <Filter>CUDA</Filter>
-    </CudaCompile>
     <CudaCompile Include="GpuSim_struct.cu">
       <Filter>CUDA</Filter>
     </CudaCompile>

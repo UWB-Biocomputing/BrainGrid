@@ -85,10 +85,8 @@ void MultiThreadedSim::advanceNeurons(SimulationInfo* psi)
         {
             DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
 
-            for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)
-            {
-                psi->rgSynapseMap[i][z].preSpikeHit();
-            }
+            for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)            
+                psi->rgSynapseMap[i][z]->preSpikeHit();            
 
             (*(psi->pNeuronList))[i].hasFired = false;
         }
@@ -101,10 +99,8 @@ void MultiThreadedSim::advanceNeurons(SimulationInfo* psi)
     // ouput a row with every voltage level for each time step
     cout << g_simulationStep * psi->deltaT;
 
-    for (int i = 0; i < psi->cNeurons; i++)
-    {
-        cout << "\t i: " << i << " " << (*(psi->pNeuronList))[i].toStringVm();
-    }
+    for (int i = 0; i < psi->cNeurons; i++)    
+        cout << "\t i: " << i << " " << (*(psi->pNeuronList))[i].toStringVm();    
 
     cout << endl;
 #endif /* DUMP_VOLTAGES */
@@ -118,10 +114,8 @@ void MultiThreadedSim::advanceSynapses(SimulationInfo* psi)
     int chunk_size = psi->cNeurons / omp_get_max_threads();
 
     // TODO: move global g_nMaxChunkSize into the GPU simulation object
-    if (chunk_size < g_nMaxChunkSize)
-    {
-        chunk_size = psi->cNeurons;
-    }
+    if (chunk_size < g_nMaxChunkSize)    
+        chunk_size = psi->cNeurons;    
 
 #pragma omp parallel for schedule(static, chunk_size)
 
@@ -130,10 +124,8 @@ void MultiThreadedSim::advanceSynapses(SimulationInfo* psi)
     {
         // Advance each synapse to which neuron i outputs
         // GPU/PARALLEL optimization point.
-        for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)
-        {
-            psi->rgSynapseMap[i][z].advance();
-        }
+        for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)        
+            psi->rgSynapseMap[i][z]->advance();        
     }
 }
 
@@ -278,7 +270,7 @@ void MultiThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiH
             for (size_t syn = 0; syn < psi->rgSynapseMap[a].size(); syn++)
             {
                 // if there is a synapse between a and b
-                if (psi->rgSynapseMap[a][syn].summationCoord == bCoord)
+                if (psi->rgSynapseMap[a][syn]->summationCoord == bCoord)
                 {
                     connected = true;
                     adjusted++;
@@ -295,7 +287,7 @@ void MultiThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiH
                     {
                         // adjust
                         // g_synapseStrengthAdjustmentConstant is 1.0e-8;
-                        psi->rgSynapseMap[a][syn].W = W(a, b) * 
+                        psi->rgSynapseMap[a][syn]->W = W(a, b) * 
                             synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
 
                         DEBUG2(cout << "weight of rgSynapseMap" << 
@@ -310,8 +302,8 @@ void MultiThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiH
             {
                 added++;
 
-                DynamicSpikingSynapse& newSynapse = addSynapse(psi, xa, ya, xb, yb);
-                newSynapse.W = W(a, b) * synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
+                ISynapse* newSynapse = addSynapse(psi, xa, ya, xb, yb);
+                newSynapse->W = W(a, b) * synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
             }
         }
     }

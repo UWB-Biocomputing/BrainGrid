@@ -112,10 +112,8 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFi
 
     // neuron threshold
     VectorMatrix neuronThresh(matrixType, init, 1, m_cNeurons, 0);
-    for (int i = 0; i < m_cNeurons; i++) 
-    {
-        neuronThresh[i] = m_neuronList[i].Vthresh;
-    }
+    for (int i = 0; i < m_cNeurons; i++)     
+        neuronThresh[i] = m_neuronList[i].Vthresh;    
 
     // neuron locations matrices
     VectorMatrix xloc(matrixType, init, 1, m_cNeurons);
@@ -179,10 +177,9 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFi
     pSim->init(&m_si, xloc, yloc);
 
     // Set the previous saved radii
-    if (m_fReadMemImage)
-    {
+    if (m_fReadMemImage)    
         pSim->initRadii(radii);
-    }
+    
 
     // Main simulation loop - execute maxGrowthSteps
     for (int currentStep = 1; currentStep <= maxGrowthSteps; currentStep++)
@@ -256,10 +253,8 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFi
 
     // write the simulation memory image
     if (m_fWriteMemImage)
-    {
         writeSimMemory(memory_out, radiiHistory, ratesHistory);
-    }
-
+    
     delete pSim;
 
 #ifdef USE_OMP
@@ -307,7 +302,7 @@ void Network::reset()
     m_neuronList.clear();
     m_neuronList.resize(m_cNeurons);
 
-    m_rgSynapseMap = new vector<DynamicSpikingSynapse>[m_cNeurons];
+    m_rgSynapseMap = new vector<ISynapse*>[m_cNeurons];
 
     m_summationMap = new FLOAT[m_cNeurons];
 
@@ -429,10 +424,8 @@ void Network::initStarterMap()
 {
     if (m_fFixedLayout)
     {
-        for (size_t i = 0; i < m_pEndogenouslyActiveNeuronLayout->size(); i++)
-        {
-            m_rgEndogenouslyActiveNeuronMap[m_pEndogenouslyActiveNeuronLayout->at(i)] = true;
-        }
+        for (size_t i = 0; i < m_pEndogenouslyActiveNeuronLayout->size(); i++)        
+            m_rgEndogenouslyActiveNeuronMap[m_pEndogenouslyActiveNeuronLayout->at(i)] = true;        
     }
     else
     {
@@ -482,15 +475,11 @@ vector<neuronType>* Network::getNeuronOrder()
 
         randomlyOrderedNeurons->resize(m_cNeurons);
 
-        for (int i = 0; i < m_cNeurons; i++)
-        {
-            (*randomlyOrderedNeurons)[i] = EXC;
-        }
+        for (int i = 0; i < m_cNeurons; i++)        
+            (*randomlyOrderedNeurons)[i] = EXC;        
 
-        for (size_t i = 0; i < m_pInhibitoryNeuronLayout->size(); i++)
-        {
-            (*randomlyOrderedNeurons)[m_pInhibitoryNeuronLayout->at(i)] = INH;
-        }
+        for (size_t i = 0; i < m_pInhibitoryNeuronLayout->size(); i++)        
+            (*randomlyOrderedNeurons)[m_pInhibitoryNeuronLayout->at(i)] = INH;        
     }
     else
     {
@@ -502,10 +491,8 @@ vector<neuronType>* Network::getNeuronOrder()
         DEBUG(cout << "m_cExcitoryNeurons: " << m_cExcitoryNeurons << endl;)
 
         // set the correct number to INH
-        for (int i = 0; i < m_cInhibitoryNeurons; i++)
-        {
-            orderedNeurons[i] = INH;
-        }
+        for (int i = 0; i < m_cInhibitoryNeurons; i++)        
+            orderedNeurons[i] = INH;        
 
         // Shuffle ordered list into an unordered list
         while (!orderedNeurons.empty())
@@ -522,11 +509,9 @@ vector<neuronType>* Network::getNeuronOrder()
 
             vector<neuronType>::iterator it = orderedNeurons.begin(); // get iterator to ordered's front
 
-            for (int j = 0; j < i; j++) // move it forward until it is on the pushed neuron
-            {
+            for (int j = 0; j < i; j++) // move it forward until it is on the pushed neuron            
                 it++;
-            }
-
+            
             orderedNeurons.erase(it); // and remove that neuron from the ordered list
         }
 
@@ -600,37 +585,29 @@ void Network::writeSimMemory(ostream& os, CompleteMatrix& radiiHistory, Complete
 {
     // write the neurons data
     os.write(reinterpret_cast<const char*>(&m_cNeurons), sizeof(m_cNeurons));
-    for (int i = 0; i < m_cNeurons; i++)
-    {
+    for (int i = 0; i < m_cNeurons; i++)    
         m_neuronList[i].write(os);
-    }
 
     // write the synapse data
     int synapse_count = 0;
-    for (int i = 0; i < m_cNeurons; i++)
-    {
+    for (int i = 0; i < m_cNeurons; i++)    
         synapse_count += m_rgSynapseMap[i].size();
-    }
+    
     os.write(reinterpret_cast<const char*>(&synapse_count), sizeof(synapse_count));
     for (int i = 0; i < m_cNeurons; i++)
     {
-        for (unsigned int j = 0; j < m_rgSynapseMap[i].size(); j++)
-        {
-            m_rgSynapseMap[i][j].write(os);
-        }
+        for (unsigned int j = 0; j < m_rgSynapseMap[i].size(); j++)        
+            m_rgSynapseMap[i][j]->write(os);
     }
 
     // write the final radii
-    for (int i = 0; i < m_cNeurons; i++)
-    {
-        os.write(reinterpret_cast<const char*>(&radiiHistory(m_si.currentStep, i)), sizeof(FLOAT));
-    }
+    for (int i = 0; i < m_cNeurons; i++)    
+        os.write(reinterpret_cast<const char*>(&radiiHistory(m_si.currentStep, i)), sizeof(FLOAT));    
 
     // write the final rates
-    for (int i = 0; i < m_cNeurons; i++)
-    {
-        os.write(reinterpret_cast<const char*>(&ratesHistory(m_si.currentStep, i)), sizeof(FLOAT));
-    }
+    for (int i = 0; i < m_cNeurons; i++)    
+        os.write(reinterpret_cast<const char*>(&ratesHistory(m_si.currentStep, i)), sizeof(FLOAT));    
+
     os.flush();
 }
 
@@ -645,10 +622,9 @@ void Network::readSimMemory(istream& is, VectorMatrix& radii, VectorMatrix& rate
     int cNeurons;
     is.read(reinterpret_cast<char*>(&cNeurons), sizeof(cNeurons));
     assert( cNeurons == m_cNeurons );
-    for (int i = 0; i < m_cNeurons; i++)
-    {
-        m_neuronList[i].read(is);
-    }
+
+    for (int i = 0; i < m_cNeurons; i++)    
+        m_neuronList[i].read(is);    
 
     // read the synapse data & create synapses
     int synapse_count;
@@ -656,20 +632,18 @@ void Network::readSimMemory(istream& is, VectorMatrix& radii, VectorMatrix& rate
     for (int i = 0; i < synapse_count; i++)
     {
 	// read the synapse data and add it to the list
-        DynamicSpikingSynapse::read(is, m_summationMap, m_width, m_rgSynapseMap);
+		// create synapse
+		ISynapse* syn = new DynamicSpikingSynapse(is, m_summationMap, m_width);
+		m_rgSynapseMap[syn->summationCoord.x + syn->summationCoord.y * m_width].push_back(syn);
     }
 
     // read the radii
-    for (int i = 0; i < m_cNeurons; i++)
-    {
-        is.read(reinterpret_cast<char*>(&radii[i]), sizeof(FLOAT));
-    }
+    for (int i = 0; i < m_cNeurons; i++)    
+        is.read(reinterpret_cast<char*>(&radii[i]), sizeof(FLOAT));    
 
     // read the rates
-    for (int i = 0; i < m_cNeurons; i++)
-    {
-        is.read(reinterpret_cast<char*>(&rates[i]), sizeof(FLOAT));
-    }
+    for (int i = 0; i < m_cNeurons; i++)    
+        is.read(reinterpret_cast<char*>(&rates[i]), sizeof(FLOAT));    
 }
 
 /**

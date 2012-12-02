@@ -119,7 +119,7 @@ public:
 	FLOAT m_deltaT;
 
 	//! List of lists of synapses
-	vector<DynamicSpikingSynapse>* m_rgSynapseMap;
+	vector<ISynapse*>* m_rgSynapseMap;
 
 	//! The map of summation points.
 	FLOAT* m_summationMap;

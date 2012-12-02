@@ -35,10 +35,12 @@ public:
     //! Constructor, with params.
     DynamicSpikingSynapse( int source_x, int source_y, int sumX, int sumY, FLOAT& sum_point, FLOAT delay, FLOAT deltaT,
                            synapseType type );
+	//! Constructor, with params. Loads directly from input stream
+    DynamicSpikingSynapse( istream& is, FLOAT* pSummationMap, int width );
     virtual ~DynamicSpikingSynapse();
 
 	//! Copy constructor.
-    DynamicSpikingSynapse( const DynamicSpikingSynapse &other );
+    DynamicSpikingSynapse( const ISynapse &other );
 
     //! Advance a single time step.
     void advance();
@@ -47,10 +49,7 @@ public:
     bool updateInternal();
 
 	//! Overloaded = operator.
-    DynamicSpikingSynapse& operator= ( const DynamicSpikingSynapse &rhs );
-
-    //! Read the neuron data from the stream
-    static void read( istream& is, FLOAT* pSummationMap, int width, vector<DynamicSpikingSynapse>* pSynapseMap );
+    ISynapse& operator= ( const ISynapse &rhs );
 
 };
 

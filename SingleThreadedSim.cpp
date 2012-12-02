@@ -67,10 +67,8 @@ void SingleThreadedSim::advanceNeurons(SimulationInfo* psi)
         {
             DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
 
-            for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)
-            {
-                psi->rgSynapseMap[i][z].preSpikeHit();
-            }
+            for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)            
+                psi->rgSynapseMap[i][z]->preSpikeHit();            
 
             (*(psi->pNeuronList))[i].hasFired = false;
         }
@@ -96,10 +94,8 @@ void SingleThreadedSim::advanceSynapses(SimulationInfo* psi)
 {
     for (int i = psi->cNeurons - 1; i >= 0; --i)
     {
-        for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)
-        {
-            psi->rgSynapseMap[i][z].advance();
-        }
+        for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)        
+            psi->rgSynapseMap[i][z]->advance();        
     }
 }
 
@@ -234,7 +230,7 @@ void SingleThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radii
             for (size_t syn = 0; syn < psi->rgSynapseMap[a].size(); syn++)
             {
                 // if there is a synapse between a and b
-                if (psi->rgSynapseMap[a][syn].summationCoord == bCoord)
+                if (psi->rgSynapseMap[a][syn]->summationCoord == bCoord)
                 {
                     connected = true;
                     adjusted++;
@@ -251,7 +247,7 @@ void SingleThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radii
                     {
                         // adjust
                         // g_synapseStrengthAdjustmentConstant is 1.0e-8;
-                        psi->rgSynapseMap[a][syn].W = W(a, b) * 
+                        psi->rgSynapseMap[a][syn]->W = W(a, b) * 
                             synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
 
                         DEBUG2(cout << "weight of rgSynapseMap" << 
@@ -266,8 +262,8 @@ void SingleThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radii
             {
                 added++;
 
-                DynamicSpikingSynapse& newSynapse = addSynapse(psi, xa, ya, xb, yb);
-                newSynapse.W = W(a, b) * synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
+                ISynapse* newSynapse = addSynapse(psi, xa, ya, xb, yb);
+                newSynapse->W = W(a, b) * synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
             }
         }
     }

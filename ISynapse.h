@@ -1,23 +1,12 @@
 /**
- ** \brief A Interface Synapse.
- **
- ** \class ISynapse ISynapse.h "ISynapse.h"
- **
- ** \htmlonly  <h3>Model</h3> \endhtmlonly
- **
- ** The time varying state \f$x(t)\f$ of the synapse is increased by \f$W\cdot r \cdot u\f$ when a
- ** presynaptic spike hits the synapse and decays exponentially (time constant \f$\tau\f$) otherwise.
- ** \f$u\f$ and \f$r\f$ model the current state of facilitation and depression.\n
- ** A spike causes an exponential decaying postsynaptic response of the form \f$\exp(-t/\tau)\f$.
- **
- **/
-
-/**
- ** \file ISynapse.h
- **
- ** \brief Header file for ISynapse
- **
- **/
+ * \file ISynapse.h
+ *
+ * Header file for ISynapse
+ * ISynapse is the base interface for a Synapse to be used with the Simulator.
+ *
+	DATE		VERSION		NAME		COMMENT
+ *	11/24/2012	1.0			dwise		Initial stab at creating an ISynapse in the simulator
+ */
 
 #pragma once
 
@@ -38,10 +27,11 @@ public:
 	//! The weight (scaling factor, strength, maximal amplitude) of the synapse.
     FLOAT W;
 
-
     //! Constructor, with params.
     ISynapse( int source_x, int source_y, int sumX, int sumY, FLOAT& sum_point, FLOAT delay, FLOAT deltaT,
                            synapseType type );
+	//! Constructor, with params. Loads directly from input stream
+    ISynapse( istream& is, FLOAT* pSummationMap, int width );
     virtual ~ISynapse();
 
     //! Copy constructor.
@@ -53,11 +43,14 @@ public:
     //! Update the internal state.
     virtual bool updateInternal() = 0;
 
+	//! Overloaded = operator.
+    virtual ISynapse& operator= ( const ISynapse &rhs ) = 0;
+
 	//! Write the synapse data to the stream
     virtual void write( ostream& os );
 
     ////! Read the neuron data from the stream
-    //virtual void read( istream& is, FLOAT* pSummationMap, int width, vector<ISynapse>* pSynapseMap ) = 0;
+    virtual void read( istream& is, FLOAT* pSummationMap, int width );
 
     //! Reset the synapse state.
     virtual void reset();
