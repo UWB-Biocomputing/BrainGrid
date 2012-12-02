@@ -30,6 +30,7 @@
 #include "LifNeuron.h"
 #include "DynamicSpikingSynapse.h"
 
+//! Structure design to hold all of the parameters of the simulation.
 struct SimulationInfo
 {
     SimulationInfo() :
@@ -80,7 +81,7 @@ struct SimulationInfo
 	FLOAT deltaT;
 
 	//! List of neurons
-	vector<LifNeuron>* pNeuronList;
+	vector<INeuron*>* pNeuronList;
 
 	//! The neuron type map (INH, EXC).
 	neuronType* rgNeuronTypeMap;

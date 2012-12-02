@@ -30,43 +30,25 @@
 #include "SimulationInfo.h"
 #include "matrix/VectorMatrix.h"
 
+//! Pure virtual interface that can be modified to make a different simulator
 class ISimulation
 {
 public:
     virtual ~ISimulation() {}
 
-    /**
-     * Initialize data
-     * @param psi
-     * @param xloc
-     * @param yloc
-     */
+    //! Initialize data.
     virtual void init(SimulationInfo* psi, VectorMatrix& xloc, VectorMatrix& yloc) = 0;
 
-    /**
-     * Terminate process
-     * @param psi
-     */
+    //! Terminate process.
     virtual void term(SimulationInfo* psi) = 0;
 
-    /** 
-     * Set initial radii data
-     * @param[in] newRadii  Radii data to set
-     */ 
+    //! Initialize radii
     virtual void initRadii(VectorMatrix& newRadii) = 0;
 
-    /**
-     * Performs updating neurons and synapses for one activity epoch.
-     * @param psi
-     */
+    //! Perform updating neurons for one time step.
     virtual void advanceUntilGrowth(SimulationInfo* psi) = 0;
 
-    /**
-     * Updates synapses' weight between neurons.
-     * @param psi
-     * @param radiiHistory
-     * @param ratesHistory
-     */
+    //! Perform updating synapses for one time step.
     virtual void updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiHistory, CompleteMatrix& ratesHistory) = 0;
 };
 

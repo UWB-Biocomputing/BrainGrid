@@ -15,6 +15,7 @@
 
 #include "global.h"
 
+//! Abstract interface class to provide basic framework needed for a Neuron to function with the simulator
 class INeuron {
 public:
 	//! A boolean which tracks whether the neuron has fired

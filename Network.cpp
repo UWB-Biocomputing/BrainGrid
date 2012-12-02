@@ -113,7 +113,7 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFi
     // neuron threshold
     VectorMatrix neuronThresh(matrixType, init, 1, m_cNeurons, 0);
     for (int i = 0; i < m_cNeurons; i++)     
-        neuronThresh[i] = m_neuronList[i].Vthresh;    
+        neuronThresh[i] = m_neuronList[i]->Vthresh;    
 
     // neuron locations matrices
     VectorMatrix xloc(matrixType, init, 1, m_cNeurons);
@@ -347,8 +347,10 @@ void Network::initNeurons(FLOAT Iinject[2], FLOAT Inoise[2], FLOAT Vthresh[2], F
     /* set their specific types */
     for (int i = 0; i < m_cNeurons; i++)
     {
+		m_neuronList[i] = new LifNeuron();
+
         // set common parameters
-        m_neuronList[i].setParams(
+        m_neuronList[i]->setParams(
             rng.inRange(Iinject[0], Iinject[1]), 
             rng.inRange(Inoise[0], Inoise[1]),
             rng.inRange(Vthresh[0], Vthresh[1]),
@@ -362,13 +364,13 @@ void Network::initNeurons(FLOAT Iinject[2], FLOAT Inoise[2], FLOAT Vthresh[2], F
         case INH:
             DEBUG2(cout << "setting inhibitory neuron: "<< i << endl;)
             // set inhibitory absolute refractory period
-            m_neuronList[i].Trefract = DEFAULT_InhibTrefract;
+            m_neuronList[i]->Trefract = DEFAULT_InhibTrefract;
             break;
 
         case EXC:
             DEBUG2(cout << "setting exitory neuron: " << i << endl;)
             // set excitory absolute refractory period
-            m_neuronList[i].Trefract = DEFAULT_ExcitTrefract;
+            m_neuronList[i]->Trefract = DEFAULT_ExcitTrefract;
             break;
 
         default:
@@ -380,9 +382,9 @@ void Network::initNeurons(FLOAT Iinject[2], FLOAT Inoise[2], FLOAT Vthresh[2], F
         {
             DEBUG2(cout << "setting endogenously active neuron properties" << endl;)
             // set endogenously active threshold voltage, reset voltage, and refractory period
-            m_neuronList[i].Vthresh = rng.inRange(starter_Vthresh[0], starter_Vthresh[1]);
-            m_neuronList[i].Vreset = rng.inRange(starter_Vreset[0], starter_Vreset[1]);
-            m_neuronList[i].Trefract = DEFAULT_ExcitTrefract;
+            m_neuronList[i]->Vthresh = rng.inRange(starter_Vthresh[0], starter_Vthresh[1]);
+            m_neuronList[i]->Vreset = rng.inRange(starter_Vreset[0], starter_Vreset[1]);
+            m_neuronList[i]->Trefract = DEFAULT_ExcitTrefract;
         }
         DEBUG2(cout << m_neuronList[i].toStringAll() << endl;)
     }
@@ -586,7 +588,7 @@ void Network::writeSimMemory(ostream& os, CompleteMatrix& radiiHistory, Complete
     // write the neurons data
     os.write(reinterpret_cast<const char*>(&m_cNeurons), sizeof(m_cNeurons));
     for (int i = 0; i < m_cNeurons; i++)    
-        m_neuronList[i].write(os);
+        m_neuronList[i]->write(os);
 
     // write the synapse data
     int synapse_count = 0;
@@ -624,7 +626,7 @@ void Network::readSimMemory(istream& is, VectorMatrix& radii, VectorMatrix& rate
     assert( cNeurons == m_cNeurons );
 
     for (int i = 0; i < m_cNeurons; i++)    
-        m_neuronList[i].read(is);    
+        m_neuronList[i]->read(is);    
 
     // read the synapse data & create synapses
     int synapse_count;

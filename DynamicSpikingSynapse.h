@@ -28,6 +28,7 @@
 
 #include "ISynapse.h"	
 
+//! Implementation of ISynapse: A Dynamic Spiking Synapse
 class DynamicSpikingSynapse : public ISynapse
 {
 public:

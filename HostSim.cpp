@@ -26,8 +26,9 @@ HostSim::HostSim(SimulationInfo* psi) :
 }
 
 /**
- * Destructor
- */
+* Destructor
+*
+*/
 HostSim::~HostSim() 
 { 
 }

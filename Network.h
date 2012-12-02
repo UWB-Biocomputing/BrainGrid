@@ -125,7 +125,7 @@ public:
 	FLOAT* m_summationMap;
 
 	//! The neuron map.
-	vector<LifNeuron> m_neuronList;
+	vector<INeuron*> m_neuronList;
 
 	//! The neuron type map (INH, EXC).
 	neuronType* m_rgNeuronTypeMap;

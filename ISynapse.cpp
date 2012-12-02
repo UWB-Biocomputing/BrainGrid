@@ -52,8 +52,18 @@ ISynapse::ISynapse(int source_x, int source_y,
 }
 
 /**
- * Read the synapse data from the stream
- * @param[in] os	The filestream to read
+* Destructor
+*
+*/
+ISynapse::~ISynapse() {
+}
+
+/**
+ * Create a synapse and initialize all internal state vars according to input stream and summation map given
+ * Allows creation of Synapse by utilizing the read from input stream function "read"
+ * @param[in] is	The filestream to read
+ * @param[in] pSummationMap		The map of all the summation points
+ * @param[in] width		The width of the summantion map
  */
 ISynapse::ISynapse( istream& is, FLOAT* pSummationMap, int width ) : summationPoint( pSummationMap[0] ) {
 	// initialize spike queue
@@ -61,9 +71,6 @@ ISynapse::ISynapse( istream& is, FLOAT* pSummationMap, int width ) : summationPo
 	reset( );
 
 	read(is, pSummationMap, width);
-}
-
-ISynapse::~ISynapse() {
 }
 
 /**
@@ -107,7 +114,9 @@ void ISynapse::write( ostream& os ) {
 
 /**
  * Read the synapse data from the stream
- * @param[in] os	The filestream to read
+ * @param[in] is	The filestream to read
+ * @param[in] pSummationMap		The map of all the summation points
+ * @param[in] width		The width of the summantion map
  */
 void ISynapse::read( istream& is, FLOAT* pSummationMap, int width ) {
 	Coordinate t_summationCoord, t_synapseCoord;

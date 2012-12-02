@@ -17,6 +17,10 @@ LifNeuron::LifNeuron() : INeuron()
 {
 }
 
+/**
+* Destructor
+*
+*/
 LifNeuron::~LifNeuron() {
 }
 

@@ -18,6 +18,7 @@
 typedef unsigned _int8 uint8_t;
 #endif
 
+//! Abstract interface class to provide basic framework needed for a Synapse to function with the simulator
 class ISynapse
 {
 public:
@@ -26,6 +27,7 @@ public:
 
 	//! The weight (scaling factor, strength, maximal amplitude) of the synapse.
     FLOAT W;
+
 
     //! Constructor, with params.
     ISynapse( int source_x, int source_y, int sumX, int sumY, FLOAT& sum_point, FLOAT delay, FLOAT deltaT,

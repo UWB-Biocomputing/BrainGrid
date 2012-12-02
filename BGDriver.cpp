@@ -67,6 +67,10 @@ void printParams();
 bool parseCommandLine(int argc, char* argv[]);
 void getValueList(const string& valString, vector<int>* pList);
 
+/**
+ * Main for Simulator. Handles command line arguments and loads parameters from parameter file.
+ * All initial loading before running simulator in Network is here.
+ */
 int main(int argc, char* argv[]) {
 
     DEBUG(cout << "reading parameters from xml file" << endl;)
@@ -83,30 +87,28 @@ int main(int argc, char* argv[]) {
 	TiXmlDocument simDoc( stateInputFileName.c_str( ) );
 	if (!simDoc.LoadFile( )) {
 		cerr << "Failed loading simulation parameter file " << stateInputFileName << ":" << "\n\t"
-				<< simDoc.ErrorDesc( ) << endl;
+			<< simDoc.ErrorDesc( ) << endl;
 		return -1;
 	}
 
 	// aquire the in/out file
 	ofstream state_out( stateOutputFileName.c_str( ) );
 	ofstream memory_out;
-	if (fWriteMemImage) {
+	if (fWriteMemImage) 
 		memory_out.open( memOutputFileName.c_str( ), ofstream::binary | ofstream::trunc );
-	}
+	
 	ifstream memory_in;
-	if (fReadMemImage) {
+	if (fReadMemImage) 
 		memory_in.open( memInputFileName.c_str( ), ofstream::binary | ofstream::in );
-	}
-
+	
 	// calculate the number of inhibitory, excitory, and endogenously active neurons
 	int numNeurons = poolsize[0] * poolsize[1];
 	int nInhNeurons = (int) ( ( 1.0 - frac_EXC ) * numNeurons + 0.5 );
 	int nExcNeurons = numNeurons - nInhNeurons;
 	int nStarterNeurons = 0;
-	if (starter_flag) {
+	if (starter_flag) 
 		nStarterNeurons = (int) ( starter_neurons * numNeurons + 0.5 );
-	}
-
+	
 	// calculate their ratios, out of the whole
 	FLOAT inhFrac = nInhNeurons / (FLOAT) numNeurons;
 	FLOAT excFrac = nExcNeurons / (FLOAT) numNeurons;
@@ -130,17 +132,18 @@ int main(int argc, char* argv[]) {
 	DEBUG(cout << "ssps (simulation seconds / real time seconds): " << ssps << endl;)
 
 	// close input and output files
-	if (fWriteMemImage) {
-		memory_out.close();		
-	}
-	if (fReadMemImage) {
+	if (fWriteMemImage) 
+		memory_out.close();			
+	if (fReadMemImage) 
 		memory_in.close();
-	}
-
+	
 	exit( EXIT_SUCCESS );
 
 }
 
+/**
+ * Prints loaded parameters out to console
+ */
 void printParams() {
 	cout << "\nPrinting parameters...\n";
 	cout << "frac_EXC:" << frac_EXC << " " << "starter_neurons:" << starter_neurons << endl;
@@ -165,23 +168,24 @@ void printParams() {
         cout << "Layout parameters:" << endl;
 
         cout << "\tEndogenously active neuron positions: ";
-        for (size_t i = 0; i < endogenouslyActiveNeuronLayout.size(); i++)
-        {
-            cout << endogenouslyActiveNeuronLayout[i] << " ";
-        }
+        for (size_t i = 0; i < endogenouslyActiveNeuronLayout.size(); i++)        
+            cout << endogenouslyActiveNeuronLayout[i] << " ";        
+
         cout << endl;
 
         cout << "\tInhibitory neuron positions: ";
-        for (size_t i = 0; i < inhibitoryNeuronLayout.size(); i++)
-        {
+        for (size_t i = 0; i < inhibitoryNeuronLayout.size(); i++)        
             cout << inhibitoryNeuronLayout[i] << " ";
-        }
+        
         cout << endl;
     }
 
 	cout << "Done printing parameters" << endl;
 }
 
+/**
+ * Handles loading of parameters using tinyxml from the parameter file.
+ */
 void LoadSimParms(TiXmlElement* parms)
 {
 	TiXmlElement* temp = NULL;
@@ -421,14 +425,12 @@ void LoadSimParms(TiXmlElement* parms)
 
         while ((pNode = temp->IterateChildren(pNode)) != NULL)
         {
-            if (strcmp(pNode->Value(), "A") == 0)
-            {
+            if (strcmp(pNode->Value(), "A") == 0)            
                 getValueList(pNode->ToElement()->GetText(), &endogenouslyActiveNeuronLayout);
-            }
-            else if (strcmp(pNode->Value(), "I") == 0)
-            {
+            
+            else if (strcmp(pNode->Value(), "I") == 0)            
                 getValueList(pNode->ToElement()->GetText(), &inhibitoryNeuronLayout);
-            }
+            
         }
 	}
     
@@ -437,6 +439,9 @@ void LoadSimParms(TiXmlElement* parms)
 	if (!fSet) throw KII_exception( "Failed to initialize one or more simulation parameters; check XML" );
 }
 
+/**
+ * Helper function that helps with parsing integers in a fixed layout
+ */
 void getValueList(const string& valString, vector<int>* pList)
 {
     std::istringstream valStream(valString);
@@ -450,6 +455,10 @@ void getValueList(const string& valString, vector<int>* pList)
     }
 }
 
+/**
+ * Handles parsing of the command line
+ * @returns if successful
+ */
 bool parseCommandLine(int argc, char* argv[])
 {
 	ParamContainer cl;

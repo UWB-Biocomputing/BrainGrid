@@ -45,6 +45,7 @@
 
 #include "INeuron.h"
 
+//! Implementation of INeuron: A leaky-integrate-and-fire (I&F) neuron
 class LifNeuron : public INeuron {
 public:
 

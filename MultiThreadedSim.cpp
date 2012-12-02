@@ -8,17 +8,23 @@
 #include "MultiThreadedSim.h"
 
 /** 
+ * The constructor for MultiThreadedSim.
  * @post All matrixes are allocated. 
  */
 MultiThreadedSim::MultiThreadedSim(SimulationInfo* psi) : HostSim(psi)
 {
 }
 
+/**
+* Destructor
+*
+*/
 MultiThreadedSim::~MultiThreadedSim()
 {
 }
 
 /**
+ * Perform updating neurons and synapses for one activity epoch.
  * @param[in] psi	Pointer to the simulation information. 	
  */
 void MultiThreadedSim::advanceUntilGrowth(SimulationInfo* psi)
@@ -50,7 +56,7 @@ void MultiThreadedSim::advanceUntilGrowth(SimulationInfo* psi)
 }
 
 /**
- * Notify outgoing synapses if neuron has fired.
+ * Perform updating neurons for one time step.
  * @param[in] psi	Pointer to the simulation information. 
  */
 void MultiThreadedSim::advanceNeurons(SimulationInfo* psi)
@@ -72,7 +78,7 @@ void MultiThreadedSim::advanceNeurons(SimulationInfo* psi)
     for (int i = psi->cNeurons - 1; i >= 0; --i)
     {
         // advance neurons
-        (*(psi->pNeuronList))[i].advance(psi->pSummationMap[i]);
+        (*(psi->pNeuronList))[i]->advance(psi->pSummationMap[i]);
 
         DEBUG2(cout << i << " " << (*(psi->pNeuronList))[i].Vm << endl;)
     }
@@ -81,14 +87,14 @@ void MultiThreadedSim::advanceNeurons(SimulationInfo* psi)
     for (int i = psi->cNeurons - 1; i >= 0; --i)
     {
         // notify outgoing synapses if neuron has fired
-        if ((*(psi->pNeuronList))[i].hasFired)
+        if ((*(psi->pNeuronList))[i]->hasFired)
         {
             DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
 
             for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)            
                 psi->rgSynapseMap[i][z]->preSpikeHit();            
 
-            (*(psi->pNeuronList))[i].hasFired = false;
+            (*(psi->pNeuronList))[i]->hasFired = false;
         }
 
         // In the parallel version, we would move the inner loop of advanceSynapses 
@@ -107,6 +113,7 @@ void MultiThreadedSim::advanceNeurons(SimulationInfo* psi)
 }
 
 /**
+ * Perform updating synapses for one time step.
  * @param[in] psi	Pointer to the simulation information.
  */
 void MultiThreadedSim::advanceSynapses(SimulationInfo* psi)
@@ -152,10 +159,10 @@ void MultiThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiH
     for (int i = 0; i < psi->cNeurons; i++)
     {
         // Calculate firing rate
-        rates[i] = (*(psi->pNeuronList))[i].getSpikeCount() / psi->stepDuration;
+        rates[i] = (*(psi->pNeuronList))[i]->getSpikeCount() / psi->stepDuration;
 
         // clear spike count
-        (*(psi->pNeuronList))[i].clearSpikeCount();
+        (*(psi->pNeuronList))[i]->clearSpikeCount();
 
         // record firing rate to history matrix
         ratesHistory(psi->currentStep, i) = rates[i];

@@ -8,17 +8,23 @@
 #include "SingleThreadedSim.h"
 
 /** 
+ * The constructor for SingleThreadedSim.
  * @post All matrixes are allocated. 
  */
 SingleThreadedSim::SingleThreadedSim(SimulationInfo* psi) : HostSim(psi)
 { 
 }
 
+/**
+* Destructor
+*
+*/
 SingleThreadedSim::~SingleThreadedSim() 
 { 
 }
 
 /**
+ * Perform updating neurons and synapses for one activity epoch.
  * @param[in] psi	Pointer to the simulation information.		
  */
 void SingleThreadedSim::advanceUntilGrowth(SimulationInfo* psi)
@@ -58,19 +64,19 @@ void SingleThreadedSim::advanceNeurons(SimulationInfo* psi)
     for (int i = psi->cNeurons - 1; i >= 0; --i)
     {
         // advance neurons
-        (*(psi->pNeuronList))[i].advance(psi->pSummationMap[i]);
+        (*(psi->pNeuronList))[i]->advance(psi->pSummationMap[i]);
 
-        DEBUG2(cout << i << " " << (*(psi->pNeuronList))[i].Vm << endl;)
+        DEBUG2(cout << i << " " << (*(psi->pNeuronList))[i]->Vm << endl;)
 
         // notify outgoing synapses if neuron has fired
-        if ((*(psi->pNeuronList))[i].hasFired)
+        if ((*(psi->pNeuronList))[i]->hasFired)
         {
             DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
 
             for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)            
                 psi->rgSynapseMap[i][z]->preSpikeHit();            
 
-            (*(psi->pNeuronList))[i].hasFired = false;
+            (*(psi->pNeuronList))[i]->hasFired = false;
         }
     }
 
@@ -78,11 +84,9 @@ void SingleThreadedSim::advanceNeurons(SimulationInfo* psi)
     // ouput a row with every voltage level for each time step
     cout << g_simulationStep * psi->deltaT;
 
-    for (int i = 0; i < psi->cNeurons; i++)
-    {
+    for (int i = 0; i < psi->cNeurons; i++)    
         cout << "\t i: " << i << " " << (*(psi->pNeuronList))[i].toStringVm();
-    }
-
+    
     cout << endl;
 #endif /* DUMP_VOLTAGES */
 }
@@ -115,10 +119,10 @@ void SingleThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radii
     for (int i = 0; i < psi->cNeurons; i++)
     {
         // Calculate firing rate
-        rates[i] = (*(psi->pNeuronList))[i].getSpikeCount() / psi->stepDuration;
+        rates[i] = (*(psi->pNeuronList))[i]->getSpikeCount() / psi->stepDuration;
 
         // clear spike count
-        (*(psi->pNeuronList))[i].clearSpikeCount();
+        (*(psi->pNeuronList))[i]->clearSpikeCount();
 
         // record firing rate to history matrix
         ratesHistory(psi->currentStep, i) = rates[i];

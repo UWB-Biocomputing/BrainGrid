@@ -24,6 +24,10 @@ INeuron::INeuron() :
 { 
 }
 
+/**
+* Destructor
+*
+*/
 INeuron::~INeuron() {
 }
 
@@ -130,7 +134,8 @@ int INeuron::nSpikesSince(uint64_t begin_step)
 	int count = 0;
 	for (size_t i = 0; i < spikeHistory.size(); i++)
 	{
-		if (spikeHistory[i] >= begin_step) count++;
+		if (spikeHistory[i] >= begin_step) 
+			count++;
 	}
 	return count;
 }
@@ -158,6 +163,7 @@ int INeuron::getSpikeCount() {
 }
 
 /**
+ * Write the neuron data to the stream
  * @param[in] os	The filestream to write
  */
 void INeuron::write(ostream& os) {
@@ -182,7 +188,8 @@ void INeuron::write(ostream& os) {
 }
 
 /**
- * @param[in] os	The filestream to read
+ * Read the neuron data from the stream
+ * @param[in] is	The filestream to read
  */
 void INeuron::read(istream& is) {
 	is.read( reinterpret_cast<char*>(&deltaT), sizeof(deltaT) );

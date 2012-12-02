@@ -61,7 +61,7 @@ DynamicSpikingSynapse::DynamicSpikingSynapse(int source_x, int source_y,
 	}
 }
 
-	/**
+/**
  * Read the synapse data from the stream
  * @param[in] os	The filestream to read
  */
@@ -69,6 +69,10 @@ DynamicSpikingSynapse::DynamicSpikingSynapse( istream& is, FLOAT* pSummationMap,
 	ISynapse(is, pSummationMap, width) {
 }
 
+/**
+* Destructor
+*
+*/
 DynamicSpikingSynapse::~DynamicSpikingSynapse() {
 }
 
