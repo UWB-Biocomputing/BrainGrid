@@ -13,6 +13,8 @@
 #include "global.h"
 #include "include/ParamContainer.h"
 #include "Network.h"
+// Uncomment to use visual leak detector
+//#include <vld.h> 
 
 using namespace std;
 
@@ -61,6 +63,9 @@ int maxSynapsesPerNeuron; //Maximum number of synapses per neuron (only used by 
 long seed; // Seed for random generator
 
 // functions
+SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon, FLOAT new_beta, FLOAT new_rho,
+        FLOAT new_maxRate, FLOAT new_minRadius, FLOAT new_startRadius,
+		FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFiringRate, int maxSynapsesPerNeuron, long seed);
 void LoadSimParms(TiXmlElement*);
 void SaveSimState(ostream &);
 void printParams();
@@ -114,15 +119,33 @@ int main(int argc, char* argv[]) {
 	FLOAT excFrac = nExcNeurons / (FLOAT) numNeurons;
 	FLOAT startFrac = nStarterNeurons / (FLOAT) numNeurons;
 
+	SimulationInfo si = makeSimulationInfo(poolsize[0], poolsize[1], epsilon, beta, rho, maxRate, minRadius, startRadius,
+			Tsim, numSims, maxFiringRate, maxSynapsesPerNeuron, seed);
+
+	// Get an ISimulation object
+	// TODO: remove #defines and use cmdline parameters to choose simulation method
+	ISimulation* pSim;
+	#if defined(USE_GPU)
+		pSim = new GpuSim(&si);
+	#elif defined(USE_OMP)
+		pSim = new MultiThreadedSim(&si);
+	#else
+		pSim = new SingleThreadedSim(&si);
+	#endif
+
 	// create the network
 	Network network( poolsize[0], poolsize[1], inhFrac, excFrac, startFrac, Iinject, Inoise, Vthresh, Vresting, Vreset,
 			Vinit, starter_vthresh, starter_vreset, epsilon, beta, rho, targetRate, maxRate, minRadius, startRadius,
-			DEFAULT_dt, state_out, memory_out, fWriteMemImage, memory_in, fReadMemImage, fFixedLayout, &endogenouslyActiveNeuronLayout, &inhibitoryNeuronLayout, seed);
+			DEFAULT_dt, state_out, memory_out, fWriteMemImage, memory_in, fReadMemImage, fFixedLayout, &endogenouslyActiveNeuronLayout, 
+			&inhibitoryNeuronLayout, seed, si);
 
 	time_t start_time, end_time;
 	time(&start_time);
 
-	network.simulate( Tsim, numSims, maxFiringRate, maxSynapsesPerNeuron );
+	network.simulate( Tsim, numSims, pSim );
+
+	delete pSim;
+	rgNormrnd.clear();
 
 	time(&end_time);
 	double time_elapsed = difftime(end_time, start_time);
@@ -138,7 +161,36 @@ int main(int argc, char* argv[]) {
 		memory_in.close();
 	
 	exit( EXIT_SUCCESS );
+}
 
+/*
+ * Init SimulationInfo parameters
+ */
+SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon, FLOAT new_beta, FLOAT new_rho,
+        FLOAT new_maxRate, FLOAT new_minRadius, FLOAT new_startRadius,
+		FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFiringRate, int maxSynapsesPerNeuron, long seed) {
+	SimulationInfo si;
+    // Init SimulationInfo parameters
+	int max_neurons = cols * rows;
+
+	si.cNeurons = max_neurons;
+    si.stepDuration = growthStepDuration;
+    si.maxSteps = (int)maxGrowthSteps;
+    si.maxFiringRate = maxFiringRate;
+    si.maxSynapsesPerNeuron = maxSynapsesPerNeuron;
+    si.width = cols;
+    si.height = rows;
+    si.rgNeuronTypeMap = new neuronType[max_neurons];
+    si.rgEndogenouslyActiveNeuronMap = new bool[max_neurons];
+    si.epsilon = new_epsilon;
+    si.beta = new_beta;
+    si.rho = new_rho;
+    si.maxRate = new_maxRate;
+    si.minRadius = new_minRadius;
+    si.startRadius = new_startRadius;
+	si.seed = seed;
+
+	return si;
 }
 
 /**

@@ -40,7 +40,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(CUDA_INC_PATH);$(IncludePath)</IncludePath>
+    <IncludePath>$(CUDA_INC_PATH);C:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

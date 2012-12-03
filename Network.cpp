@@ -16,7 +16,8 @@ Network::Network(int cols, int rows, FLOAT inhFrac, FLOAT excFrac, FLOAT startFr
         FLOAT starter_Vthresh[2], FLOAT starter_Vreset[2], FLOAT new_epsilon, FLOAT new_beta, FLOAT new_rho,
         FLOAT new_targetRate, FLOAT new_maxRate, FLOAT new_minRadius, FLOAT new_startRadius, FLOAT new_deltaT,
         ostream& new_stateout, ostream& new_memoutput, bool fWriteMemImage, istream& new_meminput, bool fReadMemImage, 
-	bool fFixedLayout, vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout, long seed) :
+		bool fFixedLayout, vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout, long seed, 
+		SimulationInfo simInfo) :
     m_width(cols),
     m_height(rows),
     m_cNeurons(cols * rows),
@@ -43,7 +44,8 @@ Network::Network(int cols, int rows, FLOAT inhFrac, FLOAT excFrac, FLOAT startFr
     m_fFixedLayout(fFixedLayout),
     m_pEndogenouslyActiveNeuronLayout(pEndogenouslyActiveNeuronLayout),
     m_pInhibitoryNeuronLayout(pInhibitoryNeuronLayout),
-	m_seed(seed)
+	m_seed(seed),
+	m_si(simInfo)
 {
     cout << "Neuron count: " << m_cNeurons << endl;
  
@@ -69,31 +71,14 @@ Network::~Network()
 * @param growthStepDuration
 * @param maxGrowthSteps
 */
-void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFiringRate, int maxSynapsesPerNeuron)
+void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, ISimulation* sim)
 {
-    ISimulation* pSim = NULL;
     string matrixType, init;
 
     matrixType = "complete";
     init = "const";
     VectorMatrix radii(matrixType, init, 1, m_cNeurons);	// previous saved radii
     VectorMatrix rates(matrixType, init, 1, m_cNeurons);	// previous saved rates
-
-    // Init SimulationInfo parameters
-    m_si.stepDuration = growthStepDuration;
-    m_si.maxSteps = (int)maxGrowthSteps;
-    m_si.maxFiringRate = maxFiringRate;
-    m_si.maxSynapsesPerNeuron = maxSynapsesPerNeuron;
-    m_si.width = m_width;
-    m_si.height = m_height;
-    m_si.rgNeuronTypeMap = m_rgNeuronTypeMap;
-    m_si.rgEndogenouslyActiveNeuronMap = m_rgEndogenouslyActiveNeuronMap;
-    m_si.epsilon = m_epsilon;
-    m_si.beta = m_beta;
-    m_si.rho = m_rho;
-    m_si.maxRate = m_maxRate;
-    m_si.minRadius = m_minRadius;
-    m_si.startRadius = m_startRadius;
 
     // burstiness Histogram goes through the
     VectorMatrix burstinessHist(matrixType, init, 1, (int)(growthStepDuration * maxGrowthSteps), 0);
@@ -112,7 +97,7 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFi
 
     // neuron threshold
     VectorMatrix neuronThresh(matrixType, init, 1, m_cNeurons, 0);
-    for (int i = 0; i < m_cNeurons; i++)     
+    for (int i = 0; i < m_cNeurons; i++)
         neuronThresh[i] = m_neuronList[i]->Vthresh;    
 
     // neuron locations matrices
@@ -151,34 +136,12 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFi
     // TODO: stop the timer at some point and use its output
     m_timer.start();
 
-    // Get an ISimulation object
-    // TODO: remove #defines and use cmdline parameters to choose simulation method
-#if defined(USE_GPU)
-    pSim = new GpuSim(&m_si);
-#elif defined(USE_OMP)
-    pSim = new MultiThreadedSim(&m_si);
-
-    // Initialize OpenMP - one thread per core
-    OMP(omp_set_num_threads(omp_get_num_procs());)
-
-    int max_threads = 1;
-    max_threads = omp_get_max_threads();
-
-    // Create normalized random number generators for each thread
-    for (int i = 0; i < max_threads; i++)
-        rgNormrnd.push_back(new Norm(0, 1, m_seed));
-#else
-    pSim = new SingleThreadedSim(&m_si);
-
-    // Create a normalized random number generator
-    rgNormrnd.push_back(new Norm(0, 1, m_seed));
-#endif
-
-    pSim->init(&m_si, xloc, yloc);
+	// Initialize and prepare simulator
+    sim->init(&m_si, xloc, yloc);
 
     // Set the previous saved radii
     if (m_fReadMemImage)    
-        pSim->initRadii(radii);
+        sim->initRadii(radii);
     
 
     // Main simulation loop - execute maxGrowthSteps
@@ -195,7 +158,7 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFi
         DEBUG(cout << "Begin network state:" << endl;)
 
         // Advance simulation to next growth cycle
-        pSim->advanceUntilGrowth(&m_si);
+        sim->advanceUntilGrowth(&m_si);
 
         DEBUG(cout << "\n\nDone with simulation cycle, beginning growth update " << currentStep << endl;)
 
@@ -203,12 +166,13 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFi
 #ifdef PERFORMANCE_METRICS
         m_short_timer.start();
 #endif
-	pSim->updateNetwork(&m_si, radiiHistory, ratesHistory);
+		sim->updateNetwork(&m_si, radiiHistory, ratesHistory);
 
 #ifdef PERFORMANCE_METRICS
         t_host_adjustSynapses = m_short_timer.lap() / 1000.0f;
-	float total_time = m_timer.lap() / 1000.0f;
-	float t_others = total_time - (t_gpu_rndGeneration + t_gpu_advanceNeurons + t_gpu_advanceSynapses + t_gpu_calcSummation + t_host_adjustSynapses);
+		float total_time = m_timer.lap() / 1000.0f;
+		float t_others = total_time - (t_gpu_rndGeneration + t_gpu_advanceNeurons + 
+			t_gpu_advanceSynapses + t_gpu_calcSummation + t_host_adjustSynapses);
 
         cout << endl;
         cout << "total_time: " << total_time << " ms" << endl;
@@ -228,7 +192,7 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFi
     {
         for (int j = 0; j < m_height; j++)
         {
-            vector<uint64_t>* pSpikes = m_neuronList[i + j * m_width].getSpikes();
+            vector<uint64_t>* pSpikes = m_neuronList[i + j * m_width]->getSpikes();
 
             DEBUG2 (cout << endl << coordToString(i, j) << endl);
 
@@ -249,19 +213,11 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFi
                  growthStepDuration, neuronThresh);
 
     // Terminate the simulator
-    pSim->term(&m_si);
+    sim->term(&m_si);
 
     // write the simulation memory image
     if (m_fWriteMemImage)
         writeSimMemory(memory_out, radiiHistory, ratesHistory);
-    
-    delete pSim;
-
-#ifdef USE_OMP
-    for (unsigned int i = 0; i < rgNormrnd.size(); i++)
-        delete rgNormrnd[i];
-#endif
-    rgNormrnd.clear();
 }
 
 /**
@@ -271,10 +227,24 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFi
 void Network::freeResources()
 {
     // Empty neuron list
-    if (m_rgEndogenouslyActiveNeuronMap != NULL) delete[] m_rgEndogenouslyActiveNeuronMap;
-    if (m_rgSynapseMap != NULL) delete[] m_rgSynapseMap;
-    if (m_rgNeuronTypeMap != NULL) delete[] m_rgNeuronTypeMap;
-    if (m_summationMap != NULL) delete[] m_summationMap;
+    if (m_rgEndogenouslyActiveNeuronMap != NULL) 
+		delete[] m_rgEndogenouslyActiveNeuronMap;
+
+	// Free neuron and synapse maps
+    if (m_rgSynapseMap != NULL) {
+		for(int x = 0; x < m_cNeurons; x++) {
+			delete m_neuronList[x];
+			for(int y = 0; y < m_rgSynapseMap[x].size(); y++)
+				delete m_rgSynapseMap[x][y];
+		}
+		delete[] m_rgSynapseMap;
+	}
+
+    if (m_rgNeuronTypeMap != NULL)
+		delete[] m_rgNeuronTypeMap;
+	
+    if (m_summationMap != NULL) 
+		delete[] m_summationMap;
 }
 
 /**

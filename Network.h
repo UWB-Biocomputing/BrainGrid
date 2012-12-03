@@ -55,7 +55,8 @@ public:
 			FLOAT starter_Vreset[2], FLOAT m_epsilon, FLOAT m_beta, FLOAT m_rho, FLOAT m_targetRate, FLOAT m_maxRate,
 			FLOAT m_minRadius, FLOAT m_startRadius, FLOAT m_deltaT, ostream& new_outstate, 
 			ostream& new_memoutput, bool fWriteMemImage, istream& new_meminput, bool fReadMemImage, bool fFixedLayout, 
-            		vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout, long seed);
+            vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout, long seed, 
+			SimulationInfo simInfo);
 	~Network();
 
 	//! Frees dynamically allocated memory associated with the maps.
@@ -89,7 +90,7 @@ public:
 	void readSimMemory(istream& is, VectorMatrix& radii, VectorMatrix& rates);
 
 	//! Performs the simulation.
-	void simulate(FLOAT growthStepDuration, FLOAT num_growth_steps, int maxFiringRate, int maxSynapsesPerNeuron);
+	void simulate(FLOAT growthStepDuration, FLOAT num_growth_steps, ISimulation* sim);
 
 	//! Output the m_rgNeuronTypeMap to a VectorMatrix.
 	void getNeuronTypes(VectorMatrix& neuronTypes);

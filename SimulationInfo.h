@@ -49,9 +49,18 @@ struct SimulationInfo
         minRadius(0),
         startRadius(0),
         rgSynapseMap(NULL),
-        pSummationMap(NULL)		
+        pSummationMap(NULL),
+		seed(0)
     {
     }
+
+	void reset(int neurons, vector<INeuron*>* neronList, vector<ISynapse*>* synapseList, double* sumMap, FLOAT delta) {
+		cNeurons = neurons;
+		pNeuronList = neronList;
+		rgSynapseMap = synapseList;
+		pSummationMap = sumMap;
+		deltaT = delta;
+	}
 
 	//! Width of neuron map (assumes square)
 	int width;
@@ -112,6 +121,9 @@ struct SimulationInfo
 
 	//! List of summation points
 	FLOAT* pSummationMap;
+
+	//! Seed used for the simulation random
+	long seed;
 };
 
 #endif // _SIMULATIONINFO_H_

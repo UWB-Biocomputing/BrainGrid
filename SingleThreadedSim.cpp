@@ -13,6 +13,8 @@
  */
 SingleThreadedSim::SingleThreadedSim(SimulationInfo* psi) : HostSim(psi)
 { 
+	// Create a normalized random number generator
+    rgNormrnd.push_back(new Norm(0, 1, psi->seed));
 }
 
 /**

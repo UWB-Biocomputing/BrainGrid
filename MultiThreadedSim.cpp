@@ -13,6 +13,15 @@
  */
 MultiThreadedSim::MultiThreadedSim(SimulationInfo* psi) : HostSim(psi)
 {
+	    // Initialize OpenMP - one thread per core
+    OMP(omp_set_num_threads(omp_get_num_procs());)
+
+    int max_threads = 1;
+    max_threads = omp_get_max_threads();
+
+    // Create normalized random number generators for each thread
+    for (int i = 0; i < max_threads; i++)
+        rgNormrnd.push_back(new Norm(0, 1, psi->seed));
 }
 
 /**
@@ -21,6 +30,8 @@ MultiThreadedSim::MultiThreadedSim(SimulationInfo* psi) : HostSim(psi)
 */
 MultiThreadedSim::~MultiThreadedSim()
 {
+	for (unsigned int i = 0; i < rgNormrnd.size(); i++)
+        delete rgNormrnd[i];
 }
 
 /**
