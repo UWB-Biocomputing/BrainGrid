@@ -54,13 +54,13 @@ struct LifNeuron_struct;
  * @param neuron
  * @param count
  */
-void allocNeuronStruct(LifNeuron_struct& neuron, int count);
+void allocNeuronStruct(LifNeuron_struct* neuron, int count);
 
 /**
  * Deallocate data members in the LifNeuron_struct.
  * @param neuron
  */
-void deleteNeuronStruct(LifNeuron_struct& neuron);
+void deleteNeuronStruct(LifNeuron_struct* neuron);
 
 /**
  * Copy LifNeuron data into a LifNeuron_struct for GPU processing.
@@ -68,7 +68,7 @@ void deleteNeuronStruct(LifNeuron_struct& neuron);
  * @param out
  * @param idx
  */
-void copyNeuronToStruct(LifNeuron& in, LifNeuron_struct& out, int idx);
+void copyNeuronToStruct(INeuron* in, LifNeuron_struct* out, int idx);
 
 /**
  * Copy LifNeuron_struct array data into a LifNeuron.
@@ -76,7 +76,7 @@ void copyNeuronToStruct(LifNeuron& in, LifNeuron_struct& out, int idx);
  * @param out
  * @param idx
  */
-void copyNeuronStructToNeuron(LifNeuron_struct& in, LifNeuron& out, int idx);
+void copyNeuronStructToNeuron(LifNeuron_struct* in, INeuron* out, int idx);
 
 /**
  * Copy a neuronArray into a neuronMap
@@ -84,7 +84,7 @@ void copyNeuronStructToNeuron(LifNeuron_struct& in, LifNeuron& out, int idx);
  * @param pNeuronList
  * @param numNeurons
  */
-void neuronArrayToMap(LifNeuron_struct& neuron, vector<LifNeuron>* pNeuronList, int numNeurons);
+void neuronArrayToMap(LifNeuron_struct* neuron, vector<INeuron*>* pNeuronList, int numNeurons);
 
 struct LifNeuron_struct {
 	

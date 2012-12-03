@@ -176,9 +176,6 @@
     <ClInclude Include="GpuSim.h">
       <Filter>CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="book.h">
-      <Filter>CUDA</Filter>
-    </ClInclude>
     <ClInclude Include="Matrix\VectorMatrix.h">
       <Filter>Includes\Matrix Files\Headers</Filter>
     </ClInclude>
@@ -208,6 +205,9 @@
     </ClInclude>
     <ClInclude Include="INeuron.h">
       <Filter>Main\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="book.h">
+      <Filter>CUDA</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

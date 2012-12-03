@@ -109,6 +109,9 @@
       </ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="INeuron.cpp" />
+    <ClInclude Include="book.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="INeuron.h" />
     <ClCompile Include="ISynapse.cpp" />
     <ClCompile Include="LifNeuron.cpp" />
@@ -130,9 +133,6 @@
     <ClCompile Include="SingleThreadedSim.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="book.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="Coordinate.h" />
     <ClInclude Include="DelayIdx.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

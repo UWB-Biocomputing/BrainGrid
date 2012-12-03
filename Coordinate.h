@@ -16,6 +16,8 @@
 #ifndef _COORDINATE_H_
 #define _COORDINATE_H_
 
+//! Utility structure that allows coordinates of points in a 2d array to be 
+//	easily tracked with some utility
 struct Coordinate {
 
 	//! The constructor for Coordinate.

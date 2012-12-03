@@ -13,68 +13,68 @@
  * @param neuron
  * @param count
  */
-void allocNeuronStruct(LifNeuron_struct& neuron, int count) {
-	neuron.deltaT 				= new FLOAT[count];
-	neuron.summationPoint 			= new PFLOAT[count];
-	neuron.Cm 				= new FLOAT[count];
-	neuron.Rm 				= new FLOAT[count];
-	neuron.Vthresh 				= new FLOAT[count];
-	neuron.Vrest 				= new FLOAT[count];
-	neuron.Vreset 				= new FLOAT[count];
-	neuron.Vinit 				= new FLOAT[count];
-	neuron.Trefract 			= new FLOAT[count];
-	neuron.Inoise 				= new FLOAT[count];
-	neuron.randNoise 			= new float*[count];
-	neuron.Iinject 				= new FLOAT[count];
-	neuron.Isyn 				= new FLOAT[count];
-	neuron.nStepsInRefr 			= new int[count];
-	neuron.C1 				= new FLOAT[count];
-	neuron.C2 				= new FLOAT[count];
-	neuron.I0 				= new FLOAT[count];
-	neuron.Vm 				= new FLOAT[count];
-	neuron.hasFired 			= new bool[count];
-	neuron.Tau 				= new FLOAT[count];
-	neuron.spikeCount 			= new int[count];
-	neuron.outgoingSynapse_begin 		= new int[count];
-	neuron.synapseCount 			= new int[count];
-	neuron.incomingSynapse_begin 		= new int[count];
-	neuron.inverseCount 			= new int[count];
-	neuron.numNeurons 			= new int[count];
-	neuron.stepDuration 			= new int[count];	
+void allocNeuronStruct(LifNeuron_struct* neuron, int count) {
+	neuron->deltaT 				= new FLOAT[count];
+	neuron->summationPoint 			= new PFLOAT[count];
+	neuron->Cm 				= new FLOAT[count];
+	neuron->Rm 				= new FLOAT[count];
+	neuron->Vthresh 				= new FLOAT[count];
+	neuron->Vrest 				= new FLOAT[count];
+	neuron->Vreset 				= new FLOAT[count];
+	neuron->Vinit 				= new FLOAT[count];
+	neuron->Trefract 			= new FLOAT[count];
+	neuron->Inoise 				= new FLOAT[count];
+	neuron->randNoise 			= new float*[count];
+	neuron->Iinject 				= new FLOAT[count];
+	neuron->Isyn 				= new FLOAT[count];
+	neuron->nStepsInRefr 			= new int[count];
+	neuron->C1 				= new FLOAT[count];
+	neuron->C2 				= new FLOAT[count];
+	neuron->I0 				= new FLOAT[count];
+	neuron->Vm 				= new FLOAT[count];
+	neuron->hasFired 			= new bool[count];
+	neuron->Tau 				= new FLOAT[count];
+	neuron->spikeCount 			= new int[count];
+	neuron->outgoingSynapse_begin 		= new int[count];
+	neuron->synapseCount 			= new int[count];
+	neuron->incomingSynapse_begin 		= new int[count];
+	neuron->inverseCount 			= new int[count];
+	neuron->numNeurons 			= new int[count];
+	neuron->stepDuration 			= new int[count];	
 }
 
 /**
  * Deallocate data members in the LifNeuron_struct.
  * @param neuron
  */
-void deleteNeuronStruct(LifNeuron_struct& neuron) {
-	delete[] neuron.deltaT;
-	delete[] neuron.summationPoint;
-	delete[] neuron.Cm;
-	delete[] neuron.Rm;
-	delete[] neuron.Vthresh;
-	delete[] neuron.Vrest;
-	delete[] neuron.Vreset;
-	delete[] neuron.Vinit;
-	delete[] neuron.Trefract;
-	delete[] neuron.Inoise;
-	delete[] neuron.randNoise;
-	delete[] neuron.Iinject;
-	delete[] neuron.Isyn;
-	delete[] neuron.nStepsInRefr;
-	delete[] neuron.C1;
-	delete[] neuron.C2;
-	delete[] neuron.I0;
-	delete[] neuron.Vm;
-	delete[] neuron.hasFired;
-	delete[] neuron.Tau;
-	delete[] neuron.spikeCount;
-	delete[] neuron.outgoingSynapse_begin;
-	delete[] neuron.synapseCount;
-	delete[] neuron.incomingSynapse_begin;
-	delete[] neuron.inverseCount;
-	delete[] neuron.numNeurons;
-	delete[] neuron.stepDuration;
+void deleteNeuronStruct(LifNeuron_struct* neuron) {
+	delete[] neuron->deltaT;
+	delete[] neuron->summationPoint;
+	delete[] neuron->Cm;
+	delete[] neuron->Rm;
+	delete[] neuron->Vthresh;
+	delete[] neuron->Vrest;
+	delete[] neuron->Vreset;
+	delete[] neuron->Vinit;
+	delete[] neuron->Trefract;
+	delete[] neuron->Inoise;
+	delete[] neuron->randNoise;
+	delete[] neuron->Iinject;
+	delete[] neuron->Isyn;
+	delete[] neuron->nStepsInRefr;
+	delete[] neuron->C1;
+	delete[] neuron->C2;
+	delete[] neuron->I0;
+	delete[] neuron->Vm;
+	delete[] neuron->hasFired;
+	delete[] neuron->Tau;
+	delete[] neuron->spikeCount;
+	delete[] neuron->outgoingSynapse_begin;
+	delete[] neuron->synapseCount;
+	delete[] neuron->incomingSynapse_begin;
+	delete[] neuron->inverseCount;
+	delete[] neuron->numNeurons;
+	delete[] neuron->stepDuration;
 }
 
 /**
@@ -83,27 +83,27 @@ void deleteNeuronStruct(LifNeuron_struct& neuron) {
  * @param out
  * @param idx
  */
-void copyNeuronToStruct(LifNeuron& in, LifNeuron_struct& out, int idx) {
-	out.deltaT[idx] 	= in.deltaT;
-	out.C1[idx] 		= in.C1;
-	out.C2[idx] 		= in.C2;
-	out.Cm[idx] 		= in.Cm;
-	out.I0[idx] 		= in.I0;
-	out.Iinject[idx] 	= in.Iinject;
-	out.Inoise[idx] 	= in.Inoise;
-	out.Isyn[idx] 		= in.Isyn;
-	out.Rm[idx] 		= in.Rm;
-	out.Tau[idx] 		= in.Tau;
-	out.Trefract[idx] 	= in.Trefract;
-	out.Vinit[idx] 		= in.Vinit;
-	out.Vm[idx] 		= in.Vm;
-	out.Vrest[idx] 		= in.Vrest;
-	out.Vreset[idx] 	= in.Vreset;
-	out.Vthresh[idx] 	= in.Vthresh;
-	out.nStepsInRefr[idx] 	= in.nStepsInRefr;
-	out.spikeCount[idx] 	= 0;
-	out.summationPoint[idx] = 0;
-	out.hasFired[idx] 	= false;
+void copyNeuronToStruct(INeuron* in, LifNeuron_struct* out, int idx) {
+	out->deltaT[idx] 	= in->deltaT;
+	out->C1[idx] 		= in->C1;
+	out->C2[idx] 		= in->C2;
+	out->Cm[idx] 		= in->Cm;
+	out->I0[idx] 		= in->I0;
+	out->Iinject[idx] 	= in->Iinject;
+	out->Inoise[idx] 	= in->Inoise;
+	out->Isyn[idx] 		= in->Isyn;
+	out->Rm[idx] 		= in->Rm;
+	out->Tau[idx] 		= in->Tau;
+	out->Trefract[idx] 	= in->Trefract;
+	out->Vinit[idx] 		= in->Vinit;
+	out->Vm[idx] 		= in->Vm;
+	out->Vrest[idx] 		= in->Vrest;
+	out->Vreset[idx] 	= in->Vreset;
+	out->Vthresh[idx] 	= in->Vthresh;
+	out->nStepsInRefr[idx] 	= in->nStepsInRefr;
+	out->spikeCount[idx] 	= 0;
+	out->summationPoint[idx] = 0;
+	out->hasFired[idx] 	= false;
 }
 
 /**
@@ -112,24 +112,24 @@ void copyNeuronToStruct(LifNeuron& in, LifNeuron_struct& out, int idx) {
  * @param out
  * @param idx
  */
-void copyNeuronStructToNeuron(LifNeuron_struct& in, LifNeuron& out, int idx) {
-	out.C1 			= in.C1[idx];
-	out.C2 			= in.C2[idx];
-	out.Cm 			= in.Cm[idx];
-	out.I0 			= in.I0[idx];
-	out.Iinject 		= in.Iinject[idx];
-	out.Inoise 		= in.Inoise[idx];
-	out.Isyn 		= in.Isyn[idx];
-	out.Rm 			= in.Rm[idx];
-	out.Tau 		= in.Tau[idx];
-	out.Trefract 		= in.Trefract[idx];
-	out.Vinit 		= in.Vinit[idx];
-	out.Vm 			= in.Vm[idx];
-	out.Vrest 		= in.Vrest[idx];
-	out.Vreset 		= in.Vreset[idx];
-	out.Vthresh 		= in.Vthresh[idx];
-	out.nStepsInRefr 	= in.nStepsInRefr[idx];
-	out.spikeCount 		= in.spikeCount[idx];
+void copyNeuronStructToNeuron(LifNeuron_struct* in, INeuron* out, int idx) {
+	out->C1 			= in->C1[idx];
+	out->C2 			= in->C2[idx];
+	out->Cm 			= in->Cm[idx];
+	out->I0 			= in->I0[idx];
+	out->Iinject 		= in->Iinject[idx];
+	out->Inoise 		= in->Inoise[idx];
+	out->Isyn 		= in->Isyn[idx];
+	out->Rm 			= in->Rm[idx];
+	out->Tau 		= in->Tau[idx];
+	out->Trefract 		= in->Trefract[idx];
+	out->Vinit 		= in->Vinit[idx];
+	out->Vm 			= in->Vm[idx];
+	out->Vrest 		= in->Vrest[idx];
+	out->Vreset 		= in->Vreset[idx];
+	out->Vthresh 		= in->Vthresh[idx];
+	out->nStepsInRefr 	= in->nStepsInRefr[idx];
+	out->spikeCount 		= in->spikeCount[idx];
 }
 
 /**
@@ -138,10 +138,8 @@ void copyNeuronStructToNeuron(LifNeuron_struct& in, LifNeuron& out, int idx) {
  * @param pNeuronList
  * @param numNeurons
  */
-void neuronArrayToMap(LifNeuron_struct& neuron, vector<LifNeuron>* pNeuronList, int numNeurons)
+void neuronArrayToMap(LifNeuron_struct* neuron, vector<LifNeuron*>* pNeuronList, int numNeurons)
 {
-	for (int i = 0; i < numNeurons; i++)
-	{
-		copyNeuronStructToNeuron(neuron, (*pNeuronList)[i], i);
-	}
+	for (int i = 0; i < numNeurons; i++)	
+		copyNeuronStructToNeuron(neuron, (*pNeuronList)[i], i);	
 }

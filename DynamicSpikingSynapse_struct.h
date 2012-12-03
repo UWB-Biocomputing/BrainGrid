@@ -36,26 +36,26 @@ struct DynamicSpikingSynapse_struct;
  * @param synapse
  * @param count
  */
-void allocSynapseStruct(DynamicSpikingSynapse_struct& synapse, int count);
+void allocSynapseStruct(DynamicSpikingSynapse_struct* synapse, int count);
 
 /**
  * Deallocate data members in the DynamicSpikingSynapse_struct.
  * @param synapse
  */
-void deleteSynapseStruct(DynamicSpikingSynapse_struct& synapse);
+void deleteSynapseStruct(DynamicSpikingSynapse_struct* synapse);
 
 /**
  * Allocate data members (inUse and summationCoord) in the DynamicSpikingSynapse_struct.
  * @param synapse
  * @param count
  */
-void allocSynapseSumCoord(DynamicSpikingSynapse_struct& synapse, int count);
+void allocSynapseSumCoord(DynamicSpikingSynapse_struct* synapse, int count);
 
 /**
  * Deallocate data members (inUse and summationCoord) in the DynamicSpikingSynapse_struct.
  * @param synapse
  */
-void deleteSynapseSumCoord(DynamicSpikingSynapse_struct& synapse);
+void deleteSynapseSumCoord(DynamicSpikingSynapse_struct* synapse);
 
 /**
  * Copy a DynamicSpikingSynapse into a DynamicSpikingSynapse_struct.
@@ -63,7 +63,7 @@ void deleteSynapseSumCoord(DynamicSpikingSynapse_struct& synapse);
  * @param out
  * @param idx
  */
-void copySynapseToStruct(DynamicSpikingSynapse& in, DynamicSpikingSynapse_struct& out, int idx);
+void copySynapseToStruct(ISynapse* in, DynamicSpikingSynapse_struct* out, int idx);
 
 /**
  * Copy a DynamicSpikingSynapse_struct into a DynamicSpikingSynapse.
@@ -71,7 +71,7 @@ void copySynapseToStruct(DynamicSpikingSynapse& in, DynamicSpikingSynapse_struct
  * @param out
  * @param idx
  */
-void copyStructToSynapse(DynamicSpikingSynapse& in, DynamicSpikingSynapse_struct& out, int idx);
+void copyStructToSynapse(ISynapse* in, DynamicSpikingSynapse_struct* out, int idx);
 
 /**
  * Copy a synapseArray into a synapseMap.
@@ -79,7 +79,7 @@ void copyStructToSynapse(DynamicSpikingSynapse& in, DynamicSpikingSynapse_struct
  * @param synapseMap
  * @param numNeurons
  */
-void synapseArrayToMap(DynamicSpikingSynapse_struct& synapse, vector<DynamicSpikingSynapse>* synapseMap,
+void synapseArrayToMap(DynamicSpikingSynapse_struct* synapse, vector<ISynapse*>* synapseMap,
 		int numNeurons, int maxSynapses);
 
 struct DynamicSpikingSynapse_struct {

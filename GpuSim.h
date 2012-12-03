@@ -70,10 +70,10 @@ public:
     int* spikeCounts;
 
 private:
-    void printComparison(LifNeuron_struct& neuron_st, vector<LifNeuron>* neuronObjects, int i);
+    void printComparison(LifNeuron_struct* neuron_st, vector<LifNeuron*>* neuronObjects, int i);
 	
     //! Copy synapse and neuron C++ objects into C structs.
-    void dataToCStructs( SimulationInfo* psi, LifNeuron_struct& neuron_st, DynamicSpikingSynapse_struct& synapse_st ); 
+    void dataToCStructs( SimulationInfo* psi, LifNeuron_struct* neuron_st, DynamicSpikingSynapse_struct* synapse_st ); 
 
     //! Adds a synapse to the network.  Requires the locations of the source and destination neurons.
     DynamicSpikingSynapse& addSynapse(SimulationInfo* psi, int source_x, int source_y, int dest_x, int dest_y);

@@ -22,13 +22,6 @@ typedef unsigned _int8 uint8_t;
 class ISynapse
 {
 public:
-	//! The coordinates of the summation point.
-    Coordinate summationCoord;
-
-	//! The weight (scaling factor, strength, maximal amplitude) of the synapse.
-    FLOAT W;
-
-
     //! Constructor, with params.
     ISynapse( int source_x, int source_y, int sumX, int sumY, FLOAT& sum_point, FLOAT delay, FLOAT deltaT,
                            synapseType type );
@@ -69,7 +62,13 @@ public:
 	//! Initialize the input spike queue.
     void initSpikeQueue();
 	
-protected:
+
+	//! The coordinates of the summation point.
+    Coordinate summationCoord;
+
+	//! The weight (scaling factor, strength, maximal amplitude) of the synapse.
+    FLOAT W;
+
     //! This synapse's summation point's address.
     FLOAT& summationPoint;
 

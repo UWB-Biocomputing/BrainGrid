@@ -18,24 +18,6 @@
 //! Abstract interface class to provide basic framework needed for a Neuron to function with the simulator
 class INeuron {
 public:
-	//! A boolean which tracks whether the neuron has fired
-	bool hasFired;
-
-	//! The length of the absolute refractory period. [units=sec; range=(0,1);]
-	FLOAT Trefract;
-
-	//! If \f$V_m\f$ exceeds \f$V_{thresh}\f$ a spike is emmited. [units=V; range=(-10,100);]
-	FLOAT Vthresh;
-
-	//! The resting membrane voltage. [units=V; range=(-1,1);]
-	FLOAT Vrest;
-
-	//! The voltage to reset \f$V_m\f$ to after a spike. [units=V; range=(-1,1);]
-	FLOAT Vreset;
-
-	//! The initial condition for \f$V_m\f$ at time \f$t=0\f$. [units=V; range=(-1,1);]
-	FLOAT Vinit;
-	
 	//! Constructor.
 	INeuron();
 	virtual ~INeuron();
@@ -96,7 +78,25 @@ public:
 	//! Read the neuron data from the stream
 	virtual void read(istream& is);
 
-protected:
+
+
+	//! A boolean which tracks whether the neuron has fired
+	bool hasFired;
+
+	//! The length of the absolute refractory period. [units=sec; range=(0,1);]
+	FLOAT Trefract;
+
+	//! If \f$V_m\f$ exceeds \f$V_{thresh}\f$ a spike is emmited. [units=V; range=(-10,100);]
+	FLOAT Vthresh;
+
+	//! The resting membrane voltage. [units=V; range=(-1,1);]
+	FLOAT Vrest;
+
+	//! The voltage to reset \f$V_m\f$ to after a spike. [units=V; range=(-1,1);]
+	FLOAT Vreset;
+
+	//! The initial condition for \f$V_m\f$ at time \f$t=0\f$. [units=V; range=(-1,1);]
+	FLOAT Vinit;
 	//! The simulation time step size.
 	FLOAT deltaT;
 
