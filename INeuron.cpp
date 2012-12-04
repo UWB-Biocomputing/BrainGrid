@@ -16,7 +16,7 @@ INeuron::INeuron() :
     Vthresh(DEFAULT_Vthresh), 
     Vrest(DEFAULT_Vrest), 
     Vreset(DEFAULT_Vreset), 
-    Vinit(Vreset), 
+    Vinit(DEFAULT_Vreset), 
     Trefract(DEFAULT_Trefract), 
     Inoise(DEFAULT_Inoise), 
     Iinject(DEFAULT_Iinject),

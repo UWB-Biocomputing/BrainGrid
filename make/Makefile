@@ -20,13 +20,13 @@ OPT = g++
 # Flags
 #
 CXXFLAGS = -I$(INCDIR) -I$(MATRIXDIR) -DTIXML_USE_STL -DCDEBUG -Wall -DSTORE_SPIKEHISTORY
-#CXXFLAGS = -I$(INCDIR) -I$(UTILDIR) -I$(MATRIXDIR) -I$(XMLDIR) -I$(PCDIR) -I$(SVDIR) -I$(RNGDIR) -DTIXML_USE_STL -DCDEBUG -Wall
-#CXXFLAGS = -I$(INCDIR) -I$(UTILDIR) -I$(MATRIXDIR) -I$(XMLDIR) -I$(PCDIR) -I$(SVDIR) -I$(RNGDIR) -DTIXML_USE_STL -DCDEBUG -Wall -DPERFORMANCE_METRICS
-#CXXFLAGS = -I$(INCDIR) -I$(UTILDIR) -I$(MATRIXDIR) -I$(XMLDIR) -I$(PCDIR) -I$(SVDIR) -I$(RNGDIR) -DTIXML_USE_STL -DCDEBUG -Wall -g -pg
+# CXXFLAGS = -I$(INCDIR) -I$(UTILDIR) -I$(MATRIXDIR) -I$(XMLDIR) -I$(PCDIR) -I$(SVDIR) -I$(RNGDIR) -DTIXML_USE_STL -DCDEBUG -Wall
+# CXXFLAGS = -I$(INCDIR) -I$(UTILDIR) -I$(MATRIXDIR) -I$(XMLDIR) -I$(PCDIR) -I$(SVDIR) -I$(RNGDIR) -DTIXML_USE_STL -DCDEBUG -Wall -DPERFORMANCE_METRICS
+# CXXFLAGS = -I$(INCDIR) -I$(UTILDIR) -I$(MATRIXDIR) -I$(XMLDIR) -I$(PCDIR) -I$(SVDIR) -I$(RNGDIR) -DTIXML_USE_STL -DCDEBUG -Wall -g -pg
 COMPFLAGS = -DUSE_OMP -fopenmp
 CGPUFLAGS = -DUSE_GPU
 LDFLAGS = -lstdc++ 
-#LDFLAGS = -g -pg -lstdc++ 
+# LDFLAGS = -g -pg -lstdc++ 
 LOMPFLAGS = -fopenmp 
 LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
 
@@ -45,6 +45,8 @@ GPUOBJS = $(MAIN)/GpuSim.o \
        $(MAIN)/DynamicSpikingSynapse_struct.o \
        $(MAIN)/LifNeuron_struct.o \
        $(MAIN)/DynamicSpikingSynapse.o \
+       $(MAIN)/INeuron.o \
+       $(MAIN)/ISynapse.o \
        $(MAIN)/LifNeuron.o \
        $(MAIN)/Network_gpu.o \
        $(MAIN)/GpuSim_struct.o \
@@ -58,6 +60,8 @@ SINGLEOBJS = $(MAIN)/HostSim.o \
        $(MAIN)/Network.o \
        $(MAIN)/BGDriver.o \
        $(MAIN)/global.o \
+       $(MAIN)/INeuron.o \
+       $(MAIN)/ISynapse.o \
        $(MAIN)/LifNeuron.o 
 
 MULTIOBJS = $(MAIN)/HostSim.o \
@@ -66,6 +70,8 @@ MULTIOBJS = $(MAIN)/HostSim.o \
        $(MAIN)/Network_omp.o \
        $(MAIN)/BGDriver.o \
        $(MAIN)/global.o \
+       $(MAIN)/INeuron.o \
+       $(MAIN)/ISynapse.o \
        $(MAIN)/LifNeuron_omp.o 
 
 OBJS =  \
@@ -92,7 +98,7 @@ clean:
 
 $(MAIN)/ParamContainer.o: $(INCDIR)/ParamContainer.h $(INCDIR)/ParamContainer.cpp
     
-$(MAIN)/BGDriver.o: $(MAIN)/BGDriver.cpp $(MAIN)/global.h $(MAIN)/DynamicSpikingSynapse.h $(MAIN)/LifNeuron.h $(MAIN)/Network.h
+$(MAIN)/BGDriver.o: $(MAIN)/BGDriver.cpp $(MAIN)/global.h $(MAIN)/ISynapse.h $(MAIN)/INeuron.h $(MAIN)/Network.h
 
 $(MAIN)/DynamicSpikingSynapse.o: $(MAIN)/DynamicSpikingSynapse.cpp $(MAIN)/DynamicSpikingSynapse.h 
 
@@ -114,7 +120,7 @@ $(MAIN)/GpuSim_struct.o: $(MAIN)/GpuSim_struct.cu $(MAIN)/global.h $(MAIN)/Dynam
 #	nvcc -c -g -G -arch=sm_13 -maxrregcount=16 -Xptxas=-v GpuSim_struct.cu $(CGPUFLAGS) -I$(INCDIR) -I$(MATRIXDIR)
 	nvcc -c -g -G -arch=sm_13 -maxrregcount=16 -Xptxas=-v $(MAIN)/GpuSim_struct.cu $(CGPUFLAGS) -Iinclude -I$(INCDIR) -I$(MATRIXDIR) -DSTORE_SPIKEHISTORY -o $(MAIN)/GpuSim_struct.o
 
-$(MAIN)/LifNeuron.o: $(MAIN)/LifNeuron.cpp $(MAIN)/LifNeuron.h $(MAIN)/INeuron.h $(MAIN)/INeuron.h
+$(MAIN)/LifNeuron.o: $(MAIN)/LifNeuron.cpp $(MAIN)/LifNeuron.h
 
 $(MAIN)/LifNeuron_omp.o: $(MAIN)/LifNeuron.cpp $(MAIN)/LifNeuron.h 
 	$(CXX) $(CXXFLAGS) $(COMPFLAGS) -c $(MAIN)/LifNeuron.cpp -o $(MAIN)/LifNeuron_omp.o
@@ -136,9 +142,7 @@ $(MAIN)/Network_omp.o: $(MAIN)/Network.cpp $(MAIN)/Network.h $(MAIN)/global.h
 $(MAIN)/Network_gpu.o: $(MAIN)/Network.cpp $(MAIN)/Network.h $(MAIN)/global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -c $(MAIN)/Network.cpp -o $(MAIN)/Network_gpu.o
 
-$(MAIN)/BGDriver.o: $(MAIN)/BGDriver.cpp $(MAIN)/global.h $(MAIN)/DynamicSpikingSynapse.h $(MAIN)/LifNeuron.h $(MAIN)/Network.h
-
-$(MAIN)/BGDriver_gpu.o: $(MAIN)/BGDriver.cpp $(MAIN)/global.h $(MAIN)/DynamicSpikingSynapse.h $(MAIN)/LifNeuron.h $(MAIN)/Network.h
+$(MAIN)/BGDriver_gpu.o: $(MAIN)/BGDriver.cpp $(MAIN)/global.h $(MAIN)/ISynapse.h $(MAIN)/INeuron.h $(MAIN)/Network.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -c $(MAIN)/BGDriver.cpp -o $(MAIN)/BGDriver_gpu.o
 
 $(MAIN)/HostSim.o: $(MAIN)/HostSim.cpp $(MAIN)/HostSim.h $(MAIN)/ISimulation.h

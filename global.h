@@ -24,6 +24,7 @@ typedef unsigned long long int uint64_t;	//included in inttypes.h, which is not 
 #include "include/bgtypes.h"
 #include "include/norm.h"
 #include "Coordinate.h"
+#include "matrix/VectorMatrix.h"
 
 using namespace std;
 

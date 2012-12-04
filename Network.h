@@ -41,10 +41,10 @@
 #ifndef _NETWORK_H_
 #define _NETWORK_H_
 
+#include "global.h"
 #include "include/Timer.h"
-#include "SingleThreadedSim.h"
-#include "MultiThreadedSim.h"
-#include "GpuSim.h"
+#include "ISimulation.h"
+#include "LifNeuron.h"
 
 class Network
 {

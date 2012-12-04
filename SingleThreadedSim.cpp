@@ -38,7 +38,7 @@ void SingleThreadedSim::advanceUntilGrowth(SimulationInfo* psi)
 
     while (g_simulationStep < endStep)
     {
-        DEBUG(if (count % 1000 == 0)
+        DEBUG(if (count % 10000 == 0)
               {
                   cout << psi->currentStep << "/" << psi->maxSteps
                       << " simulating time: " << g_simulationStep * psi->deltaT << endl;

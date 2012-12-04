@@ -53,7 +53,7 @@ public:
 	#ifdef STORE_SPIKEHISTORY
 
 	//! The history of spike times.
-	virtual vector <uint64_t> spikeHistory;
+	vector <uint64_t> spikeHistory;
 
 	//! Return the number of spikes emitted.
 	virtual int nSpikes();

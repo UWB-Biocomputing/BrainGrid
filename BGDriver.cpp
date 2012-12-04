@@ -13,8 +13,18 @@
 #include "global.h"
 #include "include/ParamContainer.h"
 #include "Network.h"
+
 // Uncomment to use visual leak detector
 //#include <vld.h> 
+#define USE_OMP
+
+#if defined(USE_GPU)
+	#include "GpuSim.h"
+#elif defined(USE_OMP)
+	#include "MultiThreadedSim.h"
+#else
+	#include "SingleThreadedSim.h"
+#endif
 
 using namespace std;
 

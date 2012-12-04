@@ -27,7 +27,7 @@
 #ifndef _SIMULATIONINFO_H_
 #define _SIMULATIONINFO_H_
 
-#include "LifNeuron.h"
+#include "INeuron.h"
 #include "DynamicSpikingSynapse.h"
 
 //! Structure design to hold all of the parameters of the simulation.
