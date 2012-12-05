@@ -50,12 +50,11 @@ class Network
 {
 public:
 	//! The constructor for Network.
-	Network(int rows, int cols, FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2], FLOAT Inoise[2],
+	Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2], FLOAT Inoise[2],
 			FLOAT Vthresh[2], FLOAT Vresting[2], FLOAT Vreset[2], FLOAT Vinit[2], FLOAT starter_Vthresh[2],
-			FLOAT starter_Vreset[2], FLOAT m_epsilon, FLOAT m_beta, FLOAT m_rho, FLOAT m_targetRate, FLOAT m_maxRate,
-			FLOAT m_minRadius, FLOAT m_startRadius, FLOAT m_deltaT, ostream& new_outstate, 
+			FLOAT starter_Vreset[2], FLOAT new_targetRate, ostream& new_outstate, 
 			ostream& new_memoutput, bool fWriteMemImage, istream& new_meminput, bool fReadMemImage, bool fFixedLayout, 
-            vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout, long seed, 
+            vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
 			SimulationInfo simInfo);
 	~Network();
 
@@ -98,15 +97,6 @@ public:
 	//! Output the m_pfStarterMap to a VectorMatrix.
 	void getStarterNeuronMatrix(VectorMatrix& starterNeurons);
 
-	//! The m_width of the network, in unit neurons.
-	const int m_width;
-
-	//! The m_height of the network, in unit neurons.
-	const int m_height;
-
-	//! The total number of neurons.
-	int m_cNeurons;
-
 	//! The number of excitory neurons.
 	int m_cExcitoryNeurons;
 
@@ -115,9 +105,6 @@ public:
 
 	//! The number of endogenously active neurons.
 	int m_cStarterNeurons;
-
-	//! The simulation time step.
-	FLOAT m_deltaT;
 
 	//! List of lists of synapses
 	vector<ISynapse*>* m_rgSynapseMap;
@@ -134,26 +121,8 @@ public:
 	//! The starter existence map (T/F).
 	bool* m_rgEndogenouslyActiveNeuronMap;
 
-	//! growth param TODO: more detail here
-	FLOAT m_epsilon;
-
-	//! growth param TODO: more detail here
-	FLOAT m_beta;
-
-	//! growth param: change in radius scalar
-	FLOAT m_rho;
-
 	//! growth param (spikes/second) TODO: more detail here
 	FLOAT m_targetRate;
-
-	//! growth variable (m_targetRate / m_epsilon) TODO: more detail here
-	FLOAT m_maxRate;
-
-	//! The minimum possible radius.  We use this to prevent neurons from disconnecting from the network.
-	FLOAT m_minRadius;
-
-	//! The starting connectivity radius for all neurons.
-	FLOAT m_startRadius;
 
 	//! A file stream for xml output.
 	ostream& state_out;
@@ -176,8 +145,6 @@ public:
 	vector<int>* m_pEndogenouslyActiveNeuronLayout;
 
 	vector<int>* m_pInhibitoryNeuronLayout;
-
-	long m_seed;
 
 private:
 	// Struct that holds information about a simulation

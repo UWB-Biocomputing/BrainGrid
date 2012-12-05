@@ -14,9 +14,8 @@
 #include "include/ParamContainer.h"
 #include "Network.h"
 
-// Uncomment to use visual leak detector
+// Uncomment to use visual leak detector (Visual Studios Plugin)
 //#include <vld.h> 
-#define USE_OMP
 
 #if defined(USE_GPU)
 	#include "GpuSim.h"
@@ -74,8 +73,8 @@ long seed; // Seed for random generator
 
 // functions
 SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon, FLOAT new_beta, FLOAT new_rho,
-        FLOAT new_maxRate, FLOAT new_minRadius, FLOAT new_startRadius,
-		FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFiringRate, int maxSynapsesPerNeuron, long seed);
+        FLOAT new_maxRate, FLOAT new_minRadius, FLOAT new_startRadius, FLOAT growthStepDuration, 
+		FLOAT maxGrowthSteps, int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT, long seed);
 void LoadSimParms(TiXmlElement*);
 void SaveSimState(ostream &);
 void printParams();
@@ -130,7 +129,7 @@ int main(int argc, char* argv[]) {
 	FLOAT startFrac = nStarterNeurons / (FLOAT) numNeurons;
 
 	SimulationInfo si = makeSimulationInfo(poolsize[0], poolsize[1], epsilon, beta, rho, maxRate, minRadius, startRadius,
-			Tsim, numSims, maxFiringRate, maxSynapsesPerNeuron, seed);
+			Tsim, numSims, maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed);
 
 	// Get an ISimulation object
 	// TODO: remove #defines and use cmdline parameters to choose simulation method
@@ -144,10 +143,9 @@ int main(int argc, char* argv[]) {
 	#endif
 
 	// create the network
-	Network network( poolsize[0], poolsize[1], inhFrac, excFrac, startFrac, Iinject, Inoise, Vthresh, Vresting, Vreset,
-			Vinit, starter_vthresh, starter_vreset, epsilon, beta, rho, targetRate, maxRate, minRadius, startRadius,
-			DEFAULT_dt, state_out, memory_out, fWriteMemImage, memory_in, fReadMemImage, fFixedLayout, &endogenouslyActiveNeuronLayout, 
-			&inhibitoryNeuronLayout, seed, si);
+	Network network( inhFrac, excFrac, startFrac, Iinject, Inoise, Vthresh, Vresting, Vreset,
+			Vinit, starter_vthresh, starter_vreset, targetRate, state_out, memory_out, fWriteMemImage, memory_in, fReadMemImage, 
+			fFixedLayout, &endogenouslyActiveNeuronLayout, &inhibitoryNeuronLayout, si);
 
 	time_t start_time, end_time;
 	time(&start_time);
@@ -177,8 +175,8 @@ int main(int argc, char* argv[]) {
  * Init SimulationInfo parameters
  */
 SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon, FLOAT new_beta, FLOAT new_rho,
-        FLOAT new_maxRate, FLOAT new_minRadius, FLOAT new_startRadius,
-		FLOAT growthStepDuration, FLOAT maxGrowthSteps, int maxFiringRate, int maxSynapsesPerNeuron, long seed) {
+        FLOAT new_maxRate, FLOAT new_minRadius, FLOAT new_startRadius, FLOAT growthStepDuration, 
+		FLOAT maxGrowthSteps, int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT, long seed) {
 	SimulationInfo si;
     // Init SimulationInfo parameters
 	int max_neurons = cols * rows;
@@ -198,6 +196,7 @@ SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon, FLOAT n
     si.maxRate = new_maxRate;
     si.minRadius = new_minRadius;
     si.startRadius = new_startRadius;
+	si.deltaT = new_deltaT;
 	si.seed = seed;
 
 	return si;
