@@ -4,7 +4,7 @@
  * Header file for INeuron
  * INeuron is the base interface for a Neuron to be used with the Simulator.
  *
-	DATE		VERSION		NAME		COMMENT
+ *	DATE		VERSION		NAME		COMMENT
  *	11/24/2012	1.0			dwise		Initial stab at creating an INeuron in the simulator
  */
 

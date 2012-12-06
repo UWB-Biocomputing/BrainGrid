@@ -63,7 +63,7 @@ void allocNeuronStruct(LifNeuron_struct* neuron, int count);
 void deleteNeuronStruct(LifNeuron_struct* neuron);
 
 /**
- * Copy LifNeuron data into a LifNeuron_struct for GPU processing.
+ * Copy INeuron data into a LifNeuron_struct for GPU processing.
  * @param in
  * @param out
  * @param idx
@@ -71,7 +71,7 @@ void deleteNeuronStruct(LifNeuron_struct* neuron);
 void copyNeuronToStruct(INeuron* in, LifNeuron_struct* out, int idx);
 
 /**
- * Copy LifNeuron_struct array data into a LifNeuron.
+ * Copy LifNeuron_struct array data into a INeuron.
  * @param in
  * @param out
  * @param idx

@@ -178,8 +178,8 @@ void SingleThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radii
                 {
                     area(i, j) = pi * min(r1, r2) * min(r1, r2); // Completely overlapping unit
 #ifdef LOGFILE
-                    logFile << "Completely overlapping (i, j, r1, r2, area): "
-                    << i << ", " << j << ", " << r1 << ", " << r2 << ", " << *pAarea(i, j) << endl;
+						logFile << "Completely overlapping (i, j, r1, r2, area): "
+						<< i << ", " << j << ", " << r1 << ", " << r2 << ", " << *pAarea(i, j) << endl;
 #endif // LOGFILE
                 }
                 else

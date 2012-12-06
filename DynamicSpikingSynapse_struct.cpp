@@ -76,7 +76,7 @@ void deleteSynapseSumCoord(DynamicSpikingSynapse_struct* synapse) {
 }
 
 /**
- * Copy a DynamicSpikingSynapse into a DynamicSpikingSynapse_struct.
+ * Copy a ISynapse into a DynamicSpikingSynapse_struct.
  * @param in
  * @param out
  * @param idx
@@ -102,7 +102,7 @@ void copySynapseToStruct(ISynapse* in, DynamicSpikingSynapse_struct* out, int id
 }
 
 /**
- * Copy a DynamicSpikingSynapse_struct into a DynamicSpikingSynapse.
+ * Copy a DynamicSpikingSynapse_struct into a ISynapse.
  * @param in
  * @param out
  * @param idx

@@ -58,7 +58,7 @@ void allocSynapseSumCoord(DynamicSpikingSynapse_struct* synapse, int count);
 void deleteSynapseSumCoord(DynamicSpikingSynapse_struct* synapse);
 
 /**
- * Copy a DynamicSpikingSynapse into a DynamicSpikingSynapse_struct.
+ * Copy a ISynapse into a DynamicSpikingSynapse_struct.
  * @param in
  * @param out
  * @param idx
@@ -66,12 +66,12 @@ void deleteSynapseSumCoord(DynamicSpikingSynapse_struct* synapse);
 void copySynapseToStruct(ISynapse* in, DynamicSpikingSynapse_struct* out, int idx);
 
 /**
- * Copy a DynamicSpikingSynapse_struct into a DynamicSpikingSynapse.
+ * Copy a DynamicSpikingSynapse_struct into a ISynapse.
  * @param in
  * @param out
  * @param idx
  */
-void copyStructToSynapse(ISynapse* in, DynamicSpikingSynapse_struct* out, int idx);
+void copyStructToSynapse(DynamicSpikingSynapse_struct* in, ISynapse* out, int idx);
 
 /**
  * Copy a synapseArray into a synapseMap.

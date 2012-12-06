@@ -556,16 +556,13 @@ bool parseCommandLine(int argc, char* argv[])
 	stateInputFileName = cl["stateinfile"];
 	memInputFileName = cl["meminfile"];
 	memOutputFileName = cl["memoutfile"];
-	if (!memInputFileName.empty()) {
+	if (!memInputFileName.empty())
 		fReadMemImage = true;
-	}
-	if (!memOutputFileName.empty()) {
+	if (!memOutputFileName.empty())
 		fWriteMemImage = true;
-	}
 #if defined(USE_GPU)
-	if ( EOF == sscanf(cl["deviceid"].c_str( ), "%d", &g_deviceId ) ) {
+	if ( EOF == sscanf(cl["deviceid"].c_str( ), "%d", &g_deviceId ) )
 		g_deviceId = 0;
-	}
 #endif // USE_GPU
 
 	TiXmlDocument simDoc( stateInputFileName.c_str( ) );

@@ -1,8 +1,12 @@
 /*
  * LifNeuron_struct_d.cu
- *
+ * CUDA side struct of LifNeuron
  */
 
+/**
+ * Allocate data members in the LifNeuron_struct_d.
+ * @param count
+ */
 void allocNeuronStruct_d( int count ) {
 	LifNeuron_struct neuron;
 
@@ -37,6 +41,9 @@ void allocNeuronStruct_d( int count ) {
 	HANDLE_ERROR( cudaMemcpyToSymbol ( neuron_st_d, &neuron, sizeof( LifNeuron_struct ) ) );
 }
 
+/**
+ * Deallocate data members in the LifNeuron_struct_d.
+ */
 void deleteNeuronStruct_d(  ) {
 	LifNeuron_struct neuron;
 	HANDLE_ERROR( cudaMemcpyFromSymbol ( &neuron, neuron_st_d, sizeof( LifNeuron_struct ) ) );
@@ -70,6 +77,11 @@ void deleteNeuronStruct_d(  ) {
 	HANDLE_ERROR( cudaFree( neuron.stepDuration ) );
 }
 
+/**
+ * Copy LifNeuron_struct data for GPU processing.
+ * @param neuron_h
+ * @param count
+ */
 void copyNeuronHostToDevice( LifNeuron_struct& neuron_h, int count ) {
 	LifNeuron_struct neuron;
 	HANDLE_ERROR( cudaMemcpyFromSymbol ( &neuron, neuron_st_d, sizeof( LifNeuron_struct ) ) );
@@ -100,6 +112,11 @@ void copyNeuronHostToDevice( LifNeuron_struct& neuron_h, int count ) {
 	HANDLE_ERROR( cudaMemcpy ( neuron.inverseCount, neuron_h.inverseCount, count * sizeof( int ), cudaMemcpyHostToDevice ) );
 }
 
+/**
+ * Copy data from GPU into LifNeuron_struct.
+ * @param neuron_h
+ * @param count
+ */
 void copyNeuronDeviceToHost( LifNeuron_struct& neuron_h, int count ) {
 	LifNeuron_struct neuron;
 	HANDLE_ERROR( cudaMemcpyFromSymbol ( &neuron, neuron_st_d, sizeof( LifNeuron_struct ) ) );
