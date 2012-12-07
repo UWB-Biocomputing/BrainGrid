@@ -50,6 +50,9 @@ public:
 
     //! Perform updating synapses for one time step.
     virtual void updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiHistory, CompleteMatrix& ratesHistory) = 0;
+
+	//! Returns a type of Neuron to be used in the Network
+	virtual INeuron* returnNeuron() = 0;
 };
 
 #endif // _ISIMULATION_H_

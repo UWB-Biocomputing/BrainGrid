@@ -389,3 +389,11 @@ void GpuSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiHistory, Co
     updateNetworkGPU( psi, W, psi->maxSynapsesPerNeuron );
 
 }
+
+/**
+ * Returns a type of Neuron to be used in the Network
+ */
+INeuron* GpuSim::returnNeuron()
+{
+	return new LifNeuron();
+}

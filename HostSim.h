@@ -28,6 +28,7 @@
 #define _HOSTSIM_H_
 
 #include "ISimulation.h"
+#include "LifNeuron.h"
 
 class HostSim : public ISimulation
 {
@@ -44,6 +45,9 @@ public:
   
     //! Initialize radii
     virtual void initRadii(VectorMatrix& newRadii);
+
+	//! Returns a type of Neuron to be used in the Network
+	virtual INeuron* returnNeuron();
 
 protected:
     //! Adds a synapse to the network.  Requires the locations of the source and destination neurons.

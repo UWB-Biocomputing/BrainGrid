@@ -81,6 +81,14 @@ void HostSim::initRadii(VectorMatrix& newRadii)
 }
 
 /**
+ * Returns a type of Neuron to be used in the Network
+ */
+INeuron* HostSim::returnNeuron()
+{
+	return new LifNeuron();
+}
+
+/**
  * Adds a synapse to the network.  Requires the locations of the source and
  * destination neurons.
  * @param[in] source_x	X location of source.

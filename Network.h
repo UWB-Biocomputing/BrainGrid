@@ -44,7 +44,6 @@
 #include "global.h"
 #include "include/Timer.h"
 #include "ISimulation.h"
-#include "LifNeuron.h"
 
 class Network
 {
@@ -55,7 +54,7 @@ public:
 			FLOAT starter_Vreset[2], FLOAT new_targetRate, ostream& new_outstate, 
 			ostream& new_memoutput, bool fWriteMemImage, istream& new_meminput, bool fReadMemImage, bool fFixedLayout, 
             vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
-			SimulationInfo simInfo);
+			SimulationInfo simInfo, ISimulation* sim);
 	~Network();
 
 	//! Frees dynamically allocated memory associated with the maps.
@@ -89,7 +88,7 @@ public:
 	void readSimMemory(istream& is, VectorMatrix& radii, VectorMatrix& rates);
 
 	//! Performs the simulation.
-	void simulate(FLOAT growthStepDuration, FLOAT num_growth_steps, ISimulation* sim);
+	void simulate(FLOAT growthStepDuration, FLOAT num_growth_steps);
 
 	//! Output the m_rgNeuronTypeMap to a VectorMatrix.
 	void getNeuronTypes(VectorMatrix& neuronTypes);
@@ -149,6 +148,9 @@ public:
 private:
 	// Struct that holds information about a simulation
 	SimulationInfo m_si;
+
+	// Simulator
+	ISimulation* m_sim;
 
 	//! Used to track the running simulation time.
 	Timer m_timer;

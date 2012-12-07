@@ -61,6 +61,9 @@ public:
     //! Updates the network.
     virtual void updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiHistory, CompleteMatrix& ratesHistory);
 
+	//! Returns a type of Neuron to be used in the Network
+	virtual INeuron* returnNeuron();
+
 #ifdef STORE_SPIKEHISTORY
     //! pointer to an array to keep spike history for one activity epoch
     uint64_t* spikeArray;

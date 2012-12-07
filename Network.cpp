@@ -16,7 +16,7 @@ Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2]
         FLOAT starter_Vthresh[2], FLOAT starter_Vreset[2], FLOAT new_targetRate,
         ostream& new_stateout, ostream& new_memoutput, bool fWriteMemImage, istream& new_meminput, bool fReadMemImage, 
 		bool fFixedLayout, vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
-		SimulationInfo simInfo) :
+		SimulationInfo simInfo, ISimulation* sim) :
     m_cExcitoryNeurons(static_cast<int>(simInfo.cNeurons * excFrac)), 
     m_cInhibitoryNeurons(static_cast<int>(simInfo.cNeurons * inhFrac)), 
     m_cStarterNeurons(static_cast<int>(simInfo.cNeurons * startFrac)), 
@@ -33,7 +33,8 @@ Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2]
     m_fFixedLayout(fFixedLayout),
     m_pEndogenouslyActiveNeuronLayout(pEndogenouslyActiveNeuronLayout),
     m_pInhibitoryNeuronLayout(pInhibitoryNeuronLayout),
-	m_si(simInfo)
+	m_si(simInfo),
+	m_sim(sim)
 {
     cout << "Neuron count: " << simInfo.cNeurons << endl;
  
@@ -59,7 +60,7 @@ Network::~Network()
 * @param growthStepDuration
 * @param maxGrowthSteps
 */
-void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, ISimulation* sim)
+void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 {
     string matrixType, init;
 
@@ -125,11 +126,11 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, ISimulati
     m_timer.start();
 
 	// Initialize and prepare simulator
-    sim->init(&m_si, xloc, yloc);
+    m_sim->init(&m_si, xloc, yloc);
 
     // Set the previous saved radii
     if (m_fReadMemImage)    
-        sim->initRadii(radii);
+        m_sim->initRadii(radii);
     
 
     // Main simulation loop - execute maxGrowthSteps
@@ -146,7 +147,7 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, ISimulati
         DEBUG(cout << "Begin network state:" << endl;)
 
         // Advance simulation to next growth cycle
-        sim->advanceUntilGrowth(&m_si);
+        m_sim->advanceUntilGrowth(&m_si);
 
         DEBUG(cout << "\n\nDone with simulation cycle, beginning growth update " << currentStep << endl;)
 
@@ -154,7 +155,7 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, ISimulati
 #ifdef PERFORMANCE_METRICS
         m_short_timer.start();
 #endif
-		sim->updateNetwork(&m_si, radiiHistory, ratesHistory);
+		m_sim->updateNetwork(&m_si, radiiHistory, ratesHistory);
 
 #ifdef PERFORMANCE_METRICS
         t_host_adjustSynapses = m_short_timer.lap() / 1000.0f;
@@ -176,11 +177,11 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, ISimulati
 
 #ifdef STORE_SPIKEHISTORY
     // output spikes
-    for (int i = 0; i < m_width; i++)
+    for (int i = 0; i < m_si.width; i++)
     {
-        for (int j = 0; j < m_height; j++)
+        for (int j = 0; j < m_si.height; j++)
         {
-            vector<uint64_t>* pSpikes = m_neuronList[i + j * m_width]->getSpikes();
+            vector<uint64_t>* pSpikes = m_neuronList[i + j * m_si.width]->getSpikes();
 
             DEBUG2 (cout << endl << coordToString(i, j) << endl);
 
@@ -201,7 +202,7 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps, ISimulati
                  growthStepDuration, neuronThresh);
 
     // Terminate the simulator
-    sim->term(&m_si);
+    m_sim->term(&m_si);
 
     // write the simulation memory image
     if (m_fWriteMemImage)
@@ -303,7 +304,7 @@ void Network::initNeurons(FLOAT Iinject[2], FLOAT Inoise[2], FLOAT Vthresh[2], F
     /* set their specific types */
     for (int i = 0; i < m_si.cNeurons; i++)
     {
-		m_neuronList[i] = new LifNeuron();
+		m_neuronList[i] = m_sim->returnNeuron();
 
         // set common parameters
         m_neuronList[i]->setParams(

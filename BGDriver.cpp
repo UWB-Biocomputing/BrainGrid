@@ -145,12 +145,12 @@ int main(int argc, char* argv[]) {
 	// create the network
 	Network network( inhFrac, excFrac, startFrac, Iinject, Inoise, Vthresh, Vresting, Vreset,
 			Vinit, starter_vthresh, starter_vreset, targetRate, state_out, memory_out, fWriteMemImage, memory_in, fReadMemImage, 
-			fFixedLayout, &endogenouslyActiveNeuronLayout, &inhibitoryNeuronLayout, si);
+			fFixedLayout, &endogenouslyActiveNeuronLayout, &inhibitoryNeuronLayout, si, pSim);
 
 	time_t start_time, end_time;
 	time(&start_time);
 
-	network.simulate( Tsim, numSims, pSim );
+	network.simulate( Tsim, numSims );
 
 	delete pSim;
 	rgNormrnd.clear();

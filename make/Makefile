@@ -48,7 +48,7 @@ GPUOBJS = $(MAIN)/GpuSim.o \
        $(MAIN)/INeuron.o \
        $(MAIN)/ISynapse.o \
        $(MAIN)/LifNeuron.o \
-       $(MAIN)/Network_gpu.o \
+       $(MAIN)/Network.o \
        $(MAIN)/GpuSim_struct.o \
        $(MAIN)/BGDriver_gpu.o \
        $(MAIN)/global_gpu.o \
@@ -67,8 +67,8 @@ SINGLEOBJS = $(MAIN)/HostSim.o \
 MULTIOBJS = $(MAIN)/HostSim.o \
        $(MAIN)/MultiThreadedSim.o \
        $(MAIN)/DynamicSpikingSynapse_omp.o \
-       $(MAIN)/Network_omp.o \
-       $(MAIN)/BGDriver.o \
+       $(MAIN)/Network.o \
+       $(MAIN)/BGDriver_omp.o \
        $(MAIN)/global.o \
        $(MAIN)/INeuron.o \
        $(MAIN)/ISynapse.o \
@@ -93,8 +93,7 @@ growth_gpu:$(OBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS) $(GPUOBJS)
 # some default targets
 #
 clean:
-	rm -f $(MAIN)/*.o $(INCDIR)/*.o $(MATRIXDIR)/*.o
-	#$(MAIN)/growth $(MAIN)/growth_omp
+	rm -f $(MAIN)/*.o $(INCDIR)/*.o $(MATRIXDIR)/*.o ./growth ./growth_omp
 
 $(MAIN)/ParamContainer.o: $(INCDIR)/ParamContainer.h $(INCDIR)/ParamContainer.cpp
     
@@ -136,14 +135,11 @@ $(MAIN)/MultiThreadedSim.o: $(MAIN)/MultiThreadedSim.cpp $(MAIN)/MultiThreadedSi
 
 $(MAIN)/Network.o: $(MAIN)/Network.cpp $(MAIN)/Network.h $(MAIN)/global.h
 
-$(MAIN)/Network_omp.o: $(MAIN)/Network.cpp $(MAIN)/Network.h $(MAIN)/global.h
-	$(CXX) $(CXXFLAGS) $(COMPFLAGS) -c $(MAIN)/Network.cpp -o $(MAIN)/Network_omp.o
-
-$(MAIN)/Network_gpu.o: $(MAIN)/Network.cpp $(MAIN)/Network.h $(MAIN)/global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -c $(MAIN)/Network.cpp -o $(MAIN)/Network_gpu.o
-
 $(MAIN)/BGDriver_gpu.o: $(MAIN)/BGDriver.cpp $(MAIN)/global.h $(MAIN)/ISynapse.h $(MAIN)/INeuron.h $(MAIN)/Network.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -c $(MAIN)/BGDriver.cpp -o $(MAIN)/BGDriver_gpu.o
+	
+$(MAIN)/BGDriver_omp.o: $(MAIN)/BGDriver.cpp $(MAIN)/global.h $(MAIN)/ISynapse.h $(MAIN)/INeuron.h $(MAIN)/Network.h
+	$(CXX) $(CXXFLAGS) $(COMPFLAGS) -c $(MAIN)/BGDriver.cpp -o $(MAIN)/BGDriver_omp.o
 
 $(MAIN)/HostSim.o: $(MAIN)/HostSim.cpp $(MAIN)/HostSim.h $(MAIN)/ISimulation.h
 
