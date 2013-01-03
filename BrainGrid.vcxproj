@@ -177,6 +177,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 5.0.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -261,12 +262,21 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
     <TargetName>Growth</TargetName>
+    <EmbedManifest>false</EmbedManifest>
+    <ExecutablePath>$(WindowsSDK_ExecutablePath_x86);$(VCInstallDir)bin\x86_amd64;$(VCInstallDir)bin\;$(VCInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(MSBuildToolsPath32);$(VSInstallDir);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH)</ExecutablePath>
+    <LibraryPath>$(VCInstallDir)lib\amd64;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <IncludePath>$(VCInstallDir)\Include;$(VCInstallDir)\ATLMFC\Include;c:\Program Files (x86)\Windows Kits\8.0\include\shared;c:\Program Files (x86)\Windows Kits\8.0\include\um;c:\Program Files (x86)\Windows Kits\8.0\include\winrt</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='IOCP Release|X64'">
     <TargetName>Growth</TargetName>
+    <EmbedManifest>false</EmbedManifest>
+    <ExecutablePath>$(WindowsSDK_ExecutablePath_x86);$(VCInstallDir)bin\x86_amd64;$(VCInstallDir)bin\;$(VCInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(MSBuildToolsPath32);$(VSInstallDir);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH)</ExecutablePath>
+    <LibraryPath>$(VCInstallDir)lib\amd64;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <IncludePath>$(VCInstallDir)\Include;$(VCInstallDir)\ATLMFC\Include;c:\Program Files (x86)\Windows Kits\8.0\include\shared;c:\Program Files (x86)\Windows Kits\8.0\include\um;c:\Program Files (x86)\Windows Kits\8.0\include\winrt</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='GPU Release|X64'">
     <TargetName>Growth</TargetName>
+    <EmbedManifest>false</EmbedManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='OMP Release|X64'">
     <TargetName>Growth</TargetName>
@@ -327,6 +337,9 @@
     <LibraryPath>$(VCInstallDir)lib\amd64;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x64)</LibraryPath>
     <IncludePath>$(VCInstallDir)\Include;$(VCInstallDir)\ATLMFC\Include;c:\Program Files (x86)\Windows Kits\8.0\include\shared;c:\Program Files (x86)\Windows Kits\8.0\include\um;c:\Program Files (x86)\Windows Kits\8.0\include\winrt</IncludePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='GPU Debug|X64'">
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level1</WarningLevel>
@@ -381,7 +394,7 @@
     <ClCompile>
       <WarningLevel>Level1</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;USE_GPU</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;MATRIXOBJS;XMLOBJS;OTHEROBJS;GPUOBJS </PreprocessorDefinitions>
       <AdditionalIncludeDirectories>include;tinyxml;RNG;Utils;SourceVersions</AdditionalIncludeDirectories>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
       <OpenMPSupport>true</OpenMPSupport>
@@ -457,7 +470,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='GPU Debug|X64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);TIXML_USE_STL</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>include;tinyxml;RNG;Utils;SourceVersions</AdditionalIncludeDirectories>
@@ -525,7 +538,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='GPU Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -559,12 +572,13 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>include;tinyxml;RNG;Utils;SourceVersions </AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);TIXML_USE_STL</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -574,12 +588,13 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='IOCP Release|X64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>include;tinyxml;RNG;Utils;SourceVersions </AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);TIXML_USE_STL;_IOCP</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -589,7 +604,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='GPU Release|X64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -624,6 +639,7 @@
     <ClCompile Include="DynamicSpikingSynapse.cpp" />
     <ClCompile Include="DynamicSpikingSynapse_struct.cpp" />
     <ClCompile Include="global.cpp" />
+    <ClCompile Include="GpuSim.cpp" />
     <ClCompile Include="HostSim.cpp" />
     <ClCompile Include="IOCP_Sim.cpp" />
     <ClCompile Include="LifNeuron.cpp" />
@@ -654,7 +670,39 @@
     <ClCompile Include="tinyxml\tinyxmlparser.cpp" />
     <ClCompile Include="Utils\Timer.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DelayList.h" />
+    <ClInclude Include="DynamicArray.h" />
+    <ClInclude Include="DynamicSpikingSynapse.h" />
+    <ClInclude Include="DynamicSpikingSynapse_struct.h" />
+    <ClInclude Include="global.h" />
+    <ClInclude Include="GpuSim.h" />
+    <ClInclude Include="HostSim.h" />
+    <ClInclude Include="ISimulation.h" />
+    <ClInclude Include="LifNeuron.h" />
+    <ClInclude Include="LifNeuron_struct.h" />
+    <ClInclude Include="lock.h" />
+    <ClInclude Include="MultiThreadedSim.h" />
+    <ClInclude Include="Network.h" />
+    <ClInclude Include="SimulationInfo.h" />
+    <ClInclude Include="SingleThreadedSim.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="DynamicSpikingSynapse_struct_d.cu">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='GPU Debug|Win32'">true</ExcludedFromBuild>
+    </CudaCompile>
+    <CudaCompile Include="GpuSim_CUDA.cu">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='GPU Debug|Win32'">true</ExcludedFromBuild>
+    </CudaCompile>
+    <CudaCompile Include="GpuSim_struct.cu">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='GPU Debug|Win32'">true</ExcludedFromBuild>
+    </CudaCompile>
+    <CudaCompile Include="LifNeuron_struct_d.cu">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='GPU Debug|Win32'">true</ExcludedFromBuild>
+    </CudaCompile>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 5.0.targets" />
   </ImportGroup>
 </Project>

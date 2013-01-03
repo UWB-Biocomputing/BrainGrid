@@ -5,6 +5,7 @@
  *
  *      @brief A class that performs the multi threaded simulation on CPU.
  */
+#ifdef USE_OMP
 #include "MultiThreadedSim.h"
 
 /** 
@@ -321,3 +322,4 @@ void MultiThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiH
     DEBUG (cout << "removed: " << removed << endl;)
     DEBUG (cout << "added: " << added << endl << endl << endl;)
 }
+#endif //  USE_OMP

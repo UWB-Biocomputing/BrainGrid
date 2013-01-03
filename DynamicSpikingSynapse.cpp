@@ -162,7 +162,8 @@ void DynamicSpikingSynapse::advance() {
 #endif
 	summationPoint += psr;
 #ifdef USE_OMP
-#pragma omp flush (summationPoint)
+//PAB: atomic above has implied flush (following statement generates error -- can't be member variable)
+//#pragma omp flush (summationPoint)
 #endif
 }
 

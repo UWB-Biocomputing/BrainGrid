@@ -135,9 +135,9 @@ int main(int argc, char* argv[]) {
 	time(&end_time);
 	double time_elapsed = difftime(end_time, start_time);
 	double ssps = Tsim * numSims / time_elapsed;
-	DEBUG(cout << "time simulated: " << Tsim * numSims << endl;)
-	DEBUG(cout << "time elapsed: " << time_elapsed << endl;)
-	DEBUG(cout << "ssps (simulation seconds / real time seconds): " << ssps << endl;)
+	cout << "time simulated: " << Tsim * numSims << endl;
+	cout << "time elapsed: " << time_elapsed << endl;
+	cout << "ssps (simulation seconds / real time seconds): " << ssps << endl;
 
 	// close input and output files
 	if (fWriteMemImage) {

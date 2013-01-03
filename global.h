@@ -11,6 +11,13 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 
+#ifdef USE_OMP
+#include "omp.h"
+#	define OMP(x) x
+#else
+#define OMP(x)
+#endif
+
 #include <iostream>
 #include <sstream>
 #include <cmath>
@@ -18,24 +25,17 @@
 #include <vector>
 #ifdef _WIN32	//needs to be before #include "bgtypes.h" or the #define FLOAT will cause problems
 #include <windows.h>	//warning! windows.h also defines FLOAT
-typedef unsigned long long int uint64_t;	//included in inttypes.h, which is not available in WIN32
 #else
 #include <inttypes.h>	//used for uint64_t, unavailable in WIN32
 #endif
 #include "bgtypes.h"
-#include "RNG/MersenneTwister.h"
+//PAB #include "RNG/MersenneTwister.h"
+#include "RNG/RNG.h" //pab
 #include "RNG/norm.h"
 #include "Coordinate.h"
 #include "DynamicArray.cpp"
 
 using namespace std;
-
-#ifdef USE_OMP
-#include "omp.h"
-#	define OMP(x) x
-#else
-#define OMP(x)
-#endif
 
 //! If defined, a table with time and each neuron voltage will output to stdout.
 //#define DUMP_VOLTAGES

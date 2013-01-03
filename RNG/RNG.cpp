@@ -27,6 +27,7 @@
 #include <cstdlib>    // For the C RNG
 #include <cstdio>     // For /dev/random
 #ifdef _WIN32
+#include <Windows.h>
 #include <time.h>
 #include "bgtypes.h"	//defines FLOAT, needed for WIN32 compiling
 #endif

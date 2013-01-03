@@ -53,7 +53,7 @@
 //
 
 #include <cmath>
-
+#include "..\global.h"
 #include "norm.h"
 
 #include "SourceVersions.h"
