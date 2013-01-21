@@ -40,10 +40,6 @@
 #include "KIIexceptions.h"
 #include "CompleteMatrix.h"
 
-#include "SourceVersions.h"
-
-static VersionInfo version("$Id: CompleteMatrix.cpp,v 1.2 2006/11/22 07:07:34 fumik Exp $");
-
 // Create a complete 2D Matrix
 CompleteMatrix::CompleteMatrix(string t, string i, int r,
 			       int c, FLOAT m, string values)

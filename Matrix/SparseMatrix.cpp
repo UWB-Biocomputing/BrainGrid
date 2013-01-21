@@ -57,11 +57,7 @@
 #include "KIIexceptions.h"
 #include "SparseMatrix.h"
 
-#include "SourceVersions.h"
-
 extern bool debugSparseMatrix;
-
-static VersionInfo version("$Id: SparseMatrix.cpp,v 1.1.1.1 2006/11/18 04:42:32 fumik Exp $");
 
 // hash table methods and static members
 

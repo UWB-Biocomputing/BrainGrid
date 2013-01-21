@@ -9,21 +9,21 @@
  **  @authors Allan Ortiz and Cory Mayberry.
  **/
 
-#include <iostream>
 #include <fstream>
-#include <sstream>
-#include <assert.h>
-#include <time.h>
-#include <deque>
-#include <ctime>
-
 #include "global.h"
-#include "tinyxml/tinyxml.h"
-#include "Matrix/VectorMatrix.h"
-#include "paramcontainer/ParamContainer.h"
-#include "DynamicSpikingSynapse.h"
-#include "LifNeuron.h"
+#include "include/ParamContainer.h"
 #include "Network.h"
+
+// Uncomment to use visual leak detector (Visual Studios Plugin)
+//#include <vld.h> 
+
+#if defined(USE_GPU)
+	#include "GpuSim.h"
+#elif defined(USE_OMP)
+	#include "MultiThreadedSim.h"
+#else
+	#include "SingleThreadedSim.h"
+#endif
 
 using namespace std;
 
@@ -69,14 +69,22 @@ FLOAT Tsim; // Simulation time (s) (between growth updates)
 int numSims; // Number of Tsim simulation to run
 int maxFiringRate; // Maximum firing rate (only used by GPU version)
 int maxSynapsesPerNeuron; //Maximum number of synapses per neuron (only used by GPU version)
+long seed; // Seed for random generator
 
 // functions
+SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon, FLOAT new_beta, FLOAT new_rho,
+        FLOAT new_maxRate, FLOAT new_minRadius, FLOAT new_startRadius, FLOAT growthStepDuration, 
+		FLOAT maxGrowthSteps, int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT, long seed);
 void LoadSimParms(TiXmlElement*);
 void SaveSimState(ostream &);
 void printParams();
 bool parseCommandLine(int argc, char* argv[]);
 void getValueList(const string& valString, vector<int>* pList);
 
+/**
+ * Main for Simulator. Handles command line arguments and loads parameters from parameter file.
+ * All initial loading before running simulator in Network is here.
+ */
 int main(int argc, char* argv[]) {
 
     DEBUG(cout << "reading parameters from xml file" << endl;)
@@ -93,44 +101,59 @@ int main(int argc, char* argv[]) {
 	TiXmlDocument simDoc( stateInputFileName.c_str( ) );
 	if (!simDoc.LoadFile( )) {
 		cerr << "Failed loading simulation parameter file " << stateInputFileName << ":" << "\n\t"
-				<< simDoc.ErrorDesc( ) << endl;
+			<< simDoc.ErrorDesc( ) << endl;
 		return -1;
 	}
 
 	// aquire the in/out file
 	ofstream state_out( stateOutputFileName.c_str( ) );
 	ofstream memory_out;
-	if (fWriteMemImage) {
+	if (fWriteMemImage) 
 		memory_out.open( memOutputFileName.c_str( ), ofstream::binary | ofstream::trunc );
-	}
+	
 	ifstream memory_in;
-	if (fReadMemImage) {
+	if (fReadMemImage) 
 		memory_in.open( memInputFileName.c_str( ), ofstream::binary | ofstream::in );
-	}
-
+	
 	// calculate the number of inhibitory, excitory, and endogenously active neurons
 	int numNeurons = poolsize[0] * poolsize[1];
 	int nInhNeurons = (int) ( ( 1.0 - frac_EXC ) * numNeurons + 0.5 );
 	int nExcNeurons = numNeurons - nInhNeurons;
 	int nStarterNeurons = 0;
-	if (starter_flag) {
+	if (starter_flag) 
 		nStarterNeurons = (int) ( starter_neurons * numNeurons + 0.5 );
-	}
-
+	
 	// calculate their ratios, out of the whole
 	FLOAT inhFrac = nInhNeurons / (FLOAT) numNeurons;
 	FLOAT excFrac = nExcNeurons / (FLOAT) numNeurons;
 	FLOAT startFrac = nStarterNeurons / (FLOAT) numNeurons;
 
+	SimulationInfo si = makeSimulationInfo(poolsize[0], poolsize[1], epsilon, beta, rho, maxRate, minRadius, startRadius,
+			Tsim, numSims, maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed);
+
+	// Get an ISimulation object
+	// TODO: remove #defines and use cmdline parameters to choose simulation method
+	ISimulation* pSim;
+	#if defined(USE_GPU)
+		pSim = new GpuSim(&si);
+	#elif defined(USE_OMP)
+		pSim = new MultiThreadedSim(&si);
+	#else
+		pSim = new SingleThreadedSim(&si);
+	#endif
+
 	// create the network
-	Network network( poolsize[0], poolsize[1], inhFrac, excFrac, startFrac, Iinject, Inoise, Vthresh, Vresting, Vreset,
-			Vinit, starter_vthresh, starter_vreset, epsilon, beta, rho, targetRate, maxRate, minRadius, startRadius,
-			DEFAULT_dt, state_out, memory_out, fWriteMemImage, memory_in, fReadMemImage, fFixedLayout, &endogenouslyActiveNeuronLayout, &inhibitoryNeuronLayout);
+	Network network( inhFrac, excFrac, startFrac, Iinject, Inoise, Vthresh, Vresting, Vreset,
+			Vinit, starter_vthresh, starter_vreset, targetRate, state_out, memory_out, fWriteMemImage, memory_in, fReadMemImage, 
+			fFixedLayout, &endogenouslyActiveNeuronLayout, &inhibitoryNeuronLayout, si, pSim);
 
 	time_t start_time, end_time;
 	time(&start_time);
 
-	network.simulate( Tsim, numSims, maxFiringRate, maxSynapsesPerNeuron );
+	network.simulate( Tsim, numSims );
+
+	delete pSim;
+	rgNormrnd.clear();
 
 	time(&end_time);
 	double time_elapsed = difftime(end_time, start_time);
@@ -140,17 +163,48 @@ int main(int argc, char* argv[]) {
 	cout << "ssps (simulation seconds / real time seconds): " << ssps << endl;
 
 	// close input and output files
-	if (fWriteMemImage) {
-		memory_out.close();		
-	}
-	if (fReadMemImage) {
+	if (fWriteMemImage) 
+		memory_out.close();			
+	if (fReadMemImage) 
 		memory_in.close();
-	}
-
+	
 	exit( EXIT_SUCCESS );
-
 }
 
+/*
+ * Init SimulationInfo parameters
+ */
+SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon, FLOAT new_beta, FLOAT new_rho,
+        FLOAT new_maxRate, FLOAT new_minRadius, FLOAT new_startRadius, FLOAT growthStepDuration, 
+		FLOAT maxGrowthSteps, int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT, long seed) {
+	SimulationInfo si;
+    // Init SimulationInfo parameters
+	int max_neurons = cols * rows;
+
+	si.cNeurons = max_neurons;
+    si.stepDuration = growthStepDuration;
+    si.maxSteps = (int)maxGrowthSteps;
+    si.maxFiringRate = maxFiringRate;
+    si.maxSynapsesPerNeuron = maxSynapsesPerNeuron;
+    si.width = cols;
+    si.height = rows;
+    si.rgNeuronTypeMap = new neuronType[max_neurons];
+    si.rgEndogenouslyActiveNeuronMap = new bool[max_neurons];
+    si.epsilon = new_epsilon;
+    si.beta = new_beta;
+    si.rho = new_rho;
+    si.maxRate = new_maxRate;
+    si.minRadius = new_minRadius;
+    si.startRadius = new_startRadius;
+	si.deltaT = new_deltaT;
+	si.seed = seed;
+
+	return si;
+}
+
+/**
+ * Prints loaded parameters out to console
+ */
 void printParams() {
 	cout << "\nPrinting parameters...\n";
 	cout << "frac_EXC:" << frac_EXC << " " << "starter_neurons:" << starter_neurons << endl;
@@ -175,23 +229,24 @@ void printParams() {
         cout << "Layout parameters:" << endl;
 
         cout << "\tEndogenously active neuron positions: ";
-        for (size_t i = 0; i < endogenouslyActiveNeuronLayout.size(); i++)
-        {
-            cout << endogenouslyActiveNeuronLayout[i] << " ";
-        }
+        for (size_t i = 0; i < endogenouslyActiveNeuronLayout.size(); i++)        
+            cout << endogenouslyActiveNeuronLayout[i] << " ";        
+
         cout << endl;
 
         cout << "\tInhibitory neuron positions: ";
-        for (size_t i = 0; i < inhibitoryNeuronLayout.size(); i++)
-        {
+        for (size_t i = 0; i < inhibitoryNeuronLayout.size(); i++)        
             cout << inhibitoryNeuronLayout[i] << " ";
-        }
+        
         cout << endl;
     }
 
 	cout << "Done printing parameters" << endl;
 }
 
+/**
+ * Handles loading of parameters using tinyxml from the parameter file.
+ */
 void LoadSimParms(TiXmlElement* parms)
 {
 	TiXmlElement* temp = NULL;
@@ -412,6 +467,16 @@ void LoadSimParms(TiXmlElement* parms)
 		cerr << "missing OutputParams" << endl;
 	}
 
+	if (( temp = parms->FirstChildElement( "Seed" ) ) != NULL) {
+		if (temp->QueryValueAttribute( "value", &seed ) != TIXML_SUCCESS) {
+			fSet = false;
+			cerr << "error value" << endl;
+		}
+	} else {
+		fSet = false;
+		cerr << "missing Seed" << endl;
+	}
+
     // Parse fixed layout (overrides random layouts)
 	if ((temp = parms->FirstChildElement( "FixedLayout")) != NULL)
     {
@@ -421,14 +486,12 @@ void LoadSimParms(TiXmlElement* parms)
 
         while ((pNode = temp->IterateChildren(pNode)) != NULL)
         {
-            if (strcmp(pNode->Value(), "A") == 0)
-            {
+            if (strcmp(pNode->Value(), "A") == 0)            
                 getValueList(pNode->ToElement()->GetText(), &endogenouslyActiveNeuronLayout);
-            }
-            else if (strcmp(pNode->Value(), "I") == 0)
-            {
+            
+            else if (strcmp(pNode->Value(), "I") == 0)            
                 getValueList(pNode->ToElement()->GetText(), &inhibitoryNeuronLayout);
-            }
+            
         }
 	}
     
@@ -437,6 +500,9 @@ void LoadSimParms(TiXmlElement* parms)
 	if (!fSet) throw KII_exception( "Failed to initialize one or more simulation parameters; check XML" );
 }
 
+/**
+ * Helper function that helps with parsing integers in a fixed layout
+ */
 void getValueList(const string& valString, vector<int>* pList)
 {
     std::istringstream valStream(valString);
@@ -450,6 +516,10 @@ void getValueList(const string& valString, vector<int>* pList)
     }
 }
 
+/**
+ * Handles parsing of the command line
+ * @returns if successful
+ */
 bool parseCommandLine(int argc, char* argv[])
 {
 	ParamContainer cl;
@@ -486,16 +556,13 @@ bool parseCommandLine(int argc, char* argv[])
 	stateInputFileName = cl["stateinfile"];
 	memInputFileName = cl["meminfile"];
 	memOutputFileName = cl["memoutfile"];
-	if (!memInputFileName.empty()) {
+	if (!memInputFileName.empty())
 		fReadMemImage = true;
-	}
-	if (!memOutputFileName.empty()) {
+	if (!memOutputFileName.empty())
 		fWriteMemImage = true;
-	}
 #if defined(USE_GPU)
-	if ( EOF == sscanf(cl["deviceid"].c_str( ), "%d", &g_deviceId ) ) {
+	if ( EOF == sscanf(cl["deviceid"].c_str( ), "%d", &g_deviceId ) )
 		g_deviceId = 0;
-	}
 #endif // USE_GPU
 
 	TiXmlDocument simDoc( stateInputFileName.c_str( ) );

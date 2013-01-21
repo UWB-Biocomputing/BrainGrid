@@ -5,12 +5,7 @@
  *
  *      \brief A class that performs the simulation on GPU.
  */
-#include <cstdio>
-#include <cassert>
-#include <cstdlib>
-#include "global.h"
 #include "GpuSim.h"
-#include "LifNeuron_struct.h"
 
 extern "C" {
 void advanceGPU( 
@@ -26,8 +21,8 @@ void advanceGPU(
 		);
 
 void allocDeviceStruct(SimulationInfo* psi,
-		LifNeuron_struct& neuron_st, 
-		DynamicSpikingSynapse_struct& synapse_st,
+		LifNeuron_struct* neuron_st, 
+		DynamicSpikingSynapse_struct* synapse_st,
 #ifdef STORE_SPIKEHISTORY
 		int maxSynapses,
 		int maxSpikes
@@ -36,16 +31,16 @@ void allocDeviceStruct(SimulationInfo* psi,
 #endif // STORE_SPIKEHISTORY
 		);
 
-void copySynapseDeviceToHost( DynamicSpikingSynapse_struct& synapse_h, int count );
+void copySynapseDeviceToHost( DynamicSpikingSynapse_struct* synapse_h, int count );
 
-void copyNeuronDeviceToHost( LifNeuron_struct& neuron_h, int count );
+void copyNeuronDeviceToHost( LifNeuron_struct* neuron_h, int count );
 
 //void initMTGPU(int seed, int mt_rng_count);
 void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, unsigned int nPerRng, unsigned int mt_rng_count);
 
 void deleteDeviceStruct( );
 
-void  getSpikeCounts(int neuron_count, int* spikeCounts);
+void getSpikeCounts(int neuron_count, int* spikeCounts);
 
 void clearSpikeCounts(int neuron_count);
 
@@ -73,8 +68,8 @@ GpuSim::GpuSim(SimulationInfo* psi) :
         outgrowth("complete", "const", 1, psi->cNeurons),
         deltaR("complete", "const", 1, psi->cNeurons)
 {
-	LifNeuron_struct neuron_st;
-	DynamicSpikingSynapse_struct synapse_st;
+	LifNeuron_struct* neuron_st;
+	DynamicSpikingSynapse_struct* synapse_st;
 
 	// copy synapse and neuron maps into arrays
 	dataToCStructs(psi, neuron_st, synapse_st);
@@ -153,8 +148,8 @@ void GpuSim::init(SimulationInfo* psi, VectorMatrix& xloc, VectorMatrix& yloc)
  */
 void GpuSim::term(SimulationInfo* psi)
 {
-    LifNeuron_struct neuron_st;
-    DynamicSpikingSynapse_struct synapse_st;
+    LifNeuron_struct* neuron_st;
+    DynamicSpikingSynapse_struct* synapse_st;
 
     // Allocate memory
     int neuron_count = psi->cNeurons;
@@ -224,7 +219,7 @@ void GpuSim::advanceUntilGrowth(SimulationInfo* psi)
  * @param [out] neuron_count
  * @param [out] synapse_count
  */ 
-void GpuSim::dataToCStructs( SimulationInfo* psi, LifNeuron_struct& neuron_st, DynamicSpikingSynapse_struct& synapse_st ) 
+void GpuSim::dataToCStructs( SimulationInfo* psi, LifNeuron_struct* neuron_st, DynamicSpikingSynapse_struct* synapse_st ) 
 {
 	// count the synapses
 	int synapse_count = 0;
@@ -241,45 +236,43 @@ void GpuSim::dataToCStructs( SimulationInfo* psi, LifNeuron_struct& neuron_st, D
 	// Copy memory
 	for (int i = 0; i < neuron_count; i++)
 	{
-		LifNeuron* pNeuron = &(*psi->pNeuronList)[i];
+		INeuron* pNeuron = (*psi->pNeuronList)[i];
 
-		copyNeuronToStruct(*pNeuron, neuron_st, i);
-		neuron_st.synapseCount[i] = psi->rgSynapseMap[i].size();
-		assert(neuron_st.synapseCount[i] <= psi->maxSynapsesPerNeuron);
-		neuron_st.outgoingSynapse_begin[i] = i * psi->maxSynapsesPerNeuron;
+		copyNeuronToStruct(pNeuron, neuron_st, i);
+		neuron_st->synapseCount[i] = psi->rgSynapseMap[i].size();
+		assert(neuron_st->synapseCount[i] <= psi->maxSynapsesPerNeuron);
+		neuron_st->outgoingSynapse_begin[i] = i * psi->maxSynapsesPerNeuron;
 
-		for (unsigned int j = 0; j < psi->rgSynapseMap[i].size(); j++)
-		{
-			copySynapseToStruct(psi->rgSynapseMap[i][j], synapse_st, i * psi->maxSynapsesPerNeuron + j);
-		}
+		for (unsigned int j = 0; j < psi->rgSynapseMap[i].size(); j++)		
+			copySynapseToStruct(psi->rgSynapseMap[i][j], synapse_st, i * psi->maxSynapsesPerNeuron + j);		
 	}
 }
 
-void GpuSim::printComparison(LifNeuron_struct& neuron_st, vector<LifNeuron>* neuronObjects, int neuronCount){
+void GpuSim::printComparison(LifNeuron_struct* neuron_st, vector<LifNeuron*>* neuronObjects, int neuronCount){
 	cout << "--------------------------------------" << endl << endl;
 	for (int i = 0; i < neuronCount; i++){
-		LifNeuron& neuron = (*neuronObjects)[i];
+		LifNeuron* neuron = (*neuronObjects)[i];
 		cout << "Neuron Object #" << i << endl;
-		cout << "C1: " << neuron.C1 << endl;
-		cout << "C2: " << neuron.C2 << endl;
-		cout << "I0: " << neuron.I0 << endl;
-		cout << "Inoise: " << neuron.Inoise << endl;
-		cout << "Trefract: " << neuron.Trefract << endl;
-		cout << "Vm: " << neuron.Vm << endl;
-		cout << "Vthresh: " << neuron.Vthresh << endl;
-		cout << "hasFired: " << neuron.hasFired << endl;
-		cout << "nStepsInRefr: " << neuron.nStepsInRefr << endl;
+		cout << "C1: " << neuron->C1 << endl;
+		cout << "C2: " << neuron->C2 << endl;
+		cout << "I0: " << neuron->I0 << endl;
+		cout << "Inoise: " << neuron->Inoise << endl;
+		cout << "Trefract: " << neuron->Trefract << endl;
+		cout << "Vm: " << neuron->Vm << endl;
+		cout << "Vthresh: " << neuron->Vthresh << endl;
+		cout << "hasFired: " << neuron->hasFired << endl;
+		cout << "nStepsInRefr: " << neuron->nStepsInRefr << endl;
 
 		cout << "Neuron Array element #" << i << endl;
-		cout << "C1: " << neuron_st.C1[i] << endl;
-		cout << "C2: " << neuron_st.C2[i] << endl;
-		cout << "I0: " << neuron_st.I0[i] << endl;
-		cout << "Inoise: " << neuron_st.Inoise[i] << endl;
-		cout << "Trefract: " << neuron_st.Trefract[i] << endl;
-		cout << "Vm: " << neuron_st.Vm[i] << endl;
-		cout << "Vthresh: " << neuron_st.Vthresh[i] << endl;
-		cout << "nStepsInRefr: " << neuron_st.nStepsInRefr[i] << endl;
-		cout << "spikeCount: " << neuron_st.spikeCount[i] << endl << endl;
+		cout << "C1: " << neuron_st->C1[i] << endl;
+		cout << "C2: " << neuron_st->C2[i] << endl;
+		cout << "I0: " << neuron_st->I0[i] << endl;
+		cout << "Inoise: " << neuron_st->Inoise[i] << endl;
+		cout << "Trefract: " << neuron_st->Trefract[i] << endl;
+		cout << "Vm: " << neuron_st->Vm[i] << endl;
+		cout << "Vthresh: " << neuron_st->Vthresh[i] << endl;
+		cout << "nStepsInRefr: " << neuron_st->nStepsInRefr[i] << endl;
+		cout << "spikeCount: " << neuron_st->spikeCount[i] << endl << endl;
 		
 		cout << "--------------------------------------" << endl << endl;
 	}
@@ -395,4 +388,12 @@ void GpuSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiHistory, Co
 
     updateNetworkGPU( psi, W, psi->maxSynapsesPerNeuron );
 
+}
+
+/**
+ * Returns a type of Neuron to be used in the Network
+ */
+INeuron* GpuSim::returnNeuron()
+{
+	return new LifNeuron();
 }

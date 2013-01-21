@@ -26,8 +26,9 @@ HostSim::HostSim(SimulationInfo* psi) :
 }
 
 /**
- * Destructor
- */
+* Destructor
+*
+*/
 HostSim::~HostSim() 
 { 
 }
@@ -80,6 +81,14 @@ void HostSim::initRadii(VectorMatrix& newRadii)
 }
 
 /**
+ * Returns a type of Neuron to be used in the Network
+ */
+INeuron* HostSim::returnNeuron()
+{
+	return new LifNeuron();
+}
+
+/**
  * Adds a synapse to the network.  Requires the locations of the source and
  * destination neurons.
  * @param[in] source_x	X location of source.
@@ -88,7 +97,7 @@ void HostSim::initRadii(VectorMatrix& newRadii)
  * @param[in] dest_y	Y location of destination.
  * @return reference to a DSS
  */
-DynamicSpikingSynapse& HostSim::addSynapse(SimulationInfo* psi, int source_x, int source_y, int dest_x, int dest_y)
+ISynapse* HostSim::addSynapse(SimulationInfo* psi, int source_x, int source_y, int dest_x, int dest_y)
 {
     // locate summation point
     FLOAT* sp = &(psi->pSummationMap[dest_x + dest_y * psi->width]);
@@ -97,7 +106,8 @@ DynamicSpikingSynapse& HostSim::addSynapse(SimulationInfo* psi, int source_x, in
     synapseType type = synType(psi, Coordinate(source_x, source_y), Coordinate(dest_x, dest_y));
 
     // create synapse;
-    DynamicSpikingSynapse syn(source_x, source_y, dest_x, dest_y, *sp, DEFAULT_delay_weight, psi->deltaT, type);
+    DynamicSpikingSynapse* syn = 
+		new DynamicSpikingSynapse(source_x, source_y, dest_x, dest_y, *sp, DEFAULT_delay_weight, psi->deltaT, type);
 
     // add it to the list
     psi->rgSynapseMap[source_x + source_y * psi->width].push_back(syn);

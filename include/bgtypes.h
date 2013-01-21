@@ -17,7 +17,6 @@
 //
 
 // For floats, uncomment the following two lines and comment DOUBLEPRECISION and the other #define
-
 //#define FLOAT float
 
 #ifdef _WIN32
@@ -31,6 +30,17 @@ typedef unsigned int       uint32_t; // same deal as above
 #define DOUBLEPRECISION
 #define FLOAT double
 
-typedef FLOAT* PFLOAT;
+// solution to get rid of typedef redefine errors on different platforms
+#ifdef TARGET_OS_MAC
+  
+#elif defined __linux__
+	typedef FLOAT* PFLOAT;
+#elif defined _WIN32 || defined _WIN64
+	#define SINGLEPRECISION
+	typedef __int32 int32_t;
+	typedef unsigned __int32 uint32_t;
+#else
+#error "unknown platform"
+#endif
 #endif // _WIN32
 #endif // __BGTYPES_H_

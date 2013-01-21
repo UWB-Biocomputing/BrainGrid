@@ -20,7 +20,7 @@
  ** Synapses in the synapse map are located at the coordinates of the neuron
  ** from which they receive output.  Each synapse stores a pointer into a
  ** m_summationMap bin.  Bins in the m_summationMap map directly to their output neurons.
- **
+ ** 
  ** If, during an advance cycle, a neuron \f$A\f$ at coordinates \f$x,y\f$ fires, every synapse
  ** \f$B\f$ at \f$x,y\f$ in the m_rgSynapseMap is notified of the spike. Those synapses then hold
  ** the spike until their delay period is completed.  At a later advance cycle, once the delay
@@ -42,29 +42,19 @@
 #define _NETWORK_H_
 
 #include "global.h"
-#include "LifNeuron.h"
-#include "LifNeuron_struct.h"
-#include "DynamicSpikingSynapse.h"
-#include "DynamicSpikingSynapse_struct.h"
-#include "Matrix/VectorMatrix.h"
-#include "Timer.h"
-#include "SimulationInfo.h"
+#include "include/Timer.h"
 #include "ISimulation.h"
-#include "GpuSim.h"
-#include "SingleThreadedSim.h"
-#include "MultiThreadedSim.h"
-#include <vector>
 
 class Network
 {
 public:
 	//! The constructor for Network.
-	Network(int rows, int cols, FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2], FLOAT Inoise[2],
+	Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2], FLOAT Inoise[2],
 			FLOAT Vthresh[2], FLOAT Vresting[2], FLOAT Vreset[2], FLOAT Vinit[2], FLOAT starter_Vthresh[2],
-			FLOAT starter_Vreset[2], FLOAT m_epsilon, FLOAT m_beta, FLOAT m_rho, FLOAT m_targetRate, FLOAT m_maxRate,
-			FLOAT m_minRadius, FLOAT m_startRadius, FLOAT m_deltaT, ostream& new_outstate, 
+			FLOAT starter_Vreset[2], FLOAT new_targetRate, ostream& new_outstate, 
 			ostream& new_memoutput, bool fWriteMemImage, istream& new_meminput, bool fReadMemImage, bool fFixedLayout, 
-            		vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout);
+            vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
+			SimulationInfo simInfo, ISimulation* sim);
 	~Network();
 
 	//! Frees dynamically allocated memory associated with the maps.
@@ -98,22 +88,13 @@ public:
 	void readSimMemory(istream& is, VectorMatrix& radii, VectorMatrix& rates);
 
 	//! Performs the simulation.
-	void simulate(FLOAT growthStepDuration, FLOAT num_growth_steps, int maxFiringRate, int maxSynapsesPerNeuron);
+	void simulate(FLOAT growthStepDuration, FLOAT num_growth_steps);
 
 	//! Output the m_rgNeuronTypeMap to a VectorMatrix.
 	void getNeuronTypes(VectorMatrix& neuronTypes);
 
 	//! Output the m_pfStarterMap to a VectorMatrix.
 	void getStarterNeuronMatrix(VectorMatrix& starterNeurons);
-
-	//! The m_width of the network, in unit neurons.
-	const int m_width;
-
-	//! The m_height of the network, in unit neurons.
-	const int m_height;
-
-	//! The total number of neurons.
-	int m_cNeurons;
 
 	//! The number of excitory neurons.
 	int m_cExcitoryNeurons;
@@ -124,17 +105,14 @@ public:
 	//! The number of endogenously active neurons.
 	int m_cStarterNeurons;
 
-	//! The simulation time step.
-	FLOAT m_deltaT;
-
 	//! List of lists of synapses
-	vector<DynamicSpikingSynapse>* m_rgSynapseMap;
+	vector<ISynapse*>* m_rgSynapseMap;
 
 	//! The map of summation points.
 	FLOAT* m_summationMap;
 
 	//! The neuron map.
-	vector<LifNeuron> m_neuronList;
+	vector<INeuron*> m_neuronList;
 
 	//! The neuron type map (INH, EXC).
 	neuronType* m_rgNeuronTypeMap;
@@ -142,26 +120,8 @@ public:
 	//! The starter existence map (T/F).
 	bool* m_rgEndogenouslyActiveNeuronMap;
 
-	//! growth param TODO: more detail here
-	FLOAT m_epsilon;
-
-	//! growth param TODO: more detail here
-	FLOAT m_beta;
-
-	//! growth param: change in radius scalar
-	FLOAT m_rho;
-
 	//! growth param (spikes/second) TODO: more detail here
 	FLOAT m_targetRate;
-
-	//! growth variable (m_targetRate / m_epsilon) TODO: more detail here
-	FLOAT m_maxRate;
-
-	//! The minimum possible radius.  We use this to prevent neurons from disconnecting from the network.
-	FLOAT m_minRadius;
-
-	//! The starting connectivity radius for all neurons.
-	FLOAT m_startRadius;
 
 	//! A file stream for xml output.
 	ostream& state_out;
@@ -188,6 +148,9 @@ public:
 private:
 	// Struct that holds information about a simulation
 	SimulationInfo m_si;
+
+	// Simulator
+	ISimulation* m_sim;
 
 	//! Used to track the running simulation time.
 	Timer m_timer;

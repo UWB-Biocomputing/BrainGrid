@@ -27,9 +27,10 @@
 #ifndef _SIMULATIONINFO_H_
 #define _SIMULATIONINFO_H_
 
-#include "LifNeuron.h"
+#include "INeuron.h"
 #include "DynamicSpikingSynapse.h"
 
+//! Structure design to hold all of the parameters of the simulation.
 struct SimulationInfo
 {
     SimulationInfo() :
@@ -48,10 +49,18 @@ struct SimulationInfo
         minRadius(0),
         startRadius(0),
         rgSynapseMap(NULL),
-        pSummationMap(NULL)
-		
+        pSummationMap(NULL),
+		seed(0)
     {
     }
+
+	void reset(int neurons, vector<INeuron*>* neronList, vector<ISynapse*>* synapseList, double* sumMap, FLOAT delta) {
+		cNeurons = neurons;
+		pNeuronList = neronList;
+		rgSynapseMap = synapseList;
+		pSummationMap = sumMap;
+		deltaT = delta;
+	}
 
 	//! Width of neuron map (assumes square)
 	int width;
@@ -81,7 +90,7 @@ struct SimulationInfo
 	FLOAT deltaT;
 
 	//! List of neurons
-	vector<LifNeuron>* pNeuronList;
+	vector<INeuron*>* pNeuronList;
 
 	//! The neuron type map (INH, EXC).
 	neuronType* rgNeuronTypeMap;
@@ -108,10 +117,13 @@ struct SimulationInfo
 	FLOAT startRadius;
 
 	//! List of lists of synapses (3d array)
-	vector<DynamicSpikingSynapse>* rgSynapseMap;
+	vector<ISynapse*>* rgSynapseMap;
 
 	//! List of summation points
 	FLOAT* pSummationMap;
+
+	//! Seed used for the simulation random
+	long seed;
 };
 
 #endif // _SIMULATIONINFO_H_

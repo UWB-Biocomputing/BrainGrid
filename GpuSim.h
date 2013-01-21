@@ -29,10 +29,15 @@
 #ifndef _GPUSIM_H_
 #define _GPUSIM_H_
 
+#include <cstdio>
+#include <cassert>
+#include <cstdlib>
 #include "ISimulation.h"
 #include "DynamicSpikingSynapse_struct.h"
 #include "LifNeuron_struct.h"
 #include "HostSim.h"
+#include "global.h"
+
 
 class GpuSim : public ISimulation
 {
@@ -56,6 +61,9 @@ public:
     //! Updates the network.
     virtual void updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiHistory, CompleteMatrix& ratesHistory);
 
+	//! Returns a type of Neuron to be used in the Network
+	virtual INeuron* returnNeuron();
+
 #ifdef STORE_SPIKEHISTORY
     //! pointer to an array to keep spike history for one activity epoch
     uint64_t* spikeArray;
@@ -65,10 +73,10 @@ public:
     int* spikeCounts;
 
 private:
-    void printComparison(LifNeuron_struct& neuron_st, vector<LifNeuron>* neuronObjects, int i);
+    void printComparison(LifNeuron_struct* neuron_st, vector<LifNeuron*>* neuronObjects, int i);
 	
     //! Copy synapse and neuron C++ objects into C structs.
-    void dataToCStructs( SimulationInfo* psi, LifNeuron_struct& neuron_st, DynamicSpikingSynapse_struct& synapse_st ); 
+    void dataToCStructs( SimulationInfo* psi, LifNeuron_struct* neuron_st, DynamicSpikingSynapse_struct* synapse_st ); 
 
     //! Adds a synapse to the network.  Requires the locations of the source and destination neurons.
     DynamicSpikingSynapse& addSynapse(SimulationInfo* psi, int source_x, int source_y, int dest_x, int dest_y);

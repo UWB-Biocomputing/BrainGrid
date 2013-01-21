@@ -1,8 +1,17 @@
 /*
  * DynamicSpikingSynapse_struct_d.cu
- *
+ * CUDA side struct of DynamicSpikingSynapse
  */
 
+#include "cuda.h"
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
+
+
+/**
+ * Allocate data members in the allocSynapseStruct_d.
+ * @param count
+ */
 void allocSynapseStruct_d( int count ) {
 	DynamicSpikingSynapse_struct synapse;
 
@@ -29,6 +38,9 @@ void allocSynapseStruct_d( int count ) {
 	}
 }
 
+/**
+ * Deallocate data members in the DynamicSpikingSynapse_struct_d
+ */
 void deleteSynapseStruct_d( ) {
 	DynamicSpikingSynapse_struct synapse;
 
@@ -52,6 +64,11 @@ void deleteSynapseStruct_d( ) {
 	HANDLE_ERROR( cudaFree( synapse.lastSpike ) );
 }
 
+/**
+ * Copy DynamicSpikingSynapse_struct data for GPU processing.
+ * @param synapse_h
+ * @param count
+ */
 void copySynapseHostToDevice( DynamicSpikingSynapse_struct& synapse_h, int count ) {
 	// copy everything necessary
 	DynamicSpikingSynapse_struct synapse;
@@ -78,6 +95,11 @@ void copySynapseHostToDevice( DynamicSpikingSynapse_struct& synapse_h, int count
 	}
 }
 
+/**
+ * Copy data from GPU into DynamicSpikingSynapse_struct.
+ * @param synapse_h
+ * @param count
+ */
 void copySynapseDeviceToHost( DynamicSpikingSynapse_struct& synapse_h, int count ) {
 	// copy everything necessary
 	DynamicSpikingSynapse_struct synapse;

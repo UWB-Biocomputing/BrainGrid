@@ -9,17 +9,34 @@
 #include "MultiThreadedSim.h"
 
 /** 
+ * The constructor for MultiThreadedSim.
  * @post All matrixes are allocated. 
  */
 MultiThreadedSim::MultiThreadedSim(SimulationInfo* psi) : HostSim(psi)
 {
-}
+	    // Initialize OpenMP - one thread per core
+    OMP(omp_set_num_threads(omp_get_num_procs());)
 
-MultiThreadedSim::~MultiThreadedSim()
-{
+    int max_threads = 1;
+    max_threads = omp_get_max_threads();
+
+    // Create normalized random number generators for each thread
+    for (int i = 0; i < max_threads; i++)
+        rgNormrnd.push_back(new Norm(0, 1, psi->seed));
 }
 
 /**
+* Destructor
+*
+*/
+MultiThreadedSim::~MultiThreadedSim()
+{
+	for (unsigned int i = 0; i < rgNormrnd.size(); i++)
+        delete rgNormrnd[i];
+}
+
+/**
+ * Perform updating neurons and synapses for one activity epoch.
  * @param[in] psi	Pointer to the simulation information. 	
  */
 void MultiThreadedSim::advanceUntilGrowth(SimulationInfo* psi)
@@ -32,7 +49,7 @@ void MultiThreadedSim::advanceUntilGrowth(SimulationInfo* psi)
 
     while (g_simulationStep < endStep)
     {
-        DEBUG(if (count %1000 == 0)
+        DEBUG(if (count % 10000 == 0)
               {
                   cout << psi->currentStep << "/" << psi->maxSteps
                       << " simulating time: " << g_simulationStep * psi->deltaT << endl;
@@ -51,7 +68,7 @@ void MultiThreadedSim::advanceUntilGrowth(SimulationInfo* psi)
 }
 
 /**
- * Notify outgoing synapses if neuron has fired.
+ * Perform updating neurons for one time step.
  * @param[in] psi	Pointer to the simulation information. 
  */
 void MultiThreadedSim::advanceNeurons(SimulationInfo* psi)
@@ -73,7 +90,7 @@ void MultiThreadedSim::advanceNeurons(SimulationInfo* psi)
     for (int i = psi->cNeurons - 1; i >= 0; --i)
     {
         // advance neurons
-        (*(psi->pNeuronList))[i].advance(psi->pSummationMap[i]);
+        (*(psi->pNeuronList))[i]->advance(psi->pSummationMap[i]);
 
         DEBUG2(cout << i << " " << (*(psi->pNeuronList))[i].Vm << endl;)
     }
@@ -82,16 +99,16 @@ void MultiThreadedSim::advanceNeurons(SimulationInfo* psi)
     for (int i = psi->cNeurons - 1; i >= 0; --i)
     {
         // notify outgoing synapses if neuron has fired
-        if ((*(psi->pNeuronList))[i].hasFired)
+        if ((*(psi->pNeuronList))[i]->hasFired)
         {
             DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
 
             for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)
             {
-                psi->rgSynapseMap[i][z].preSpikeHit();
+                psi->rgSynapseMap[i][z]->preSpikeHit();
             }
 
-            (*(psi->pNeuronList))[i].hasFired = false;
+            (*(psi->pNeuronList))[i]->hasFired = false;
         }
 
         // In the parallel version, we would move the inner loop of advanceSynapses 
@@ -112,6 +129,7 @@ void MultiThreadedSim::advanceNeurons(SimulationInfo* psi)
 }
 
 /**
+ * Perform updating synapses for one time step.
  * @param[in] psi	Pointer to the simulation information.
  */
 void MultiThreadedSim::advanceSynapses(SimulationInfo* psi)
@@ -133,7 +151,7 @@ void MultiThreadedSim::advanceSynapses(SimulationInfo* psi)
         // GPU/PARALLEL optimization point.
         for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)
         {
-            psi->rgSynapseMap[i][z].advance();
+            psi->rgSynapseMap[i][z]->advance();
         }
     }
 }
@@ -161,10 +179,10 @@ void MultiThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiH
     for (int i = 0; i < psi->cNeurons; i++)
     {
         // Calculate firing rate
-        rates[i] = (*(psi->pNeuronList))[i].getSpikeCount() / psi->stepDuration;
+        rates[i] = (*(psi->pNeuronList))[i]->getSpikeCount() / psi->stepDuration;
 
         // clear spike count
-        (*(psi->pNeuronList))[i].clearSpikeCount();
+        (*(psi->pNeuronList))[i]->clearSpikeCount();
 
         // record firing rate to history matrix
         ratesHistory(psi->currentStep, i) = rates[i];
@@ -219,8 +237,8 @@ void MultiThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiH
                 {
                     area(i, j) = pi * min(r1, r2) * min(r1, r2); // Completely overlapping unit
 #ifdef LOGFILE
-                    logFile << "Completely overlapping (i, j, r1, r2, area): "
-                    << i << ", " << j << ", " << r1 << ", " << r2 << ", " << *pAarea(i, j) << endl;
+						logFile << "Completely overlapping (i, j, r1, r2, area): "
+						<< i << ", " << j << ", " << r1 << ", " << r2 << ", " << *pAarea(i, j) << endl;
 #endif // LOGFILE
                 }
                 else
@@ -279,7 +297,7 @@ void MultiThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiH
             for (size_t syn = 0; syn < psi->rgSynapseMap[a].size(); syn++)
             {
                 // if there is a synapse between a and b
-                if (psi->rgSynapseMap[a][syn].summationCoord == bCoord)
+                if (psi->rgSynapseMap[a][syn]->summationCoord == bCoord)
                 {
                     connected = true;
                     adjusted++;
@@ -296,7 +314,7 @@ void MultiThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiH
                     {
                         // adjust
                         // g_synapseStrengthAdjustmentConstant is 1.0e-8;
-                        psi->rgSynapseMap[a][syn].W = W(a, b) * 
+                        psi->rgSynapseMap[a][syn]->W = W(a, b) * 
                             synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
 
                         DEBUG2(cout << "weight of rgSynapseMap" << 
@@ -311,8 +329,8 @@ void MultiThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiH
             {
                 added++;
 
-                DynamicSpikingSynapse& newSynapse = addSynapse(psi, xa, ya, xb, yb);
-                newSynapse.W = W(a, b) * synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
+                ISynapse* newSynapse = addSynapse(psi, xa, ya, xb, yb);
+                newSynapse->W = W(a, b) * synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
             }
         }
     }

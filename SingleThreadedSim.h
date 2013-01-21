@@ -56,17 +56,6 @@ private:
 
     //! Perform updating synapses for one time step.
     void advanceSynapses(SimulationInfo* psi);
-
-	SimulationInfo* m_psi;
-	HANDLE m_EventAdvanceNeurons;
-	HANDLE m_EventAdvanceNeuronsComplete;
-	int m_I; // Out current "index" for advance stages
-	uint64_t m_Count;
-	uint64_t m_EndStep;
-	int m_MaxThreads;
-	int m_StepsPerIteration;
-	volatile LONG m_OpsCompleted;
-	HANDLE m_hIOCP;
 };
 
 #endif // _SINGLETHREADEDSIM_H_

@@ -12,7 +12,11 @@
 #include "LifNeuron_struct.h"
 #include "book.h"
 #include "DelayIdx.h"
-#include "Matrix/VectorMatrix.h"
+#include "matrix/VectorMatrix.h"
+
+#include "cuda.h"
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 
 //Forward Declarations
 extern "C" {

@@ -1,4 +1,4 @@
-/**
+  /**
  **
  ** \brief A leaky-integrate-and-fire (I&F) neuron structure.
  **
@@ -20,7 +20,7 @@
  ** noise.
  **
  ** At time \f$t=0\f$ \f$V_m\f$ is set to \f$V_{init}\f$. If
- ** \f$V_m\f$ exceeds the threshold voltage \f$V_{thresh}\f$ it is
+ ** \f$V_m\f$ exceeds the threshold voltage \f$V_{thresh}\f$ it is 
  ** reset to \f$V_{reset}\f$ and hold there for the length
  ** \f$T_{refract}\f$ of the absolute refractory period.
  **
@@ -54,29 +54,29 @@ struct LifNeuron_struct;
  * @param neuron
  * @param count
  */
-void allocNeuronStruct(LifNeuron_struct& neuron, int count);
+void allocNeuronStruct(LifNeuron_struct* neuron, int count);
 
 /**
  * Deallocate data members in the LifNeuron_struct.
  * @param neuron
  */
-void deleteNeuronStruct(LifNeuron_struct& neuron);
+void deleteNeuronStruct(LifNeuron_struct* neuron);
 
 /**
- * Copy LifNeuron data into a LifNeuron_struct for GPU processing.
+ * Copy INeuron data into a LifNeuron_struct for GPU processing.
  * @param in
  * @param out
  * @param idx
  */
-void copyNeuronToStruct(LifNeuron& in, LifNeuron_struct& out, int idx);
+void copyNeuronToStruct(INeuron* in, LifNeuron_struct* out, int idx);
 
 /**
- * Copy LifNeuron_struct array data into a LifNeuron.
+ * Copy LifNeuron_struct array data into a INeuron.
  * @param in
  * @param out
  * @param idx
  */
-void copyNeuronStructToNeuron(LifNeuron_struct& in, LifNeuron& out, int idx);
+void copyNeuronStructToNeuron(LifNeuron_struct* in, INeuron* out, int idx);
 
 /**
  * Copy a neuronArray into a neuronMap
@@ -84,7 +84,7 @@ void copyNeuronStructToNeuron(LifNeuron_struct& in, LifNeuron& out, int idx);
  * @param pNeuronList
  * @param numNeurons
  */
-void neuronArrayToMap(LifNeuron_struct& neuron, vector<LifNeuron>* pNeuronList, int numNeurons);
+void neuronArrayToMap(LifNeuron_struct* neuron, vector<INeuron*>* pNeuronList, int numNeurons);
 
 struct LifNeuron_struct {
 	

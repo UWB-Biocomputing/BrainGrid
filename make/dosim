@@ -1,0 +1,3 @@
+#!/bin/bash
+time ./growth -t ../config/test.xml
+

@@ -8,17 +8,25 @@
 #include "SingleThreadedSim.h"
 
 /** 
+ * The constructor for SingleThreadedSim.
  * @post All matrixes are allocated. 
  */
 SingleThreadedSim::SingleThreadedSim(SimulationInfo* psi) : HostSim(psi)
 { 
+	// Create a normalized random number generator
+    rgNormrnd.push_back(new Norm(0, 1, psi->seed));
 }
 
+/**
+* Destructor
+*
+*/
 SingleThreadedSim::~SingleThreadedSim() 
 { 
 }
 
 /**
+ * Perform updating neurons and synapses for one activity epoch.
  * @param[in] psi	Pointer to the simulation information.		
  */
 void SingleThreadedSim::advanceUntilGrowth(SimulationInfo* psi)
@@ -30,7 +38,7 @@ void SingleThreadedSim::advanceUntilGrowth(SimulationInfo* psi)
 
     while (g_simulationStep < endStep)
     {
-        DEBUG(if (count % 1000 == 0)
+        DEBUG(if (count % 10000 == 0)
               {
                   cout << psi->currentStep << "/" << psi->maxSteps
                       << " simulating time: " << g_simulationStep * psi->deltaT << endl;
@@ -58,21 +66,19 @@ void SingleThreadedSim::advanceNeurons(SimulationInfo* psi)
     for (int i = psi->cNeurons - 1; i >= 0; --i)
     {
         // advance neurons
-        (*(psi->pNeuronList))[i].advance(psi->pSummationMap[i]);
+        (*(psi->pNeuronList))[i]->advance(psi->pSummationMap[i]);
 
-        DEBUG2(cout << i << " " << (*(psi->pNeuronList))[i].Vm << endl;)
+        DEBUG2(cout << i << " " << (*(psi->pNeuronList))[i]->Vm << endl;)
 
         // notify outgoing synapses if neuron has fired
-        if ((*(psi->pNeuronList))[i].hasFired)
+        if ((*(psi->pNeuronList))[i]->hasFired)
         {
             DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
 
-            for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)
-            {
-                psi->rgSynapseMap[i][z].preSpikeHit();
-            }
+            for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)            
+                psi->rgSynapseMap[i][z]->preSpikeHit();            
 
-            (*(psi->pNeuronList))[i].hasFired = false;
+            (*(psi->pNeuronList))[i]->hasFired = false;
         }
     }
 
@@ -80,11 +86,9 @@ void SingleThreadedSim::advanceNeurons(SimulationInfo* psi)
     // ouput a row with every voltage level for each time step
     cout << g_simulationStep * psi->deltaT;
 
-    for (int i = 0; i < psi->cNeurons; i++)
-    {
+    for (int i = 0; i < psi->cNeurons; i++)    
         cout << "\t i: " << i << " " << (*(psi->pNeuronList))[i].toStringVm();
-    }
-
+    
     cout << endl;
 #endif /* DUMP_VOLTAGES */
 }
@@ -96,10 +100,8 @@ void SingleThreadedSim::advanceSynapses(SimulationInfo* psi)
 {
     for (int i = psi->cNeurons - 1; i >= 0; --i)
     {
-        for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)
-        {
-            psi->rgSynapseMap[i][z].advance();
-        }
+        for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)        
+            psi->rgSynapseMap[i][z]->advance();        
     }
 }
 
@@ -119,10 +121,10 @@ void SingleThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radii
     for (int i = 0; i < psi->cNeurons; i++)
     {
         // Calculate firing rate
-        rates[i] = (*(psi->pNeuronList))[i].getSpikeCount() / psi->stepDuration;
+        rates[i] = (*(psi->pNeuronList))[i]->getSpikeCount() / psi->stepDuration;
 
         // clear spike count
-        (*(psi->pNeuronList))[i].clearSpikeCount();
+        (*(psi->pNeuronList))[i]->clearSpikeCount();
 
         // record firing rate to history matrix
         ratesHistory(psi->currentStep, i) = rates[i];
@@ -176,8 +178,8 @@ void SingleThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radii
                 {
                     area(i, j) = pi * min(r1, r2) * min(r1, r2); // Completely overlapping unit
 #ifdef LOGFILE
-                    logFile << "Completely overlapping (i, j, r1, r2, area): "
-                    << i << ", " << j << ", " << r1 << ", " << r2 << ", " << *pAarea(i, j) << endl;
+						logFile << "Completely overlapping (i, j, r1, r2, area): "
+						<< i << ", " << j << ", " << r1 << ", " << r2 << ", " << *pAarea(i, j) << endl;
 #endif // LOGFILE
                 }
                 else
@@ -234,7 +236,7 @@ void SingleThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radii
             for (size_t syn = 0; syn < psi->rgSynapseMap[a].size(); syn++)
             {
                 // if there is a synapse between a and b
-                if (psi->rgSynapseMap[a][syn].summationCoord == bCoord)
+                if (psi->rgSynapseMap[a][syn]->summationCoord == bCoord)
                 {
                     connected = true;
                     adjusted++;
@@ -251,7 +253,7 @@ void SingleThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radii
                     {
                         // adjust
                         // g_synapseStrengthAdjustmentConstant is 1.0e-8;
-                        psi->rgSynapseMap[a][syn].W = W(a, b) * 
+                        psi->rgSynapseMap[a][syn]->W = W(a, b) * 
                             synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
 
                         DEBUG2(cout << "weight of rgSynapseMap" << 
@@ -266,8 +268,8 @@ void SingleThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radii
             {
                 added++;
 
-                DynamicSpikingSynapse& newSynapse = addSynapse(psi, xa, ya, xb, yb);
-                newSynapse.W = W(a, b) * synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
+                ISynapse* newSynapse = addSynapse(psi, xa, ya, xb, yb);
+                newSynapse->W = W(a, b) * synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
             }
         }
     }

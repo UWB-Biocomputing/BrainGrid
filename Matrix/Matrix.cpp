@@ -40,10 +40,6 @@
 #include <iostream>
 #include "Matrix.h"
 
-#include "SourceVersions.h"
-
-static VersionInfo version("$Id: Matrix.cpp,v 1.1.1.1 2006/11/18 04:42:31 fumik Exp $");
-
 // Initialize attributes at construction time
 // The subclass constructor must set dimensions
 Matrix::Matrix(string t, string i, int r, int c, FLOAT m)

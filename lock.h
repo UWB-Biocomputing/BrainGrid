@@ -1,5 +1,7 @@
 #ifndef _LOCK_H_
 #define _LOCK_H_
+
+//! Utility structure for assuring resource access control for CUDA
 struct Lock {
 	int *mutex;
 	Lock( void ) {
