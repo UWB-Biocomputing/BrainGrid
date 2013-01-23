@@ -28,13 +28,6 @@ typedef unsigned long long int uint64_t;	//included in inttypes.h, which is not 
 
 using namespace std;
 
-#ifdef USE_OMP
-#include "omp.h"
-#	define OMP(x) x
-#else
-#define OMP(x)
-#endif
-
 //! If defined, a table with time and each neuron voltage will output to stdout.
 //#define DUMP_VOLTAGES
 

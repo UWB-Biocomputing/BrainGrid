@@ -28,7 +28,12 @@
 #ifndef _SINGLETHREADEDSIM_H_
 #define _SINGLETHREADEDSIM_H_
 
+#include "global.h"
+#include "ISimulation.h"
 #include "HostSim.h"
+
+#define IOCP_KEY_NEURON 0
+#define IOCP_KEY_SYNAPSE 1
 
 class SingleThreadedSim : public HostSim
 {
@@ -42,6 +47,8 @@ public:
 
     //! Update the network.
     virtual void updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiHistory, CompleteMatrix& ratesHistory);
+
+	void worker1();
 
 private:
     //! Perform updating neurons for one time step.
