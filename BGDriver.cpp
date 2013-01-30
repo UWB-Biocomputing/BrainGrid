@@ -42,7 +42,6 @@ string memInputFileName;
 bool fReadMemImage = false; // True if dumped memory image is read before starting simulation
 bool fWriteMemImage = false; // True if dumped memory image is written after simulation
 
-// Parameters for LSM
 int poolsize[3]; // size of pool of neurons [x y z]
 // NETWORK MODEL VARIABLES NMV-BEGIN {
 FLOAT frac_EXC; // Fraction of excitatory neurons
@@ -57,7 +56,8 @@ FLOAT starter_neurons; // percent of endogenously active neurons
 FLOAT starter_vthresh[2]; // default Vthresh is 15e-3
 FLOAT starter_vreset[2]; // Interval of reset voltage
 // } NMV-END
-bool fFixedLayout; // True if a fixed layout has been provided; neuron positions are passed in endogenouslyActiveNeuronLayout and inhibitoryNeuronLayout
+bool fFixedLayout; // True if a fixed layout has been provided; neuron positions are passed in
+                   // endogenouslyActiveNeuronLayout and inhibitoryNeuronLayout 
 
 // NETWORK MODEL VARIABLES NMV-BEGIN {
 // Paramters for growth
@@ -76,7 +76,7 @@ FLOAT Tsim; // Simulation time (s) (between growth updates) rename: epochLength
 int numSims; // Number of Tsim simulation to run
 int maxFiringRate; // Maximum firing rate (only used by GPU version)
 int maxSynapsesPerNeuron; //Maximum number of synapses per neuron (only used by GPU version)
-long seed; // Seed for random generator
+long seed; // Seed for random generator (single-threaded)
 
 // functions
 SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon, FLOAT new_beta, FLOAT new_rho,
