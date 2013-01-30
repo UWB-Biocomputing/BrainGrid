@@ -39,7 +39,6 @@ string memInputFileName;
 bool fReadMemImage = false; // True if dumped memory image is read before starting simulation
 bool fWriteMemImage = false; // True if dumped memory image is written after simulation
 
-// Parameters for LSM
 int poolsize[3]; // size of pool of neurons [x y z]
 FLOAT frac_EXC; // Fraction of excitatory neurons
 FLOAT Iinject[2]; // [A] Interval of constant injected current
@@ -52,7 +51,8 @@ bool starter_flag = true; // true = use endogenously active neurons in simulatio
 FLOAT starter_neurons; // percent of endogenously active neurons
 FLOAT starter_vthresh[2]; // default Vthresh is 15e-3
 FLOAT starter_vreset[2]; // Interval of reset voltage
-bool fFixedLayout; // True if a fixed layout has been provided; neuron positions are passed in endogenouslyActiveNeuronLayout and inhibitoryNeuronLayout
+bool fFixedLayout; // True if a fixed layout has been provided; neuron positions are passed in
+				   // endogenouslyActiveNeuronLayout and inhibitoryNeuronLayout 
 
 // Paramters for growth
 FLOAT epsilon;
@@ -65,11 +65,11 @@ FLOAT minRadius; // To ensure that even rapidly-firing neurons will connect to
 FLOAT startRadius; // No need to wait a long time before RFs start to overlap
 
 // Simulation Parameters
-FLOAT Tsim; // Simulation time (s) (between growth updates)
+FLOAT Tsim; // Simulation time (s) (between growth updates) 
 int numSims; // Number of Tsim simulation to run
 int maxFiringRate; // Maximum firing rate (only used by GPU version)
 int maxSynapsesPerNeuron; //Maximum number of synapses per neuron (only used by GPU version)
-long seed; // Seed for random generator
+long seed; // Seed for random generator (single-threaded)
 
 // functions
 SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon, FLOAT new_beta, FLOAT new_rho,
@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
 	if (starter_flag) 
 		nStarterNeurons = (int) ( starter_neurons * numNeurons + 0.5 );
 	
-	// calculate their ratios, out of the whole
+	// calculate their ratios, out of the whole (TODO: remove recomputing?)
 	FLOAT inhFrac = nInhNeurons / (FLOAT) numNeurons;
 	FLOAT excFrac = nExcNeurons / (FLOAT) numNeurons;
 	FLOAT startFrac = nStarterNeurons / (FLOAT) numNeurons;
