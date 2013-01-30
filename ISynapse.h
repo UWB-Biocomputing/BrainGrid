@@ -95,6 +95,7 @@ public:
     //! Synapse type
     synapseType type;
 
+// NETWORK MODEL VARIABLES NMV-BEGIN {
     //! The synaptic time constant \f$\tau\f$ [units=sec; range=(0,100)].
     FLOAT tau;
 
@@ -111,6 +112,7 @@ public:
     FLOAT F;
     //! The time of the last spike.
     uint64_t lastSpike;
+// } NMV-END
 };
 
 #endif
