@@ -1,4 +1,4 @@
-all: growth growth_omp clean
+all: growth growth_omp growt_gpu 
 # growth_gpu
 
 #

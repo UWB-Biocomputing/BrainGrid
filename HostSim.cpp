@@ -41,6 +41,7 @@ HostSim::~HostSim()
  */
 void HostSim::init(SimulationInfo* psi, VectorMatrix& xloc, VectorMatrix& yloc)
 {
+// MODEL DEPENDENT
     // calculate the distance between neurons
     for (int n = 0; n < psi->cNeurons - 1; n++)
     {
@@ -74,6 +75,7 @@ void HostSim::term(SimulationInfo* psi)
 /**
  * Set initial radii data
  * @param[in] newRadii	Radii data to set
+ * MODEL DEPENDENT
  */
 void HostSim::initRadii(VectorMatrix& newRadii)
 {

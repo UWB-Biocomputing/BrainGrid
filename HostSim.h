@@ -46,12 +46,16 @@ public:
     //! Initialize radii
     virtual void initRadii(VectorMatrix& newRadii);
 
-	//! Returns a type of Neuron to be used in the Network
+	//! Returns a type of Neuron to be used in the Network HOW IS THIS USED?
 	virtual INeuron* returnNeuron();
 
 protected:
+// NETWORK MODEL VARIABLES NMV-BEGIN {
     //! Adds a synapse to the network.  Requires the locations of the source and destination neurons.
     ISynapse* addSynapse(SimulationInfo* psi, int source_x, int source_y, int dest_x, int dest_y);
+// } NMV-END
+
+    // ARE THE FOLLOWING METHODS USEFUL
 
     //! Returns the type of synapse at the given coordinates.
     synapseType synType(SimulationInfo* psi, Coordinate a, Coordinate b);
@@ -62,6 +66,9 @@ protected:
     //! Print network radii to console.
     void printNetworkRadii(SimulationInfo* psi, VectorMatrix networkRadii) const;
 
+    // -------------------------------------
+
+// NETWORK MODEL VARIABLES NMV-BEGIN {
     //! synapse weight
     CompleteMatrix W;
 
@@ -88,6 +95,7 @@ protected:
 
     //! displacement of neuron radii
     VectorMatrix deltaR;
+// } NMV-END
 };
 
 #endif // _HOSTSIM_H_

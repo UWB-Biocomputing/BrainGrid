@@ -256,7 +256,7 @@ void Network::reset()
     m_rgNeuronTypeMap = new neuronType[m_si.cNeurons];
 
     // Used to assign endogenously active neurons
-    m_rgEndogenouslyActiveNeuronMap = new bool[m_si.cNeurons];
+    m_rgEndogenouslyActiveNeuronMap = new bool[m_si.cNeurons]; // MODEL DEPENDENT
 
     m_neuronList.clear();
     m_neuronList.resize(m_si.cNeurons);
@@ -268,7 +268,7 @@ void Network::reset()
     // initialize maps
     for (int i = 0; i < m_si.cNeurons; i++)
     {
-        m_rgEndogenouslyActiveNeuronMap[i] = false;
+        m_rgEndogenouslyActiveNeuronMap[i] = false; // MODEL DEPENDENT
         m_summationMap[i] = 0;
     }
 

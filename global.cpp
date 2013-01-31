@@ -27,6 +27,7 @@ string coordToString(int x, int y, int z) {
 	return ss.str();
 }
 
+// MODEL INDEPENDENT FUNCTION NMV-BEGIN {
 string neuronTypeToString(neuronType t) {
 	switch (t) {
 	case INH:
@@ -38,7 +39,7 @@ string neuronTypeToString(neuronType t) {
 		assert(false);
 	}
 }
-
+// } NMV-END
 #if defined(USE_GPU)
 //! CUDA device ID
 int g_deviceId = 0;

@@ -42,8 +42,10 @@ public:
     //! Terminate process.
     virtual void term(SimulationInfo* psi) = 0;
 
+// NETWORK MODEL VARIABLES NMV-BEGIN {
     //! Initialize radii
     virtual void initRadii(VectorMatrix& newRadii) = 0;
+// } NMV-END
 
     //! Perform updating neurons for one time step.
     virtual void advanceUntilGrowth(SimulationInfo* psi) = 0;

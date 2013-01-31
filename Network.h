@@ -24,7 +24,7 @@
  ** If, during an advance cycle, a neuron \f$A\f$ at coordinates \f$x,y\f$ fires, every synapse
  ** \f$B\f$ at \f$x,y\f$ in the m_rgSynapseMap is notified of the spike. Those synapses then hold
  ** the spike until their delay period is completed.  At a later advance cycle, once the delay
- ** period has been completed, the synapses apply their PSRs to their output bins \f$C\f$ in
+ ** period has been completed, the synapses apply their PSRs (Post-Synaptic-Response) to their output bins \f$C\f$ in
  ** the m_summationMap.  Finally, on the next advance cycle, each neuron \f$D\f$ adds the value stored
  ** in their corresponding m_summationMap bin to their \f$V_m\f$ and resets the m_summationMap bin to
  ** zero.

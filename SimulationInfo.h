@@ -74,17 +74,19 @@ struct SimulationInfo
 	//! Current simulation step
 	int currentStep;
 
-	//! Maximum number of simulation steps
+	//! Maximum number of simulation steps NOTE: Not Currently Used
 	int maxSteps;
 
 	//! The length of each step in simulation time
 	FLOAT stepDuration;
 
+// NETWORK MODEL VARIABLES NMV-BEGIN {
 	//! Maximum firing rate (only used by GPU simulation)
 	int maxFiringRate;
 
 	//! Maximum number of synapses per neuron (only used by GPU simulation)
 	int maxSynapsesPerNeuron;
+// } NMV-END
 
 	//! Time elapsed between the beginning and end of the simulation step
 	FLOAT deltaT;
@@ -98,6 +100,7 @@ struct SimulationInfo
 	//! The starter existence map (T/F).
 	bool* rgEndogenouslyActiveNeuronMap;
 
+// NETWORK MODEL VARIABLES NMV-BEGIN {
 	//! growth param TODO: more detail here
 	FLOAT epsilon;
 
@@ -115,6 +118,7 @@ struct SimulationInfo
 
 	//! The starting connectivity radius for all neurons.
 	FLOAT startRadius;
+// } NMV-END
 
 	//! List of lists of synapses (3d array)
 	vector<ISynapse*>* rgSynapseMap;
@@ -122,7 +126,7 @@ struct SimulationInfo
 	//! List of summation points
 	FLOAT* pSummationMap;
 
-	//! Seed used for the simulation random
+	//! Seed used for the simulation random SINGLE THREADED
 	long seed;
 };
 

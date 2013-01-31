@@ -51,8 +51,9 @@ using namespace std;
 extern int g_deviceId;
 #endif // USE_GPU
 
+// NETWORK MODEL VARIABLES NMV-BEGIN {
 extern const FLOAT g_synapseStrengthAdjustmentConstant;
-
+//} NMV-END
 //! The constant PI.
 extern const FLOAT pi;
 
@@ -65,12 +66,13 @@ extern vector<Norm *> rgNormrnd;
 //! The current simulation step.
 extern uint64_t g_simulationStep;
 
+const int g_nMaxChunkSize = 100;
+
+// NETWORK MODEL VARIABLES NMV-BEGIN {
 //! Neuron types.
 //!	INH - Inhibitory neuron 
 //!	EXC - Excitory neuron
 enum neuronType { INH = 1, EXC = 2, NTYPE_UNDEF = 0 };
-
-const int g_nMaxChunkSize = 100;
 
 //! Synapse types.
 //!	II - Synapse from inhibitory neuron to inhibitory neuron.
@@ -96,7 +98,7 @@ extern const FLOAT DEFAULT_Iinject;
 //! The default threshold voltage.  If \f$V_m >= V_{thresh}\f$ then the neuron fires.
 extern const FLOAT DEFAULT_Vthresh;
 //! The default time step size.
-extern const FLOAT DEFAULT_dt;
+extern const FLOAT DEFAULT_dt; // MODEL INDEPENDENT
 //! The default absolute refractory period for inhibitory neurons.
 extern const FLOAT DEFAULT_InhibTrefract;
 //! The default absolute refractory period for excitory neurons.
@@ -107,8 +109,8 @@ extern const FLOAT DEFAULT_tau;
 //! The default synaptic efficiency.
 extern const FLOAT DEFAULT_U;
 //! The default synaptic efficiency.
-extern const FLOAT DEFAULT_delay_weight;
-
+extern const FLOAT DEFAULT_delay_weight; // WHAT IS THIS?
+// } NMV-END
 //! Converts a 1-d index into a coordinate string.
 string index2dToString(int i, int width, int height);
 //! Converts a 2-d coordinate into a string.
