@@ -59,8 +59,8 @@ FLOAT starter_vthresh[2];  // default Vthresh is 15e-3
 FLOAT starter_vreset[2];  // Interval of reset voltage
 // } NMV-END
 bool fFixedLayout;  // True if a fixed layout has been provided; neuron positions
-                   // are passed in endogenouslyActiveNeuronLayout and
-                   // inhibitoryNeuronLayout
+                    // are passed in endogenouslyActiveNeuronLayout and
+                    // inhibitoryNeuronLayout
 
 // NETWORK MODEL VARIABLES NMV-BEGIN {
 // Paramters for growth
@@ -78,15 +78,15 @@ FLOAT startRadius;  // No need to wait a long time before RFs start to overlap
 FLOAT Tsim;  // Simulation time (s) (between growth updates) rename: epochLength
 int numSims;  // Number of Tsim simulation to run
 int maxFiringRate;  // Maximum firing rate (only used by GPU version)
-int maxSynapsesPerNeuron;  //Maximum number of synapses per neuron
-                          // (only used by GPU version)
+int maxSynapsesPerNeuron;  // Maximum number of synapses per neuron
+                           // (only used by GPU version)
 long seed;  // Seed for random generator (single-threaded)
 
 // functions
 SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon,
-        FLOAT new_beta, FLOAT new_rho, FLOAT new_maxRate, FLOAT new_minRadius,
-        FLOAT new_startRadius, FLOAT growthStepDuration, FLOAT maxGrowthSteps,
-        int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT, long seed);
+    FLOAT new_beta, FLOAT new_rho, FLOAT new_maxRate, FLOAT new_minRadius,
+    FLOAT new_startRadius, FLOAT growthStepDuration, FLOAT maxGrowthSteps,
+    int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT, long seed);
 void LoadSimParms(TiXmlElement*);
 void SaveSimState(ostream &);
 void printParams();
@@ -122,22 +122,19 @@ int main(int argc, char* argv[]) {
     ofstream state_out(stateOutputFileName.c_str());
     ofstream memory_out;
     if (fWriteMemImage) {
-        memory_out.open(
-            memOutputFileName.c_str(),
-            ofstream::binary | ofstream::trunc
-        );
+        memory_out.open(memOutputFileName.c_str(),
+            ofstream::binary | ofstream::trunc);
     }
 
     ifstream memory_in;
     if (fReadMemImage) {
-        memory_in.open(
-            memInputFileName.c_str(),
-            ofstream::binary | ofstream::in
-        );
+        memory_in.open(memInputFileName.c_str(),
+            ofstream::binary | ofstream::in);
     }
 
 // NETWORK MODEL VARIABLES NMV-BEGIN {
-    // calculate the number of inhibitory, excitory, and endogenously active neurons
+    // calculate the number of inhibitory, excitory, and endogenously active
+    // neurons
     // int numNeurons = poolsize[0] * poolsize[1];
     int nInhNeurons = (int) ((1.0 - frac_EXC) * numNeurons + 0.5);
     int nExcNeurons = numNeurons - nInhNeurons;
@@ -155,7 +152,8 @@ int main(int argc, char* argv[]) {
             maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed);
 
     // Get an ISimulation object
-    // TODO: remove #defines and use cmdline parameters to choose simulation method
+    // TODO: remove #defines and use cmdline parameters to choose simulation
+    // method
     ISimulation* pSim;
     #if defined(USE_GPU)
         pSim = new GpuSim(&si);
@@ -166,9 +164,11 @@ int main(int argc, char* argv[]) {
     #endif
 
     // create the network
-    Network network(inhFrac, excFrac, startFrac, Iinject, Inoise, Vthresh, Vresting, Vreset,
-            Vinit, starter_vthresh, starter_vreset, targetRate, state_out, memory_out, fWriteMemImage, memory_in, fReadMemImage,
-            fFixedLayout, &endogenouslyActiveNeuronLayout, &inhibitoryNeuronLayout, si, pSim);
+    Network network(inhFrac, excFrac, startFrac, Iinject, Inoise, Vthresh,
+            Vresting, Vreset, Vinit, starter_vthresh, starter_vreset,
+            targetRate, state_out, memory_out, fWriteMemImage, memory_in,
+            fReadMemImage, fFixedLayout, &endogenouslyActiveNeuronLayout,
+            &inhibitoryNeuronLayout, si, pSim);
 
     time_t start_time, end_time;
     time(&start_time);
@@ -197,9 +197,12 @@ int main(int argc, char* argv[]) {
 /*
  * Init SimulationInfo parameters
  */
-SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon, FLOAT new_beta, FLOAT new_rho,
-        FLOAT new_maxRate, FLOAT new_minRadius, FLOAT new_startRadius, FLOAT growthStepDuration,
-        FLOAT maxGrowthSteps, int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT, long seed) {
+SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon,
+        FLOAT new_beta, FLOAT new_rho, FLOAT new_maxRate, FLOAT new_minRadius,
+        FLOAT new_startRadius, FLOAT growthStepDuration, FLOAT maxGrowthSteps,
+        int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT,
+        long seed)
+{
     SimulationInfo si;
     // Init SimulationInfo parameters
     int max_neurons = cols * rows;
@@ -236,19 +239,34 @@ SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon, FLOAT n
  */
 void printParams() {
     cout << "\nPrinting parameters...\n";
-    cout << "frac_EXC:" << frac_EXC << " " << "starter_neurons:" << starter_neurons << endl;
-    cout << "poolsize x:" << poolsize[0] << " y:" << poolsize[1] << " z:" << poolsize[2] << endl;
-    cout << "Interval of constant injected current: [" << Iinject[0] << ", " << Iinject[1] << "]" << endl;
-    cout << "Interval of STD of (gaussian) noise current: [" << Inoise[0] << ", " << Inoise[1] << "]\n";
-    cout << "Interval of firing threshold: [" << Vthresh[0] << ", " << Vthresh[1] << "]\n";
-    cout << "Interval of asymptotic voltage (Vresting): [" << Vresting[0] << ", " << Vresting[1] << "]\n";
-    cout << "Interval of reset voltage: [" << Vreset[0] << ", " << Vreset[1] << "]\n";
-    cout << "Interval of initial membrance voltage: [" << Vinit[0] << ", " << Vinit[1] << "]\n";
-    cout << "Starter firing threshold: [" << starter_vthresh[0] << ", " << starter_vthresh[1] << "]\n";
-    cout << "Starter reset threshold: [" << starter_vreset[0] << ", " << starter_vreset[1] << "]\n";
-    cout << "Growth parameters: " << endl << "\tepsilon: " << epsilon << ", beta: " << beta << ", rho: " << rho
-            << ", targetRate: " << targetRate << ",\n\tminRadius: " << minRadius << ", startRadius: " << startRadius
-            << endl;
+    cout << "frac_EXC:" << frac_EXC << " " << "starter_neurons:"
+         << starter_neurons << endl;
+    cout << "poolsize x:" << poolsize[0]
+         << " y:" << poolsize[1]
+         << " z:" << poolsize[2]
+         << endl;
+    cout << "Interval of constant injected current: [" << Iinject[0]
+         << ", " << Iinject[1] << "]"
+         << endl;
+    cout << "Interval of STD of (gaussian) noise current: [" << Inoise[0]
+         << ", " << Inoise[1] << "]\n";
+    cout << "Interval of firing threshold: [" << Vthresh[0] << ", "
+         << Vthresh[1] << "]\n";
+    cout << "Interval of asymptotic voltage (Vresting): [" << Vresting[0]
+         << ", " << Vresting[1] << "]\n";
+    cout << "Interval of reset voltage: [" << Vreset[0]
+         << ", " << Vreset[1] << "]\n";
+    cout << "Interval of initial membrance voltage: [" << Vinit[0]
+         << ", " << Vinit[1] << "]\n";
+    cout << "Starter firing threshold: [" << starter_vthresh[0]
+         << ", " << starter_vthresh[1] << "]\n";
+    cout << "Starter reset threshold: [" << starter_vreset[0]
+         << ", " << starter_vreset[1] << "]\n";
+    cout << "Growth parameters: " << endl << "\tepsilon: " << epsilon
+         << ", beta: " << beta << ", rho: " << rho
+         << ", targetRate: " << targetRate << ",\n\tminRadius: " << minRadius
+         << ", startRadius: " << startRadius
+         << endl;
     cout << "Simulation Parameters:\n";
     cout << "\tTime between growth updates (in seconds): " << Tsim << endl;
     cout << "\tNumber of simulations to run: " << numSims << endl;
@@ -520,7 +538,6 @@ void LoadSimParms(TiXmlElement* parms)
 
             else if (strcmp(pNode->Value(), "I") == 0)
                 getValueList(pNode->ToElement()->GetText(), &inhibitoryNeuronLayout);
-
         }
     }
 
