@@ -100,7 +100,7 @@ public:
 	//! The simulation time step size.
 	FLOAT deltaT;
 
-	//! The membrane capacity \f$C_m\f$ [range=(0,1); units=F;]
+	//! The membrane capacitance \f$C_m\f$ [range=(0,1); units=F;]
 	FLOAT Cm;
 
 	//! The membrane resistance \f$R_m\f$ [units=Ohm; range=(0,1e30)]
@@ -111,7 +111,8 @@ public:
 
 	//! A constant current to be injected into the LIF neuron. [units=A; range=(-1,1);]
 	FLOAT Iinject;
-
+	
+	// What the hell is this used for???
 	//! The synaptic input current.
 	FLOAT Isyn;
 
