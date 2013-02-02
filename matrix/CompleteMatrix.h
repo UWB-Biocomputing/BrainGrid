@@ -104,7 +104,7 @@ public:
     @param column element column
     @return reference to element (lvalue)
   */
-  inline FLOAT& operator()(int row, int column) 
+  inline FLOAT& operator()(int row, int column)
   { return theMatrix[row][column]; }
 
   /*!
@@ -182,9 +182,9 @@ protected:
 
   // access adjustment --- allow member functions in this class to
   // access protected member of base class in other objects.
-  Matrix::dimensions;
-  Matrix::rows;
-  Matrix::columns;
+  using Matrix::dimensions;
+  using Matrix::rows;
+  using Matrix::columns;
 
 private:
 

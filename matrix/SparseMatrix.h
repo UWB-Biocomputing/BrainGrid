@@ -407,7 +407,7 @@ protected:
 
 	// access adjustment --- allow member functions in this class to
 	// access protected member of base class in other objects.
-Matrix	::dimensions;
+    using Matrix::dimensions;
 
 private:
 
