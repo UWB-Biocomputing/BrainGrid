@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
 // NETWORK MODEL VARIABLES NMV-BEGIN {
     // calculate the number of inhibitory, excitory, and endogenously active
     // neurons
-    // int numNeurons = poolsize[0] * poolsize[1];
+    int numNeurons = poolsize[0] * poolsize[1];
     int nInhNeurons = (int) ((1.0 - frac_EXC) * numNeurons + 0.5);
     int nExcNeurons = numNeurons - nInhNeurons;
     int nStarterNeurons = 0;
@@ -176,7 +176,7 @@ int main(int argc, char* argv[]) {
     time(&start_time);
     
     
-    Simulator sim(network, si);
+    Simulator sim(&network, si);
     sim.simulate(Tsim, numSims);
 
     delete pSim;

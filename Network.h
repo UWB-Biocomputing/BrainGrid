@@ -99,7 +99,7 @@ public:
     void advanceUntilGrowth(SimulationInfo* psi);
     
     // Update the neuron network
-    void update(SimulationInfo* psi)
+    void update(SimulationInfo* psi);
     
     //! Performs the simulation.
     void simulate(FLOAT growthStepDuration, FLOAT num_growth_steps);

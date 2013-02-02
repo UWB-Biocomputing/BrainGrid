@@ -49,6 +49,7 @@ GPUOBJS = $(MAIN)/GpuSim.o \
        $(MAIN)/ISynapse.o \
        $(MAIN)/LifNeuron.o \
        $(MAIN)/Network.o \
+       $(MAIN)/Simulator.o \
        $(MAIN)/GpuSim_struct.o \
        $(MAIN)/BGDriver_gpu.o \
        $(MAIN)/global_gpu.o \
@@ -58,6 +59,7 @@ SINGLEOBJS = $(MAIN)/HostSim.o \
        $(MAIN)/SingleThreadedSim.o \
        $(MAIN)/DynamicSpikingSynapse.o \
        $(MAIN)/Network.o \
+       $(MAIN)/Simulator.o \
        $(MAIN)/BGDriver.o \
        $(MAIN)/global.o \
        $(MAIN)/INeuron.o \
@@ -68,6 +70,7 @@ MULTIOBJS = $(MAIN)/HostSim.o \
        $(MAIN)/MultiThreadedSim.o \
        $(MAIN)/DynamicSpikingSynapse_omp.o \
        $(MAIN)/Network.o \
+       $(MAIN)/Simulator.o \
        $(MAIN)/BGDriver_omp.o \
        $(MAIN)/global.o \
        $(MAIN)/INeuron.o \
@@ -134,6 +137,8 @@ $(MAIN)/MultiThreadedSim.o: $(MAIN)/MultiThreadedSim.cpp $(MAIN)/MultiThreadedSi
 	$(CXX) $(CXXFLAGS) $(COMPFLAGS) -c $(MAIN)/MultiThreadedSim.cpp -o $(MAIN)/MultiThreadedSim.o
 
 $(MAIN)/Network.o: $(MAIN)/Network.cpp $(MAIN)/Network.h $(MAIN)/global.h
+
+$(MAIN)/Simulator.o: $(MAIN)/Simulator.cpp $(MAIN)/Simulator.h $(MAIN)/global.h $(MAIN)/SimulationInfo.h
 
 $(MAIN)/BGDriver_gpu.o: $(MAIN)/BGDriver.cpp $(MAIN)/global.h $(MAIN)/ISynapse.h $(MAIN)/INeuron.h $(MAIN)/Network.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -c $(MAIN)/BGDriver.cpp -o $(MAIN)/BGDriver_gpu.o

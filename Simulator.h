@@ -14,6 +14,7 @@
 
 #include "global.h"
 #include "SimulationInfo.h"
+#include "Network.h"
 #include "include/Timer.h"
 
 /**
@@ -45,7 +46,7 @@ class Simulator
         Network *network;
         
         SimulationInfo sim_info;
-}
+};
 
 #endif // _SIMULATOR_H_
 
