@@ -223,7 +223,7 @@ void Network::freeResources()
     if (m_rgSynapseMap != NULL) {
 		for(int x = 0; x < m_si.cNeurons; x++) {
 			delete m_neuronList[x];
-			for(int y = 0; y < m_rgSynapseMap[x].size(); y++)
+			for(unsigned int y = 0; y < m_rgSynapseMap[x].size(); y++)
 				delete m_rgSynapseMap[x][y];
 		}
 		delete[] m_rgSynapseMap;
