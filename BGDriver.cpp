@@ -14,6 +14,8 @@
 #include "include/ParamContainer.h"
 #include "Network.h"
 
+#include "Simulator.h" // TODO(derek): clean up at end of refactor.
+
 // Uncomment to use visual leak detector (Visual Studios Plugin)
 // #include <vld.h>
 
@@ -172,8 +174,10 @@ int main(int argc, char* argv[]) {
 
     time_t start_time, end_time;
     time(&start_time);
-
-    network.simulate(Tsim, numSims);
+    
+    
+    Simulator sim(network, si);
+    sim.simulate(Tsim, numSims);
 
     delete pSim;
     rgNormrnd.clear();

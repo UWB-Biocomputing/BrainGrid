@@ -126,6 +126,8 @@ extern float t_gpu_advanceNeurons;
 extern float t_gpu_advanceSynapses;
 extern float t_gpu_calcSummation;
 extern float t_host_adjustSynapses;
+
+void printPerformanceMetrics(const float total_time);
 #endif // PERFORMANCE_METRICS
 
 #endif

@@ -87,8 +87,24 @@ public:
 	//! Read the simulation memory image from an istream
 	void readSimMemory(istream& is, VectorMatrix& radii, VectorMatrix& rates);
 
-	//! Performs the simulation.
-	void simulate(FLOAT growthStepDuration, FLOAT num_growth_steps);
+// -----------------------------------------------------------------------------
+
+    // Setup simulation
+    void setup(FLOAT growthStepDuration, FLOAT num_growth_steps);
+    
+    // Cleanup after simulation
+    void finish(FLOAT growthStepDuration, FLOAT num_growth_steps);
+    
+    // Advance simulation to next growth cycle
+    void advanceUntilGrowth(SimulationInfo* psi);
+    
+    // Update the neuron network
+    void update(SimulationInfo* psi)
+    
+    //! Performs the simulation.
+    void simulate(FLOAT growthStepDuration, FLOAT num_growth_steps);
+
+// -----------------------------------------------------------------------------
 
 	//! Output the m_rgNeuronTypeMap to a VectorMatrix.
 	void getNeuronTypes(VectorMatrix& neuronTypes);
@@ -144,6 +160,38 @@ public:
 	vector<int>* m_pEndogenouslyActiveNeuronLayout;
 
 	vector<int>* m_pInhibitoryNeuronLayout;
+
+// -----------------------------------------------------------------------------
+
+    VectorMatrix radii; // previous saved radii
+    VectorMatrix rates; // previous saved rates
+
+    // burstiness Histogram goes through the
+    VectorMatrix burstinessHist; // state
+
+    // spikes history - history of accumulated spikes count of all neurons (10 ms bin)
+    VectorMatrix spikesHistory; // state
+
+    // track radii
+    CompleteMatrix radiiHistory; // state
+
+    // track firing rate
+    CompleteMatrix ratesHistory;
+
+    // neuron types
+    VectorMatrix neuronTypes;
+
+    // neuron threshold
+    VectorMatrix neuronThresh;
+    
+    // neuron locations matrices
+    VectorMatrix xloc;
+    VectorMatrix yloc;
+    
+    static const string MATRIX_TYPE;
+    static const string MATRIX_INIT;
+
+// -----------------------------------------------------------------------------
 
 private:
 	// Struct that holds information about a simulation

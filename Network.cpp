@@ -7,6 +7,9 @@
  */
 #include "Network.h"
 
+const string Network::MATRIX_TYPE = "complete";
+const string Network::MATRIX_INIT = "const";
+
 /** 
  * The constructor for Network.
  * @post The network is setup according to parameters and ready for simulation.
@@ -15,8 +18,8 @@ Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2]
         FLOAT Inoise[2], FLOAT Vthresh[2], FLOAT Vresting[2], FLOAT Vreset[2], FLOAT Vinit[2],
         FLOAT starter_Vthresh[2], FLOAT starter_Vreset[2], FLOAT new_targetRate,
         ostream& new_stateout, ostream& new_memoutput, bool fWriteMemImage, istream& new_meminput, bool fReadMemImage, 
-		bool fFixedLayout, vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
-		SimulationInfo simInfo, ISimulation* sim) :
+        bool fFixedLayout, vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
+        SimulationInfo simInfo, ISimulation* sim) :
     m_cExcitoryNeurons(static_cast<int>(simInfo.cNeurons * excFrac)), 
     m_cInhibitoryNeurons(static_cast<int>(simInfo.cNeurons * inhFrac)), 
     m_cStarterNeurons(static_cast<int>(simInfo.cNeurons * startFrac)), 
@@ -24,7 +27,7 @@ Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2]
     m_summationMap(NULL),
     m_rgNeuronTypeMap(NULL),
     m_rgEndogenouslyActiveNeuronMap(NULL),
-	m_targetRate(new_targetRate),
+    m_targetRate(new_targetRate),
     state_out(new_stateout),
     memory_out(new_memoutput),
     m_fWriteMemImage(fWriteMemImage),
@@ -33,8 +36,17 @@ Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2]
     m_fFixedLayout(fFixedLayout),
     m_pEndogenouslyActiveNeuronLayout(pEndogenouslyActiveNeuronLayout),
     m_pInhibitoryNeuronLayout(pInhibitoryNeuronLayout),
-	m_si(simInfo),
-	m_sim(sim)
+    m_si(simInfo),
+    m_sim(sim),
+    
+    
+    
+    radii(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons),
+    rates(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons),
+    neuronTypes(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons, EXC),
+    neuronThresh(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons, 0),
+    xloc(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons),
+    yloc(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons)
 {
     cout << "Neuron count: " << simInfo.cNeurons << endl;
  
@@ -55,43 +67,29 @@ Network::~Network()
 }
 
 /**
-* Run simulation
-*
-* @param growthStepDuration
-* @param maxGrowthSteps
-*/
-void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
+ * Initialize and prepare network for simulation.
+ *
+ * @param growthStepDuration
+ *
+ * @param maxGrowthSteps
+ */
+void Network::setup(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 {
-    string matrixType, init;
-
-    matrixType = "complete";
-    init = "const";
-    VectorMatrix radii(matrixType, init, 1, m_si.cNeurons);	// previous saved radii
-    VectorMatrix rates(matrixType, init, 1, m_si.cNeurons);	// previous saved rates
-
     // burstiness Histogram goes through the
-    VectorMatrix burstinessHist(matrixType, init, 1, (int)(growthStepDuration * maxGrowthSteps), 0);
+    burstinessHist = VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthStepDuration * maxGrowthSteps), 0); // state
 
     // spikes history - history of accumulated spikes count of all neurons (10 ms bin)
-    VectorMatrix spikesHistory(matrixType, init, 1, (int)(growthStepDuration * maxGrowthSteps * 100), 0);
+    spikesHistory = VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthStepDuration * maxGrowthSteps * 100), 0); // state
 
     // track radii
-    CompleteMatrix radiiHistory(matrixType, init, static_cast<int>(maxGrowthSteps + 1), m_si.cNeurons);
+    radiiHistory = CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), m_si.cNeurons); // state
 
     // track firing rate
-    CompleteMatrix ratesHistory(matrixType, init, static_cast<int>(maxGrowthSteps + 1), m_si.cNeurons);
-
-    // neuron types
-    VectorMatrix neuronTypes(matrixType, init, 1, m_si.cNeurons, EXC);
-
-    // neuron threshold
-    VectorMatrix neuronThresh(matrixType, init, 1, m_si.cNeurons, 0);
+    ratesHistory = CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), m_si.cNeurons);
+    
     for (int i = 0; i < m_si.cNeurons; i++)
-        neuronThresh[i] = m_neuronList[i]->Vthresh;    
+        neuronThresh[i] = m_neuronList[i]->Vthresh;
 
-    // neuron locations matrices
-    VectorMatrix xloc(matrixType, init, 1, m_si.cNeurons);
-    VectorMatrix yloc(matrixType, init, 1, m_si.cNeurons);
 
     // Initialize neurons
     for (int i = 0; i < m_si.cNeurons; i++)
@@ -104,18 +102,15 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     getNeuronTypes(neuronTypes);
 
     // Init radii and rates history matrices with current radii and rates
-    for (int i = 0; i < m_si.cNeurons; i++)
-    {
+    for (int i = 0; i < m_si.cNeurons; i++) {
         radiiHistory(0, i) = m_si.startRadius;
         ratesHistory(0, i) = 0;
     }
 
     // Read a simulation memory image
-    if (m_fReadMemImage)
-    {
+    if (m_fReadMemImage) {
         readSimMemory(memory_in, radii, rates);
-        for (int i = 0; i < m_si.cNeurons; i++)
-        {
+        for (int i = 0; i < m_si.cNeurons; i++) {
             radiiHistory(0, i) = radii[i];
             ratesHistory(0, i) = rates[i];
         }
@@ -123,58 +118,19 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 
     // Start the timer
     // TODO: stop the timer at some point and use its output
-    m_timer.start();
+    // m_timer.start();
 
-	// Initialize and prepare simulator
+    // Initialize and prepare simulator
     m_sim->init(&m_si, xloc, yloc);
 
     // Set the previous saved radii
-    if (m_fReadMemImage)    
+    if (m_fReadMemImage) {
         m_sim->initRadii(radii);
-    
-
-    // Main simulation loop - execute maxGrowthSteps
-    for (int currentStep = 1; currentStep <= maxGrowthSteps; currentStep++)
-    {
-#ifdef PERFORMANCE_METRICS
-        m_timer.start();
-#endif
-
-        // Init SimulationInfo parameters
-        m_si.currentStep = currentStep;
-
-        DEBUG(cout << "\n\nPerforming simulation number " << currentStep << endl;)
-        DEBUG(cout << "Begin network state:" << endl;)
-
-        // Advance simulation to next growth cycle
-        m_sim->advanceUntilGrowth(&m_si);
-
-        DEBUG(cout << "\n\nDone with simulation cycle, beginning growth update " << currentStep << endl;)
-
-        // Update the neuron network
-#ifdef PERFORMANCE_METRICS
-        m_short_timer.start();
-#endif
-		m_sim->updateNetwork(&m_si, radiiHistory, ratesHistory);
-
-#ifdef PERFORMANCE_METRICS
-        t_host_adjustSynapses = m_short_timer.lap() / 1000.0f;
-		float total_time = m_timer.lap() / 1000.0f;
-		float t_others = total_time - (t_gpu_rndGeneration + t_gpu_advanceNeurons + 
-			t_gpu_advanceSynapses + t_gpu_calcSummation + t_host_adjustSynapses);
-
-        cout << endl;
-        cout << "total_time: " << total_time << " ms" << endl;
-        cout << "t_gpu_rndGeneration: " << t_gpu_rndGeneration << " ms (" << t_gpu_rndGeneration / total_time * 100 << "%)" << endl;
-        cout << "t_gpu_advanceNeurons: " << t_gpu_advanceNeurons << " ms (" << t_gpu_advanceNeurons / total_time * 100 << "%)" << endl;
-        cout << "t_gpu_advanceSynapses: " << t_gpu_advanceSynapses << " ms (" << t_gpu_advanceSynapses / total_time * 100 << "%)" << endl;
-        cout << "t_gpu_calcSummation: " << t_gpu_calcSummation << " ms (" << t_gpu_calcSummation / total_time * 100 << "%)" << endl;
-        cout << "t_host_adjustSynapses: " << t_host_adjustSynapses << " ms (" << t_host_adjustSynapses / total_time * 100 << "%)" << endl;
-        cout << "t_others: " << t_others << " ms (" << t_others / total_time * 100 << "%)" << endl;
-        cout << endl;
-#endif
     }
+}
 
+void Network::finish(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
+{
 #ifdef STORE_SPIKEHISTORY
     // output spikes
     for (int i = 0; i < m_si.width; i++)
@@ -207,6 +163,75 @@ void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     // write the simulation memory image
     if (m_fWriteMemImage)
         writeSimMemory(memory_out, radiiHistory, ratesHistory);
+}
+
+// Advance simulation to next growth cycle
+void Network::advanceUntilGrowth(SimulationInfo* psi)
+{
+    m_sim->advanceUntilGrowth(psi);
+}
+
+// Update the neuron network
+void Network::update(SimulationInfo* psi)
+{
+    m_sim->updateNetwork(psi, radiiHistory, ratesHistory);
+}
+
+/**
+* Run simulation
+*
+* @param growthStepDuration
+* @param maxGrowthSteps
+*/
+void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
+{
+    setup(growthStepDuration, maxGrowthSteps);
+    
+    // -----------------------------------------------------------------------
+
+    // Main simulation loop - execute maxGrowthSteps
+    for (int currentStep = 1; currentStep <= maxGrowthSteps; currentStep++)
+    {
+#ifdef PERFORMANCE_METRICS
+        m_timer.start();
+#endif
+
+        // Init SimulationInfo parameters
+        m_si.currentStep = currentStep;
+
+        DEBUG(cout << "\n\nPerforming simulation number " << currentStep << endl;)
+        DEBUG(cout << "Begin network state:" << endl;)
+
+        // Advance simulation to next growth cycle
+        advanceUntilGrowth(&m_si);
+
+        DEBUG(cout << "\n\nDone with simulation cycle, beginning growth update " << currentStep << endl;)
+
+        // Update the neuron network
+#ifdef PERFORMANCE_METRICS
+        m_short_timer.start();
+#endif
+		update(&m_si);
+
+#ifdef PERFORMANCE_METRICS
+        t_host_adjustSynapses = m_short_timer.lap() / 1000.0f;
+		float total_time = m_timer.lap() / 1000.0f;
+		float t_others = total_time - (t_gpu_rndGeneration + t_gpu_advanceNeurons + 
+			t_gpu_advanceSynapses + t_gpu_calcSummation + t_host_adjustSynapses);
+
+        cout << endl;
+        cout << "total_time: " << total_time << " ms" << endl;
+        cout << "t_gpu_rndGeneration: " << t_gpu_rndGeneration << " ms (" << t_gpu_rndGeneration / total_time * 100 << "%)" << endl;
+        cout << "t_gpu_advanceNeurons: " << t_gpu_advanceNeurons << " ms (" << t_gpu_advanceNeurons / total_time * 100 << "%)" << endl;
+        cout << "t_gpu_advanceSynapses: " << t_gpu_advanceSynapses << " ms (" << t_gpu_advanceSynapses / total_time * 100 << "%)" << endl;
+        cout << "t_gpu_calcSummation: " << t_gpu_calcSummation << " ms (" << t_gpu_calcSummation / total_time * 100 << "%)" << endl;
+        cout << "t_host_adjustSynapses: " << t_host_adjustSynapses << " ms (" << t_host_adjustSynapses / total_time * 100 << "%)" << endl;
+        cout << "t_others: " << t_others << " ms (" << t_others / total_time * 100 << "%)" << endl;
+        cout << endl;
+#endif
+    }
+    
+    finish(growthStepDuration, maxGrowthSteps);
 }
 
 /**
