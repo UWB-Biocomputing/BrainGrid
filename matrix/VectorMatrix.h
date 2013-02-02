@@ -379,9 +379,9 @@ protected:
 
   // access adjustment --- allow member functions in this class to
   // access protected member of base class in other objects.
-  Matrix::dimensions;
-  Matrix::rows;
-  Matrix::columns;
+  using Matrix::dimensions;
+  using Matrix::rows;
+  using Matrix::columns;
 
 private:
 
