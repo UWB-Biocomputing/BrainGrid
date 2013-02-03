@@ -170,3 +170,7 @@ pip-log.txt
 
 # Swap and backup files
 *~
+
+# Compile and Output Files
+*.o
+growth* # Consider using an extension like .run
