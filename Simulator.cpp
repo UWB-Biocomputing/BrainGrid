@@ -50,7 +50,7 @@ void Simulator::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 #ifdef PERFORMANCE_METRICS
         short_timer.start();
 #endif
-        network->update(&sim_info);
+        advanceUntilGrowth();
 
 #ifdef PERFORMANCE_METRICS
         t_host_adjustSynapses = short_timer.lap() / 1000.0f;
@@ -68,4 +68,31 @@ void Simulator::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     // Tell network to clean-up and run any post-simulation logic.
     // TODO(derek): choose better name after refactor.
     network->finish(growthStepDuration, maxGrowthSteps);
+}
+
+void Simulator::advanceUntilGrowth()
+{
+    uint64_t count = 0;
+    uint64_t endStep = g_simulationStep + static_cast<uint64_t>(psi->stepDuration / psi->deltaT);
+    
+    DEBUG2(printNetworkRadii(radii);)
+
+    while (g_simulationStep < endStep)
+    {
+        DEBUG(if (count % 10000 == 0)
+              {
+                  cout << psi->currentStep << "/" << psi->maxSteps
+                      << " simulating time: " << g_simulationStep * psi->deltaT << endl;
+                  count = 0;
+              }
+
+              count++;
+             )
+
+        network->advanceNeurons(psi);
+        
+        network->advanceSynapses(psi);
+        g_simulationStep++;
+    }
+}
 }

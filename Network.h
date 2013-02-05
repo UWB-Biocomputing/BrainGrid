@@ -95,14 +95,14 @@ public:
     // Cleanup after simulation
     void finish(FLOAT growthStepDuration, FLOAT num_growth_steps);
     
-    // Advance simulation to next growth cycle
-    void advanceUntilGrowth(SimulationInfo* psi);
+    //! Perform updating neurons for one time step.
+    void Network::advanceNeurons(SimulationInfo* psi)
+    
+    //! Perform updating synapses for one time step.
+    void advanceSynapses(SimulationInfo* psi);
     
     // Update the neuron network
     void update(SimulationInfo* psi);
-    
-    //! Performs the simulation.
-    void simulate(FLOAT growthStepDuration, FLOAT num_growth_steps);
 
 // -----------------------------------------------------------------------------
 

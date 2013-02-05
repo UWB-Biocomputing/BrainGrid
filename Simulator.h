@@ -38,6 +38,9 @@ class Simulator
         
         //Performs the simulation.
         void simulate(FLOAT growthStepDuration, FLOAT num_growth_steps);
+        
+        // Advance simulation to next growth cycle
+        void advanceUntilGrowth();
     
     private:
         Timer timer;

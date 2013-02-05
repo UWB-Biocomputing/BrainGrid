@@ -133,16 +133,13 @@ void Network::finish(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 {
 #ifdef STORE_SPIKEHISTORY
     // output spikes
-    for (int i = 0; i < m_si.width; i++)
-    {
-        for (int j = 0; j < m_si.height; j++)
-        {
+    for (int i = 0; i < m_si.width; i++) {
+        for (int j = 0; j < m_si.height; j++) {
             vector<uint64_t>* pSpikes = m_neuronList[i + j * m_si.width]->getSpikes();
 
             DEBUG2 (cout << endl << coordToString(i, j) << endl);
 
-            for (unsigned int i = 0; i < (*pSpikes).size(); i++)
-            {
+            for (unsigned int i = 0; i < (*pSpikes).size(); i++) {
                 DEBUG2 (cout << i << " ");
                 int idx1 = (*pSpikes)[i] * m_si.deltaT;
                 burstinessHist[idx1] = burstinessHist[idx1] + 1.0;
@@ -161,77 +158,65 @@ void Network::finish(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     m_sim->term(&m_si);
 
     // write the simulation memory image
-    if (m_fWriteMemImage)
+    if (m_fWriteMemImage) {
         writeSimMemory(memory_out, radiiHistory, ratesHistory);
+    }
 }
 
-// Advance simulation to next growth cycle
-void Network::advanceUntilGrowth(SimulationInfo* psi)
+/**
+ * Notify outgoing synapses if neuron has fired.
+ * @param[in] psi	Pointer to the simulation information.
+ */
+void Network::advanceNeurons(SimulationInfo* psi)
 {
-    m_sim->advanceUntilGrowth(psi);
+    // TODO: move this code into a helper class - it's being used in multiple places.
+    // For each neuron in the network
+    for (int i = psi->cNeurons - 1; i >= 0; --i) {
+        // advance neurons
+        (*(psi->pNeuronList))[i]->advance(psi->pSummationMap[i]);
+
+        DEBUG2(cout << i << " " << (*(psi->pNeuronList))[i]->Vm << endl;)
+
+        // notify outgoing synapses if neuron has fired
+        if ((*(psi->pNeuronList))[i]->hasFired) {
+            DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
+
+            for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z) {
+                psi->rgSynapseMap[i][z]->preSpikeHit();
+            }
+
+            (*(psi->pNeuronList))[i]->hasFired = false;
+        }
+    }
+
+#ifdef DUMP_VOLTAGES
+    // ouput a row with every voltage level for each time step
+    cout << g_simulationStep * psi->deltaT;
+
+    for (int i = 0; i < psi->cNeurons; i++) {
+        cout << "\t i: " << i << " " << (*(psi->pNeuronList))[i].toStringVm();
+    }
+    
+    cout << endl;
+#endif /* DUMP_VOLTAGES */
+}
+
+/**
+ * @param[in] psi	Pointer to the simulation information.
+ */
+void Network::advanceSynapses(SimulationInfo* psi)
+{
+    for (int i = psi->cNeurons - 1; i >= 0; --i) {
+        for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z) {
+            psi->rgSynapseMap[i][z]->advance();
+        }
+    }
 }
 
 // Update the neuron network
 void Network::update(SimulationInfo* psi)
 {
     m_sim->updateNetwork(psi, radiiHistory, ratesHistory);
-}
-
-/**
-* Run simulation
-*
-* @param growthStepDuration
-* @param maxGrowthSteps
-*/
-void Network::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
-{
-    setup(growthStepDuration, maxGrowthSteps);
-    
-    // -----------------------------------------------------------------------
-
-    // Main simulation loop - execute maxGrowthSteps
-    for (int currentStep = 1; currentStep <= maxGrowthSteps; currentStep++)
-    {
-#ifdef PERFORMANCE_METRICS
-        m_timer.start();
-#endif
-
-        // Init SimulationInfo parameters
-        m_si.currentStep = currentStep;
-
-        DEBUG(cout << "\n\nPerforming simulation number " << currentStep << endl;)
-        DEBUG(cout << "Begin network state:" << endl;)
-
-        // Advance simulation to next growth cycle
-        advanceUntilGrowth(&m_si);
-
-        DEBUG(cout << "\n\nDone with simulation cycle, beginning growth update " << currentStep << endl;)
-
-        // Update the neuron network
-#ifdef PERFORMANCE_METRICS
-        m_short_timer.start();
-#endif
-		update(&m_si);
-
-#ifdef PERFORMANCE_METRICS
-        t_host_adjustSynapses = m_short_timer.lap() / 1000.0f;
-		float total_time = m_timer.lap() / 1000.0f;
-		float t_others = total_time - (t_gpu_rndGeneration + t_gpu_advanceNeurons + 
-			t_gpu_advanceSynapses + t_gpu_calcSummation + t_host_adjustSynapses);
-
-        cout << endl;
-        cout << "total_time: " << total_time << " ms" << endl;
-        cout << "t_gpu_rndGeneration: " << t_gpu_rndGeneration << " ms (" << t_gpu_rndGeneration / total_time * 100 << "%)" << endl;
-        cout << "t_gpu_advanceNeurons: " << t_gpu_advanceNeurons << " ms (" << t_gpu_advanceNeurons / total_time * 100 << "%)" << endl;
-        cout << "t_gpu_advanceSynapses: " << t_gpu_advanceSynapses << " ms (" << t_gpu_advanceSynapses / total_time * 100 << "%)" << endl;
-        cout << "t_gpu_calcSummation: " << t_gpu_calcSummation << " ms (" << t_gpu_calcSummation / total_time * 100 << "%)" << endl;
-        cout << "t_host_adjustSynapses: " << t_host_adjustSynapses << " ms (" << t_host_adjustSynapses / total_time * 100 << "%)" << endl;
-        cout << "t_others: " << t_others << " ms (" << t_others / total_time * 100 << "%)" << endl;
-        cout << endl;
-#endif
-    }
-    
-    finish(growthStepDuration, maxGrowthSteps);
 }
 
 /**
