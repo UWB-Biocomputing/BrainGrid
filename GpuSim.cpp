@@ -200,10 +200,10 @@ void GpuSim::advanceUntilGrowth(SimulationInfo* psi)
 	// record spike time
 	getSpikeCounts(neuron_count, spikeCounts);
 	for (int i = 0; i < neuron_count; i++) {
-		LifNeuron& neuron = (*(psi->pNeuronList))[i];
+		INeuron* neuron = (*(psi->pNeuronList))[i];
 		if (spikeCounts[i] > 0) {
 			assert(spikeCounts[i] < maxSpikes);
-			neuron.spikeHistory.insert(neuron.spikeHistory.end(), 
+			neuron->spikeHistory.insert(neuron->spikeHistory.end(), 
 					&(spikeArray[i * maxSpikes]), 
 					&(spikeArray[(i * maxSpikes) + spikeCounts[i]])); 
 		}
