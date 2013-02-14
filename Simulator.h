@@ -34,7 +34,9 @@
 class Simulator
 {
     public:
-        Simulator(Network *network, SimulationInfo sim_info);
+        Simulator(Network *network, SimulationInfo sim_info,
+            bool write_mem_image
+        );
         
         //Performs the simulation.
         void simulate(FLOAT growthStepDuration, FLOAT num_growth_steps);
@@ -49,6 +51,9 @@ class Simulator
         Network *network;
         
         SimulationInfo sim_info;
+        
+        //! True if dumped memory image is written after simulation. 
+        bool write_mem_image;
 };
 
 #endif // _SIMULATOR_H_

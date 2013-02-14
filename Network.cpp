@@ -150,17 +150,10 @@ void Network::finish(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     }
 #endif // STORE_SPIKEHISTORY
 
-    saveSimState(state_out, radiiHistory, ratesHistory, 
-                 xloc, yloc, neuronTypes, burstinessHist, spikesHistory,
-                 growthStepDuration, neuronThresh);
+    saveSimState(state_out, growthStepDuration);
 
     // Terminate the simulator
-    m_sim->term(&m_si);
-
-    // write the simulation memory image
-    if (m_fWriteMemImage) {
-        writeSimMemory(memory_out, radiiHistory, ratesHistory);
-    }
+    m_sim->term(&m_si); // Can #term be removed w/ the new model architecture?
 }
 
 /**
@@ -220,6 +213,56 @@ void Network::update(SimulationInfo* psi)
 }
 
 /**
+ * Print network radii to console
+ * @param[in] psi	Pointer to the simulation information.
+ * @param[in] networkRadii	Array to store neuron radii.
+ */
+void Network::printRadii(SimulationInfo* psi) const
+{
+    cout << "format:\ntype,radius,firing rate" << endl;
+
+    for (int y = 0; y < psi->height; y++) {
+        stringstream ss;
+        ss << fixed;
+        ss.precision(1);
+
+        for (int x = 0; x < psi->width; x++) {
+            switch (psi->rgNeuronTypeMap[x + y * psi->width]) {
+                case EXC:
+                    if (psi->rgEndogenouslyActiveNeuronMap[x + y * psi->width])
+                        ss << "s";
+                    else
+                        ss << "e";
+                    break;
+                case INH:
+                    ss << "i";
+                    break;
+                case NTYPE_UNDEF:
+                    assert(false);
+            }
+
+            ss << " " << networkRadii[x + y * psi->width];
+            ss << " " << networkRadii[x + y * psi->width];
+
+            if (x + 1 < psi->width) {
+                ss.width(2);
+                ss << "|";
+                ss.width(2);
+            }
+        }
+
+        ss << endl;
+
+        for (int i = ss.str().length() - 1; i >= 0; i--) {
+            ss << "_";
+        }
+
+        ss << endl;
+        cout << ss.str();
+    }
+}
+
+/**
 * Clean up heap objects
 *
 */
@@ -260,7 +303,7 @@ void Network::reset()
     g_simulationStep = 0;
 
     // initial maximum firing rate
-    m_si.maxRate = 	m_targetRate / m_si.epsilon;
+    m_si.maxRate = m_targetRate / m_si.epsilon;
 
     // allocate maps
     m_rgNeuronTypeMap = new neuronType[m_si.cNeurons];
@@ -314,7 +357,7 @@ void Network::initNeurons(FLOAT Iinject[2], FLOAT Inoise[2], FLOAT Vthresh[2], F
     /* set their specific types */
     for (int i = 0; i < m_si.cNeurons; i++)
     {
-		m_neuronList[i] = m_sim->returnNeuron();
+        m_neuronList[i] = m_sim->returnNeuron();
 
         // set common parameters
         m_neuronList[i]->setParams(
@@ -478,7 +521,7 @@ vector<neuronType>* Network::getNeuronOrder()
 
             vector<neuronType>::iterator it = orderedNeurons.begin(); // get iterator to ordered's front
 
-            for (int j = 0; j < i; j++) // move it forward until it is on the pushed neuron            
+            for (int j = 0; j < i; j++) // move it forward until it is on the pushed neuron
                 it++;
             
             orderedNeurons.erase(it); // and remove that neuron from the ordered list
@@ -502,17 +545,15 @@ vector<neuronType>* Network::getNeuronOrder()
 * @param spikesHistory
 * @param Tsim
 */
-void Network::saveSimState(ostream& os, CompleteMatrix& radiiHistory, 
-                           CompleteMatrix& ratesHistory, VectorMatrix& xloc,
-                           VectorMatrix& yloc, VectorMatrix& neuronTypes, 
-                           VectorMatrix& burstinessHist, VectorMatrix& spikesHistory, FLOAT Tsim, VectorMatrix& neuronThresh)
+void Network::saveSimState(ostream& os, FLOAT Tsim)
 {
     // Write XML header information:
-    os << "<?xml version=\"1.0\" standalone=\"no\"?>\n" << "<!-- State output file for the DCT growth modeling-->\n";
+    os << "<?xml version=\"1.0\" standalone=\"no\"?>" << endl
+       << "<!-- State output file for the DCT growth modeling-->" << endl;
     //os << version; TODO: version
 
     // Write the core state information:
-    os << "<SimState>\n";
+    os << "<SimState>" << endl;
     os << "   " << radiiHistory.toXML("radiiHistory") << endl;
     os << "   " << ratesHistory.toXML("ratesHistory") << endl;
     os << "   " << burstinessHist.toXML("burstinessHist") << endl;
@@ -521,8 +562,7 @@ void Network::saveSimState(ostream& os, CompleteMatrix& radiiHistory,
     os << "   " << yloc.toXML("yloc") << endl;
     os << "   " << neuronTypes.toXML("neuronTypes") << endl;
 
-    if (m_cStarterNeurons > 0)
-    {
+    if (m_cStarterNeurons > 0) {
         VectorMatrix starterNeuronsM("complete", "const", 1, m_cStarterNeurons);
 
         getStarterNeuronMatrix(starterNeuronsM);
@@ -550,32 +590,36 @@ void Network::saveSimState(ostream& os, CompleteMatrix& radiiHistory,
 *
 * @param os	The filestream to write
 */
-void Network::writeSimMemory(ostream& os, CompleteMatrix& radiiHistory, CompleteMatrix& ratesHistory)
+void Network::writeSimMemory(simulation_step, ostream& os)
 {
     // write the neurons data
     os.write(reinterpret_cast<const char*>(&m_si.cNeurons), sizeof(m_si.cNeurons));
-    for (int i = 0; i < m_si.cNeurons; i++)    
+    for (int i = 0; i < m_si.cNeurons; i++) {
         m_neuronList[i]->write(os);
+    }
 
     // write the synapse data
     int synapse_count = 0;
-    for (int i = 0; i < m_si.cNeurons; i++)    
+    for (int i = 0; i < m_si.cNeurons; i++) {
         synapse_count += m_rgSynapseMap[i].size();
+    }
     
     os.write(reinterpret_cast<const char*>(&synapse_count), sizeof(synapse_count));
-    for (int i = 0; i < m_si.cNeurons; i++)
-    {
-        for (unsigned int j = 0; j < m_rgSynapseMap[i].size(); j++)        
+    for (int i = 0; i < m_si.cNeurons; i++) {
+        for (unsigned int j = 0; j < m_rgSynapseMap[i].size(); j++) {
             m_rgSynapseMap[i][j]->write(os);
+        }
     }
 
     // write the final radii
-    for (int i = 0; i < m_si.cNeurons; i++)    
-        os.write(reinterpret_cast<const char*>(&radiiHistory(m_si.currentStep, i)), sizeof(FLOAT));    
+    for (int i = 0; i < m_si.cNeurons; i++) {
+        os.write(reinterpret_cast<const char*>(&radiiHistory(simulation_step, i)), sizeof(FLOAT));
+    }
 
     // write the final rates
-    for (int i = 0; i < m_si.cNeurons; i++)    
-        os.write(reinterpret_cast<const char*>(&ratesHistory(m_si.currentStep, i)), sizeof(FLOAT));    
+    for (int i = 0; i < m_si.cNeurons; i++) {
+        os.write(reinterpret_cast<const char*>(&ratesHistory(simulation_step, i)), sizeof(FLOAT)); 
+    }
 
     os.flush();
 }

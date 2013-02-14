@@ -176,7 +176,7 @@ int main(int argc, char* argv[]) {
     time(&start_time);
     
     
-    Simulator sim(&network, si);
+    Simulator sim(&network, si, fWriteMemImage);
     sim.simulate(Tsim, numSims);
 
     delete pSim;

@@ -40,7 +40,7 @@ void allocNeuronStruct(LifNeuron_struct* neuron, int count) {
 	neuron->incomingSynapse_begin 		= new int[count];
 	neuron->inverseCount 			= new int[count];
 	neuron->numNeurons 			= new int[count];
-	neuron->stepDuration 			= new int[count];	
+	neuron->stepDuration 			= new int[count];   // NOTE: unused. TODO: delete??
 }
 
 /**

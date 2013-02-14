@@ -75,14 +75,24 @@ public:
 
 	//! Get list of neurons of random type
 	vector<neuronType>* getNeuronOrder();
-    
-	//! Write the network state to an ostream.
-	void saveSimState(ostream& os, CompleteMatrix& radiiHistory, CompleteMatrix& ratesHistory, VectorMatrix& xloc,
-			VectorMatrix& yloc, VectorMatrix& neuronTypes, VectorMatrix& burstinessHist, VectorMatrix& spikesHistory,
-			FLOAT Tsim, VectorMatrix& neuronThresh);
 
-	//! Write the simulation memory image to an ostream
-	void writeSimMemory(ostream& os, CompleteMatrix& radiiHistory, CompleteMatrix& ratesHistory);
+    //! Write the network state to an ostream.
+    void saveSimState(ostream& os, FLOAT Tsim);
+    
+    //! Write the simulation memory image to an ostream
+    void writeSimMemory(ostream& os);
+
+    /*
+    void saveSimState(ostream& os, CompleteMatrix& radiiHistory,
+            CompleteMatrix& ratesHistory, VectorMatrix& xloc,
+            VectorMatrix& yloc, VectorMatrix& neuronTypes,
+            VectorMatrix& burstinessHist, VectorMatrix& spikesHistory,
+            FLOAT Tsim, VectorMatrix& neuronThresh);
+
+    //! Write the simulation memory image to an ostream
+    void writeSimMemory(ostream& os,
+            CompleteMatrix& radiiHistory, CompleteMatrix& ratesHistory);
+    */
 
 	//! Read the simulation memory image from an istream
 	void readSimMemory(istream& is, VectorMatrix& radii, VectorMatrix& rates);
@@ -96,13 +106,16 @@ public:
     void finish(FLOAT growthStepDuration, FLOAT num_growth_steps);
     
     //! Perform updating neurons for one time step.
-    void Network::advanceNeurons(SimulationInfo* psi)
+    void advanceNeurons(SimulationInfo* psi);
     
     //! Perform updating synapses for one time step.
     void advanceSynapses(SimulationInfo* psi);
     
     // Update the neuron network
     void update(SimulationInfo* psi);
+    
+    //! Print network radii to console.
+    void printRadii(SimulationInfo* psi) const;
 
 // -----------------------------------------------------------------------------
 

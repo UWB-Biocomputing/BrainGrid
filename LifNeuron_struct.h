@@ -165,7 +165,7 @@ struct LifNeuron_struct {
 	int* numNeurons;
 
 	//! the TSim from the input file
-	int* stepDuration;
+	int* stepDuration;    // NOTE: unused. TODO: delete??
 };
 
 #endif
