@@ -72,6 +72,10 @@ void Simulator::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     // Tell network to clean-up and run any post-simulation logic.
     // TODO(derek): choose better name after refactor.
     network->finish(growthStepDuration, maxGrowthSteps);
+    
+    if (write_mem_image) {
+        network->writeSimMemory(maxGrowthSteps, memory_out);
+    }
 }
 
 void Simulator::advanceUntilGrowth(const int currentStep, const int maxGrowthSteps)

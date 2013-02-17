@@ -112,9 +112,9 @@ public:
     void advanceSynapses(SimulationInfo* psi);
     
     //! Get spike counts in prep for growth
-    // void getSpikeCounts(int neuron_count, int* spikeCounts);  // PLATFORM DEPENDENT
+    void getSpikeCounts(int neuron_count, int* spikeCounts);  // PLATFORM DEPENDENT
     
-    // void clearSpikeCounts(int neuron_count);  // PLATFORM DEPENDENT
+    void clearSpikeCounts(int neuron_count);  // PLATFORM DEPENDENT
     
     // Update the neuron network
     void update(SimulationInfo* psi);
