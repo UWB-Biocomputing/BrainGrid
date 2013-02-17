@@ -35,11 +35,12 @@ class Simulator
 {
     public:
         Simulator(Network *network, SimulationInfo sim_info,
-            bool write_mem_image
+            bool write_mem_image,
+            ostream& memory_out
         );
         
         //Performs the simulation.
-        void simulate(FLOAT growthStepDuration, FLOAT num_growth_steps);
+        void simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps);
         
         // Advance simulation to next growth cycle
         void advanceUntilGrowth();
@@ -49,11 +50,13 @@ class Simulator
         Timer short_timer;
         
         Network *network;
+        NetworkUpdater *updater;
         
         SimulationInfo sim_info;
         
         //! True if dumped memory image is written after simulation. 
         bool write_mem_image;
+        ostream& memory_out;
 };
 
 #endif // _SIMULATOR_H_

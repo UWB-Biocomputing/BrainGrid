@@ -52,7 +52,7 @@ public:
 	Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2], FLOAT Inoise[2],
 			FLOAT Vthresh[2], FLOAT Vresting[2], FLOAT Vreset[2], FLOAT Vinit[2], FLOAT starter_Vthresh[2],
 			FLOAT starter_Vreset[2], FLOAT new_targetRate, ostream& new_outstate, 
-			ostream& new_memoutput, bool fWriteMemImage, istream& new_meminput, bool fReadMemImage, bool fFixedLayout, 
+            istream& new_meminput, bool fReadMemImage, bool fFixedLayout, 
             vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
 			SimulationInfo simInfo, ISimulation* sim);
 	~Network();
@@ -111,8 +111,19 @@ public:
     //! Perform updating synapses for one time step.
     void advanceSynapses(SimulationInfo* psi);
     
+    //! Get spike counts in prep for growth
+    // void getSpikeCounts(int neuron_count, int* spikeCounts);  // PLATFORM DEPENDENT
+    
+    // void clearSpikeCounts(int neuron_count);  // PLATFORM DEPENDENT
+    
     // Update the neuron network
     void update(SimulationInfo* psi);
+    
+    // TODO comment
+    void getSpikeCounts( int neuron_count, int* spikeCounts );
+    
+    //! Clear spike count of each neuron.
+    void clearSpikeCounts( int neuron_count );
     
     //! Print network radii to console.
     void printRadii(SimulationInfo* psi) const;
@@ -154,12 +165,6 @@ public:
 
 	//! A file stream for xml output.
 	ostream& state_out;
-
-	//! An output file stream for memory dump
-	ostream& memory_out;
-
-	//! True if dumped memory image is written after simulation. 
-	bool m_fWriteMemImage;
 
 	//! An input file stream for memory image 	
 	istream& memory_in;

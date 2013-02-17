@@ -75,16 +75,16 @@ struct SimulationInfo
 	int currentStep;
 
 	//! Maximum number of simulation steps NOTE: Not Currently Used
-	int maxSteps;
+	int maxSteps; // TODO: delete
 
 	//! The length of each step in simulation time
 	FLOAT stepDuration;
 
 // NETWORK MODEL VARIABLES NMV-BEGIN {
-	//! Maximum firing rate (only used by GPU simulation)
+	//! Maximum firing rate. **Only used by GPU simulation.**
 	int maxFiringRate;
 
-	//! Maximum number of synapses per neuron (only used by GPU simulation)
+	//! Maximum number of synapses per neuron. **Only used by GPU simulation.**
 	int maxSynapsesPerNeuron;
 // } NMV-END
 

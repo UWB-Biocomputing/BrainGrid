@@ -168,15 +168,14 @@ int main(int argc, char* argv[]) {
     // create the network
     Network network(inhFrac, excFrac, startFrac, Iinject, Inoise, Vthresh,
             Vresting, Vreset, Vinit, starter_vthresh, starter_vreset,
-            targetRate, state_out, memory_out, fWriteMemImage, memory_in,
-            fReadMemImage, fFixedLayout, &endogenouslyActiveNeuronLayout,
-            &inhibitoryNeuronLayout, si, pSim);
+            targetRate, state_out, memory_in, fReadMemImage, fFixedLayout,
+            &endogenouslyActiveNeuronLayout, &inhibitoryNeuronLayout, si, pSim);
 
     time_t start_time, end_time;
     time(&start_time);
     
     
-    Simulator sim(&network, si, fWriteMemImage);
+    Simulator sim(&network, si, fWriteMemImage, memory_out);
     sim.simulate(Tsim, numSims);
 
     delete pSim;

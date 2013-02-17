@@ -17,7 +17,7 @@ const string Network::MATRIX_INIT = "const";
 Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2],
         FLOAT Inoise[2], FLOAT Vthresh[2], FLOAT Vresting[2], FLOAT Vreset[2], FLOAT Vinit[2],
         FLOAT starter_Vthresh[2], FLOAT starter_Vreset[2], FLOAT new_targetRate,
-        ostream& new_stateout, ostream& new_memoutput, bool fWriteMemImage, istream& new_meminput, bool fReadMemImage, 
+        ostream& new_stateout, istream& new_meminput, bool fReadMemImage, 
         bool fFixedLayout, vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
         SimulationInfo simInfo, ISimulation* sim) :
     m_cExcitoryNeurons(static_cast<int>(simInfo.cNeurons * excFrac)), 
@@ -29,8 +29,6 @@ Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2]
     m_rgEndogenouslyActiveNeuronMap(NULL),
     m_targetRate(new_targetRate),
     state_out(new_stateout),
-    memory_out(new_memoutput),
-    m_fWriteMemImage(fWriteMemImage),
     memory_in(new_meminput),
     m_fReadMemImage(fReadMemImage),
     m_fFixedLayout(fFixedLayout),
@@ -92,8 +90,7 @@ void Network::setup(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 
 
     // Initialize neurons
-    for (int i = 0; i < m_si.cNeurons; i++)
-    {
+    for (int i = 0; i < m_si.cNeurons; i++) {
         xloc[i] = i % m_si.width;
         yloc[i] = i / m_si.width;
     }
@@ -111,8 +108,8 @@ void Network::setup(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     if (m_fReadMemImage) {
         readSimMemory(memory_in, radii, rates);
         for (int i = 0; i < m_si.cNeurons; i++) {
-            radiiHistory(0, i) = radii[i];
-            ratesHistory(0, i) = rates[i];
+            radiiHistory(0, i) = radii[i]; // NOTE: Radii Used for read.
+            ratesHistory(0, i) = rates[i]; // NOTE: Rates Used for read.
         }
     }
 
@@ -166,19 +163,19 @@ void Network::advanceNeurons(SimulationInfo* psi)
     // For each neuron in the network
     for (int i = psi->cNeurons - 1; i >= 0; --i) {
         // advance neurons
-        (*(psi->pNeuronList))[i]->advance(psi->pSummationMap[i]);
+        (*(m_neuronList))[i]->advance(psi->pSummationMap[i]);
 
-        DEBUG2(cout << i << " " << (*(psi->pNeuronList))[i]->Vm << endl;)
+        DEBUG2(cout << i << " " << (*(m_neuronList))[i]->Vm << endl;)
 
         // notify outgoing synapses if neuron has fired
-        if ((*(psi->pNeuronList))[i]->hasFired) {
+        if ((*(m_neuronList)[i]->hasFired) {
             DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
 
             for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z) {
                 psi->rgSynapseMap[i][z]->preSpikeHit();
             }
 
-            (*(psi->pNeuronList))[i]->hasFired = false;
+            (*(m_neuronList))[i]->hasFired = false;
         }
     }
 
@@ -187,7 +184,7 @@ void Network::advanceNeurons(SimulationInfo* psi)
     cout << g_simulationStep * psi->deltaT;
 
     for (int i = 0; i < psi->cNeurons; i++) {
-        cout << "\t i: " << i << " " << (*(psi->pNeuronList))[i].toStringVm();
+        cout << "\t i: " << i << " " << (*(m_neuronList))[i].toStringVm();
     }
     
     cout << endl;
@@ -210,6 +207,103 @@ void Network::advanceSynapses(SimulationInfo* psi)
 void Network::update(SimulationInfo* psi)
 {
     m_sim->updateNetwork(psi, radiiHistory, ratesHistory);
+}
+
+void Network::getSpikeCounts( int neuron_count, int *spikeCounts)
+{
+    for (int i = 0; i < neuron_count; i++) {
+        spikeCounts[i] = m_NeuronList[i]->getSpikeCount();
+    }
+}
+
+//! Clear spike count of each neuron.
+void Network::clearSpikeCounts(int neuron_count)
+{
+    for (int i = 0; i < neuron_count; i++) {
+         m_NeuronList[i]->->clearSpikeCount();
+    }
+}
+
+/**
+ * Calculate growth cycle firing rate for previous period.
+ * Compute neuron radii change, assign new values, and record the radius to histroy matrix.
+ * Update distance between frontiers, and compute areas of overlap. 
+ * Adjust the strength of the synapse or remove it from the synapse map if it has gone below 
+ * zero.
+ * @param[in] psi	Pointer to the simulation information.
+ * @param[in] radiiHistory	Matrix to save radius history.
+ * @param[in] ratesHistory	Matrix to save firing rates history. 
+ */
+void Network::updateNetwork(SimulationInfo* psi)
+{
+
+    // For now, we just set the weights to equal the areas. We will later
+    // scale it and set its sign (when we index and get its sign).
+    W = area;
+
+    int adjusted = 0;
+    int could_have_been_removed = 0; // TODO: use this value
+    int removed = 0;
+    int added = 0;
+
+    DEBUG(cout << "adjusting weights" << endl;)
+
+    // Scale and add sign to the areas
+    // visit each neuron 'a'
+    for (int a = 0; a < psi->cNeurons; a++) {
+        int xa = a % psi->width;
+        int ya = a / psi->width;
+        Coordinate aCoord(xa, ya);
+
+        // and each destination neuron 'b'
+        for (int b = 0; b < psi->cNeurons; b++) {
+            int xb = b % psi->width;
+            int yb = b / psi->width;
+            Coordinate bCoord(xb, yb);
+
+            // visit each synapse at (xa,ya)
+            bool connected = false;
+
+            // for each existing synapse
+            for (size_t syn = 0; syn < psi->rgSynapseMap[a].size(); syn++) {
+                // if there is a synapse between a and b
+                if (psi->rgSynapseMap[a][syn]->summationCoord == bCoord) {
+                    connected = true;
+                    adjusted++;
+
+                    // adjust the strength of the synapse or remove 
+                    // it from the synapse map if it has gone below 
+                    // zero.
+                    if (W(a, b) < 0) {
+                        removed++;
+                        psi->rgSynapseMap[a].erase(psi->rgSynapseMap[a].begin() + syn);
+                    } else {
+                        // adjust
+                        // g_synapseStrengthAdjustmentConstant is 1.0e-8;
+                        psi->rgSynapseMap[a][syn]->W = W(a, b) * 
+                            synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
+
+                        DEBUG2(cout << "weight of rgSynapseMap" << 
+                               coordToString(xa, ya)<<"[" <<syn<<"]: " << 
+                               psi->rgSynapseMap[a][syn].W << endl;);
+                    }
+                }
+            }
+
+            // if not connected and weight(a,b) > 0, add a new synapse from a to b
+            if (!connected && (W(a, b) > 0)) {
+                added++;
+
+                ISynapse* newSynapse = addSynapse(psi, xa, ya, xb, yb);
+                newSynapse->W = W(a, b) * synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
+            }
+        }
+    }
+
+    DEBUG (cout << "adjusted: " << adjusted << endl;)
+    DEBUG (cout << "could have been removed (TODO: calculate this): " << could_have_been_removed << endl;)
+    DEBUG (cout << "removed: " << removed << endl;)
+    DEBUG (cout << "added: " << added << endl << endl << endl;)
 }
 
 /**
