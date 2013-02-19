@@ -9,8 +9,6 @@
 #ifndef _RNG_H_
 #define _RNG_H_
 
-using namespace std;
-
 #include <iostream>
 #include <fstream>
 #include <vector>
