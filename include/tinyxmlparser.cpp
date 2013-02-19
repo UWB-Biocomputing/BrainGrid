@@ -24,6 +24,7 @@ distribution.
 
 #include "tinyxml.h"
 
+#if 0
 //#define DEBUG_PARSER
 #if defined( DEBUG_PARSER )
 #	if defined( DEBUG ) && defined( _MSC_VER )
@@ -33,6 +34,7 @@ distribution.
 #		define TIXML_LOG printf
 #	endif
 #endif
+#endif//0 PAB
 
 // Note tha "PutString" hardcodes the same list. This
 // is less flexible than it appears. Changing the entries
