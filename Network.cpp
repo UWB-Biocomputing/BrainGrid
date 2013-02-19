@@ -14,9 +14,12 @@ const string Network::MATRIX_INIT = "const";
  * The constructor for Network.
  * @post The network is setup according to parameters and ready for simulation.
  */
-Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2],
-        FLOAT Inoise[2], FLOAT Vthresh[2], FLOAT Vresting[2], FLOAT Vreset[2], FLOAT Vinit[2],
-        FLOAT starter_Vthresh[2], FLOAT starter_Vreset[2], FLOAT new_targetRate,
+Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac,
+/* Neuron Start Condition Params { */
+        FLOAT Iinject[2], FLOAT Inoise[2], FLOAT Vthresh[2], FLOAT Vresting[2],
+        FLOAT Vreset[2], FLOAT Vinit[2], FLOAT starter_Vthresh[2],
+        FLOAT starter_Vreset[2], FLOAT new_targetRate,
+/* } */
         ostream& new_stateout, istream& new_meminput, bool fReadMemImage, 
         bool fFixedLayout, vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
         SimulationInfo simInfo, ISimulation* sim) :
@@ -28,14 +31,16 @@ Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2]
     m_rgNeuronTypeMap(NULL),
     m_rgEndogenouslyActiveNeuronMap(NULL),
     m_targetRate(new_targetRate),
+    
     state_out(new_stateout),
     memory_in(new_meminput),
     m_fReadMemImage(fReadMemImage),
+    
     m_fFixedLayout(fFixedLayout),
     m_pEndogenouslyActiveNeuronLayout(pEndogenouslyActiveNeuronLayout),
     m_pInhibitoryNeuronLayout(pInhibitoryNeuronLayout),
     m_si(simInfo),
-    m_sim(sim),
+    m_sim(sim),  // =>ISIMULATION
     
     
     
@@ -118,12 +123,8 @@ void Network::setup(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     // m_timer.start();
 
     // Initialize and prepare simulator
-    m_sim->init(&m_si, xloc, yloc);
+    m_sim->init(&m_si, xloc, yloc);  // =>ISIMULATION
 
-    // Set the previous saved radii
-    if (m_fReadMemImage) {
-        m_sim->initRadii(radii);
-    }
 }
 
 void Network::finish(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
@@ -150,7 +151,7 @@ void Network::finish(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     saveSimState(state_out, growthStepDuration);
 
     // Terminate the simulator
-    m_sim->term(&m_si); // Can #term be removed w/ the new model architecture?
+    m_sim->term(&m_si); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
 }
 
 /**
@@ -163,19 +164,19 @@ void Network::advanceNeurons(SimulationInfo* psi)
     // For each neuron in the network
     for (int i = psi->cNeurons - 1; i >= 0; --i) {
         // advance neurons
-        (*(m_neuronList))[i]->advance(psi->pSummationMap[i]);
+        m_neuronList[i]->advance(psi->pSummationMap[i]);
 
         DEBUG2(cout << i << " " << (*(m_neuronList))[i]->Vm << endl;)
 
         // notify outgoing synapses if neuron has fired
-        if ((*(m_neuronList)[i]->hasFired) {
+        if (m_neuronList[i]->hasFired) {
             DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
 
             for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z) {
                 psi->rgSynapseMap[i][z]->preSpikeHit();
             }
 
-            (*(m_neuronList))[i]->hasFired = false;
+            m_neuronList[i]->hasFired = false;
         }
     }
 
@@ -184,7 +185,7 @@ void Network::advanceNeurons(SimulationInfo* psi)
     cout << g_simulationStep * psi->deltaT;
 
     for (int i = 0; i < psi->cNeurons; i++) {
-        cout << "\t i: " << i << " " << (*(m_neuronList))[i].toStringVm();
+        cout << "\t i: " << i << " " << m_neuronList[i].toStringVm();
     }
     
     cout << endl;
@@ -203,16 +204,10 @@ void Network::advanceSynapses(SimulationInfo* psi)
     }
 }
 
-// Update the neuron network
-void Network::update(SimulationInfo* psi)
-{
-    m_sim->updateNetwork(psi, radiiHistory, ratesHistory);
-}
-
 void Network::getSpikeCounts( int neuron_count, int *spikeCounts)
 {
     for (int i = 0; i < neuron_count; i++) {
-        spikeCounts[i] = m_NeuronList[i]->getSpikeCount();
+        spikeCounts[i] = m_neuronList[i]->getSpikeCount();
     }
 }
 
@@ -220,7 +215,7 @@ void Network::getSpikeCounts( int neuron_count, int *spikeCounts)
 void Network::clearSpikeCounts(int neuron_count)
 {
     for (int i = 0; i < neuron_count; i++) {
-         m_NeuronList[i]->->clearSpikeCount();
+         m_neuronList[i]->clearSpikeCount();
     }
 }
 
@@ -323,6 +318,7 @@ void Network::reset()
     // Used to assign endogenously active neurons
     m_rgEndogenouslyActiveNeuronMap = new bool[m_si.cNeurons]; // MODEL DEPENDENT
 
+    // NOTE - is an empty network a valid network?
     m_neuronList.clear();
     m_neuronList.resize(m_si.cNeurons);
 
@@ -369,7 +365,7 @@ void Network::initNeurons(FLOAT Iinject[2], FLOAT Inoise[2], FLOAT Vthresh[2], F
     /* set their specific types */
     for (int i = 0; i < m_si.cNeurons; i++)
     {
-        m_neuronList[i] = m_sim->returnNeuron();
+        m_neuronList[i] = m_sim->returnNeuron(); // =>ISIMULATION
 
         // set common parameters
         m_neuronList[i]->setParams(
@@ -602,7 +598,7 @@ void Network::saveSimState(ostream& os, FLOAT Tsim)
 *
 * @param os	The filestream to write
 */
-void Network::writeSimMemory(simulation_step, ostream& os)
+void Network::writeSimMemory(FLOAT simulation_step, ostream& os)
 {
     // write the neurons data
     os.write(reinterpret_cast<const char*>(&m_si.cNeurons), sizeof(m_si.cNeurons));

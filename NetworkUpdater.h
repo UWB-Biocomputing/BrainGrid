@@ -36,7 +36,7 @@ class NetworkUpdater
     public:
         NetworkUpdater(int neuron_count);
         
-        void update(int currentStep, Network &network, SimulationInfo *sim_info);
+        void update(int currentStep, Network *network, SimulationInfo *sim_info);
         
     private:
         int *spikeCounts;
@@ -70,8 +70,8 @@ class NetworkUpdater
         
         // Helper Functions
         
-        void updateHistory(int currentStep, Network &network, SimulationInfo *sim_info);
-        void updateRadii(Network &network, SimulationInfo *sim_info);
+        void updateHistory(int currentStep, Network *network, SimulationInfo *sim_info);
+        void updateRadii(Network *network, SimulationInfo *sim_info);
         void updateFrontiers(SimulationInfo *sim_info);
         void updateOverlap(SimulationInfo *sim_info);
         void updateWeights(SimulationInfo* sim_info);

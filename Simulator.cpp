@@ -52,7 +52,7 @@ void Simulator::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 #ifdef PERFORMANCE_METRICS
         short_timer.start();
 #endif
-        updater->update(currentStep, network, &sim_info);
+        updater.update(currentStep, network, &sim_info);
 
 #ifdef PERFORMANCE_METRICS
         t_host_adjustSynapses = short_timer.lap() / 1000.0f;

@@ -80,7 +80,7 @@ public:
     void saveSimState(ostream& os, FLOAT Tsim);
     
     //! Write the simulation memory image to an ostream
-    void writeSimMemory(ostream& os);
+    void writeSimMemory(FLOAT simulation_step, ostream& os);
 
     /*
     void saveSimState(ostream& os, CompleteMatrix& radiiHistory,
@@ -114,16 +114,8 @@ public:
     //! Get spike counts in prep for growth
     void getSpikeCounts(int neuron_count, int* spikeCounts);  // PLATFORM DEPENDENT
     
-    void clearSpikeCounts(int neuron_count);  // PLATFORM DEPENDENT
-    
-    // Update the neuron network
-    void update(SimulationInfo* psi);
-    
-    // TODO comment
-    void getSpikeCounts( int neuron_count, int* spikeCounts );
-    
     //! Clear spike count of each neuron.
-    void clearSpikeCounts( int neuron_count );
+    void clearSpikeCounts(int neuron_count);  // PLATFORM DEPENDENT
     
     //! Print network radii to console.
     void printRadii(SimulationInfo* psi) const;

@@ -13,30 +13,63 @@ void NetworkUpdater::NetworkUpdater(int neuron_count)
     spikeCounts = new int[neuron_count];
 }
 
-void NetworkUpdater::update(int currentStep, Network &network, SimulationInfo *sim_info)
+/**
+ * Compute dist2, dist and delta.
+ * @param[in] psi       Pointer to the simulation information.  
+ * @param[in] xloc      X location of neurons.
+ * @param[in] yloc      Y location of neurons.
+ */
+/*
+void NetworkUpdater::init(SimulationInfo* psi, VectorMatrix& xloc, VectorMatrix& yloc)
+{
+// MODEL DEPENDENT
+    // calculate the distance between neurons
+    for (int n = 0; n < psi->cNeurons - 1; n++)
+    {
+        for (int n2 = n + 1; n2 < psi->cNeurons; n2++)
+        {
+            // distance^2 between two points in point-slope form
+            dist2(n, n2) = (xloc[n] - xloc[n2]) * (xloc[n] - xloc[n2]) +
+                (yloc[n] - yloc[n2]) * (yloc[n] - yloc[n2]);
+
+            // both points are equidistant from each other
+            dist2(n2, n) = dist2(n, n2);
+        }
+    }
+
+    // take the square root to get actual distance (Pythagoras was right!)
+    // (The CompleteMatrix class makes this assignment look so easy...)
+    dist = sqrt(dist2);
+
+    // Init connection frontier distance change matrix with the current distances
+    delta = dist;
+}
+*/
+
+void NetworkUpdater::update(int currentStep, Network *network, SimulationInfo *sim_info)
 {
     updateHistory(currentStep, network, sim_info);
     updateRadii(network, sim_info);
     updateFrontiers(sim_info);
-    updateOverlap();
-    updateWeights();
+    updateOverlap(sim_info);
+    updateWeights(sim_info);
 }
 
-void NetworkUpdater::updateHistory(int currentStep, Network &network, SimulationInfo *sim_info)
+void NetworkUpdater::updateHistory(int currentStep, Network *network, SimulationInfo *sim_info)
 {
     // Calculate growth cycle firing rate for previous period
-    network.getSpikeCounts(neuron_count, spikeCounts);
+    network->getSpikeCounts(sim_info->cNeurons, spikeCounts);
 
     // Calculate growth cycle firing rate for previous period
     for (int i = 0; i < sim_info->cNeurons; i++) {
         // Calculate firing rate
         rates[i] = spikeCounts[i] / sim_info->stepDuration;
         // record firing rate to history matrix
-        network.ratesHistory(currentStep, i) = rates[i];
+        network->ratesHistory(currentStep, i) = rates[i];
     }
 
     // clear spike count
-    network.clearSpikeCounts(neuron_count);
+    network->clearSpikeCounts(sim_info->cNeurons);
 
     // compute neuron radii change and assign new values
     outgrowth = 1.0 - 2.0 / (1.0 + exp((sim_info->epsilon - rates / sim_info->maxRate) / sim_info->beta));
@@ -51,17 +84,17 @@ void NetworkUpdater::updateHistory(int currentStep, Network &network, Simulation
         }
 
         // record radius to history matrix
-        network.radiiHistory(sim_info->currentStep, i) = radii[i];
+        network->radiiHistory(sim_info->currentStep, i) = radii[i];
 
         DEBUG2(cout << "radii[" << i << ":" << radii[i] << "]" << endl;);
     }
 }
 
-void NetworkUpdater::updateRadii(Network &network, SimulationInfo *sim_info)
+void NetworkUpdater::updateRadii(Network *network, SimulationInfo *sim_info)
 {
     // compute neuron radii change and assign new values
-    outgrowth = 1.0 - 2.0 / (1.0 + exp((psi->epsilon - rates / psi->maxRate) / psi->beta));
-    deltaR = psi->stepDuration * psi->rho * outgrowth;
+    outgrowth = 1.0 - 2.0 / (1.0 + exp((sim_info->epsilon - rates / sim_info->maxRate) / sim_info->beta));
+    deltaR = sim_info->stepDuration * sim_info->rho * outgrowth;
     radii += deltaR;
 
     // Cap minimum radius size and record radii to history matrix
@@ -72,7 +105,7 @@ void NetworkUpdater::updateRadii(Network &network, SimulationInfo *sim_info)
         }
 
         // record radius to history matrix
-        network.radiiHistory(sim_info->currentStep, i) = radii[i];
+        network->radiiHistory(sim_info->currentStep, i) = radii[i];
 
         DEBUG2(cout << "radii[" << i << ":" << radii[i] << "]" << endl;);
     }
