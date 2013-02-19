@@ -21,9 +21,9 @@
 
 #ifdef _WIN32
 // We're stuck with single precision, as defined in windows.h/windef.h
-#define SINGLEPRECISION
-//#define FLOAT float
-#include <Windows.h>
+//#define SINGLEPRECISION
+#define FLOAT double
+//#include <Windows.h>
 typedef unsigned long long int uint64_t;	//included in inttypes.h, which is not available in WIN32//included in inttypes.h, which is not available in WIN32
 typedef unsigned int       uint32_t; // same deal as above
 #else
@@ -36,7 +36,6 @@ typedef unsigned int       uint32_t; // same deal as above
 #elif defined __linux__
 	typedef FLOAT* PFLOAT;
 #elif defined _WIN32 || defined _WIN64
-	#define SINGLEPRECISION
 	typedef __int32 int32_t;
 	typedef unsigned __int32 uint32_t;
 #else

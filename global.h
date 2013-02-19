@@ -11,12 +11,20 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 
+#ifdef DEBUG_OUT
+DEBUG("L")
+#   define DEBUG(x) x
+#else
+#   define DEBUG(x)
+#endif
 
 #include <sstream>
 #include <cassert>
 #include <vector>
 #ifdef _WIN32	//needs to be before #include "bgtypes.h" or the #define FLOAT will cause problems
+#define FLOAT WindowsFLOAT
 #include <windows.h>	//warning! windows.h also defines FLOAT
+#undef FLOAT
 typedef unsigned long long int uint64_t;	//included in inttypes.h, which is not available in WIN32
 #else
 #include <inttypes.h>	//used for uint64_t, unavailable in WIN32
@@ -33,12 +41,6 @@ using namespace std;
 
 #define DEBUG_OUT
 //#define DEBUG_OUT2
-
-#ifdef DEBUG_OUT
-#   define DEBUG(x) x
-#else
-#   define DEBUG(x)
-#endif
 
 #ifdef DEBUG_OUT2
 #   define DEBUG2(x) x

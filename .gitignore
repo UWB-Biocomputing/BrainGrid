@@ -1,3 +1,13 @@
+### object libraries
+
+*.sln
+GPU Debug/
+GPU Release/
+IOCP Debug/
+IOCP Release/
+OMP Debug/
+RNG/
+
 #################
 ## Eclipse
 #################
@@ -17,7 +27,7 @@ local.properties
 .loadpath
 
 # External tool builders
-.externalToolBuilders/
+.extfernalToolBuilders/
 
 # Locally stored "Eclipse launch configurations"
 *.launch
