@@ -248,8 +248,8 @@ void Network::printRadii(SimulationInfo* psi) const
                     assert(false);
             }
 
-            ss << " " << networkRadii[x + y * psi->width];
-            ss << " " << networkRadii[x + y * psi->width];
+            ss << " " << radii[x + y * psi->width];
+            ss << " " << radii[x + y * psi->width];
 
             if (x + 1 < psi->width) {
                 ss.width(2);

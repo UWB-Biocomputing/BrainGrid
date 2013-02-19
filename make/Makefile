@@ -60,6 +60,7 @@ SINGLEOBJS = $(MAIN)/HostSim.o \
        $(MAIN)/SingleThreadedSim.o \
        $(MAIN)/DynamicSpikingSynapse.o \
        $(MAIN)/Network.o \
+       $(MAIN)/NetworkUpdater.o \
        $(MAIN)/Simulator.o \
        $(MAIN)/BGDriver.o \
        $(MAIN)/global.o \
