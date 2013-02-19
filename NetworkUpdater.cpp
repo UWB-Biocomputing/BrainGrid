@@ -8,7 +8,7 @@
 
 #include "NetworkUpdater.h"
 
-void NetworkUpdater::NetworkUpdater(int neuron_count)
+NetworkUpdater::NetworkUpdater(int neuron_count)
 {
     spikeCounts = new int[neuron_count];
 }

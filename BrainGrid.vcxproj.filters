@@ -114,6 +114,12 @@
     <ClCompile Include="ISynapse.cpp">
       <Filter>Main\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Simulator.cpp">
+      <Filter>Main\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkUpdater.cpp">
+      <Filter>Main\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Coordinate.h">

@@ -69,6 +69,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(CUDA_INC_PATH);C:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
+    <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
     <IncludePath>$(CUDA_INC_PATH);C:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
@@ -202,7 +203,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="INeuron.h" />
-    <ClCompile Include="ISynapse.cpp" />
+    <ClCompile Include="ISynapse.cpp">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Level2</WarningLevel>
+    </ClCompile>
     <ClCompile Include="LifNeuron.cpp" />
     <ClCompile Include="LifNeuron_struct.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -224,6 +227,8 @@
     </ClCompile>
     <ClCompile Include="MultiThreadedSim.cpp" />
     <ClCompile Include="Network.cpp" />
+    <ClCompile Include="NetworkUpdater.cpp" />
+    <ClCompile Include="Simulator.cpp" />
     <ClCompile Include="SingleThreadedSim.cpp" />
   </ItemGroup>
   <ItemGroup>
