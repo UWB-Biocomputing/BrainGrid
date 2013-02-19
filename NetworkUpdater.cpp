@@ -167,7 +167,7 @@ void NetworkUpdater::updateOverlap(SimulationInfo *sim_info)
 /**
  * Platform Dependent
  */
-void NetworkUpdater::updateWeights(SimulationInfo* sim_info)
+void NetworkUpdater::updateWeights(Network *network, SimulationInfo* sim_info)
 {
 
     // For now, we just set the weights to equal the areas. We will later
@@ -214,7 +214,7 @@ void NetworkUpdater::updateWeights(SimulationInfo* sim_info)
                         // adjust
                         // g_synapseStrengthAdjustmentConstant is 1.0e-8;
                         sim_info->rgSynapseMap[a][syn]->W = W(a, b) * 
-                            synSign(synType(sim_info, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
+                            synSign(synType(sim_info, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant; // TODO( synSign in HostSim )
 
                         DEBUG2(cout << "weight of rgSynapseMap" << 
                                coordToString(xa, ya)<<"[" <<syn<<"]: " << 
@@ -226,7 +226,8 @@ void NetworkUpdater::updateWeights(SimulationInfo* sim_info)
             // if not connected and weight(a,b) > 0, add a new synapse from a to b
             if (!connected && (W(a, b) > 0)) {
                 added++;
-
+                
+                 // TODO( addSynapse,synSign, synType in HostSim )
                 ISynapse* newSynapse = addSynapse(sim_info, xa, ya, xb, yb);
                 newSynapse->W = W(a, b) * synSign(synType(sim_info, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
             }
