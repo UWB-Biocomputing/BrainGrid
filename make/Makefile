@@ -49,6 +49,7 @@ GPUOBJS = $(MAIN)/GpuSim.o \
        $(MAIN)/ISynapse.o \
        $(MAIN)/LifNeuron.o \
        $(MAIN)/Network.o \
+       $(MAIN)/NetworkUpdater.o \
        $(MAIN)/Simulator.o \
        $(MAIN)/GpuSim_struct.o \
        $(MAIN)/BGDriver_gpu.o \
@@ -137,6 +138,8 @@ $(MAIN)/MultiThreadedSim.o: $(MAIN)/MultiThreadedSim.cpp $(MAIN)/MultiThreadedSi
 	$(CXX) $(CXXFLAGS) $(COMPFLAGS) -c $(MAIN)/MultiThreadedSim.cpp -o $(MAIN)/MultiThreadedSim.o
 
 $(MAIN)/Network.o: $(MAIN)/Network.cpp $(MAIN)/Network.h $(MAIN)/global.h
+
+$(MAIN)/NetworkUpdater.o: $(MAIN)/NetworkUpdater.cpp $(MAIN)/NetworkUpdater.h $(MAIN)/global.h
 
 $(MAIN)/Simulator.o: $(MAIN)/Simulator.cpp $(MAIN)/Simulator.h $(MAIN)/global.h $(MAIN)/SimulationInfo.h
 

@@ -15,6 +15,8 @@
 #include "global.h"
 #include "SimulationInfo.h"
 #include "Network.h"
+#include "NetworkUpdater.h"
+
 #include "include/Timer.h"
 
 /**
@@ -43,14 +45,14 @@ class Simulator
         void simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps);
         
         // Advance simulation to next growth cycle
-        void advanceUntilGrowth();
+        void advanceUntilGrowth(const int currentStep, const int maxGrowthSteps);
     
     private:
         Timer timer;
         Timer short_timer;
         
         Network *network;
-        NetworkUpdater *updater;
+        NetworkUpdater updater;
         
         SimulationInfo sim_info;
         
