@@ -34,11 +34,10 @@
 class NetworkUpdater
 {
     public:
-        NetworkUpdater(int neuron_count);
+        NetworkUpdater(const int neuron_count, const FLOAT start_radius);
         
         void update(int currentStep, Network *network, SimulationInfo *sim_info);
         
-    private:
         int *spikeCounts;
         
         //! synapse weight

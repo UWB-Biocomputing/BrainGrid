@@ -52,7 +52,7 @@ class Simulator
         Timer short_timer;
         
         Network *network;
-        NetworkUpdater updater;
+        //NetworkUpdater updater;
         
         SimulationInfo sim_info;
         

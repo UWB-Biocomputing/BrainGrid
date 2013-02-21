@@ -8,26 +8,27 @@
 
 #include "NetworkUpdater.h"
 
-NetworkUpdater::NetworkUpdater(int neuron_count)
+NetworkUpdater::NetworkUpdater(
+        const int neuron_count,
+        const FLOAT start_radius,
+        VectorMatrix& xloc,
+        VectorMatrix& yloc
+    ) :
+	W("complete", "const", neuron_count, neuron_count, 0),
+	radii("complete", "const", 1, neuron_count, start_radius),
+	rates("complete", "const", 1, neuron_count, 0),
+	dist2("complete", "const", neuron_count, neuron_count),
+	delta("complete", "const", neuron_count, neuron_count),
+	dist("complete", "const", neuron_count, neuron_count),
+	area("complete", "const", neuron_count, neuron_count, 0),
+	outgrowth("complete", "const", 1, neuron_count),
+	deltaR("complete", "const", 1, neuron_count)
 {
     spikeCounts = new int[neuron_count];
-}
 
-/**
- * Compute dist2, dist and delta.
- * @param[in] psi       Pointer to the simulation information.  
- * @param[in] xloc      X location of neurons.
- * @param[in] yloc      Y location of neurons.
- */
-/*
-void NetworkUpdater::init(SimulationInfo* psi, VectorMatrix& xloc, VectorMatrix& yloc)
-{
-// MODEL DEPENDENT
     // calculate the distance between neurons
-    for (int n = 0; n < psi->cNeurons - 1; n++)
-    {
-        for (int n2 = n + 1; n2 < psi->cNeurons; n2++)
-        {
+    for (int n = 0; n < neuron_count - 1; n++) {
+        for (int n2 = n + 1; n2 < neuron_count; n2++) {
             // distance^2 between two points in point-slope form
             dist2(n, n2) = (xloc[n] - xloc[n2]) * (xloc[n] - xloc[n2]) +
                 (yloc[n] - yloc[n2]) * (yloc[n] - yloc[n2]);
@@ -44,7 +45,6 @@ void NetworkUpdater::init(SimulationInfo* psi, VectorMatrix& xloc, VectorMatrix&
     // Init connection frontier distance change matrix with the current distances
     delta = dist;
 }
-*/
 
 void NetworkUpdater::update(int currentStep, Network *network, SimulationInfo *sim_info)
 {

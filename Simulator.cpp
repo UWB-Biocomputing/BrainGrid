@@ -12,7 +12,7 @@
 Simulator::Simulator(Network *network, SimulationInfo sim_info,
         bool write_mem_image, ostream& memory_out) :
     network(network),
-    updater(sim_info.cNeurons),
+//    updater(sim_info.cNeurons),
     sim_info(sim_info),
     write_mem_image(write_mem_image),
     memory_out(memory_out)
@@ -31,7 +31,9 @@ void Simulator::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     // Prepare network for simulation.
     // TODO(derek): choose better name after refactor.
     network->setup(growthStepDuration, maxGrowthSteps);
-
+    
+    NetworkUpdater *updater = network->getUpdater();
+    
     // Main simulation loop - execute maxGrowthSteps
     for (int currentStep = 1; currentStep <= maxGrowthSteps; currentStep++) {
 
@@ -52,7 +54,7 @@ void Simulator::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 #ifdef PERFORMANCE_METRICS
         short_timer.start();
 #endif
-        updater.update(currentStep, network, &sim_info);
+        updater->update(currentStep, network, &sim_info);
 
 #ifdef PERFORMANCE_METRICS
         t_host_adjustSynapses = short_timer.lap() / 1000.0f;
@@ -76,6 +78,9 @@ void Simulator::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     if (write_mem_image) {
         network->writeSimMemory(maxGrowthSteps, memory_out);
     }
+    
+    delete updater;
+    updater = NULL;
 }
 
 void Simulator::advanceUntilGrowth(const int currentStep, const int maxGrowthSteps)

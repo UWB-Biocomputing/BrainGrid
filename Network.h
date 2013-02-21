@@ -102,6 +102,9 @@ public:
     // Setup simulation
     void setup(FLOAT growthStepDuration, FLOAT num_growth_steps);
     
+    // TODO comment
+    NetworkUpdater* getUpdater() const;
+    
     // Cleanup after simulation
     void finish(FLOAT growthStepDuration, FLOAT num_growth_steps);
     

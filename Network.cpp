@@ -121,10 +121,25 @@ void Network::setup(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     // Start the timer
     // TODO: stop the timer at some point and use its output
     // m_timer.start();
+}
 
-    // Initialize and prepare simulator
-    m_sim->init(&m_si, xloc, yloc);  // =>ISIMULATION
+NetworkUpdater* Network::getUpdater() const
+{
+    return new NetworkUpdater(m_si.cNeurons, m_si.startRadius, xloc, yloc);
+}
 
+void Network::computeDistance2(VectorMatrix& dist2) const
+{
+    for (int n = 0; n < psi->cNeurons - 1; n++) {
+        for (int n2 = n + 1; n2 < psi->cNeurons; n2++) {
+            // distance^2 between two points in point-slope form
+            dist2(n, n2) = (xloc[n] - xloc[n2]) * (xloc[n] - xloc[n2]) +
+                (yloc[n] - yloc[n2]) * (yloc[n] - yloc[n2]);
+
+            // both points are equidistant from each other
+            dist2(n2, n) = dist2(n, n2);
+        }
+    }
 }
 
 void Network::finish(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
