@@ -4,64 +4,64 @@
 #ifndef _ALLNEURONS_H_
 #define _ALLNEURONS_H_
 
-#include "global.h"
-
 struct AllNeurons
 {
 public:
 
 	//! A boolean which tracks whether the neuron has fired
-	bool[] hasFired;
+	bool hasFired[];
 
 	//! The length of the absolute refractory period. [units=sec; range=(0,1);]
-	FLOAT[] Trefract;
+	FLOAT Trefract[];
 
 	//! If \f$V_m\f$ exceeds \f$V_{thresh}\f$ a spike is emmited. [units=V; range=(-10,100);]
-	FLOAT[] Vthresh;
+	FLOAT Vthresh[];
 
 	//! The resting membrane voltage. [units=V; range=(-1,1);]
-	FLOAT[] Vrest;
+	FLOAT Vrest[];
 
 	//! The voltage to reset \f$V_m\f$ to after a spike. [units=V; range=(-1,1);]
-	FLOAT[] Vreset;
+	FLOAT Vreset[];
 
 	//! The initial condition for \f$V_m\f$ at time \f$t=0\f$. [units=V; range=(-1,1);]
-	FLOAT[] Vinit;
+	FLOAT Vinit[];
 	//! The simulation time step size.
-	FLOAT[] deltaT;
+	FLOAT deltaT[];
 
 	//! The membrane capacitance \f$C_m\f$ [range=(0,1); units=F;]
-	FLOAT[] Cm;
+	FLOAT Cm[];
 
 	//! The membrane resistance \f$R_m\f$ [units=Ohm; range=(0,1e30)]
-	FLOAT[] Rm;
+	FLOAT Rm[];
 
 	//! The standard deviation of the noise to be added each integration time constant. [range=(0,1); units=A;]
-	FLOAT[] Inoise;
+	FLOAT Inoise[];
 
 	//! A constant current to be injected into the LIF neuron. [units=A; range=(-1,1);]
-	FLOAT[] Iinject;
-	
+	FLOAT Iinject[];
+
 	// What the hell is this used for???
 	//! The synaptic input current.
-	FLOAT[] Isyn;
+	FLOAT Isyn[];
 
 	//! The remaining number of time steps for the absolute refractory period.
-	int[] nStepsInRefr;
+	int nStepsInRefr[];
 
 	//! Internal constant for the exponential Euler integration of \f$V_m\f$.
-	FLOAT[] C1;
+	FLOAT C1[];
 	//! Internal constant for the exponential Euler integration of \f$V_m\f$.
-	FLOAT[] C2;
+	FLOAT C2[];
 	//! Internal constant for the exponential Euler integration of \f$V_m\f$.
-	FLOAT[] I0;
+	FLOAT I0[];
 
 	//! The membrane voltage \f$V_m\f$ [readonly; units=V;]
-	FLOAT[] Vm;
+	FLOAT Vm[];
 
 	//! The membrane time constant \f$(R_m \cdot C_m)\f$
-	FLOAT[] Tau;
+	FLOAT Tau[];
 
 	//! The number of spikes since the last growth cycle
-	int[] spikeCount;
+	int spikeCount[];
 };
+
+#endif
