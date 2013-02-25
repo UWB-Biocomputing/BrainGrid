@@ -126,14 +126,15 @@ ISynapse* HostSim::addSynapse(SimulationInfo* psi, int source_x, int source_y, i
  */
 synapseType HostSim::synType(SimulationInfo* psi, Coordinate a, Coordinate b)
 {
-
-    if (psi->rgNeuronTypeMap[a.x + a.y * psi->width] == INH && psi->rgNeuronTypeMap[b.x + b.y * psi->width] == INH)
+    neuronType a_type = psi->rgNeuronTypeMap[a.x + a.y * psi->width];
+    neuronType b_type = psi->rgNeuronTypeMap[b.x + b.y * psi->width];
+    if (a_type == INH && b_type == INH)
         return II;
-    else if (psi->rgNeuronTypeMap[a.x + a.y * psi->width] == INH && psi->rgNeuronTypeMap[b.x + b.y * psi->width] == EXC)
+    else if (a_type == INH && b_type == EXC)
         return IE;
-    else if (psi->rgNeuronTypeMap[a.x + a.y * psi->width] == EXC && psi->rgNeuronTypeMap[b.x + b.y * psi->width] == INH)
+    else if (a_type == EXC && b_type == INH)
         return EI;
-    else if (psi->rgNeuronTypeMap[a.x + a.y * psi->width] == EXC && psi->rgNeuronTypeMap[b.x + b.y * psi->width] == EXC)
+    else if (a_type == EXC && b_type == EXC)
         return EE;
 
     assert(false);

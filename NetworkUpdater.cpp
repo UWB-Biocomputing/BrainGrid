@@ -14,15 +14,15 @@ NetworkUpdater::NetworkUpdater(
         VectorMatrix& xloc,
         VectorMatrix& yloc
     ) :
-	W("complete", "const", neuron_count, neuron_count, 0),
-	radii("complete", "const", 1, neuron_count, start_radius),
-	rates("complete", "const", 1, neuron_count, 0),
-	dist2("complete", "const", neuron_count, neuron_count),
-	delta("complete", "const", neuron_count, neuron_count),
-	dist("complete", "const", neuron_count, neuron_count),
-	area("complete", "const", neuron_count, neuron_count, 0),
-	outgrowth("complete", "const", 1, neuron_count),
-	deltaR("complete", "const", 1, neuron_count)
+    W("complete", "const", neuron_count, neuron_count, 0),
+    radii("complete", "const", 1, neuron_count, start_radius),
+    rates("complete", "const", 1, neuron_count, 0),
+    dist2("complete", "const", neuron_count, neuron_count),
+    delta("complete", "const", neuron_count, neuron_count),
+    dist("complete", "const", neuron_count, neuron_count),
+    area("complete", "const", neuron_count, neuron_count, 0),
+    outgrowth("complete", "const", 1, neuron_count),
+    deltaR("complete", "const", 1, neuron_count)
 {
     spikeCounts = new int[neuron_count];
 

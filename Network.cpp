@@ -23,6 +23,7 @@ Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac,
         ostream& new_stateout, istream& new_meminput, bool fReadMemImage, 
         bool fFixedLayout, vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
         SimulationInfo simInfo, ISimulation* sim) :
+        
     m_cExcitoryNeurons(static_cast<int>(simInfo.cNeurons * excFrac)), 
     m_cInhibitoryNeurons(static_cast<int>(simInfo.cNeurons * inhFrac)), 
     m_cStarterNeurons(static_cast<int>(simInfo.cNeurons * startFrac)), 
@@ -43,11 +44,8 @@ Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac,
     m_sim(sim),  // =>ISIMULATION
     
     
-    
     radii(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons),
     rates(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons),
-    neuronTypes(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons, EXC),
-    neuronThresh(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons, 0),
     xloc(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons),
     yloc(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons)
 {
@@ -58,6 +56,12 @@ Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac,
 
     // init neurons
     initNeurons(Iinject, Inoise, Vthresh, Vresting, Vreset, Vinit, starter_Vthresh, starter_Vreset);
+    
+    // Initialize neuron locations
+    for (int i = 0; i < m_si.cNeurons; i++) {
+        xloc[i] = i % m_si.width;
+        yloc[i] = i / m_si.width;
+    }
 }
 
 /**
@@ -78,30 +82,11 @@ Network::~Network()
  */
 void Network::setup(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 {
-    // burstiness Histogram goes through the
-    burstinessHist = VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthStepDuration * maxGrowthSteps), 0); // state
-
-    // spikes history - history of accumulated spikes count of all neurons (10 ms bin)
-    spikesHistory = VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthStepDuration * maxGrowthSteps * 100), 0); // state
-
     // track radii
     radiiHistory = CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), m_si.cNeurons); // state
 
     // track firing rate
     ratesHistory = CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), m_si.cNeurons);
-    
-    for (int i = 0; i < m_si.cNeurons; i++)
-        neuronThresh[i] = m_neuronList[i]->Vthresh;
-
-
-    // Initialize neurons
-    for (int i = 0; i < m_si.cNeurons; i++) {
-        xloc[i] = i % m_si.width;
-        yloc[i] = i / m_si.width;
-    }
-
-    // Populate neuron types with current values
-    getNeuronTypes(neuronTypes);
 
     // Init radii and rates history matrices with current radii and rates
     for (int i = 0; i < m_si.cNeurons; i++) {
@@ -117,10 +102,6 @@ void Network::setup(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
             ratesHistory(0, i) = rates[i]; // NOTE: Rates Used for read.
         }
     }
-
-    // Start the timer
-    // TODO: stop the timer at some point and use its output
-    // m_timer.start();
 }
 
 NetworkUpdater* Network::getUpdater() const
@@ -128,42 +109,9 @@ NetworkUpdater* Network::getUpdater() const
     return new NetworkUpdater(m_si.cNeurons, m_si.startRadius, xloc, yloc);
 }
 
-void Network::computeDistance2(VectorMatrix& dist2) const
-{
-    for (int n = 0; n < psi->cNeurons - 1; n++) {
-        for (int n2 = n + 1; n2 < psi->cNeurons; n2++) {
-            // distance^2 between two points in point-slope form
-            dist2(n, n2) = (xloc[n] - xloc[n2]) * (xloc[n] - xloc[n2]) +
-                (yloc[n] - yloc[n2]) * (yloc[n] - yloc[n2]);
-
-            // both points are equidistant from each other
-            dist2(n2, n) = dist2(n, n2);
-        }
-    }
-}
-
 void Network::finish(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 {
-#ifdef STORE_SPIKEHISTORY
-    // output spikes
-    for (int i = 0; i < m_si.width; i++) {
-        for (int j = 0; j < m_si.height; j++) {
-            vector<uint64_t>* pSpikes = m_neuronList[i + j * m_si.width]->getSpikes();
-
-            DEBUG2 (cout << endl << coordToString(i, j) << endl);
-
-            for (unsigned int i = 0; i < (*pSpikes).size(); i++) {
-                DEBUG2 (cout << i << " ");
-                int idx1 = (*pSpikes)[i] * m_si.deltaT;
-                burstinessHist[idx1] = burstinessHist[idx1] + 1.0;
-                int idx2 = (*pSpikes)[i] * m_si.deltaT * 100;
-                spikesHistory[idx2] = spikesHistory[idx2] + 1.0;
-            }
-        }
-    }
-#endif // STORE_SPIKEHISTORY
-
-    saveSimState(state_out, growthStepDuration);
+    saveSimState(state_out, growthStepDuration, FLOAT growthStepDuration, FLOAT maxGrowthSteps);
 
     // Terminate the simulator
     m_sim->term(&m_si); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
@@ -568,7 +516,7 @@ vector<neuronType>* Network::getNeuronOrder()
 * @param spikesHistory
 * @param Tsim
 */
-void Network::saveSimState(ostream& os, FLOAT Tsim)
+void Network::saveSimState(ostream& os, FLOAT Tsim, FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 {
     // Write XML header information:
     os << "<?xml version=\"1.0\" standalone=\"no\"?>" << endl
@@ -579,10 +527,23 @@ void Network::saveSimState(ostream& os, FLOAT Tsim)
     os << "<SimState>" << endl;
     os << "   " << radiiHistory.toXML("radiiHistory") << endl;
     os << "   " << ratesHistory.toXML("ratesHistory") << endl;
+    
+    // burstiness Histogram goes through the
+    VectorMatrix burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthStepDuration * maxGrowthSteps), 0); // state
+    // spikes history - history of accumulated spikes count of all neurons (10 ms bin)
+    VectorMatrix spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthStepDuration * maxGrowthSteps), 0); // state
+#ifdef STORE_SPIKEHISTORY
+    get_spike_history(burstinessHist, spikesHistory);
+#endif // STORE_SPIKEHISTORY
     os << "   " << burstinessHist.toXML("burstinessHist") << endl;
     os << "   " << spikesHistory.toXML("spikesHistory") << endl;
+    
     os << "   " << xloc.toXML("xloc") << endl;
     os << "   " << yloc.toXML("yloc") << endl;
+    
+    //Write Neuron Types
+    VectorMatrix neuronTypes(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons, EXC);
+    getNeuronTypes(neuronTypes);
     os << "   " << neuronTypes.toXML("neuronTypes") << endl;
 
     if (m_cStarterNeurons > 0) {
@@ -594,6 +555,11 @@ void Network::saveSimState(ostream& os, FLOAT Tsim)
     }
 
     // Write neuron thresold
+    // neuron threshold
+    VectorMatrix neuronThresh(MATRIX_TYPE, MATRIX_INIT, 1, m_si.cNeurons, 0);
+    for (int i = 0; i < m_si.cNeurons; i++) {
+        neuronThresh[i] = m_neuronList[i]->Vthresh;
+    }
     os << "   " << neuronThresh.toXML("neuronThresh") << endl;
 
     // write time between growth cycles
@@ -606,6 +572,26 @@ void Network::saveSimState(ostream& os, FLOAT Tsim)
     os << "   " << g_simulationStep * m_si.deltaT << endl;
     os << "</Matrix>" << endl;
     os << "</SimState>" << endl;
+}
+
+void Network::get_spike_history(VectorMatrix& burstinessHist, VectorMatrix& spikesHistory)
+{
+    // output spikes
+    for (int i = 0; i < m_si.width; i++) {
+        for (int j = 0; j < m_si.height; j++) {
+            vector<uint64_t>* pSpikes = m_neuronList[i + j * m_si.width]->getSpikes();
+
+            DEBUG2 (cout << endl << coordToString(i, j) << endl);
+
+            for (unsigned int i = 0; i < (*pSpikes).size(); i++) {
+                DEBUG2 (cout << i << " ");
+                int idx1 = (*pSpikes)[i] * m_si.deltaT;
+                burstinessHist[idx1] = burstinessHist[idx1] + 1.0;
+                int idx2 = (*pSpikes)[i] * m_si.deltaT * 100;
+                spikesHistory[idx2] = spikesHistory[idx2] + 1.0;
+            }
+        }
+    }
 }
 
 /**
@@ -689,20 +675,18 @@ void Network::readSimMemory(istream& is, VectorMatrix& radii, VectorMatrix& rate
 */
 void Network::getNeuronTypes(VectorMatrix& neuronTypes)
 {
-    for (int i = 0; i < m_si.cNeurons; i++)
-    {
-        switch (m_rgNeuronTypeMap[i])
-        {
-        case INH:
-            neuronTypes[i] = INH;
-            break;
+    for (int i = 0; i < m_si.cNeurons; i++) {
+        switch (m_rgNeuronTypeMap[i]) {
+            case INH:
+                neuronTypes[i] = INH;
+                break;
 
-        case EXC:
-            neuronTypes[i] = EXC;
-            break;
+            case EXC:
+                neuronTypes[i] = EXC;
+                break;
 
-        default:
-            assert(false);
+            default:
+                assert(false);
         }
     }
 }
@@ -715,13 +699,9 @@ void Network::getNeuronTypes(VectorMatrix& neuronTypes)
 void Network::getStarterNeuronMatrix(VectorMatrix& matrix)
 {
     int cur = 0;
-
-    for (int x = 0; x < m_si.width; x++)
-    {
-        for (int y = 0; y < m_si.height; y++)
-        {
-            if (m_rgEndogenouslyActiveNeuronMap[x + y * m_si.width])
-            {
+    for (int x = 0; x < m_si.width; x++) {
+        for (int y = 0; y < m_si.height; y++) {
+            if (m_rgEndogenouslyActiveNeuronMap[x + y * m_si.width]) {
                 matrix[cur] = x + y * m_si.height;
                 cur++;
             }

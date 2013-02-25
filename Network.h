@@ -77,22 +77,10 @@ public:
 	vector<neuronType>* getNeuronOrder();
 
     //! Write the network state to an ostream.
-    void saveSimState(ostream& os, FLOAT Tsim);
+    void saveSimState(ostream& os, FLOAT Tsim, FLOAT growthStepDuration, FLOAT maxGrowthSteps);
     
     //! Write the simulation memory image to an ostream
     void writeSimMemory(FLOAT simulation_step, ostream& os);
-
-    /*
-    void saveSimState(ostream& os, CompleteMatrix& radiiHistory,
-            CompleteMatrix& ratesHistory, VectorMatrix& xloc,
-            VectorMatrix& yloc, VectorMatrix& neuronTypes,
-            VectorMatrix& burstinessHist, VectorMatrix& spikesHistory,
-            FLOAT Tsim, VectorMatrix& neuronThresh);
-
-    //! Write the simulation memory image to an ostream
-    void writeSimMemory(ostream& os,
-            CompleteMatrix& radiiHistory, CompleteMatrix& ratesHistory);
-    */
 
 	//! Read the simulation memory image from an istream
 	void readSimMemory(istream& is, VectorMatrix& radii, VectorMatrix& rates);
@@ -107,6 +95,9 @@ public:
     
     // Cleanup after simulation
     void finish(FLOAT growthStepDuration, FLOAT num_growth_steps);
+    
+    // TODO comment
+    void get_spike_history(VectorMatrix& burstinessHist, VectorMatrix& spikesHistory)
     
     //! Perform updating neurons for one time step.
     void advanceNeurons(SimulationInfo* psi);
@@ -179,23 +170,11 @@ public:
     VectorMatrix radii; // previous saved radii
     VectorMatrix rates; // previous saved rates
 
-    // burstiness Histogram goes through the
-    VectorMatrix burstinessHist; // state
-
-    // spikes history - history of accumulated spikes count of all neurons (10 ms bin)
-    VectorMatrix spikesHistory; // state
-
     // track radii
     CompleteMatrix radiiHistory; // state
 
     // track firing rate
     CompleteMatrix ratesHistory;
-
-    // neuron types
-    VectorMatrix neuronTypes;
-
-    // neuron threshold
-    VectorMatrix neuronThresh;
     
     // neuron locations matrices
     VectorMatrix xloc;
