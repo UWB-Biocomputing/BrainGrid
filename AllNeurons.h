@@ -4,10 +4,12 @@
 #ifndef _ALLNEURONS_H_
 #define _ALLNEURONS_H_
 
+#include "global.h"
+
+//	struct to hold all data nessesary for all the Neurons.
 struct AllNeurons
 {
 public:
-
 	//! A boolean which tracks whether the neuron has fired
 	bool hasFired[];
 
