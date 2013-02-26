@@ -53,7 +53,12 @@ Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac,
  
     // init data structures
     reset();
-
+    
+    // Initialize parameters of all neurons.
+    initNeuronTypeMap();
+    initStarterMap();
+    //neurons.createAllNeurons(m_si.cNeurons, m_rgNeuronTypeMap, m_rgEndogenouslyActiveNeuronMap, neurons);
+    
     // init neurons
     initNeurons(Iinject, Inoise, Vthresh, Vresting, Vreset, Vinit, starter_Vthresh, starter_Vreset);
     
@@ -119,6 +124,9 @@ void Network::finish(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 
 /**
  * Notify outgoing synapses if neuron has fired.
+ *
+ * TODO DELETE - moved to model
+ *
  * @param[in] psi	Pointer to the simulation information.
  */
 void Network::advanceNeurons(SimulationInfo* psi)
@@ -156,6 +164,9 @@ void Network::advanceNeurons(SimulationInfo* psi)
 }
 
 /**
+ *
+ * TODO DELETE - moved to model
+ *
  * @param[in] psi	Pointer to the simulation information.
  */
 void Network::advanceSynapses(SimulationInfo* psi)
@@ -305,6 +316,9 @@ void Network::reset()
 
 /**
  * Randomly populates the network accord to the neuron type counts and other parameters.
+ *
+ * TODO DELETE - functionality moved to model.
+ *
  * @post m_neuronList is populated.
  * @post m_rgNeuronTypeMap is populated.
  * @post m_pfStarterMap is populated.
@@ -321,9 +335,6 @@ void Network::initNeurons(FLOAT Iinject[2], FLOAT Inoise[2], FLOAT Vthresh[2], F
         FLOAT Vreset[2], FLOAT Vinit[2], FLOAT starter_Vthresh[2], FLOAT starter_Vreset[2])
 {
     DEBUG(cout << "\nAllocating neurons..." << endl;)
-
-    initNeuronTypeMap();
-    initStarterMap();
 
     /* set their specific types */
     for (int i = 0; i < m_si.cNeurons; i++)
