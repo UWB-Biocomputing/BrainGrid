@@ -1,6 +1,8 @@
 #ifndef _MODEL_H_
 #define _MODEL_H_
 
+#include "include/tinyxml.h"
+
 #include "global.h"
 
 #include "AllNeurons.h"
@@ -10,7 +12,7 @@ class Model {
 
     public:
         
-        virtual void readParameters() =0;
+        virtual bool readParameters(TiXmlElement *source) =0;
         
         virtual void createAllNeurons(FLOAT neuron_count, neuronType *neuron_type_map, bool *endogenously_active_neuron_map, AllNeurons &neurons) const =0;
         

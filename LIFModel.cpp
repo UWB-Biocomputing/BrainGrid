@@ -1,32 +1,117 @@
 #include "LIFModel.h"
 
-LIFModel::LIFModel(
-         FLOAT Iinject[2]
-        ,FLOAT Inoise[2]
-        ,FLOAT Vthresh[2]
-        ,FLOAT Vresting[2]
-        ,FLOAT Vreset[2]
-        ,FLOAT Vinit[2]
-        ,FLOAT starter_Vthresh[2]
-        ,FLOAT starter_Vreset[2]
-        ,FLOAT new_targetRate
-    ) :
-     m_Iinject(Iinject)
-    ,m_Inoise(Inoise)
-    ,m_Vthresh(Vthresh)
-    ,m_Vresting(Vresting)
-    ,m_Vreset(Vreset)
-    ,m_Vinit(Vinit)
-    ,m_starter_Vthresh(starter_Vthresh)
-    ,m_starter_Vreset(starter_Vreset)
-    ,m_new_targetRate(new_targetRate)
+#include "ParseParamError.h"
+
+LIFModel::LIFModel() :
+    ,m_read_params(0)
 {
 
 }
 
-void LIFModel::readParameters()
+bool LIFModel::readParameters(TiXmlElement *source)
 {
+    m_read_params = 0;
+    try {
+        source->Accept(this);
+    } catch (ParseParamError error) {
+        error.print(cerr);
+        cerr << endl;
+        return false;
+    }
+    return m_read_params == 8;
+}
 
+// Visit an element.
+bool VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute)
+{
+    if (element.ValueStr().compare("Iinject") == 0) {
+        if (element.QueryFLOATAttribute("min", &m_Iinject[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("Iinject min", "Iinject missing minimum value in XML.");
+        }
+        if (element.QueryFLOATAttribute("max", &m_Iinject[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("Iinject min", "Iinject missing maximum value in XML.");
+        }
+        m_read_params++;
+        return false;
+    }
+    
+    if (element.ValueStr().compare("Inoise") == 0) {
+        if (element.QueryFLOATAttribute("min", &m_Inoise[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("Inoise min", "Inoise missing minimum value in XML.");
+        }
+        if (element.QueryFLOATAttribute("max", &m_Inoise[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("Inoise max", "Inoise missing maximum value in XML.");
+        }
+        m_read_params++;
+    }
+
+    if (element.ValueStr().compare("Vthresh")== 0) {
+        if (element.QueryFLOATAttribute("min", &m_Vthresh[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("Vthresh min", "Vthresh missing minimum value in XML.");
+        }
+        if (element.QueryFLOATAttribute("max", &m_Vthresh[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("Vthresh max", "Vthresh missing maximum value in XML.");
+        }
+        m_read_params++;
+    }
+
+    if (element.ValueStr().compare("Vresting")== 0) {
+        if (element.QueryFLOATAttribute("min", &m_Vresting[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("Vresting min", "Vresting missing minimum value in XML.");
+        }
+        if (element.QueryFLOATAttribute("max", &m_Vresting[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("Vresting max", "Vresting missing maximum value in XML.");
+        }
+        m_read_params++;
+    }
+
+    if (element.ValueStr().compare("Vreset")== 0) {
+        if (element.QueryFLOATAttribute("min", &m_Vreset[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("Vreset min", "Vreset missing minimum value in XML.");
+        }
+        if (element.QueryFLOATAttribute("max", &m_Vreset[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("Vreset max", "Vreset missing maximum value in XML.");
+        }
+        m_read_params++;
+    }
+
+    if (element.ValueStr().compare("Vinit")== 0) {
+        if (element.QueryFLOATAttribute("min", &m_Vinit[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("Vinit min", "Vinit missing minimum value in XML.");
+        }
+        if (element.QueryFLOATAttribute("max", &m_Vinit[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("Vinit max", "Vinit missing maximum value in XML.");
+        }
+        m_read_params++;
+    }
+
+    if (element.ValueStr().compare("starter_vthresh")== 0) {
+        if (element.QueryFLOATAttribute("min", &m_starter_vthresh[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("starter_vthresh min", "starter_vthresh missing minimum value in XML.");
+        }
+        if (element.QueryFLOATAttribute("max", &m_starter_vthresh[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("starter_vthresh max", "starter_vthresh missing maximum value in XML.");
+        }
+        m_read_params++;
+    }
+
+    if (element.ValueStr().compare("starter_vreset")== 0) {
+        if (element.QueryFLOATAttribute("min", &m_starter_vreset[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("starter_vreset min", "starter_vreset missing minimum value in XML.");
+        }
+        if (element.QueryFLOATAttribute("max", &m_starter_vreset[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("starter_vreset max", "starter_vreset missing maximum value in XML.");
+        }
+        m_read_params++;
+    }
+    
+    return true;
+}
+
+// Visit an element.
+bool VisitExit( const TiXmlElement& element )
+{
+    return true;
 }
 
 void LIFModel::createAllNeurons(FLOAT neuron_count, neuronType *neuron_type_map, bool *endogenously_active_neuron_map, AllNeurons &neurons) const

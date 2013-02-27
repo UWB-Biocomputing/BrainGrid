@@ -1,24 +1,28 @@
 #ifndef _LIFMODEL_H_
 #define _LIFMODEL_H_
 
-#include "global.h"
+#include "Model.h"
 
-class LIFModel : public Model {
+class LIFModel : public Model, TiXmlVisitor {
 
     public:
-        LIFModel(FLOAT Iinject[2], FLOAT Inoise[2],FLOAT Vthresh[2],
-            FLOAT Vresting[2], FLOAT Vreset[2], FLOAT Vinit[2],
-            FLOAT starter_Vthresh[2],FLOAT starter_Vreset[2],
-            FLOAT new_targetRate);
+        LIFModel();
         
-        void readParameters();
+        bool readParameters(TiXmlElement *source);
         
         void createAllNeurons(const FLOAT count, AllNeurons &neurons) const;
         
         void advance(FLOAT neuron_count, AllNeurons &neurons, AllSynapses &synapses);
         
-        virtual void updateConnections(Network &network) const =0;
+        void updateConnections(Network &network) const;
         
+    protected:
+        // Visit an element.
+        bool VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute);
+        
+        // Visit an element.
+        bool VisitExit(const TiXmlElement& element);
+    
     private:
         FLOAT m_Iinject[2];
         FLOAT m_Inoise[2];
@@ -29,6 +33,9 @@ class LIFModel : public Model {
         FLOAT m_starter_Vthresh[2];
         FLOAT m_starter_Vreset[2];
         FLOAT m_new_targetRate;
+        
+        // TODO : comment
+        int m_read_params;
 };
 
 #endif

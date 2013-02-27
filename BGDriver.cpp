@@ -14,8 +14,6 @@
 #include "include/ParamContainer.h"
 #include "Network.h"
 
-#include "Simulator.h" // TODO(derek): clean up at end of refactor.
-
 // Uncomment to use visual leak detector (Visual Studios Plugin)
 // #include <vld.h>
 
@@ -47,6 +45,7 @@ bool fWriteMemImage = false;  // True if dumped memory image is written after
                               // simulation
 
 int poolsize[3];  // size of pool of neurons [x y z]
+
 // NETWORK MODEL VARIABLES NMV-BEGIN {
 FLOAT frac_EXC;  // Fraction of excitatory neurons
 FLOAT Iinject[2];  // [A] Interval of constant injected current
@@ -60,6 +59,7 @@ FLOAT starter_neurons;  // percent of endogenously active neurons
 FLOAT starter_vthresh[2];  // default Vthresh is 15e-3
 FLOAT starter_vreset[2];  // Interval of reset voltage
 // } NMV-END
+
 bool fFixedLayout;  // True if a fixed layout has been provided; neuron positions
                     // are passed in endogenouslyActiveNeuronLayout and
                     // inhibitoryNeuronLayout
@@ -168,15 +168,14 @@ int main(int argc, char* argv[]) {
     // create the network
     Network network(inhFrac, excFrac, startFrac, Iinject, Inoise, Vthresh,
             Vresting, Vreset, Vinit, starter_vthresh, starter_vreset,
-            targetRate, state_out, memory_in, fReadMemImage, fFixedLayout,
-            &endogenouslyActiveNeuronLayout, &inhibitoryNeuronLayout, si, pSim);
+            targetRate, state_out, memory_out, fWriteMemImage, memory_in,
+            fReadMemImage, fFixedLayout, &endogenouslyActiveNeuronLayout,
+            &inhibitoryNeuronLayout, si, pSim);
 
     time_t start_time, end_time;
     time(&start_time);
-    
-    
-    Simulator sim(&network, si, fWriteMemImage, memory_out);
-    sim.simulate(Tsim, numSims);
+
+    network.simulate(Tsim, numSims);
 
     delete pSim;
     rgNormrnd.clear();
