@@ -62,6 +62,9 @@ public:
 
 	//! The number of spikes since the last growth cycle
 	int spikeCount[];
+
+	//! The neuron type map (INH, EXC).
+	neuronType* rgNeuronType;
 };
 
 #endif

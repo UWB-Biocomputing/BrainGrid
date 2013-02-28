@@ -10,6 +10,8 @@ class LIFModel : public Model, TiXmlVisitor {
         
         bool readParameters(TiXmlElement *source);
         
+        void printParameters(ostream &output) const;
+        
         void createAllNeurons(const FLOAT count, AllNeurons &neurons) const;
         
         void advance(FLOAT neuron_count, AllNeurons &neurons, AllSynapses &synapses);
@@ -21,7 +23,7 @@ class LIFModel : public Model, TiXmlVisitor {
         bool VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute);
         
         // Visit an element.
-        bool VisitExit(const TiXmlElement& element);
+        //bool VisitExit(const TiXmlElement& element);
     
     private:
         FLOAT m_Iinject[2];

@@ -114,12 +114,36 @@ bool VisitExit( const TiXmlElement& element )
     return true;
 }
 
-void LIFModel::createAllNeurons(FLOAT neuron_count, neuronType *neuron_type_map, bool *endogenously_active_neuron_map, AllNeurons &neurons) const
+// TODO(derek) : comment
+void printParameters(ostream &output) const
+{
+    output << "Interval of constant injected current: [" << Iinject[0]
+           << ", " << Iinject[1] << "]"
+           << endl;
+    output << "Interval of STD of (gaussian) noise current: [" << Inoise[0]
+           << ", " << Inoise[1] << "]\n";
+    output << "Interval of firing threshold: [" << Vthresh[0] << ", "
+           << Vthresh[1] << "]\n";
+    output << "Interval of asymptotic voltage (Vresting): [" << Vresting[0]
+           << ", " << Vresting[1] << "]\n";
+    output << "Interval of reset voltage: [" << Vreset[0]
+           << ", " << Vreset[1] << "]\n";
+    output << "Interval of initial membrance voltage: [" << Vinit[0]
+           << ", " << Vinit[1] << "]\n";
+    output << "Starter firing threshold: [" << starter_vthresh[0]
+           << ", " << starter_vthresh[1] << "]\n";
+    output << "Starter reset threshold: [" << starter_vreset[0]
+           << ", " << starter_vreset[1] << "]\n";
+}
+
+void LIFModel::createAllNeurons(FLOAT num_neurons, bool *endogenously_active_neuron_map, AllNeurons &neurons) const
 {
     DEBUG(cout << "\nAllocating neurons..." << endl;)
     
+    generate_neuron_type_map(neurons.neuron_type_map, num_neurons);
+    
     /* set their specific types */
-    for (int i = 0; i < neuron_count; i++) {
+    for (int i = 0; i < num_neurons; i++) {
         neurons.Iinject[i] = rng.inRange(m_Iinject[0], m_Iinject[1]);
         neurons.Inoise[i] = rng.inRange(m_Inoise[0], m_Inoise[1]);
         neurons.Vthresh[i] = rng.inRange(m_Vthresh[0], m_Vthresh[1]);
@@ -127,8 +151,10 @@ void LIFModel::createAllNeurons(FLOAT neuron_count, neuronType *neuron_type_map,
         neurons.Vreset[i] = rng.inRange(m_Vreset[0], m_Vreset[1]);
         neurons.Vinit[i] = rng.inRange(m_Vinit[0], m_Vinit[1]);
         neurons.deltaT[i] = m_si.deltaT);
-
-        switch (neuron_type_map[i]) {
+        
+        DEBUG2(cout << "neuron" << i << " as " << neuronTypeToString(neurons.neuron_type_map[i]) << endl;);
+        
+        switch (neurons.neuron_type_map[i]) {
             case INH:
                 DEBUG2(cout << "setting inhibitory neuron: "<< i << endl;)
                 // set inhibitory absolute refractory period
@@ -159,6 +185,56 @@ void LIFModel::createAllNeurons(FLOAT neuron_count, neuronType *neuron_type_map,
     DEBUG(cout << "Done initializing neurons..." << endl;)
 }
 
+/**
+ *  Creates a randomly ordered distribution with the specified numbers of neuron types.
+ *  @returns A flat vector (to map to 2-d [x,y] = [i % m_width, i / m_width])
+ */
+void Network::generate_neuron_type_map(neuronType neuron_types[], num_neurons)
+{
+    //TODO: m_pInhibitoryNeuronLayout
+    
+    DEBUG(cout << "\nInitializing neuron type map"<< endl;);
+    
+    int num_inhibitory_neurons = m_pInhibitoryNeuronLayout->size();
+    
+    /* setup neuron types */
+    DEBUG(cout << "Total neurons: " << num_neurons << endl;)
+    DEBUG(cout << "Inhibitory Neurons: " << num_inhibitory_neurons << endl;)
+    DEBUG(cout << "Excitatory Neurons: " << (num_neurons - m_pInhibitoryNeuronLayout->size()) << endl;)
+    
+    neuronType types[num_neurons];
+    for (int i = 0; i < num_neurons; i++) {
+        types[i] = EXC;
+    }
+    
+    if (m_fFixedLayout) {
+        for (int i = 0; i < num_inhibitory_neurons; i++) {
+            types[m_pInhibitoryNeuronLayout->at(i)] = INH;
+        }
+    } else {
+        DEBUG(cout << endl << "Randomly selecting inhibitory neurons..." << endl;)
+        
+        int rg_inhibitory_layout[num_inhibitory_neurons];
+        
+        for (int i = 0; i < num_inhibitory_neurons; i++) {
+            rg_inhibitory_layout[i] = i;
+        }
+        
+        for (int i = num_inhibitory_neurons; i < num_neurons; i++) {
+            int j = static_cast<int>(rng() * orderedNeurons.size());
+            if (j < num_inhibitory_neurons) {
+                rg_inhibitory_layout[j] = i;
+            }
+        }
+        
+        for (int i = 0; i < num_inhibitory_neurons; i++) {
+            types[rg_inhibitory_layout[i]] = INH;
+        }
+    }
+    
+    DEBUG(cout << "Done initializing neuron type map" << endl;);
+}
+
 void LIFModel::advance(FLOAT neuron_count, AllNeurons &neurons, AllSynapses &synapses)
 {
     advanceNeurons(neuron_count, neurons, synapses);
@@ -169,11 +245,11 @@ void LIFModel::advance(FLOAT neuron_count, AllNeurons &neurons, AllSynapses &syn
  * Notify outgoing synapses if neuron has fired.
  * @param[in] psi - Pointer to the simulation information.
  */
-void LIFModel::advanceNeurons(FLOAT neuron_count, AllNeurons &neurons, AllSynapses &synapses, SimulationInfo* psi)
+void LIFModel::advanceNeurons(FLOAT num_neurons, AllNeurons &neurons, AllSynapses &synapses, SimulationInfo* psi)
 {
     // TODO: move this code into a helper class - it's being used in multiple places.
     // For each neuron in the network
-    for (int i = neuron_count - 1; i >= 0; --i) {
+    for (int i = num_neurons - 1; i >= 0; --i) {
         // advance neurons
         advanceNeuron(neurons, i, psi->pSummationMap[i]);
 
@@ -183,8 +259,8 @@ void LIFModel::advanceNeurons(FLOAT neuron_count, AllNeurons &neurons, AllSynaps
         if (neurons.hasFired[i]) {
             DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
 
-            for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z) {
-                psi->rgSynapseMap[i][z]->preSpikeHit();
+            for (int z = synapses[i].size - 1; z >= 0; --z) {
+                preSpikeHit(synapses[i], z);
             }
 
             neurons.hasFired[i] = false;
@@ -201,6 +277,11 @@ void LIFModel::advanceNeurons(FLOAT neuron_count, AllNeurons &neurons, AllSynaps
     
     cout << endl;
 #endif /* DUMP_VOLTAGES */
+}
+
+void LIFModel::preSpikeHit(synapses[i], z)
+{
+    
 }
 
 void advanceNeuron(AllNeurons &neurons, int neuron_index, FLOAT& summationPoint)
@@ -226,11 +307,40 @@ void advanceNeuron(AllNeurons &neurons, int neuron_index, FLOAT& summationPoint)
 /**
  * @param[in] psi - Pointer to the simulation information.
  */
-void LIFModel::advanceSynapses(SimulationInfo* psi)
+void LIFModel::advanceSynapses(FLOAT num_neurons, AllSynapses *synapses)
 {
-    for (int i = psi->cNeurons - 1; i >= 0; --i) {
-        for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z) {
+    for (int i = num_neurons - 1; i >= 0; --i) {
+        for (int z = synapses.size - 1; z >= 0; --z) {
+            // Advance Synapse
+            advanceSynapse()
             psi->rgSynapseMap[i][z]->advance();
         }
     }
+}
+
+void LIFModel::advanceSynapse(AllSynapses &synapses, int i)
+{
+    // is an input in the queue?
+    if (isSpikeQueue()) {
+        // adjust synapse paramaters
+        if (lastSpike != ULONG_MAX) {
+            FLOAT isi = (g_simulationStep - lastSpike) * deltaT ;
+            r = 1 + ( r * ( 1 - u ) - 1 ) * exp( -isi / D );
+            u = U + u * ( 1 - U ) * exp( -isi / F );
+        }
+        psr += ( ( W / decay ) * u * r );// calculate psr
+        lastSpike = g_simulationStep; // record the time of the spike
+    }
+
+    // decay the post spike response
+    psr *= decay;
+    // and apply it to the summation point
+#ifdef USE_OMP
+#pragma omp atomic
+#endif
+    summationPoint += psr;
+#ifdef USE_OMP
+    //PAB: atomic above has implied flush (following statement generates error -- can't be member variable)
+    //#pragma omp flush (summationPoint)
+#endif
 }

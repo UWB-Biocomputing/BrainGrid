@@ -14,6 +14,9 @@
 #include "include/ParamContainer.h"
 #include "Network.h"
 
+#include "Model.h"
+#include "LIFModel.h"
+
 // Uncomment to use visual leak detector (Visual Studios Plugin)
 // #include <vld.h>
 
@@ -46,6 +49,9 @@ bool fWriteMemImage = false;  // True if dumped memory image is written after
 
 int poolsize[3];  // size of pool of neurons [x y z]
 
+Model *model = NULL;
+
+// TODO(derek) : delete ::
 // NETWORK MODEL VARIABLES NMV-BEGIN {
 FLOAT frac_EXC;  // Fraction of excitatory neurons
 FLOAT Iinject[2];  // [A] Interval of constant injected current
@@ -89,6 +95,7 @@ SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon,
     FLOAT new_beta, FLOAT new_rho, FLOAT new_maxRate, FLOAT new_minRadius,
     FLOAT new_startRadius, FLOAT growthStepDuration, FLOAT maxGrowthSteps,
     int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT, long seed);
+bool load_simulation_parameters(const string &sim_param_filename);
 void LoadSimParms(TiXmlElement*);
 void SaveSimState(ostream &);
 void printParams();
@@ -101,10 +108,16 @@ void getValueList(const string& valString, vector<int>* pList);
  * is here.
  */
 int main(int argc, char* argv[]) {
+    model = new LIFModel();
+    
     DEBUG(cout << "reading parameters from xml file" << endl;)
 
     if (!parseCommandLine(argc, argv)) {
         cerr << "! ERROR: failed during command line parse" << endl;
+        exit(-1);
+    }
+    if (!oad_simulation_parameters(stateInputFileName)) {
+        cerr << "! ERROR: failed while parsing simulation parameters." << endl;
         exit(-1);
     }
 
@@ -166,11 +179,11 @@ int main(int argc, char* argv[]) {
     #endif
 
     // create the network
-    Network network(inhFrac, excFrac, startFrac, Iinject, Inoise, Vthresh,
-            Vresting, Vreset, Vinit, starter_vthresh, starter_vreset,
-            targetRate, state_out, memory_out, fWriteMemImage, memory_in,
-            fReadMemImage, fFixedLayout, &endogenouslyActiveNeuronLayout,
-            &inhibitoryNeuronLayout, si, pSim);
+    Network network(model,
+            inhFrac, excFrac, startFrac,
+            state_out, memory_in, fReadMemImage,
+            fFixedLayout, &endogenouslyActiveNeuronLayout, &inhibitoryNeuronLayout,
+            si, pSim);
 
     time_t start_time, end_time;
     time(&start_time);
@@ -192,7 +205,10 @@ int main(int argc, char* argv[]) {
         memory_out.close();
     if (fReadMemImage)
         memory_in.close();
-
+    
+    delete model;
+    model = NULL;
+    
     exit(EXIT_SUCCESS);
 }
 
@@ -247,6 +263,7 @@ void printParams() {
          << " y:" << poolsize[1]
          << " z:" << poolsize[2]
          << endl;
+// TODO(derek) delete model parameters {
     cout << "Interval of constant injected current: [" << Iinject[0]
          << ", " << Iinject[1] << "]"
          << endl;
@@ -264,6 +281,8 @@ void printParams() {
          << ", " << starter_vthresh[1] << "]\n";
     cout << "Starter reset threshold: [" << starter_vreset[0]
          << ", " << starter_vreset[1] << "]\n";
+// }
+
     cout << "Growth parameters: " << endl << "\tepsilon: " << epsilon
          << ", beta: " << beta << ", rho: " << rho
          << ", targetRate: " << targetRate << ",\n\tminRadius: " << minRadius
@@ -293,11 +312,44 @@ void printParams() {
     cout << "Done printing parameters" << endl;
 }
 
+bool load_simulation_parameters(const string &sim_param_filename)
+{
+    TiXmlDocument simDoc(sim_param_filename.c_str());
+    if (!simDoc.LoadFile()) {
+        cerr << "Failed loading simulation parameter file "
+             << sim_param_filename << ":" << "\n\t" << simDoc.ErrorDesc()
+             << endl;
+        cerr << " error: " << simDoc.ErrorRow() << ", " << simDoc.ErrorCol()
+             << endl;
+        return false;
+    }
+
+    TiXmlElement* parms = NULL;
+
+    if ((parms = simDoc.FirstChildElement("SimParams")) == NULL) {
+        cerr << "Could not find <SimParms> in simulation parameter file "
+             << sim_param_filename << endl;
+        return false;
+    }
+
+    try {
+        LoadSimParms(parms);
+        model->readParameters(parms);
+    } catch (KII_exception e) {
+        cerr << "Failure loading simulation parameters from file "
+             << sim_param_filename << ":\n\t" << e.what()
+             << endl;
+        return false;
+    }
+    return true;
+}
+
 /**
  * Handles loading of parameters using tinyxml from the parameter file.
  */
 void LoadSimParms(TiXmlElement* parms)
 {
+    
     TiXmlElement* temp = NULL;
     fFixedLayout = false;
 
@@ -612,33 +664,6 @@ bool parseCommandLine(int argc, char* argv[])
     if (EOF == sscanf(cl["deviceid"].c_str(), "%d", &g_deviceId))
         g_deviceId = 0;
 #endif  // USE_GPU
-
-    TiXmlDocument simDoc(stateInputFileName.c_str());
-    if (!simDoc.LoadFile()) {
-        cerr << "Failed loading simulation parameter file "
-             << stateInputFileName << ":" << "\n\t" << simDoc.ErrorDesc()
-             << endl;
-        cerr << " error: " << simDoc.ErrorRow() << ", " << simDoc.ErrorCol()
-             << endl;
-        return false;
-    }
-
-    TiXmlElement* parms = NULL;
-
-    if ((parms = simDoc.FirstChildElement("SimParams")) == NULL) {
-        cerr << "Could not find <SimParms> in simulation parameter file "
-             << stateInputFileName << endl;
-        return false;
-    }
-
-    try {
-        LoadSimParms(parms);
-    } catch (KII_exception e) {
-        cerr << "Failure loading simulation parameters from file "
-             << stateInputFileName << ":\n\t" << e.what()
-             << endl;
-        return false;
-    }
     return true;
 }
 

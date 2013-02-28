@@ -45,16 +45,17 @@
 #include "include/Timer.h"
 #include "ISimulation.h"
 
+#include "Model.h"
+
 class Network
 {
 public:
 	//! The constructor for Network.
-	Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac, FLOAT Iinject[2], FLOAT Inoise[2],
-			FLOAT Vthresh[2], FLOAT Vresting[2], FLOAT Vreset[2], FLOAT Vinit[2], FLOAT starter_Vthresh[2],
-			FLOAT starter_Vreset[2], FLOAT new_targetRate, ostream& new_outstate, 
-            istream& new_meminput, bool fReadMemImage, bool fFixedLayout, 
-            vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
-			SimulationInfo simInfo, ISimulation* sim);
+	Network(Model *model,
+            FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac,
+            ostream& new_outstate,istream& new_meminput, bool fReadMemImage,
+            bool fFixedLayout, vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
+            SimulationInfo simInfo, ISimulation* sim);
 	~Network();
 
 	//! Frees dynamically allocated memory associated with the maps.
@@ -63,18 +64,8 @@ public:
 	//! Reset simulation objects
 	void reset();
 
-	//! Initialize neurons with simulation voltage and current parameters.
-	void initNeurons(FLOAT Iinject[2], FLOAT Inoise[2], FLOAT Vthresh[2], FLOAT Vresting[2], FLOAT Vreset[2],
-			FLOAT Vinit[2], FLOAT starter_Vthresh[2], FLOAT starter_Vreset[2]);
-
-	//! Initialize entries in the neuron type map from random values
-	void initNeuronTypeMap();
-
 	//! Randomly initialize entries in the neuron starter map.
 	void initStarterMap();
-
-	//! Get list of neurons of random type
-	vector<neuronType>* getNeuronOrder();
 
     //! Write the network state to an ostream.
     void saveSimState(ostream& os, FLOAT Tsim, FLOAT growthStepDuration, FLOAT maxGrowthSteps);
@@ -99,11 +90,8 @@ public:
     // TODO comment
     void get_spike_history(VectorMatrix& burstinessHist, VectorMatrix& spikesHistory)
     
-    //! Perform updating neurons for one time step.
-    void advanceNeurons(SimulationInfo* psi);
-    
-    //! Perform updating synapses for one time step.
-    void advanceSynapses(SimulationInfo* psi);
+    // TODO comment
+    void advance();
     
     //! Get spike counts in prep for growth
     void getSpikeCounts(int neuron_count, int* spikeCounts);  // PLATFORM DEPENDENT
@@ -182,6 +170,8 @@ public:
     
     static const string MATRIX_TYPE;
     static const string MATRIX_INIT;
+    
+    Model *m_model;
 
 // -----------------------------------------------------------------------------
 

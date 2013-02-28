@@ -14,16 +14,14 @@ const string Network::MATRIX_INIT = "const";
  * The constructor for Network.
  * @post The network is setup according to parameters and ready for simulation.
  */
-Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac,
-/* Neuron Start Condition Params { */
-        FLOAT Iinject[2], FLOAT Inoise[2], FLOAT Vthresh[2], FLOAT Vresting[2],
-        FLOAT Vreset[2], FLOAT Vinit[2], FLOAT starter_Vthresh[2],
-        FLOAT starter_Vreset[2], FLOAT new_targetRate,
-/* } */
+Network::Network(Model *model,
+        FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac,
         ostream& new_stateout, istream& new_meminput, bool fReadMemImage, 
         bool fFixedLayout, vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
         SimulationInfo simInfo, ISimulation* sim) :
-        
+    
+    m_model(model);
+    
     m_cExcitoryNeurons(static_cast<int>(simInfo.cNeurons * excFrac)), 
     m_cInhibitoryNeurons(static_cast<int>(simInfo.cNeurons * inhFrac)), 
     m_cStarterNeurons(static_cast<int>(simInfo.cNeurons * startFrac)), 
@@ -55,12 +53,12 @@ Network::Network(FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac,
     reset();
     
     // Initialize parameters of all neurons.
-    initNeuronTypeMap();
+    //initNeuronTypeMap(); // TODO(derek) : delete
     initStarterMap();
-    //neurons.createAllNeurons(m_si.cNeurons, m_rgNeuronTypeMap, m_rgEndogenouslyActiveNeuronMap, neurons);
     
     // init neurons
-    initNeurons(Iinject, Inoise, Vthresh, Vresting, Vreset, Vinit, starter_Vthresh, starter_Vreset);
+    // initNeurons(Iinject, Inoise, Vthresh, Vresting, Vreset, Vinit, starter_Vthresh, starter_Vreset); // TODO(derek) : delete
+    m_model->createAllNeurons(m_si.cNeurons, m_rgEndogenouslyActiveNeuronMap, neurons);
     
     // Initialize neuron locations
     for (int i = 0; i < m_si.cNeurons; i++) {
@@ -122,60 +120,9 @@ void Network::finish(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     m_sim->term(&m_si); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
 }
 
-/**
- * Notify outgoing synapses if neuron has fired.
- *
- * TODO DELETE - moved to model
- *
- * @param[in] psi	Pointer to the simulation information.
- */
-void Network::advanceNeurons(SimulationInfo* psi)
+void Network::advance()
 {
-    // TODO: move this code into a helper class - it's being used in multiple places.
-    // For each neuron in the network
-    for (int i = psi->cNeurons - 1; i >= 0; --i) {
-        // advance neurons
-        m_neuronList[i]->advance(psi->pSummationMap[i]);
-
-        DEBUG2(cout << i << " " << (*(m_neuronList))[i]->Vm << endl;)
-
-        // notify outgoing synapses if neuron has fired
-        if (m_neuronList[i]->hasFired) {
-            DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
-
-            for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z) {
-                psi->rgSynapseMap[i][z]->preSpikeHit();
-            }
-
-            m_neuronList[i]->hasFired = false;
-        }
-    }
-
-#ifdef DUMP_VOLTAGES
-    // ouput a row with every voltage level for each time step
-    cout << g_simulationStep * psi->deltaT;
-
-    for (int i = 0; i < psi->cNeurons; i++) {
-        cout << "\t i: " << i << " " << m_neuronList[i].toStringVm();
-    }
-    
-    cout << endl;
-#endif /* DUMP_VOLTAGES */
-}
-
-/**
- *
- * TODO DELETE - moved to model
- *
- * @param[in] psi	Pointer to the simulation information.
- */
-void Network::advanceSynapses(SimulationInfo* psi)
-{
-    for (int i = psi->cNeurons - 1; i >= 0; --i) {
-        for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z) {
-            psi->rgSynapseMap[i][z]->advance();
-        }
-    }
+    m_model->advance(m_si.cNeurons, neurons, synapses);
 }
 
 void Network::getSpikeCounts( int neuron_count, int *spikeCounts)
@@ -315,100 +262,6 @@ void Network::reset()
 }
 
 /**
- * Randomly populates the network accord to the neuron type counts and other parameters.
- *
- * TODO DELETE - functionality moved to model.
- *
- * @post m_neuronList is populated.
- * @post m_rgNeuronTypeMap is populated.
- * @post m_pfStarterMap is populated.
- * @param Iinject
- * @param Inoise
- * @param Vthresh
- * @param Vresting
- * @param Vreset
- * @param Vinit
- * @param starter_Vthresh
- * @param starter_Vreset
- */
-void Network::initNeurons(FLOAT Iinject[2], FLOAT Inoise[2], FLOAT Vthresh[2], FLOAT Vresting[2],
-        FLOAT Vreset[2], FLOAT Vinit[2], FLOAT starter_Vthresh[2], FLOAT starter_Vreset[2])
-{
-    DEBUG(cout << "\nAllocating neurons..." << endl;)
-
-    /* set their specific types */
-    for (int i = 0; i < m_si.cNeurons; i++)
-    {
-        m_neuronList[i] = m_sim->returnNeuron(); // =>ISIMULATION
-
-        // set common parameters
-        m_neuronList[i]->setParams(
-            rng.inRange(Iinject[0], Iinject[1]), 
-            rng.inRange(Inoise[0], Inoise[1]),
-            rng.inRange(Vthresh[0], Vthresh[1]),
-            rng.inRange(Vresting[0], Vresting[1]),
-            rng.inRange(Vreset[0],Vreset[1]),
-            rng.inRange(Vinit[0], Vinit[1]), 
-            m_si.deltaT);
-
-        switch (m_rgNeuronTypeMap[i])
-        {
-        case INH:
-            DEBUG2(cout << "setting inhibitory neuron: "<< i << endl;)
-            // set inhibitory absolute refractory period
-            m_neuronList[i]->Trefract = DEFAULT_InhibTrefract;
-            break;
-
-        case EXC:
-            DEBUG2(cout << "setting exitory neuron: " << i << endl;)
-            // set excitory absolute refractory period
-            m_neuronList[i]->Trefract = DEFAULT_ExcitTrefract;
-            break;
-
-        default:
-            DEBUG2(cout << "ERROR: unknown neuron type: " << m_rgNeuronTypeMap[i] << "@" << i << endl;)
-            assert(false);
-        }
-
-        if (m_rgEndogenouslyActiveNeuronMap[i])
-        {
-            DEBUG2(cout << "setting endogenously active neuron properties" << endl;)
-            // set endogenously active threshold voltage, reset voltage, and refractory period
-            m_neuronList[i]->Vthresh = rng.inRange(starter_Vthresh[0], starter_Vthresh[1]);
-            m_neuronList[i]->Vreset = rng.inRange(starter_Vreset[0], starter_Vreset[1]);
-            m_neuronList[i]->Trefract = DEFAULT_ExcitTrefract;
-        }
-        DEBUG2(cout << m_neuronList[i].toStringAll() << endl;)
-    }
-    DEBUG(cout << "Done initializing neurons..." << endl;)
-}
-
-/**
- * Randomly populates the m_rgNeuronTypeMap with the specified number of inhibitory and
- * excitory neurons.
- * @post m_rgNeuronTypeMap is populated.
- */
-void Network::initNeuronTypeMap()
-{
-    DEBUG(cout << "\nInitializing neuron type map"<< endl;);
-
-    // Get random neuron list
-    vector<neuronType>* randomDist = getNeuronOrder();
-
-    // Copy the contents of randomDist into m_rgNeuronTypeMap.
-    // This is an spatial locality optimization - contiguous arrays usually cause
-    // fewer cache misses.
-    for (int i = 0; i < m_si.cNeurons; i++)
-    {
-        m_rgNeuronTypeMap[i] = (*randomDist)[i];
-        DEBUG2(cout << "neuron" << i << " as " << neuronTypeToString(m_rgNeuronTypeMap[i]) << endl;);
-    }
-
-    delete randomDist;
-    DEBUG(cout << "Done initializing neuron type map" << endl;);
-}
-
-/**
  * Populates the starter map.
  * Selects \e numStarter excitory neurons and converts them into starter neurons.
  * @pre m_rgNeuronTypeMap must already be properly initialized
@@ -447,71 +300,6 @@ void Network::initStarterMap()
 
         DEBUG(cout <<"Done randomly initializing starter map\n\n";)
     }
-}
-
-/**
- *  Creates a randomly ordered distribution with the specified numbers of neuron types.
- *  @returns A flat vector (to map to 2-d [x,y] = [i % m_width, i / m_width])
- */
-vector<neuronType>* Network::getNeuronOrder()
-{
-    vector<neuronType>* randomlyOrderedNeurons = new vector<neuronType>(0);
-
-    // create a vector of neuron types, defaulting to EXC
-    vector<neuronType> orderedNeurons(m_si.cNeurons, EXC);
-
-    if (m_fFixedLayout)
-    {
-        /* setup neuron types */
-        DEBUG(cout << "Total neurons: " << m_si.cNeurons << endl;)
-        DEBUG(cout << "Inhibitory Neurons: " << m_pInhibitoryNeuronLayout->size() << endl;)
-        DEBUG(cout << "Excitatory Neurons: " << (m_si.cNeurons - m_pInhibitoryNeuronLayout->size()) << endl;)
-
-        randomlyOrderedNeurons->resize(m_si.cNeurons);
-
-        for (int i = 0; i < m_si.cNeurons; i++)        
-            (*randomlyOrderedNeurons)[i] = EXC;        
-
-        for (size_t i = 0; i < m_pInhibitoryNeuronLayout->size(); i++)        
-            (*randomlyOrderedNeurons)[m_pInhibitoryNeuronLayout->at(i)] = INH;        
-    }
-    else
-    {
-        DEBUG(cout << "\nDetermining random ordering...\n";)
-
-        /* setup neuron types */
-        DEBUG(cout << "total neurons: " << m_si.cNeurons << endl;)
-        DEBUG(cout << "m_cInhibitoryNeurons: " << m_cInhibitoryNeurons << endl;)
-        DEBUG(cout << "m_cExcitoryNeurons: " << m_cExcitoryNeurons << endl;)
-
-        // set the correct number to INH
-        for (int i = 0; i < m_cInhibitoryNeurons; i++)        
-            orderedNeurons[i] = INH;        
-
-        // Shuffle ordered list into an unordered list
-        while (!orderedNeurons.empty())
-        {
-            int i = static_cast<int>(rng() * orderedNeurons.size());
-
-            neuronType t = orderedNeurons[i];
-            
-            DEBUG2(cout << "ordered neuron [" << i << "], type: " << orderedNeurons[i] << endl;)
-            DEBUG2(cout << " allocated to random neuron [" << randomlyOrderedNeurons->size() << "]" << endl;)
-
-            // add random neuron to back
-            randomlyOrderedNeurons->push_back(t);
-
-            vector<neuronType>::iterator it = orderedNeurons.begin(); // get iterator to ordered's front
-
-            for (int j = 0; j < i; j++) // move it forward until it is on the pushed neuron
-                it++;
-            
-            orderedNeurons.erase(it); // and remove that neuron from the ordered list
-        }
-
-        DEBUG(cout << "Done determining random ordering" << endl;)
-    }
-    return randomlyOrderedNeurons;
 }
 
 /**

@@ -102,9 +102,7 @@ void Simulator::advanceUntilGrowth(const int currentStep, const int maxGrowthSte
             count++;
         )
 
-        network->advanceNeurons(&sim_info);
-
-        network->advanceSynapses(&sim_info);
+        network->advance();
         g_simulationStep++;
     }
 }
