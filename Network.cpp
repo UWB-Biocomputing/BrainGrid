@@ -1,7 +1,7 @@
 /**
- *	@file Network.cpp
+ *  @file Network.cpp
  *
- *	@author Allan Ortiz & Cory Mayberry
+ *  @author Allan Ortiz & Cory Mayberry
  *
  *  @brief A grid of LIF Neurons and their interconnecting synapses.
  */
@@ -54,7 +54,7 @@ Network::Network(Model *model,
     
     // Initialize parameters of all neurons.
     //initNeuronTypeMap(); // TODO(derek) : delete
-    initStarterMap();
+    //initStarterMap(); // TODO(derek) : delete
     
     // init neurons
     // initNeurons(Iinject, Inoise, Vthresh, Vresting, Vreset, Vinit, starter_Vthresh, starter_Vreset); // TODO(derek) : delete
@@ -259,47 +259,6 @@ void Network::reset()
     m_si.pSummationMap = m_summationMap;
 
     DEBUG(cout << "\nExiting Network::reset()";)
-}
-
-/**
- * Populates the starter map.
- * Selects \e numStarter excitory neurons and converts them into starter neurons.
- * @pre m_rgNeuronTypeMap must already be properly initialized
- * @post m_pfStarterMap is populated.
- */
-void Network::initStarterMap()
-{
-    if (m_fFixedLayout)
-    {
-        for (size_t i = 0; i < m_pEndogenouslyActiveNeuronLayout->size(); i++)        
-            m_rgEndogenouslyActiveNeuronMap[m_pEndogenouslyActiveNeuronLayout->at(i)] = true;        
-    }
-    else
-    {
-        int starters_allocated = 0;
-
-        DEBUG(cout << "\nRandomly initializing starter map\n";);
-        DEBUG(cout << "Total neurons: " << m_si.cNeurons << endl;)
-        DEBUG(cout << "Starter neurons: " << m_cStarterNeurons << endl;)
-
-        // randomly set neurons as starters until we've created enough
-        while (starters_allocated < m_cStarterNeurons)
-        {
-            // Get a random integer
-            int i = static_cast<int>(rng.inRange(0, m_si.cNeurons));
-
-            // If the neuron at that index is excitatory and a starter map
-            // entry does not already exist, add an entry.
-            if (m_rgNeuronTypeMap[i] == EXC && m_rgEndogenouslyActiveNeuronMap[i] == false)
-            {
-                m_rgEndogenouslyActiveNeuronMap[i] = true;
-                starters_allocated++;
-                DEBUG(cout << "allocated EA neuron at random index [" << i << "]" << endl;);
-            }
-        }
-
-        DEBUG(cout <<"Done randomly initializing starter map\n\n";)
-    }
 }
 
 /**

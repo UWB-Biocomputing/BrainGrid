@@ -257,13 +257,13 @@ SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon,
  */
 void printParams() {
     cout << "\nPrinting parameters...\n";
-    cout << "frac_EXC:" << frac_EXC << " " << "starter_neurons:"
-         << starter_neurons << endl;
     cout << "poolsize x:" << poolsize[0]
          << " y:" << poolsize[1]
          << " z:" << poolsize[2]
          << endl;
 // TODO(derek) delete model parameters {
+    cout << "frac_EXC:" << frac_EXC << " " << "starter_neurons:"
+         << starter_neurons << endl;
     cout << "Interval of constant injected current: [" << Iinject[0]
          << ", " << Iinject[1] << "]"
          << endl;

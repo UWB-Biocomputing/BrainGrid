@@ -149,7 +149,8 @@ public:
 	//! True if a fixed layout has been provided
 	bool m_fFixedLayout;
 
-	vector<int>* m_pEndogenouslyActiveNeuronLayout;
+    // TODO(derek) : delete
+    vector<int>* m_pEndogenouslyActiveNeuronLayout;
 
 	vector<int>* m_pInhibitoryNeuronLayout;
 

@@ -89,7 +89,7 @@ void Simulator::advanceUntilGrowth(const int currentStep, const int maxGrowthSte
     uint64_t endStep = g_simulationStep
             + static_cast<uint64_t>(sim_info.stepDuration / sim_info.deltaT);
 
-    DEBUG2(network->printRadii(&sim_info);)
+    DEBUG2(network->printRadii(&sim_info);) // Generic model debug call
 
     while (g_simulationStep < endStep) {
         DEBUG(
