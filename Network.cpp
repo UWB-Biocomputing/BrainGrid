@@ -15,29 +15,22 @@ const string Network::MATRIX_INIT = "const";
  * @post The network is setup according to parameters and ready for simulation.
  */
 Network::Network(Model *model,
-        FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac,
-        ostream& new_stateout, istream& new_meminput, bool fReadMemImage, 
-        bool fFixedLayout, vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
+        FLOAT startFrac,
+        ostream& new_stateout, istream& new_meminput, bool fReadMemImage,
         SimulationInfo simInfo, ISimulation* sim) :
     
     m_model(model);
     
-    m_cExcitoryNeurons(static_cast<int>(simInfo.cNeurons * excFrac)), 
-    m_cInhibitoryNeurons(static_cast<int>(simInfo.cNeurons * inhFrac)), 
     m_cStarterNeurons(static_cast<int>(simInfo.cNeurons * startFrac)), 
     m_rgSynapseMap(NULL),
     m_summationMap(NULL),
     m_rgNeuronTypeMap(NULL),
-    m_rgEndogenouslyActiveNeuronMap(NULL),
     m_targetRate(new_targetRate),
     
     state_out(new_stateout),
     memory_in(new_meminput),
     m_fReadMemImage(fReadMemImage),
     
-    m_fFixedLayout(fFixedLayout),
-    m_pEndogenouslyActiveNeuronLayout(pEndogenouslyActiveNeuronLayout),
-    m_pInhibitoryNeuronLayout(pInhibitoryNeuronLayout),
     m_si(simInfo),
     m_sim(sim),  // =>ISIMULATION
     
@@ -58,7 +51,7 @@ Network::Network(Model *model,
     
     // init neurons
     // initNeurons(Iinject, Inoise, Vthresh, Vresting, Vreset, Vinit, starter_Vthresh, starter_Vreset); // TODO(derek) : delete
-    m_model->createAllNeurons(m_si.cNeurons, m_rgEndogenouslyActiveNeuronMap, neurons);
+    m_model->createAllNeurons(m_si.cNeurons, neurons);
     
     // Initialize neuron locations
     for (int i = 0; i < m_si.cNeurons; i++) {
@@ -196,10 +189,6 @@ void Network::printRadii(SimulationInfo* psi) const
 */
 void Network::freeResources()
 {
-    // Empty neuron list
-    if (m_rgEndogenouslyActiveNeuronMap != NULL) 
-		delete[] m_rgEndogenouslyActiveNeuronMap;
-
 	// Free neuron and synapse maps
     if (m_rgSynapseMap != NULL) {
 		for(int x = 0; x < m_si.cNeurons; x++) {

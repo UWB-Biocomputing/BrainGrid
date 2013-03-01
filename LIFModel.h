@@ -42,6 +42,7 @@ class LIFModel : public Model, TiXmlVisitor {
         FLOAT m_starter_Vreset[2];
         FLOAT m_new_targetRate;
         
+        //! True if a fixed layout has been provided
         bool m_fixed_layout;
         
         //! The starter existence map (T/F).

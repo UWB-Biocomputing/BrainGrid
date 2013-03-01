@@ -191,7 +191,7 @@ void LIFModel::neuron_to_string(AllNeurons &neurons, const int i) const
     return ss.str( );
 }
 
-void LIFModel::createAllNeurons(FLOAT num_neurons, bool *endogenously_active_neuron_map, AllNeurons &neurons) const
+void LIFModel::createAllNeurons(FLOAT num_neurons, AllNeurons &neurons) const
 {
     DEBUG(cout << "\nAllocating neurons..." << endl;)
     

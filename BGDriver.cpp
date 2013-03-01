@@ -116,22 +116,13 @@ int main(int argc, char* argv[]) {
         cerr << "! ERROR: failed during command line parse" << endl;
         exit(-1);
     }
-    if (!oad_simulation_parameters(stateInputFileName)) {
+    if (!load_simulation_parameters(stateInputFileName)) {
         cerr << "! ERROR: failed while parsing simulation parameters." << endl;
         exit(-1);
     }
 
     /*    verify that params were read correctly */
     DEBUG(printParams();)
-
-    /* open input and output files */
-    TiXmlDocument simDoc(stateInputFileName.c_str());
-    if (!simDoc.LoadFile()) {
-        cerr << "Failed loading simulation parameter file "
-             << stateInputFileName << ":" << "\n\t"
-             << simDoc.ErrorDesc() << endl;
-        return -1;
-    }
 
     // aquire the in/out file
     ofstream state_out(stateOutputFileName.c_str());
@@ -151,14 +142,10 @@ int main(int argc, char* argv[]) {
     // calculate the number of inhibitory, excitory, and endogenously active
     // neurons
     int numNeurons = poolsize[0] * poolsize[1];
-    int nInhNeurons = (int) ((1.0 - frac_EXC) * numNeurons + 0.5);
-    int nExcNeurons = numNeurons - nInhNeurons;
     int nStarterNeurons = 0;
     if (starter_flag)
         nStarterNeurons = (int) (starter_neurons * numNeurons + 0.5);
     // calculate their ratios, out of the whole
-    FLOAT inhFrac = nInhNeurons / (FLOAT) numNeurons;
-    FLOAT excFrac = nExcNeurons / (FLOAT) numNeurons;
     FLOAT startFrac = nStarterNeurons / (FLOAT) numNeurons;
 // } NMV-END
 
@@ -180,7 +167,7 @@ int main(int argc, char* argv[]) {
 
     // create the network
     Network network(model,
-            inhFrac, excFrac, startFrac,
+            startFrac,
             state_out, memory_in, fReadMemImage,
             fFixedLayout, &endogenouslyActiveNeuronLayout, &inhibitoryNeuronLayout,
             si, pSim);
@@ -262,25 +249,7 @@ void printParams() {
          << " z:" << poolsize[2]
          << endl;
 // TODO(derek) delete model parameters {
-    cout << "frac_EXC:" << frac_EXC << " " << "starter_neurons:"
-         << starter_neurons << endl;
-    cout << "Interval of constant injected current: [" << Iinject[0]
-         << ", " << Iinject[1] << "]"
-         << endl;
-    cout << "Interval of STD of (gaussian) noise current: [" << Inoise[0]
-         << ", " << Inoise[1] << "]\n";
-    cout << "Interval of firing threshold: [" << Vthresh[0] << ", "
-         << Vthresh[1] << "]\n";
-    cout << "Interval of asymptotic voltage (Vresting): [" << Vresting[0]
-         << ", " << Vresting[1] << "]\n";
-    cout << "Interval of reset voltage: [" << Vreset[0]
-         << ", " << Vreset[1] << "]\n";
-    cout << "Interval of initial membrance voltage: [" << Vinit[0]
-         << ", " << Vinit[1] << "]\n";
-    cout << "Starter firing threshold: [" << starter_vthresh[0]
-         << ", " << starter_vthresh[1] << "]\n";
-    cout << "Starter reset threshold: [" << starter_vreset[0]
-         << ", " << starter_vreset[1] << "]\n";
+    model->printParameters(cout);
 // }
 
     cout << "Growth parameters: " << endl << "\tepsilon: " << epsilon
@@ -292,6 +261,7 @@ void printParams() {
     cout << "\tTime between growth updates (in seconds): " << Tsim << endl;
     cout << "\tNumber of simulations to run: " << numSims << endl;
 
+    // TODO(derek) : move to #LIFModel
     if (fFixedLayout)
     {
         cout << "Layout parameters:" << endl;

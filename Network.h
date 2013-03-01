@@ -52,9 +52,8 @@ class Network
 public:
 	//! The constructor for Network.
 	Network(Model *model,
-            FLOAT inhFrac, FLOAT excFrac, FLOAT startFrac,
+            FLOAT startFrac,
             ostream& new_outstate,istream& new_meminput, bool fReadMemImage,
-            bool fFixedLayout, vector<int>* pEndogenouslyActiveNeuronLayout, vector<int>* pInhibitoryNeuronLayout,
             SimulationInfo simInfo, ISimulation* sim);
 	~Network();
 
@@ -110,12 +109,6 @@ public:
 	//! Output the m_pfStarterMap to a VectorMatrix.
 	void getStarterNeuronMatrix(VectorMatrix& starterNeurons);
 
-	//! The number of excitory neurons.
-	int m_cExcitoryNeurons;
-
-	//! The number of inhibitory neurons.
-	int m_cInhibitoryNeurons;
-
 	//! The number of endogenously active neurons.
 	int m_cStarterNeurons;
 
@@ -145,14 +138,6 @@ public:
 
 	//! True if dumped memory image is read before starting simulation. 
 	bool m_fReadMemImage;
-
-	//! True if a fixed layout has been provided
-	bool m_fFixedLayout;
-
-    // TODO(derek) : delete
-    vector<int>* m_pEndogenouslyActiveNeuronLayout;
-
-	vector<int>* m_pInhibitoryNeuronLayout;
 
 // -----------------------------------------------------------------------------
 
