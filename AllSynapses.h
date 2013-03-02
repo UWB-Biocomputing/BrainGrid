@@ -1,4 +1,3 @@
-
 #pragma once
 
 #ifndef _ALLSYNAPSES_H_
