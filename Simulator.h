@@ -15,7 +15,6 @@
 #include "global.h"
 #include "SimulationInfo.h"
 #include "Network.h"
-#include "NetworkUpdater.h"
 
 #include "include/Timer.h"
 

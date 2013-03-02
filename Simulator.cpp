@@ -32,8 +32,6 @@ void Simulator::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     // TODO(derek): choose better name after refactor.
     network->setup(growthStepDuration, maxGrowthSteps);
     
-    NetworkUpdater *updater = network->getUpdater();
-    
     // Main simulation loop - execute maxGrowthSteps
     for (int currentStep = 1; currentStep <= maxGrowthSteps; currentStep++) {
 
@@ -54,7 +52,7 @@ void Simulator::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 #ifdef PERFORMANCE_METRICS
         short_timer.start();
 #endif
-        updater->update(currentStep, network, &sim_info);
+        network->updateConnections(currentStep);
 
 #ifdef PERFORMANCE_METRICS
         t_host_adjustSynapses = short_timer.lap() / 1000.0f;
@@ -78,9 +76,6 @@ void Simulator::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     if (write_mem_image) {
         network->writeSimMemory(maxGrowthSteps, memory_out);
     }
-    
-    delete updater;
-    updater = NULL;
 }
 
 void Simulator::advanceUntilGrowth(const int currentStep, const int maxGrowthSteps)

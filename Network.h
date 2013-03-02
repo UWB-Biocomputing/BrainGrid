@@ -90,6 +90,9 @@ public:
     // TODO comment
     void advance();
     
+    // TODO comment
+    void updateConnections(const int currentStep);
+
     //! Get spike counts in prep for growth
     void getSpikeCounts(int neuron_count, int* spikeCounts);  // PLATFORM DEPENDENT
     

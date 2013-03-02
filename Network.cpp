@@ -114,7 +114,12 @@ void Network::advance()
     m_model->advance(m_si.cNeurons, neurons, synapses);
 }
 
-void Network::getSpikeCounts( int neuron_count, int *spikeCounts)
+void Network::updateConnections(const int currentStep)
+{
+    m_model->updateConnections(currentStep, m_si.cNeurons);
+}
+
+void Network::getSpikeCounts(int neuron_count, int *spikeCounts)
 {
     for (int i = 0; i < neuron_count; i++) {
         spikeCounts[i] = m_neuronList[i]->getSpikeCount();
