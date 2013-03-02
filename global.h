@@ -113,6 +113,7 @@ extern const FLOAT DEFAULT_U;
 //! The default synaptic efficiency.
 extern const FLOAT DEFAULT_delay_weight; // WHAT IS THIS?
 // } NMV-END
+
 //! Converts a 1-d index into a coordinate string.
 string index2dToString(int i, int width, int height);
 //! Converts a 2-d coordinate into a string.

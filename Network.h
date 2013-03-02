@@ -107,6 +107,14 @@ public:
 	//! Output the m_pfStarterMap to a VectorMatrix.
 	void getStarterNeuronMatrix(VectorMatrix& starterNeurons);
 
+// -----------------------------------------------------------------------------
+
+	Model *m_model;
+	AllNeurons neurons;
+	AllSynapses synapses;
+
+// -----------------------------------------------------------------------------
+
 	//! The number of endogenously active neurons.
 	int m_cStarterNeurons;
 
@@ -154,12 +162,6 @@ public:
     
     static const string MATRIX_TYPE;
     static const string MATRIX_INIT;
-    
-    Model *m_model;
-    AllNeurons neurons;
-    AllSynapses synapses;
-
-// -----------------------------------------------------------------------------
 
 private:
 	// Struct that holds information about a simulation

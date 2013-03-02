@@ -1,26 +1,30 @@
 #ifndef _MODEL_H_
 #define _MODEL_H_
 
+#include <iostream>
+
+using namespace std;
+
 #include "include/tinyxml.h"
 
 #include "global.h"
-
 #include "AllNeurons.h"
 #include "AllSynapses.h"
 
 class Model {
 
     public:
+		virtual ~Model() { }
         
         virtual bool readParameters(TiXmlElement *source) =0;
         
         virtual void printParameters(ostream &output) const;
         
-        virtual void createAllNeurons(FLOAT neuron_count, AllNeurons &neurons) =0;
+        virtual void createAllNeurons(const int num_neurons, AllNeurons &neurons) =0;
         
-        virtual void advance(FLOAT num_neurons, AllNeurons &neurons, AllSynapses &synapses) =0;
+        virtual void advance(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses) =0;
         
-        virtual void updateConnections() =0;
+        virtual void updateConnections(const int currentStep, const int num_neurons) =0;
 };
 
 #endif

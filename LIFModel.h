@@ -7,75 +7,118 @@
 
 using namespace std;
 
-class LIFModel : public Model, TiXmlVisitor {
+class LIFModel: public Model, TiXmlVisitor
+{
 
     public:
         LIFModel();
-        
+
         bool readParameters(TiXmlElement *source);
-        
+
         void printParameters(ostream &output) const;
-        
-        void createAllNeurons(const FLOAT count, AllNeurons &neurons);
-        
-        void advance(FLOAT num_neurons, AllNeurons &neurons, AllSynapses &synapses);
-        
-        void updateConnections();
-        
+
+        void createAllNeurons(const int num_neurons, AllNeurons& neurons);
+        void advance(const int num_neurons, AllNeurons& neurons, AllSynapses& synapses);
+        void updateConnections(const int currentStep, const int num_neurons);
+
     protected:
         // Visit an element.
         bool VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute);
-        
         // Visit an element.
         //bool VisitExit(const TiXmlElement& element);
-        
-        string neuron_to_string(AllNeurons &neurons, const int i) const;
+
+        string neuron_to_string(AllNeurons& neurons, const int i) const;
+
         void generate_neuron_type_map(neuronType neuron_types[], int num_neurons);
         void init_starter_map(const int num_neurons, const neuronType neuron_type_map[]);
 
-        void advanceNeurons(FLOAT num_neurons, AllNeurons &neurons, AllSynapses &synapses);
-        void advanceSynapses(FLOAT num_neurons, AllSynapses &synapses);
+        void advanceNeurons(int num_neurons, AllNeurons& neurons, AllSynapses& synapses);
+        void advanceSynapses(int num_neurons, AllSynapses& synapses);
 
-        void advanceNeuron(AllNeurons &neurons, int neuron_index, FLOAT& summationPoint);
-        void advanceSynapse(AllSynapses &synapses, int i, int z);
-    
+        void advanceNeuron(AllNeurons& neurons, int neuron_index, FLOAT& summationPoint);
+        void advanceSynapse(AllSynapses& synapses, int i, int z);
+
+        void updateHistory(int currentStep, FLOAT stepDuration, const int num_neurons);
+        void updateFrontiers(const int num_neurons);
+        void updateOverlap(FLOAT num_neurons);
+        void updateWeights(const int num_neurons, SimulationInfo* sim_info);
+
     private:
-        FLOAT m_Iinject[2];
-        FLOAT m_Inoise[2];
-        FLOAT m_Vthresh[2];
-        FLOAT m_Vresting[2];
-        FLOAT m_Vreset[2];
-        FLOAT m_Vinit[2];
-        FLOAT m_starter_Vthresh[2];
-        FLOAT m_starter_Vreset[2];
-        FLOAT m_new_targetRate;
-        
+        struct Connections;
+        struct GrowthParams
+        {
+                double epsilon;
+                double beta;
+                double rho;
+                double targetRate; // Spikes/second
+                double maxRate; // = targetRate / epsilon;
+                double minRadius; // To ensure that even rapidly-firing neurons will connect to
+                // other neurons, when within their RFS.
+                double startRadius; // No need to wait a long time before RFs start to overlap
+        };
+
+        double m_Iinject[2];
+        double m_Inoise[2];
+        double m_Vthresh[2];
+        double m_Vresting[2];
+        double m_Vreset[2];
+        double m_Vinit[2];
+        double m_starter_Vthresh[2];
+        double m_starter_Vreset[2];
+        double m_new_targetRate;
+
         //! True if a fixed layout has been provided
         bool m_fixed_layout;
-        
+
         //! The starter existence map (T/F).
         bool* m_endogenously_active_neuron_layout;
         vector<int> m_endogenously_active_neuron_list;
         vector<int> m_inhibitory_neuron_layout;
-        
-        FLOAT m_frac_starter_neurons;
-        FLOAT m_frac_excititory_neurons;
-        
-        bool starter_flag = true;  // true = use endogenously active neurons in simulation
-        
+
+        double m_frac_starter_neurons;
+        double m_frac_excititory_neurons;
+
+        bool starter_flag = true; // true = use endogenously active neurons in simulation
+
         // TODO : comment
         int m_read_params;
 
-        struct {
-        	FLOAT epsilon;
-        	FLOAT beta;
-        	FLOAT rho;
-        	FLOAT targetRate;  // Spikes/second
-        	FLOAT maxRate;  // = targetRate / epsilon;
-        	FLOAT minRadius;  // To ensure that even rapidly-firing neurons will connect to
-        	// other neurons, when within their RFS.
-        	FLOAT startRadius;  // No need to wait a long time before RFs start to overlap
-        } m_growth;
+        GrowthParams m_growth;
+        Connections *m_conns;
+};
+
+struct LIFModel::Connections
+{
+        static const string MATRIX_TYPE;
+        static const string MATRIX_INIT;
+
+        int *spikeCounts;
+
+        //! synapse weight
+        CompleteMatrix W;
+        //! neuron radii
+        VectorMatrix radii;
+        //! spiking rate
+        VectorMatrix rates;
+        //! Inter-neuron distance squared
+        CompleteMatrix dist2;
+        //! distance between connection frontiers
+        CompleteMatrix delta;
+        //! the true inter-neuron distance
+        CompleteMatrix dist;
+        //! areas of overlap
+        CompleteMatrix area;
+        //! neuron's outgrowth
+        VectorMatrix outgrowth;
+        //! displacement of neuron radii
+        VectorMatrix deltaR;
+
+        // track radii
+        CompleteMatrix radiiHistory; // state
+        // track firing rate
+        CompleteMatrix ratesHistory;
+
+        Connections(const int neuron_count, const FLOAT start_radius, const FLOAT maxGrowthSteps);
 };
 
 #endif
