@@ -66,7 +66,10 @@ public:
 	int spikeCount[];
 
 	//! The neuron type map (INH, EXC).
-	neuronType* rgNeuronType;
+	neuronType *neuron_type_map;
+
+	// List of summation points for each neuron
+	FLOAT *summation_map;
 };
 
 #endif

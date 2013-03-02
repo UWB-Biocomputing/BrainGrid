@@ -33,9 +33,10 @@ class LIFModel: public Model, TiXmlVisitor
         void init_starter_map(const int num_neurons, const neuronType neuron_type_map[]);
 
         void advanceNeurons(int num_neurons, AllNeurons& neurons, AllSynapses& synapses);
-        void advanceSynapses(int num_neurons, AllSynapses& synapses);
+        void advanceNeuron(AllNeurons& neurons, const int index, FLOAT &summationPoint);
+        void fire(AllNeurons &neurons, const int index);
 
-        void advanceNeuron(AllNeurons& neurons, int neuron_index, FLOAT& summationPoint);
+        void advanceSynapses(const int num_neurons, AllSynapses& synapses);
         void advanceSynapse(AllSynapses& synapses, int i, int z);
 
         void updateHistory(int currentStep, FLOAT stepDuration, const int num_neurons);

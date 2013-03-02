@@ -325,7 +325,7 @@ void LIFModel::generate_neuron_type_map(neuronType neuron_types[], int num_neuro
             types[m_inhibitory_neuron_layout.at(i)] = INH;
         }
     } else {
-        int num_excititory_neurons = (int) (frac_EXC * num_neurons + 0.5);
+        int num_excititory_neurons = (int) (m_frac_excititory_neurons * num_neurons + 0.5);
         int num_inhibitory_neurons = num_neurons - num_excititory_neurons;
         DEBUG(cout << "Total neurons: " << num_neurons << endl;)
         DEBUG(cout << "Inhibitory Neurons: " << num_inhibitory_neurons << endl;)
@@ -419,7 +419,7 @@ void LIFModel::advanceNeurons(int num_neurons, AllNeurons &neurons, AllSynapses 
     // For each neuron in the network
     for (int i = num_neurons - 1; i >= 0; --i) {
         // advance neurons
-        advanceNeuron(neurons, i, psi->pSummationMap[i]);
+        advanceNeuron(neurons, i, neurons.summation_map[i]);
 
         DEBUG2(cout << i << " " << neurons.Vm[i] << endl;)
 
@@ -452,30 +452,50 @@ void LIFModel::preSpikeHit(synapses[i], z)
     
 }
 
-void LIFModel::advanceNeuron(AllNeurons &neurons, int idx, FLOAT& summationPoint)
+void LIFModel::advanceNeuron(AllNeurons &neurons, const int index, FLOAT &summationPoint)
 {
-    if (neurons.nStepsInRefr[idx] > 0) { // is neuron refractory?
-        --neurons.nStepsInRefr[idx];
+    if (neurons.nStepsInRefr[index] > 0) { // is neuron refractory?
+        --neurons.nStepsInRefr[index];
     } else if (neurons.Vm >= neurons.Vthresh) { // should it fire?
-        fire( );
+        fire(neurons, index);
     } else {
-        summationPoint += neurons.I0[idx]; // add IO
+        summationPoint += neurons.I0[index]; // add IO
 #ifdef USE_OMP
         int tid = OMP(omp_get_thread_num());
-        summationPoint += ( (*rgNormrnd[tid])( ) * neurons.Inoise[idx] ); // add noise
+        summationPoint += ( (*rgNormrnd[tid])( ) * neurons.Inoise[index] ); // add noise
 #else
-        summationPoint += ( (*rgNormrnd[0])( ) * neurons.Inoise[idx] ); // add noise
+        summationPoint += ( (*rgNormrnd[0])( ) * neurons.Inoise[index] ); // add noise
 #endif
-        neurons.Vm[idx] = neurons.C1[idx] * neurons.Vm[idx] + neurons.C2[idx] * summationPoint; // decay Vm and add inputs
+        neurons.Vm[index] = neurons.C1[index] * neurons.Vm[index] + neurons.C2[index] * summationPoint; // decay Vm and add inputs
     }
     // clear synaptic input for next time step
     summationPoint = 0;
 }
 
+void LIFModel::fire(AllNeurons &neurons, int index)
+{
+    // Note that the neuron has fired!
+    neurons.hasFired[index] = true;
+
+#ifdef STORE_SPIKEHISTORY
+    // record spike time
+    spikeHistory.push_back(g_simulationStep);
+#endif // STORE_SPIKEHISTORY
+
+    // increment spike count
+    neurons.spikeCount[index]++;
+
+    // calculate the number of steps in the absolute refractory period
+    neurons.nStepsInRefr[index] = static_cast<int> ( neurons.Trefract[index] / neurons.deltaT[index] + 0.5 );
+
+    // reset to 'Vreset'
+    neurons.Vm[index] = neurons.Vreset[index];
+}
+
 /**
  * @param[in] psi - Pointer to the simulation information.
  */
-void LIFModel::advanceSynapses(FLOAT num_neurons, AllSynapses &synapses)
+void LIFModel::advanceSynapses(const int num_neurons, AllSynapses &synapses)
 {
     for (int i = num_neurons - 1; i >= 0; --i) {
         for (int z = synapses.size - 1; z >= 0; --z) {
@@ -642,7 +662,7 @@ void LIFModel::updateWeights(const int num_neurons, SimulationInfo* sim_info)
 			bool connected = false;
 
 			// for each existing synapse
-			for (size_t syn = 0; syn < sim_info->rgSynapseMap[a].size(); syn++) {
+			for (size_t syn = 0; syn < synapses.size[a]; syn++) {
 				// if there is a synapse between a and b
 				if (sim_info->rgSynapseMap[a][syn]->summationCoord == bCoord) {
 					connected = true;
@@ -651,13 +671,14 @@ void LIFModel::updateWeights(const int num_neurons, SimulationInfo* sim_info)
 					// adjust the strength of the synapse or remove
 					// it from the synapse map if it has gone below
 					// zero.
-					if (W(a, b) < 0) {
+					if (m_conns->W(a, b) < 0) {
 						removed++;
-						sim_info->rgSynapseMap[a].erase(sim_info->rgSynapseMap[a].begin() + syn);
+						erase_synapse(synapses[a][0],synapses[a][syn])
+						//sim_info->rgSynapseMap[a].erase(sim_info->rgSynapseMap[a].begin() + syn);
 					} else {
 						// adjust
 						// g_synapseStrengthAdjustmentConstant is 1.0e-8;
-						sim_info->rgSynapseMap[a][syn]->W = W(a, b) *
+					    synapses.W[a][syn] = m_conns->W(a, b) *
 							synSign(synType(sim_info, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant; // TODO( synSign in HostSim )
 
 						DEBUG2(cout << "weight of rgSynapseMap" <<
@@ -668,7 +689,7 @@ void LIFModel::updateWeights(const int num_neurons, SimulationInfo* sim_info)
 			}
 
 			// if not connected and weight(a,b) > 0, add a new synapse from a to b
-			if (!connected && (W(a, b) > 0)) {
+			if (!connected && (m_conns->W(a, b) > 0)) {
 				added++;
 
 				 // TODO( addSynapse,synSign, synType in HostSim )
