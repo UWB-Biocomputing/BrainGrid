@@ -16,10 +16,11 @@ const string Network::MATRIX_INIT = "const";
  */
 Network::Network(Model *model,
         FLOAT startFrac,
+        FLOAT new_targetRate,
         ostream& new_stateout, istream& new_meminput, bool fReadMemImage,
         SimulationInfo simInfo, ISimulation* sim) :
     
-    m_model(model);
+    m_model(model),
     
     m_cStarterNeurons(static_cast<int>(simInfo.cNeurons * startFrac)), 
     m_rgSynapseMap(NULL),
@@ -100,14 +101,9 @@ void Network::setup(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     }
 }
 
-NetworkUpdater* Network::getUpdater() const
-{
-    return new NetworkUpdater(m_si.cNeurons, m_si.startRadius, xloc, yloc);
-}
-
 void Network::finish(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 {
-    saveSimState(state_out, growthStepDuration, FLOAT growthStepDuration, FLOAT maxGrowthSteps);
+    saveSimState(state_out, growthStepDuration, maxGrowthSteps);
 
     // Terminate the simulator
     m_sim->term(&m_si); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
@@ -160,6 +156,7 @@ void Network::printRadii(SimulationInfo* psi) const
                     break;
                 case NTYPE_UNDEF:
                     assert(false);
+                    break;
             }
 
             ss << " " << radii[x + y * psi->width];
@@ -263,7 +260,7 @@ void Network::reset()
 * @param spikesHistory
 * @param Tsim
 */
-void Network::saveSimState(ostream& os, FLOAT Tsim, FLOAT growthStepDuration, FLOAT maxGrowthSteps)
+void Network::saveSimState(ostream& os, FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 {
     // Write XML header information:
     os << "<?xml version=\"1.0\" standalone=\"no\"?>" << endl
@@ -289,7 +286,7 @@ void Network::saveSimState(ostream& os, FLOAT Tsim, FLOAT growthStepDuration, FL
     os << "   " << yloc.toXML("yloc") << endl;
     
     //Write Neuron Types
-    VectorMatrix neuronTypes(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons, EXC);
+    VectorMatrix neuronTypes(MATRIX_TYPE, MATRIX_INIT, 1, m_si.cNeurons, EXC);
     getNeuronTypes(neuronTypes);
     os << "   " << neuronTypes.toXML("neuronTypes") << endl;
 
@@ -311,7 +308,7 @@ void Network::saveSimState(ostream& os, FLOAT Tsim, FLOAT growthStepDuration, FL
 
     // write time between growth cycles
     os << "   <Matrix name=\"Tsim\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
-    os << "   " << Tsim << endl;
+    os << "   " << growthStepDuration << endl;
     os << "</Matrix>" << endl;
 
     // write simulation end time

@@ -16,11 +16,11 @@ class Model {
         
         virtual void printParameters(ostream &output) const;
         
-        virtual void createAllNeurons(FLOAT neuron_count, AllNeurons &neurons) const =0;
+        virtual void createAllNeurons(FLOAT neuron_count, AllNeurons &neurons) =0;
         
-        virtual void advance(FLOAT neuron_count, AllNeurons &neurons, AllSynapses &synapses) =0;
+        virtual void advance(FLOAT num_neurons, AllNeurons &neurons, AllSynapses &synapses) =0;
         
-        virtual void updateConnections(Network &network) const =0;
+        virtual void updateConnections() =0;
 };
 
 #endif

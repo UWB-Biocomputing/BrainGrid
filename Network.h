@@ -53,6 +53,7 @@ public:
 	//! The constructor for Network.
 	Network(Model *model,
             FLOAT startFrac,
+            FLOAT new_targetRate,
             ostream& new_outstate,istream& new_meminput, bool fReadMemImage,
             SimulationInfo simInfo, ISimulation* sim);
 	~Network();
@@ -67,7 +68,7 @@ public:
 	void initStarterMap();
 
     //! Write the network state to an ostream.
-    void saveSimState(ostream& os, FLOAT Tsim, FLOAT growthStepDuration, FLOAT maxGrowthSteps);
+    void saveSimState(ostream& os, FLOAT growthStepDuration, FLOAT maxGrowthSteps);
     
     //! Write the simulation memory image to an ostream
     void writeSimMemory(FLOAT simulation_step, ostream& os);
@@ -80,14 +81,11 @@ public:
     // Setup simulation
     void setup(FLOAT growthStepDuration, FLOAT num_growth_steps);
     
-    // TODO comment
-    NetworkUpdater* getUpdater() const;
-    
     // Cleanup after simulation
     void finish(FLOAT growthStepDuration, FLOAT num_growth_steps);
     
     // TODO comment
-    void get_spike_history(VectorMatrix& burstinessHist, VectorMatrix& spikesHistory)
+    void get_spike_history(VectorMatrix& burstinessHist, VectorMatrix& spikesHistory);
     
     // TODO comment
     void advance();
@@ -158,6 +156,8 @@ public:
     static const string MATRIX_INIT;
     
     Model *m_model;
+    AllNeurons neurons;
+    AllSynapses synapses;
 
 // -----------------------------------------------------------------------------
 

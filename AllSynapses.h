@@ -9,7 +9,7 @@
 typedef unsigned _int8 uint8_t;
 #endif
 
-struct AllNeurons
+struct AllSynapses
 {
 public:
 	//! The coordinates of the summation point.
@@ -19,7 +19,7 @@ public:
     	FLOAT W[];
 
     	//! This synapse's summation point's address.
-    	FLOAT& summationPoint[];
+    	FLOAT *summationPoint[];
 
     	//! The location of the synapse.
     	Coordinate synapseCoord[];

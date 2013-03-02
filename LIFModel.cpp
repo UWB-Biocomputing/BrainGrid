@@ -1,12 +1,13 @@
 #include "LIFModel.h"
 
+#include "include/tinyxml.h"
+
 #include "ParseParamError.h"
 #include "Util.h"
 
 LIFModel::LIFModel() :
      m_read_params(0)
     ,m_fixed_layout(false)
-    ,num_starter_neurons(0)
 {
 
 }
@@ -16,8 +17,8 @@ bool LIFModel::readParameters(TiXmlElement *source)
     m_read_params = 0;
     try {
         source->Accept(this);
-    } catch (ParseParamError error) {
-        error.print(cerr);
+    } catch (ParseParamError &error) {
+        error.printError(cerr);
         cerr << endl;
         return false;
     }
@@ -99,33 +100,54 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
     }
 
     if (element.ValueStr().compare("starter_vthresh") == 0) {
-        if (element.QueryFLOATAttribute("min", &m_starter_vthresh[0]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("min", &m_starter_Vthresh[0]) != TIXML_SUCCESS) {
             throw ParseParamError("starter_vthresh min", "starter_vthresh missing minimum value in XML.");
         }
-        if (element.QueryFLOATAttribute("max", &m_starter_vthresh[1]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("max", &m_starter_Vthresh[1]) != TIXML_SUCCESS) {
             throw ParseParamError("starter_vthresh max", "starter_vthresh missing maximum value in XML.");
         }
         m_read_params++;
     }
 
     if (element.ValueStr().compare("starter_vreset") == 0) {
-        if (element.QueryFLOATAttribute("min", &m_starter_vreset[0]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("min", &m_starter_Vreset[0]) != TIXML_SUCCESS) {
             throw ParseParamError("starter_vreset min", "starter_vreset missing minimum value in XML.");
         }
-        if (element.QueryFLOATAttribute("max", &m_starter_vreset[1]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("max", &m_starter_Vreset[1]) != TIXML_SUCCESS) {
             throw ParseParamError("starter_vreset max", "starter_vreset missing maximum value in XML.");
         }
         m_read_params++;
     }
     
+    if (element.ValueStr().compare("GrowthParams") == 0) {
+		if (element.QueryFLOATAttribute("epsilon", &m_growth.epsilon) != TIXML_SUCCESS) {
+			throw ParseParamError("epsilon", "Growth param 'epsilon' missing in XML.");
+		}
+		if (element.QueryFLOATAttribute("beta", &m_growth.beta) != TIXML_SUCCESS) {
+			throw ParseParamError("beta", "Growth param 'beta' missing in XML.");
+		}
+		if (element.QueryFLOATAttribute("rho", &m_growth.rho) != TIXML_SUCCESS) {
+			throw ParseParamError("rho", "Growth param 'rho' missing in XML.");
+		}
+		if (element.QueryFLOATAttribute("targetRate", &m_growth.targetRate) != TIXML_SUCCESS) {
+			throw ParseParamError("targetRate", "Growth targetRate 'beta' missing in XML.");
+		}
+		if (element.QueryFLOATAttribute("minRadius", &m_growth.minRadius) != TIXML_SUCCESS) {
+			throw ParseParamError("minRadius", "Growth minRadius 'beta' missing in XML.");
+		}
+		if (element.QueryFLOATAttribute("startRadius", &m_growth.startRadius) != TIXML_SUCCESS) {
+			throw ParseParamError("startRadius", "Growth startRadius 'beta' missing in XML.");
+		}
+    }
+
     // Parse fixed layout (overrides random layouts)
     if (element.ValueStr().compare("FixedLayout") == 0) {
         m_fixed_layout = true;
 
         TiXmlNode* pNode = NULL;
-        while ((pNode = element->IterateChildren(pNode)) != NULL) {
+        while ((pNode = element.IterateChildren(pNode)) != NULL) {
             if (strcmp(pNode->Value(), "A") == 0)
-                getValueList(pNode->ToElement()->GetText(), &m_endogenously_active_neuron_layout);
+                getValueList(pNode->ToElement()->GetText(), &m_endogenously_active_neuron_list);
 
             else if (strcmp(pNode->Value(), "I") == 0)
                 getValueList(pNode->ToElement()->GetText(), &m_inhibitory_neuron_layout);
@@ -152,30 +174,52 @@ void LIFModel::printParameters(ostream &output) const
            << ", " << Iinject[1] << "]"
            << endl;
     output << "Interval of STD of (gaussian) noise current: [" << Inoise[0]
-           << ", " << Inoise[1] << "]\n";
+           << ", " << Inoise[1] << "]" << endl;
     output << "Interval of firing threshold: [" << Vthresh[0] << ", "
-           << Vthresh[1] << "]\n";
+           << Vthresh[1] << "]" << endl;
     output << "Interval of asymptotic voltage (Vresting): [" << Vresting[0]
-           << ", " << Vresting[1] << "]\n";
+           << ", " << Vresting[1] << "]" << endl;
     output << "Interval of reset voltage: [" << Vreset[0]
-           << ", " << Vreset[1] << "]\n";
+           << ", " << Vreset[1] << "]" << endl;
     output << "Interval of initial membrance voltage: [" << Vinit[0]
-           << ", " << Vinit[1] << "]\n";
+           << ", " << Vinit[1] << "]" << endl;
     output << "Starter firing threshold: [" << starter_vthresh[0]
-           << ", " << starter_vthresh[1] << "]\n";
+           << ", " << starter_vthresh[1] << "]" << endl;
     output << "Starter reset threshold: [" << starter_vreset[0]
-           << ", " << starter_vreset[1] << "]\n";
+           << ", " << starter_vreset[1] << "]" << endl;
+    cout << "Growth parameters: " << endl
+    		 << "\tepsilon: " << epsilon
+             << ", beta: " << beta << ", rho: " << rho
+             << ", targetRate: " << targetRate << "," << endl
+             << "\tminRadius: " << minRadius
+             << ", startRadius: " << startRadius
+             << endl;
+    if (fFixedLayout) {
+        cout << "Layout parameters:" << endl;
+
+        cout << "\tEndogenously active neuron positions: ";
+        for (size_t i = 0; i < endogenouslyActiveNeuronLayout.size(); i++)
+            cout << endogenouslyActiveNeuronLayout[i] << " ";
+
+        cout << endl;
+
+        cout << "\tInhibitory neuron positions: ";
+        for (size_t i = 0; i < inhibitoryNeuronLayout.size(); i++)
+            cout << inhibitoryNeuronLayout[i] << " ";
+
+        cout << endl;
+    }
 }
 
 /**
  * @return the complete state of the neuron.
  */
-void LIFModel::neuron_to_string(AllNeurons &neurons, const int i) const
+string LIFModel::neuron_to_string(AllNeurons &neurons, const int i) const
 {
     stringstream ss;
     ss << "Cm: " << neurons.Cm[i] << " "; // membrane capacitance
     ss << "Rm: " << neurons.Rm[i] << " "; // membrane resistance
-    ss << "Vthresh: " << Vneurons.thresh[i] << " "; // if Vm exceeds, Vthresh, a spike is emitted
+    ss << "Vthresh: " << neurons.Vthresh[i] << " "; // if Vm exceeds, Vthresh, a spike is emitted
     ss << "Vrest: " << neurons.Vrest[i] << " "; // the resting membrane voltage
     ss << "Vreset: " << neurons.Vreset[i] << " "; // The voltage to reset Vm to after a spike
     ss << "Vinit: " << neurons.Vinit[i] << endl; // The initial condition for V_m at t=0
@@ -191,7 +235,7 @@ void LIFModel::neuron_to_string(AllNeurons &neurons, const int i) const
     return ss.str( );
 }
 
-void LIFModel::createAllNeurons(FLOAT num_neurons, AllNeurons &neurons) const
+void LIFModel::createAllNeurons(FLOAT num_neurons, AllNeurons &neurons)
 {
     DEBUG(cout << "\nAllocating neurons..." << endl;)
     
@@ -203,7 +247,7 @@ void LIFModel::createAllNeurons(FLOAT num_neurons, AllNeurons &neurons) const
         neurons.Iinject[i] = rng.inRange(m_Iinject[0], m_Iinject[1]);
         neurons.Inoise[i] = rng.inRange(m_Inoise[0], m_Inoise[1]);
         neurons.Vthresh[i] = rng.inRange(m_Vthresh[0], m_Vthresh[1]);
-        neurons.Vresting[i] = rng.inRange(m_Vresting[0], m_Vresting[1]);
+        neurons.Vrest[i] = rng.inRange(m_Vresting[0], m_Vresting[1]);
         neurons.Vreset[i] = rng.inRange(m_Vreset[0], m_Vreset[1]);
         neurons.Vinit[i] = rng.inRange(m_Vinit[0], m_Vinit[1]);
         neurons.deltaT[i] = m_si.deltaT);
@@ -226,10 +270,11 @@ void LIFModel::createAllNeurons(FLOAT num_neurons, AllNeurons &neurons) const
             default:
                 DEBUG2(cout << "ERROR: unknown neuron type: " << m_rgNeuronTypeMap[i] << "@" << i << endl;)
                 assert(false);
+                break;
         }
 
         // endogenously_active_neuron_map -> Model State
-        if (endogenously_active_neuron_map[i]) {
+        if (m_endogenously_active_neuron_layout[i]) {
             DEBUG2(cout << "setting endogenously active neuron properties" << endl;)
             // set endogenously active threshold voltage, reset voltage, and refractory period
             neurons.Vthresh[i] = rng.inRange(m_starter_Vthresh[0], m_starter_Vthresh[1]);
@@ -246,7 +291,7 @@ void LIFModel::createAllNeurons(FLOAT num_neurons, AllNeurons &neurons) const
  *  Creates a randomly ordered distribution with the specified numbers of neuron types.
  *  @returns A flat vector (to map to 2-d [x,y] = [i % m_width, i / m_width])
  */
-void Network::generate_neuron_type_map(neuronType neuron_types[], num_neurons)
+void LIFModel::generate_neuron_type_map(neuronType neuron_types[], int num_neurons)
 {
     //TODO: m_pInhibitoryNeuronLayout
     
@@ -258,18 +303,18 @@ void Network::generate_neuron_type_map(neuronType neuron_types[], num_neurons)
     }
     
     if (m_fixed_layout) {
-        int num_inhibitory_neurons = m_inhibitory_neuron_layout->size();
+        int num_inhibitory_neurons = m_inhibitory_neuron_layout.size();
         int num_excititory_neurons = num_neurons - num_inhibitory_neurons;
         DEBUG(cout << "Total neurons: " << num_neurons << endl;)
         DEBUG(cout << "Inhibitory Neurons: " << num_inhibitory_neurons << endl;)
         DEBUG(cout << "Excitatory Neurons: " << num_inhibitory_neurons << endl;)
         
         for (int i = 0; i < num_inhibitory_neurons; i++) {
-            types[m_pInhibitoryNeuronLayout->at(i)] = INH;
+            types[m_inhibitory_neuron_layout.at(i)] = INH;
         }
     } else {
         int num_excititory_neurons = (int) (frac_EXC * num_neurons + 0.5);
-        int num_inhibitory_neurons = numNeurons - nInhNeurons;
+        int num_inhibitory_neurons = num_neurons - num_excititory_neurons;
         DEBUG(cout << "Total neurons: " << num_neurons << endl;)
         DEBUG(cout << "Inhibitory Neurons: " << num_inhibitory_neurons << endl;)
         DEBUG(cout << "Excitatory Neurons: " << num_inhibitory_neurons << endl;)
@@ -283,7 +328,7 @@ void Network::generate_neuron_type_map(neuronType neuron_types[], num_neurons)
         }
         
         for (int i = num_inhibitory_neurons; i < num_neurons; i++) {
-            int j = static_cast<int>(rng() * orderedNeurons.size());
+            int j = static_cast<int>(rng() * num_neurons);
             if (j < num_inhibitory_neurons) {
                 rg_inhibitory_layout[j] = i;
             }
@@ -303,9 +348,9 @@ void Network::generate_neuron_type_map(neuronType neuron_types[], num_neurons)
  * @pre m_rgNeuronTypeMap must already be properly initialized
  * @post m_pfStarterMap is populated.
  */
-void LIFModel::init_starter_map(const int num_neurons, const neuron_type_map[])
+void LIFModel::init_starter_map(const int num_neurons, const neuronType neuron_type_map[])
 {
-    m_endogenously_active_neuron_layout = new bool[num_neurons]
+    m_endogenously_active_neuron_layout = new bool[num_neurons];
     for (int i = 0; i < num_neurons; i++) {
         m_endogenously_active_neuron_layout[i] = false;
     }
@@ -318,10 +363,10 @@ void LIFModel::init_starter_map(const int num_neurons, const neuron_type_map[])
     if (m_fixed_layout) {
         int num_endogenously_active_neurons = m_endogenously_active_neuron_list.size();
         for (size_t i = 0; i < num_endogenously_active_neurons; i++) {
-            m_endogenously_active_neuron_map[m_endogenously_active_neuron_list->at(i)] = true;
+            m_endogenously_active_neuron_layout[m_endogenously_active_neuron_list.at(i)] = true;
         }
     } else {
-        int num_starter_neurons = (int) (m_frac_starter_neurons * numNeurons + 0.5);
+        int num_starter_neurons = (int) (m_frac_starter_neurons * num_neurons + 0.5);
         int starters_allocated = 0;
 
         DEBUG(cout << "\nRandomly initializing starter map\n";);
@@ -346,17 +391,17 @@ void LIFModel::init_starter_map(const int num_neurons, const neuron_type_map[])
     }
 }
 
-void LIFModel::advance(FLOAT neuron_count, AllNeurons &neurons, AllSynapses &synapses)
+void LIFModel::advance(FLOAT num_neurons, AllNeurons &neurons, AllSynapses &synapses)
 {
-    advanceNeurons(neuron_count, neurons, synapses);
-    advanceSynapses(neuron_count, synapses);
+    advanceNeurons(num_neurons, neurons, synapses);
+    advanceSynapses(num_neurons, synapses);
 }
 
 /**
  * Notify outgoing synapses if neuron has fired.
  * @param[in] psi - Pointer to the simulation information.
  */
-void LIFModel::advanceNeurons(FLOAT num_neurons, AllNeurons &neurons, AllSynapses &synapses, SimulationInfo* psi)
+void LIFModel::advanceNeurons(FLOAT num_neurons, AllNeurons &neurons, AllSynapses &synapses)
 {
     // TODO: move this code into a helper class - it's being used in multiple places.
     // For each neuron in the network
@@ -395,21 +440,21 @@ void LIFModel::preSpikeHit(synapses[i], z)
     
 }
 
-void advanceNeuron(AllNeurons &neurons, int neuron_index, FLOAT& summationPoint)
+void LIFModel::advanceNeuron(AllNeurons &neurons, int idx, FLOAT& summationPoint)
 {
-    if (neurons.nStepsInRefr[i] > 0) { // is neuron refractory?
-        --nStepsInRefr;
+    if (neurons.nStepsInRefr[idx] > 0) { // is neuron refractory?
+        --neurons.nStepsInRefr[idx];
     } else if (neurons.Vm >= neurons.Vthresh) { // should it fire?
         fire( );
     } else {
-        summationPoint += I0; // add IO
+        summationPoint += neurons.I0[idx]; // add IO
 #ifdef USE_OMP
         int tid = OMP(omp_get_thread_num());
-        summationPoint += ( (*rgNormrnd[tid])( ) * neurons.Inoise[i] ); // add noise
+        summationPoint += ( (*rgNormrnd[tid])( ) * neurons.Inoise[idx] ); // add noise
 #else
-        summationPoint += ( (*rgNormrnd[0])( ) * neurons.Inoise[i] ); // add noise
+        summationPoint += ( (*rgNormrnd[0])( ) * neurons.Inoise[idx] ); // add noise
 #endif
-        neurons.Vm[i] = neurons.C1[i] * neurons.Vm[i] + neurons.C2[i] * summationPoint; // decay Vm and add inputs
+        neurons.Vm[idx] = neurons.C1[idx] * neurons.Vm[idx] + neurons.C2[idx] * summationPoint; // decay Vm and add inputs
     }
     // clear synaptic input for next time step
     summationPoint = 0;
@@ -418,18 +463,17 @@ void advanceNeuron(AllNeurons &neurons, int neuron_index, FLOAT& summationPoint)
 /**
  * @param[in] psi - Pointer to the simulation information.
  */
-void LIFModel::advanceSynapses(FLOAT num_neurons, AllSynapses *synapses)
+void LIFModel::advanceSynapses(FLOAT num_neurons, AllSynapses &synapses)
 {
     for (int i = num_neurons - 1; i >= 0; --i) {
         for (int z = synapses.size - 1; z >= 0; --z) {
             // Advance Synapse
-            advanceSynapse()
-            psi->rgSynapseMap[i][z]->advance();
+            advanceSynapse(synapses, i, z);
         }
     }
 }
 
-void LIFModel::advanceSynapse(AllSynapses &synapses, int i)
+void LIFModel::advanceSynapse(AllSynapses &synapses, int i, int z)
 {
     // is an input in the queue?
     if (isSpikeQueue()) {
@@ -456,7 +500,7 @@ void LIFModel::advanceSynapse(AllSynapses &synapses, int i)
 #endif
 }
 
-void LIFModel::updateConnections(Network &network) const
+void LIFModel::updateConnections()
 {
     
 }

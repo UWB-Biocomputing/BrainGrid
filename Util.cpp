@@ -5,7 +5,7 @@
 /**
  * Helper function that helps with parsing integers in a fixed layout
  */
-void getValueList(const string &val_string, vector<int> *value_list) {
+void getValueList(const char *val_string, vector<int> *value_list) {
     std::istringstream val_stream(val_string);
     int i;
 

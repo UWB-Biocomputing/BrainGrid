@@ -53,34 +53,13 @@ Model *model = NULL;
 
 // TODO(derek) : delete ::
 // NETWORK MODEL VARIABLES NMV-BEGIN {
-FLOAT frac_EXC;  // Fraction of excitatory neurons
-FLOAT Iinject[2];  // [A] Interval of constant injected current
-FLOAT Inoise[2];  // [A] Interval of STD of (gaussian) noise current
-FLOAT Vthresh[2];  // [V] Interval of firing threshold
-FLOAT Vresting[2];  // [V] Interval of asymptotic voltage
-FLOAT Vreset[2];  // [V] Interval of reset voltage
-FLOAT Vinit[2];  // [V] Interval of initial membrance voltage
 bool starter_flag = true;  // true = use endogenously active neurons in simulation
 FLOAT starter_neurons;  // percent of endogenously active neurons
-FLOAT starter_vthresh[2];  // default Vthresh is 15e-3
-FLOAT starter_vreset[2];  // Interval of reset voltage
 // } NMV-END
 
 bool fFixedLayout;  // True if a fixed layout has been provided; neuron positions
                     // are passed in endogenouslyActiveNeuronLayout and
                     // inhibitoryNeuronLayout
-
-// NETWORK MODEL VARIABLES NMV-BEGIN {
-// Paramters for growth
-FLOAT epsilon;
-FLOAT beta;
-FLOAT rho;
-FLOAT targetRate;  // Spikes/second
-FLOAT maxRate;  // = targetRate / epsilon;
-FLOAT minRadius;  // To ensure that even rapidly-firing neurons will connect to
-// other neurons, when within their RFS.
-FLOAT startRadius;  // No need to wait a long time before RFs start to overlap
-// } NMV-END
 
 // Simulation Parameters
 FLOAT Tsim;  // Simulation time (s) (between growth updates) rename: epochLength
@@ -97,10 +76,9 @@ SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon,
     int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT, long seed);
 bool load_simulation_parameters(const string &sim_param_filename);
 void LoadSimParms(TiXmlElement*);
-void SaveSimState(ostream &);
+//void SaveSimState(ostream &);
 void printParams();
 bool parseCommandLine(int argc, char* argv[]);
-void getValueList(const string& valString, vector<int>* pList);
 
 /**
  * Main for Simulator. Handles command line arguments and loads parameters
@@ -149,8 +127,8 @@ int main(int argc, char* argv[]) {
     FLOAT startFrac = nStarterNeurons / (FLOAT) numNeurons;
 // } NMV-END
 
-    SimulationInfo si = makeSimulationInfo(poolsize[0], poolsize[1], epsilon,
-            beta, rho, maxRate, minRadius, startRadius, Tsim, numSims,
+    SimulationInfo si = makeSimulationInfo(poolsize[0], poolsize[1], 0,
+            0, 0, 0, 0, 0, Tsim, numSims,
             maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed);
 
     // Get an ISimulation object
@@ -175,7 +153,9 @@ int main(int argc, char* argv[]) {
     time_t start_time, end_time;
     time(&start_time);
 
-    network.simulate(Tsim, numSims);
+    Simulator simulator(&network, si, fWriteMemImage, memory_out);
+
+    simulator.simulate(Tsim, numSims);
 
     delete pSim;
     rgNormrnd.clear();
@@ -248,37 +228,12 @@ void printParams() {
          << " y:" << poolsize[1]
          << " z:" << poolsize[2]
          << endl;
-// TODO(derek) delete model parameters {
-    model->printParameters(cout);
-// }
-
-    cout << "Growth parameters: " << endl << "\tepsilon: " << epsilon
-         << ", beta: " << beta << ", rho: " << rho
-         << ", targetRate: " << targetRate << ",\n\tminRadius: " << minRadius
-         << ", startRadius: " << startRadius
-         << endl;
     cout << "Simulation Parameters:\n";
     cout << "\tTime between growth updates (in seconds): " << Tsim << endl;
     cout << "\tNumber of simulations to run: " << numSims << endl;
 
-    // TODO(derek) : move to #LIFModel
-    if (fFixedLayout)
-    {
-        cout << "Layout parameters:" << endl;
-
-        cout << "\tEndogenously active neuron positions: ";
-        for (size_t i = 0; i < endogenouslyActiveNeuronLayout.size(); i++)
-            cout << endogenouslyActiveNeuronLayout[i] << " ";
-
-        cout << endl;
-
-        cout << "\tInhibitory neuron positions: ";
-        for (size_t i = 0; i < inhibitoryNeuronLayout.size(); i++)
-            cout << inhibitoryNeuronLayout[i] << " ";
-
-        cout << endl;
-    }
-
+    cout << "Model Parameters:" << endl;
+    model->printParameters(cout);
     cout << "Done printing parameters" << endl;
 }
 
@@ -305,7 +260,7 @@ bool load_simulation_parameters(const string &sim_param_filename)
     try {
         LoadSimParms(parms);
         model->readParameters(parms);
-    } catch (KII_exception e) {
+    } catch (KII_exception &e) {
         cerr << "Failure loading simulation parameters from file "
              << sim_param_filename << ":\n\t" << e.what()
              << endl;
@@ -332,20 +287,6 @@ void LoadSimParms(TiXmlElement* parms)
     // parameters as each one's element is found, but the code is
     // simpler this way and the performance penalty is insignificant.
 
-    if ((temp = parms->FirstChildElement("LsmParams")) != NULL) {
-        if (temp->QueryFLOATAttribute("frac_EXC", &frac_EXC) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error frac_EXC" << endl;
-        }
-        if (temp->QueryFLOATAttribute("starter_neurons", &starter_neurons) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error starter_neurons" << endl;
-        }
-    } else {
-        fSet = false;
-        cerr << "missing LsmParams" << endl;
-    }
-
     if ((temp = parms->FirstChildElement("PoolSize")) != NULL) {
         if (temp->QueryIntAttribute("x", &poolsize[0]) != TIXML_SUCCESS) {
             fSet = false;
@@ -362,148 +303,6 @@ void LoadSimParms(TiXmlElement* parms)
     } else {
         fSet = false;
         cerr << "missing PoolSize" << endl;
-    }
-
-    if ((temp = parms->FirstChildElement("Iinject")) != NULL) {
-        if (temp->QueryFLOATAttribute("min", &Iinject[0]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error Iinject min" << endl;
-        }
-        if (temp->QueryFLOATAttribute("max", &Iinject[1]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error Iinject max" << endl;
-        }
-    } else {
-        fSet = false;
-        cerr << "missing Iinject" << endl;
-    }
-
-    if ((temp = parms->FirstChildElement("Inoise")) != NULL) {
-        if (temp->QueryFLOATAttribute("min", &Inoise[0]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error Inoise min" << endl;
-        }
-        if (temp->QueryFLOATAttribute("max", &Inoise[1]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error Inoise max" << endl;
-        }
-    } else {
-        fSet = false;
-        cerr << "missing Inoise" << endl;
-    }
-
-    if ((temp = parms->FirstChildElement("Vthresh")) != NULL) {
-        if (temp->QueryFLOATAttribute("min", &Vthresh[0]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error Vthresh min" << endl;
-        }
-        if (temp->QueryFLOATAttribute("max", &Vthresh[1]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error Vthresh min" << endl;
-        }
-    } else {
-        fSet = false;
-        cerr << "missing Vthresh" << endl;
-    }
-
-    if ((temp = parms->FirstChildElement("Vresting")) != NULL) {
-        if (temp->QueryFLOATAttribute("min", &Vresting[0]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error Vresting min" << endl;
-        }
-        if (temp->QueryFLOATAttribute("max", &Vresting[1]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error Vresting max" << endl;
-        }
-    } else {
-        fSet = false;
-        cerr << "missing Vresting" << endl;
-    }
-
-    if ((temp = parms->FirstChildElement("Vreset")) != NULL) {
-        if (temp->QueryFLOATAttribute("min", &Vreset[0]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error Vreset min" << endl;
-        }
-        if (temp->QueryFLOATAttribute("max", &Vreset[1]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error Vreset max" << endl;
-        }
-    } else {
-        fSet = false;
-        cerr << "missing Vreset" << endl;
-    }
-
-    if ((temp = parms->FirstChildElement("Vinit")) != NULL) {
-        if (temp->QueryFLOATAttribute("min", &Vinit[0]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error Vinit min" << endl;
-        }
-        if (temp->QueryFLOATAttribute("max", &Vinit[1]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error Vinit max" << endl;
-        }
-    } else {
-        fSet = false;
-        cerr << "missing Vinit" << endl;
-    }
-
-    if ((temp = parms->FirstChildElement("starter_vthresh")) != NULL) {
-        if (temp->QueryFLOATAttribute("min", &starter_vthresh[0]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error starter_vthresh min" << endl;
-        }
-        if (temp->QueryFLOATAttribute("max", &starter_vthresh[1]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error starter_vthresh max" << endl;
-        }
-    } else {
-        fSet = false;
-        cerr << "missing starter_vthresh" << endl;
-    }
-
-    if ((temp = parms->FirstChildElement("starter_vreset")) != NULL) {
-        if (temp->QueryFLOATAttribute("min", &starter_vreset[0]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error starter_vreset min" << endl;
-        }
-        if (temp->QueryFLOATAttribute("max", &starter_vreset[1]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error starter_vreset max" << endl;
-        }
-    } else {
-        fSet = false;
-        cerr << "missing starter_vreset" << endl;
-    }
-
-    if ((temp = parms->FirstChildElement("GrowthParams")) != NULL) {
-        if (temp->QueryFLOATAttribute("epsilon", &epsilon) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error epsilon" << endl;
-        }
-        if (temp->QueryFLOATAttribute("beta", &beta) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error beta" << endl;
-        }
-        if (temp->QueryFLOATAttribute("rho", &rho) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error rho" << endl;
-        }
-        if (temp->QueryFLOATAttribute("targetRate", &targetRate) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error targetRate" << endl;
-        }
-        if (temp->QueryFLOATAttribute("minRadius", &minRadius) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error minRadius" << endl;
-        }
-        if (temp->QueryFLOATAttribute("startRadius", &startRadius) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error startRadius" << endl;
-        }
-    } else {
-        fSet = false;
-        cerr << "missing GrowthParams" << endl;
     }
 
     if ((temp = parms->FirstChildElement("SimParams")) != NULL) {
@@ -548,42 +347,9 @@ void LoadSimParms(TiXmlElement* parms)
         cerr << "missing Seed" << endl;
     }
 
-    // Parse fixed layout (overrides random layouts)
-    if ((temp = parms->FirstChildElement("FixedLayout")) != NULL)
-    {
-        TiXmlNode* pNode = NULL;
-
-        fFixedLayout = true;
-
-        while ((pNode = temp->IterateChildren(pNode)) != NULL)
-        {
-            if (strcmp(pNode->Value(), "A") == 0)
-                getValueList(pNode->ToElement()->GetText(), &endogenouslyActiveNeuronLayout);
-
-            else if (strcmp(pNode->Value(), "I") == 0)
-                getValueList(pNode->ToElement()->GetText(), &inhibitoryNeuronLayout);
-        }
-    }
-
     // Ideally, an error message would be output for each failed Query
     // above, but that's just too much code for me right now.
     if (!fSet) throw KII_exception("Failed to initialize one or more simulation parameters; check XML");
-}
-
-/**
- * Helper function that helps with parsing integers in a fixed layout
- */
-void getValueList(const string& valString, vector<int>* pList)
-{
-    std::istringstream valStream(valString);
-    int i;
-
-    // Parse integers out of the string and add them to a list
-    while (valStream.good())
-    {
-        valStream >> i;
-        pList->push_back(i);
-    }
 }
 
 /**
@@ -636,4 +402,3 @@ bool parseCommandLine(int argc, char* argv[])
 #endif  // USE_GPU
     return true;
 }
-

@@ -16,11 +16,11 @@ class LIFModel : public Model, TiXmlVisitor {
         
         void printParameters(ostream &output) const;
         
-        void createAllNeurons(const FLOAT count, AllNeurons &neurons) const;
+        void createAllNeurons(const FLOAT count, AllNeurons &neurons);
         
-        void advance(FLOAT neuron_count, AllNeurons &neurons, AllSynapses &synapses);
+        void advance(FLOAT num_neurons, AllNeurons &neurons, AllSynapses &synapses);
         
-        void updateConnections(Network &network) const;
+        void updateConnections();
         
     protected:
         // Visit an element.
@@ -29,7 +29,15 @@ class LIFModel : public Model, TiXmlVisitor {
         // Visit an element.
         //bool VisitExit(const TiXmlElement& element);
         
-        void neuron_to_string(AllNeurons &neurons, const int i) const;
+        string neuron_to_string(AllNeurons &neurons, const int i) const;
+        void generate_neuron_type_map(neuronType neuron_types[], int num_neurons);
+        void init_starter_map(const int num_neurons, const neuronType neuron_type_map[]);
+
+        void advanceNeurons(FLOAT num_neurons, AllNeurons &neurons, AllSynapses &synapses);
+        void advanceSynapses(FLOAT num_neurons, AllSynapses &synapses);
+
+        void advanceNeuron(AllNeurons &neurons, int neuron_index, FLOAT& summationPoint);
+        void advanceSynapse(AllSynapses &synapses, int i, int z);
     
     private:
         FLOAT m_Iinject[2];
@@ -57,6 +65,17 @@ class LIFModel : public Model, TiXmlVisitor {
         
         // TODO : comment
         int m_read_params;
+
+        struct {
+        	FLOAT epsilon;
+        	FLOAT beta;
+        	FLOAT rho;
+        	FLOAT targetRate;  // Spikes/second
+        	FLOAT maxRate;  // = targetRate / epsilon;
+        	FLOAT minRadius;  // To ensure that even rapidly-firing neurons will connect to
+        	// other neurons, when within their RFS.
+        	FLOAT startRadius;  // No need to wait a long time before RFs start to overlap
+        } m_growth;
 };
 
 #endif
