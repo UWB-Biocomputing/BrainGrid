@@ -55,7 +55,7 @@ public:
             FLOAT startFrac,
             FLOAT new_targetRate,
             ostream& new_outstate,istream& new_meminput, bool fReadMemImage,
-            SimulationInfo simInfo, ISimulation* sim);
+            SimulationInfo simInfo);
 	~Network();
 
 	//! Frees dynamically allocated memory associated with the maps.
@@ -170,12 +170,6 @@ private:
 	// Struct that holds information about a simulation
 	SimulationInfo m_si;
 
-	// Simulator
-	ISimulation* m_sim;
-
-	//! Used to track the running simulation time.
-	Timer m_timer;
-	Timer m_short_timer;
 	Network();
 };
 #endif // _NETWORK_H_

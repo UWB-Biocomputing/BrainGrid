@@ -18,7 +18,7 @@ Network::Network(Model *model,
         FLOAT startFrac,
         FLOAT new_targetRate,
         ostream& new_stateout, istream& new_meminput, bool fReadMemImage,
-        SimulationInfo simInfo, ISimulation* sim) :
+        SimulationInfo simInfo) :
     
     m_model(model),
     
@@ -33,7 +33,6 @@ Network::Network(Model *model,
     m_fReadMemImage(fReadMemImage),
     
     m_si(simInfo),
-    m_sim(sim),  // =>ISIMULATION
     
     
     radii(MATRIX_TYPE, MATRIX_INIT, 1, simInfo.cNeurons),
@@ -46,12 +45,6 @@ Network::Network(Model *model,
     // init data structures
     reset();
     
-    // Initialize parameters of all neurons.
-    //initNeuronTypeMap(); // TODO(derek) : delete
-    //initStarterMap(); // TODO(derek) : delete
-    
-    // init neurons
-    // initNeurons(Iinject, Inoise, Vthresh, Vresting, Vreset, Vinit, starter_Vthresh, starter_Vreset); // TODO(derek) : delete
     m_model->createAllNeurons(m_si.cNeurons, neurons);
     
     // Initialize neuron locations
@@ -106,7 +99,34 @@ void Network::finish(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
     saveSimState(state_out, growthStepDuration, maxGrowthSteps);
 
     // Terminate the simulator
-    m_sim->term(&m_si); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
+    term(&m_si); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
+}
+
+/**
+ * Terminate process.
+ * @param[in] psi   Pointer to the simulation information.
+ */
+void Network::term(SimulationInfo* psi)
+{
+    LifNeuron_struct* neuron_st;
+    DynamicSpikingSynapse_struct* synapse_st;
+
+    // Allocate memory
+    int neuron_count = psi->cNeurons;
+    allocNeuronStruct(neuron_st, neuron_count);
+    allocSynapseStruct(synapse_st, neuron_count * psi->maxSynapsesPerNeuron);
+
+    // copy device synapse and neuron structs to host memory
+    copySynapseDeviceToHost( synapse_st, neuron_count * psi->maxSynapsesPerNeuron );
+    copyNeuronDeviceToHost( neuron_st, neuron_count );
+
+    // copy synapse and neuron arrays back into their respectrive maps
+    synapseArrayToMap(synapse_st, psi->rgSynapseMap, psi->cNeurons, psi->maxSynapsesPerNeuron);
+    neuronArrayToMap(neuron_st, psi->pNeuronList, psi->cNeurons);
+
+    // delete the arrays
+    deleteNeuronStruct(neuron_st);
+    deleteSynapseStruct(synapse_st);
 }
 
 void Network::advance()
@@ -116,7 +136,7 @@ void Network::advance()
 
 void Network::updateConnections(const int currentStep)
 {
-    m_model->updateConnections(currentStep, m_si.cNeurons);
+    m_model->updateConnections(currentStep, m_si.cNeurons, synapses);
 }
 
 void Network::getSpikeCounts(int neuron_count, int *spikeCounts)
@@ -414,7 +434,9 @@ void Network::readSimMemory(istream& is, VectorMatrix& radii, VectorMatrix& rate
 
     // read the rates
     for (int i = 0; i < m_si.cNeurons; i++)    
-        is.read(reinterpret_cast<char*>(&rates[i]), sizeof(FLOAT));    
+        is.read(reinterpret_cast<char*>(&rates[i]), sizeof(FLOAT));
+
+    m_model->loadState(is, cNeurons, neurons, synapses);
 }
 
 /**

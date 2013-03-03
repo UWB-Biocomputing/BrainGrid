@@ -14,12 +14,11 @@ class LIFModel: public Model, TiXmlVisitor
         LIFModel();
 
         bool readParameters(TiXmlElement *source);
-
         void printParameters(ostream &output) const;
-
         void createAllNeurons(const int num_neurons, AllNeurons& neurons);
+        void loadState(istream& input, const int num_neurons, AllNeurons &neurons, AllSynapses &synapses);
         void advance(const int num_neurons, AllNeurons& neurons, AllSynapses& synapses);
-        void updateConnections(const int currentStep, const int num_neurons);
+        void updateConnections(const int currentStep, const int num_neurons, AllSynapses &synapses);
 
     protected:
         // Visit an element.
@@ -32,17 +31,22 @@ class LIFModel: public Model, TiXmlVisitor
         void generate_neuron_type_map(neuronType neuron_types[], int num_neurons);
         void init_starter_map(const int num_neurons, const neuronType neuron_type_map[]);
 
+        void read_neuron(istream& input, AllNeurons &neurons, const int index)
+
         void advanceNeurons(int num_neurons, AllNeurons& neurons, AllSynapses& synapses);
-        void advanceNeuron(AllNeurons& neurons, const int index, FLOAT &summationPoint);
+        void advanceNeuron(AllNeurons& neurons, const int index);
         void fire(AllNeurons &neurons, const int index);
+        void preSpikeHit(AllSynapses &synapses, const int group_index, const int synapse_index);
 
         void advanceSynapses(const int num_neurons, AllSynapses& synapses);
-        void advanceSynapse(AllSynapses& synapses, int i, int z);
+        void advanceSynapse(AllSynapses& synapses, const int group_index, const int synapse_index);
+        bool isSpikeQueue(AllSynapses &synapses, const int group_index, const int synapse_index)
 
         void updateHistory(int currentStep, FLOAT stepDuration, const int num_neurons);
         void updateFrontiers(const int num_neurons);
         void updateOverlap(FLOAT num_neurons);
-        void updateWeights(const int num_neurons, SimulationInfo* sim_info);
+        void updateWeights(const int num_neurons, AllSynapses &synapses, SimulationInfo* sim_info);
+        void erase_synapse(AllSynapses &synapses, const int group_index, const int start_syn, const int end_syn);
 
     private:
         struct Connections;

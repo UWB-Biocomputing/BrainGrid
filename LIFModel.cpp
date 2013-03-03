@@ -403,6 +403,55 @@ void LIFModel::init_starter_map(const int num_neurons, const neuronType neuron_t
     }
 }
 
+
+void LIFModel::loadState(istream& input, const int num_neurons, AllNeurons &neurons, AllSynapses &synapses)
+{
+    for (int i = 0; i < num_neurons; i++) {
+        read_neuron(input, neurons, i);
+    }
+
+    // read the synapse data & create synapses
+    int synapse_count;
+    is.read(reinterpret_cast<char*>(&synapse_count), sizeof(synapse_count));
+    for (int i = 0; i < synapse_count; i++) {
+    // read the synapse data and add it to the list
+        // create synapse
+        ISynapse* syn = new DynamicSpikingSynapse(is, m_summationMap, m_si.width);
+        m_rgSynapseMap[syn->summationCoord.x + syn->summationCoord.y * m_si.width].push_back(syn);
+    }
+
+    // read the radii
+    for (int i = 0; i < m_si.cNeurons; i++)
+        is.read(reinterpret_cast<char*>(&radii[i]), sizeof(FLOAT));
+
+    // read the rates
+    for (int i = 0; i < m_si.cNeurons; i++) {
+        is.read(reinterpret_cast<char*>(&rates[i]), sizeof(FLOAT));
+    }
+}
+
+void LIFModel::read_neuron(istream& input, AllNeurons &neurons, const int index)
+{
+    input >> neurons.deltaT[index];
+    input >> neurons.Cm[index];
+    input >> neurons.Rm[index];
+    input >> neurons.Vthresh[index];
+    input >> neurons.Vrest[index];
+    input >> neurons.Vreset[index];
+    input >> neurons.Vinit[index];
+    input >> neurons.Trefract[index];
+    input >> neurons.Inoise[index];
+    input >> neurons.Iinject[index];
+    input >> neurons.Isyn[index];
+    input >> neurons.nStepsInRefr[index];
+    input >> neurons.C1[index];
+    input >> neurons.C2[index];
+    input >> neurons.I0[index];
+    input >> neurons.Vm[index];
+    input >> neurons.hasFired[index];
+    input >> neurons.Tau[index];
+}
+
 void LIFModel::advance(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses)
 {
     advanceNeurons(num_neurons, neurons, synapses);
@@ -419,16 +468,14 @@ void LIFModel::advanceNeurons(int num_neurons, AllNeurons &neurons, AllSynapses 
     // For each neuron in the network
     for (int i = num_neurons - 1; i >= 0; --i) {
         // advance neurons
-        advanceNeuron(neurons, i, neurons.summation_map[i]);
-
-        DEBUG2(cout << i << " " << neurons.Vm[i] << endl;)
+        advanceNeuron(neurons, i);
 
         // notify outgoing synapses if neuron has fired
         if (neurons.hasFired[i]) {
             DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
 
-            for (int z = synapses[i].size - 1; z >= 0; --z) {
-                preSpikeHit(synapses[i], z);
+            for (int z = synapses.counts[i] - 1; z >= 0; --z) {
+                preSpikeHit(synapses, i, z);
             }
 
             neurons.hasFired[i] = false;
@@ -447,29 +494,33 @@ void LIFModel::advanceNeurons(int num_neurons, AllNeurons &neurons, AllSynapses 
 #endif /* DUMP_VOLTAGES */
 }
 
-void LIFModel::preSpikeHit(synapses[i], z)
+void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
 {
-    
-}
+    FLOAT &Vm = neurons.Vm[index];
+    FLOAT &Vthresh = neurons.Vthresh[index];
+    FLOAT &summationPoint = neurons.summation_map[index];
+    FLOAT &I0 = neurons.I0[index];
+    FLOAT &Inoise = neurons.Inoise[index];
+    FLOAT &C1 = neurons.C1[index];
+    FLOAT &C2 = neurons.C2[index];
+    int &nStepsInRefr = neurons.nStepsInRefr[index];
 
-void LIFModel::advanceNeuron(AllNeurons &neurons, const int index, FLOAT &summationPoint)
-{
-    if (neurons.nStepsInRefr[index] > 0) { // is neuron refractory?
-        --neurons.nStepsInRefr[index];
-    } else if (neurons.Vm >= neurons.Vthresh) { // should it fire?
+    if (nStepsInRefr > 0) {
+        // is neuron refractory?
+        --nStepsInRefr;
+    } else if (Vm >= Vthresh) {
+        // should it fire?
         fire(neurons, index);
     } else {
-        summationPoint += neurons.I0[index]; // add IO
-#ifdef USE_OMP
-        int tid = OMP(omp_get_thread_num());
-        summationPoint += ( (*rgNormrnd[tid])( ) * neurons.Inoise[index] ); // add noise
-#else
-        summationPoint += ( (*rgNormrnd[0])( ) * neurons.Inoise[index] ); // add noise
-#endif
-        neurons.Vm[index] = neurons.C1[index] * neurons.Vm[index] + neurons.C2[index] * summationPoint; // decay Vm and add inputs
+        summationPoint += I0; // add IO
+        // add noise
+        summationPoint += ((*rgNormrnd[0])() * Inoise); // add noise
+        Vm[index] = C1 * Vm[index] + C2 * summationPoint; // decay Vm and add inputs
     }
     // clear synaptic input for next time step
     summationPoint = 0;
+
+    DEBUG2(cout << i << " " << Vm << endl;)
 }
 
 void LIFModel::fire(AllNeurons &neurons, int index)
@@ -492,28 +543,60 @@ void LIFModel::fire(AllNeurons &neurons, int index)
     neurons.Vm[index] = neurons.Vreset[index];
 }
 
+void LIFModel::preSpikeHit(AllSynapses &synapses, const int group_index, const int synapse_index)
+{
+    uint32_t delay_queue[1] = synapses.delayQueue[group_index][synapse_index];
+    int &delayIdx = synapses.delayIdx[group_index][synapse_index];
+    int &ldelayQueue = synapses.ldelayQueue[group_index][synapse_index];
+    int &total_delay = synapses.total_delay[group_index][synapse_index];
+
+    // Add to spike queue
+
+    // calculate index where to insert the spike into delayQueue
+    int idx = delayIdx +  total_delay;
+    if ( idx >= ldelayQueue ) {
+        idx -= ldelayQueue;
+    }
+
+    // set a spike
+    assert( !(delay_queue[0] & (0x1 << idx)) );
+    delay_queue[0] |= (0x1 << idx);
+}
+
 /**
  * @param[in] psi - Pointer to the simulation information.
  */
 void LIFModel::advanceSynapses(const int num_neurons, AllSynapses &synapses)
 {
     for (int i = num_neurons - 1; i >= 0; --i) {
-        for (int z = synapses.size - 1; z >= 0; --z) {
+        for (int z = synapses.counts[i] - 1; z >= 0; --z) {
             // Advance Synapse
             advanceSynapse(synapses, i, z);
         }
     }
 }
 
-void LIFModel::advanceSynapse(AllSynapses &synapses, int i, int z)
+void LIFModel::advanceSynapse(AllSynapses &synapses, const int group_index, const int synapse_index)
 {
+    uint32_t &lastSpike = synapses.lastSpike[group_index][synapse_index];
+    FLOAT &deltaT = synapses.deltaT[group_index][synapse_index];
+    FLOAT &r = synapses.r[group_index][synapse_index];
+    FLOAT &u = synapses.u[group_index][synapse_index];
+    FLOAT &D = synapses.D[group_index][synapse_index];
+    FLOAT &F = synapses.F[group_index][synapse_index];
+    FLOAT &U = synapses.U[group_index][synapse_index];
+    FLOAT &W = synapses.W[group_index][synapse_index];
+    FLOAT &decay = synapses.decay[group_index][synapse_index];
+    FLOAT &psr = synapses.psr[group_index][synapse_index];
+    FLOAT &summationPoint = synapses.summationPoint[group_index][synapse_index];
+
     // is an input in the queue?
-    if (isSpikeQueue()) {
+    if (isSpikeQueue(synapses, group_index, synapse_index)) {
         // adjust synapse paramaters
         if (lastSpike != ULONG_MAX) {
             FLOAT isi = (g_simulationStep - lastSpike) * deltaT ;
             r = 1 + ( r * ( 1 - u ) - 1 ) * exp( -isi / D );
-            u = U + u * ( 1 - U ) * exp( -isi / F );
+            u = U + synapses.u * ( 1 - U ) * exp( -isi / F );
         }
         psr += ( ( W / decay ) * u * r );// calculate psr
         lastSpike = g_simulationStep; // record the time of the spike
@@ -530,6 +613,25 @@ void LIFModel::advanceSynapse(AllSynapses &synapses, int i, int z)
     //PAB: atomic above has implied flush (following statement generates error -- can't be member variable)
     //#pragma omp flush (summationPoint)
 #endif
+}
+
+/**
+ * Check if there is an input spike in the queue.
+ * @post The queue index is incremented.
+ * @return true if there is an input spike event.
+ */
+bool LIFModel::isSpikeQueue(AllSynapses &synapses, const int group_index, const int synapse_index)
+{
+    uint32_t delay_queue[1] = synapses.delayQueue[group_index][synapse_index];
+    int &delayIdx = synapses.delayIdx[group_index][synapse_index];
+    int &ldelayQueue = synapses.ldelayQueue[group_index][synapse_index];
+
+    bool r = delay_queue[0] & (0x1 << delayIdx);
+    delay_queue[0] &= ~(0x1 << delayIdx);
+    if ( ++delayIdx >= ldelayQueue ) {
+        delayIdx = 0;
+    }
+    return r;
 }
 
 void LIFModel::updateConnections(const int currentStep, const int num_neurons)
@@ -621,7 +723,7 @@ void LIFModel::updateOverlap(FLOAT num_neurons)
 					FLOAT angCAB = acos(cosCAB);
 					FLOAT angCAD = 2.0 * angCAB;
 
-					area(i, j) = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
+					m_conns->area(i, j) = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
 				}
 			}
 		}
@@ -631,7 +733,7 @@ void LIFModel::updateOverlap(FLOAT num_neurons)
 /**
  * Platform Dependent
  */
-void LIFModel::updateWeights(const int num_neurons, SimulationInfo* sim_info)
+void LIFModel::updateWeights(const int num_neurons, AllSynapses &synapses, SimulationInfo* sim_info)
 {
 
 	// For now, we just set the weights to equal the areas. We will later
@@ -662,7 +764,7 @@ void LIFModel::updateWeights(const int num_neurons, SimulationInfo* sim_info)
 			bool connected = false;
 
 			// for each existing synapse
-			for (size_t syn = 0; syn < synapses.size[a]; syn++) {
+			for (size_t syn = 0; syn < synapses.counts[a]; syn++) {
 				// if there is a synapse between a and b
 				if (sim_info->rgSynapseMap[a][syn]->summationCoord == bCoord) {
 					connected = true;
@@ -673,7 +775,7 @@ void LIFModel::updateWeights(const int num_neurons, SimulationInfo* sim_info)
 					// zero.
 					if (m_conns->W(a, b) < 0) {
 						removed++;
-						erase_synapse(synapses[a][0],synapses[a][syn])
+						erase_synapse(synapses, a, 0, syn);
 						//sim_info->rgSynapseMap[a].erase(sim_info->rgSynapseMap[a].begin() + syn);
 					} else {
 						// adjust
@@ -703,6 +805,11 @@ void LIFModel::updateWeights(const int num_neurons, SimulationInfo* sim_info)
 	DEBUG (cout << "could have been removed (TODO: calculate this): " << could_have_been_removed << endl;)
 	DEBUG (cout << "removed: " << removed << endl;)
 	DEBUG (cout << "added: " << added << endl << endl << endl;)
+}
+
+void LIFModel::erase_synapse(AllSynapses &synapses, const int group_index, const int start_syn, const int end_syn)
+{
+
 }
 
 const string LIFModel::Connections::MATRIX_TYPE = "complete";

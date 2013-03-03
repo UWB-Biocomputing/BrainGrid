@@ -22,9 +22,11 @@ class Model {
         
         virtual void createAllNeurons(const int num_neurons, AllNeurons &neurons) =0;
         
+        virtual void loadState(istream& input, const int num_neurons, AllNeurons &neurons, AllSynapses &synapses) =0;
+
         virtual void advance(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses) =0;
         
-        virtual void updateConnections(const int currentStep, const int num_neurons) =0;
+        virtual void updateConnections(const int currentStep, const int num_neurons, AllSynapses &synapses) =0;
 };
 
 #endif
