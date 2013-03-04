@@ -45,6 +45,9 @@ class Simulator
         
         // Advance simulation to next growth cycle
         void advanceUntilGrowth(const int currentStep, const int maxGrowthSteps);
+
+        void saveState(ostream &state_out) const;
+        void saveMemory(ostream &memory_out) const;
     
     private:
         Timer timer;
@@ -53,7 +56,7 @@ class Simulator
         Network *network;
         //NetworkUpdater updater;
         
-        SimulationInfo sim_info;
+        SimulationInfo m_sim_info;
         
         //! True if dumped memory image is written after simulation. 
         bool write_mem_image;

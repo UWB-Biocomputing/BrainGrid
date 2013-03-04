@@ -20,9 +20,13 @@ class Model {
         
         virtual void printParameters(ostream &output) const;
         
-        virtual void createAllNeurons(const int num_neurons, AllNeurons &neurons) =0;
+        virtual void loadState(istream& input, AllNeurons &neurons, AllSynapses &synapses) =0;
+
+        virtual void saveState(ostream& output, const AllNeurons &neurons, const SimulationInfo &sim_info) =0;
+
+        virtual void createAllNeurons(const int num_neurons, AllNeurons &neurons, const SimulationInfo &sim_info) =0;
         
-        virtual void loadState(istream& input, const int num_neurons, AllNeurons &neurons, AllSynapses &synapses) =0;
+        virtual void setupSim(const int num_neurons, const SimulationInfo &sim_info) =0;
 
         virtual void advance(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses) =0;
         

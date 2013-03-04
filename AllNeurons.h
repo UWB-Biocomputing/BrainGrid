@@ -70,6 +70,11 @@ public:
 
 	// List of summation points for each neuron
 	FLOAT *summation_map;
+
+	//! The starter existence map (T/F).
+	bool* starter_map;
+
+	int size;
 };
 
 #endif

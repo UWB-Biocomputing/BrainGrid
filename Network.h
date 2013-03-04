@@ -55,7 +55,7 @@ public:
             FLOAT startFrac,
             FLOAT new_targetRate,
             ostream& new_outstate,istream& new_meminput, bool fReadMemImage,
-            SimulationInfo simInfo);
+            SimulationInfo sim_info);
 	~Network();
 
 	//! Frees dynamically allocated memory associated with the maps.
@@ -68,7 +68,7 @@ public:
 	void initStarterMap();
 
     //! Write the network state to an ostream.
-    void saveSimState(ostream& os, FLOAT growthStepDuration, FLOAT maxGrowthSteps);
+    void saveState(ostream& os, FLOAT growthStepDuration, FLOAT maxGrowthSteps);
     
     //! Write the simulation memory image to an ostream
     void writeSimMemory(FLOAT simulation_step, ostream& os);
@@ -168,7 +168,7 @@ public:
 
 private:
 	// Struct that holds information about a simulation
-	SimulationInfo m_si;
+	SimulationInfo m_sim_info;
 
 	Network();
 };

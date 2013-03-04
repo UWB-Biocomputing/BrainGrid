@@ -13,7 +13,7 @@ Simulator::Simulator(Network *network, SimulationInfo sim_info,
         bool write_mem_image, ostream& memory_out) :
     network(network),
 //    updater(sim_info.cNeurons),
-    sim_info(sim_info),
+    m_sim_info(sim_info),
     write_mem_image(write_mem_image),
     memory_out(memory_out)
 {
@@ -82,16 +82,16 @@ void Simulator::advanceUntilGrowth(const int currentStep, const int maxGrowthSte
 {
     uint64_t count = 0;
     uint64_t endStep = g_simulationStep
-            + static_cast<uint64_t>(sim_info.stepDuration / sim_info.deltaT);
+            + static_cast<uint64_t>(m_sim_info.stepDuration / m_sim_info.deltaT);
 
-    DEBUG2(network->printRadii(&sim_info);) // Generic model debug call
+    DEBUG2(network->printRadii(&m_sim_info);) // Generic model debug call
 
     while (g_simulationStep < endStep) {
         DEBUG(
             if (count % 10000 == 0) {
                 cout << currentStep << "/" << maxGrowthSteps
                      << " simulating time: "
-                     << g_simulationStep * sim_info.deltaT << endl;
+                     << g_simulationStep * m_sim_info.deltaT << endl;
                 count = 0;
             }
             count++;
@@ -100,4 +100,14 @@ void Simulator::advanceUntilGrowth(const int currentStep, const int maxGrowthSte
         network->advance();
         g_simulationStep++;
     }
+}
+
+void Simulator::saveState(ostream &state_out) const
+{
+    network->saveState(state_out);
+}
+
+void Simulator::saveState(ostream &memory_out) const
+{
+    network->writeSimMemory(maxGrowthSteps, memory_out);
 }

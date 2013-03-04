@@ -247,12 +247,115 @@ string LIFModel::neuron_to_string(AllNeurons &neurons, const int i) const
     return ss.str( );
 }
 
-void LIFModel::createAllNeurons(int num_neurons, AllNeurons &neurons)
+void LIFModel::loadState(istream& input, AllNeurons &neurons, AllSynapses &synapses)
+{
+    for (int i = 0; i < neurons.size; i++) {
+        read_neuron(input, neurons, i);
+    }
+
+    // read the synapse data & create synapses
+    int synapse_count;
+    input >> synapse_count;
+    for (int i = 0; i < synapse_count; i++) {
+    // read the synapse data and add it to the list
+        // create synapse
+        ISynapse* syn = new DynamicSpikingSynapse(is, m_summationMap, m_si.width);
+        m_rgSynapseMap[syn->summationCoord.x + syn->summationCoord.y * m_si.width].push_back(syn);
+    }
+
+    // read the radii
+    for (int i = 0; i < neurons.size; i++)
+        input >> m_conns->radii[i];
+
+    // read the rates
+    for (int i = 0; i < neurons.size; i++) {
+        input >> m_conns->rates[i];
+    }
+}
+
+void LIFModel::read_neuron(istream& input, AllNeurons &neurons, const int index)
+{
+    input >> neurons.deltaT[index];
+    input >> neurons.Cm[index];
+    input >> neurons.Rm[index];
+    input >> neurons.Vthresh[index];
+    input >> neurons.Vrest[index];
+    input >> neurons.Vreset[index];
+    input >> neurons.Vinit[index];
+    input >> neurons.Trefract[index];
+    input >> neurons.Inoise[index];
+    input >> neurons.Iinject[index];
+    input >> neurons.Isyn[index];
+    input >> neurons.nStepsInRefr[index];
+    input >> neurons.C1[index];
+    input >> neurons.C2[index];
+    input >> neurons.I0[index];
+    input >> neurons.Vm[index];
+    input >> neurons.hasFired[index];
+    input >> neurons.Tau[index];
+}
+
+void LIFModel::saveState(ostream &output, const AllNeurons &neurons, const SimulationInfo &sim_info)
+{
+    output << "   " << m_conns->radiiHistory.toXML("radiiHistory") << endl;
+    output << "   " << m_conns->ratesHistory.toXML("ratesHistory") << endl;
+
+#ifdef STORE_SPIKEHISTORY
+    get_spike_history(m_conns->burstinessHist, m_conns->spikesHistory);
+#endif // STORE_SPIKEHISTORY
+    output << "   " << m_conns->burstinessHist.toXML("burstinessHist") << endl;
+    output << "   " << m_conns->spikesHistory.toXML("spikesHistory") << endl;
+
+    output << "   " << xloc.toXML("xloc") << endl;
+    output << "   " << yloc.toXML("yloc") << endl;
+
+    //Write Neuron Types
+    VectorMatrix neuronTypes("complete", "const", 1, neurons.size, EXC);
+    for (int i = 0; i < neurons.size; i++) {
+        neuronTypes[i] = neurons.neuron_type_map[i];
+    }
+    output << "   " << neuronTypes.toXML("neuronTypes") << endl;
+
+    int num_starter_neurons = m_frac_starter_neurons * neurons.size;
+    if (num_starter_neurons > 0) {
+        VectorMatrix starterNeuronsM("complete", "const", 1, num_starter_neurons);
+        getStarterNeuronMatrix(starterNeuronsM, neurons.starter_map, sim_info);
+        output << "   " << starterNeuronsM.toXML("starterNeurons") << endl;
+    }
+
+    // Write neuron threshold
+    // neuron threshold
+    VectorMatrix neuronThresh("complete", "const", 1, neurons.size, 0);
+    for (int i = 0; i < neurons.size; i++) {
+        neuronThresh[i] = neurons.Vthresh[i];
+    }
+    output << "   " << neuronThresh.toXML("neuronThresh") << endl;
+}
+
+/**
+* Get starter neuron matrix
+*
+* @param matrix [out] Starter neuron matrix
+*/
+void LIFModel::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo &sim_info)
+{
+    int cur = 0;
+    for (int x = 0; x < sim_info.width; x++) {
+        for (int y = 0; y < sim_info.height; y++) {
+            if (starter_map[x + y * sim_info.width]) {
+                matrix[cur] = x + y * sim_info.height;
+                cur++;
+            }
+        }
+    }
+}
+
+void LIFModel::createAllNeurons(int num_neurons, AllNeurons &neurons, const SimulationInfo &sim_info)
 {
     DEBUG(cout << "\nAllocating neurons..." << endl;)
     
     generate_neuron_type_map(neurons.neuron_type_map, num_neurons);
-    init_starter_map(num_neurons, neurons.neuron_type_map);
+    init_starter_map(neurons.starter_map, num_neurons, neurons.neuron_type_map);
     
     /* set their specific types */
     for (int i = 0; i < num_neurons; i++) {
@@ -286,7 +389,7 @@ void LIFModel::createAllNeurons(int num_neurons, AllNeurons &neurons)
         }
 
         // endogenously_active_neuron_map -> Model State
-        if (m_endogenously_active_neuron_layout[i]) {
+        if (neurons.starter_map[i]) {
             DEBUG2(cout << "setting endogenously active neuron properties" << endl;)
             // set endogenously active threshold voltage, reset voltage, and refractory period
             neurons.Vthresh[i] = rng.inRange(m_starter_Vthresh[0], m_starter_Vthresh[1]);
@@ -360,11 +463,11 @@ void LIFModel::generate_neuron_type_map(neuronType neuron_types[], int num_neuro
  * @pre m_rgNeuronTypeMap must already be properly initialized
  * @post m_pfStarterMap is populated.
  */
-void LIFModel::init_starter_map(const int num_neurons, const neuronType neuron_type_map[])
+void LIFModel::init_starter_map(bool *starter_map, const int num_neurons, const neuronType neuron_type_map[])
 {
-    m_endogenously_active_neuron_layout = new bool[num_neurons];
+    starter_map = new bool[num_neurons];
     for (int i = 0; i < num_neurons; i++) {
-        m_endogenously_active_neuron_layout[i] = false;
+        starter_map[i] = false;
     }
     
     int num_starter_neurons = 0;
@@ -375,7 +478,7 @@ void LIFModel::init_starter_map(const int num_neurons, const neuronType neuron_t
     if (m_fixed_layout) {
         int num_endogenously_active_neurons = m_endogenously_active_neuron_list.size();
         for (size_t i = 0; i < num_endogenously_active_neurons; i++) {
-            m_endogenously_active_neuron_layout[m_endogenously_active_neuron_list.at(i)] = true;
+            starter_map[m_endogenously_active_neuron_list.at(i)] = true;
         }
     } else {
         int num_starter_neurons = (int) (m_frac_starter_neurons * num_neurons + 0.5);
@@ -392,8 +495,8 @@ void LIFModel::init_starter_map(const int num_neurons, const neuronType neuron_t
 
             // If the neuron at that index is excitatory and a starter map
             // entry does not already exist, add an entry.
-            if (neuron_type_map[i] == EXC && m_endogenously_active_neuron_layout[i] == false) {
-                m_endogenously_active_neuron_layout[i] = true;
+            if (neuron_type_map[i] == EXC && starter_map[i] == false) {
+                starter_map[i] = true;
                 starters_allocated++;
                 DEBUG(cout << "allocated EA neuron at random index [" << i << "]" << endl;);
             }
@@ -403,53 +506,14 @@ void LIFModel::init_starter_map(const int num_neurons, const neuronType neuron_t
     }
 }
 
-
-void LIFModel::loadState(istream& input, const int num_neurons, AllNeurons &neurons, AllSynapses &synapses)
+void LIFModel::setupSim(const int num_neurons, const SimulationInfo &sim_info)
 {
-    for (int i = 0; i < num_neurons; i++) {
-        read_neuron(input, neurons, i);
+    if (m_conns != NULL) {
+        delete m_conns;
+        m_conns = NULL;
     }
 
-    // read the synapse data & create synapses
-    int synapse_count;
-    is.read(reinterpret_cast<char*>(&synapse_count), sizeof(synapse_count));
-    for (int i = 0; i < synapse_count; i++) {
-    // read the synapse data and add it to the list
-        // create synapse
-        ISynapse* syn = new DynamicSpikingSynapse(is, m_summationMap, m_si.width);
-        m_rgSynapseMap[syn->summationCoord.x + syn->summationCoord.y * m_si.width].push_back(syn);
-    }
-
-    // read the radii
-    for (int i = 0; i < m_si.cNeurons; i++)
-        is.read(reinterpret_cast<char*>(&radii[i]), sizeof(FLOAT));
-
-    // read the rates
-    for (int i = 0; i < m_si.cNeurons; i++) {
-        is.read(reinterpret_cast<char*>(&rates[i]), sizeof(FLOAT));
-    }
-}
-
-void LIFModel::read_neuron(istream& input, AllNeurons &neurons, const int index)
-{
-    input >> neurons.deltaT[index];
-    input >> neurons.Cm[index];
-    input >> neurons.Rm[index];
-    input >> neurons.Vthresh[index];
-    input >> neurons.Vrest[index];
-    input >> neurons.Vreset[index];
-    input >> neurons.Vinit[index];
-    input >> neurons.Trefract[index];
-    input >> neurons.Inoise[index];
-    input >> neurons.Iinject[index];
-    input >> neurons.Isyn[index];
-    input >> neurons.nStepsInRefr[index];
-    input >> neurons.C1[index];
-    input >> neurons.C2[index];
-    input >> neurons.I0[index];
-    input >> neurons.Vm[index];
-    input >> neurons.hasFired[index];
-    input >> neurons.Tau[index];
+    m_conns = new Connections(num_neurons, m_growth.startRadius, sim_info.stepDuration, sim_info.maxSteps);
 }
 
 void LIFModel::advance(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses)
@@ -815,7 +879,7 @@ void LIFModel::erase_synapse(AllSynapses &synapses, const int group_index, const
 const string LIFModel::Connections::MATRIX_TYPE = "complete";
 const string LIFModel::Connections::MATRIX_INIT = "const";
 
-LIFModel::Connections::Connections(const int num_neurons, const double start_radius, const FLOAT maxGrowthSteps) :
+LIFModel::Connections::Connections(const int num_neurons, const double start_radius, const FLOAT growthStepDuration, const FLOAT maxGrowthSteps) :
 	W(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),
 	radii(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, start_radius),
 	rates(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, 0),
@@ -826,7 +890,10 @@ LIFModel::Connections::Connections(const int num_neurons, const double start_rad
 	outgrowth(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
 	deltaR(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
     radiiHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
-    ratesHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons)
+    ratesHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
+    burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthStepDuration * maxGrowthSteps), 0),
+    spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthStepDuration * maxGrowthSteps), 0),
+    history_size({static_cast<int>(maxGrowthSteps + 1), num_neurons})
 {
 
 }
