@@ -14,3 +14,5 @@ class ParseParamError {
         const string m_paramName;
         const string m_errorMessage;
 };
+
+#endif
