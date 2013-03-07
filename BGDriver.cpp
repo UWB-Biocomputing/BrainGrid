@@ -14,7 +14,7 @@
 #include "include/ParamContainer.h"
 
 #include "Network.h"
-#include "Simulator.h"
+#include "HostSimulator.h"
 #include "Model.h"
 #include "LIFModel.h"
 
@@ -117,25 +117,25 @@ int main(int argc, char* argv[]) {
     time_t start_time, end_time;
     time(&start_time);
 
-    Simulator simulator(&network, si);
+    Simulator *simulator = new HostSimulator(&network, si);
 
     if (fReadMemImage) {
         ifstream memory_in;
         memory_in.open(memInputFileName.c_str(), ofstream::binary | ofstream::in);
-        simulator.readMemory(memory_in);
+        simulator->readMemory(memory_in);
         memory_in.close();
     }
 
-    simulator.simulate();
+    simulator->simulate();
 
     ofstream state_out(stateOutputFileName.c_str());
-    simulator.saveState(state_out);
+    simulator->saveState(state_out);
     state_out.close();
 
     ofstream memory_out;
     if (fWriteMemImage) {
         memory_out.open(memOutputFileName.c_str(),ofstream::binary | ofstream::trunc);
-        simulator.saveMemory(memory_out);
+        simulator->saveMemory(memory_out);
         memory_out.close();
     }
 
@@ -151,6 +151,9 @@ int main(int argc, char* argv[]) {
     delete model;
     model = NULL;
     
+    delete simulator;
+    simulator = NULL;
+
     exit(EXIT_SUCCESS);
 }
 

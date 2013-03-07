@@ -57,7 +57,7 @@ GPUOBJS = $(MAIN)/GpuSim.o \
 #       $(MAIN)/MersenneTwister_kernel.o
 
 SINGLEOBJS = $(MAIN)/BGDriver.o \
-       $(MAIN)/Simulator.o \
+       $(MAIN)/HostSimulator.o \
        $(MAIN)/Network.o \
        $(MAIN)/LIFModel.o \
        $(MAIN)/AllNeurons.o \
@@ -133,7 +133,7 @@ $(MAIN)/LIFModel.o : $(MAIN)/LIFModel.cpp $(MAIN)/LIFModel.h $(MAIN)/Model.h
 
 $(MAIN)/BGDriver.o: $(MAIN)/BGDriver.cpp $(MAIN)/global.h $(MAIN)/ISynapse.h $(MAIN)/INeuron.h $(MAIN)/Network.h
 
-$(MAIN)/Simulator.o: $(MAIN)/Simulator.cpp $(MAIN)/Simulator.h $(MAIN)/global.h $(MAIN)/SimulationInfo.h
+$(MAIN)/HostSimulator.o: $(MAIN)/HostSimulator.cpp $(MAIN)/HostSimulator.h $(MAIN)/Simulator.h $(MAIN)/global.h $(MAIN)/SimulationInfo.h
 
 # OLD
 # ---

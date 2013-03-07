@@ -7,9 +7,9 @@
  *          platforms.
  */
 
-#include "Simulator.h"
+#include "HostSimulator.h"
 
-Simulator::Simulator(Network *network, SimulationInfo sim_info) :
+HostSimulator::HostSimulator(Network *network, SimulationInfo sim_info) :
     network(network),
     m_sim_info(sim_info)
 {
@@ -22,7 +22,7 @@ Simulator::Simulator(Network *network, SimulationInfo sim_info) :
 * @param growthStepDuration
 * @param maxGrowthSteps
 */
-void Simulator::simulate()
+void HostSimulator::simulate()
 {
     // Prepare network for simulation.
     // TODO(derek): choose better name after refactor.
@@ -70,7 +70,7 @@ void Simulator::simulate()
     network->finish(m_sim_info.stepDuration, m_sim_info.maxSteps);
 }
 
-void Simulator::advanceUntilGrowth(const int currentStep)
+void HostSimulator::advanceUntilGrowth(const int currentStep)
 {
     uint64_t count = 0;
     uint64_t endStep = g_simulationStep
@@ -94,7 +94,7 @@ void Simulator::advanceUntilGrowth(const int currentStep)
     }
 }
 
-void Simulator::saveState(ostream &state_out) const
+void HostSimulator::saveState(ostream &state_out) const
 {
     // Write XML header information:
     state_out << "<?xml version=\"1.0\" standalone=\"no\"?>" << endl
@@ -118,12 +118,12 @@ void Simulator::saveState(ostream &state_out) const
     state_out << "</SimState>" << endl;
 }
 
-void Simulator::readMemory(istream &memory_in)
+void HostSimulator::readMemory(istream &memory_in)
 {
     network->readSimMemory(memory_in);
 }
 
-void Simulator::saveMemory(ostream &memory_out) const
+void HostSimulator::saveMemory(ostream &memory_out) const
 {
     network->writeSimMemory(m_sim_info.maxSteps, memory_out);
 }

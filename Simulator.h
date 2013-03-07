@@ -12,11 +12,9 @@
 #ifndef _SIMULATOR_H_
 #define _SIMULATOR_H_
 
-#include "global.h"
-#include "SimulationInfo.h"
-#include "Network.h"
+#include <iostream>
 
-#include "include/Timer.h"
+using namespace std;
 
 /**
  * @class Simulator
@@ -35,26 +33,18 @@
 class Simulator
 {
     public:
-        Simulator(Network *network, SimulationInfo sim_info);
+        virtual ~Simulator() {};
         
         //Performs the simulation.
-        void simulate();
+        virtual void simulate() =0;
         
         // Advance simulation to next growth cycle
-        void advanceUntilGrowth(const int currentStep);
+        virtual void advanceUntilGrowth(const int currentStep) =0;
 
-        void saveState(ostream &state_out) const;
+        virtual void saveState(ostream &state_out) const =0;
 
-        void readMemory(istream &memory_in);
-        void saveMemory(ostream &memory_out) const;
-    
-    private:
-        Timer timer;
-        Timer short_timer;
-        
-        Network *network;
-        
-        SimulationInfo m_sim_info;
+        virtual void readMemory(istream &memory_in) =0;
+        virtual void saveMemory(ostream &memory_out) const =0;
 };
 
 #endif // _SIMULATOR_H_
