@@ -49,72 +49,61 @@
 
 class Network
 {
-public:
-	//! The constructor for Network.
-	Network(Model *model, SimulationInfo &sim_info);
-	~Network();
+    public:
+        //! The constructor for Network.
+        Network(Model *model, SimulationInfo &sim_info);
+        ~Network();
 
-	//! Frees dynamically allocated memory associated with the maps.
-	void freeResources();
+        //! Frees dynamically allocated memory associated with the maps.
+        void freeResources();
 
-	//! Reset simulation objects
-	void reset();
+        //! Reset simulation objects
+        void reset();
 
-	//! Randomly initialize entries in the neuron starter map.
-	void initStarterMap();
+        //! Write the network state to an ostream.
+        void saveState(ostream& os);
 
-    //! Write the network state to an ostream.
-    void saveState(ostream& os);
+        //! Write the simulation memory image to an ostream
+        void writeSimMemory(FLOAT simulation_step, ostream& os);
+
+        //! Read the simulation memory image from an istream
+        void readSimMemory(istream& is);
+
+        // Setup simulation
+        void setup(FLOAT growthStepDuration, FLOAT num_growth_steps);
+
+        // Cleanup after simulation
+        void finish(FLOAT growthStepDuration, FLOAT num_growth_steps);
+
+        // TODO comment
+        void get_spike_history(VectorMatrix& burstinessHist, VectorMatrix& spikesHistory);
+
+        // TODO comment
+        void advance();
+
+        // TODO comment
+        void updateConnections(const int currentStep);
+
+        //! Print network radii to console.
+        void logSimStep() const;
+
+    // -----------------------------------------------------------------------------
     
-    //! Write the simulation memory image to an ostream
-    void writeSimMemory(FLOAT simulation_step, ostream& os);
-
-    //! Read the simulation memory image from an istream
-    void readSimMemory(istream& is);
-
-// -----------------------------------------------------------------------------
-
-    // Setup simulation
-    void setup(FLOAT growthStepDuration, FLOAT num_growth_steps);
+        Model *m_model;
+        AllNeurons neurons;
+        AllSynapses synapses;
     
-    // Cleanup after simulation
-    void finish(FLOAT growthStepDuration, FLOAT num_growth_steps);
+    // -----------------------------------------------------------------------------
     
-    // TODO comment
-    void get_spike_history(VectorMatrix& burstinessHist, VectorMatrix& spikesHistory);
+        //! The map of summation points.
+        FLOAT* m_summationMap;
     
-    // TODO comment
-    void advance();
+    // -----------------------------------------------------------------------------
     
-    // TODO comment
-    void updateConnections(const int currentStep);
-
-    //! Get spike counts in prep for growth
-    void getSpikeCounts(int neuron_count, int* spikeCounts);  // PLATFORM DEPENDENT
+    private:
+        // Struct that holds information about a simulation
+        SimulationInfo m_sim_info;
     
-    //! Clear spike count of each neuron.
-    void clearSpikeCounts(int neuron_count);  // PLATFORM DEPENDENT
-    
-    //! Print network radii to console.
-    void logSimStep() const;
-
-// -----------------------------------------------------------------------------
-
-	Model *m_model;
-	AllNeurons neurons;
-	AllSynapses synapses;
-
-// -----------------------------------------------------------------------------
-
-	//! The map of summation points.
-	FLOAT* m_summationMap;
-
-// -----------------------------------------------------------------------------
-
-private:
-	// Struct that holds information about a simulation
-	SimulationInfo m_sim_info;
-
-	Network();
+        Network();
 };
 #endif // _NETWORK_H_

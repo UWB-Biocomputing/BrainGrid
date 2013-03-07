@@ -31,28 +31,53 @@ class LIFModel : public Model, TiXmlVisitor
         void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const;
 
     protected:
+
+        // -----------------------------------------------------------------------------------------
+        // # Helper Functions
+        // ------------------
+
+        // # Read Parameters
+        // -----------------
+
         // Visit an element.
         bool VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute);
         // Visit an element.
         //bool VisitExit(const TiXmlElement& element);
 
+        // # Print Parameters
+        // ------------------
+
         string neuronToString(AllNeurons& neurons, const int i) const;
+
+        // # Load Memory
+        // -------------
+
+        void readNeuron(istream &input, AllNeurons &neurons, const int index);
+        void readSynapse(istream &input, AllSynapses &synapses, const int neuron_index, const int synapse_index);
+        void initSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+        void resetSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+        bool updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+
+        // # Save Memory
+        // -------------
+
+        void writeNeuron(ostream& output, AllNeurons &neurons, const int index) const;
+        void writeSynapse(ostream& output, AllSynapses &synapses, const int neuron_index, const int synapse_index) const;
+
+        // # Save State
+        // ------------
+
+        void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo &sim_info);
+
+        // # Create All Neurons
+        // --------------------
 
         void generateNeuronTypeMap(neuronType neuron_types[], int num_neurons);
         void initStarterMap(bool *starter_map, const int num_neurons, const neuronType neuron_type_map[]);
         void setNeuronDefaults(AllNeurons &neurons, const int index);
 
-        void readNeuron(istream &input, AllNeurons &neurons, const int index);
-        void readSynapse(istream &input, AllSynapses &synapses, const int neuron_index, const int synapse_index);
-
-        void initSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index);
-        void resetSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
-        bool updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index);
-
-        void writeNeuron(ostream& output, AllNeurons &neurons, const int index) const;
-        void writeSynapse(ostream& output, AllSynapses &synapses, const int neuron_index, const int synapse_index) const;
-
-        void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo &sim_info);
+        // # Advance Network/Model
+        // -----------------------
 
         void advanceNeurons(AllNeurons& neurons, AllSynapses &synapses);
         void advanceNeuron(AllNeurons& neurons, const int index);
@@ -62,6 +87,9 @@ class LIFModel : public Model, TiXmlVisitor
         void advanceSynapses(const int num_neurons, AllSynapses &synapses);
         void advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
         bool isSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+
+        // # Update Connections
+        // --------------------
 
         void updateHistory(int currentStep, FLOAT stepDuration, AllNeurons &neurons);
         void updateFrontiers(const int num_neurons);
@@ -74,6 +102,10 @@ class LIFModel : public Model, TiXmlVisitor
         void eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
         void addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, FLOAT *sum_point, FLOAT deltaT);
         void createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, FLOAT* sp, FLOAT deltaT, synapseType type);
+
+        // -----------------------------------------------------------------------------------------
+        // # Generic Functions for handling synapse types
+        // ---------------------------------------------
 
         synapseType synType(AllNeurons &neurons, Coordinate src_coord, Coordinate dest_coord, const int width);
         synapseType synType(AllNeurons &neurons, const int src_neuron, const int dest_neuron);
