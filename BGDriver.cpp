@@ -47,12 +47,6 @@ int poolsize[3];  // size of pool of neurons [x y z]
 
 Model *model = NULL;
 
-// TODO(derek) : delete ::
-// NETWORK MODEL VARIABLES NMV-BEGIN {
-bool starter_flag = true;  // true = use endogenously active neurons in simulation
-FLOAT starter_neurons;  // percent of endogenously active neurons
-// } NMV-END
-
 // Simulation Parameters
 FLOAT Tsim;  // Simulation time (s) (between growth updates) rename: epochLength
 int numSims;  // Number of Tsim simulation to run
@@ -98,18 +92,10 @@ int main(int argc, char* argv[]) {
     // calculate the number of inhibitory, excitory, and endogenously active
     // neurons
     int numNeurons = poolsize[0] * poolsize[1];
-    int nStarterNeurons = 0;
-    if (starter_flag)
-        nStarterNeurons = (int) (starter_neurons * numNeurons + 0.5);
-    // calculate their ratios, out of the whole
 // } NMV-END
 
     SimulationInfo si = makeSimulationInfo(poolsize[0], poolsize[1],Tsim, numSims,
             maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed);
-
-    // Get an ISimulation object
-    // TODO: remove #defines and use cmdline parameters to choose simulation
-    // method
 
     // create the network
     Network network(model, si);

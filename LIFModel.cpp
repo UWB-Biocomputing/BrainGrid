@@ -58,7 +58,6 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
             throw ParseParamError("Iinject min", "Iinject missing maximum value in XML.");
         }
         m_read_params++;
-        return false;
     }
     
     if (element.ValueStr().compare("Inoise") == 0) {
@@ -69,7 +68,6 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
             throw ParseParamError("Inoise max", "Inoise missing maximum value in XML.");
         }
         m_read_params++;
-        return false; // TODO
     }
 
     if (element.ValueStr().compare("Vthresh") == 0) {
@@ -157,7 +155,7 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
     if (element.ValueStr().compare("FixedLayout") == 0) {
         m_fixed_layout = true;
 
-        TiXmlNode* pNode = NULL;
+        const TiXmlNode* pNode = NULL;
         while ((pNode = element.IterateChildren(pNode)) != NULL) {
             if (strcmp(pNode->Value(), "A") == 0) {
                 getValueList(pNode->ToElement()->GetText(), &m_endogenously_active_neuron_list);
@@ -336,6 +334,8 @@ void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const int neur
     initSpikeQueue(synapses, neuron_index, synapse_index);
     resetSynapse(synapses, neuron_index, synapse_index);
 
+    int synapse_type(0);
+
     input >> synapses.synapseCoord[neuron_index][synapse_index].x; input.ignore();
     input >> synapses.synapseCoord[neuron_index][synapse_index].y; input.ignore();
     input >> synapses.deltaT[neuron_index][synapse_index]; input.ignore();
@@ -346,7 +346,7 @@ void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const int neur
     input >> synapses.delayQueue[neuron_index][synapse_index][0]; input.ignore();
     input >> synapses.delayIdx[neuron_index][synapse_index]; input.ignore();
     input >> synapses.ldelayQueue[neuron_index][synapse_index]; input.ignore();
-    input >> synapses.type[neuron_index][synapse_index]; input.ignore();
+    input >> synapse_type; input.ignore();
     input >> synapses.tau[neuron_index][synapse_index]; input.ignore();
     input >> synapses.r[neuron_index][synapse_index]; input.ignore();
     input >> synapses.u[neuron_index][synapse_index]; input.ignore();
@@ -354,6 +354,8 @@ void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const int neur
     input >> synapses.U[neuron_index][synapse_index]; input.ignore();
     input >> synapses.F[neuron_index][synapse_index]; input.ignore();
     input >> synapses.lastSpike[neuron_index][synapse_index]; input.ignore();
+
+    synapses.type[neuron_index][synapse_index] = get_synapse_type(synapse_type);
 }
 
 void LIFModel::initSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index)
@@ -611,7 +613,7 @@ void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
         int num_excititory_neurons = num_neurons - num_inhibitory_neurons;
         DEBUG(cout << "Total neurons: " << num_neurons << endl;)
         DEBUG(cout << "Inhibitory Neurons: " << num_inhibitory_neurons << endl;)
-        DEBUG(cout << "Excitatory Neurons: " << num_inhibitory_neurons << endl;)
+        DEBUG(cout << "Excitatory Neurons: " << num_excititory_neurons << endl;)
         
         for (int i = 0; i < num_inhibitory_neurons; i++) {
             types[m_inhibitory_neuron_layout.at(i)] = INH;
@@ -659,8 +661,10 @@ void LIFModel::initStarterMap(bool *starter_map, const int num_neurons, const ne
         starter_map[i] = false;
     }
     
-    int num_starter_neurons = 0;
     if (!starter_flag) {
+        for (int i = 0; i < num_neurons; i++) {
+            starter_map[i] = false;
+        }
         return;
     }
     
@@ -1183,6 +1187,22 @@ void LIFModel::createSynapse(AllSynapses &synapses, const int neuron_index, cons
 synapseType LIFModel::synType(AllNeurons &neurons, Coordinate src_coord, Coordinate dest_coord, const int width)
 {
     return synType(neurons, src_coord.x + src_coord.y * width, dest_coord.x + dest_coord.y * width);
+}
+
+synapseType LIFModel::synapseOrdinalToType(const int type_ordinal)
+{
+    switch (type_ordinal) {
+        case 0:
+            return II;
+        case 1:
+            return IE;
+        case 2:
+            return EI;
+        case 3:
+            return EE;
+        default:
+            return STYPE_UNDEF;
+    }
 }
 
 /**

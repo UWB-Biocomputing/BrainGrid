@@ -110,6 +110,7 @@ class LIFModel : public Model, TiXmlVisitor
         synapseType synType(AllNeurons &neurons, Coordinate src_coord, Coordinate dest_coord, const int width);
         synapseType synType(AllNeurons &neurons, const int src_neuron, const int dest_neuron);
         int synSign(const synapseType t);
+        synapseType synapseOrdinalToType(const int type_ordinal);
 
     private:
         struct Connections;
