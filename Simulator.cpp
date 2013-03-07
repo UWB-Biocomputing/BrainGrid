@@ -9,13 +9,9 @@
 
 #include "Simulator.h"
 
-Simulator::Simulator(Network *network, SimulationInfo sim_info,
-        bool write_mem_image, ostream& memory_out) :
+Simulator::Simulator(Network *network, SimulationInfo sim_info) :
     network(network),
-//    updater(sim_info.cNeurons),
-    m_sim_info(sim_info),
-    write_mem_image(write_mem_image),
-    memory_out(memory_out)
+    m_sim_info(sim_info)
 {
 
 }
@@ -26,21 +22,21 @@ Simulator::Simulator(Network *network, SimulationInfo sim_info,
 * @param growthStepDuration
 * @param maxGrowthSteps
 */
-void Simulator::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
+void Simulator::simulate()
 {
     // Prepare network for simulation.
     // TODO(derek): choose better name after refactor.
-    network->setup(growthStepDuration, maxGrowthSteps);
+    network->setup(m_sim_info.stepDuration, m_sim_info.maxSteps);
     
     // Main simulation loop - execute maxGrowthSteps
-    for (int currentStep = 1; currentStep <= maxGrowthSteps; currentStep++) {
+    for (int currentStep = 1; currentStep <= m_sim_info.maxSteps; currentStep++) {
 
         DEBUG(cout << endl << endl;)
         DEBUG(cout << "Performing simulation number " << currentStep << endl;)
         DEBUG(cout << "Begin network state:" << endl;)
 
         // Advance simulation to next growth cycle
-        advanceUntilGrowth(currentStep, maxGrowthSteps);
+        advanceUntilGrowth(currentStep);
 
         DEBUG(cout << endl << endl;)
         DEBUG(
@@ -71,25 +67,21 @@ void Simulator::simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 
     // Tell network to clean-up and run any post-simulation logic.
     // TODO(derek): choose better name after refactor.
-    network->finish(growthStepDuration, maxGrowthSteps);
-    
-    if (write_mem_image) {
-        network->writeSimMemory(maxGrowthSteps, memory_out);
-    }
+    network->finish(m_sim_info.stepDuration, m_sim_info.maxSteps);
 }
 
-void Simulator::advanceUntilGrowth(const int currentStep, const int maxGrowthSteps)
+void Simulator::advanceUntilGrowth(const int currentStep)
 {
     uint64_t count = 0;
     uint64_t endStep = g_simulationStep
             + static_cast<uint64_t>(m_sim_info.stepDuration / m_sim_info.deltaT);
 
-    DEBUG2(network->printRadii(&m_sim_info);) // Generic model debug call
+    DEBUG2(network->logSimStep()) // Generic model debug call
 
     while (g_simulationStep < endStep) {
         DEBUG(
             if (count % 10000 == 0) {
-                cout << currentStep << "/" << maxGrowthSteps
+                cout << currentStep << "/" << m_sim_info.maxSteps
                      << " simulating time: "
                      << g_simulationStep * m_sim_info.deltaT << endl;
                 count = 0;
@@ -104,10 +96,35 @@ void Simulator::advanceUntilGrowth(const int currentStep, const int maxGrowthSte
 
 void Simulator::saveState(ostream &state_out) const
 {
+    // Write XML header information:
+    state_out << "<?xml version=\"1.0\" standalone=\"no\"?>" << endl
+       << "<!-- State output file for the DCT growth modeling-->" << endl;
+    //state_out << version; TODO: version
+
+    // Write the core state information:
+    state_out << "<SimState>" << endl;
+
     network->saveState(state_out);
+
+    // write time between growth cycles
+    state_out << "   <Matrix name=\"Tsim\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
+    state_out << "   " << m_sim_info.stepDuration << endl;
+    state_out << "</Matrix>" << endl;
+
+    // write simulation end time
+    state_out << "   <Matrix name=\"simulationEndTime\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
+    state_out << "   " << g_simulationStep * m_sim_info.deltaT << endl;
+    state_out << "</Matrix>" << endl;
+    state_out << "</SimState>" << endl;
 }
 
-void Simulator::saveState(ostream &memory_out) const
+void Simulator::readMemory(istream &memory_in)
 {
-    network->writeSimMemory(maxGrowthSteps, memory_out);
+    network->readSimMemory(memory_in);
 }
+
+void Simulator::saveMemory(ostream &memory_out) const
+{
+    network->writeSimMemory(m_sim_info.maxSteps, memory_out);
+}
+

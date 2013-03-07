@@ -1,4 +1,3 @@
-
 #pragma once
 
 #ifndef _ALLNEURONS_H_
@@ -9,72 +8,78 @@
 //	struct to hold all data nessesary for all the Neurons.
 struct AllNeurons
 {
-public:
-	//! A boolean which tracks whether the neuron has fired
-	bool hasFired[];
+    public:
+        //! The number of neurons stored.
+        int size;
 
-	//! The length of the absolute refractory period. [units=sec; range=(0,1);]
-	FLOAT Trefract[];
+        //! A boolean which tracks whether the neuron has fired
+        bool *hasFired;
 
-	//! If \f$V_m\f$ exceeds \f$V_{thresh}\f$ a spike is emmited. [units=V; range=(-10,100);]
-	FLOAT Vthresh[];
+        //! The length of the absolute refractory period. [units=sec; range=(0,1);]
+        FLOAT *Trefract;
 
-	//! The resting membrane voltage. [units=V; range=(-1,1);]
-	FLOAT Vrest[];
+        //! If \f$V_m\f$ exceeds \f$V_{thresh}\f$ a spike is emmited. [units=V; range=(-10,100);]
+        FLOAT *Vthresh;
 
-	//! The voltage to reset \f$V_m\f$ to after a spike. [units=V; range=(-1,1);]
-	FLOAT Vreset[];
+        //! The resting membrane voltage. [units=V; range=(-1,1);]
+        FLOAT *Vrest;
 
-	//! The initial condition for \f$V_m\f$ at time \f$t=0\f$. [units=V; range=(-1,1);]
-	FLOAT Vinit[];
-	//! The simulation time step size.
-	FLOAT deltaT[];
+        //! The voltage to reset \f$V_m\f$ to after a spike. [units=V; range=(-1,1);]
+        FLOAT *Vreset;
 
-	//! The membrane capacitance \f$C_m\f$ [range=(0,1); units=F;]
-	FLOAT Cm[];
+        //! The initial condition for \f$V_m\f$ at time \f$t=0\f$. [units=V; range=(-1,1);]
+        FLOAT *Vinit;
+        //! The simulation time step size.
+        FLOAT *deltaT;
 
-	//! The membrane resistance \f$R_m\f$ [units=Ohm; range=(0,1e30)]
-	FLOAT Rm[];
+        //! The membrane capacitance \f$C_m\f$ [range=(0,1); units=F;]
+        FLOAT *Cm;
 
-	//! The standard deviation of the noise to be added each integration time constant. [range=(0,1); units=A;]
-	FLOAT Inoise[];
+        //! The membrane resistance \f$R_m\f$ [units=Ohm; range=(0,1e30)]
+        FLOAT *Rm;
 
-	//! A constant current to be injected into the LIF neuron. [units=A; range=(-1,1);]
-	FLOAT Iinject[];
+        //! The standard deviation of the noise to be added each integration time constant. [range=(0,1); units=A;]
+        FLOAT *Inoise;
 
-	// What the hell is this used for???
-	//! The synaptic input current.
-	FLOAT Isyn[];
+        //! A constant current to be injected into the LIF neuron. [units=A; range=(-1,1);]
+        FLOAT *Iinject;
 
-	//! The remaining number of time steps for the absolute refractory period.
-	int nStepsInRefr[];
+        // What the hell is this used for???
+        //! The synaptic input current.
+        FLOAT *Isyn;
 
-	//! Internal constant for the exponential Euler integration of \f$V_m\f$.
-	FLOAT C1[];
-	//! Internal constant for the exponential Euler integration of \f$V_m\f$.
-	FLOAT C2[];
-	//! Internal constant for the exponential Euler integration of \f$V_m\f$.
-	FLOAT I0[];
+        //! The remaining number of time steps for the absolute refractory period.
+        int *nStepsInRefr;
 
-	//! The membrane voltage \f$V_m\f$ [readonly; units=V;]
-	FLOAT Vm[];
+        //! Internal constant for the exponential Euler integration of \f$V_m\f$.
+        FLOAT *C1;
+        //! Internal constant for the exponential Euler integration of \f$V_m\f$.
+        FLOAT *C2;
+        //! Internal constant for the exponential Euler integration of \f$V_m\f$.
+        FLOAT *I0;
 
-	//! The membrane time constant \f$(R_m \cdot C_m)\f$
-	FLOAT Tau[];
+        //! The membrane voltage \f$V_m\f$ [readonly; units=V;]
+        FLOAT *Vm;
 
-	//! The number of spikes since the last growth cycle
-	int spikeCount[];
+        //! The membrane time constant \f$(R_m \cdot C_m)\f$
+        FLOAT *Tau;
 
-	//! The neuron type map (INH, EXC).
-	neuronType *neuron_type_map;
+        //! The number of spikes since the last growth cycle
+        int *spikeCount;
 
-	// List of summation points for each neuron
-	FLOAT *summation_map;
+        //! The neuron type map (INH, EXC).
+        neuronType *neuron_type_map;
 
-	//! The starter existence map (T/F).
-	bool* starter_map;
+        // List of summation points for each neuron
+        FLOAT *summation_map;
 
-	int size;
+        //! The starter existence map (T/F).
+        bool *starter_map;
+
+        AllNeurons();
+        AllNeurons(const int size);
+        ~AllNeurons();
+
 };
 
 #endif

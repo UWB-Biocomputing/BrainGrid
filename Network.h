@@ -51,11 +51,7 @@ class Network
 {
 public:
 	//! The constructor for Network.
-	Network(Model *model,
-            FLOAT startFrac,
-            FLOAT new_targetRate,
-            ostream& new_outstate,istream& new_meminput, bool fReadMemImage,
-            SimulationInfo sim_info);
+	Network(Model *model, SimulationInfo &sim_info);
 	~Network();
 
 	//! Frees dynamically allocated memory associated with the maps.
@@ -68,13 +64,13 @@ public:
 	void initStarterMap();
 
     //! Write the network state to an ostream.
-    void saveState(ostream& os, FLOAT growthStepDuration, FLOAT maxGrowthSteps);
+    void saveState(ostream& os);
     
     //! Write the simulation memory image to an ostream
     void writeSimMemory(FLOAT simulation_step, ostream& os);
 
-	//! Read the simulation memory image from an istream
-	void readSimMemory(istream& is, VectorMatrix& radii, VectorMatrix& rates);
+    //! Read the simulation memory image from an istream
+    void readSimMemory(istream& is);
 
 // -----------------------------------------------------------------------------
 
@@ -100,15 +96,7 @@ public:
     void clearSpikeCounts(int neuron_count);  // PLATFORM DEPENDENT
     
     //! Print network radii to console.
-    void printRadii(SimulationInfo* psi) const;
-
-// -----------------------------------------------------------------------------
-
-	//! Output the m_rgNeuronTypeMap to a VectorMatrix.
-	void getNeuronTypes(VectorMatrix& neuronTypes);
-
-	//! Output the m_pfStarterMap to a VectorMatrix.
-	void getStarterNeuronMatrix(VectorMatrix& starterNeurons);
+    void logSimStep() const;
 
 // -----------------------------------------------------------------------------
 
@@ -118,53 +106,10 @@ public:
 
 // -----------------------------------------------------------------------------
 
-	//! The number of endogenously active neurons.
-	int m_cStarterNeurons;
-
-	//! List of lists of synapses
-	vector<ISynapse*>* m_rgSynapseMap;
-
 	//! The map of summation points.
 	FLOAT* m_summationMap;
 
-	//! The neuron map.
-	vector<INeuron*> m_neuronList;
-
-	//! The neuron type map (INH, EXC).
-	neuronType* m_rgNeuronTypeMap;
-
-	//! The starter existence map (T/F).
-	bool* m_rgEndogenouslyActiveNeuronMap;
-
-	//! growth param (spikes/second) TODO: more detail here
-	FLOAT m_targetRate;
-
-	//! A file stream for xml output.
-	ostream& state_out;
-
-	//! An input file stream for memory image 	
-	istream& memory_in;
-
-	//! True if dumped memory image is read before starting simulation. 
-	bool m_fReadMemImage;
-
 // -----------------------------------------------------------------------------
-
-    VectorMatrix radii; // previous saved radii
-    VectorMatrix rates; // previous saved rates
-
-    // track radii
-    CompleteMatrix radiiHistory; // state
-
-    // track firing rate
-    CompleteMatrix ratesHistory;
-    
-    // neuron locations matrices
-    VectorMatrix xloc;
-    VectorMatrix yloc;
-    
-    static const string MATRIX_TYPE;
-    static const string MATRIX_INIT;
 
 private:
 	// Struct that holds information about a simulation

@@ -11,57 +11,67 @@ typedef unsigned _int8 uint8_t;
 struct AllSynapses
 {
     public:
-        // The number of synapses for each group of synapses for each neuron.
-        int *counts;
-
         //! The coordinates of the summation point.
-        Coordinate summationCoord[];
+        Coordinate **summationCoord;
 
         //! The weight (scaling factor, strength, maximal amplitude) of the synapse.
-        FLOAT W[];
+        FLOAT **W;
 
         //! This synapse's summation point's address.
-        FLOAT *summationPoint[];
+        FLOAT ***summationPoint;
 
         //! The location of the synapse.
-        Coordinate synapseCoord[];
+        Coordinate **synapseCoord;
 
         //! The time step size.
-        FLOAT deltaT[];
+        FLOAT **deltaT;
 
         //! The post-synaptic response is the result of whatever computation is going on in the synapse.
-        FLOAT psr[];
+        FLOAT **psr;
         //! The decay for the psr.
-        FLOAT decay[];
+        FLOAT **decay;
         //! The synaptic transmission delay, descretized into time steps.
-        int total_delay[];
+        int **total_delay;
 #define BYTES_OF_DELAYQUEUE         ( sizeof(uint32_t) / sizeof(uint8_t) )
 #define LENGTH_OF_DELAYQUEUE        ( BYTES_OF_DELAYQUEUE * 8 )
         //! The delayed queue
-        uint32_t delayQueue[][1];
+        uint32_t **(delayQueue[1]);
         //! The index indicating the current time slot in the delayed queue
-        int delayIdx[];
+        int **delayIdx;
         //! Length of the delayed queue
-        int ldelayQueue[];
+        int **ldelayQueue;
         //! Synapse type
-        synapseType type[];
+        synapseType **type;
 
         //! The synaptic time constant \f$\tau\f$ [units=sec; range=(0,100)].
-        FLOAT tau[];
+        FLOAT **tau;
 
         // dynamic synapse vars...........
         //! The time varying state variable \f$r\f$ for depression.
-        FLOAT r[];
+        FLOAT **r;
         //! The time varying state variable \f$u\f$ for facilitation.
-        FLOAT u[];
+        FLOAT **u;
         //! The time constant of the depression of the dynamic synapse [range=(0,10); units=sec].
-        FLOAT D[];
+        FLOAT **D;
         //! The use parameter of the dynamic synapse [range=(1e-5,1)].
-        FLOAT U[];
+        FLOAT **U;
         //! The time constant of the facilitation of the dynamic synapse [range=(0,10); units=sec].
-        FLOAT F[];
+        FLOAT **F;
         //! The time of the last spike.
-        uint64_t lastSpike;
+        uint64_t **lastSpike;
+
+        bool **in_use;
+
+        // The number of synapses for each neuron.
+        int *synapse_counts;
+
+        int count_neurons;
+
+        int max_synapses;
+
+        AllSynapses();
+        AllSynapses(const int num_neurons, const int max_synapses);
+        ~AllSynapses();
 };
 
 #endif

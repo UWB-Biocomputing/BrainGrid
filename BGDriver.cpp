@@ -12,8 +12,9 @@
 #include <fstream>
 #include "global.h"
 #include "include/ParamContainer.h"
-#include "Network.h"
 
+#include "Network.h"
+#include "Simulator.h"
 #include "Model.h"
 #include "LIFModel.h"
 
@@ -21,11 +22,11 @@
 // #include <vld.h>
 
 #if defined(USE_GPU)
-    #include "GpuSim.h"
+//    #include "GpuSim.h"
 #elif defined(USE_OMP)
-    #include "MultiThreadedSim.h"
+//    #include "MultiThreadedSim.h"
 #else
-    #include "SingleThreadedSim.h"
+//    #include "SingleThreadedSim.h"
 #endif
 
 using namespace std;
@@ -33,11 +34,6 @@ using namespace std;
 // state file name
 string stateOutputFileName;
 string stateInputFileName;
-
-// NETWORK MODEL VARIABLES NMV-BEGIN {
-vector<int> endogenouslyActiveNeuronLayout;
-vector<int> inhibitoryNeuronLayout;
-// } NMV-END
 
 // memory dump file name
 string memOutputFileName;
@@ -57,10 +53,6 @@ bool starter_flag = true;  // true = use endogenously active neurons in simulati
 FLOAT starter_neurons;  // percent of endogenously active neurons
 // } NMV-END
 
-bool fFixedLayout;  // True if a fixed layout has been provided; neuron positions
-                    // are passed in endogenouslyActiveNeuronLayout and
-                    // inhibitoryNeuronLayout
-
 // Simulation Parameters
 FLOAT Tsim;  // Simulation time (s) (between growth updates) rename: epochLength
 int numSims;  // Number of Tsim simulation to run
@@ -70,10 +62,10 @@ int maxSynapsesPerNeuron;  // Maximum number of synapses per neuron
 long seed;  // Seed for random generator (single-threaded)
 
 // functions
-SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon,
-    FLOAT new_beta, FLOAT new_rho, FLOAT new_maxRate, FLOAT new_minRadius,
-    FLOAT new_startRadius, FLOAT growthStepDuration, FLOAT maxGrowthSteps,
-    int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT, long seed);
+SimulationInfo makeSimulationInfo(int cols, int rows,
+    FLOAT growthStepDuration, FLOAT maxGrowthSteps,
+    int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT,
+    long seed);
 bool load_simulation_parameters(const string &sim_param_filename);
 void LoadSimParms(TiXmlElement*);
 //void SaveSimState(ostream &);
@@ -102,20 +94,6 @@ int main(int argc, char* argv[]) {
     /*    verify that params were read correctly */
     DEBUG(printParams();)
 
-    // aquire the in/out file
-    ofstream state_out(stateOutputFileName.c_str());
-    ofstream memory_out;
-    if (fWriteMemImage) {
-        memory_out.open(memOutputFileName.c_str(),
-            ofstream::binary | ofstream::trunc);
-    }
-
-    ifstream memory_in;
-    if (fReadMemImage) {
-        memory_in.open(memInputFileName.c_str(),
-            ofstream::binary | ofstream::in);
-    }
-
 // NETWORK MODEL VARIABLES NMV-BEGIN {
     // calculate the number of inhibitory, excitory, and endogenously active
     // neurons
@@ -124,40 +102,43 @@ int main(int argc, char* argv[]) {
     if (starter_flag)
         nStarterNeurons = (int) (starter_neurons * numNeurons + 0.5);
     // calculate their ratios, out of the whole
-    FLOAT startFrac = nStarterNeurons / (FLOAT) numNeurons;
 // } NMV-END
 
-    SimulationInfo si = makeSimulationInfo(poolsize[0], poolsize[1], 0,
-            0, 0, 0, 0, 0, Tsim, numSims,
+    SimulationInfo si = makeSimulationInfo(poolsize[0], poolsize[1],Tsim, numSims,
             maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed);
 
     // Get an ISimulation object
     // TODO: remove #defines and use cmdline parameters to choose simulation
     // method
-    ISimulation* pSim;
-    #if defined(USE_GPU)
-        pSim = new GpuSim(&si);
-    #elif defined(USE_OMP)
-        pSim = new MultiThreadedSim(&si);
-    #else
-        pSim = new SingleThreadedSim(&si);
-    #endif
 
     // create the network
-    Network network(model,
-            startFrac,
-            state_out, memory_in, fReadMemImage,
-            fFixedLayout, &endogenouslyActiveNeuronLayout, &inhibitoryNeuronLayout,
-            si, pSim);
+    Network network(model, si);
 
     time_t start_time, end_time;
     time(&start_time);
 
-    Simulator simulator(&network, si, fWriteMemImage, memory_out);
+    Simulator simulator(&network, si);
 
-    simulator.simulate(Tsim, numSims);
+    if (fReadMemImage) {
+        ifstream memory_in;
+        memory_in.open(memInputFileName.c_str(), ofstream::binary | ofstream::in);
+        simulator.readMemory(memory_in);
+        memory_in.close();
+    }
 
-    delete pSim;
+    simulator.simulate();
+
+    ofstream state_out(stateOutputFileName.c_str());
+    simulator.saveState(state_out);
+    state_out.close();
+
+    ofstream memory_out;
+    if (fWriteMemImage) {
+        memory_out.open(memOutputFileName.c_str(),ofstream::binary | ofstream::trunc);
+        simulator.saveMemory(memory_out);
+        memory_out.close();
+    }
+
     rgNormrnd.clear();
 
     time(&end_time);
@@ -166,12 +147,6 @@ int main(int argc, char* argv[]) {
     cout << "time simulated: " << Tsim * numSims << endl;
     cout << "time elapsed: " << time_elapsed << endl;
     cout << "ssps (simulation seconds / real time seconds): " << ssps << endl;
-
-    // close input and output files
-    if (fWriteMemImage)
-        memory_out.close();
-    if (fReadMemImage)
-        memory_in.close();
     
     delete model;
     model = NULL;
@@ -182,9 +157,8 @@ int main(int argc, char* argv[]) {
 /*
  * Init SimulationInfo parameters
  */
-SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon,
-        FLOAT new_beta, FLOAT new_rho, FLOAT new_maxRate, FLOAT new_minRadius,
-        FLOAT new_startRadius, FLOAT growthStepDuration, FLOAT maxGrowthSteps,
+SimulationInfo makeSimulationInfo(int cols, int rows,
+        FLOAT growthStepDuration, FLOAT maxGrowthSteps,
         int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT,
         long seed)
 {
@@ -203,14 +177,6 @@ SimulationInfo makeSimulationInfo(int cols, int rows, FLOAT new_epsilon,
 // NETWORK MODEL VARIABLES NMV-BEGIN {
     si.width = cols;
     si.height = rows;
-    si.rgNeuronTypeMap = new neuronType[max_neurons];
-    si.rgEndogenouslyActiveNeuronMap = new bool[max_neurons];
-    si.epsilon = new_epsilon;
-    si.beta = new_beta;
-    si.rho = new_rho;
-    si.maxRate = new_maxRate;
-    si.minRadius = new_minRadius;
-    si.startRadius = new_startRadius;
 // } NMV-END
 
     si.deltaT = new_deltaT;  // Model Independent
@@ -276,7 +242,6 @@ void LoadSimParms(TiXmlElement* parms)
 {
     
     TiXmlElement* temp = NULL;
-    fFixedLayout = false;
 
     // Flag indicating that the variables were correctly read
     bool fSet = true;

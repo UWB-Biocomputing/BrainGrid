@@ -35,18 +35,17 @@
 class Simulator
 {
     public:
-        Simulator(Network *network, SimulationInfo sim_info,
-            bool write_mem_image,
-            ostream& memory_out
-        );
+        Simulator(Network *network, SimulationInfo sim_info);
         
         //Performs the simulation.
-        void simulate(FLOAT growthStepDuration, FLOAT maxGrowthSteps);
+        void simulate();
         
         // Advance simulation to next growth cycle
-        void advanceUntilGrowth(const int currentStep, const int maxGrowthSteps);
+        void advanceUntilGrowth(const int currentStep);
 
         void saveState(ostream &state_out) const;
+
+        void readMemory(istream &memory_in);
         void saveMemory(ostream &memory_out) const;
     
     private:
@@ -54,13 +53,8 @@ class Simulator
         Timer short_timer;
         
         Network *network;
-        //NetworkUpdater updater;
         
         SimulationInfo m_sim_info;
-        
-        //! True if dumped memory image is written after simulation. 
-        bool write_mem_image;
-        ostream& memory_out;
 };
 
 #endif // _SIMULATOR_H_
