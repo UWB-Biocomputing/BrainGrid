@@ -66,6 +66,8 @@ struct AllNeurons
 
         //! The number of spikes since the last growth cycle
         int *spikeCount;
+        
+        uint64_t **spike_history;
 
         //! The neuron type map (INH, EXC).
         neuronType *neuron_type_map;

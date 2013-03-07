@@ -23,6 +23,7 @@ AllNeurons::AllNeurons() :
     nStepsInRefr = NULL;
     neuron_type_map = NULL;
     spikeCount = NULL;
+    spike_history = NULL;
     starter_map = NULL;
     summation_map = NULL;
 }
@@ -52,9 +53,11 @@ AllNeurons::AllNeurons(const int size) :
     spikeCount = new int[size];
     starter_map = new bool[size];
     summation_map = new FLOAT[size];
+    spike_history = new *uint64_t[size];
 
     for (int i = 0; i < size; ++i) {
         summation_map[i] = 0;
+        spike_history[i] = NULL;
     }
 }
 

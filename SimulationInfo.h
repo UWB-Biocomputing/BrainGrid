@@ -78,7 +78,7 @@ struct SimulationInfo
 	int maxSteps; // TODO: delete
 
 	//! The length of each step in simulation time
-	FLOAT stepDuration;
+	FLOAT stepDuration; // Epoch duration !!!!!!!!
 
 // NETWORK MODEL VARIABLES NMV-BEGIN {
 	//! Maximum firing rate. **Only used by GPU simulation.**
@@ -89,7 +89,7 @@ struct SimulationInfo
 // } NMV-END
 
 	//! Time elapsed between the beginning and end of the simulation step
-	FLOAT deltaT;
+	FLOAT deltaT; // Inner Simulation Step Duration !!!!!!!!
 
 	//! List of neurons
 	vector<INeuron*>* pNeuronList;

@@ -558,6 +558,10 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_i
         neurons.Vinit[i] = rng.inRange(m_Vinit[0], m_Vinit[1]);
         neurons.deltaT[i] = sim_info.deltaT;
         
+        neurons.spike_history[i] = new uint64_t[sim_info.stepDuration * growth.maxFiringRate * sim_info.max_steps];
+        // init
+        
+        
         DEBUG2(cout << "neuron" << i << " as " << neuronTypeToString(neurons.neuron_type_map[i]) << endl;);
         
         switch (neurons.neuron_type_map[i]) {
@@ -739,7 +743,7 @@ void LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses)
  * Notify outgoing synapses if neuron has fired.
  * @param[in] psi - Pointer to the simulation information.
  */
-void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses)
+void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
     // TODO: move this code into a helper class - it's being used in multiple places.
     // For each neuron in the network
@@ -749,7 +753,7 @@ void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses)
 
         // notify outgoing synapses if neuron has fired
         if (neurons.hasFired[i]) {
-            DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
+            DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * sim_info.deltaT << endl;)
 
             for (int z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
                 preSpikeHit(synapses, i, z);
@@ -807,7 +811,7 @@ void LIFModel::fire(AllNeurons &neurons, const int index) const
 
 #ifdef STORE_SPIKEHISTORY
     // record spike time
-    spikeHistory.push_back(g_simulationStep);
+    neurons.spikeHistory[index] = g_simulationStep;
 #endif // STORE_SPIKEHISTORY
 
     // increment spike count
@@ -1260,9 +1264,9 @@ void LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info)
             for (unsigned int i = 0; i < neurons.size(); i++) {
                 DEBUG2 (cout << i << " ");
                 int idx1 = (*pSpikes)[i] * sim_info.deltaT;
-                burstinessHist[idx1] = burstinessHist[idx1] + 1.0;
+                m_conns->burstinessHist[idx1] = burstinessHist[idx1] + 1.0;
                 int idx2 = (*pSpikes)[i] * sim_info.deltaT * 100;
-                spikesHistory[idx2] = spikesHistory[idx2] + 1.0;
+                m_conns->spikesHistory[idx2] = spikesHistory[idx2] + 1.0;
             }
         }
     }
