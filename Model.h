@@ -31,7 +31,7 @@ class Model {
         
         virtual void setupSim(const int num_neurons, const SimulationInfo &sim_info) =0;
 
-        virtual void advance(AllNeurons &neurons, AllSynapses &synapses) =0;
+        virtual void advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info) =0;
         
         virtual void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info) =0;
 

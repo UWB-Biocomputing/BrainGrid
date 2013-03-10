@@ -355,7 +355,7 @@ void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const int neur
     input >> synapses.F[neuron_index][synapse_index]; input.ignore();
     input >> synapses.lastSpike[neuron_index][synapse_index]; input.ignore();
 
-    synapses.type[neuron_index][synapse_index] = get_synapse_type(synapse_type);
+    synapses.type[neuron_index][synapse_index] = synapseOrdinalToType(synapse_type);
 }
 
 void LIFModel::initSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index)
@@ -558,7 +558,7 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_i
         neurons.Vinit[i] = rng.inRange(m_Vinit[0], m_Vinit[1]);
         neurons.deltaT[i] = sim_info.deltaT;
         
-        neurons.spike_history[i] = new uint64_t[sim_info.stepDuration * growth.maxFiringRate * sim_info.max_steps];
+        neurons.spike_history[i] = new uint64_t[(int) (sim_info.stepDuration * m_growth.maxRate * sim_info.maxSteps)];
         // init
         
         
@@ -733,9 +733,9 @@ void LIFModel::setupSim(const int num_neurons, const SimulationInfo &sim_info)
     }
 }
 
-void LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses)
+void LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
-    advanceNeurons(neurons, synapses);
+    advanceNeurons(neurons, synapses, sim_info);
     advanceSynapses(neurons.size, synapses);
 }
 
@@ -1257,16 +1257,16 @@ void LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info)
     // output spikes
     for (int i = 0; i < sim_info.width; i++) {
         for (int j = 0; j < sim_info.height; j++) {
-            vector<uint64_t>* pSpikes = m_neuronList[i + j * sim_info.width]->getSpikes();
+            uint64_t *pSpikes = neurons.spike_history[i + j * sim_info.width];
 
             DEBUG2 (cout << endl << coordToString(i, j) << endl);
 
-            for (unsigned int i = 0; i < neurons.size(); i++) {
+            for (int i = 0; i < neurons.size; i++) {
                 DEBUG2 (cout << i << " ");
-                int idx1 = (*pSpikes)[i] * sim_info.deltaT;
-                m_conns->burstinessHist[idx1] = burstinessHist[idx1] + 1.0;
-                int idx2 = (*pSpikes)[i] * sim_info.deltaT * 100;
-                m_conns->spikesHistory[idx2] = spikesHistory[idx2] + 1.0;
+                int idx1 = pSpikes[i] * sim_info.deltaT;
+                m_conns->burstinessHist[idx1] = m_conns->burstinessHist[idx1] + 1.0;
+                int idx2 = pSpikes[i] * sim_info.deltaT * 100;
+                m_conns->spikesHistory[idx2] = m_conns->spikesHistory[idx2] + 1.0;
             }
         }
     }

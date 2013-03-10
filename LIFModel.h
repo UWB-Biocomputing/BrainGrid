@@ -25,7 +25,7 @@ class LIFModel : public Model, TiXmlVisitor
         void saveState(ostream& output, const AllNeurons &neurons,  const SimulationInfo &sim_info);
         void createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_info);
         void setupSim(const int num_neurons, const SimulationInfo &sim_info);
-        void advance(AllNeurons& neurons, AllSynapses &synapses);
+        void advance(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
         void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
         void cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info);
         void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const;
@@ -79,7 +79,7 @@ class LIFModel : public Model, TiXmlVisitor
         // # Advance Network/Model
         // -----------------------
 
-        void advanceNeurons(AllNeurons& neurons, AllSynapses &synapses);
+        void advanceNeurons(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
         void advanceNeuron(AllNeurons& neurons, const int index);
         void fire(AllNeurons &neurons, const int index) const;
         void preSpikeHit(AllSynapses &synapses, const int neuron_index, const int synapse_index);
