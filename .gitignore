@@ -183,4 +183,7 @@ pip-log.txt
 
 # Compile and Output Files
 *.o
-growth* # Consider using an extension like .run
+make/growth # Consider using an extension like .run
+make/growth*
+growth
+growth*

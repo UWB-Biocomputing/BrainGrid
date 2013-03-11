@@ -75,6 +75,7 @@ class LIFModel : public Model, TiXmlVisitor
         void generateNeuronTypeMap(neuronType neuron_types[], int num_neurons);
         void initStarterMap(bool *starter_map, const int num_neurons, const neuronType neuron_type_map[]);
         void setNeuronDefaults(AllNeurons &neurons, const int index);
+        void updateNeuron(AllNeurons &neurons, int neuron_index);
 
         // # Advance Network/Model
         // -----------------------
@@ -126,6 +127,8 @@ class LIFModel : public Model, TiXmlVisitor
             FLOAT startRadius; // No need to wait a long time before RFs start to overlap
         };
 
+        static const bool STARTER_FLAG; // = true; // true = use endogenously active neurons in simulation
+
         FLOAT m_Iinject[2];
         FLOAT m_Inoise[2];
         FLOAT m_Vthresh[2];
@@ -147,8 +150,6 @@ class LIFModel : public Model, TiXmlVisitor
 
         double m_frac_starter_neurons;
         double m_frac_excititory_neurons;
-
-        bool starter_flag; // = true; // true = use endogenously active neurons in simulation
 
         GrowthParams m_growth;
         Connections *m_conns;

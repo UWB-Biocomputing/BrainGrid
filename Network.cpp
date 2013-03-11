@@ -24,6 +24,7 @@ Network::Network(Model *model, SimulationInfo &simInfo) :
 {
     cout << "Neuron count: " << simInfo.cNeurons << endl;
     g_simulationStep = 0;
+    cout << "Initializing neurons in network." << endl;
     m_model->createAllNeurons(neurons, m_sim_info);
 }
 

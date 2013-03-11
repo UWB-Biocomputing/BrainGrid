@@ -12,7 +12,7 @@
 #define _GLOBAL_H_
 
 #ifdef DEBUG_OUT
-DEBUG("L")
+//DEBUG("L")
 #   define DEBUG(x) x
 #else
 #   define DEBUG(x)
@@ -39,7 +39,7 @@ using namespace std;
 //! If defined, a table with time and each neuron voltage will output to stdout.
 //#define DUMP_VOLTAGES
 
-#define DEBUG_OUT
+//#define DEBUG_OUT
 //#define DEBUG_OUT2
 
 #ifdef DEBUG_OUT2

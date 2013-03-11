@@ -57,7 +57,9 @@ AllNeurons::AllNeurons(const int size) :
 
     for (int i = 0; i < size; ++i) {
         summation_map[i] = 0;
+        nStepsInRefr[i] = 0;
         spike_history[i] = NULL;
+        hasFired[i] = false;
     }
 }
 

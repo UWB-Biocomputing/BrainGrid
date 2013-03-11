@@ -13,7 +13,8 @@ HostSimulator::HostSimulator(Network *network, SimulationInfo sim_info) :
     network(network),
     m_sim_info(sim_info)
 {
-
+    // Create a normalized random number generator
+    rgNormrnd.push_back(new Norm(0, 1, sim_info.seed));
 }
 
 HostSimulator::~HostSimulator()
@@ -29,8 +30,7 @@ HostSimulator::~HostSimulator()
 */
 void HostSimulator::simulate()
 {
-    // Prepare network for simulation.
-    // TODO(derek): choose better name after refactor.
+    DEBUG(cout << "Setup simulation." << endl);
     network->setup(m_sim_info.stepDuration, m_sim_info.maxSteps);
     
     // Main simulation loop - execute maxGrowthSteps
@@ -77,7 +77,7 @@ void HostSimulator::simulate()
 
 void HostSimulator::advanceUntilGrowth(const int currentStep)
 {
-    // uint64_t count = 0; // TODO what is this?
+    DEBUG(uint64_t count = 0;)
     uint64_t endStep = g_simulationStep
             + static_cast<uint64_t>(m_sim_info.stepDuration / m_sim_info.deltaT);
 

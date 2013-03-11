@@ -5,6 +5,8 @@
 #include "ParseParamError.h"
 #include "Util.h"
 
+const bool LIFModel::STARTER_FLAG(true);
+
 LIFModel::LIFModel() :
      m_read_params(0)
     ,m_fixed_layout(false)
@@ -552,7 +554,10 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_i
         neurons.Vrest[neuron_index] = rng.inRange(m_Vresting[0], m_Vresting[1]);
         neurons.Vreset[neuron_index] = rng.inRange(m_Vreset[0], m_Vreset[1]);
         neurons.Vinit[neuron_index] = rng.inRange(m_Vinit[0], m_Vinit[1]);
+        neurons.Vm[neuron_index] = neurons.Vinit[neuron_index];
         neurons.deltaT[neuron_index] = sim_info.deltaT;
+
+        updateNeuron(neurons, neuron_index);
 
         int max_spikes = (int) ((sim_info.stepDuration * m_growth.maxRate * sim_info.maxSteps));
         neurons.spike_history[neuron_index] = new uint64_t[max_spikes];
@@ -652,18 +657,17 @@ void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
  */
 void LIFModel::initStarterMap(bool *starter_map, const int num_neurons, const neuronType neuron_type_map[])
 {
-    starter_map = new bool[num_neurons];
     for (int i = 0; i < num_neurons; i++) {
         starter_map[i] = false;
     }
     
-    if (!starter_flag) {
+    if (!STARTER_FLAG) {
         for (int i = 0; i < num_neurons; i++) {
             starter_map[i] = false;
         }
         return;
     }
-    
+
     if (m_fixed_layout) {
         size_t num_endogenously_active_neurons = m_endogenously_active_neuron_list.size();
         for (size_t i = 0; i < num_endogenously_active_neurons; i++) {
@@ -708,6 +712,32 @@ void LIFModel::setNeuronDefaults(AllNeurons &neurons, const int index)
     neurons.Inoise[index] = DEFAULT_Inoise;
     neurons.Iinject[index] = DEFAULT_Iinject;
     neurons.Tau[index] = DEFAULT_Cm * DEFAULT_Rm;
+}
+
+void LIFModel::updateNeuron(AllNeurons &neurons, int neuron_index)
+{
+    FLOAT &Tau = neurons.Tau[neuron_index];
+    FLOAT &C1 = neurons.C1[neuron_index];
+    FLOAT &C2 = neurons.C2[neuron_index];
+    FLOAT &deltaT = neurons.deltaT[neuron_index];
+    FLOAT &Rm = neurons.Rm[neuron_index];
+    FLOAT &I0 = neurons.I0[neuron_index];
+    FLOAT &Iinject = neurons.Iinject[neuron_index];
+    FLOAT &Vrest = neurons.Vrest[neuron_index];
+
+    if (Tau > 0) {
+        C1 = exp( -deltaT / Tau );
+        C2 = Rm * ( 1 - C1 );
+    } else {
+        C1 = 0.0;
+        C2 = Rm;
+    }
+    /* calculate const IO */
+    if (Rm > 0) {
+        I0 = Iinject + Vrest / Rm;
+    }else {
+        assert(false);
+    }
 }
 
 void LIFModel::setupSim(const int num_neurons, const SimulationInfo &sim_info)
@@ -787,7 +817,8 @@ void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
     } else {
         summationPoint += I0; // add IO
         // add noise
-        summationPoint += ((*rgNormrnd[0])() * Inoise); // add noise
+        FLOAT noise = (*rgNormrnd[0])();
+        summationPoint += noise * Inoise; // add noise
         Vm = C1 * Vm + C2 * summationPoint; // decay Vm and add inputs
     }
     // clear synaptic input for next time step
@@ -1032,7 +1063,7 @@ void LIFModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSyna
 	m_conns->W = m_conns->area;
 
 	int adjusted = 0;
-	// int could_have_been_removed = 0; // TODO: use this value
+	DEBUG(int could_have_been_removed = 0;) // TODO: use this value
 	int removed = 0;
 	int added = 0;
 
