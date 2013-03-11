@@ -12,7 +12,7 @@ AllSynapses::AllSynapses() :
     psr = NULL;
     decay = NULL;
     total_delay = NULL;
-    delayQueue = NULL;
+    delayQueue[0] = NULL;
     delayIdx = NULL;
     ldelayQueue = NULL;
     type = NULL;
@@ -31,38 +31,38 @@ AllSynapses::AllSynapses(const int num_neurons, const int max_synapses) :
         count_neurons(num_neurons),
         max_synapses(max_synapses)
 {
-    summationCoord = new FLOAT;
-    W = new FLOAT;
-    summationPoint = new FLOAT;
-    synapseCoord = new FLOAT;
-    deltaT = new FLOAT;
-    psr = new FLOAT;
-    decay = new FLOAT;
-    total_delay = new FLOAT;
-    delayQueue = new FLOAT;
-    delayIdx = new FLOAT;
-    ldelayQueue = new FLOAT;
-    type = new FLOAT;
-    tau = new FLOAT;
-    r = new FLOAT;
-    u = new FLOAT;
-    D = new FLOAT;
-    U = new FLOAT;
-    F = new FLOAT;
-    lastSpike = new FLOAT;
-    in_use = new FLOAT;
-    synapse_counts = new FLOAT;
+    summationCoord = new Coordinate*[num_neurons];
+    W = new FLOAT*[num_neurons];
+    summationPoint = new FLOAT**[num_neurons];
+    synapseCoord = new Coordinate*[num_neurons];
+    deltaT = new FLOAT*[num_neurons];
+    psr = new FLOAT*[num_neurons];
+    decay = new FLOAT*[num_neurons];
+    total_delay = new int*[num_neurons];
+    delayQueue[0] = new uint32_t*[num_neurons];
+    delayIdx = new int*[num_neurons];
+    ldelayQueue = new int*[num_neurons];
+    type = new synapseType*[num_neurons];
+    tau = new FLOAT*[num_neurons];
+    r = new FLOAT*[num_neurons];
+    u = new FLOAT*[num_neurons];
+    D = new FLOAT*[num_neurons];
+    U = new FLOAT*[num_neurons];
+    F = new FLOAT*[num_neurons];
+    lastSpike = new uint64_t*[num_neurons];
+    in_use = new bool*[num_neurons];
+    synapse_counts = new size_t[num_neurons];
 
     for (int i = 0; i < num_neurons; i++) {
         summationCoord[i] = new Coordinate[max_synapses];
         W[i] = new FLOAT[max_synapses];
-        summationPoint[i] = new FLOAT[max_synapses];
+        summationPoint[i] = new FLOAT*[max_synapses];
         synapseCoord[i] = new Coordinate[max_synapses];
         deltaT[i] = new FLOAT[max_synapses];
         psr[i] = new FLOAT[max_synapses];
         decay[i] = new FLOAT[max_synapses];
         total_delay[i] = new int[max_synapses];
-        delayQueue[i] = new uint32_t[max_synapses];
+        delayQueue[0][i] = new uint32_t[max_synapses];
         delayIdx[i] = new int[max_synapses];
         ldelayQueue[i] = new int[max_synapses];
         type[i] = new synapseType[max_synapses];
@@ -89,7 +89,7 @@ AllSynapses::~AllSynapses()
     for (int i = 0; i < count_neurons; i++) {
         // Release references to summation points - while held by the synapse, these references are
         // not owned by the synapse.
-        for (int j = 0; j < max_synapses; j++) {
+        for (size_t j = 0; j < max_synapses; j++) {
             summationPoint[i][j] = NULL;
         }
 
@@ -123,7 +123,7 @@ AllSynapses::~AllSynapses()
     delete[] psr;
     delete[] decay;
     delete[] total_delay;
-    delete[] delayQueue;
+    delete[] delayQueue[0];
     delete[] delayIdx;
     delete[] ldelayQueue;
     delete[] type;
@@ -145,7 +145,7 @@ AllSynapses::~AllSynapses()
     psr = NULL;
     decay = NULL;
     total_delay = NULL;
-    delayQueue = NULL;
+    delayQueue[0] = NULL;
     delayIdx = NULL;
     ldelayQueue = NULL;
     type = NULL;

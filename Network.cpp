@@ -57,7 +57,7 @@ void Network::finish(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
 
 void Network::advance()
 {
-    m_model->advance(neurons, synapses);
+    m_model->advance(neurons, synapses, m_sim_info);
 }
 
 void Network::updateConnections(const int currentStep)

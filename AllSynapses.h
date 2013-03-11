@@ -63,11 +63,11 @@ struct AllSynapses
         bool **in_use;
 
         // The number of synapses for each neuron.
-        int *synapse_counts;
+        size_t *synapse_counts;
 
         int count_neurons;
 
-        int max_synapses;
+        size_t max_synapses;
 
         AllSynapses();
         AllSynapses(const int num_neurons, const int max_synapses);

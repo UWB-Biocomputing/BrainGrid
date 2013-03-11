@@ -5,8 +5,8 @@
  *      Author: derek
  */
 
-#ifndef HOSTSIMULATOR_H_
-#define HOSTSIMULATOR_H_
+#ifndef _HOSTSIMULATOR_H_
+#define _HOSTSIMULATOR_H_
 
 #include "Simulator.h"
 
@@ -42,4 +42,4 @@ class HostSimulator: public Simulator
         SimulationInfo m_sim_info;
 };
 
-#endif /* HOSTSIMULATOR_H_ */
+#endif /* _HOSTSIMULATOR_H_ */

@@ -16,6 +16,11 @@ HostSimulator::HostSimulator(Network *network, SimulationInfo sim_info) :
 
 }
 
+HostSimulator::~HostSimulator()
+{
+    network = NULL;
+}
+
 /**
 * Run simulation
 *
@@ -72,7 +77,7 @@ void HostSimulator::simulate()
 
 void HostSimulator::advanceUntilGrowth(const int currentStep)
 {
-    uint64_t count = 0;
+    // uint64_t count = 0; // TODO what is this?
     uint64_t endStep = g_simulationStep
             + static_cast<uint64_t>(m_sim_info.stepDuration / m_sim_info.deltaT);
 

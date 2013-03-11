@@ -19,7 +19,7 @@ class Model {
         
         virtual bool readParameters(TiXmlElement *source) =0;
         
-        virtual void printParameters(ostream &output) const;
+        virtual void printParameters(ostream &output) const =0;
         
         virtual void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info) =0;
 

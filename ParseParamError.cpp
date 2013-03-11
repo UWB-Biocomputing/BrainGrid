@@ -7,7 +7,7 @@ ParseParamError::ParseParamError(const string paramName, const string errorMessa
     // Constructor
 }
 
-ParseParamError::print(ostream &output) const
+void ParseParamError::print(ostream &output) const
 {
     output << "ERROR :: Failed to parse parameter \"" << m_paramName << "\".";
     output << " Cause: " << m_errorMessage;

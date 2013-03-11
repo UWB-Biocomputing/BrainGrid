@@ -27,7 +27,7 @@ bool LIFModel::readParameters(TiXmlElement *source)
     try {
         source->Accept(this);
     } catch (ParseParamError &error) {
-        error.printError(cerr);
+        error.print(cerr);
         cerr << endl;
         return false;
     }
@@ -417,9 +417,9 @@ void LIFModel::saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &syn
     }
     output << synapse_count;
 
-    for (int i = 0; i < neurons.size; i++) {
-        for (int j = 0; j < synapses.synapse_counts[i]; j++) {
-            writeSynapse(output, synapses, i, j);
+    for (int neuron_index = 0; neuron_index < neurons.size; neuron_index++) {
+        for (size_t synapse_index = 0; synapse_index < synapses.synapse_counts[neuron_index]; synapse_index++) {
+            writeSynapse(output, synapses, neuron_index, synapse_index);
         }
     }
 
@@ -488,10 +488,6 @@ void LIFModel::saveState(ostream &output, const AllNeurons &neurons, const Simul
 {
     output << "   " << m_conns->radiiHistory.toXML("radiiHistory") << endl;
     output << "   " << m_conns->ratesHistory.toXML("ratesHistory") << endl;
-
-#ifdef STORE_SPIKEHISTORY
-    get_spike_history(m_conns->burstinessHist, m_conns->spikesHistory);
-#endif // STORE_SPIKEHISTORY
     output << "   " << m_conns->burstinessHist.toXML("burstinessHist") << endl;
     output << "   " << m_conns->spikesHistory.toXML("spikesHistory") << endl;
 
@@ -547,51 +543,48 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_i
     initStarterMap(neurons.starter_map, neurons.size, neurons.neuron_type_map);
     
     /* set their specific types */
-    for (int i = 0; i < neurons.size; i++) {
-        setNeuronDefaults(neurons, i);
+    for (int neuron_index = 0; neuron_index < neurons.size; neuron_index++) {
+        setNeuronDefaults(neurons, neuron_index);
 
-        neurons.Iinject[i] = rng.inRange(m_Iinject[0], m_Iinject[1]);
-        neurons.Inoise[i] = rng.inRange(m_Inoise[0], m_Inoise[1]);
-        neurons.Vthresh[i] = rng.inRange(m_Vthresh[0], m_Vthresh[1]);
-        neurons.Vrest[i] = rng.inRange(m_Vresting[0], m_Vresting[1]);
-        neurons.Vreset[i] = rng.inRange(m_Vreset[0], m_Vreset[1]);
-        neurons.Vinit[i] = rng.inRange(m_Vinit[0], m_Vinit[1]);
-        neurons.deltaT[i] = sim_info.deltaT;
-        
-        neurons.spike_history[i] = new uint64_t[(int) (sim_info.stepDuration * m_growth.maxRate * sim_info.maxSteps)];
-        // init
-        
-        
-        DEBUG2(cout << "neuron" << i << " as " << neuronTypeToString(neurons.neuron_type_map[i]) << endl;);
-        
-        switch (neurons.neuron_type_map[i]) {
+        neurons.Iinject[neuron_index] = rng.inRange(m_Iinject[0], m_Iinject[1]);
+        neurons.Inoise[neuron_index] = rng.inRange(m_Inoise[0], m_Inoise[1]);
+        neurons.Vthresh[neuron_index] = rng.inRange(m_Vthresh[0], m_Vthresh[1]);
+        neurons.Vrest[neuron_index] = rng.inRange(m_Vresting[0], m_Vresting[1]);
+        neurons.Vreset[neuron_index] = rng.inRange(m_Vreset[0], m_Vreset[1]);
+        neurons.Vinit[neuron_index] = rng.inRange(m_Vinit[0], m_Vinit[1]);
+        neurons.deltaT[neuron_index] = sim_info.deltaT;
+
+        int max_spikes = (int) ((sim_info.stepDuration * m_growth.maxRate * sim_info.maxSteps));
+        neurons.spike_history[neuron_index] = new uint64_t[max_spikes];
+        for (int j = 0; j < max_spikes; ++j) {
+            neurons.spike_history[neuron_index][j] = -1;
+        }
+
+        switch (neurons.neuron_type_map[neuron_index]) {
             case INH:
-                DEBUG2(cout << "setting inhibitory neuron: "<< i << endl;)
+                DEBUG2(cout << "setting inhibitory neuron: "<< neuron_index << endl;)
                 // set inhibitory absolute refractory period
-                neurons.Trefract[i] = DEFAULT_InhibTrefract; // TODO(derek): move defaults inside model.
+                neurons.Trefract[neuron_index] = DEFAULT_InhibTrefract;// TODO(derek): move defaults inside model.
                 break;
-
+                
             case EXC:
-                DEBUG2(cout << "setting exitory neuron: " << i << endl;)
+                DEBUG2(cout << "setting exitory neuron: " << neuron_index << endl;)
                 // set excitory absolute refractory period
-                neurons.Trefract[i] = DEFAULT_ExcitTrefract;
+                neurons.Trefract[neuron_index] = DEFAULT_ExcitTrefract;
                 break;
-
+                
             default:
-                DEBUG2(cout << "ERROR: unknown neuron type: " << m_rgNeuronTypeMap[i] << "@" << i << endl;)
+                DEBUG2(cout << "ERROR: unknown neuron type: " << m_rgNeuronTypeMap[neuron_index] << "@" << neuron_index << endl;)
                 assert(false);
                 break;
         }
-
         // endogenously_active_neuron_map -> Model State
-        if (neurons.starter_map[i]) {
-            DEBUG2(cout << "setting endogenously active neuron properties" << endl;)
+        if (neurons.starter_map[neuron_index]) {
             // set endogenously active threshold voltage, reset voltage, and refractory period
-            neurons.Vthresh[i] = rng.inRange(m_starter_Vthresh[0], m_starter_Vthresh[1]);
-            neurons.Vreset[i] = rng.inRange(m_starter_Vreset[0], m_starter_Vreset[1]);
-            neurons.Trefract[i] = DEFAULT_ExcitTrefract; // TODO(derek): move defaults inside model.
+            neurons.Vthresh[neuron_index] = rng.inRange(m_starter_Vthresh[0], m_starter_Vthresh[1]);
+            neurons.Vreset[neuron_index] = rng.inRange(m_starter_Vreset[0], m_starter_Vreset[1]);
+            neurons.Trefract[neuron_index] = DEFAULT_ExcitTrefract; // TODO(derek): move defaults inside model.
         }
-        DEBUG2(cout << neuronToString(neurons, i) << endl;)
     }
     
     DEBUG(cout << "Done initializing neurons..." << endl;)
@@ -607,20 +600,19 @@ void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
     
     DEBUG(cout << "\nInitializing neuron type map"<< endl;);
     
-    neuronType types[num_neurons];
     for (int i = 0; i < num_neurons; i++) {
-        types[i] = EXC;
+        neuron_types[i] = EXC;
     }
     
     if (m_fixed_layout) {
         int num_inhibitory_neurons = m_inhibitory_neuron_layout.size();
-        int num_excititory_neurons = num_neurons - num_inhibitory_neurons;
+        DEBUG(int num_excititory_neurons = num_neurons - num_inhibitory_neurons);
         DEBUG(cout << "Total neurons: " << num_neurons << endl;)
         DEBUG(cout << "Inhibitory Neurons: " << num_inhibitory_neurons << endl;)
         DEBUG(cout << "Excitatory Neurons: " << num_excititory_neurons << endl;)
         
         for (int i = 0; i < num_inhibitory_neurons; i++) {
-            types[m_inhibitory_neuron_layout.at(i)] = INH;
+            neuron_types[m_inhibitory_neuron_layout.at(i)] = INH;
         }
     } else {
         int num_excititory_neurons = (int) (m_frac_excititory_neurons * num_neurons + 0.5);
@@ -645,7 +637,7 @@ void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
         }
         
         for (int i = 0; i < num_inhibitory_neurons; i++) {
-            types[rg_inhibitory_layout[i]] = INH;
+            neuron_types[rg_inhibitory_layout[i]] = INH;
         }
     }
     
@@ -811,7 +803,7 @@ void LIFModel::fire(AllNeurons &neurons, const int index) const
 
 #ifdef STORE_SPIKEHISTORY
     // record spike time
-    neurons.spikeHistory[index] = g_simulationStep;
+    neurons.spike_history[index][neurons.spikeCount[index]] = g_simulationStep;
 #endif // STORE_SPIKEHISTORY
 
     // increment spike count
@@ -1040,7 +1032,7 @@ void LIFModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSyna
 	m_conns->W = m_conns->area;
 
 	int adjusted = 0;
-	int could_have_been_removed = 0; // TODO: use this value
+	// int could_have_been_removed = 0; // TODO: use this value
 	int removed = 0;
 	int added = 0;
 
@@ -1128,7 +1120,7 @@ void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const int src
     }
 
     // add it to the list
-    int synapse_index;
+    size_t synapse_index;
     for (synapse_index = 0; synapse_index < synapses.max_synapses; synapse_index++) {
         if (!synapses.in_use[src_neuron][synapse_index]) {
             break;
@@ -1247,6 +1239,9 @@ int LIFModel::synSign(const synapseType type)
         case EI:
         case EE:
             return 1;
+        case STYPE_UNDEF:
+            // TODO error.
+            return 0;
     }
 
     return 0;
@@ -1254,14 +1249,16 @@ int LIFModel::synSign(const synapseType type)
 
 void LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info)
 {
+#ifdef STORE_SPIKEHISTORY
     // output spikes
     for (int i = 0; i < sim_info.width; i++) {
         for (int j = 0; j < sim_info.height; j++) {
-            uint64_t *pSpikes = neurons.spike_history[i + j * sim_info.width];
+            int neuron_index = i + j * sim_info.width;
+            uint64_t *pSpikes = neurons.spike_history[neuron_index];
 
             DEBUG2 (cout << endl << coordToString(i, j) << endl);
 
-            for (int i = 0; i < neurons.size; i++) {
+            for (int i = 0; i < neurons.spikeCount[neuron_index]; i++) {
                 DEBUG2 (cout << i << " ");
                 int idx1 = pSpikes[i] * sim_info.deltaT;
                 m_conns->burstinessHist[idx1] = m_conns->burstinessHist[idx1] + 1.0;
@@ -1270,6 +1267,7 @@ void LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info)
             }
         }
     }
+#endif // STORE_SPIKEHISTORY
 }
 
 void LIFModel::logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const

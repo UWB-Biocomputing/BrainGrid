@@ -63,7 +63,8 @@ SINGLEOBJS = $(MAIN)/BGDriver.o \
        $(MAIN)/AllNeurons.o \
        $(MAIN)/AllSynapses.o \
        $(MAIN)/ParseParamError.o \
-       $(MAIN)/global.o 
+       $(MAIN)/global.o \
+       $(MAIN)/Util.o
 
 MULTIOBJS = $(MAIN)/HostSim.o \
        $(MAIN)/MultiThreadedSim.o \

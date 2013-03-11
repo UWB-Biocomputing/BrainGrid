@@ -53,7 +53,7 @@ AllNeurons::AllNeurons(const int size) :
     spikeCount = new int[size];
     starter_map = new bool[size];
     summation_map = new FLOAT[size];
-    spike_history = new *uint64_t[size];
+    spike_history = new uint64_t*[size];
 
     for (int i = 0; i < size; ++i) {
         summation_map[i] = 0;

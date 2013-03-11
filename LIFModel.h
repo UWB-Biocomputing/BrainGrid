@@ -16,7 +16,7 @@ class LIFModel : public Model, TiXmlVisitor
 
     public:
         LIFModel();
-        ~LIFModel();
+        virtual ~LIFModel();
 
         bool readParameters(TiXmlElement *source);
         void printParameters(ostream &output) const;
