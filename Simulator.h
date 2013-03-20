@@ -3,8 +3,7 @@
  *
  * @authors Derek McLean
  *
- * @brief Base class for model-independent simulators targeting different
- *          platforms.
+ * @brief Base class for model-independent simulators targeting different platforms.
  */
 
 #pragma once
@@ -24,10 +23,6 @@ using namespace std;
  *
  * As of the current version, this class is a staging area of extracting into
  * a common location core simulator code.
- *
- * @todo link this code back into the ISimulator hierarchy.
- *
- * @version 0.1
  */
 
 class Simulator
@@ -35,15 +30,31 @@ class Simulator
     public:
         virtual ~Simulator() {};
         
-        //Performs the simulation.
+        /**
+         * Performs the simulation.
+         */
         virtual void simulate() =0;
         
-        // Advance simulation to next growth cycle
+        /**
+         * Advance simulation to next growth cycle.
+         *
+         * @param currentStep - the current epoch of the simulation.
+         */
         virtual void advanceUntilGrowth(const int currentStep) =0;
 
+        /**
+         * TODO(derek) comment.
+         */
         virtual void saveState(ostream &state_out) const =0;
 
+        /**
+         * TODO(derek) comment.
+         */
         virtual void readMemory(istream &memory_in) =0;
+
+        /**
+         * TODO(derek) comment.
+         */
         virtual void saveMemory(ostream &memory_out) const =0;
 };
 

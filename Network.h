@@ -87,19 +87,13 @@ class Network
         //! Print network radii to console.
         void logSimStep() const;
 
-    // -----------------------------------------------------------------------------
-    
         Model *m_model;
         AllNeurons neurons;
         AllSynapses synapses;
-    
-    // -----------------------------------------------------------------------------
-    
+
         //! The map of summation points.
         FLOAT* m_summationMap;
-    
-    // -----------------------------------------------------------------------------
-    
+
     private:
         // Struct that holds information about a simulation
         SimulationInfo m_sim_info;
