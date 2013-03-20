@@ -12,7 +12,7 @@ AllSynapses::AllSynapses() :
     psr = NULL;
     decay = NULL;
     total_delay = NULL;
-    delayQueue[0] = NULL;
+    delayQueue = NULL;
     delayIdx = NULL;
     ldelayQueue = NULL;
     type = NULL;
@@ -39,7 +39,7 @@ AllSynapses::AllSynapses(const int num_neurons, const int max_synapses) :
     psr = new FLOAT*[num_neurons];
     decay = new FLOAT*[num_neurons];
     total_delay = new int*[num_neurons];
-    delayQueue[0] = new uint32_t*[num_neurons];
+    delayQueue = new uint32_t**[num_neurons];
     delayIdx = new int*[num_neurons];
     ldelayQueue = new int*[num_neurons];
     type = new synapseType*[num_neurons];
@@ -62,7 +62,7 @@ AllSynapses::AllSynapses(const int num_neurons, const int max_synapses) :
         psr[i] = new FLOAT[max_synapses];
         decay[i] = new FLOAT[max_synapses];
         total_delay[i] = new int[max_synapses];
-        delayQueue[0][i] = new uint32_t[max_synapses];
+        delayQueue[i] = new uint32_t*[max_synapses];
         delayIdx[i] = new int[max_synapses];
         ldelayQueue[i] = new int[max_synapses];
         type[i] = new synapseType[max_synapses];
@@ -76,8 +76,11 @@ AllSynapses::AllSynapses(const int num_neurons, const int max_synapses) :
         in_use[i] = new bool[max_synapses];
 
         for (int j = 0; j < max_synapses; j++) {
-            in_use[i][j] = false;
             summationPoint[i][j] = NULL;
+            delayQueue[i][j] = new uint32_t[1];
+            delayIdx[i][j] = 0;
+            ldelayQueue[i][j] = 0;
+            in_use[i][j] = false;
         }
 
         synapse_counts[i] = 0;
@@ -91,6 +94,8 @@ AllSynapses::~AllSynapses()
         // not owned by the synapse.
         for (size_t j = 0; j < max_synapses; j++) {
             summationPoint[i][j] = NULL;
+            delete delayQueue[i][j];
+            delayQueue[i][j] = NULL;
         }
 
         delete[] summationCoord[i];
@@ -123,7 +128,7 @@ AllSynapses::~AllSynapses()
     delete[] psr;
     delete[] decay;
     delete[] total_delay;
-    delete[] delayQueue[0];
+    delete[] delayQueue;
     delete[] delayIdx;
     delete[] ldelayQueue;
     delete[] type;
@@ -145,7 +150,7 @@ AllSynapses::~AllSynapses()
     psr = NULL;
     decay = NULL;
     total_delay = NULL;
-    delayQueue[0] = NULL;
+    delayQueue = NULL;
     delayIdx = NULL;
     ldelayQueue = NULL;
     type = NULL;

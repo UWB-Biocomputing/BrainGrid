@@ -60,6 +60,7 @@ AllNeurons::AllNeurons(const int size) :
         nStepsInRefr[i] = 0;
         spike_history[i] = NULL;
         hasFired[i] = false;
+        spikeCount[i] = 0;
     }
 }
 

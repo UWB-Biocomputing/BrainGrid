@@ -473,7 +473,7 @@ void LIFModel::writeSynapse(ostream& output, AllSynapses &synapses, const int ne
     output << synapses.psr[neuron_index][synapse_index] << ends;
     output << synapses.decay[neuron_index][synapse_index] << ends;
     output << synapses.total_delay[neuron_index][synapse_index] << ends;
-    output << synapses.delayQueue[neuron_index][synapse_index] << ends;
+    output << synapses.delayQueue[neuron_index][synapse_index][0] << ends;
     output << synapses.delayIdx[neuron_index][synapse_index] << ends;
     output << synapses.ldelayQueue[neuron_index][synapse_index] << ends;
     output << synapses.type[neuron_index][synapse_index] << ends;
@@ -901,6 +901,18 @@ void LIFModel::advanceSynapse(AllSynapses &synapses, const int neuron_index, con
         // adjust synapse parameters
         if (lastSpike != ULONG_MAX) {
             FLOAT isi = (g_simulationStep - lastSpike) * deltaT ;
+            /*
+            DEBUG(
+                    cout << "Synapse (" << neuron_index << "," << synapse_index << ") =>"
+                         << "r := " << r << " " << flush
+                         << "u := " << u << " " << flush
+                         << "isi := " << isi << " " << flush
+                         << "D := " << D << " " << flush
+                         << "U := " << U << " " << flush
+                         << "F := " << F
+                         << endl;
+            )
+            */
             r = 1 + ( r * ( 1 - u ) - 1 ) * exp( -isi / D );
             u = U + u * ( 1 - U ) * exp( -isi / F );
         }
@@ -952,12 +964,12 @@ void LIFModel::updateConnections(const int currentStep, AllNeurons &neurons, All
 void LIFModel::updateHistory(const int currentStep, FLOAT stepDuration, AllNeurons &neurons)
 {
 	// Calculate growth cycle firing rate for previous period
-	getSpikeCounts(neurons, m_conns->spikeCounts);
+	//getSpikeCounts(neurons, m_conns->spikeCounts);
 
 	// Calculate growth cycle firing rate for previous period
 	for (int i = 0; i < neurons.size; i++) {
 		// Calculate firing rate
-		m_conns->rates[i] = m_conns->spikeCounts[i] / stepDuration;
+		m_conns->rates[i] = neurons.spikeCount[i] / stepDuration;
 		// record firing rate to history matrix
 		m_conns->ratesHistory(currentStep, i) = m_conns->rates[i];
 	}
@@ -1176,35 +1188,66 @@ void LIFModel::createSynapse(AllSynapses &synapses, const int neuron_index, cons
     synapses.deltaT[neuron_index][synapse_index] = deltaT;
     synapses.W[neuron_index][synapse_index] = 10.0e-9;
     synapses.psr[neuron_index][synapse_index] = 0.0;
-    synapses.delayQueue[neuron_index][synapse_index] = 0;
+    synapses.delayQueue[neuron_index][synapse_index][0] = 0;
+    DEBUG(
+        cout << "synapse ("
+                << neuron_index << flush
+                << ","
+                << synapse_index << flush
+            << ")"
+            << "delay queue length := " << synapses.ldelayQueue[neuron_index][synapse_index] << flush
+            << " => " << LENGTH_OF_DELAYQUEUE << endl;
+    )
     synapses.ldelayQueue[neuron_index][synapse_index] = LENGTH_OF_DELAYQUEUE;
     synapses.r[neuron_index][synapse_index] = 1.0;
     synapses.u[neuron_index][synapse_index] = 0.4;     // DEFAULT_U
     synapses.lastSpike[neuron_index][synapse_index] = ULONG_MAX;
     synapses.type[neuron_index][synapse_index] = type;
 
+    synapses.U[neuron_index][synapse_index] = DEFAULT_U;
+    synapses.tau[neuron_index][synapse_index] = DEFAULT_tau;
+
+    FLOAT U;
+    FLOAT D;
+    FLOAT F;
     FLOAT tau;
-    switch ( type ) {
+    switch (type) {
         case II:
+            U = 0.32;
+            D = 0.144;
+            F = 0.06;
             tau = 6e-3;
             delay = 0.8e-3;
             break;
         case IE:
+            U = 0.25;
+            D = 0.7;
+            F = 0.02;
             tau = 6e-3;
             delay = 0.8e-3;
             break;
         case EI:
+            U = 0.05;
+            D = 0.125;
+            F = 1.2;
             tau = 3e-3;
             delay = 0.8e-3;
             break;
         case EE:
+            U = 0.5;
+            D = 1.1;
+            F = 0.05;
             tau = 3e-3;
             delay = 1.5e-3;
             break;
-        case STYPE_UNDEF:
-            // TODO: error;
+        default:
+            assert( false );
             break;
     }
+
+    synapses.U[neuron_index][synapse_index] = U;
+    synapses.D[neuron_index][synapse_index] = D;
+    synapses.F[neuron_index][synapse_index] = F;
 
     synapses.tau[neuron_index][synapse_index] = tau;
     synapses.total_delay[neuron_index][synapse_index] = static_cast<int>( delay / deltaT ) + 1;

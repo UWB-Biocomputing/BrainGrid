@@ -35,7 +35,7 @@ struct AllSynapses
 #define BYTES_OF_DELAYQUEUE         ( sizeof(uint32_t) / sizeof(uint8_t) )
 #define LENGTH_OF_DELAYQUEUE        ( BYTES_OF_DELAYQUEUE * 8 )
         //! The delayed queue
-        uint32_t **(delayQueue[1]);
+        uint32_t ***delayQueue;
         //! The index indicating the current time slot in the delayed queue
         int **delayIdx;
         //! Length of the delayed queue
