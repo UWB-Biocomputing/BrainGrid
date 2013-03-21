@@ -71,7 +71,6 @@ void HostSimulator::simulate()
     }
 
     // Tell network to clean-up and run any post-simulation logic.
-    // TODO(derek): choose better name after refactor.
     network->finish(m_sim_info.stepDuration, m_sim_info.maxSteps);
 }
 

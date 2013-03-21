@@ -1116,7 +1116,7 @@ void LIFModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSyna
 						// adjust
 						// g_synapseStrengthAdjustmentConstant is 1.0e-8;
 					    synapses.W[src_neuron][synapse_index] = m_conns->W(src_neuron, dest_neuron) *
-							synSign(type) * g_synapseStrengthAdjustmentConstant; // TODO( synSign in HostSim )
+							synSign(type) * g_synapseStrengthAdjustmentConstant;
 
 						DEBUG2(cout << "weight of rgSynapseMap" <<
 							   coordToString(xa, ya)<<"[" <<synapse_index<<"]: " <<

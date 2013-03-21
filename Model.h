@@ -40,10 +40,9 @@ class Model {
     public:
         virtual ~Model() { }
 
-        /**
-         * +--------------------+
-         * | Network IO Methods |
-         * +--------------------+
+        /* -----------------------------------------------------------------------------------------
+         * # Network IO Methods
+         * --------------------
          */
 
         /**
@@ -78,10 +77,9 @@ class Model {
          */
         virtual void saveState(ostream& output, const AllNeurons &neurons, const SimulationInfo &sim_info) =0;
 
-        /**
-         * +------------------+
-         * | Network Creation |
-         * +------------------+
+        /* -----------------------------------------------------------------------------------------
+         * Network Creation
+         * ----------------
          */
 
         /**
@@ -92,10 +90,9 @@ class Model {
          */
         virtual void createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_info) =0;
 
-        /**
-         * +----------------------------+
-         * | Network Simulation Methods |
-         * +----------------------------+
+        /* -----------------------------------------------------------------------------------------
+         * Network Simulation Methods
+         * --------------------------
          */
 
         /**

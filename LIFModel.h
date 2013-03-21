@@ -1,3 +1,34 @@
+/**
+ * @brief A leaky-integrate-and-fire (I&F) neural network model.
+ *
+ * @class LIFModel LIFModel.h "LIFModel.h"
+ *
+ * Implements both neuron and synapse behaviour.
+ *
+ * A standard leaky-integrate-and-fire neuron model is implemented
+ * where the membrane potential \f$V_m\f$ of a neuron is given by
+ * \f[
+ *   \tau_m \frac{d V_m}{dt} = -(V_m-V_{resting}) + R_m \cdot (I_{syn}(t)+I_{inject}+I_{noise})
+ * \f]
+ * where \f$\tau_m=C_m\cdot R_m\f$ is the membrane time constant,
+ * \f$R_m\f$ is the membrane resistance, \f$I_{syn}(t)\f$ is the
+ * current supplied by the synapses, \f$I_{inject}\f$ is a
+ * non-specific background current and \f$I_{noise}\f$ is a
+ * Gaussian random variable with zero mean and a given variance
+ * noise.
+ *
+ * At time \f$t=0\f$ \f$V_m\f$ is set to \f$V_{init}\f$. If
+ * \f$V_m\f$ exceeds the threshold voltage \f$V_{thresh}\f$ it is
+ * reset to \f$V_{reset}\f$ and hold there for the length
+ * \f$T_{refract}\f$ of the absolute refractory period.
+ *
+ * The exponential Euler method is used for numerical integration.
+ *
+ * This model is a rewrite of work by Stiber, Kawasaki, Allan Ortiz, and Cory Mayberry
+ *
+ * @authors Derek McLean
+ */
+#pragma once
 #ifndef _LIFMODEL_H_
 #define _LIFMODEL_H_
 
@@ -11,12 +42,22 @@ using namespace std;
 #define BYTES_OF_DELAYQUEUE         ( sizeof(uint32_t) / sizeof(uint8_t) )
 #define LENGTH_OF_DELAYQUEUE        ( BYTES_OF_DELAYQUEUE * 8 )
 
+/**
+ * Implementation of Model for the Leaky-Integrate-and-Fire model.
+ */
 class LIFModel : public Model, TiXmlVisitor
 {
 
     public:
         LIFModel();
         virtual ~LIFModel();
+
+        /*
+         * Definitions of concrete implementations of Model interface for an Leaky-Integrate-and-Fire
+         * model.
+         *
+         * @see Model.h
+         */
 
         bool readParameters(TiXmlElement *source);
         void printParameters(ostream &output) const;
@@ -32,9 +73,10 @@ class LIFModel : public Model, TiXmlVisitor
 
     protected:
 
-        // -----------------------------------------------------------------------------------------
-        // # Helper Functions
-        // ------------------
+        /* -----------------------------------------------------------------------------------------
+         * # Helper Functions
+         * ------------------
+         */
 
         // # Read Parameters
         // -----------------
@@ -114,6 +156,7 @@ class LIFModel : public Model, TiXmlVisitor
         synapseType synapseOrdinalToType(const int type_ordinal);
 
     private:
+        /** State of connections in the network. */
         struct Connections;
         struct GrowthParams
         {
@@ -155,6 +198,10 @@ class LIFModel : public Model, TiXmlVisitor
         Connections *m_conns;
 };
 
+/**
+ * Maintains intra-epoch state of connections in the network. This includes history and parameters
+ * that inform how new connections are made during growth.
+ */
 struct LIFModel::Connections
 {
         static const string MATRIX_TYPE;
