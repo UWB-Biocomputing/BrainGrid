@@ -44,13 +44,13 @@ Network::~Network()
  *
  * @param maxGrowthSteps
  */
-void Network::setup(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
+void Network::setup(BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps)
 {
 
     m_model->setupSim(neurons.size, m_sim_info);
 }
 
-void Network::finish(FLOAT growthStepDuration, FLOAT maxGrowthSteps)
+void Network::finish(BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps)
 {
     // Terminate the simulator
     m_model->cleanupSim(neurons, m_sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
@@ -97,7 +97,7 @@ void Network::reset()
     // Reset global simulation Step to 0
     g_simulationStep = 0;
 
-    m_summationMap = new FLOAT[m_sim_info.cNeurons];
+    m_summationMap = new BGFLOAT[m_sim_info.cNeurons];
 
     // initialize maps
     for (int i = 0; i < m_sim_info.cNeurons; i++)
@@ -125,7 +125,7 @@ void Network::saveState(ostream& os)
 *
 * @param os	The filestream to write
 */
-void Network::writeSimMemory(FLOAT simulation_step, ostream& os)
+void Network::writeSimMemory(BGFLOAT simulation_step, ostream& os)
 {
     m_model->saveMemory(os, neurons, synapses, simulation_step);
 }

@@ -71,7 +71,7 @@ protected:
     if C++ just allowed one to declare a class abstract. Really
     obsoleted since the Print() method is pure virtual now.
   */
-  Matrix(string t = "", string i = "", int r = 0, int c = 0, FLOAT m = 0.0);
+  Matrix(string t = "", string i = "", int r = 0, int c = 0, BGFLOAT m = 0.0);
 
   /*!
     @brief Convenience mutator
@@ -82,7 +82,7 @@ protected:
     @param m multiplier used for initialization
     @param d indicates one or two dimensional
   */
-  void SetAttributes(string t, string i, int r, int c, FLOAT m, int d);
+  void SetAttributes(string t, string i, int r, int c, BGFLOAT m, int d);
 
   /*! @name Attributes from XML files */
   //@{
@@ -100,7 +100,7 @@ protected:
   int columns;
 
   /*! Constant used for initialization  */
-  FLOAT multiplier;
+  BGFLOAT multiplier;
 
   //@}
 

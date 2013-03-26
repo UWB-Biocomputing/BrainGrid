@@ -102,7 +102,7 @@ INeuron* HostSim::returnNeuron()
 ISynapse* HostSim::addSynapse(SimulationInfo* psi, int source_x, int source_y, int dest_x, int dest_y)
 {
     // locate summation point
-    FLOAT* sp = &(psi->pSummationMap[dest_x + dest_y * psi->width]);
+    BGFLOAT* sp = &(psi->pSummationMap[dest_x + dest_y * psi->width]);
 
     // determine the synapse type
     synapseType type = synType(psi, Coordinate(source_x, source_y), Coordinate(dest_x, dest_y));

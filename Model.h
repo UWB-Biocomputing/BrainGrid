@@ -71,7 +71,7 @@ class Model {
         /**
          * TODO(derek) comment.
          */
-        virtual void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, FLOAT simulation_step) =0;
+        virtual void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, BGFLOAT simulation_step) =0;
 
         /**
          * TODO(derek) comment.

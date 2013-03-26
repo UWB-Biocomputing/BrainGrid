@@ -200,7 +200,7 @@ SparseMatrix::Element* SparseMatrix::HashTable::retrieve(int r, int c)
   @param v new value for Element
   @throws KII_invalid_argument
 */
-void SparseMatrix::HashTable::update(int r, int c, FLOAT v)
+void SparseMatrix::HashTable::update(int r, int c, BGFLOAT v)
 {
   Element* el = retrieve(r, c);
 
@@ -225,7 +225,7 @@ void SparseMatrix::HashTable::update(int r, int c, FLOAT v)
   @param m multiplier used for initialization
   @param e pointer to Matrix element in XML
 */
-SparseMatrix::SparseMatrix(int r, int c, FLOAT m, TiXmlElement* e) 
+SparseMatrix::SparseMatrix(int r, int c, BGFLOAT m, TiXmlElement* e) 
   : Matrix("sparse", "none", r, c, m), theRows(NULL), theColumns(NULL), 
     theElements(MaxElements(r,c), c, this)
 {
@@ -276,7 +276,7 @@ SparseMatrix::SparseMatrix(int r, int c, FLOAT m, TiXmlElement* e)
   @param m multiplier used for initialization
   @param v string of initialization values
 */
-SparseMatrix::SparseMatrix(int r, int c, FLOAT m, const char* v)
+SparseMatrix::SparseMatrix(int r, int c, BGFLOAT m, const char* v)
   : Matrix("sparse", "none", r, c, m), theRows(NULL), theColumns(NULL), 
     theElements(MaxElements(r,c), c, this)
 {
@@ -308,7 +308,7 @@ SparseMatrix::SparseMatrix(int r, int c, FLOAT m, const char* v)
     istringstream valStream(v);
     for (int i=0; i<rows; i++) {
       Element* el;
-      FLOAT val;
+      BGFLOAT val;
       valStream >> val;
       if ((el = new Element(i, i, val*multiplier)) == NULL)
 	throw KII_bad_alloc("Failed allocating storage for SparseMatrix.");
@@ -559,10 +559,10 @@ void SparseMatrix::rowFromXML(TiXmlElement* rowElement)
   for (TiXmlElement* child = rowElement->FirstChildElement("Entry"); 
        child != NULL; child=child->NextSiblingElement("Entry")) {
     int colNum;
-    FLOAT val;
+    BGFLOAT val;
     if (child->QueryIntAttribute("number", &colNum)!=TIXML_SUCCESS)
       throw KII_invalid_argument("Attempt to read SparseMatrix Entry without a number");
-    if (child->QueryFLOATAttribute("value", &val)!=TIXML_SUCCESS)
+    if (child->QueryBGFLOATAttribute("value", &val)!=TIXML_SUCCESS)
       throw KII_invalid_argument("Attempt to read SparseMatrix Entry without a value");
     Element* el = new Element(rowNum, colNum, val);
     theRows[rowNum].push_back(el);
@@ -660,7 +660,7 @@ string SparseMatrix::toXML(string name) const
   @result value of element at that location
   @throws KII_bad_alloc
 */
-FLOAT& SparseMatrix::operator()(int r, int c)
+BGFLOAT& SparseMatrix::operator()(int r, int c)
 {
   Element* el = theElements.retrieve(r, c);
 
@@ -736,7 +736,7 @@ const VectorMatrix operator*(const VectorMatrix& v, const SparseMatrix& m)
  // equal to the row position of the m element. The result is the sum
  // of those products.
  for (int col=0; col<m.columns; col++) {
-   FLOAT sum = 0.0;
+   BGFLOAT sum = 0.0;
    for (list<SparseMatrix::Element*>::iterator el=m.theColumns[col].begin();
 	el!=m.theColumns[col].end(); el++)
      sum += (*el)->value * v[(*el)->row];

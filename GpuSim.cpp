@@ -347,9 +347,9 @@ void GpuSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiHistory, Co
 
             if (delta(i, j) < 0)
             {
-                FLOAT lenAB = dist(i, j);
-                FLOAT r1 = radii[i];
-                FLOAT r2 = radii[j];
+                BGFLOAT lenAB = dist(i, j);
+                BGFLOAT r1 = radii[i];
+                BGFLOAT r2 = radii[j];
 
                 if (lenAB + min(r1, r2) <= max(r1, r2))
                 {
@@ -362,17 +362,17 @@ void GpuSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiHistory, Co
                 else
                 {
                     // Partially overlapping unit
-                    FLOAT lenAB2 = dist2(i, j);
-                    FLOAT r12 = r1 * r1;
-                    FLOAT r22 = r2 * r2;
+                    BGFLOAT lenAB2 = dist2(i, j);
+                    BGFLOAT r12 = r1 * r1;
+                    BGFLOAT r22 = r2 * r2;
 
-                    FLOAT cosCBA = (r22 + lenAB2 - r12) / (2.0 * r2 * lenAB);
-                    FLOAT angCBA = acos(cosCBA);
-                    FLOAT angCBD = 2.0 * angCBA;
+                    BGFLOAT cosCBA = (r22 + lenAB2 - r12) / (2.0 * r2 * lenAB);
+                    BGFLOAT angCBA = acos(cosCBA);
+                    BGFLOAT angCBD = 2.0 * angCBA;
 
-                    FLOAT cosCAB = (r12 + lenAB2 - r22) / (2.0 * r1 * lenAB);
-                    FLOAT angCAB = acos(cosCAB);
-                    FLOAT angCAD = 2.0 * angCAB;
+                    BGFLOAT cosCAB = (r12 + lenAB2 - r22) / (2.0 * r1 * lenAB);
+                    BGFLOAT angCAB = acos(cosCAB);
+                    BGFLOAT angCAD = 2.0 * angCAB;
 
                     area(i, j) = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
                 }

@@ -15,20 +15,20 @@
 void allocSynapseStruct(DynamicSpikingSynapse_struct* synapse, int count) {
 	synapse->inUse		= new bool[count];
 	memset(synapse->inUse, 0, count * sizeof(bool));
-	synapse->summationPoint 	= new PFLOAT[count];
+	synapse->summationPoint 	= new PBGFLOAT[count];
 	synapse->summationCoord 	= new Coordinate[count];
 	synapse->synapseCoord 	= new Coordinate[count];
-	synapse->deltaT 		= new FLOAT[count];
-	synapse->W 		= new FLOAT[count];
-	synapse->psr 		= new FLOAT[count];
-	synapse->decay 		= new FLOAT[count];
+	synapse->deltaT 		= new BGFLOAT[count];
+	synapse->W 		= new BGFLOAT[count];
+	synapse->psr 		= new BGFLOAT[count];
+	synapse->decay 		= new BGFLOAT[count];
 	synapse->total_delay 	= new int[count];
 	synapse->type 		= new synapseType[count];
 	synapse->delayQueue 	= new uint32_t[count];
 	synapse->ldelayQueue 	= new int[count];
-	synapse->tau 		= new FLOAT[count];
-	synapse->r 		= new FLOAT[count];
-	synapse->u 		= new FLOAT[count];
+	synapse->tau 		= new BGFLOAT[count];
+	synapse->r 		= new BGFLOAT[count];
+	synapse->u 		= new BGFLOAT[count];
 	synapse->lastSpike 	= new uint64_t[count];	
 }
 
@@ -133,7 +133,7 @@ void copyStructToSynapse(DynamicSpikingSynapse_struct* in, ISynapse* out, int id
 void synapseArrayToMap(DynamicSpikingSynapse_struct* synapse_st, vector<ISynapse*> * synapseMap, int numNeurons, int maxSynapses)
 {
 	// craete a synapse
-	FLOAT sp;
+	BGFLOAT sp;
 	DynamicSpikingSynapse* syn = new DynamicSpikingSynapse(0, 0, 0, 0, sp, DEFAULT_delay_weight, 0.0001, II);
 
 	for (int neuron_i = 0; neuron_i < numNeurons; neuron_i++)

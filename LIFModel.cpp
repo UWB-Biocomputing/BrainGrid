@@ -44,111 +44,111 @@ bool LIFModel::readParameters(TiXmlElement *source)
 bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute)
 {
     if (element.ValueStr().compare("LsmParams") == 0) {
-        if (element.QueryFLOATAttribute("frac_EXC", &m_frac_excititory_neurons) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("frac_EXC", &m_frac_excititory_neurons) != TIXML_SUCCESS) {
             throw ParseParamError("frac_EXC", "Fraction Excitatory missing in XML.");
         }
-        if (element.QueryFLOATAttribute("starter_neurons", &m_frac_starter_neurons) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("starter_neurons", &m_frac_starter_neurons) != TIXML_SUCCESS) {
             throw ParseParamError("starter_neurons", "Fraction endogenously active missing in XML.");
         }
     }
     
     if (element.ValueStr().compare("Iinject") == 0) {
-        if (element.QueryFLOATAttribute("min", &m_Iinject[0]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("min", &m_Iinject[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Iinject min", "Iinject missing minimum value in XML.");
         }
-        if (element.QueryFLOATAttribute("max", &m_Iinject[1]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("max", &m_Iinject[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Iinject min", "Iinject missing maximum value in XML.");
         }
         m_read_params++;
     }
     
     if (element.ValueStr().compare("Inoise") == 0) {
-        if (element.QueryFLOATAttribute("min", &m_Inoise[0]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("min", &m_Inoise[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Inoise min", "Inoise missing minimum value in XML.");
         }
-        if (element.QueryFLOATAttribute("max", &m_Inoise[1]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("max", &m_Inoise[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Inoise max", "Inoise missing maximum value in XML.");
         }
         m_read_params++;
     }
 
     if (element.ValueStr().compare("Vthresh") == 0) {
-        if (element.QueryFLOATAttribute("min", &m_Vthresh[0]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("min", &m_Vthresh[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vthresh min", "Vthresh missing minimum value in XML.");
         }
-        if (element.QueryFLOATAttribute("max", &m_Vthresh[1]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("max", &m_Vthresh[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Vthresh max", "Vthresh missing maximum value in XML.");
         }
         m_read_params++;
     }
 
     if (element.ValueStr().compare("Vresting") == 0) {
-        if (element.QueryFLOATAttribute("min", &m_Vresting[0]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("min", &m_Vresting[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vresting min", "Vresting missing minimum value in XML.");
         }
-        if (element.QueryFLOATAttribute("max", &m_Vresting[1]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("max", &m_Vresting[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Vresting max", "Vresting missing maximum value in XML.");
         }
         m_read_params++;
     }
 
     if (element.ValueStr().compare("Vreset") == 0) {
-        if (element.QueryFLOATAttribute("min", &m_Vreset[0]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("min", &m_Vreset[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vreset min", "Vreset missing minimum value in XML.");
         }
-        if (element.QueryFLOATAttribute("max", &m_Vreset[1]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("max", &m_Vreset[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Vreset max", "Vreset missing maximum value in XML.");
         }
         m_read_params++;
     }
 
     if (element.ValueStr().compare("Vinit") == 0) {
-        if (element.QueryFLOATAttribute("min", &m_Vinit[0]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("min", &m_Vinit[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vinit min", "Vinit missing minimum value in XML.");
         }
-        if (element.QueryFLOATAttribute("max", &m_Vinit[1]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("max", &m_Vinit[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Vinit max", "Vinit missing maximum value in XML.");
         }
         m_read_params++;
     }
 
     if (element.ValueStr().compare("starter_vthresh") == 0) {
-        if (element.QueryFLOATAttribute("min", &m_starter_Vthresh[0]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("min", &m_starter_Vthresh[0]) != TIXML_SUCCESS) {
             throw ParseParamError("starter_vthresh min", "starter_vthresh missing minimum value in XML.");
         }
-        if (element.QueryFLOATAttribute("max", &m_starter_Vthresh[1]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("max", &m_starter_Vthresh[1]) != TIXML_SUCCESS) {
             throw ParseParamError("starter_vthresh max", "starter_vthresh missing maximum value in XML.");
         }
         m_read_params++;
     }
 
     if (element.ValueStr().compare("starter_vreset") == 0) {
-        if (element.QueryFLOATAttribute("min", &m_starter_Vreset[0]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("min", &m_starter_Vreset[0]) != TIXML_SUCCESS) {
             throw ParseParamError("starter_vreset min", "starter_vreset missing minimum value in XML.");
         }
-        if (element.QueryFLOATAttribute("max", &m_starter_Vreset[1]) != TIXML_SUCCESS) {
+        if (element.QueryBGFLOATAttribute("max", &m_starter_Vreset[1]) != TIXML_SUCCESS) {
             throw ParseParamError("starter_vreset max", "starter_vreset missing maximum value in XML.");
         }
         m_read_params++;
     }
     
     if (element.ValueStr().compare("GrowthParams") == 0) {
-		if (element.QueryFLOATAttribute("epsilon", &m_growth.epsilon) != TIXML_SUCCESS) {
+		if (element.QueryBGFLOATAttribute("epsilon", &m_growth.epsilon) != TIXML_SUCCESS) {
 			throw ParseParamError("epsilon", "Growth param 'epsilon' missing in XML.");
 		}
-		if (element.QueryFLOATAttribute("beta", &m_growth.beta) != TIXML_SUCCESS) {
+		if (element.QueryBGFLOATAttribute("beta", &m_growth.beta) != TIXML_SUCCESS) {
 			throw ParseParamError("beta", "Growth param 'beta' missing in XML.");
 		}
-		if (element.QueryFLOATAttribute("rho", &m_growth.rho) != TIXML_SUCCESS) {
+		if (element.QueryBGFLOATAttribute("rho", &m_growth.rho) != TIXML_SUCCESS) {
 			throw ParseParamError("rho", "Growth param 'rho' missing in XML.");
 		}
-		if (element.QueryFLOATAttribute("targetRate", &m_growth.targetRate) != TIXML_SUCCESS) {
+		if (element.QueryBGFLOATAttribute("targetRate", &m_growth.targetRate) != TIXML_SUCCESS) {
 			throw ParseParamError("targetRate", "Growth targetRate 'beta' missing in XML.");
 		}
-		if (element.QueryFLOATAttribute("minRadius", &m_growth.minRadius) != TIXML_SUCCESS) {
+		if (element.QueryBGFLOATAttribute("minRadius", &m_growth.minRadius) != TIXML_SUCCESS) {
 			throw ParseParamError("minRadius", "Growth minRadius 'beta' missing in XML.");
 		}
-		if (element.QueryFLOATAttribute("startRadius", &m_growth.startRadius) != TIXML_SUCCESS) {
+		if (element.QueryBGFLOATAttribute("startRadius", &m_growth.startRadius) != TIXML_SUCCESS) {
 			throw ParseParamError("startRadius", "Growth startRadius 'beta' missing in XML.");
 		}
     }
@@ -265,7 +265,7 @@ void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &syna
         readNeuron(input, neurons, i);
     }
 
-    int read_synapses_counts[neurons.size];
+    int* read_synapses_counts= new int[neurons.size];
     for (int i = 0; i < neurons.size; i++) {
         read_synapses_counts[i] = 0;
     }
@@ -292,6 +292,7 @@ void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &syna
         read_synapses_counts[neuron_index]++;
 
     }
+	delete[] read_synapses_counts;
 
     // read the radii
     for (int i = 0; i < neurons.size; i++)
@@ -388,9 +389,9 @@ void LIFModel::resetSynapse(AllSynapses &synapses, const int neuron_index, const
 
 bool LIFModel::updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
-    FLOAT &tau = synapses.tau[neuron_index][synapse_index];
-    FLOAT &deltaT = synapses.deltaT[neuron_index][synapse_index];
-    FLOAT &decay = synapses.decay[neuron_index][synapse_index];
+    BGFLOAT &tau = synapses.tau[neuron_index][synapse_index];
+    BGFLOAT &deltaT = synapses.deltaT[neuron_index][synapse_index];
+    BGFLOAT &decay = synapses.decay[neuron_index][synapse_index];
 
     if (tau > 0) {
         decay = exp( -deltaT / tau );
@@ -404,7 +405,7 @@ bool LIFModel::updateDecay(AllSynapses &synapses, const int neuron_index, const 
 *
 * @param os The filestream to write
 */
-void LIFModel::saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, FLOAT simulation_step)
+void LIFModel::saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, BGFLOAT simulation_step)
 {
     // write the neurons data
     output << neurons.size;
@@ -628,7 +629,7 @@ void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
         
         DEBUG(cout << endl << "Randomly selecting inhibitory neurons..." << endl;)
         
-        int rg_inhibitory_layout[num_inhibitory_neurons];
+        int* rg_inhibitory_layout = new int[num_inhibitory_neurons];
         
         for (int i = 0; i < num_inhibitory_neurons; i++) {
             rg_inhibitory_layout[i] = i;
@@ -644,6 +645,7 @@ void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
         for (int i = 0; i < num_inhibitory_neurons; i++) {
             neuron_types[rg_inhibitory_layout[i]] = INH;
         }
+		delete[] rg_inhibitory_layout;
     }
     
     DEBUG(cout << "Done initializing neuron type map" << endl;);
@@ -716,14 +718,14 @@ void LIFModel::setNeuronDefaults(AllNeurons &neurons, const int index)
 
 void LIFModel::updateNeuron(AllNeurons &neurons, int neuron_index)
 {
-    FLOAT &Tau = neurons.Tau[neuron_index];
-    FLOAT &C1 = neurons.C1[neuron_index];
-    FLOAT &C2 = neurons.C2[neuron_index];
-    FLOAT &deltaT = neurons.deltaT[neuron_index];
-    FLOAT &Rm = neurons.Rm[neuron_index];
-    FLOAT &I0 = neurons.I0[neuron_index];
-    FLOAT &Iinject = neurons.Iinject[neuron_index];
-    FLOAT &Vrest = neurons.Vrest[neuron_index];
+    BGFLOAT &Tau = neurons.Tau[neuron_index];
+    BGFLOAT &C1 = neurons.C1[neuron_index];
+    BGFLOAT &C2 = neurons.C2[neuron_index];
+    BGFLOAT &deltaT = neurons.deltaT[neuron_index];
+    BGFLOAT &Rm = neurons.Rm[neuron_index];
+    BGFLOAT &I0 = neurons.I0[neuron_index];
+    BGFLOAT &Iinject = neurons.Iinject[neuron_index];
+    BGFLOAT &Vrest = neurons.Vrest[neuron_index];
 
     if (Tau > 0) {
         C1 = exp( -deltaT / Tau );
@@ -799,13 +801,13 @@ void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, const 
 
 void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
 {
-    FLOAT &Vm = neurons.Vm[index];
-    FLOAT &Vthresh = neurons.Vthresh[index];
-    FLOAT &summationPoint = neurons.summation_map[index];
-    FLOAT &I0 = neurons.I0[index];
-    FLOAT &Inoise = neurons.Inoise[index];
-    FLOAT &C1 = neurons.C1[index];
-    FLOAT &C2 = neurons.C2[index];
+    BGFLOAT &Vm = neurons.Vm[index];
+    BGFLOAT &Vthresh = neurons.Vthresh[index];
+    BGFLOAT &summationPoint = neurons.summation_map[index];
+    BGFLOAT &I0 = neurons.I0[index];
+    BGFLOAT &Inoise = neurons.Inoise[index];
+    BGFLOAT &C1 = neurons.C1[index];
+    BGFLOAT &C2 = neurons.C2[index];
     int &nStepsInRefr = neurons.nStepsInRefr[index];
 
     if (nStepsInRefr > 0) {
@@ -817,7 +819,7 @@ void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
     } else {
         summationPoint += I0; // add IO
         // add noise
-        FLOAT noise = (*rgNormrnd[0])();
+        BGFLOAT noise = (*rgNormrnd[0])();
         summationPoint += noise * Inoise; // add noise
         Vm = C1 * Vm + C2 * summationPoint; // decay Vm and add inputs
     }
@@ -885,22 +887,22 @@ void LIFModel::advanceSynapses(const int num_neurons, AllSynapses &synapses)
 void LIFModel::advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
     uint64_t &lastSpike = synapses.lastSpike[neuron_index][synapse_index];
-    FLOAT &deltaT = synapses.deltaT[neuron_index][synapse_index];
-    FLOAT &r = synapses.r[neuron_index][synapse_index];
-    FLOAT &u = synapses.u[neuron_index][synapse_index];
-    FLOAT &D = synapses.D[neuron_index][synapse_index];
-    FLOAT &F = synapses.F[neuron_index][synapse_index];
-    FLOAT &U = synapses.U[neuron_index][synapse_index];
-    FLOAT &W = synapses.W[neuron_index][synapse_index];
-    FLOAT &decay = synapses.decay[neuron_index][synapse_index];
-    FLOAT &psr = synapses.psr[neuron_index][synapse_index];
-    FLOAT &summationPoint = *(synapses.summationPoint[neuron_index][synapse_index]);
+    BGFLOAT &deltaT = synapses.deltaT[neuron_index][synapse_index];
+    BGFLOAT &r = synapses.r[neuron_index][synapse_index];
+    BGFLOAT &u = synapses.u[neuron_index][synapse_index];
+    BGFLOAT &D = synapses.D[neuron_index][synapse_index];
+    BGFLOAT &F = synapses.F[neuron_index][synapse_index];
+    BGFLOAT &U = synapses.U[neuron_index][synapse_index];
+    BGFLOAT &W = synapses.W[neuron_index][synapse_index];
+    BGFLOAT &decay = synapses.decay[neuron_index][synapse_index];
+    BGFLOAT &psr = synapses.psr[neuron_index][synapse_index];
+    BGFLOAT &summationPoint = *(synapses.summationPoint[neuron_index][synapse_index]);
 
     // is an input in the queue?
     if (isSpikeQueue(synapses, neuron_index, synapse_index)) {
         // adjust synapse parameters
         if (lastSpike != ULONG_MAX) {
-            FLOAT isi = (g_simulationStep - lastSpike) * deltaT ;
+            BGFLOAT isi = (g_simulationStep - lastSpike) * deltaT ;
             /*
             DEBUG(
                     cout << "Synapse (" << neuron_index << "," << synapse_index << ") =>"
@@ -961,7 +963,7 @@ void LIFModel::updateConnections(const int currentStep, AllNeurons &neurons, All
 	updateWeights(neurons.size, neurons, synapses, sim_info);
 }
 
-void LIFModel::updateHistory(const int currentStep, FLOAT stepDuration, AllNeurons &neurons)
+void LIFModel::updateHistory(const int currentStep, BGFLOAT stepDuration, AllNeurons &neurons)
 {
 	// Calculate growth cycle firing rate for previous period
 	//getSpikeCounts(neurons, m_conns->spikeCounts);
@@ -1023,7 +1025,7 @@ void LIFModel::updateFrontiers(const int num_neurons)
 	}
 }
 
-void LIFModel::updateOverlap(FLOAT num_neurons)
+void LIFModel::updateOverlap(BGFLOAT num_neurons)
 {
 	DEBUG(cout << "computing areas of overlap" << endl;)
 
@@ -1033,9 +1035,9 @@ void LIFModel::updateOverlap(FLOAT num_neurons)
 			m_conns->area(i, j) = 0.0;
 
 			if (m_conns->delta(i, j) < 0) {
-				FLOAT lenAB = m_conns->dist(i, j);
-				FLOAT r1 = m_conns->radii[i];
-				FLOAT r2 = m_conns->radii[j];
+				BGFLOAT lenAB = m_conns->dist(i, j);
+				BGFLOAT r1 = m_conns->radii[i];
+				BGFLOAT r2 = m_conns->radii[j];
 
 				if (lenAB + min(r1, r2) <= max(r1, r2)) {
 					m_conns->area(i, j) = pi * min(r1, r2) * min(r1, r2); // Completely overlapping unit
@@ -1045,17 +1047,17 @@ void LIFModel::updateOverlap(FLOAT num_neurons)
 #endif // LOGFILE
 				} else {
 					// Partially overlapping unit
-					FLOAT lenAB2 = m_conns->dist2(i, j);
-					FLOAT r12 = r1 * r1;
-					FLOAT r22 = r2 * r2;
+					BGFLOAT lenAB2 = m_conns->dist2(i, j);
+					BGFLOAT r12 = r1 * r1;
+					BGFLOAT r22 = r2 * r2;
 
-					FLOAT cosCBA = (r22 + lenAB2 - r12) / (2.0 * r2 * lenAB);
-					FLOAT angCBA = acos(cosCBA);
-					FLOAT angCBD = 2.0 * angCBA;
+					BGFLOAT cosCBA = (r22 + lenAB2 - r12) / (2.0 * r2 * lenAB);
+					BGFLOAT angCBA = acos(cosCBA);
+					BGFLOAT angCBD = 2.0 * angCBA;
 
-					FLOAT cosCAB = (r12 + lenAB2 - r22) / (2.0 * r1 * lenAB);
-					FLOAT angCAB = acos(cosCAB);
-					FLOAT angCAD = 2.0 * angCAB;
+					BGFLOAT cosCAB = (r12 + lenAB2 - r22) / (2.0 * r1 * lenAB);
+					BGFLOAT angCAB = acos(cosCAB);
+					BGFLOAT angCAD = 2.0 * angCAB;
 
 					m_conns->area(i, j) = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
 				}
@@ -1129,7 +1131,7 @@ void LIFModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSyna
 			if (!connected && (m_conns->W(src_neuron, dest_neuron) > 0)) {
 
 			    // locate summation point
-			    FLOAT* sum_point = &( neurons.summation_map[dest_neuron] );
+			    BGFLOAT* sum_point = &( neurons.summation_map[dest_neuron] );
 				added++;
 
 				addSynapse(synapses, type, src_neuron, dest_neuron, src_coord, dest_coord, sum_point, sim_info.deltaT);
@@ -1156,7 +1158,7 @@ void LIFModel::eraseSynapse(AllSynapses &synapses, const int neuron_index, const
     synapses.summationPoint[neuron_index][synapse_index] = NULL;
 }
 
-void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, FLOAT *sum_point, FLOAT deltaT)
+void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, BGFLOAT deltaT)
 {
     if (synapses.synapse_counts[src_neuron] >= synapses.max_synapses) {
         return; // TODO: ERROR!
@@ -1177,9 +1179,9 @@ void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const int src
     synapses.W[src_neuron][synapse_index] = m_conns->W(src_neuron, dest_neuron) * synSign(type) * g_synapseStrengthAdjustmentConstant;
 }
 
-void LIFModel::createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, FLOAT *sum_point, FLOAT deltaT, synapseType type)
+void LIFModel::createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT *sum_point, BGFLOAT deltaT, synapseType type)
 {
-    FLOAT delay;
+    BGFLOAT delay;
 
     synapses.in_use[neuron_index][synapse_index] = true;
     synapses.summationPoint[neuron_index][synapse_index] = sum_point;
@@ -1207,10 +1209,10 @@ void LIFModel::createSynapse(AllSynapses &synapses, const int neuron_index, cons
     synapses.U[neuron_index][synapse_index] = DEFAULT_U;
     synapses.tau[neuron_index][synapse_index] = DEFAULT_tau;
 
-    FLOAT U;
-    FLOAT D;
-    FLOAT F;
-    FLOAT tau;
+    BGFLOAT U;
+    BGFLOAT D;
+    BGFLOAT F;
+    BGFLOAT tau;
     switch (type) {
         case II:
             U = 0.32;
@@ -1393,7 +1395,7 @@ void LIFModel::logSimStep(const AllNeurons &neurons, const AllSynapses &synapses
 const string LIFModel::Connections::MATRIX_TYPE = "complete";
 const string LIFModel::Connections::MATRIX_INIT = "const";
 
-LIFModel::Connections::Connections(const int num_neurons, const FLOAT start_radius, const FLOAT growthStepDuration, const FLOAT maxGrowthSteps) :
+LIFModel::Connections::Connections(const int num_neurons, const BGFLOAT start_radius, const BGFLOAT growthStepDuration, const BGFLOAT maxGrowthSteps) :
     xloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
     yloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
 	W(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),

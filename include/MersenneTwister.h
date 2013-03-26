@@ -65,7 +65,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
-#include "bgtypes.h" // for FLOAT
+#include "bgtypes.h" // for BGFLOAT
 
 class MTRand {
 // Data
@@ -94,22 +94,22 @@ public:
 	// reading 624 consecutive values.
 
 	// Access to 32-bit random numbers
-	FLOAT rand();                          // real number in [0,1]
-	FLOAT rand( const FLOAT& n );         // real number in [0,n]
-	FLOAT randExc();                       // real number in [0,1)
-	FLOAT randExc( const FLOAT& n );      // real number in [0,n)
-	FLOAT randDblExc();                    // real number in (0,1)
-	FLOAT randDblExc( const FLOAT& n );   // real number in (0,n)
+	BGFLOAT rand();                          // real number in [0,1]
+	BGFLOAT rand( const BGFLOAT& n );         // real number in [0,n]
+	BGFLOAT randExc();                       // real number in [0,1)
+	BGFLOAT randExc( const BGFLOAT& n );      // real number in [0,n)
+	BGFLOAT randDblExc();                    // real number in (0,1)
+	BGFLOAT randDblExc( const BGFLOAT& n );   // real number in (0,n)
 	uint32 randInt();                       // integer in [0,2^32-1]
 	uint32 randInt( const uint32& n );      // integer in [0,n] for n < 2^32
-	FLOAT operator()() { return rand(); }  // same as rand()
-	FLOAT inRange(FLOAT min, FLOAT max); // real number in [min, max]
+	BGFLOAT operator()() { return rand(); }  // same as rand()
+	BGFLOAT inRange(BGFLOAT min, BGFLOAT max); // real number in [min, max]
 
-	// Access to 53-bit random numbers (capacity of IEEE FLOAT precision)
-	FLOAT rand53();  // real number in [0,1)
+	// Access to 53-bit random numbers (capacity of IEEE BGFLOAT precision)
+	BGFLOAT rand53();  // real number in [0,1)
 
 	// Access to nonuniform random number distributions
-	FLOAT randNorm( const FLOAT& mean = 0.0, const FLOAT& variance = 0.0 );
+	BGFLOAT randNorm( const BGFLOAT& mean = 0.0, const BGFLOAT& variance = 0.0 );
 
 	// Re-seeding functions with same behavior as initializers
 	void seed( const uint32 oneSeed );
@@ -141,43 +141,43 @@ inline MTRand::MTRand( const uint32& oneSeed )
 inline MTRand::MTRand( uint32 *const bigSeed, const uint32 seedLength )
 	{ seed(bigSeed,seedLength); }
 
-inline FLOAT MTRand::inRange(FLOAT min, FLOAT max) {
+inline BGFLOAT MTRand::inRange(BGFLOAT min, BGFLOAT max) {
 	return min + (max - min) * this->operator ()();
 }
 
 inline MTRand::MTRand()
 	{ seed(); }
 
-inline FLOAT MTRand::rand()
-	{ return FLOAT(randInt()) * (1.0/4294967295.0); }
+inline BGFLOAT MTRand::rand()
+	{ return BGFLOAT(randInt()) * (1.0/4294967295.0); }
 
-inline FLOAT MTRand::rand( const FLOAT& n )
+inline BGFLOAT MTRand::rand( const BGFLOAT& n )
 	{ return rand() * n; }
 
-inline FLOAT MTRand::randExc()
-	{ return FLOAT(randInt()) * (1.0/4294967296.0); }
+inline BGFLOAT MTRand::randExc()
+	{ return BGFLOAT(randInt()) * (1.0/4294967296.0); }
 
-inline FLOAT MTRand::randExc( const FLOAT& n )
+inline BGFLOAT MTRand::randExc( const BGFLOAT& n )
 	{ return randExc() * n; }
 
-inline FLOAT MTRand::randDblExc()
-	{ return ( FLOAT(randInt()) + 0.5 ) * (1.0/4294967296.0); }
+inline BGFLOAT MTRand::randDblExc()
+	{ return ( BGFLOAT(randInt()) + 0.5 ) * (1.0/4294967296.0); }
 
-inline FLOAT MTRand::randDblExc( const FLOAT& n )
+inline BGFLOAT MTRand::randDblExc( const BGFLOAT& n )
 	{ return randDblExc() * n; }
 
-inline FLOAT MTRand::rand53()
+inline BGFLOAT MTRand::rand53()
 {
 	uint32 a = randInt() >> 5, b = randInt() >> 6;
 	return ( a * 67108864.0 + b ) * (1.0/9007199254740992.0);  // by Isaku Wada
 }
 
-inline FLOAT MTRand::randNorm( const FLOAT& mean, const FLOAT& variance )
+inline BGFLOAT MTRand::randNorm( const BGFLOAT& mean, const BGFLOAT& variance )
 {
 	// Return a real number from a normal (Gaussian) distribution with given
 	// mean and variance by Box-Muller method
-	FLOAT r = sqrt( -2.0 * log( 1.0-randDblExc()) ) * variance;
-	FLOAT phi = 2.0 * 3.14159265358979323846264338328 * randExc();
+	BGFLOAT r = sqrt( -2.0 * log( 1.0-randDblExc()) ) * variance;
+	BGFLOAT phi = 2.0 * 3.14159265358979323846264338328 * randExc();
 	return mean + r * cos(phi);
 }
 

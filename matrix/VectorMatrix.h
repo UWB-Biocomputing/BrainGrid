@@ -46,9 +46,9 @@ class VectorMatrix;
 class CompleteMatrix;
 class SparseMatrix;
 
-const VectorMatrix operator-(FLOAT c, const VectorMatrix& rhs);
+const VectorMatrix operator-(BGFLOAT c, const VectorMatrix& rhs);
 
-const VectorMatrix operator/(FLOAT c, const VectorMatrix& rhs);
+const VectorMatrix operator/(BGFLOAT c, const VectorMatrix& rhs);
 
 const VectorMatrix operator*(const VectorMatrix& v, const SparseMatrix& m);
 
@@ -100,7 +100,7 @@ friend class csimInterface;
     @param v values for initializing VectorMatrix
   */
   VectorMatrix(string t = "complete", string i = "const", int r = 1,
-	       int c = 1, FLOAT m = 0.0, string v = "");
+	       int c = 1, BGFLOAT m = 0.0, string v = "");
 
   /*!
     @brief Copy constructor. Performs a deep copy.
@@ -118,7 +118,7 @@ friend class csimInterface;
     @brief Set elements of vector to a constant. Doesn't change its size.
     @param c the constant
   */
-  const VectorMatrix& operator=(FLOAT c);
+  const VectorMatrix& operator=(BGFLOAT c);
 
   /*!
     @brief Assignment operator
@@ -146,14 +146,14 @@ friend class csimInterface;
     @param i index
     @return item within this VectorMatrix
   */
-  inline const FLOAT& operator[](int i) const { return theVector[i]; }
+  inline const BGFLOAT& operator[](int i) const { return theVector[i]; }
 
   /*!
     @brief access element of a VectorMatrix. Zero-based index; constant-time.
     @param i index
     @return item within this VectorMatrix
   */
-  inline const FLOAT& at(int i) const { return theVector[i]; }
+  inline const BGFLOAT& at(int i) const { return theVector[i]; }
 
   /*!
     @brief The length of a VectorMatrix elements.
@@ -172,14 +172,14 @@ friend class csimInterface;
     @param i index
     @return Reference to item within this VectorMatrix
   */
-  inline FLOAT& operator[](int i) { return theVector[i]; }
+  inline BGFLOAT& operator[](int i) { return theVector[i]; }
 
   /*!
     @brief mutate element of a VectorMatrix. Zero-based index.
     @param i index
     @return reference to item within this VectorMatrix
   */
-  inline FLOAT& at(int i) { return theVector[i]; }
+  inline BGFLOAT& at(int i) { return theVector[i]; }
   //@}
 
   /*! @name Math Operations
@@ -202,15 +202,15 @@ friend class csimInterface;
     @param c The constant
     @return A vector the same size as the current one
   */
-  virtual const VectorMatrix operator+(FLOAT c) const;
+  virtual const VectorMatrix operator+(BGFLOAT c) const;
 
   /*!
     @brief There are two possible vector products. This is an inner product.
     @throws KII_domain_error
     @param rhs right-hand argument to the inner product.
-    @return A scalar of type FLOAT
+    @return A scalar of type BGFLOAT
    */
-  virtual const FLOAT operator*(const VectorMatrix& rhs) const;
+  virtual const BGFLOAT operator*(const VectorMatrix& rhs) const;
 
   /*!
     @brief Vector times a Complete Matrix.
@@ -241,14 +241,14 @@ friend class csimInterface;
     @param c The constant
     @return A vector the same size as the current one
   */
-  virtual const VectorMatrix operator*(FLOAT c) const;
+  virtual const VectorMatrix operator*(BGFLOAT c) const;
 
   /*!
     @brief Vector divided by a constant. Divides each element of the vector by a constant.
     @param c The constant
     @return A vector the same size as the current one
   */
-  virtual const VectorMatrix operator/(FLOAT c) const;
+  virtual const VectorMatrix operator/(BGFLOAT c) const;
 
   /*!
     @brief Limit values of a vector. Clip values to lie within range.
@@ -256,19 +256,19 @@ friend class csimInterface;
     @param high upper limit
     @return A vector the same size as the current one
   */
-  virtual const VectorMatrix Limit(FLOAT low, FLOAT high) const;
+  virtual const VectorMatrix Limit(BGFLOAT low, BGFLOAT high) const;
 
   /*!
     @brief Find minimum value of vector
     @return A scalar
   */
-  virtual const FLOAT Min(void) const;
+  virtual const BGFLOAT Min(void) const;
 
   /*!
     @brief Find maximum value of vector
     @return A scalar
   */
-  virtual const FLOAT Max(void) const;
+  virtual const BGFLOAT Max(void) const;
 
   /*!
     @brief Compute and assign the sum of two VectorMatrices of the same length.
@@ -289,7 +289,7 @@ friend class csimInterface;
     @return A vector the same size as the rhs
   */
   friend 
-  inline const VectorMatrix operator*(FLOAT c, const VectorMatrix& rhs)
+  inline const VectorMatrix operator*(BGFLOAT c, const VectorMatrix& rhs)
   {
     return rhs * c;
   }
@@ -311,7 +311,7 @@ friend class csimInterface;
     @return A vector the same size as the rhs
   */
   friend
-  const VectorMatrix operator-(FLOAT c, const VectorMatrix& v);
+  const VectorMatrix operator-(BGFLOAT c, const VectorMatrix& v);
 
   /*!
     @brief Constant divided by a vector. Divides the constant by each element of a vector
@@ -320,7 +320,7 @@ friend class csimInterface;
     @return A vector the same size as the rhs
   */
   friend
-  const VectorMatrix operator/(FLOAT c, const VectorMatrix& v);
+  const VectorMatrix operator/(BGFLOAT c, const VectorMatrix& v);
 
   /*!
     @brief Constant plus a vector. Adds each element of the vector and a constant
@@ -329,7 +329,7 @@ friend class csimInterface;
     @return A vector the same size as the rhs
   */
   friend
-  inline const VectorMatrix operator+(FLOAT c, const VectorMatrix& rhs)
+  inline const VectorMatrix operator+(BGFLOAT c, const VectorMatrix& rhs)
   {
     return rhs + c;
   }
@@ -386,7 +386,7 @@ protected:
 private:
 
   /*! Pointer to dynamically allocated 1D array */
-  FLOAT *theVector;
+  BGFLOAT *theVector;
 
   /*! The number of elements in "theVector" */
   int size;

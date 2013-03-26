@@ -19,8 +19,8 @@
  */
 ISynapse::ISynapse(int source_x, int source_y, 
                                              int sumX, int sumY, 
-                                             FLOAT& sum_point,
-                                             FLOAT delay, FLOAT new_deltaT, 
+                                             BGFLOAT& sum_point,
+                                             BGFLOAT delay, BGFLOAT new_deltaT, 
                                              synapseType s_type) :
     summationPoint( sum_point ),
     deltaT( new_deltaT ),
@@ -42,8 +42,8 @@ ISynapse::ISynapse(int source_x, int source_y,
 	summationCoord.y = sumY;
 
 	// calculate the discrete delay (time steps)
-	FLOAT tmpFLOAT = ( delay / new_deltaT);	//needed to be done in 2 lines or may cause incorrect results in linux
-	total_delay = static_cast<int> (tmpFLOAT) + 1;
+	BGFLOAT tmpBGFLOAT = ( delay / new_deltaT);	//needed to be done in 2 lines or may cause incorrect results in linux
+	total_delay = static_cast<int> (tmpBGFLOAT) + 1;
 
 	// initialize spike queue
 	initSpikeQueue();
@@ -65,7 +65,7 @@ ISynapse::~ISynapse() {
  * @param[in] pSummationMap		The map of all the summation points
  * @param[in] width		The width of the summantion map
  */
-ISynapse::ISynapse( istream& is, FLOAT* pSummationMap, int width ) : summationPoint( pSummationMap[0] ) {
+ISynapse::ISynapse( istream& is, BGFLOAT* pSummationMap, int width ) : summationPoint( pSummationMap[0] ) {
 	// initialize spike queue
 	initSpikeQueue();
 	reset( );
@@ -118,9 +118,9 @@ void ISynapse::write( ostream& os ) {
  * @param[in] pSummationMap		The map of all the summation points
  * @param[in] width		The width of the summantion map
  */
-void ISynapse::read( istream& is, FLOAT* pSummationMap, int width ) {
+void ISynapse::read( istream& is, BGFLOAT* pSummationMap, int width ) {
 	Coordinate t_summationCoord, t_synapseCoord;
-	FLOAT t_deltaT, t_W, t_psr, t_decay, t_tau, t_r, t_u, t_D, t_U, t_F;
+	BGFLOAT t_deltaT, t_W, t_psr, t_decay, t_tau, t_r, t_u, t_D, t_U, t_F;
 	int t_total_delay, t_delayIdx, t_ldelayQueue;
 	uint32_t t_delayQueue[1];
 	uint64_t t_lastSpike;

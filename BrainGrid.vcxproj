@@ -1,17 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|X64">
       <Configuration>Debug</Configuration>
       <Platform>X64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|X64">
       <Configuration>Release</Configuration>
@@ -19,27 +11,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7C1CF2AA-2C68-4DCA-AD0F-70D407BC562F}</ProjectGuid>
+    <ProjectGuid>{F5E44C41-9A54-4FCB-B62F-3EAD68D4EE18}</ProjectGuid>
     <RootNamespace>BrainGrid</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'" Label="Configuration">
@@ -51,92 +30,24 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 5.0.props" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(CUDA_INC_PATH);C:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
-    <GenerateManifest>false</GenerateManifest>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
-    <IncludePath>$(CUDA_INC_PATH);C:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <ExecutablePath>$(VCInstallDir)bin\x86_amd64;$(VCInstallDir)bin;$(WindowsSDK_ExecutablePath_x86);C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin;C:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\Ide;C:\Program Files (x86)\Micro Focus\DevPartner Studio\BoundsChecker\;C:\Program Files (x86)\Common Files\Micro Focus\NMShared\5.7\;C:\Windows\Microsoft.NET\Framework64\v2.0.50727;C:\Windows\Microsoft.NET\Framework\v2.0.50727;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\Program Files\Microsoft Windows Performance Toolkit\;C:\Program Files (x86)\Microsoft SQL Server\100\Tools\Binn\;H:\SQLExpress\100\Tools\Binn\;H:\SQLExpress\100\DTS\Binn\;C:\Program Files\Perforce;C:\Program Files (x86)\BMC Software\BMC AppSight\AppSight for Windows\Bin;C:\Program Files (x86)\BMC Software\BMC AppSight\AppSight Viewer\Bin;C:\Program Files (x86)\Perforce;C:\Program Files\Windows Imaging\;C:\Program Files (x86)\Windows Live\Shared;C:\Program Files (x86)\QuickTime\QTSystem\;C:\Program Files\SlickEditV16.0.3 x64\win\</ExecutablePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level1</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <OpenMPSupport>true</OpenMPSupport>
-      <BrowseInformation>true</BrowseInformation>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions),_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>cudart.lib;cuda.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <SubSystem>Console</SubSystem>
-    </Link>
-    <CudaCompile>
-      <TargetMachinePlatform>32</TargetMachinePlatform>
-      <UseHostInclude>false</UseHostInclude>
-    </CudaCompile>
-    <PostBuildEvent>
-      <Command>time -p ./growth -t ./config/test.xml</Command>
-    </PostBuildEvent>
-    <Bscmake>
-      <PreserveSbr>true</PreserveSbr>
-    </Bscmake>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
     <ClCompile>
       <WarningLevel>Level1</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <OpenMPSupport>true</OpenMPSupport>
-      <BrowseInformation>true</BrowseInformation>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions),_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);TIXML_USE_STL;CDEBUG;DEBUG_OUT</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>cudart.lib;cuda.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <SubSystem>Console</SubSystem>
-    </Link>
-    <CudaCompile>
-      <TargetMachinePlatform>32</TargetMachinePlatform>
-      <UseHostInclude>false</UseHostInclude>
-    </CudaCompile>
-    <PostBuildEvent>
-      <Command>time -p ./growth -t ./config/test.xml</Command>
-    </PostBuildEvent>
-    <Bscmake>
-      <PreserveSbr>true</PreserveSbr>
-    </Bscmake>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions),_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
@@ -145,7 +56,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions),_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);TIXML_USE_STL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -154,179 +65,38 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AllNeurons.cpp" />
+    <ClCompile Include="AllSynapses.cpp" />
     <ClCompile Include="BGDriver.cpp" />
     <ClCompile Include="DynamicSpikingSynapse.cpp" />
-    <ClCompile Include="DynamicSpikingSynapse_struct.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="DynamicSpikingSynapse_struct.cpp" />
     <ClCompile Include="global.cpp" />
     <ClCompile Include="GpuSim.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="HostSim.cpp" />
+    <ClCompile Include="HostSimulator.cpp" />
     <ClCompile Include="include\norm.cpp" />
     <ClCompile Include="include\ParamContainer.cpp" />
-    <ClCompile Include="include\RNG.cpp" />
-    <ClCompile Include="include\Timer.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="include\tinystr.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
-      </ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="include\tinyxml.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
-      </ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="include\tinyxmlerror.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
-      </ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="include\tinyxmlparser.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
-      </ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="include\Timer.cpp" />
+    <ClCompile Include="include\tinyxml.cpp" />
+    <ClCompile Include="include\tinyxmlerror.cpp" />
+    <ClCompile Include="include\tinyxmlparser.cpp" />
     <ClCompile Include="INeuron.cpp" />
-    <ClInclude Include="book.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="INeuron.h" />
-    <ClCompile Include="ISynapse.cpp">
-      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Level2</WarningLevel>
-    </ClCompile>
+    <ClCompile Include="ISynapse.cpp" />
+    <ClCompile Include="LIFModel.cpp" />
     <ClCompile Include="LifNeuron.cpp" />
-    <ClCompile Include="LifNeuron_struct.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Matrix\CompleteMatrix.cpp" />
-    <ClCompile Include="Matrix\Matrix.cpp" />
-    <ClCompile Include="Matrix\SparseMatrix.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
-      </ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Matrix\VectorMatrix.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
-      </ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="MultiThreadedSim.cpp" />
+    <ClCompile Include="LifNeuron_struct.cpp" />
+    <ClCompile Include="matrix\CompleteMatrix.cpp" />
+    <ClCompile Include="matrix\Matrix.cpp" />
+    <ClCompile Include="matrix\SparseMatrix.cpp" />
+    <ClCompile Include="matrix\VectorMatrix.cpp" />
     <ClCompile Include="Network.cpp" />
-    <ClCompile Include="NetworkUpdater.cpp" />
-    <ClCompile Include="Simulator.cpp" />
+    <ClCompile Include="ParseParamError.cpp" />
     <ClCompile Include="SingleThreadedSim.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Coordinate.h" />
-    <ClInclude Include="DelayIdx.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="DynamicSpikingSynapse.h" />
-    <ClInclude Include="DynamicSpikingSynapse_struct.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="global.h" />
-    <ClInclude Include="GpuSim.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="HostSim.h" />
-    <ClInclude Include="include\bgtypes.h" />
-    <ClInclude Include="include\MersenneTwister.h" />
-    <ClInclude Include="include\norm.h" />
-    <ClInclude Include="include\ParamContainer.h" />
-    <ClInclude Include="include\RNG.h" />
-    <ClInclude Include="include\Timer.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="include\tinystr.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
-      </ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="include\tinyxml.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
-      </ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="ISimulation.h" />
-    <ClInclude Include="ISynapse.h" />
-    <ClInclude Include="LifNeuron.h" />
-    <ClInclude Include="LifNeuron_struct.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="lock.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="Matrix\CompleteMatrix.h" />
-    <ClInclude Include="Matrix\KIIexceptions.h" />
-    <ClInclude Include="Matrix\Matrix.h" />
-    <ClInclude Include="Matrix\SparseMatrix.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
-      </ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="Matrix\VectorMatrix.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
-      </ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="MultiThreadedSim.h" />
-    <ClInclude Include="Network.h" />
-    <ClInclude Include="SimulationInfo.h" />
-    <ClInclude Include="SingleThreadedSim.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="DynamicSpikingSynapse_struct_d.cu">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-    </CudaCompile>
-    <CudaCompile Include="GpuSim_struct.cu">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-    </CudaCompile>
-    <CudaCompile Include="include\MersenneTwister.cu">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-    </CudaCompile>
-    <CudaCompile Include="include\MersenneTwister_kernel.cu">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-    </CudaCompile>
-    <CudaCompile Include="LifNeuron_struct_d.cu">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-    </CudaCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 5.0.targets" />
   </ImportGroup>
 </Project>

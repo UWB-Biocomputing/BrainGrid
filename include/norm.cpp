@@ -56,9 +56,9 @@
 
 using namespace std;
 
-FLOAT Norm::operator() ()
+BGFLOAT Norm::operator() ()
 {
-  FLOAT U1, U2,             // Uniformly distributed.
+  BGFLOAT U1, U2,             // Uniformly distributed.
     V1, V2, W, Y,            //Work variables (see above).
     X1;                      // First value computed (returned immediately)
 

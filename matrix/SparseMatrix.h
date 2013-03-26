@@ -80,7 +80,7 @@ class SparseMatrix: public Matrix {
 		 @param c column number
 		 @param v value
 		 */
-		Element(int r = 0, int c = 0, FLOAT v = 0.0) :
+		Element(int r = 0, int c = 0, BGFLOAT v = 0.0) :
 			row( r ), column( c ), value( v ) {
 		}
 
@@ -115,7 +115,7 @@ class SparseMatrix: public Matrix {
 		int column;
 
 		/*! The value at the current row, column */
-		FLOAT value;
+		BGFLOAT value;
 	};
 
 	/*!
@@ -179,7 +179,7 @@ class SparseMatrix: public Matrix {
 		 @param v new value for Element
 		 @throws KII_invalid_argument
 		 */
-		void update(int r, int c, FLOAT v);
+		void update(int r, int c, BGFLOAT v);
 
 		/*!
 		 @brief returns the number of elements currently in the hash table.
@@ -238,7 +238,7 @@ public:
 	 @param m multiplier used for initialization
 	 @param e pointer to Matrix element in XML
 	 */
-	SparseMatrix(int r, int c, FLOAT m, TiXmlElement* e);
+	SparseMatrix(int r, int c, BGFLOAT m, TiXmlElement* e);
 
 	/*!
 	 Allocate storage and initialize attributes for a
@@ -254,7 +254,7 @@ public:
 	 @param m multiplier used for initialization (and must be non-zero)
 	 @param v string of initialization values
 	 */
-	SparseMatrix(int r, int c, FLOAT m, const char* v = NULL);
+	SparseMatrix(int r, int c, BGFLOAT m, const char* v = NULL);
 
 	/*!
 	 Allocate storage and initialize attributes for an
@@ -294,7 +294,7 @@ public:
 	 @param c element column
 	 @return reference to value of element at that location
 	 */
-	FLOAT& operator()(int r, int c);
+	BGFLOAT& operator()(int r, int c);
 
 	/*!
 	 @brief Returns the number of elements in the sparse matrix.

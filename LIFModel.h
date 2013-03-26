@@ -21,7 +21,7 @@ class LIFModel : public Model, TiXmlVisitor
         bool readParameters(TiXmlElement *source);
         void printParameters(ostream &output) const;
         void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
-        void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, FLOAT simulation_step);
+        void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, BGFLOAT simulation_step);
         void saveState(ostream& output, const AllNeurons &neurons,  const SimulationInfo &sim_info);
         void createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_info);
         void setupSim(const int num_neurons, const SimulationInfo &sim_info);
@@ -92,17 +92,17 @@ class LIFModel : public Model, TiXmlVisitor
         // # Update Connections
         // --------------------
 
-        void updateHistory(int currentStep, FLOAT stepDuration, AllNeurons &neurons);
+        void updateHistory(int currentStep, BGFLOAT stepDuration, AllNeurons &neurons);
         void updateFrontiers(const int num_neurons);
-        void updateOverlap(FLOAT num_neurons);
+        void updateOverlap(BGFLOAT num_neurons);
         void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
 
         void getSpikeCounts(const AllNeurons &neurons, int *spikeCounts);
         void clearSpikeCounts(AllNeurons &neurons);
 
         void eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
-        void addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, FLOAT *sum_point, FLOAT deltaT);
-        void createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, FLOAT* sp, FLOAT deltaT, synapseType type);
+        void addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, BGFLOAT deltaT);
+        void createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT* sp, BGFLOAT deltaT, synapseType type);
 
         // -----------------------------------------------------------------------------------------
         // # Generic Functions for handling synapse types
@@ -117,27 +117,27 @@ class LIFModel : public Model, TiXmlVisitor
         struct Connections;
         struct GrowthParams
         {
-            FLOAT epsilon;
-            FLOAT beta;
-            FLOAT rho;
-            FLOAT targetRate; // Spikes/second
-            FLOAT maxRate; // = targetRate / epsilon;
-            FLOAT minRadius; // To ensure that even rapidly-firing neurons will connect to
+            BGFLOAT epsilon;
+            BGFLOAT beta;
+            BGFLOAT rho;
+            BGFLOAT targetRate; // Spikes/second
+            BGFLOAT maxRate; // = targetRate / epsilon;
+            BGFLOAT minRadius; // To ensure that even rapidly-firing neurons will connect to
                              // other neurons, when within their RFS.
-            FLOAT startRadius; // No need to wait a long time before RFs start to overlap
+            BGFLOAT startRadius; // No need to wait a long time before RFs start to overlap
         };
 
         static const bool STARTER_FLAG; // = true; // true = use endogenously active neurons in simulation
 
-        FLOAT m_Iinject[2];
-        FLOAT m_Inoise[2];
-        FLOAT m_Vthresh[2];
-        FLOAT m_Vresting[2];
-        FLOAT m_Vreset[2];
-        FLOAT m_Vinit[2];
-        FLOAT m_starter_Vthresh[2];
-        FLOAT m_starter_Vreset[2];
-        FLOAT m_new_targetRate;
+        BGFLOAT m_Iinject[2];
+        BGFLOAT m_Inoise[2];
+        BGFLOAT m_Vthresh[2];
+        BGFLOAT m_Vresting[2];
+        BGFLOAT m_Vreset[2];
+        BGFLOAT m_Vinit[2];
+        BGFLOAT m_starter_Vthresh[2];
+        BGFLOAT m_starter_Vreset[2];
+        BGFLOAT m_new_targetRate;
 
         // Tracks the number of parameters that have been read by read params - kind of a hack to do error handling for read params
         int m_read_params;
@@ -148,8 +148,8 @@ class LIFModel : public Model, TiXmlVisitor
         vector<int> m_endogenously_active_neuron_list;
         vector<int> m_inhibitory_neuron_layout;
 
-        double m_frac_starter_neurons;
-        double m_frac_excititory_neurons;
+        BGFLOAT m_frac_starter_neurons;
+        BGFLOAT m_frac_excititory_neurons;
 
         GrowthParams m_growth;
         Connections *m_conns;
@@ -193,7 +193,7 @@ struct LIFModel::Connections
         // spikes history - history of accumulated spikes count of all neurons (10 ms bin)
         VectorMatrix spikesHistory;
 
-        Connections(const int neuron_count, const FLOAT start_radius, const FLOAT growthStepDuration, const FLOAT maxGrowthSteps);
+        Connections(const int neuron_count, const BGFLOAT start_radius, const BGFLOAT growthStepDuration, const BGFLOAT maxGrowthSteps);
 };
 
 #endif

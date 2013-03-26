@@ -1,6 +1,11 @@
 ### object libraries
 
 *.sln
+*.vcxproj.filters
+*.vcxproj.user
+*.suo
+*.sln
+*.sdf
 GPU Debug/
 GPU Release/
 IOCP Debug/

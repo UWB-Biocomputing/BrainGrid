@@ -43,12 +43,7 @@ distribution.
 #include <string.h>
 #include <assert.h>
 #include <iostream>
-#include "bgtypes.h" // for FLOAT
-
-// Help out windows:
-#if defined( _DEBUG ) && !defined( DEBUG )
-#define DEBUG
-#endif
+#include "bgtypes.h" // for BGFLOAT
 
 #ifdef TIXML_USE_STL
 	#include <string>
@@ -998,7 +993,7 @@ public:
 		return result;
 	}
 
-    int QueryFLOATAttribute(const char* name, FLOAT* _value) const {
+    int QueryBGFLOATAttribute(const char* name, BGFLOAT* _value) const {
 #if defined(SINGLEPRECISION)
     return QueryFloatAttribute(name, _value);
 #else

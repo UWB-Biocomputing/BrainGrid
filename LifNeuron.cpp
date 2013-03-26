@@ -30,7 +30,7 @@ LifNeuron::~LifNeuron() {
  * Otherwise, decay \f$Vm\f$ and add inputs.
  * @param[in] summationPoint
  */
-void LifNeuron::advance(FLOAT& summationPoint) {
+void LifNeuron::advance(BGFLOAT& summationPoint) {
 	if (nStepsInRefr > 0) { // is neuron refractory?
 		--nStepsInRefr;
 	} else if (Vm >= Vthresh) { // should it fire?

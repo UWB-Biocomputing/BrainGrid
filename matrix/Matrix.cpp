@@ -42,12 +42,12 @@
 
 // Initialize attributes at construction time
 // The subclass constructor must set dimensions
-Matrix::Matrix(string t, string i, int r, int c, FLOAT m)
+Matrix::Matrix(string t, string i, int r, int c, BGFLOAT m)
   : type(t), init(i), rows(r), columns(c), multiplier(m), dimensions(0) {}
 
 
 void Matrix::SetAttributes(string t, string i, int r, int c, 
-			   FLOAT m, int d)
+			   BGFLOAT m, int d)
 {
   type = t;
   init = i;

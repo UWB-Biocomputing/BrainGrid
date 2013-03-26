@@ -48,7 +48,7 @@ int poolsize[3];  // size of pool of neurons [x y z]
 Model *model = NULL;
 
 // Simulation Parameters
-FLOAT Tsim;  // Simulation time (s) (between growth updates) rename: epochLength
+BGFLOAT Tsim;  // Simulation time (s) (between growth updates) rename: epochLength
 int numSims;  // Number of Tsim simulation to run
 int maxFiringRate;  // Maximum firing rate (only used by GPU version)
 int maxSynapsesPerNeuron;  // Maximum number of synapses per neuron
@@ -57,8 +57,8 @@ long seed;  // Seed for random generator (single-threaded)
 
 // functions
 SimulationInfo makeSimulationInfo(int cols, int rows,
-    FLOAT growthStepDuration, FLOAT maxGrowthSteps,
-    int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT,
+    BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps,
+    int maxFiringRate, int maxSynapsesPerNeuron, BGFLOAT new_deltaT,
     long seed);
 bool load_simulation_parameters(const string &sim_param_filename);
 void LoadSimParms(TiXmlElement*);
@@ -147,8 +147,8 @@ int main(int argc, char* argv[]) {
  * Init SimulationInfo parameters
  */
 SimulationInfo makeSimulationInfo(int cols, int rows,
-        FLOAT growthStepDuration, FLOAT maxGrowthSteps,
-        int maxFiringRate, int maxSynapsesPerNeuron, FLOAT new_deltaT,
+        BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps,
+        int maxFiringRate, int maxSynapsesPerNeuron, BGFLOAT new_deltaT,
         long seed)
 {
     SimulationInfo si;
@@ -260,7 +260,7 @@ void LoadSimParms(TiXmlElement* parms)
     }
 
     if ((temp = parms->FirstChildElement("SimParams")) != NULL) {
-        if (temp->QueryFLOATAttribute("Tsim", &Tsim) != TIXML_SUCCESS) {
+        if (temp->QueryBGFLOATAttribute("Tsim", &Tsim) != TIXML_SUCCESS) {
             fSet = false;
             cerr << "error Tsim" << endl;
         }

@@ -44,7 +44,7 @@
 // Classwide normal RNG
 Norm VectorMatrix::nRng;
 
-VectorMatrix::VectorMatrix(string t, string i, int r, int c, FLOAT m, string values) :
+VectorMatrix::VectorMatrix(string t, string i, int r, int c, BGFLOAT m, string values) :
 	Matrix(t, i, r, c, m), theVector(NULL) {
 #ifdef VDEBUG
 	cerr << "Creating VectorMatrix, size: ";
@@ -105,7 +105,7 @@ VectorMatrix::VectorMatrix(const VectorMatrix& oldV) :
 }
 
 // Assignment operator: set elements of vector to constant
-const VectorMatrix& VectorMatrix::operator=(FLOAT c) {
+const VectorMatrix& VectorMatrix::operator=(BGFLOAT c) {
 	for (int i = 0; i < size; i++)
 		theVector[i] = c;
 
@@ -152,7 +152,7 @@ void VectorMatrix::alloc(int size) {
 	if (theVector != NULL)
 		throw KII_exception("Attempt to allocate storage for non-cleared Vector.");
 
-	if ((theVector = new FLOAT[size]) == NULL) {
+	if ((theVector = new BGFLOAT[size]) == NULL) {
 		throw KII_bad_alloc("Failed allocating storage of Vector copy.");
 	}
 
@@ -200,7 +200,7 @@ const VectorMatrix VectorMatrix::operator+(const VectorMatrix& rhs) const {
 }
 
 // Vector plus a constant
-const VectorMatrix VectorMatrix::operator+(FLOAT c) const {
+const VectorMatrix VectorMatrix::operator+(BGFLOAT c) const {
 	// Start with this
 	VectorMatrix result(*this);
 
@@ -211,13 +211,13 @@ const VectorMatrix VectorMatrix::operator+(FLOAT c) const {
 }
 
 // There are two possible products. This is an inner product.
-const FLOAT VectorMatrix::operator*(const VectorMatrix& rhs) const {
+const BGFLOAT VectorMatrix::operator*(const VectorMatrix& rhs) const {
 	if (rhs.size != size) {
 		throw KII_domain_error("Illegal vector inner product. Vectors must be equal length.");
 	}
 
 	// the result is scalar
-	FLOAT result;
+	BGFLOAT result;
 
 	result = theVector[0] * rhs.theVector[0];
 
@@ -261,7 +261,7 @@ const VectorMatrix VectorMatrix::ArrayMultiply(const VectorMatrix& rhs) const {
 }
 
 // Vector times a constant
-const VectorMatrix VectorMatrix::operator*(FLOAT c) const {
+const VectorMatrix VectorMatrix::operator*(BGFLOAT c) const {
 	// Start with this
 	VectorMatrix result(*this);
 
@@ -272,7 +272,7 @@ const VectorMatrix VectorMatrix::operator*(FLOAT c) const {
 }
 
 // Vector divided by a constant
-const VectorMatrix VectorMatrix::operator/(FLOAT c) const {
+const VectorMatrix VectorMatrix::operator/(BGFLOAT c) const {
 	// Start with this
 	VectorMatrix result(*this);
 
@@ -283,7 +283,7 @@ const VectorMatrix VectorMatrix::operator/(FLOAT c) const {
 }
 
 // Constant minus a vector
-const VectorMatrix operator-(FLOAT c, const VectorMatrix& v) {
+const VectorMatrix operator-(BGFLOAT c, const VectorMatrix& v) {
 	// Start with vector
 	VectorMatrix result(v);
 
@@ -294,7 +294,7 @@ const VectorMatrix operator-(FLOAT c, const VectorMatrix& v) {
 }
 
 // Constant divided by a vector
-const VectorMatrix operator/(FLOAT c, const VectorMatrix& v) {
+const VectorMatrix operator/(BGFLOAT c, const VectorMatrix& v) {
 	// Start with vector
 	VectorMatrix result(v);
 
@@ -305,7 +305,7 @@ const VectorMatrix operator/(FLOAT c, const VectorMatrix& v) {
 }
 
 // Limit values of a vector
-const VectorMatrix VectorMatrix::Limit(FLOAT low, FLOAT high) const {
+const VectorMatrix VectorMatrix::Limit(BGFLOAT low, BGFLOAT high) const {
 	// Start with this
 	VectorMatrix result(*this);
 
@@ -320,8 +320,8 @@ const VectorMatrix VectorMatrix::Limit(FLOAT low, FLOAT high) const {
 }
 
 // Find minimum value
-const FLOAT VectorMatrix::Min(void) const {
-	FLOAT min = theVector[0];
+const BGFLOAT VectorMatrix::Min(void) const {
+	BGFLOAT min = theVector[0];
 
 	for (int i = 1; i < size; i++)
 		if (theVector[i] < min)
@@ -331,8 +331,8 @@ const FLOAT VectorMatrix::Min(void) const {
 }
 
 // Find maximum value
-const FLOAT VectorMatrix::Max(void) const {
-	FLOAT max = theVector[0];
+const BGFLOAT VectorMatrix::Max(void) const {
+	BGFLOAT max = theVector[0];
 
 	for (int i = 1; i < size; i++)
 		if (theVector[i] > max)

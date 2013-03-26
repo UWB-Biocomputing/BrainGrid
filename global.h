@@ -21,10 +21,8 @@
 #include <sstream>
 #include <cassert>
 #include <vector>
-#ifdef _WIN32	//needs to be before #include "bgtypes.h" or the #define FLOAT will cause problems
-#define FLOAT WindowsFLOAT
-#include <windows.h>	//warning! windows.h also defines FLOAT
-#undef FLOAT
+#ifdef _WIN32	//needs to be before #include "bgtypes.h" or the #define BGFLOAT will cause problems
+#include <windows.h>	//warning! windows.h also defines BGFLOAT
 typedef unsigned long long int uint64_t;	//included in inttypes.h, which is not available in WIN32
 #else
 #include <inttypes.h>	//used for uint64_t, unavailable in WIN32
@@ -54,10 +52,10 @@ extern int g_deviceId;
 #endif // USE_GPU
 
 // NETWORK MODEL VARIABLES NMV-BEGIN {
-extern const FLOAT g_synapseStrengthAdjustmentConstant;
+extern const BGFLOAT g_synapseStrengthAdjustmentConstant;
 //} NMV-END
 //! The constant PI.
-extern const FLOAT pi;
+extern const BGFLOAT pi;
 
 //! A random number generator.
 extern RNG rng;
@@ -84,34 +82,34 @@ enum neuronType { INH = 1, EXC = 2, NTYPE_UNDEF = 0 };
 enum synapseType { II = 0, IE = 1, EI = 2, EE = 3, STYPE_UNDEF = -1 };
 
 //! The default membrane capacitance.
-extern const FLOAT DEFAULT_Cm;
+extern const BGFLOAT DEFAULT_Cm;
 //! The default membrane resistance.
-extern const FLOAT DEFAULT_Rm;
+extern const BGFLOAT DEFAULT_Rm;
 //! The default resting voltage.
-extern const FLOAT DEFAULT_Vrest;
+extern const BGFLOAT DEFAULT_Vrest;
 //! The default reset voltage.
-extern const FLOAT DEFAULT_Vreset;
+extern const BGFLOAT DEFAULT_Vreset;
 //! The default absolute refractory period.
-extern const FLOAT DEFAULT_Trefract;
+extern const BGFLOAT DEFAULT_Trefract;
 //! The default synaptic noise.
-extern const FLOAT DEFAULT_Inoise;
+extern const BGFLOAT DEFAULT_Inoise;
 //! The default injected current.
-extern const FLOAT DEFAULT_Iinject;
+extern const BGFLOAT DEFAULT_Iinject;
 //! The default threshold voltage.  If \f$V_m >= V_{thresh}\f$ then the neuron fires.
-extern const FLOAT DEFAULT_Vthresh;
+extern const BGFLOAT DEFAULT_Vthresh;
 //! The default time step size.
-extern const FLOAT DEFAULT_dt; // MODEL INDEPENDENT
+extern const BGFLOAT DEFAULT_dt; // MODEL INDEPENDENT
 //! The default absolute refractory period for inhibitory neurons.
-extern const FLOAT DEFAULT_InhibTrefract;
+extern const BGFLOAT DEFAULT_InhibTrefract;
 //! The default absolute refractory period for excitory neurons.
-extern const FLOAT DEFAULT_ExcitTrefract;
+extern const BGFLOAT DEFAULT_ExcitTrefract;
 
 //! The default synaptic time constant.
-extern const FLOAT DEFAULT_tau;
+extern const BGFLOAT DEFAULT_tau;
 //! The default synaptic efficiency.
-extern const FLOAT DEFAULT_U;
+extern const BGFLOAT DEFAULT_U;
 //! The default synaptic efficiency.
-extern const FLOAT DEFAULT_delay_weight; // WHAT IS THIS?
+extern const BGFLOAT DEFAULT_delay_weight; // WHAT IS THIS?
 // } NMV-END
 
 //! Converts a 1-d index into a coordinate string.

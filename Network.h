@@ -64,16 +64,16 @@ class Network
         void saveState(ostream& os);
 
         //! Write the simulation memory image to an ostream
-        void writeSimMemory(FLOAT simulation_step, ostream& os);
+        void writeSimMemory(BGFLOAT simulation_step, ostream& os);
 
         //! Read the simulation memory image from an istream
         void readSimMemory(istream& is);
 
         // Setup simulation
-        void setup(FLOAT growthStepDuration, FLOAT num_growth_steps);
+        void setup(BGFLOAT growthStepDuration, BGFLOAT num_growth_steps);
 
         // Cleanup after simulation
-        void finish(FLOAT growthStepDuration, FLOAT num_growth_steps);
+        void finish(BGFLOAT growthStepDuration, BGFLOAT num_growth_steps);
 
         // TODO comment
         void get_spike_history(VectorMatrix& burstinessHist, VectorMatrix& spikesHistory);
@@ -92,7 +92,7 @@ class Network
         AllSynapses synapses;
 
         //! The map of summation points.
-        FLOAT* m_summationMap;
+        BGFLOAT* m_summationMap;
 
     private:
         // Struct that holds information about a simulation
