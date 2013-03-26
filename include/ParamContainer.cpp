@@ -371,6 +371,9 @@ ParamContainer::errcode ParamContainer::lexicalAnalysis(std::string s)
 	case value:
 		valpart+=s.substr(startpos, i-startpos);
 		lexconv.push_back(cmdlineel(flag, pos, valpart));
+		break;
+	case normal:
+		break; //PAB: Defined to avert compiler warning
 	}
 	lexconv.push_back(cmdlineel(cmdlineel::eol, (int)lastcmdline.length()));
 	return errOk;
