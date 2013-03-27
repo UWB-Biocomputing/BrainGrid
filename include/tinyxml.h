@@ -993,7 +993,7 @@ public:
 		return result;
 	}
 
-    int QueryBGFLOATAttribute(const char* name, BGFLOAT* _value) const {
+    int QueryFLOATAttribute(const char* name, BGFLOAT* _value) const {
 #if defined(SINGLEPRECISION)
     return QueryFloatAttribute(name, _value);
 #else

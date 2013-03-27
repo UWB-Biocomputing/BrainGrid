@@ -562,7 +562,7 @@ void SparseMatrix::rowFromXML(TiXmlElement* rowElement)
     BGFLOAT val;
     if (child->QueryIntAttribute("number", &colNum)!=TIXML_SUCCESS)
       throw KII_invalid_argument("Attempt to read SparseMatrix Entry without a number");
-    if (child->QueryBGFLOATAttribute("value", &val)!=TIXML_SUCCESS)
+    if (child->QueryFLOATAttribute("value", &val)!=TIXML_SUCCESS)
       throw KII_invalid_argument("Attempt to read SparseMatrix Entry without a value");
     Element* el = new Element(rowNum, colNum, val);
     theRows[rowNum].push_back(el);

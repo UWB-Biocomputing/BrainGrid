@@ -260,7 +260,7 @@ void LoadSimParms(TiXmlElement* parms)
     }
 
     if ((temp = parms->FirstChildElement("SimParams")) != NULL) {
-        if (temp->QueryBGFLOATAttribute("Tsim", &Tsim) != TIXML_SUCCESS) {
+        if (temp->QueryFLOATAttribute("Tsim", &Tsim) != TIXML_SUCCESS) {
             fSet = false;
             cerr << "error Tsim" << endl;
         }

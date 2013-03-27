@@ -44,111 +44,111 @@ bool LIFModel::readParameters(TiXmlElement *source)
 bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute)
 {
     if (element.ValueStr().compare("LsmParams") == 0) {
-        if (element.QueryBGFLOATAttribute("frac_EXC", &m_frac_excititory_neurons) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("frac_EXC", &m_frac_excititory_neurons) != TIXML_SUCCESS) {
             throw ParseParamError("frac_EXC", "Fraction Excitatory missing in XML.");
         }
-        if (element.QueryBGFLOATAttribute("starter_neurons", &m_frac_starter_neurons) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("starter_neurons", &m_frac_starter_neurons) != TIXML_SUCCESS) {
             throw ParseParamError("starter_neurons", "Fraction endogenously active missing in XML.");
         }
     }
     
     if (element.ValueStr().compare("Iinject") == 0) {
-        if (element.QueryBGFLOATAttribute("min", &m_Iinject[0]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("min", &m_Iinject[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Iinject min", "Iinject missing minimum value in XML.");
         }
-        if (element.QueryBGFLOATAttribute("max", &m_Iinject[1]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("max", &m_Iinject[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Iinject min", "Iinject missing maximum value in XML.");
         }
         m_read_params++;
     }
     
     if (element.ValueStr().compare("Inoise") == 0) {
-        if (element.QueryBGFLOATAttribute("min", &m_Inoise[0]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("min", &m_Inoise[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Inoise min", "Inoise missing minimum value in XML.");
         }
-        if (element.QueryBGFLOATAttribute("max", &m_Inoise[1]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("max", &m_Inoise[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Inoise max", "Inoise missing maximum value in XML.");
         }
         m_read_params++;
     }
 
     if (element.ValueStr().compare("Vthresh") == 0) {
-        if (element.QueryBGFLOATAttribute("min", &m_Vthresh[0]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("min", &m_Vthresh[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vthresh min", "Vthresh missing minimum value in XML.");
         }
-        if (element.QueryBGFLOATAttribute("max", &m_Vthresh[1]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("max", &m_Vthresh[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Vthresh max", "Vthresh missing maximum value in XML.");
         }
         m_read_params++;
     }
 
     if (element.ValueStr().compare("Vresting") == 0) {
-        if (element.QueryBGFLOATAttribute("min", &m_Vresting[0]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("min", &m_Vresting[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vresting min", "Vresting missing minimum value in XML.");
         }
-        if (element.QueryBGFLOATAttribute("max", &m_Vresting[1]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("max", &m_Vresting[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Vresting max", "Vresting missing maximum value in XML.");
         }
         m_read_params++;
     }
 
     if (element.ValueStr().compare("Vreset") == 0) {
-        if (element.QueryBGFLOATAttribute("min", &m_Vreset[0]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("min", &m_Vreset[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vreset min", "Vreset missing minimum value in XML.");
         }
-        if (element.QueryBGFLOATAttribute("max", &m_Vreset[1]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("max", &m_Vreset[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Vreset max", "Vreset missing maximum value in XML.");
         }
         m_read_params++;
     }
 
     if (element.ValueStr().compare("Vinit") == 0) {
-        if (element.QueryBGFLOATAttribute("min", &m_Vinit[0]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("min", &m_Vinit[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vinit min", "Vinit missing minimum value in XML.");
         }
-        if (element.QueryBGFLOATAttribute("max", &m_Vinit[1]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("max", &m_Vinit[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Vinit max", "Vinit missing maximum value in XML.");
         }
         m_read_params++;
     }
 
     if (element.ValueStr().compare("starter_vthresh") == 0) {
-        if (element.QueryBGFLOATAttribute("min", &m_starter_Vthresh[0]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("min", &m_starter_Vthresh[0]) != TIXML_SUCCESS) {
             throw ParseParamError("starter_vthresh min", "starter_vthresh missing minimum value in XML.");
         }
-        if (element.QueryBGFLOATAttribute("max", &m_starter_Vthresh[1]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("max", &m_starter_Vthresh[1]) != TIXML_SUCCESS) {
             throw ParseParamError("starter_vthresh max", "starter_vthresh missing maximum value in XML.");
         }
         m_read_params++;
     }
 
     if (element.ValueStr().compare("starter_vreset") == 0) {
-        if (element.QueryBGFLOATAttribute("min", &m_starter_Vreset[0]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("min", &m_starter_Vreset[0]) != TIXML_SUCCESS) {
             throw ParseParamError("starter_vreset min", "starter_vreset missing minimum value in XML.");
         }
-        if (element.QueryBGFLOATAttribute("max", &m_starter_Vreset[1]) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("max", &m_starter_Vreset[1]) != TIXML_SUCCESS) {
             throw ParseParamError("starter_vreset max", "starter_vreset missing maximum value in XML.");
         }
         m_read_params++;
     }
     
     if (element.ValueStr().compare("GrowthParams") == 0) {
-		if (element.QueryBGFLOATAttribute("epsilon", &m_growth.epsilon) != TIXML_SUCCESS) {
+		if (element.QueryFLOATAttribute("epsilon", &m_growth.epsilon) != TIXML_SUCCESS) {
 			throw ParseParamError("epsilon", "Growth param 'epsilon' missing in XML.");
 		}
-		if (element.QueryBGFLOATAttribute("beta", &m_growth.beta) != TIXML_SUCCESS) {
+		if (element.QueryFLOATAttribute("beta", &m_growth.beta) != TIXML_SUCCESS) {
 			throw ParseParamError("beta", "Growth param 'beta' missing in XML.");
 		}
-		if (element.QueryBGFLOATAttribute("rho", &m_growth.rho) != TIXML_SUCCESS) {
+		if (element.QueryFLOATAttribute("rho", &m_growth.rho) != TIXML_SUCCESS) {
 			throw ParseParamError("rho", "Growth param 'rho' missing in XML.");
 		}
-		if (element.QueryBGFLOATAttribute("targetRate", &m_growth.targetRate) != TIXML_SUCCESS) {
+		if (element.QueryFLOATAttribute("targetRate", &m_growth.targetRate) != TIXML_SUCCESS) {
 			throw ParseParamError("targetRate", "Growth targetRate 'beta' missing in XML.");
 		}
-		if (element.QueryBGFLOATAttribute("minRadius", &m_growth.minRadius) != TIXML_SUCCESS) {
+		if (element.QueryFLOATAttribute("minRadius", &m_growth.minRadius) != TIXML_SUCCESS) {
 			throw ParseParamError("minRadius", "Growth minRadius 'beta' missing in XML.");
 		}
-		if (element.QueryBGFLOATAttribute("startRadius", &m_growth.startRadius) != TIXML_SUCCESS) {
+		if (element.QueryFLOATAttribute("startRadius", &m_growth.startRadius) != TIXML_SUCCESS) {
 			throw ParseParamError("startRadius", "Growth startRadius 'beta' missing in XML.");
 		}
     }
