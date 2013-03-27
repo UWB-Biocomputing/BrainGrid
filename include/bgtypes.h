@@ -29,7 +29,7 @@ typedef unsigned int       uint32_t; // same deal as above
 #define BGFLOAT double
 
 // solution to get rid of typedef redefine errors on different platforms
-#ifdef TARGET_OS_MAC
+#ifdef __APPLE__
   
 #elif defined __linux__
 	typedef BGFLOAT* PBGFLOAT;
