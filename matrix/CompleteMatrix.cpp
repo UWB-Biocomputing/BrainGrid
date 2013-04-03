@@ -42,7 +42,7 @@
 
 // Create a complete 2D Matrix
 CompleteMatrix::CompleteMatrix(string t, string i, int r,
-			       int c, FLOAT m, string values)
+			       int c, BGFLOAT m, string values)
   : Matrix(t, i, r, c, m), theMatrix(NULL)
 {
 #ifdef MDEBUG
@@ -198,11 +198,11 @@ void CompleteMatrix::alloc(int rows, int columns)
   if (theMatrix != NULL)
     throw KII_exception("Attempt to allocate storage for non-cleared Matrix");
 
-  if ((theMatrix = new FLOAT*[rows]) == NULL)
+  if ((theMatrix = new BGFLOAT*[rows]) == NULL)
     throw KII_bad_alloc("Failed allocating storage to copy Matrix.");
 
   for (int i=0; i<rows; i++)
-    if ((theMatrix[i] = new FLOAT[columns]) == NULL)
+    if ((theMatrix[i] = new BGFLOAT[columns]) == NULL)
       throw KII_bad_alloc("Failed allocating storage to copy Matrix.");
 #ifdef MDEBUG
   cerr << "\tStorage allocated for "<< rows << "X" << columns << " Matrix." << endl;

@@ -31,28 +31,28 @@ AllNeurons::AllNeurons() :
 AllNeurons::AllNeurons(const int size) :
         size(size)
 {
-    C1 = new FLOAT[size];
-    C2 = new FLOAT[size];
-    Cm = new FLOAT[size];
-    I0 = new FLOAT[size];
-    Iinject = new FLOAT[size];
-    Inoise = new FLOAT[size];
-    Isyn = new FLOAT[size];
-    Rm = new FLOAT[size];
-    Tau = new FLOAT[size];
-    Trefract = new FLOAT[size];
-    Vinit = new FLOAT[size];
-    Vm = new FLOAT[size];
-    Vreset = new FLOAT[size];
-    Vrest = new FLOAT[size];
-    Vthresh = new FLOAT[size];
-    deltaT = new FLOAT[size];
+    C1 = new BGFLOAT[size];
+    C2 = new BGFLOAT[size];
+    Cm = new BGFLOAT[size];
+    I0 = new BGFLOAT[size];
+    Iinject = new BGFLOAT[size];
+    Inoise = new BGFLOAT[size];
+    Isyn = new BGFLOAT[size];
+    Rm = new BGFLOAT[size];
+    Tau = new BGFLOAT[size];
+    Trefract = new BGFLOAT[size];
+    Vinit = new BGFLOAT[size];
+    Vm = new BGFLOAT[size];
+    Vreset = new BGFLOAT[size];
+    Vrest = new BGFLOAT[size];
+    Vthresh = new BGFLOAT[size];
+    deltaT = new BGFLOAT[size];
     hasFired = new bool[size];
     nStepsInRefr = new int[size];
     neuron_type_map = new neuronType[size];
     spikeCount = new int[size];
     starter_map = new bool[size];
-    summation_map = new FLOAT[size];
+    summation_map = new BGFLOAT[size];
     spike_history = new uint64_t*[size];
 
     for (int i = 0; i < size; ++i) {

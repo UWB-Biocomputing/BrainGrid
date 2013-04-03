@@ -65,15 +65,15 @@ RNG::RNG(unsigned long seed) {
 
 }
 
-FLOAT RNG::operator()(void) {
+BGFLOAT RNG::operator()(void) {
 #ifdef _WIN32
-	return FLOAT(rand()) / RAND_MAX;
+	return BGFLOAT(rand()) / RAND_MAX;
 #else
 	//setstate(state);
-	return FLOAT(random()) / RAND_MAX;
+	return BGFLOAT(random()) / RAND_MAX;
 #endif
 }
 
-FLOAT RNG::inRange(FLOAT min, FLOAT max) {
+BGFLOAT RNG::inRange(BGFLOAT min, BGFLOAT max) {
 	return min + (max - min) * this->operator ()();
 }

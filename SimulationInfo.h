@@ -54,7 +54,7 @@ struct SimulationInfo
     {
     }
 
-	void reset(int neurons, vector<INeuron*>* neronList, vector<ISynapse*>* synapseList, double* sumMap, FLOAT delta) {
+	void reset(int neurons, vector<INeuron*>* neronList, vector<ISynapse*>* synapseList, BGFLOAT* sumMap, BGFLOAT delta) {
 		cNeurons = neurons;
 		pNeuronList = neronList;
 		rgSynapseMap = synapseList;
@@ -78,7 +78,7 @@ struct SimulationInfo
 	int maxSteps; // TODO: delete
 
 	//! The length of each step in simulation time
-	FLOAT stepDuration; // Epoch duration !!!!!!!!
+	BGFLOAT stepDuration; // Epoch duration !!!!!!!!
 
 // NETWORK MODEL VARIABLES NMV-BEGIN {
 	//! Maximum firing rate. **Only used by GPU simulation.**
@@ -89,7 +89,7 @@ struct SimulationInfo
 // } NMV-END
 
 	//! Time elapsed between the beginning and end of the simulation step
-	FLOAT deltaT; // Inner Simulation Step Duration !!!!!!!!
+	BGFLOAT deltaT; // Inner Simulation Step Duration !!!!!!!!
 
 	//! List of neurons
 	vector<INeuron*>* pNeuronList;
@@ -102,29 +102,29 @@ struct SimulationInfo
 
 // NETWORK MODEL VARIABLES NMV-BEGIN {
 	//! growth param TODO: more detail here
-	FLOAT epsilon;
+	BGFLOAT epsilon;
 
 	//! growth param TODO: more detail here
-	FLOAT beta;
+	BGFLOAT beta;
 
 	//! growth param: change in radius scalar
-	FLOAT rho;
+	BGFLOAT rho;
 
 	//! growth variable (m_targetRate / m_epsilon) TODO: more detail here
-	FLOAT maxRate;
+	BGFLOAT maxRate;
 
 	//! The minimum possible radius.  We use this to prevent neurons from disconnecting from the network.
-	FLOAT minRadius;
+	BGFLOAT minRadius;
 
 	//! The starting connectivity radius for all neurons.
-	FLOAT startRadius;
+	BGFLOAT startRadius;
 // } NMV-END
 
 	//! List of lists of synapses (3d array)
 	vector<ISynapse*>* rgSynapseMap;
 
 	//! List of summation points
-	FLOAT* pSummationMap;
+	BGFLOAT* pSummationMap;
 
 	//! Seed used for the simulation random SINGLE THREADED
 	long seed;

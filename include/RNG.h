@@ -17,7 +17,7 @@
 #include <cstdio>     // For /dev/random
 #ifdef _WIN32
 #include <time.h>
-#include "bgtypes.h"	//defines FLOAT, needed for WIN32 compiling
+#include "bgtypes.h"	//defines BGFLOAT, needed for WIN32 compiling
 #endif
 
 /*!
@@ -43,13 +43,13 @@ public:
     @param seed the seed
   */
   RNG(unsigned long seed = 0);
-  FLOAT inRange(FLOAT min, FLOAT max);
+  BGFLOAT inRange(BGFLOAT min, BGFLOAT max);
   /*!
     This method makes instances functors; it returns uniformly
     distributed reals in the range of 0 through 1.0.
     @return A pseudorandom number taken from a uniform distribution
   */
-  virtual FLOAT operator() (void);
+  virtual BGFLOAT operator() (void);
 
 private:
 

@@ -41,8 +41,8 @@ INeuron::~INeuron() {
  * @param[in] new_Vinit		The initial condition for \f$V_m\f$ at time \f$t=0\f$
  * @param[in] new_deltaT	The simulation time step size.
  */
-void INeuron::setParams(FLOAT new_Iinject, FLOAT new_Inoise, FLOAT new_Vthresh, FLOAT new_Vresting,
-	FLOAT new_Vreset, FLOAT new_Vinit, FLOAT new_deltaT) {
+void INeuron::setParams(BGFLOAT new_Iinject, BGFLOAT new_Inoise, BGFLOAT new_Vthresh, BGFLOAT new_Vresting,
+	BGFLOAT new_Vreset, BGFLOAT new_Vinit, BGFLOAT new_deltaT) {
 	Iinject = new_Iinject;
 	Inoise = new_Inoise;
 	Vthresh = new_Vthresh;

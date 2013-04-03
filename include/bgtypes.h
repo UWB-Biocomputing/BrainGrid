@@ -17,24 +17,22 @@
 //
 
 // For floats, uncomment the following two lines and comment DOUBLEPRECISION and the other #define
-//#define FLOAT float
+//#define BGFLOAT float
 
 #ifdef _WIN32
-// We're stuck with single precision, as defined in windows.h/windef.h
-//#define SINGLEPRECISION
-#define FLOAT double
-//#include <Windows.h>
+#define SINGLEPRECISION
+#define BGFLOAT float
 typedef unsigned long long int uint64_t;	//included in inttypes.h, which is not available in WIN32//included in inttypes.h, which is not available in WIN32
 typedef unsigned int       uint32_t; // same deal as above
 #else
 #define DOUBLEPRECISION
-#define FLOAT double
+#define BGFLOAT double
 
 // solution to get rid of typedef redefine errors on different platforms
-#ifdef TARGET_OS_MAC
+#ifdef __APPLE__
   
 #elif defined __linux__
-	typedef FLOAT* PFLOAT;
+	typedef BGFLOAT* PBGFLOAT;
 #elif defined _WIN32 || defined _WIN64
 	typedef __int32 int32_t;
 	typedef unsigned __int32 uint32_t;
@@ -42,4 +40,7 @@ typedef unsigned int       uint32_t; // same deal as above
 #error "unknown platform"
 #endif
 #endif // _WIN32
+
+typedef BGFLOAT *PBGFLOAT;
+
 #endif // __BGTYPES_H_

@@ -34,10 +34,10 @@ class DynamicSpikingSynapse : public ISynapse
 public:
 
     //! Constructor, with params.
-    DynamicSpikingSynapse( int source_x, int source_y, int sumX, int sumY, FLOAT& sum_point, FLOAT delay, FLOAT deltaT,
+    DynamicSpikingSynapse( int source_x, int source_y, int sumX, int sumY, BGFLOAT& sum_point, BGFLOAT delay, BGFLOAT deltaT,
                            synapseType type );
 	//! Constructor, with params. Loads directly from input stream
-    DynamicSpikingSynapse( istream& is, FLOAT* pSummationMap, int width );
+    DynamicSpikingSynapse( istream& is, BGFLOAT* pSummationMap, int width );
     virtual ~DynamicSpikingSynapse();
 
 	//! Copy constructor.

@@ -54,7 +54,7 @@ public:
 	virtual ~LifNeuron();
 
 	//! Process another time step.
-	virtual void advance(FLOAT& summationPoint);
+	virtual void advance(BGFLOAT& summationPoint);
 
 	//! Emit a spike.
 	virtual void fire();

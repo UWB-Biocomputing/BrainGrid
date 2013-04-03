@@ -15,21 +15,21 @@ struct AllSynapses
         Coordinate **summationCoord;
 
         //! The weight (scaling factor, strength, maximal amplitude) of the synapse.
-        FLOAT **W;
+        BGFLOAT **W;
 
         //! This synapse's summation point's address.
-        FLOAT ***summationPoint;
+        BGFLOAT ***summationPoint;
 
         //! The location of the synapse.
         Coordinate **synapseCoord;
 
         //! The time step size.
-        FLOAT **deltaT;
+        BGFLOAT **deltaT;
 
         //! The post-synaptic response is the result of whatever computation is going on in the synapse.
-        FLOAT **psr;
+        BGFLOAT **psr;
         //! The decay for the psr.
-        FLOAT **decay;
+        BGFLOAT **decay;
         //! The synaptic transmission delay, descretized into time steps.
         int **total_delay;
 #define BYTES_OF_DELAYQUEUE         ( sizeof(uint32_t) / sizeof(uint8_t) )
@@ -44,19 +44,19 @@ struct AllSynapses
         synapseType **type;
 
         //! The synaptic time constant \f$\tau\f$ [units=sec; range=(0,100)].
-        FLOAT **tau;
+        BGFLOAT **tau;
 
         // dynamic synapse vars...........
         //! The time varying state variable \f$r\f$ for depression.
-        FLOAT **r;
+        BGFLOAT **r;
         //! The time varying state variable \f$u\f$ for facilitation.
-        FLOAT **u;
+        BGFLOAT **u;
         //! The time constant of the depression of the dynamic synapse [range=(0,10); units=sec].
-        FLOAT **D;
+        BGFLOAT **D;
         //! The use parameter of the dynamic synapse [range=(1e-5,1)].
-        FLOAT **U;
+        BGFLOAT **U;
         //! The time constant of the facilitation of the dynamic synapse [range=(0,10); units=sec].
-        FLOAT **F;
+        BGFLOAT **F;
         //! The time of the last spike.
         uint64_t **lastSpike;
 

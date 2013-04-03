@@ -14,26 +14,26 @@
  * @param count
  */
 void allocNeuronStruct(LifNeuron_struct* neuron, int count) {
-	neuron->deltaT 				= new FLOAT[count];
-	neuron->summationPoint 			= new PFLOAT[count];
-	neuron->Cm 				= new FLOAT[count];
-	neuron->Rm 				= new FLOAT[count];
-	neuron->Vthresh 				= new FLOAT[count];
-	neuron->Vrest 				= new FLOAT[count];
-	neuron->Vreset 				= new FLOAT[count];
-	neuron->Vinit 				= new FLOAT[count];
-	neuron->Trefract 			= new FLOAT[count];
-	neuron->Inoise 				= new FLOAT[count];
+	neuron->deltaT 				= new BGFLOAT[count];
+	neuron->summationPoint 			= new PBGFLOAT[count];
+	neuron->Cm 				= new BGFLOAT[count];
+	neuron->Rm 				= new BGFLOAT[count];
+	neuron->Vthresh 				= new BGFLOAT[count];
+	neuron->Vrest 				= new BGFLOAT[count];
+	neuron->Vreset 				= new BGFLOAT[count];
+	neuron->Vinit 				= new BGFLOAT[count];
+	neuron->Trefract 			= new BGFLOAT[count];
+	neuron->Inoise 				= new BGFLOAT[count];
 	neuron->randNoise 			= new float*[count];
-	neuron->Iinject 				= new FLOAT[count];
-	neuron->Isyn 				= new FLOAT[count];
+	neuron->Iinject 				= new BGFLOAT[count];
+	neuron->Isyn 				= new BGFLOAT[count];
 	neuron->nStepsInRefr 			= new int[count];
-	neuron->C1 				= new FLOAT[count];
-	neuron->C2 				= new FLOAT[count];
-	neuron->I0 				= new FLOAT[count];
-	neuron->Vm 				= new FLOAT[count];
+	neuron->C1 				= new BGFLOAT[count];
+	neuron->C2 				= new BGFLOAT[count];
+	neuron->I0 				= new BGFLOAT[count];
+	neuron->Vm 				= new BGFLOAT[count];
 	neuron->hasFired 			= new bool[count];
-	neuron->Tau 				= new FLOAT[count];
+	neuron->Tau 				= new BGFLOAT[count];
 	neuron->spikeCount 			= new int[count];
 	neuron->outgoingSynapse_begin 		= new int[count];
 	neuron->synapseCount 			= new int[count];

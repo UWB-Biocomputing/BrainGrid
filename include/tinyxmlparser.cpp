@@ -1149,7 +1149,7 @@ const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 				return 0;
 			}
 
-			// Handle the strange case of FLOAT attributes:
+			// Handle the strange case of BGFLOAT attributes:
 			#ifdef TIXML_USE_STL
 			TiXmlAttribute* node = attributeSet.Find( attrib->NameTStr() );
 			#else
@@ -1403,12 +1403,12 @@ const char* TiXmlAttribute::Parse( const char* p, TiXmlParsingData* data, TiXmlE
 	else if ( *p == DOUBLE_QUOTE )
 	{
 		++p;
-		end = "\"";		// FLOAT quote in string
+		end = "\"";		// BGFLOAT quote in string
 		p = ReadText( p, &value, false, end, false, encoding );
 	}
 	else
 	{
-		// All attribute values should be in single or FLOAT quotes.
+		// All attribute values should be in single or BGFLOAT quotes.
 		// But this is such a common error that the parser will try
 		// its best, even without them.
 		value = "";

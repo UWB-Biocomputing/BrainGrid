@@ -66,7 +66,7 @@ public:
     @param s variance
     @param seed seed for random number generator
   */
-  Norm(FLOAT m = 0.0, FLOAT s = 1.0, unsigned long seed = 0)
+  Norm(BGFLOAT m = 0.0, BGFLOAT s = 1.0, unsigned long seed = 0)
     : RNG(seed), odd(true), mu(m), sigma(s) {}
 
   /*!
@@ -74,7 +74,7 @@ public:
     distributed random numbers. Just a cute way of doing things.
     @return pseudorandom number drawn from a normal distribution.
   */
-  virtual FLOAT operator() (void);
+  virtual BGFLOAT operator() (void);
 private:
   // Additional state information
 
@@ -83,13 +83,13 @@ private:
   bool odd;
 
   /*! The second of the pair of pseudorandom numbers generated (last call) */
-  FLOAT X2;
+  BGFLOAT X2;
 
   /*! Distribution mean */
-  FLOAT mu;
+  BGFLOAT mu;
 
   /*! Distribution variance */
-  FLOAT sigma;
+  BGFLOAT sigma;
 };
 
 #endif

@@ -78,7 +78,7 @@ public:
     @param v values for initializing CompleteMatrix
   */
   CompleteMatrix(string t = "complete", string i = "const", int r = 2,
-		 int c = 2, FLOAT m = 0.0, string v = "");
+		 int c = 2, BGFLOAT m = 0.0, string v = "");
 
   /*!
     @brief Copy constructor. Performs a deep copy.
@@ -104,7 +104,7 @@ public:
     @param column element column
     @return reference to element (lvalue)
   */
-  inline FLOAT& operator()(int row, int column)
+  inline BGFLOAT& operator()(int row, int column)
   { return theMatrix[row][column]; }
 
   /*!
@@ -189,7 +189,7 @@ protected:
 private:
 
   /*! Pointer to dynamically allocated 2D array */
-  FLOAT **theMatrix;
+  BGFLOAT **theMatrix;
 
 };
 

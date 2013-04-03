@@ -87,7 +87,7 @@ struct DynamicSpikingSynapse_struct {
 	bool* inUse;
 
 	//! This synapse's summation point's address.
-	PFLOAT* summationPoint;
+	PBGFLOAT* summationPoint;
 
 	//! The coordinates of the summation point.
 	Coordinate* summationCoord;
@@ -96,14 +96,14 @@ struct DynamicSpikingSynapse_struct {
 	Coordinate* synapseCoord;
 
 	//! The time step size.
-	FLOAT* deltaT;
+	BGFLOAT* deltaT;
 
 	//! The weight (scaling factor, strength, maximal amplitude) of the synapse.
-	FLOAT* W;
+	BGFLOAT* W;
 	//! The post-synaptic response is the result of whatever computation is going on in the synapse.
-	FLOAT* psr;
+	BGFLOAT* psr;
 	//! The decay for the psr.
-	FLOAT* decay;
+	BGFLOAT* decay;
 	//! The synaptic transmission delay, descretized into time steps.
 	int* total_delay;
 	//! Synapse type
@@ -115,13 +115,13 @@ struct DynamicSpikingSynapse_struct {
 	int* ldelayQueue;
 
 	 //! The synaptic time constant \f$\tau\f$ [units=sec; range=(0,100)];.
-	FLOAT* tau;
+	BGFLOAT* tau;
 
 	// dynamic synapse vars...........
 	//! The time varying state variable \f$r\f$ for depression.
-	FLOAT* r;
+	BGFLOAT* r;
 	//! The time varying state variable \f$u\f$ for facilitation.
-	FLOAT* u;
+	BGFLOAT* u;
 	//! The time of the last spike.
 	uint64_t* lastSpike;
 };

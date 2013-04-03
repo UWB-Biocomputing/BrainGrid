@@ -21,8 +21,8 @@
  */
 DynamicSpikingSynapse::DynamicSpikingSynapse(int source_x, int source_y, 
                                              int sumX, int sumY, 
-                                             FLOAT& sum_point,
-                                             FLOAT delay, FLOAT new_deltaT, 
+                                             BGFLOAT& sum_point,
+                                             BGFLOAT delay, BGFLOAT new_deltaT, 
                                              synapseType s_type) :
     ISynapse(source_x, source_y, sumX, sumY, sum_point, delay, new_deltaT, s_type)
 {
@@ -65,7 +65,7 @@ DynamicSpikingSynapse::DynamicSpikingSynapse(int source_x, int source_y,
  * Read the synapse data from the stream
  * @param[in] os	The filestream to read
  */
-DynamicSpikingSynapse::DynamicSpikingSynapse( istream& is, FLOAT* pSummationMap, int width ) : 
+DynamicSpikingSynapse::DynamicSpikingSynapse( istream& is, BGFLOAT* pSummationMap, int width ) : 
 	ISynapse(is, pSummationMap, width) {
 }
 
@@ -93,7 +93,7 @@ void DynamicSpikingSynapse::advance() {
 	if (isSpikeQueue()) {
 		// adjust synapse paramaters
 		if (lastSpike != ULONG_MAX) {
-			FLOAT isi = (g_simulationStep - lastSpike) * deltaT ;
+			BGFLOAT isi = (g_simulationStep - lastSpike) * deltaT ;
 			r = 1 + ( r * ( 1 - u ) - 1 ) * exp( -isi / D );
 			u = U + u * ( 1 - U ) * exp( -isi / F );
 		}
