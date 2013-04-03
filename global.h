@@ -53,9 +53,6 @@ using namespace std;
 extern int g_deviceId;
 #endif // USE_GPU
 
-// NETWORK MODEL VARIABLES NMV-BEGIN {
-extern const FLOAT g_synapseStrengthAdjustmentConstant;
-//} NMV-END
 //! The constant PI.
 extern const FLOAT pi;
 

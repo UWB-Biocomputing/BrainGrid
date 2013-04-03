@@ -7,6 +7,8 @@
 
 const bool LIFModel::STARTER_FLAG(true);
 
+const FLOAT LIFModel::SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
+
 LIFModel::LIFModel() :
      m_read_params(0)
     ,m_fixed_layout(false)
@@ -1116,7 +1118,7 @@ void LIFModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSyna
 						// adjust
 						// g_synapseStrengthAdjustmentConstant is 1.0e-8;
 					    synapses.W[src_neuron][synapse_index] = m_conns->W(src_neuron, dest_neuron) *
-							synSign(type) * g_synapseStrengthAdjustmentConstant;
+							synSign(type) * SYNAPSE_STRENGTH_ADJUSTMENT;
 
 						DEBUG2(cout << "weight of rgSynapseMap" <<
 							   coordToString(xa, ya)<<"[" <<synapse_index<<"]: " <<
@@ -1174,7 +1176,7 @@ void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const int src
 
     // create a synapse
     createSynapse(synapses, src_neuron, synapse_index, source, dest, sum_point, deltaT, type );
-    synapses.W[src_neuron][synapse_index] = m_conns->W(src_neuron, dest_neuron) * synSign(type) * g_synapseStrengthAdjustmentConstant;
+    synapses.W[src_neuron][synapse_index] = m_conns->W(src_neuron, dest_neuron) * synSign(type) * SYNAPSE_STRENGTH_ADJUSTMENT;
 }
 
 void LIFModel::createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, FLOAT *sum_point, FLOAT deltaT, synapseType type)

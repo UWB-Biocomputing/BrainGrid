@@ -55,7 +55,7 @@ vector<Norm *> rgNormrnd;
 /*		simulation vars		*/
 uint64_t g_simulationStep = 0;
 
-const FLOAT g_synapseStrengthAdjustmentConstant = 1.0e-8;
+//const FLOAT g_synapseStrengthAdjustmentConstant = 1.0e-8;
 
 /*		Neuron constants	*/
 const FLOAT DEFAULT_Cm = 3e-8;

@@ -155,6 +155,10 @@ class LIFModel : public Model, TiXmlVisitor
         int synSign(const synapseType t);
         synapseType synapseOrdinalToType(const int type_ordinal);
 
+        //
+
+        static const FLOAT SYNAPSE_STRENGTH_ADJUSTMENT;
+
     private:
         /** State of connections in the network. */
         struct Connections;
