@@ -7,7 +7,7 @@
 
 const bool LIFModel::STARTER_FLAG(true);
 
-const FLOAT LIFModel::SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
+const BGFLOAT LIFModel::SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
 
 LIFModel::LIFModel() :
      m_read_params(0)
@@ -38,6 +38,8 @@ bool LIFModel::readParameters(TiXmlElement *source)
 
     // initial maximum firing rate
     m_growth.maxRate = m_growth.targetRate / m_growth.epsilon;
+
+    cout << "GROWTH PARAMS :: " << m_growth << endl;
 
     return m_read_params == 9;
 }

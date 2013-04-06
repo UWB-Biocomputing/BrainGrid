@@ -36,6 +36,7 @@
 #include "Coordinate.h"
 
 #include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -157,7 +158,7 @@ class LIFModel : public Model, TiXmlVisitor
 
         //
 
-        static const FLOAT SYNAPSE_STRENGTH_ADJUSTMENT;
+        static const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT;
 
     private:
         /** State of connections in the network. */
@@ -172,6 +173,17 @@ class LIFModel : public Model, TiXmlVisitor
             BGFLOAT minRadius; // To ensure that even rapidly-firing neurons will connect to
                              // other neurons, when within their RFS.
             BGFLOAT startRadius; // No need to wait a long time before RFs start to overlap
+
+            friend ostream& operator<<(ostream &out, const GrowthParams &params) {
+                out << "epsilon: " << params.epsilon
+                    << " beta: " << params.beta
+                    << " rho: " << params.rho
+                    << " targetRate: " << params.targetRate
+                    << " maxRate: " << params.maxRate
+                    << " minRadius: " << params.minRadius
+                    << " startRadius" << params.startRadius;
+                return out;
+            }
         };
 
         static const bool STARTER_FLAG; // = true; // true = use endogenously active neurons in simulation
