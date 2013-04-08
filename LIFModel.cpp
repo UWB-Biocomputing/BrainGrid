@@ -595,6 +595,16 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_i
             neurons.Vreset[neuron_index] = rng.inRange(m_starter_Vreset[0], m_starter_Vreset[1]);
             neurons.Trefract[neuron_index] = DEFAULT_ExcitTrefract; // TODO(derek): move defaults inside model.
         }
+
+        cout << "CREATE NEURON[" << neuron_index << "] {" << endl
+                << "\tVm = " << neurons.Vm[neuron_index] << endl
+                << "\tVthresh = " << neurons.Vthresh[neuron_index] << endl
+                << "\tI0 = " << neurons.I0[neuron_index] << endl
+                << "\tInoise = " << neurons.Inoise[neuron_index] << "from : (" << m_Inoise[0] << "," << m_Inoise[1] << ")" << endl
+                << "\tC1 = " << neurons.C1[neuron_index] << endl
+                << "\tC2 = " << neurons.C2[neuron_index] << endl
+                << "}" << endl
+        ;
     }
     
     DEBUG(cout << "Done initializing neurons..." << endl;)
@@ -781,7 +791,7 @@ void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, const 
 
         // notify outgoing synapses if neuron has fired
         if (neurons.hasFired[i]) {
-            DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * sim_info.deltaT << endl;)
+            DEBUG(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * sim_info.deltaT << endl;)
 
             for (int z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
                 preSpikeHit(synapses, i, z);
@@ -824,6 +834,7 @@ void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
         summationPoint += I0; // add IO
         // add noise
         BGFLOAT noise = (*rgNormrnd[0])();
+        DEBUG(cout << "ADVANCE NEURON[" << index << "] :: noise = " << noise << endl;)
         summationPoint += noise * Inoise; // add noise
         Vm = C1 * Vm + C2 * summationPoint; // decay Vm and add inputs
     }
@@ -831,6 +842,17 @@ void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
     summationPoint = 0;
 
     DEBUG2(cout << i << " " << Vm << endl;)
+
+    cout << "NEURON[" << index << "] {" << endl
+            << "\tVm = " << Vm << endl
+            << "\tVthresh = " << Vthresh << endl
+            << "\tsummationPoint = " << summationPoint << endl
+            << "\tI0 = " << I0 << endl
+            << "\tInoise = " << Inoise << endl
+            << "\tC1 = " << C1 << endl
+            << "\tC2 = " << C2 << endl
+            << "}" << endl
+    ;
 }
 
 void LIFModel::fire(AllNeurons &neurons, const int index) const
@@ -1414,7 +1436,7 @@ LIFModel::Connections::Connections(const int num_neurons, const BGFLOAT start_ra
     radiiHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
     ratesHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
     burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthStepDuration * maxGrowthSteps), 0),
-    spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthStepDuration * maxGrowthSteps), 0)
+    spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthStepDuration * maxGrowthSteps * 100), 0)
 {
     // Init radii and rates history matrices with current radii and rates
     for (int i = 0; i < num_neurons; i++) {
