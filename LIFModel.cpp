@@ -802,6 +802,28 @@ void LIFModel::setupSim(const int num_neurons, const SimulationInfo &sim_info)
         m_conns->xloc[i] = i % sim_info.width;
         m_conns->yloc[i] = i / sim_info.width;
     }
+
+    // calculate the distance between neurons
+    for (int n = 0; n < num_neurons - 1; n++)
+    {
+        for (int n2 = n + 1; n2 < num_neurons; n2++)
+        {
+            // distance^2 between two points in point-slope form
+            m_conns->dist2(n, n2) = (m_conns->xloc[n] - m_conns->xloc[n2]) * (m_conns->xloc[n] - m_conns->xloc[n2]) +
+                (m_conns->yloc[n] - m_conns->yloc[n2]) * (m_conns->yloc[n] - m_conns->yloc[n2]);
+
+            // both points are equidistant from each other
+            m_conns->dist2(n2, n) = m_conns->dist2(n, n2);
+        }
+    }
+
+    // take the square root to get actual distance (Pythagoras was right!)
+    // (The CompleteMatrix class makes this assignment look so easy...)
+    m_conns->dist = sqrt(m_conns->dist2);
+
+    // Init connection frontier distance change matrix with the current distances
+    m_conns->delta = m_conns->dist;
+
 }
 
 /**
