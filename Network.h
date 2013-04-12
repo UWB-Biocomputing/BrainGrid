@@ -75,20 +75,24 @@ class Network
         // Cleanup after simulation
         void finish(BGFLOAT growthStepDuration, BGFLOAT num_growth_steps);
 
-        // TODO comment
-        void get_spike_history(VectorMatrix& burstinessHist, VectorMatrix& spikesHistory);
-
-        // TODO comment
+        /**
+         * Advance the network one step in an epoch.
+         */
         void advance();
 
-        // TODO comment
+        /**
+         * Performs growth in the network: updating connections between neurons for the current epoch.
+         */
         void updateConnections(const int currentStep);
 
         //! Print network radii to console.
         void logSimStep() const;
 
+        // TODO comment
         Model *m_model;
+        // TODO comment
         AllNeurons neurons;
+        // TODO comment
         AllSynapses synapses;
 
         //! The map of summation points.
@@ -98,6 +102,6 @@ class Network
         // Struct that holds information about a simulation
         SimulationInfo m_sim_info;
     
-        Network();
+        Network(); // DOES THIS NEED TO BE DEFINED?
 };
 #endif // _NETWORK_H_

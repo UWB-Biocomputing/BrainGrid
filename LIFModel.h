@@ -54,7 +54,7 @@ class LIFModel : public Model, TiXmlVisitor
         virtual ~LIFModel();
 
         /*
-         * Definitions of concrete implementations of Model interface for an Leaky-Integrate-and-Fire
+         * Declarations of concrete implementations of Model interface for an Leaky-Integrate-and-Fire
          * model.
          *
          * @see Model.h
@@ -82,120 +82,157 @@ class LIFModel : public Model, TiXmlVisitor
         // # Read Parameters
         // -----------------
 
-        // Visit an element.
+        // Parse an element for parameter values.
+        // Required by TiXmlVisitor, which is used by #readParameters
         bool VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute);
-        // Visit an element.
-        //bool VisitExit(const TiXmlElement& element);
 
         // # Print Parameters
         // ------------------
 
+        // Constructs a string representation of a specific neuron in the network.
         string neuronToString(AllNeurons& neurons, const int i) const;
 
         // # Load Memory
         // -------------
 
+        // Deserialize a neuron from some input source.
         void readNeuron(istream &input, AllNeurons &neurons, const int index);
+        // Deserialize a synapse from some input source.
         void readSynapse(istream &input, AllSynapses &synapses, const int neuron_index, const int synapse_index);
+        // TODO
         void initSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+        // TODO
         void resetSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+        // TODO
         bool updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index);
 
         // # Save Memory
         // -------------
 
+        // Serialize a neuron to an output destination
         void writeNeuron(ostream& output, AllNeurons &neurons, const int index) const;
+        // Serialize a synapse to an output destination
         void writeSynapse(ostream& output, AllSynapses &synapses, const int neuron_index, const int synapse_index) const;
 
         // # Save State
         // ------------
 
+        // TODO
         void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo &sim_info);
 
         // # Create All Neurons
         // --------------------
 
+        // TODO
         void generateNeuronTypeMap(neuronType neuron_types[], int num_neurons);
+        // TODO
         void initStarterMap(bool *starter_map, const int num_neurons, const neuronType neuron_type_map[]);
+        // TODO
         void setNeuronDefaults(AllNeurons &neurons, const int index);
+        // TODO
         void updateNeuron(AllNeurons &neurons, int neuron_index);
 
         // # Advance Network/Model
         // -----------------------
 
+        // Update the state of all neurons for a time step
         void advanceNeurons(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
+        // Helper for #advanceNeuron. Updates state of a single neuron.
         void advanceNeuron(AllNeurons& neurons, const int index);
+        // Initiates a firing of a neuron to connected neurons
         void fire(AllNeurons &neurons, const int index) const;
+        // TODO
         void preSpikeHit(AllSynapses &synapses, const int neuron_index, const int synapse_index);
 
+        // Update the state of all synapses for a time step
         void advanceSynapses(const int num_neurons, AllSynapses &synapses);
+        // Helper for #advanceSynapses. Updates state of a single synapse.
         void advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+        // TODO
         bool isSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index);
 
         // # Update Connections
         // --------------------
 
+        // TODO
         void updateHistory(int currentStep, BGFLOAT stepDuration, AllNeurons &neurons);
+        // TODO
         void updateFrontiers(const int num_neurons);
+        // TODO
         void updateOverlap(BGFLOAT num_neurons);
+        // TODO
         void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
 
+        // TODO
         void getSpikeCounts(const AllNeurons &neurons, int *spikeCounts);
+        // TODO
         void clearSpikeCounts(AllNeurons &neurons);
 
+        // TODO
         void eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+        // TODO
         void addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, BGFLOAT deltaT);
+        // TODO
         void createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT* sp, BGFLOAT deltaT, synapseType type);
 
         // -----------------------------------------------------------------------------------------
         // # Generic Functions for handling synapse types
         // ---------------------------------------------
 
+        // Determines the type of synapse for a synapse at a given location in the network.
         synapseType synType(AllNeurons &neurons, Coordinate src_coord, Coordinate dest_coord, const int width);
+        // Determines the type of synapse for a synapse between two neurons.
         synapseType synType(AllNeurons &neurons, const int src_neuron, const int dest_neuron);
+        // Determines the direction of the weight for a given synapse type.
         int synSign(const synapseType t);
+        // Converts the ordinal representation of a synapse type to its enum value.
         synapseType synapseOrdinalToType(const int type_ordinal);
 
-        //
-
+        // TODO
         static const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT;
 
     private:
         /** State of connections in the network. */
         struct Connections;
+
+        // TODO
         struct GrowthParams
         {
+            // TODO
             BGFLOAT epsilon;
+            // TODO
             BGFLOAT beta;
+            // TODO
             BGFLOAT rho;
             BGFLOAT targetRate; // Spikes/second
             BGFLOAT maxRate; // = targetRate / epsilon;
             BGFLOAT minRadius; // To ensure that even rapidly-firing neurons will connect to
                              // other neurons, when within their RFS.
             BGFLOAT startRadius; // No need to wait a long time before RFs start to overlap
-
-            friend ostream& operator<<(ostream &out, const GrowthParams &params) {
-                out << "epsilon: " << params.epsilon
-                    << " beta: " << params.beta
-                    << " rho: " << params.rho
-                    << " targetRate: " << params.targetRate
-                    << " maxRate: " << params.maxRate
-                    << " minRadius: " << params.minRadius
-                    << " startRadius" << params.startRadius;
-                return out;
-            }
         };
+
+        // TODO
+        friend ostream& operator<<(ostream &out, const GrowthParams &params);
 
         static const bool STARTER_FLAG; // = true; // true = use endogenously active neurons in simulation
 
+        // TODO
         BGFLOAT m_Iinject[2];
+        // TODO
         BGFLOAT m_Inoise[2];
+        // TODO
         BGFLOAT m_Vthresh[2];
+        // TODO
         BGFLOAT m_Vresting[2];
+        // TODO
         BGFLOAT m_Vreset[2];
+        // TODO
         BGFLOAT m_Vinit[2];
+        // TODO
         BGFLOAT m_starter_Vthresh[2];
+        // TODO
         BGFLOAT m_starter_Vreset[2];
+        // TODO
         BGFLOAT m_new_targetRate;
 
         // Tracks the number of parameters that have been read by read params - kind of a hack to do error handling for read params
@@ -204,13 +241,19 @@ class LIFModel : public Model, TiXmlVisitor
         //! True if a fixed layout has been provided
         bool m_fixed_layout;
 
+        // TODO
         vector<int> m_endogenously_active_neuron_list;
+        // TODO
         vector<int> m_inhibitory_neuron_layout;
 
+        // TODO
         BGFLOAT m_frac_starter_neurons;
+        // TODO
         BGFLOAT m_frac_excititory_neurons;
 
+        // TODO
         GrowthParams m_growth;
+        // TODO
         Connections *m_conns;
 };
 
@@ -220,12 +263,17 @@ class LIFModel : public Model, TiXmlVisitor
  */
 struct LIFModel::Connections
 {
+        // TODO
         static const string MATRIX_TYPE;
+        // TODO
         static const string MATRIX_INIT;
 
+        // TODO
         int *spikeCounts;
 
+        // TODO
         VectorMatrix xloc;
+        // TODO
         VectorMatrix yloc;
 
         //! synapse weight
@@ -256,6 +304,7 @@ struct LIFModel::Connections
         // spikes history - history of accumulated spikes count of all neurons (10 ms bin)
         VectorMatrix spikesHistory;
 
+        // TODO
         Connections(const int neuron_count, const BGFLOAT start_radius, const BGFLOAT growthStepDuration, const BGFLOAT maxGrowthSteps);
 };
 

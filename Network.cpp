@@ -56,16 +56,27 @@ void Network::finish(BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps)
     m_model->cleanupSim(neurons, m_sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
 }
 
+/**
+ * Advance the network one step in the current epoch.
+ */
 void Network::advance()
 {
     m_model->advance(neurons, synapses, m_sim_info);
 }
 
+/**
+ * Performs growth in the network: updating connections between neurons for the current epoch.
+ *
+ * @params currentStep - the current epoch of the simulation.
+ */
 void Network::updateConnections(const int currentStep)
 {
     m_model->updateConnections(currentStep, neurons, synapses, m_sim_info);
 }
 
+/**
+ * Print debug output of current internal state of the network for the current step.
+ */
 void Network::logSimStep() const
 {
     m_model->logSimStep(neurons, synapses, m_sim_info);

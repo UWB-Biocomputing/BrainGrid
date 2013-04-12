@@ -3,7 +3,7 @@
  *
  * @authors Derek McLean
  *
- * @brief Base class for model-independent simulators targeting different platforms.
+ * @brief Interface for model-independent simulators targeting different platforms.
  */
 
 #pragma once
@@ -43,17 +43,17 @@ class Simulator
         virtual void advanceUntilGrowth(const int currentStep) =0;
 
         /**
-         * TODO(derek) comment.
+         * Write the result of the simulation.
          */
         virtual void saveState(ostream &state_out) const =0;
 
         /**
-         * TODO(derek) comment.
+         * Read serialized internal state from a previous run of the simulator.
          */
         virtual void readMemory(istream &memory_in) =0;
 
         /**
-         * TODO(derek) comment.
+         * Write current internal state of the simulator.
          */
         virtual void saveMemory(ostream &memory_out) const =0;
 };
