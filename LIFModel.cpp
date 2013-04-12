@@ -15,7 +15,7 @@ const BGFLOAT LIFModel::SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
 LIFModel::LIFModel() :
      m_read_params(0)
     ,m_fixed_layout(false)
-	,m_conns(NULL)
+    ,m_conns(NULL)
 {
 
 }
@@ -146,24 +146,24 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
     }
     
     if (element.ValueStr().compare("GrowthParams") == 0) {
-		if (element.QueryFLOATAttribute("epsilon", &m_growth.epsilon) != TIXML_SUCCESS) {
-			throw ParseParamError("epsilon", "Growth param 'epsilon' missing in XML.");
-		}
-		if (element.QueryFLOATAttribute("beta", &m_growth.beta) != TIXML_SUCCESS) {
-			throw ParseParamError("beta", "Growth param 'beta' missing in XML.");
-		}
-		if (element.QueryFLOATAttribute("rho", &m_growth.rho) != TIXML_SUCCESS) {
-			throw ParseParamError("rho", "Growth param 'rho' missing in XML.");
-		}
-		if (element.QueryFLOATAttribute("targetRate", &m_growth.targetRate) != TIXML_SUCCESS) {
-			throw ParseParamError("targetRate", "Growth targetRate 'beta' missing in XML.");
-		}
-		if (element.QueryFLOATAttribute("minRadius", &m_growth.minRadius) != TIXML_SUCCESS) {
-			throw ParseParamError("minRadius", "Growth minRadius 'beta' missing in XML.");
-		}
-		if (element.QueryFLOATAttribute("startRadius", &m_growth.startRadius) != TIXML_SUCCESS) {
-			throw ParseParamError("startRadius", "Growth startRadius 'beta' missing in XML.");
-		}
+        if (element.QueryFLOATAttribute("epsilon", &m_growth.epsilon) != TIXML_SUCCESS) {
+            throw ParseParamError("epsilon", "Growth param 'epsilon' missing in XML.");
+        }
+        if (element.QueryFLOATAttribute("beta", &m_growth.beta) != TIXML_SUCCESS) {
+            throw ParseParamError("beta", "Growth param 'beta' missing in XML.");
+        }
+        if (element.QueryFLOATAttribute("rho", &m_growth.rho) != TIXML_SUCCESS) {
+            throw ParseParamError("rho", "Growth param 'rho' missing in XML.");
+        }
+        if (element.QueryFLOATAttribute("targetRate", &m_growth.targetRate) != TIXML_SUCCESS) {
+            throw ParseParamError("targetRate", "Growth targetRate 'beta' missing in XML.");
+        }
+        if (element.QueryFLOATAttribute("minRadius", &m_growth.minRadius) != TIXML_SUCCESS) {
+            throw ParseParamError("minRadius", "Growth minRadius 'beta' missing in XML.");
+        }
+        if (element.QueryFLOATAttribute("startRadius", &m_growth.startRadius) != TIXML_SUCCESS) {
+            throw ParseParamError("startRadius", "Growth startRadius 'beta' missing in XML.");
+        }
     }
 
     // Parse fixed layout (overrides random layouts)
@@ -189,16 +189,16 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 void LIFModel::printParameters(ostream &output) const
 {
     output << "frac_EXC:" << m_frac_excititory_neurons
-    	   << " starter_neurons:" << m_frac_starter_neurons
-    	   << endl;
+           << " starter_neurons:" << m_frac_starter_neurons
+           << endl;
     output << "Interval of constant injected current: ["
-    	   << m_Iinject[0] << ", " << m_Iinject[1] << "]"
+           << m_Iinject[0] << ", " << m_Iinject[1] << "]"
            << endl;
     output << "Interval of STD of (gaussian) noise current: ["
            << m_Inoise[0] << ", " << m_Inoise[1] << "]"
            << endl;
     output << "Interval of firing threshold: ["
-    	   << m_Vthresh[0] << ", "<< m_Vthresh[1] << "]"
+           << m_Vthresh[0] << ", "<< m_Vthresh[1] << "]"
            << endl;
     output << "Interval of asymptotic voltage (Vresting): [" << m_Vresting[0]
            << ", " << m_Vresting[1] << "]"
@@ -216,26 +216,26 @@ void LIFModel::printParameters(ostream &output) const
            << ", " << m_starter_Vreset[1] << "]"
            << endl;
     output << "Growth parameters: " << endl
-    	   << "\tepsilon: " << m_growth.epsilon
-    	   << ", beta: " << m_growth.beta
-    	   << ", rho: " << m_growth.rho
-    	   << ", targetRate: " << m_growth.targetRate << "," << endl
-    	   << "\tminRadius: " << m_growth.minRadius
-    	   << ", startRadius: " << m_growth.startRadius
-    	   << endl;
+           << "\tepsilon: " << m_growth.epsilon
+           << ", beta: " << m_growth.beta
+           << ", rho: " << m_growth.rho
+           << ", targetRate: " << m_growth.targetRate << "," << endl
+           << "\tminRadius: " << m_growth.minRadius
+           << ", startRadius: " << m_growth.startRadius
+           << endl;
     if (m_fixed_layout) {
-    	output << "Layout parameters:" << endl;
+        output << "Layout parameters:" << endl;
 
         cout << "\tEndogenously active neuron positions: ";
         for (size_t i = 0; i < m_endogenously_active_neuron_list.size(); i++) {
-        	output << m_endogenously_active_neuron_list[i] << " ";
+            output << m_endogenously_active_neuron_list[i] << " ";
         }
 
         cout << endl;
 
         cout << "\tInhibitory neuron positions: ";
         for (size_t i = 0; i < m_inhibitory_neuron_layout.size(); i++) {
-        	output << m_inhibitory_neuron_layout[i] << " ";
+            output << m_inhibitory_neuron_layout[i] << " ";
         }
 
         output << endl;
@@ -302,7 +302,7 @@ void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &syna
         read_synapses_counts[neuron_index]++;
 
     }
-	delete[] read_synapses_counts;
+    delete[] read_synapses_counts;
 
     // read the radii
     for (int i = 0; i < neurons.size; i++)
@@ -683,7 +683,7 @@ void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
         for (int i = 0; i < num_inhibitory_neurons; i++) {
             neuron_types[rg_inhibitory_layout[i]] = INH;
         }
-		delete[] rg_inhibitory_layout;
+        delete[] rg_inhibitory_layout;
     }
     
     DEBUG(cout << "Done initializing neuron type map" << endl;);
@@ -1053,10 +1053,10 @@ bool LIFModel::isSpikeQueue(AllSynapses &synapses, const int neuron_index, const
  */
 void LIFModel::updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
-	updateHistory(currentStep, sim_info.stepDuration, neurons);
-	updateFrontiers(neurons.size);
-	updateOverlap(neurons.size);
-	updateWeights(neurons.size, neurons, synapses, sim_info);
+    updateHistory(currentStep, sim_info.stepDuration, neurons);
+    updateFrontiers(neurons.size);
+    updateOverlap(neurons.size);
+    updateWeights(neurons.size, neurons, synapses, sim_info);
 }
 
 /**
@@ -1064,37 +1064,37 @@ void LIFModel::updateConnections(const int currentStep, AllNeurons &neurons, All
  */
 void LIFModel::updateHistory(const int currentStep, BGFLOAT stepDuration, AllNeurons &neurons)
 {
-	// Calculate growth cycle firing rate for previous period
-	//getSpikeCounts(neurons, m_conns->spikeCounts);
+    // Calculate growth cycle firing rate for previous period
+    //getSpikeCounts(neurons, m_conns->spikeCounts);
 
-	// Calculate growth cycle firing rate for previous period
-	for (int i = 0; i < neurons.size; i++) {
-		// Calculate firing rate
-		m_conns->rates[i] = neurons.spikeCount[i] / stepDuration;
-		// record firing rate to history matrix
-		m_conns->ratesHistory(currentStep, i) = m_conns->rates[i];
-	}
+    // Calculate growth cycle firing rate for previous period
+    for (int i = 0; i < neurons.size; i++) {
+        // Calculate firing rate
+        m_conns->rates[i] = neurons.spikeCount[i] / stepDuration;
+        // record firing rate to history matrix
+        m_conns->ratesHistory(currentStep, i) = m_conns->rates[i];
+    }
 
-	// clear spike count
-	clearSpikeCounts(neurons);
+    // clear spike count
+    clearSpikeCounts(neurons);
 
-	// compute neuron radii change and assign new values
-	m_conns->outgrowth = 1.0 - 2.0 / (1.0 + exp((m_growth.epsilon - m_conns->rates / m_growth.maxRate) / m_growth.beta));
-	m_conns->deltaR = stepDuration * m_growth.rho * m_conns->outgrowth;
-	m_conns->radii += m_conns->deltaR;
+    // compute neuron radii change and assign new values
+    m_conns->outgrowth = 1.0 - 2.0 / (1.0 + exp((m_growth.epsilon - m_conns->rates / m_growth.maxRate) / m_growth.beta));
+    m_conns->deltaR = stepDuration * m_growth.rho * m_conns->outgrowth;
+    m_conns->radii += m_conns->deltaR;
 
-	// Cap minimum radius size and record radii to history matrix
-	for (int i = 0; i < m_conns->radii.Size(); i++) {
-		// TODO: find out why we cap this here.
-		if (m_conns->radii[i] < m_growth.minRadius) {
-			m_conns->radii[i] = m_growth.minRadius;
-		}
+    // Cap minimum radius size and record radii to history matrix
+    for (int i = 0; i < m_conns->radii.Size(); i++) {
+        // TODO: find out why we cap this here.
+        if (m_conns->radii[i] < m_growth.minRadius) {
+            m_conns->radii[i] = m_growth.minRadius;
+        }
 
-		// record radius to history matrix
-		m_conns->radiiHistory(currentStep, i) = m_conns->radii[i];
+        // record radius to history matrix
+        m_conns->radiiHistory(currentStep, i) = m_conns->radii[i];
 
-		DEBUG2(cout << "radii[" << i << ":" << m_conns->radii[i] << "]" << endl;);
-	}
+        DEBUG2(cout << "radii[" << i << ":" << m_conns->radii[i] << "]" << endl;);
+    }
 }
 
 /**
@@ -1120,14 +1120,14 @@ void LIFModel::clearSpikeCounts(AllNeurons &neurons)
  */
 void LIFModel::updateFrontiers(const int num_neurons)
 {
-	DEBUG(cout << "Updating distance between frontiers..." << endl;)
-	// Update distance between frontiers
-	for (int unit = 0; unit < num_neurons - 1; unit++) {
-		for (int i = unit + 1; i < num_neurons; i++) {
-			m_conns->delta(unit, i) = m_conns->dist(unit, i) - (m_conns->radii[unit] + m_conns->radii[i]);
-			m_conns->delta(i, unit) = m_conns->delta(unit, i);
-		}
-	}
+    DEBUG(cout << "Updating distance between frontiers..." << endl;)
+    // Update distance between frontiers
+    for (int unit = 0; unit < num_neurons - 1; unit++) {
+        for (int i = unit + 1; i < num_neurons; i++) {
+            m_conns->delta(unit, i) = m_conns->dist(unit, i) - (m_conns->radii[unit] + m_conns->radii[i]);
+            m_conns->delta(i, unit) = m_conns->delta(unit, i);
+        }
+    }
 }
 
 /**
@@ -1135,43 +1135,43 @@ void LIFModel::updateFrontiers(const int num_neurons)
  */
 void LIFModel::updateOverlap(BGFLOAT num_neurons)
 {
-	DEBUG(cout << "computing areas of overlap" << endl;)
+    DEBUG(cout << "computing areas of overlap" << endl;)
 
-	// Compute areas of overlap; this is only done for overlapping units
-	for (int i = 0; i < num_neurons; i++) {
-		for (int j = 0; j < num_neurons; j++) {
-			m_conns->area(i, j) = 0.0;
+    // Compute areas of overlap; this is only done for overlapping units
+    for (int i = 0; i < num_neurons; i++) {
+        for (int j = 0; j < num_neurons; j++) {
+            m_conns->area(i, j) = 0.0;
 
-			if (m_conns->delta(i, j) < 0) {
-				BGFLOAT lenAB = m_conns->dist(i, j);
-				BGFLOAT r1 = m_conns->radii[i];
-				BGFLOAT r2 = m_conns->radii[j];
+            if (m_conns->delta(i, j) < 0) {
+                BGFLOAT lenAB = m_conns->dist(i, j);
+                BGFLOAT r1 = m_conns->radii[i];
+                BGFLOAT r2 = m_conns->radii[j];
 
-				if (lenAB + min(r1, r2) <= max(r1, r2)) {
-					m_conns->area(i, j) = pi * min(r1, r2) * min(r1, r2); // Completely overlapping unit
+                if (lenAB + min(r1, r2) <= max(r1, r2)) {
+                    m_conns->area(i, j) = pi * min(r1, r2) * min(r1, r2); // Completely overlapping unit
 #ifdef LOGFILE
-					logFile << "Completely overlapping (i, j, r1, r2, area): "
-							<< i << ", " << j << ", " << r1 << ", " << r2 << ", " << *pAarea(i, j) << endl;
+                    logFile << "Completely overlapping (i, j, r1, r2, area): "
+                            << i << ", " << j << ", " << r1 << ", " << r2 << ", " << *pAarea(i, j) << endl;
 #endif // LOGFILE
-				} else {
-					// Partially overlapping unit
-					BGFLOAT lenAB2 = m_conns->dist2(i, j);
-					BGFLOAT r12 = r1 * r1;
-					BGFLOAT r22 = r2 * r2;
+                } else {
+                    // Partially overlapping unit
+                    BGFLOAT lenAB2 = m_conns->dist2(i, j);
+                    BGFLOAT r12 = r1 * r1;
+                    BGFLOAT r22 = r2 * r2;
 
-					BGFLOAT cosCBA = (r22 + lenAB2 - r12) / (2.0 * r2 * lenAB);
-					BGFLOAT angCBA = acos(cosCBA);
-					BGFLOAT angCBD = 2.0 * angCBA;
+                    BGFLOAT cosCBA = (r22 + lenAB2 - r12) / (2.0 * r2 * lenAB);
+                    BGFLOAT angCBA = acos(cosCBA);
+                    BGFLOAT angCBD = 2.0 * angCBA;
 
-					BGFLOAT cosCAB = (r12 + lenAB2 - r22) / (2.0 * r1 * lenAB);
-					BGFLOAT angCAB = acos(cosCAB);
-					BGFLOAT angCAD = 2.0 * angCAB;
+                    BGFLOAT cosCAB = (r12 + lenAB2 - r22) / (2.0 * r1 * lenAB);
+                    BGFLOAT angCAB = acos(cosCAB);
+                    BGFLOAT angCAD = 2.0 * angCAB;
 
-					m_conns->area(i, j) = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
-				}
-			}
-		}
-	}
+                    m_conns->area(i, j) = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -1180,78 +1180,78 @@ void LIFModel::updateOverlap(BGFLOAT num_neurons)
 void LIFModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
 
-	// For now, we just set the weights to equal the areas. We will later
-	// scale it and set its sign (when we index and get its sign).
-	m_conns->W = m_conns->area;
+    // For now, we just set the weights to equal the areas. We will later
+    // scale it and set its sign (when we index and get its sign).
+    m_conns->W = m_conns->area;
 
-	int adjusted = 0;
-	DEBUG(int could_have_been_removed = 0;) // TODO: use this value
-	int removed = 0;
-	int added = 0;
+    int adjusted = 0;
+    DEBUG(int could_have_been_removed = 0;) // TODO: use this value
+    int removed = 0;
+    int added = 0;
 
-	DEBUG(cout << "adjusting weights" << endl;)
+    DEBUG(cout << "adjusting weights" << endl;)
 
-	// Scale and add sign to the areas
-	// visit each neuron 'a'
-	for (int src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
-		int xa = src_neuron % sim_info.width;
-		int ya = src_neuron / sim_info.width;
-		Coordinate src_coord(xa, ya);
+    // Scale and add sign to the areas
+    // visit each neuron 'a'
+    for (int src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
+        int xa = src_neuron % sim_info.width;
+        int ya = src_neuron / sim_info.width;
+        Coordinate src_coord(xa, ya);
 
-		// and each destination neuron 'b'
-		for (int dest_neuron = 0; dest_neuron < num_neurons; dest_neuron++) {
-			int xb = dest_neuron % sim_info.width;
-			int yb = dest_neuron / sim_info.width;
-			Coordinate dest_coord(xb, yb);
+        // and each destination neuron 'b'
+        for (int dest_neuron = 0; dest_neuron < num_neurons; dest_neuron++) {
+            int xb = dest_neuron % sim_info.width;
+            int yb = dest_neuron / sim_info.width;
+            Coordinate dest_coord(xb, yb);
 
-			// visit each synapse at (xa,ya)
-			bool connected = false;
-			synapseType type = synType(neurons, src_neuron, dest_neuron);
+            // visit each synapse at (xa,ya)
+            bool connected = false;
+            synapseType type = synType(neurons, src_neuron, dest_neuron);
 
-			// for each existing synapse
-			for (size_t synapse_index = 0; synapse_index < synapses.synapse_counts[src_neuron]; synapse_index++) {
-				// if there is a synapse between a and b
-				if (synapses.summationCoord[src_neuron][synapse_index] == dest_coord) {
-					connected = true;
-					adjusted++;
+            // for each existing synapse
+            for (size_t synapse_index = 0; synapse_index < synapses.synapse_counts[src_neuron]; synapse_index++) {
+                // if there is a synapse between a and b
+                if (synapses.summationCoord[src_neuron][synapse_index] == dest_coord) {
+                    connected = true;
+                    adjusted++;
 
-					// adjust the strength of the synapse or remove
-					// it from the synapse map if it has gone below
-					// zero.
-					if (m_conns->W(src_neuron, dest_neuron) < 0) {
-						removed++;
-						eraseSynapse(synapses, src_neuron, synapse_index);
-						//sim_info->rgSynapseMap[a].erase(sim_info->rgSynapseMap[a].begin() + syn);
-					} else {
-						// adjust
-						// g_synapseStrengthAdjustmentConstant is 1.0e-8;
-					    synapses.W[src_neuron][synapse_index] = m_conns->W(src_neuron, dest_neuron) *
-							synSign(type) * SYNAPSE_STRENGTH_ADJUSTMENT;
+                    // adjust the strength of the synapse or remove
+                    // it from the synapse map if it has gone below
+                    // zero.
+                    if (m_conns->W(src_neuron, dest_neuron) < 0) {
+                        removed++;
+                        eraseSynapse(synapses, src_neuron, synapse_index);
+                        //sim_info->rgSynapseMap[a].erase(sim_info->rgSynapseMap[a].begin() + syn);
+                    } else {
+                        // adjust
+                        // g_synapseStrengthAdjustmentConstant is 1.0e-8;
+                        synapses.W[src_neuron][synapse_index] = m_conns->W(src_neuron, dest_neuron) *
+                            synSign(type) * SYNAPSE_STRENGTH_ADJUSTMENT;
 
-						DEBUG2(cout << "weight of rgSynapseMap" <<
-							   coordToString(xa, ya)<<"[" <<synapse_index<<"]: " <<
-							   sim_info->rgSynapseMap[src_neuron][synapse_index].W << endl;);
-					}
-				}
-			}
+                        DEBUG2(cout << "weight of rgSynapseMap" <<
+                               coordToString(xa, ya)<<"[" <<synapse_index<<"]: " <<
+                               sim_info->rgSynapseMap[src_neuron][synapse_index].W << endl;);
+                    }
+                }
+            }
 
-			// if not connected and weight(a,b) > 0, add a new synapse from a to b
-			if (!connected && (m_conns->W(src_neuron, dest_neuron) > 0)) {
+            // if not connected and weight(a,b) > 0, add a new synapse from a to b
+            if (!connected && (m_conns->W(src_neuron, dest_neuron) > 0)) {
 
-			    // locate summation point
-			    BGFLOAT* sum_point = &( neurons.summation_map[dest_neuron] );
-				added++;
+                // locate summation point
+                BGFLOAT* sum_point = &( neurons.summation_map[dest_neuron] );
+                added++;
 
-				addSynapse(synapses, type, src_neuron, dest_neuron, src_coord, dest_coord, sum_point, sim_info.deltaT);
+                addSynapse(synapses, type, src_neuron, dest_neuron, src_coord, dest_coord, sum_point, sim_info.deltaT);
 
-			}
-		}
-	}
+            }
+        }
+    }
 
-	DEBUG (cout << "adjusted: " << adjusted << endl;)
-	DEBUG (cout << "could have been removed (TODO: calculate this): " << could_have_been_removed << endl;)
-	DEBUG (cout << "removed: " << removed << endl;)
-	DEBUG (cout << "added: " << added << endl << endl << endl;)
+    DEBUG (cout << "adjusted: " << adjusted << endl;)
+    DEBUG (cout << "could have been removed (TODO: calculate this): " << could_have_been_removed << endl;)
+    DEBUG (cout << "removed: " << removed << endl;)
+    DEBUG (cout << "added: " << added << endl << endl << endl;)
 }
 
 /**
@@ -1543,15 +1543,15 @@ const string LIFModel::Connections::MATRIX_INIT = "const";
 LIFModel::Connections::Connections(const int num_neurons, const BGFLOAT start_radius, const BGFLOAT growthStepDuration, const BGFLOAT maxGrowthSteps) :
     xloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
     yloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
-	W(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),
-	radii(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, start_radius),
-	rates(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, 0),
-	dist2(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
-	delta(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
-	dist(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
-	area(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),
-	outgrowth(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
-	deltaR(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
+    W(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),
+    radii(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, start_radius),
+    rates(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, 0),
+    dist2(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
+    delta(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
+    dist(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
+    area(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),
+    outgrowth(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
+    deltaR(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
     radiiHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
     ratesHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
     burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthStepDuration * maxGrowthSteps), 0),
