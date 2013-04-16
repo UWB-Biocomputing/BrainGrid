@@ -60,13 +60,16 @@ struct AllSynapses
         //! The time of the last spike.
         uint64_t **lastSpike;
 
+	//! TODO: Define
         bool **in_use;
 
         // The number of synapses for each neuron.
         size_t *synapse_counts;
 
+	// The number of neurons
         int count_neurons;
 
+	
         size_t max_synapses;
 
         AllSynapses();

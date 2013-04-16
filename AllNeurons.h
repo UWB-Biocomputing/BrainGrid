@@ -5,7 +5,7 @@
 
 #include "global.h"
 
-//	struct to hold all data nessesary for all the Neurons.
+// Struct to hold all data nessesary for all the Neurons.
 struct AllNeurons
 {
     public:

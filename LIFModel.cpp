@@ -849,7 +849,7 @@ void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, const 
 
         // notify outgoing synapses if neuron has fired
         if (neurons.hasFired[i]) {
-            DEBUG(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * sim_info.deltaT << endl;)
+            DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * sim_info.deltaT << endl;)
 
             for (int z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
                 preSpikeHit(synapses, i, z);
@@ -892,7 +892,7 @@ void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
         summationPoint += I0; // add IO
         // add noise
         BGFLOAT noise = (*rgNormrnd[0])();
-        DEBUG(cout << "ADVANCE NEURON[" << index << "] :: noise = " << noise << endl;)
+        DEBUG2(cout << "ADVANCE NEURON[" << index << "] :: noise = " << noise << endl;)
         summationPoint += noise * Inoise; // add noise
         Vm = C1 * Vm + C2 * summationPoint; // decay Vm and add inputs
     }
@@ -901,7 +901,7 @@ void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
 
     DEBUG2(cout << i << " " << Vm << endl;)
 
-    cout << "NEURON[" << index << "] {" << endl
+    DEBUG2(cout << "NEURON[" << index << "] {" << endl
             << "\tVm = " << Vm << endl
             << "\tVthresh = " << Vthresh << endl
             << "\tsummationPoint = " << summationPoint << endl
@@ -910,7 +910,7 @@ void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
             << "\tC1 = " << C1 << endl
             << "\tC2 = " << C2 << endl
             << "}" << endl
-    ;
+    ;)
 }
 
 /**

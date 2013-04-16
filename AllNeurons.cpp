@@ -1,5 +1,5 @@
 #include "AllNeurons.h"
-
+// Default constructor
 AllNeurons::AllNeurons() :
         size(0)
 {
@@ -31,6 +31,7 @@ AllNeurons::AllNeurons() :
 AllNeurons::AllNeurons(const int size) :
         size(size)
 {
+    // TODO: Rename variables for easier identification
     C1 = new BGFLOAT[size];
     C2 = new BGFLOAT[size];
     Cm = new BGFLOAT[size];
