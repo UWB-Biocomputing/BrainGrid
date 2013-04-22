@@ -596,19 +596,19 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_i
 
         switch (neurons.neuron_type_map[neuron_index]) {
             case INH:
-                DEBUG2(cout << "setting inhibitory neuron: "<< neuron_index << endl;)
+                DEBUG_MID(cout << "setting inhibitory neuron: "<< neuron_index << endl;)
                 // set inhibitory absolute refractory period
                 neurons.Trefract[neuron_index] = DEFAULT_InhibTrefract;// TODO(derek): move defaults inside model.
                 break;
                 
             case EXC:
-                DEBUG2(cout << "setting exitory neuron: " << neuron_index << endl;)
+                DEBUG_MID(cout << "setting exitory neuron: " << neuron_index << endl;)
                 // set excitory absolute refractory period
                 neurons.Trefract[neuron_index] = DEFAULT_ExcitTrefract;
                 break;
                 
             default:
-                DEBUG2(cout << "ERROR: unknown neuron type: " << m_rgNeuronTypeMap[neuron_index] << "@" << neuron_index << endl;)
+                DEBUG_MID(cout << "ERROR: unknown neuron type: " << neurons.neuron_type_map[neuron_index] << "@" << neuron_index << endl;)
                 assert(false);
                 break;
         }
@@ -620,7 +620,7 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_i
             neurons.Trefract[neuron_index] = DEFAULT_ExcitTrefract; // TODO(derek): move defaults inside model.
         }
 
-        cout << "CREATE NEURON[" << neuron_index << "] {" << endl
+        DEBUG_HI(cout << "CREATE NEURON[" << neuron_index << "] {" << endl
                 << "\tVm = " << neurons.Vm[neuron_index] << endl
                 << "\tVthresh = " << neurons.Vthresh[neuron_index] << endl
                 << "\tI0 = " << neurons.I0[neuron_index] << endl
@@ -628,7 +628,7 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_i
                 << "\tC1 = " << neurons.C1[neuron_index] << endl
                 << "\tC2 = " << neurons.C2[neuron_index] << endl
                 << "}" << endl
-        ;
+        ;)
     }
     
     DEBUG(cout << "Done initializing neurons..." << endl;)
@@ -641,7 +641,8 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_i
 void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
 {
     //TODO: m_pInhibitoryNeuronLayout
-    
+    int num_inhibitory_neurons = m_inhibitory_neuron_layout.size();
+	int num_excititory_neurons = num_neurons - num_inhibitory_neurons;    
     DEBUG(cout << "\nInitializing neuron type map"<< endl;);
     
     for (int i = 0; i < num_neurons; i++) {
@@ -649,8 +650,6 @@ void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
     }
     
     if (m_fixed_layout) {
-        int num_inhibitory_neurons = m_inhibitory_neuron_layout.size();
-        DEBUG(int num_excititory_neurons = num_neurons - num_inhibitory_neurons);
         DEBUG(cout << "Total neurons: " << num_neurons << endl;)
         DEBUG(cout << "Inhibitory Neurons: " << num_inhibitory_neurons << endl;)
         DEBUG(cout << "Excitatory Neurons: " << num_excititory_neurons << endl;)
@@ -849,7 +848,7 @@ void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, const 
 
         // notify outgoing synapses if neuron has fired
         if (neurons.hasFired[i]) {
-            DEBUG(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * sim_info.deltaT << endl;)
+            DEBUG_MID(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * sim_info.deltaT << endl;)
 
             for (int z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
                 preSpikeHit(synapses, i, z);
@@ -892,16 +891,15 @@ void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
         summationPoint += I0; // add IO
         // add noise
         BGFLOAT noise = (*rgNormrnd[0])();
-        DEBUG(cout << "ADVANCE NEURON[" << index << "] :: noise = " << noise << endl;)
+        DEBUG_MID(cout << "ADVANCE NEURON[" << index << "] :: noise = " << noise << endl;)
         summationPoint += noise * Inoise; // add noise
         Vm = C1 * Vm + C2 * summationPoint; // decay Vm and add inputs
     }
     // clear synaptic input for next time step
     summationPoint = 0;
 
-    DEBUG2(cout << i << " " << Vm << endl;)
-
-    cout << "NEURON[" << index << "] {" << endl
+    DEBUG_MID(cout << index << " " << Vm << endl;)
+	DEBUG_MID(cout << "NEURON[" << index << "] {" << endl
             << "\tVm = " << Vm << endl
             << "\tVthresh = " << Vthresh << endl
             << "\tsummationPoint = " << summationPoint << endl
@@ -910,7 +908,7 @@ void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
             << "\tC1 = " << C1 << endl
             << "\tC2 = " << C2 << endl
             << "}" << endl
-    ;
+    ;)
 }
 
 /**
@@ -1093,7 +1091,7 @@ void LIFModel::updateHistory(const int currentStep, BGFLOAT stepDuration, AllNeu
         // record radius to history matrix
         m_conns->radiiHistory(currentStep, i) = m_conns->radii[i];
 
-        DEBUG2(cout << "radii[" << i << ":" << m_conns->radii[i] << "]" << endl;);
+        DEBUG_MID(cout << "radii[" << i << ":" << m_conns->radii[i] << "]" << endl;);
     }
 }
 
@@ -1185,7 +1183,7 @@ void LIFModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSyna
     m_conns->W = m_conns->area;
 
     int adjusted = 0;
-    DEBUG(int could_have_been_removed = 0;) // TODO: use this value
+    int could_have_been_removed = 0; // TODO: use this value
     int removed = 0;
     int added = 0;
 
@@ -1228,9 +1226,9 @@ void LIFModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSyna
                         synapses.W[src_neuron][synapse_index] = m_conns->W(src_neuron, dest_neuron) *
                             synSign(type) * SYNAPSE_STRENGTH_ADJUSTMENT;
 
-                        DEBUG2(cout << "weight of rgSynapseMap" <<
+                        DEBUG_MID(cout << "weight of rgSynapseMap" <<
                                coordToString(xa, ya)<<"[" <<synapse_index<<"]: " <<
-                               sim_info->rgSynapseMap[src_neuron][synapse_index].W << endl;);
+                               synapses.W[src_neuron][synapse_index] << endl;);
                     }
                 }
             }
@@ -1455,10 +1453,10 @@ void LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info)
             int neuron_index = i + j * sim_info.width;
             uint64_t *pSpikes = neurons.spike_history[neuron_index];
 
-            DEBUG2 (cout << endl << coordToString(i, j) << endl);
+            DEBUG_MID (cout << endl << coordToString(i, j) << endl;);
 
             for (int i = 0; i < neurons.spikeCount[neuron_index]; i++) {
-                DEBUG2 (cout << i << " ");
+                DEBUG_MID (cout << i << " ";);
                 int idx1 = pSpikes[i] * sim_info.deltaT;
                 m_conns->burstinessHist[idx1] = m_conns->burstinessHist[idx1] + 1.0;
                 int idx2 = pSpikes[i] * sim_info.deltaT * 100;

@@ -142,16 +142,10 @@ inline MTRand::MTRand( uint32 *const bigSeed, const uint32 seedLength )
 	{ seed(bigSeed,seedLength); }
 
 inline BGFLOAT MTRand::inRange(BGFLOAT min, BGFLOAT max) {
-    std::cout << "MTRand::inRange : ";
     BGFLOAT val = this->operator ()();
-    std::cout << "rand() := " << val << " ; ";
     BGFLOAT range = max - min;
-    std::cout << "range := " << range << " ; ";
     val *= range;
-    std::cout << "rand * range := " << val << " ; ";
     val += min;
-    std::cout << "rand * range + min := " << val << " .";
-    std::cout << std::endl;
 	return val;
 }
 

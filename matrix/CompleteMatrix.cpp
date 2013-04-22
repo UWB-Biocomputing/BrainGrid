@@ -37,6 +37,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "../global.h"
 #include "KIIexceptions.h"
 #include "CompleteMatrix.h"
 
@@ -45,9 +46,7 @@ CompleteMatrix::CompleteMatrix(string t, string i, int r,
 			       int c, BGFLOAT m, string values)
   : Matrix(t, i, r, c, m), theMatrix(NULL)
 {
-#ifdef MDEBUG
-  cerr << "Creating CompleteMatrix, size: ";
-#endif
+  DEBUG_MATRIX(cerr << "Creating CompleteMatrix, size: ";)
 
   // Bail out if we're being asked to create nonsense
   if (!((rows > 0) && (columns > 0)))
@@ -56,9 +55,7 @@ CompleteMatrix::CompleteMatrix(string t, string i, int r,
   // We're a 2D Matrix, even if only one row or column
   dimensions = 2;
 
-#ifdef MDEBUG
-  cerr << rows << "X" << columns << ":" << endl;
-#endif
+  DEBUG_MATRIX( cerr << rows << "X" << columns << ":" << endl;)
 
   // Allocate storage
   alloc(rows, columns);
@@ -102,27 +99,21 @@ CompleteMatrix::CompleteMatrix(string t, string i, int r,
     }
   }
   //  else if (init == "random")
-#ifdef MDEBUG
-    cerr << "\tInitialized " << type << " matrix" << endl;
-#endif
+  DEBUG_MATRIX(cerr << "\tInitialized " << type << " matrix" << endl;)
 }
 
 
 // "Copy Constructor"
 CompleteMatrix::CompleteMatrix(const CompleteMatrix& oldM) : theMatrix(NULL)
 {
-#ifdef MDEBUG
-  cerr << "CompleteMatrix copy constructor:" << endl;
-#endif
+  DEBUG_MATRIX(cerr << "CompleteMatrix copy constructor:" << endl;)
   copy(oldM);
 }
 
 // Destructor
 CompleteMatrix::~CompleteMatrix()
 {
-#ifdef MDEBUG
-  cerr << "Destroying CompleteMatrix" << endl;
-#endif
+  DEBUG_MATRIX(cerr << "Destroying CompleteMatrix" << endl;)
   clear();
 }
 
@@ -133,27 +124,19 @@ CompleteMatrix& CompleteMatrix::operator=(const CompleteMatrix& rhs)
   if (&rhs == this)
     return *this;
 
-#ifdef MDEBUG
-  cerr << "CompleteMatrix::operator=" << endl;
-#endif
+  DEBUG_MATRIX(cerr << "CompleteMatrix::operator=" << endl;)
 
   clear();
-#ifdef MDEBUG
-  cerr << "\t\tclear() complete, ready to copy." << endl;
-#endif
+  DEBUG_MATRIX(cerr << "\t\tclear() complete, ready to copy." << endl;)
   copy(rhs);
-#ifdef MDEBUG
-  cerr << "\t\tcopy() complete; returning by reference." << endl;
-#endif
+  DEBUG_MATRIX(cerr << "\t\tcopy() complete; returning by reference." << endl;)
   return *this;
 }
 
 // Clear out storage
 void CompleteMatrix::clear(void)
 {
-#ifdef MDEBUG
-  cerr << "\tclearing " << rows << "X" << columns << " CompleteMatrix...";
-#endif
+  DEBUG_MATRIX(cerr << "\tclearing " << rows << "X" << columns << " CompleteMatrix...";)
 
   if (theMatrix != NULL) {
     for (int i=0; i<rows; i++)
@@ -164,19 +147,15 @@ void CompleteMatrix::clear(void)
     delete [] theMatrix;
     theMatrix = NULL;
   }
-#ifdef MDEBUG
-  cerr << "done." << endl;
-#endif
+  DEBUG_MATRIX(cerr << "done." << endl;)
 }
 
 
 // Copy matrix to this one
 void CompleteMatrix::copy(const CompleteMatrix& source)
 {
-#ifdef MDEBUG
-  cerr << "\tcopying " << source.rows << "X" << source.columns
-       << " CompleteMatrix...";
-#endif
+  DEBUG_MATRIX(cerr << "\tcopying " << source.rows << "X" << source.columns
+	  << " CompleteMatrix...";)
 
   SetAttributes(source.type, source.init, source.rows,
 		source.columns, source.multiplier, source.dimensions);
@@ -186,9 +165,7 @@ void CompleteMatrix::copy(const CompleteMatrix& source)
   for (int i=0; i<rows; i++)
     for (int j=0; j<columns; j++)
       theMatrix[i][j] = source.theMatrix[i][j];
-#ifdef MDEBUG
-  cerr << "\t\tdone." << endl;
-#endif
+  DEBUG_MATRIX(cerr << "\t\tdone." << endl;)
 }
 
 
@@ -204,9 +181,7 @@ void CompleteMatrix::alloc(int rows, int columns)
   for (int i=0; i<rows; i++)
     if ((theMatrix[i] = new BGFLOAT[columns]) == NULL)
       throw KII_bad_alloc("Failed allocating storage to copy Matrix.");
-#ifdef MDEBUG
-  cerr << "\tStorage allocated for "<< rows << "X" << columns << " Matrix." << endl;
-#endif
+  DEBUG_MATRIX(cerr << "\tStorage allocated for "<< rows << "X" << columns << " Matrix." << endl;)
 
 }
 

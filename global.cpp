@@ -9,6 +9,15 @@
  */
 #include "global.h"
 
+// Debugging log data and routines
+// see "global.h" for bitmask usage of debug outputs
+int g_debug_mask
+#if DEBUG_OUT
+		= DEBUG_LOG_LOW;
+#else
+		= 0;
+#endif
+
 string index2dToString(int i, int width, int height) {
 	stringstream ss;
 	ss << "[" << i % width << "][" << i / height << "]";

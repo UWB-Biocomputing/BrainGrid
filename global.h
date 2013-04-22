@@ -11,12 +11,33 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 
-#ifdef DEBUG_OUT
-//DEBUG("L")
-#   define DEBUG(x) x
-#else
-#   define DEBUG(x)
-#endif
+// Debug output is included in both debug/release builds now.
+// The Default for debug is "LOW" and "OFF" for Release.
+
+// Mask bit values:
+// 0 (1) -- "Normal low-level debugging"
+// 1 (2) -- "Medium level debug info"
+// 2 (4) -- "high/detailed level debug info"
+// 10 (1024) -- SparseMatrix debugging
+// 11 (2048) -- VectorMatrix debugging
+#define DEBUG_LOG_LOW		1
+#define DEBUG_LOG_MID		2
+#define DEBUG_LOG_HI		4
+#define DEBUG_LOG_PARSER    8
+#define DEBUG_LOG_MATRIX    16
+#define DEBUG_LOG_SPARSE	32
+#define DEBUG_LOG_VECTOR    64
+#define DEBUG(__x) DEBUG_LOW(__x)
+#define DEBUG_LOW(__x)  DEBUG_LOG(DEBUG_LOG_LOW, __x)
+#define DEBUG_MID(__x)  DEBUG_LOG(DEBUG_LOG_MID, __x)
+#define DEBUG_HI(__x)  DEBUG_LOG(DEBUG_LOG_HI, __x)
+#define DEBUG_PARSER(__x) DEBUG_LOG(DEBUG_LOG_PARSER, __x)
+#define DEBUG_MATRIX(__x) DEBUG_LOG(DEBUG_LOG_MATRIX, __x)
+#define DEBUG_SPARSE(__x) DEBUG_LOG(DEBUG_LOG_SPARSE, __x)
+#define DEBUG_VECTOR(__x) DEBUG_LOG(DEBUG_LOG_VECTOR, __x)
+#define DEBUG_LOG(__lvl, __x) { if(__lvl & g_debug_mask) { __x } }
+
+extern int g_debug_mask;
 
 #include <sstream>
 #include <cassert>
@@ -36,15 +57,6 @@ using namespace std;
 
 //! If defined, a table with time and each neuron voltage will output to stdout.
 //#define DUMP_VOLTAGES
-
-//#define DEBUG_OUT
-//#define DEBUG_OUT2
-
-#ifdef DEBUG_OUT2
-#   define DEBUG2(x) x
-#else
-#   define DEBUG2(x)
-#endif
 
 #if defined(USE_GPU)
 //! CUDA device ID

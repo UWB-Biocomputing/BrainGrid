@@ -97,7 +97,7 @@ GpuSim::GpuSim(SimulationInfo* psi) :
 	initMTGPU(777, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
 
 	// make sure neuron objects and neuron arrays match
-	DEBUG2( printComparison(neuronArray, psi->pNeuronList, psi->cNeurons) );
+	DEBUG_MID( printComparison(neuronArray, psi->pNeuronList, psi->cNeurons) );
 
 	// delete the arrays
 	deleteNeuronStruct(neuron_st);
@@ -322,7 +322,7 @@ void GpuSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiHistory, Co
         // record radius to history matrix
         radiiHistory(psi->currentStep, i) = radii[i];
 
-        DEBUG2(cout << "radii[" << i << ":" << radii[i] << "]" << endl;);
+        DEBUG_MID(cout << "radii[" << i << ":" << radii[i] << "]" << endl;);
     }
 
     DEBUG(cout << "Updating distance between frontiers..." << endl;)

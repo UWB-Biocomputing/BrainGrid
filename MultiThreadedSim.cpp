@@ -92,7 +92,7 @@ void MultiThreadedSim::advanceNeurons(SimulationInfo* psi)
         // advance neurons
         (*(psi->pNeuronList))[i]->advance(psi->pSummationMap[i]);
 
-        DEBUG2(cout << i << " " << (*(psi->pNeuronList))[i].Vm << endl;)
+        DEBUG_MID(cout << i << " " << (*(psi->pNeuronList))[i].Vm << endl;)
     }
 
     // For the performance reason, this loop should be executed sequentially to avoid critical region for DelayList
@@ -101,7 +101,7 @@ void MultiThreadedSim::advanceNeurons(SimulationInfo* psi)
         // notify outgoing synapses if neuron has fired
         if ((*(psi->pNeuronList))[i]->hasFired)
         {
-            DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
+            DEBUG_MID(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
 
             for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)
             {
@@ -203,7 +203,7 @@ void MultiThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiH
         // record radius to history matrix
         radiiHistory(psi->currentStep, i) = radii[i];
 
-        DEBUG2(cout << "radii[" << i << ":" << radii[i] << "]" << endl;);
+        DEBUG_MID(cout << "radii[" << i << ":" << radii[i] << "]" << endl;);
     }
 
     DEBUG(cout << "Updating distance between frontiers..." << endl;)
@@ -317,7 +317,7 @@ void MultiThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radiiH
                         psi->rgSynapseMap[a][syn]->W = W(a, b) * 
                             synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
 
-                        DEBUG2(cout << "weight of rgSynapseMap" << 
+                        DEBUG_MID(cout << "weight of rgSynapseMap" << 
                                coordToString(xa, ya)<<"[" <<syn<<"]: " << 
                                psi->rgSynapseMap[a][syn].W << endl;);
                     }

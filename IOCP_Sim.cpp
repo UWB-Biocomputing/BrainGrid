@@ -52,12 +52,12 @@ void SingleThreadedSim::worker1()
 				{
 					(*(m_psi->pNeuronList))[i].advance(m_psi->pSummationMap[i]);
 
-					DEBUG2(cout << i << " " << (*(m_psi->pNeuronList))[i].Vm << endl;)
+					DEBUG_MID(cout << i << " " << (*(m_psi->pNeuronList))[i].Vm << endl;)
 
 					// notify outgoing synapses if neuron has fired
 					if ((*(m_psi->pNeuronList))[i].hasFired)
 					{
-						DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * m_psi->deltaT << endl;)
+						DEBUG_MID(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * m_psi->deltaT << endl;)
 
 						for (int z = m_psi->rgSynapseMap[i].size() - 1; z >= 0; --z)
 						{
@@ -144,7 +144,7 @@ void SingleThreadedSim::advanceUntilGrowth(SimulationInfo* psi)
 	HANDLE hThread;
 	DWORD AffinityMask;
 
-    DEBUG2(printNetworkRadii(radii);)
+    DEBUG_MID(printNetworkRadii(radii);)
 
 	m_Count = 0;
 	m_EndStep = g_simulationStep + static_cast<uint64_t>(psi->stepDuration / psi->deltaT);
@@ -167,15 +167,14 @@ void SingleThreadedSim::advanceUntilGrowth(SimulationInfo* psi)
 	else
 		assert(false);
 
-/*
 	uint64_t count = 0;
     uint64_t endStep = g_simulationStep + static_cast<uint64_t>(psi->stepDuration / psi->deltaT);
     
-    DEBUG2(printNetworkRadii(radii);)
+    DEBUG_HI(printNetworkRadii(radii);)
 
     while (g_simulationStep < endStep)
     {
-        DEBUG(if (count % 1000 == 0)
+        DEBUG_LOW(if (count % 1000 == 0)
               {
                   cout << psi->currentStep << "/" << psi->maxSteps
                       << " simulating time: " << g_simulationStep * psi->deltaT << endl;
@@ -190,7 +189,6 @@ void SingleThreadedSim::advanceUntilGrowth(SimulationInfo* psi)
         advanceSynapses(psi);
         g_simulationStep++;
     }
-*/
 }
 
 /**
@@ -206,12 +204,12 @@ void SingleThreadedSim::advanceNeurons(SimulationInfo* psi)
         // advance neurons
         (*(psi->pNeuronList))[i].advance(psi->pSummationMap[i]);
 
-        DEBUG2(cout << i << " " << (*(psi->pNeuronList))[i].Vm << endl;)
+        DEBUG_MID(cout << i << " " << (*(psi->pNeuronList))[i].Vm << endl;)
 
         // notify outgoing synapses if neuron has fired
         if ((*(psi->pNeuronList))[i].hasFired)
         {
-            DEBUG2(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
+            DEBUG_MID(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * psi->deltaT << endl;)
 
             for (int z = psi->rgSynapseMap[i].size() - 1; z >= 0; --z)
             {
@@ -289,7 +287,7 @@ void SingleThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radii
         // record radius to history matrix
         radiiHistory(psi->currentStep, i) = radii[i];
 
-        DEBUG2(cout << "radii[" << i << ":" << radii[i] << "]" << endl;);
+        DEBUG_MID(cout << "radii[" << i << ":" << radii[i] << "]" << endl;);
     }
 
     DEBUG(cout << "Updating distance between frontiers..." << endl;)
@@ -400,7 +398,7 @@ void SingleThreadedSim::updateNetwork(SimulationInfo* psi, CompleteMatrix& radii
                         psi->rgSynapseMap[a][syn].W = W(a, b) * 
                             synSign(synType(psi, aCoord, bCoord)) * g_synapseStrengthAdjustmentConstant;
 
-                        DEBUG2(cout << "weight of rgSynapseMap" << 
+                        DEBUG_MID(cout << "weight of rgSynapseMap" << 
                                coordToString(xa, ya)<<"[" <<syn<<"]: " << 
                                psi->rgSynapseMap[a][syn].W << endl;);
                     }

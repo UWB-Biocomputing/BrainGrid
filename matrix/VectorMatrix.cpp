@@ -38,6 +38,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "../global.h"
 #include "KIIexceptions.h"
 #include "VectorMatrix.h"
 
@@ -46,9 +47,7 @@ Norm VectorMatrix::nRng;
 
 VectorMatrix::VectorMatrix(string t, string i, int r, int c, BGFLOAT m, string values) :
 	Matrix(t, i, r, c, m), theVector(NULL) {
-#ifdef VDEBUG
-	cerr << "Creating VectorMatrix, size: ";
-#endif
+	DEBUG_VECTOR(cerr << "Creating VectorMatrix, size: ";)
 
 	// Bail out if we're being asked to create nonsense
 	if (!((rows == 1) || (columns == 1)) || (rows == 0) || (columns == 0))
@@ -58,9 +57,7 @@ VectorMatrix::VectorMatrix(string t, string i, int r, int c, BGFLOAT m, string v
 	dimensions = 1;
 	size = (rows > columns) ? rows : columns;
 
-#ifdef VDEBUG
-	cerr << rows << "X" << columns << ":" << endl;
-#endif
+	DEBUG_VECTOR(cerr << rows << "X" << columns << ":" << endl;)
 
 	alloc(size);
 
@@ -93,9 +90,7 @@ VectorMatrix::VectorMatrix(string t, string i, int r, int c, BGFLOAT m, string v
 		clear();
 		throw KII_invalid_argument("Illegal initialization for VectorMatrix: " + init);
 	}
-#ifdef VDEBUG
-	cerr << "\tInitialized " << type << " vector to " << *this << endl;
-#endif
+	DEBUG_VECTOR(cerr << "\tInitialized " << type << " vector to " << *this << endl;)
 }
 
 // Copy constructor
@@ -156,9 +151,7 @@ void VectorMatrix::alloc(int size) {
 		throw KII_bad_alloc("Failed allocating storage of Vector copy.");
 	}
 
-#ifdef MDEBUG
-	cerr << "\tStorage allocated for "<< size << " element Vector." << endl;
-#endif
+	DEBUG_VECTOR(cerr << "\tStorage allocated for "<< size << " element Vector." << endl;)
 
 }
 

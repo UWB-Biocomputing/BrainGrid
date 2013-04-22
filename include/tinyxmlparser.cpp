@@ -23,18 +23,7 @@ distribution.
 */
 
 #include "tinyxml.h"
-
-#if 0
-//#define DEBUG_PARSER
-#if defined( DEBUG_PARSER )
-#	if defined( DEBUG ) && defined( _MSC_VER )
-#		include <windows.h>
-#		define TIXML_LOG OutputDebugString
-#	else
-#		define TIXML_LOG printf
-#	endif
-#endif
-#endif//0 PAB
+#include "../global.h"
 
 // Note tha "PutString" hardcodes the same list. This
 // is less flexible than it appears. Changing the entries
@@ -846,47 +835,35 @@ TiXmlNode* TiXmlNode::Identify( const char* p, TiXmlEncoding encoding )
 
 	if ( StringEqual( p, xmlHeader, true, encoding ) )
 	{
-		#ifdef DEBUG_PARSER
-			TIXML_LOG( "XML parsing Declaration\n" );
-		#endif
+		DEBUG_PARSER(cout << "XML parsing Declaration" << endl;)
 		returnNode = new TiXmlDeclaration();
 	}
 	else if ( StringEqual( p, commentHeader, false, encoding ) )
 	{
-		#ifdef DEBUG_PARSER
-			TIXML_LOG( "XML parsing Comment\n" );
-		#endif
+		DEBUG_PARSER(cout << "XML parsing Comment"<<endl;)
 		returnNode = new TiXmlComment();
 	}
 	else if ( StringEqual( p, cdataHeader, false, encoding ) )
 	{
-		#ifdef DEBUG_PARSER
-			TIXML_LOG( "XML parsing CDATA\n" );
-		#endif
+		DEBUG_PARSER(cout << "XML parsing CDATA" <<endl;)
 		TiXmlText* text = new TiXmlText( "" );
 		text->SetCDATA( true );
 		returnNode = text;
 	}
 	else if ( StringEqual( p, dtdHeader, false, encoding ) )
 	{
-		#ifdef DEBUG_PARSER
-			TIXML_LOG( "XML parsing Unknown(1)\n" );
-		#endif
+		DEBUG_PARSER(cout << "XML parsing Unknown(1)" <<endl;)
 		returnNode = new TiXmlUnknown();
 	}
 	else if (    IsAlpha( *(p+1), encoding )
 			  || *(p+1) == '_' )
 	{
-		#ifdef DEBUG_PARSER
-			TIXML_LOG( "XML parsing Element\n" );
-		#endif
+		DEBUG_PARSER(cout << "XML parsing Element" << endl;)
 		returnNode = new TiXmlElement( "" );
 	}
 	else
 	{
-		#ifdef DEBUG_PARSER
-			TIXML_LOG( "XML parsing Unknown(2)\n" );
-		#endif
+		DEBUG_PARSER(cout << "XML parsing Unknown(2)" << endl;)
 		returnNode = new TiXmlUnknown();
 	}
 

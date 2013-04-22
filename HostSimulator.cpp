@@ -44,7 +44,7 @@ HostSimulator::~HostSimulator()
  */
 void HostSimulator::simulate()
 {
-    DEBUG(cout << "Setup simulation." << endl);
+    DEBUG(cout << "Setup simulation." << endl;);
     network->setup(m_sim_info.stepDuration, m_sim_info.maxSteps);
     
     // Main simulation loop - execute maxGrowthSteps
@@ -98,14 +98,14 @@ void HostSimulator::simulate()
  */
 void HostSimulator::advanceUntilGrowth(const int currentStep)
 {
-    DEBUG(uint64_t count = 0;)
+    uint64_t count = 0;
     uint64_t endStep = g_simulationStep
             + static_cast<uint64_t>(m_sim_info.stepDuration / m_sim_info.deltaT);
 
-    DEBUG2(network->logSimStep()) // Generic model debug call
+    DEBUG_MID(network->logSimStep();) // Generic model debug call
 
     while (g_simulationStep < endStep) {
-        DEBUG(
+        DEBUG_LOW(
             if (count % 10000 == 0) {
                 cout << currentStep << "/" << m_sim_info.maxSteps
                      << " simulating time: "

@@ -54,6 +54,7 @@
 #include <sstream>
 #include <algorithm>
 
+#include "../global.h"
 #include "KIIexceptions.h"
 #include "SparseMatrix.h"
 
@@ -74,24 +75,18 @@ void SparseMatrix::HashTable::resize(int s, int c)
 {
   // If nothing has changed, just clear the table to NULL
   if ((s == capacity) && (c == columns)) {
-#ifdef SDEBUG
-    cerr << "\t\t\tSM::HT::resize(): table capacity unchanged; filling with NULL." << endl;
-#endif
+	DEBUG_SPARSE(cerr << "\t\t\tSM::HT::resize(): table capacity unchanged; filling with NULL." << endl;)
     fill(table.begin(), table.end(), static_cast<Element*>(NULL));
     size = 0;
   } else {
-#ifdef SDEBUG
-    cerr << "\t\t\tSM::HT::resize(): table capacity changed." << endl;
-#endif
+	DEBUG_SPARSE(cerr << "\t\t\tSM::HT::resize(): table capacity changed." << endl;)
     capacity = s;
     columns = c;
     table.resize(capacity, static_cast<Element*>(NULL));
     size = 0;
   }
 
-#ifdef SDEBUG
-  cerr << "\t\t\tAllocated " << capacity << " locations for hash table" << endl;
-#endif
+	DEBUG_SPARSE(cerr << "\t\t\tAllocated " << capacity << " locations for hash table" << endl;)
 }
 
 /*
@@ -122,10 +117,9 @@ void SparseMatrix::HashTable::insert(Element* el)
   int start = hash(el);
   int loc = start;
   
-#ifdef SDEBUG
-  cerr << "\tInserting value " << el->value << " at ("
-       << el->row << ", " << el->column << ")" << endl;
-#endif
+	DEBUG_SPARSE(cerr << "\tInserting value " << el->value << " at ("
+       << el->row << ", " << el->column << ")" << endl;)
+
   // Find first location to insert (if Element isn't in the table)
   while ((table[loc] != &deleted) && (table[loc] != NULL)) {
     if (*table[loc] == *el)
@@ -154,9 +148,7 @@ void SparseMatrix::HashTable::insert(Element* el)
   table[loc] = el;
   size++;
 
-#ifdef SDEBUG
-  cerr << "\tInserted at table location " << loc << endl;
-#endif
+	DEBUG_SPARSE(cerr << "\tInserted at table location " << loc << endl;)
 }
 
 
@@ -229,9 +221,7 @@ SparseMatrix::SparseMatrix(int r, int c, BGFLOAT m, TiXmlElement* e)
   : Matrix("sparse", "none", r, c, m), theRows(NULL), theColumns(NULL), 
     theElements(MaxElements(r,c), c, this)
 {
-#ifdef SDEBUG
-  cerr << "Creating SparseMatrix, size: ";
-#endif
+	DEBUG_SPARSE(cerr << "Creating SparseMatrix, size: ";)
 
   // Bail out if we're being asked to create nonsense
   if (!((rows > 0) && (columns > 0)))
@@ -240,9 +230,7 @@ SparseMatrix::SparseMatrix(int r, int c, BGFLOAT m, TiXmlElement* e)
   // We're a 2D Matrix, even if only one row or column
   dimensions = 2;
 
-#ifdef SDEBUG
-  cerr << rows << "X" << columns << ":" << endl;
-#endif
+	DEBUG_SPARSE(cerr << rows << "X" << columns << ":" << endl;)
 
   // Allocate storage for row and column lists (hash table already
   // allocated at initialization time; see initializer list, above).
@@ -257,9 +245,7 @@ SparseMatrix::SparseMatrix(int r, int c, BGFLOAT m, TiXmlElement* e)
        rowElement = rowElement->NextSiblingElement("Row"))
     rowFromXML(rowElement);
 
-#ifdef SDEBUG
-  cerr << "\tInitialized " << type << " matrix" << endl;
-#endif
+	DEBUG_SPARSE(cerr << "\tInitialized " << type << " matrix" << endl;)
 }
 
 
@@ -280,9 +266,7 @@ SparseMatrix::SparseMatrix(int r, int c, BGFLOAT m, const char* v)
   : Matrix("sparse", "none", r, c, m), theRows(NULL), theColumns(NULL), 
     theElements(MaxElements(r,c), c, this)
 {
-#ifdef SDEBUG
-  cerr << "\tCreating diagonal sparse matrix" << endl;
-#endif
+	DEBUG_SPARSE(cerr << "\tCreating diagonal sparse matrix" << endl;)
   // Bail out if we're being asked to create nonsense
   if (!((rows > 0) && (columns > 0)))
     throw KII_invalid_argument("SparseMatrix::SparseMatrix(): Asked to create zero-size");
@@ -290,9 +274,7 @@ SparseMatrix::SparseMatrix(int r, int c, BGFLOAT m, const char* v)
   // We're a 2D Matrix, even if only one row or column
   dimensions = 2;
 
-#ifdef SDEBUG
-  cerr << rows << "X" << columns << ":" << endl;
-#endif
+	DEBUG_SPARSE(cerr << rows << "X" << columns << ":" << endl;)
 
   // Allocate storage for row and column lists (hash table already
   // allocated at initialization time; see initializer list, above).
@@ -352,9 +334,7 @@ SparseMatrix::SparseMatrix(int r, int c)
   : Matrix("sparse", "none", r, c, 0.0), theRows(NULL), theColumns(NULL), 
     theElements(MaxElements(r,c), c, this)
 {
-#ifdef SDEBUG
-  cerr << "\tCreating empty sparse matrix: ";
-#endif
+	DEBUG_SPARSE(cerr << "\tCreating empty sparse matrix: ";)
   // Bail out if we're being asked to create nonsense
   if (!((rows > 0) && (columns > 0)))
     throw KII_invalid_argument("SparseMatrix::SparseMatrix(): Asked to create zero-size");
@@ -362,9 +342,7 @@ SparseMatrix::SparseMatrix(int r, int c)
   // We're a 2D Matrix, even if only one row or column
   dimensions = 2;
 
-#ifdef SDEBUG
-  cerr << rows << "X" << columns << ":" << endl;
-#endif
+	DEBUG_SPARSE(cerr << rows << "X" << columns << ":" << endl;)
 
   // Allocate storage for row and column lists (hash table already
   // allocated at initialization time; see initializer list, above).
@@ -385,16 +363,12 @@ SparseMatrix::SparseMatrix(const SparseMatrix& oldM)
     theRows(NULL), theColumns(NULL), 
     theElements(MaxElements(oldM.rows,oldM.columns), oldM.columns, this)
 {
-#ifdef SDEBUG
-  cerr << "SparseMatrix copy constructor:" << endl;
-#endif
+	DEBUG_SPARSE(cerr << "SparseMatrix copy constructor:" << endl;)
 
   // We're a 2D Matrix, even if only one row or column
   dimensions = 2;
 
-#ifdef SDEBUG
-  cerr << rows << "X" << columns << ":" << endl;
-#endif
+	DEBUG_SPARSE(cerr << rows << "X" << columns << ":" << endl;)
 
   // Allocate storage for row and column lists (hash table already
   // allocated at initialization time; see initializer list, above).
@@ -415,10 +389,8 @@ SparseMatrix::SparseMatrix(const SparseMatrix& oldM)
 // Destructor
 SparseMatrix::~SparseMatrix()
 {
-#ifdef SDEBUG
-  cerr << "Destroying SparseMatrix" << endl;
-#endif
-  clear();
+	DEBUG_SPARSE(cerr << "Destroying SparseMatrix" << endl;)
+	clear();
 }
 
 // Assignment operator
@@ -427,27 +399,19 @@ SparseMatrix& SparseMatrix::operator=(const SparseMatrix& rhs)
   if (&rhs == this)
     return *this;
 
-#ifdef SDEBUG
-  cerr << "SparseMatrix::operator=" << endl;
-#endif
+	DEBUG_SPARSE(cerr << "SparseMatrix::operator=" << endl;)
 
   clear();
-#ifdef SDEBUG
-  cerr << "\t\tclear() complete, setting data member values." << endl;
-#endif
+	DEBUG_SPARSE(cerr << "\t\tclear() complete, setting data member values." << endl;)
 
   SetAttributes(rhs.type, rhs.init, rhs.rows, 
 		rhs.columns, rhs.multiplier, rhs.dimensions);
 
-#ifdef SDEBUG
-  cerr << "\t\tvalues set, ready to allocate." << endl;
-#endif
+	DEBUG_SPARSE(cerr << "\t\tvalues set, ready to allocate." << endl;)
 
   alloc();
 
-#ifdef SDEBUG
-  cerr << "\t\talloc() complete, ready to copy." << endl;
-#endif
+	DEBUG_SPARSE(cerr << "\t\talloc() complete, ready to copy." << endl;)
 
   try {
     copy(rhs);
@@ -456,18 +420,14 @@ SparseMatrix& SparseMatrix::operator=(const SparseMatrix& rhs)
 	 << "\tError was: " << e.what() << endl;
     exit(-1);
   }
-#ifdef SDEBUG
-  cerr << "\t\tcopy() complete; returning by reference." << endl;
-#endif
+	DEBUG_SPARSE(cerr << "\t\tcopy() complete; returning by reference." << endl;)
   return *this;
 }
 
 // Clear out storage
 void SparseMatrix::clear(void)
 {
-#ifdef SDEBUG
-  cerr << "\tclearing " << rows << "X" << columns << " SparseMatrix...";
-#endif
+	DEBUG_SPARSE(cerr << "\tclearing " << rows << "X" << columns << " SparseMatrix...";)
 
   // Since each Element is only allocated once (and shared between the
   // row and column lists and the hash table), we only need to
@@ -492,9 +452,7 @@ void SparseMatrix::clear(void)
   theRows = NULL;
   theColumns = NULL;
 
-#ifdef SDEBUG
-  cerr << "done." << endl;
-#endif
+	DEBUG_SPARSE(cerr << "done." << endl;)
 }
 
 
@@ -515,10 +473,8 @@ void SparseMatrix::remove_lists(Element* el)
 // Copy matrix to this one
 void SparseMatrix::copy(const SparseMatrix& source)
 {
-#ifdef SDEBUG
-  cerr << "\t\t\tcopying " << source.rows << "X" << source.columns
-       << " SparseMatrix...";
-#endif
+	DEBUG_SPARSE(cerr << "\t\t\tcopying " << source.rows << "X" << source.columns
+       << " SparseMatrix...";)
 
   // We will access the source row-wise, inserting new Elements into
   // the current SparseMatrix's row and column lists.
@@ -542,9 +498,7 @@ void SparseMatrix::copy(const SparseMatrix& source)
     }
   }
 
-#ifdef SDEBUG
-  cerr << "\t\tdone." << endl;
-#endif
+	DEBUG_SPARSE(cerr << "\t\tdone." << endl;)
 }
 
 // Read row from XML and add items to SparseMatrix
@@ -597,10 +551,8 @@ void SparseMatrix::alloc(void)
   // Set the hash table capacity
   theElements.resize(MaxElements(rows, columns), columns);
 
-#ifdef SDEBUG
-  cerr << "\t\tStorage allocated for "<< rows << " row by " 
-       << columns << " column SparseMatrix." << endl;
-#endif
+	DEBUG_SPARSE(cerr << "\t\tStorage allocated for "<< rows << " row by " 
+       << columns << " column SparseMatrix." << endl;)
 
 }
 
