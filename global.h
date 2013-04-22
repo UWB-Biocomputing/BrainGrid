@@ -15,11 +15,13 @@
 // The Default for debug is "LOW" and "OFF" for Release.
 
 // Mask bit values:
-// 0 (1) -- "Normal low-level debugging"
-// 1 (2) -- "Medium level debug info"
-// 2 (4) -- "high/detailed level debug info"
-// 10 (1024) -- SparseMatrix debugging
-// 11 (2048) -- VectorMatrix debugging
+// 0 (1) -- Normal low-level debugging
+// 1 (2) -- Medium level debug info
+// 2 (4) -- high/detailed level debug info
+// 3 (8) -- parser XML logging
+// 4 (16) -- Matrix (CompleteMatrix) debugging
+// 5 (32)  -- SparseMatrix debugging
+// 6 (64) --  VectorMatrix debugging
 #define DEBUG_LOG_LOW		1
 #define DEBUG_LOG_MID		2
 #define DEBUG_LOG_HI		4
