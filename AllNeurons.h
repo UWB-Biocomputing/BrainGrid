@@ -66,7 +66,10 @@ struct AllNeurons
 
         //! The number of spikes since the last growth cycle
         int *spikeCount;
-        
+
+        //! The total number of spikes since the start of the simulation
+        int *totalSpikeCount;        
+
         uint64_t **spike_history;
 
         //! The neuron type map (INH, EXC).

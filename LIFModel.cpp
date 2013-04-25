@@ -921,11 +921,12 @@ void LIFModel::fire(AllNeurons &neurons, const int index) const
 
 #ifdef STORE_SPIKEHISTORY
     // record spike time
-    neurons.spike_history[index][neurons.spikeCount[index]] = g_simulationStep;
+    neurons.spike_history[index][neurons.totalSpikeCount[index]] = g_simulationStep;
 #endif // STORE_SPIKEHISTORY
 
-    // increment spike count
+    // increment spike count and total spike count
     neurons.spikeCount[index]++;
+    neurons.totalSpikeCount[index]++;
 
     // calculate the number of steps in the absolute refractory period
     neurons.nStepsInRefr[index] = static_cast<int> ( neurons.Trefract[index] / neurons.deltaT[index] + 0.5 );
@@ -1455,7 +1456,7 @@ void LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info)
 
             DEBUG_MID (cout << endl << coordToString(i, j) << endl;);
 
-            for (int i = 0; i < neurons.spikeCount[neuron_index]; i++) {
+            for (int i = 0; i < neurons.totalSpikeCount[neuron_index]; i++) {
                 DEBUG_MID (cout << i << " ";);
                 int idx1 = pSpikes[i] * sim_info.deltaT;
                 m_conns->burstinessHist[idx1] = m_conns->burstinessHist[idx1] + 1.0;

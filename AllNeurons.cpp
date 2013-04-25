@@ -23,6 +23,7 @@ AllNeurons::AllNeurons() :
     nStepsInRefr = NULL;
     neuron_type_map = NULL;
     spikeCount = NULL;
+    totalSpikeCount = NULL;
     spike_history = NULL;
     starter_map = NULL;
     summation_map = NULL;
@@ -52,6 +53,7 @@ AllNeurons::AllNeurons(const int size) :
     nStepsInRefr = new int[size];
     neuron_type_map = new neuronType[size];
     spikeCount = new int[size];
+    totalSpikeCount = new int[size];
     starter_map = new bool[size];
     summation_map = new BGFLOAT[size];
     spike_history = new uint64_t*[size];
@@ -62,6 +64,7 @@ AllNeurons::AllNeurons(const int size) :
         spike_history[i] = NULL;
         hasFired[i] = false;
         spikeCount[i] = 0;
+        totalSpikeCount[i] = 0;
     }
 }
 
@@ -87,6 +90,7 @@ AllNeurons::~AllNeurons()
     delete[] nStepsInRefr;
     delete[] neuron_type_map;
     delete[] spikeCount;
+    delete[] totalSpikeCount;
     delete[] starter_map;
     delete[] summation_map;
 
@@ -110,6 +114,7 @@ AllNeurons::~AllNeurons()
     nStepsInRefr = NULL;
     neuron_type_map = NULL;
     spikeCount = NULL;
+    totalSpikeCount = NULL;
     starter_map = NULL;
     summation_map = NULL;
 }
