@@ -43,7 +43,7 @@ distribution.
 #include <string.h>
 #include <assert.h>
 #include <iostream>
-#include "../lib/BGTypes.h" // for BGFLOAT
+#include "BGTypes.h" // for BGFLOAT
 
 #ifdef TIXML_USE_STL
 	#include <string>

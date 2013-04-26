@@ -65,7 +65,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
-#include "../lib/BGTypes.h" // for BGFLOAT
+#include "BGTypes.h" // for BGFLOAT
 
 class MTRand {
 // Data

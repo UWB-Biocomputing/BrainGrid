@@ -23,7 +23,7 @@ distribution.
 */
 
 #include "tinyxml.h"
-#include "../lib/Global.h"
+#include "Global.h"
 
 // Note tha "PutString" hardcodes the same list. This
 // is less flexible than it appears. Changing the entries

@@ -49,6 +49,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);TIXML_USE_STL;CDEBUG;DEBUG_OUT</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>common</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -60,7 +61,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);TIXML_USE_STL;DEBUG_OUT</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);TIXML_USE_STL;DEBUG_OUT;NDEBUG</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>common</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -69,36 +71,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AllNeurons.cpp" />
-    <ClCompile Include="AllSynapses.cpp" />
+    <ClCompile Include="common\AllNeurons.cpp" />
+    <ClCompile Include="common\AllSynapses.cpp" />
     <ClCompile Include="BGDriver.cpp" />
-    <ClCompile Include="DynamicSpikingSynapse.cpp" />
-    <ClCompile Include="DynamicSpikingSynapse_struct.cpp" />
-    <ClCompile Include="global.cpp" />
-    <ClCompile Include="GpuSim.cpp">
+    <ClCompile Include="common\global.cpp" />
+    <ClCompile Include="cuda\GpuSim.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|X64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="HostSim.cpp" />
-    <ClCompile Include="HostSimulator.cpp" />
-    <ClCompile Include="include\norm.cpp" />
-    <ClCompile Include="include\ParamContainer.cpp" />
-    <ClCompile Include="include\Timer.cpp" />
-    <ClCompile Include="include\tinyxml.cpp" />
-    <ClCompile Include="include\tinyxmlerror.cpp" />
-    <ClCompile Include="include\tinyxmlparser.cpp" />
-    <ClCompile Include="INeuron.cpp" />
-    <ClCompile Include="ISynapse.cpp" />
-    <ClCompile Include="LIFModel.cpp" />
-    <ClCompile Include="LifNeuron.cpp" />
-    <ClCompile Include="LifNeuron_struct.cpp" />
+    <ClCompile Include="common\HostSimulator.cpp" />
+    <ClCompile Include="rng\norm.cpp" />
+    <ClCompile Include="paramcontainer\ParamContainer.cpp" />
+    <ClCompile Include="common\Timer.cpp" />
+    <ClCompile Include="tinyxml\tinyxml.cpp" />
+    <ClCompile Include="tinyxml\tinyxmlerror.cpp" />
+    <ClCompile Include="tinyxml\tinyxmlparser.cpp" />
+    <ClCompile Include="common\LIFModel.cpp" />
     <ClCompile Include="matrix\CompleteMatrix.cpp" />
     <ClCompile Include="matrix\Matrix.cpp" />
     <ClCompile Include="matrix\SparseMatrix.cpp" />
     <ClCompile Include="matrix\VectorMatrix.cpp" />
-    <ClCompile Include="Network.cpp" />
-    <ClCompile Include="ParseParamError.cpp" />
-    <ClCompile Include="Util.cpp" />
+    <ClCompile Include="common\Network.cpp" />
+    <ClCompile Include="common\ParseParamError.cpp" />
+    <ClCompile Include="common\Util.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

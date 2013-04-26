@@ -37,7 +37,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "../lib/Global.h"
+#include "Global.h"
 #include "KIIexceptions.h"
 #include "CompleteMatrix.h"
 
