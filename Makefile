@@ -8,7 +8,7 @@ all: growth
 ################################################################################
 MAIN = .
 CUDADIR = $(MAIN)/cuda
-LIBDIR = $(MAIN)/lib
+LIBDIR = $(MAIN)/common
 MATRIXDIR = $(MAIN)/matrix
 PARAMDIR = $(MAIN)/paramcontainer
 RNGDIR = $(MAIN)/rng
