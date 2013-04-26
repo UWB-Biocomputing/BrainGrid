@@ -3,7 +3,7 @@
 #ifndef _ALLNEURONS_H_
 #define _ALLNEURONS_H_
 
-#include "global.h"
+#include "Global.h"
 
 // Struct to hold all data nessesary for all the Neurons.
 struct AllNeurons

@@ -54,7 +54,7 @@
 #include <sstream>
 #include <algorithm>
 
-#include "../global.h"
+#include "../lib/Global.h"
 #include "KIIexceptions.h"
 #include "SparseMatrix.h"
 

@@ -38,7 +38,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "../global.h"
+#include "../lib/Global.h"
 #include "KIIexceptions.h"
 #include "VectorMatrix.h"
 

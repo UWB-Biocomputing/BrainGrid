@@ -14,9 +14,9 @@
 
 using namespace std;
 
-#include "include/tinyxml.h"
+#include "../tinyxml/tinyxml.h"
 
-#include "global.h"
+#include "Global.h"
 #include "AllNeurons.h"
 #include "AllSynapses.h"
 #include "SimulationInfo.h"

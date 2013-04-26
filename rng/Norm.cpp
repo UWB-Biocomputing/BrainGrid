@@ -52,7 +52,7 @@
 //
 //
 
-#include "norm.h"
+#include "Norm.h"
 
 using namespace std;
 

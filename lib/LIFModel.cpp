@@ -1,6 +1,6 @@
 #include "LIFModel.h"
 
-#include "include/tinyxml.h"
+#include "../tinyxml/tinyxml.h"
 
 #include "ParseParamError.h"
 #include "Util.h"

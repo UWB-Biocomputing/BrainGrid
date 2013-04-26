@@ -7,7 +7,7 @@
  *  @brief Globally available functions/variables and default parameter values.
  *
  */
-#include "global.h"
+#include "Global.h"
 
 // Debugging log data and routines
 // see "global.h" for bitmask usage of debug outputs

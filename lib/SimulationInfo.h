@@ -27,8 +27,6 @@
 #ifndef _SIMULATIONINFO_H_
 #define _SIMULATIONINFO_H_
 
-#include "INeuron.h"
-#include "DynamicSpikingSynapse.h"
 
 //! Structure design to hold all of the parameters of the simulation.
 struct SimulationInfo
@@ -41,19 +39,20 @@ struct SimulationInfo
         maxSteps(0),
         stepDuration(0),
         deltaT(0),
-        pNeuronList(NULL),
+        //pNeuronList(NULL), // NOT NEEDED?
         epsilon(0),
         beta(0),
         rho(0),
         maxRate(0),
         minRadius(0),
         startRadius(0),
-        rgSynapseMap(NULL),
+        //rgSynapseMap(NULL), // NOT NEEDED?
         pSummationMap(NULL),
 		seed(0)
     {
     }
 
+/* NOT NEEDED?
 	void reset(int neurons, vector<INeuron*>* neronList, vector<ISynapse*>* synapseList, BGFLOAT* sumMap, BGFLOAT delta) {
 		cNeurons = neurons;
 		pNeuronList = neronList;
@@ -61,7 +60,7 @@ struct SimulationInfo
 		pSummationMap = sumMap;
 		deltaT = delta;
 	}
-
+*/
 	//! Width of neuron map (assumes square)
 	int width;
 
@@ -92,7 +91,7 @@ struct SimulationInfo
 	BGFLOAT deltaT; // Inner Simulation Step Duration !!!!!!!!
 
 	//! List of neurons
-	vector<INeuron*>* pNeuronList;
+	//vector<INeuron*>* pNeuronList; // NOT NEEDED?
 
 	//! The neuron type map (INH, EXC).
 	neuronType* rgNeuronTypeMap;
@@ -121,7 +120,7 @@ struct SimulationInfo
 // } NMV-END
 
 	//! List of lists of synapses (3d array)
-	vector<ISynapse*>* rgSynapseMap;
+	//vector<ISynapse*>* rgSynapseMap; // NOT NEEDED?
 
 	//! List of summation points
 	BGFLOAT* pSummationMap;

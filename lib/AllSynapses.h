@@ -3,7 +3,7 @@
 #ifndef _ALLSYNAPSES_H_
 #define _ALLSYNAPSES_H_
 
-#include "global.h"
+#include "Global.h"
 #ifdef _WIN32
 typedef unsigned _int8 uint8_t;
 #endif

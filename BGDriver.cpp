@@ -10,13 +10,13 @@
  **/
 
 #include <fstream>
-#include "global.h"
-#include "include/ParamContainer.h"
+#include "lib/Global.h"
+#include "paramcontainer/ParamContainer.h"
 
-#include "Network.h"
-#include "HostSimulator.h"
-#include "Model.h"
-#include "LIFModel.h"
+#include "lib/Network.h"
+#include "lib/HostSimulator.h"
+#include "lib/Model.h"
+#include "lib/LIFModel.h"
 
 // Uncomment to use visual leak detector (Visual Studios Plugin)
 // #include <vld.h>

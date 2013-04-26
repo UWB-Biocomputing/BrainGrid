@@ -11,11 +11,11 @@
 
 #include "Simulator.h"
 
-#include "global.h"
+#include "Global.h"
 #include "SimulationInfo.h"
 #include "Network.h"
 
-#include "include/Timer.h"
+#include "Timer.h"
 
 /**
  * @class HostSimulator
