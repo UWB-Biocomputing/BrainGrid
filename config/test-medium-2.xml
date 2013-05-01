@@ -5,7 +5,7 @@
    <!-- Parameters for LSM -->
    <LsmParams frac_EXC="0.98" starter_neurons="0.10"/>
    <!-- size of pool of neurons [x y z] -->
-   <PoolSize x="10" y="10" z="1"/>
+   <PoolSize x="30" y="30" z="1"/>
    <!-- Interval of constant injected current -->
    <Iinject min="13.5e-09" max="13.5e-09"/>
    <!-- Interval of STD of (gaussian) noise current -->
