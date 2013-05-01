@@ -25,8 +25,10 @@
 typedef unsigned long long int uint64_t;	//included in inttypes.h, which is not available in WIN32//included in inttypes.h, which is not available in WIN32
 typedef unsigned int       uint32_t; // same deal as above
 #else
-#define DOUBLEPRECISION
-#define BGFLOAT double
+//#define DOUBLEPRECISION
+//#define BGFLOAT double
+#define SINGLEPRECISION
+#define BGFLOAT float
 
 // solution to get rid of typedef redefine errors on different platforms
 #ifdef __APPLE__

@@ -1,0 +1,60 @@
+<?xml version="1.0" standalone=no?>
+<!-- Parameter file for for the DCT growth modeling -->
+<!-- This file holds constants, not state information -->
+<SimParams>
+   <!-- Parameters for LSM -->
+   <LsmParams frac_EXC="0.98" starter_neurons="0.10"/>
+   <!-- size of pool of neurons [x y z] -->
+   <PoolSize x="10" y="10" z="1"/>
+   <!-- Interval of constant injected current -->
+   <Iinject min="13.5e-09" max="13.5e-09"/>
+   <!-- Interval of STD of (gaussian) noise current -->
+   <Inoise min="1.0e-09" max="1.5e-09"/>
+   <!-- Interval of firing threshold -->
+   <Vthresh min="15.0e-03" max="15.0e-03"/>
+   <!-- Interval of asymptotic voltage -->
+   <Vresting min="0.0" max="0.0"/>
+   <!-- Interval of reset voltage -->
+   <Vreset min="13.5e-03" max="13.5e-03"/>
+   <!-- Interval of initial membrance voltage -->
+   <Vinit min="13.0e-03" max="13.0e-03"/>
+   <!-- Starter firing threshold -->
+   <starter_vthresh min="13.565e-3" max="13.655e-3"/>
+   <!-- Starter reset voltage -->
+   <starter_vreset min="13.0e-3" max="13.0e-3"/>
+   <!-- Growth parameters -->
+   <GrowthParams epsilon="0.60" beta="0.10" rho="0.0001" targetRate="1.9" minRadius="0.1" startRadius="0.4"/>
+   <!-- Simulation Parameters -->
+   <SimParams Tsim="100.0" numSims="20" maxFiringRate="200" maxSynapsesPerNeuron="200"/>
+  
+  <OutputParams stateOutputFileName="tR_1.9--fE_0.98_historyDump.xml"/>
+
+  <!-- Random seed - set to zero to use /dev/random -->
+  <!-- TODO: implement support for this -->
+  <Seed value="1" />
+
+  <!-- If FixedLayout is present, the grid will be laid out according to the positions below, rather than randomly based on LsmParams -->
+  <FixedLayout>
+    <!-- 0-indexed positions of endogenously active neurons in the list -->
+    <A>7 17 27 307 317 327 607 617 627 4 14 24 304 314 324 604 614 624 7 17 27 307 317 327 607 617 627 16 26 36 316 326 336 616 626 636 13 23 33 313 323 333 613 623 633 16 26 36 316 326 336 616 626 636 25 35 45 325 335 345 625 635 645 22 32 42 322 332 342 622 632 642 25 35 45 325 335 345 625 635 645 34 44 54 334 344 354 634 644 654</A>
+
+    <!-- 0-indexed positions of inhibitory neurons in the list -->
+    <I>12 22 32 312 322 332 612 622 632 24 34 44 324 334 344 624 634 644</I>
+
+    <!--
+       9 . . . . . . . A . .
+       8 . . . . . . . . . .
+       7 . A . . A . . . . .
+       6 . . . . . . I A . .
+       5 . . . . . . . . . .
+       4 . A . . A . . . . .
+       3 . . . I . . . A . .
+       2 . . . . . . . . . .
+       1 . A . . A . . . . .
+       0 . . . . . . . A . .
+         0 1 2 3 4 5 6 7 8 9
+       -->
+
+  </FixedLayout>
+
+</SimParams>

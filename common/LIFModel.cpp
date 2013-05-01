@@ -592,7 +592,7 @@ void LIFModel::saveState(ostream &output, const AllNeurons &neurons, const Simul
 
     // Write neuron threshold
     // neuron threshold
-    VectorMatrix neuronThresh("complete", "const", 1, neurons.size, www.woogerworks.com/files/cockatrice_source_20120702.tar.gz0);
+    VectorMatrix neuronThresh("complete", "const", 1, neurons.size, 0);
     for (int i = 0; i < neurons.size; i++) {
         neuronThresh[i] = neurons.Vthresh[i];
     }
