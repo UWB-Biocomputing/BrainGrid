@@ -27,7 +27,7 @@
    <!-- Simulation Parameters -->
    <SimParams Tsim="100.0" numSims="20" maxFiringRate="200" maxSynapsesPerNeuron="200"/>
   
-  <OutputParams stateOutputFileName="tR_1.9--fE_0.98_historyDump.xml"/>
+  <OutputParams stateOutputFileName="test-medium-2-historyDump.xml"/>
 
   <!-- Random seed - set to zero to use /dev/random -->
   <!-- TODO: implement support for this -->
