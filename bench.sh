@@ -65,16 +65,16 @@ mv tR_1.9--fE_0.98_historyDump.xml ../$BENCH_DIR/master/test-historyDump.xml
 
 echo "testing 'test-medium.xml'..."
 # test-medium.xml
-#./growth -t test-medium.xml > test-medium.out
-#mv test-medium.out ../$BENCH_DIR/master/test-medium.out
-#mv test-medium-historyDump.xml ../$BENCH_DIR/master/test-medium-historyDump.xml
+./growth -t test-medium.xml > test-medium.out
+mv test-medium.out ../$BENCH_DIR/master/test-medium.out
+mv test-medium-historyDump.xml ../$BENCH_DIR/master/test-medium-historyDump.xml
 
 
 echo "testing 'test-medium-2.xml'..."
 # test-medium-2.xml
-#./growth -t test-medium-2.xml > test-medium-2.out
-#mv test-medium-2.out ../$BENCH_DIR/master/test-medium-2.out
-#mv test-medium-2-historyDump.xml ../$BENCH_DIR/master/test-medium-2-historyDump.xml
+./growth -t test-medium-2.xml > test-medium-2.out
+mv test-medium-2.out ../$BENCH_DIR/master/test-medium-2.out
+mv test-medium-2-historyDump.xml ../$BENCH_DIR/master/test-medium-2-historyDump.xml
 
 
 
@@ -99,15 +99,15 @@ mv tR_1.9--fE_0.98_historyDump.xml ../$BENCH_DIR/refactor/test-historyDump.xml
 
 echo "testing 'test-medium.xml'..."
 # test-medium.xml
-#./growth -t ./config/test-medium.xml > test-medium.out
-#mv test-medium.out ../$BENCH_DIR/refactor/test-medium.out
-#mv test-medium-historyDump.xml ../$BENCH_DIR/refactor/test-medium-historyDump.xml
+./growth -t ./config/test-medium.xml > test-medium.out
+mv test-medium.out ../$BENCH_DIR/refactor/test-medium.out
+mv test-medium-historyDump.xml ../$BENCH_DIR/refactor/test-medium-historyDump.xml
 
 echo "testing 'test-medium-2.xml'..."
 # test-medium-2.xml
-#./growth -t ./config/test-medium-2.xml > test-medium-2.out
-#mv test-medium-2.out ../$BENCH_DIR/refactor/test-medium-2.out
-#mv test-medium-2-historyDump.xml ../$BENCH_DIR/refactor/test-medium-2-historyDump.xml
+./growth -t ./config/test-medium-2.xml > test-medium-2.out
+mv test-medium-2.out ../$BENCH_DIR/refactor/test-medium-2.out
+mv test-medium-2-historyDump.xml ../$BENCH_DIR/refactor/test-medium-2-historyDump.xml
 
 
 # Verify History files
@@ -127,7 +127,7 @@ else
 fi
 
 
-#DIFF=`diff ./master/test-medium-historyDump.xml ./refactor/test-medium-historyDump.xml`
+DIFF=`diff ./master/test-medium-historyDump.xml ./refactor/test-medium-historyDump.xml`
 if [ "$DIFF" != '' ]; then
 	echo "ERROR: test-medium-historyDump.xml are different"
 else 
@@ -135,7 +135,7 @@ else
 fi
 
 
-#DIFF=`diff ./master/test-medium-2-historyDump.xml ./refactor/test-medium-2-historyDump.xml`
+DIFF=`diff ./master/test-medium-2-historyDump.xml ./refactor/test-medium-2-historyDump.xml`
 if [ "$DIFF" != '' ]; then
 	echo "ERROR: test-medium-2-historyDump.xml are different"
 else
