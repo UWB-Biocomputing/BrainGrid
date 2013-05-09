@@ -2,7 +2,7 @@
 # Source directories
 #
 XMLDIR = ../tinyxml
-SVDIR = ../SourceVersions
+# SVDIR = ../SourceVersions
 
 #
 # Build tools
@@ -10,14 +10,17 @@ SVDIR = ../SourceVersions
 
 CXX = /usr/local/MATLAB/R2010b/bin/mex
 
-CXXFLAGS = -I../include -I$(XMLDIR) -I$(SVDIR) -DTIXML_USE_STL 
+CXXFLAGS = -I../include -I$(XMLDIR) -DTIXML_USE_STL  # -I$(SVDIR) 
 
 CFLAGS = -Wall
 
 #
 # here are all the objects
 #
-
+# Note that the extension is different on different platforms; that allows multiple
+# executables to co-exist in the same directory. .mexglx is for Linux; .mexmaci64 is
+# 64-bit Mac OS X.
+#
 OBJS = readLocs.mexglx readMatrix.mexglx readState.mexglx
 
 XMLOBJ = $(XMLDIR)/tinyxml.o $(XMLDIR)/tinyxmlerror.o $(XMLDIR)/tinyxmlparser.o
@@ -38,6 +41,6 @@ clean:
 	rm -f *.mexglx
 
 .cpp.mexglx:	
-	$(CXX) $(CXXFLAGS) CFLAGS="$(CFLAGS)" $<  $(XMLOBJ) $(SVOBJ)
+	$(CXX) $(CXXFLAGS) CFLAGS="$(CFLAGS)" $<  $(XMLOBJ) # $(SVOBJ)
 
 

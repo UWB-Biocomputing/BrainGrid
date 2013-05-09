@@ -53,9 +53,9 @@
 #include "tinyxml.h"
 
 
-#include "SourceVersions.h"
+// #include "SourceVersions.h"
 
-static VersionInfo version("$Id: readMatrix.cpp,v 1.1.1.1 2006/11/18 04:42:32 fumik Exp $");
+// static VersionInfo version("$Id: readMatrix.cpp,v 1.1.1.1 2006/11/18 04:42:32 fumik Exp $");
 
 
 
