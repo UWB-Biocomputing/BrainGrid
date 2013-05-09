@@ -29,11 +29,11 @@
 #include "mex.h"
 #include "matrix.h"
 #include "tinyxml.h"
-#include "SourceVersions.h"
+// #include "SourceVersions.h"
 
 using namespace std;
 
-static VersionInfo version("$Id: readLocs.cpp,v 1.1.1.1 2006/11/18 04:42:32 fumik Exp $");
+// static VersionInfo version("$Id: readLocs.cpp,v 1.1.1.1 2006/11/18 04:42:32 fumik Exp $");
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 { 
