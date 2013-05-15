@@ -7,13 +7,34 @@
 #		- Run all three test files on refactor branch and store outputs
 #		- Diff the historyDump files between master and refactor branch
 #		- Tar and Zip the files benchmark directory
-
-
+# 
+# 
 # TO USE:
+# 
+# Don't forget to pull in the latest commits and don't forget to commit your 
+# latest changes.  This is a stupid script and won't fail if git checkout
+# fails.  The easiest method would be to do a fresh clone of the repository
+# and then run the bench marking script.
+# 
 # Move this file to the BrainGrid Parent Directory (mv bench.sh ../../) before
 # execution. This script assumes that the respository has been cloned into a
 # directory named BrainGrid; if this is not the case, please edit the
 # BRAINGRID variable.
+# 
+# Also, don't forget to make the scrip executable!
+#
+# If you are running this via ssh then use screen to detach the process so it 
+# will continue to run in the background, and you can log out of the ssh 
+# session.  
+# 	$ screen
+#	$ ./bench.sh > bench.out
+#	Ctrl-A then Ctrl-D to detach the screen
+#	Log out of ssh session
+# 	Log in to new ssh session
+#	$ screen -r 
+# 
+# For now this file is only in the root directory of the refactor branch.  It 
+# will probably be moved to the 'bin' folder at some point.
 
 
 # Create Unique Directory
@@ -42,6 +63,7 @@ cat /proc/meminfo > ./$BENCH_DIR/meminfo.out
 echo "System info saved"
 
 cd $BRAINGRID
+git pull
 
 # Bench Master Branch
 ###############################################################################
