@@ -49,7 +49,7 @@ class Model {
 		 * platform-specific model initialization
 		 *
 		 */
-		virtual bool initializeModel(const SimulationInfo &sim_info);
+		virtual bool initializeModel(const SimulationInfo &sim_info) =0;
 
         /**
          * Read model specific parameters from the xml parameter file and finishes setting up model
