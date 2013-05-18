@@ -8,7 +8,7 @@ all: growth
 ################################################################################
 MAIN = .
 CUDADIR = $(MAIN)/cuda
-LIBDIR = $(MAIN)/lib
+COMMDIR = $(MAIN)/common
 MATRIXDIR = $(MAIN)/matrix
 PARAMDIR = $(MAIN)/paramcontainer
 RNGDIR = $(MAIN)/rng
@@ -24,7 +24,7 @@ OPT = g++
 ################################################################################
 # Flags
 ################################################################################
-CXXFLAGS = -I$(LIBDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT -DSTORE_SPIKEHISTORY
+CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -Wall -pg -c -DTIXML_USE_STL -DDEBUG_OUT -DSTORE_SPIKEHISTORY
 CGPUFLAGS = -DUSE_GPU
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
@@ -35,15 +35,15 @@ LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
 
 CUDAOBJS = \
 
-LIBOBJS = $(LIBDIR)/AllNeurons.o \
-			$(LIBDIR)/AllSynapses.o \
-			$(LIBDIR)/Global.o \
-			$(LIBDIR)/HostSimulator.o \
-			$(LIBDIR)/LIFModel.o \
-			$(LIBDIR)/Network.o \
-			$(LIBDIR)/ParseParamError.o \
-			$(LIBDIR)/Timer.o \
-			$(LIBDIR)/Util.o
+LIBOBJS = $(COMMDIR)/AllNeurons.o \
+			$(COMMDIR)/AllSynapses.o \
+			$(COMMDIR)/Global.o \
+			$(COMMDIR)/HostSimulator.o \
+			$(COMMDIR)/LIFModel.o \
+			$(COMMDIR)/Network.o \
+			$(COMMDIR)/ParseParamError.o \
+			$(COMMDIR)/Timer.o \
+			$(COMMDIR)/Util.o
 		
 MATRIXOBJS = $(MATRIXDIR)/CompleteMatrix.o \
 				$(MATRIXDIR)/Matrix.o \
@@ -68,7 +68,7 @@ growth: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS
 	$(LD) -o growth -g $(LDFLAGS) $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) 
 
 clean:
-	rm -f $(MAIN)/*.o $(LIBDIR)/*.o $(MATRIXDIR)/*.o $(PARAMDIR)/*.o $(RNGDIR)/*.o $(XMLDIR)/*.o ./growth
+	rm -f $(MAIN)/*.o $(COMMDIR)/*.o $(MATRIXDIR)/*.o $(PARAMDIR)/*.o $(RNGDIR)/*.o $(XMLDIR)/*.o ./growth
 	
 
 ################################################################################
@@ -83,32 +83,32 @@ clean:
 # Library
 # ------------------------------------------------------------------------------
 
-$(LIBDIR)/AllNeurons.o: $(LIBDIR)/AllNeurons.cpp $(LIBDIR)/AllNeurons.h $(LIBDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(LIBDIR)/AllNeurons.cpp -o $(LIBDIR)/AllNeurons.o
+$(COMMDIR)/AllNeurons.o: $(COMMDIR)/AllNeurons.cpp $(COMMDIR)/AllNeurons.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllNeurons.cpp -o $(COMMDIR)/AllNeurons.o
 	
-$(LIBDIR)/AllSynapses.o: $(LIBDIR)/AllSynapses.cpp $(LIBDIR)/AllSynapses.h $(LIBDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(LIBDIR)/AllSynapses.cpp -o $(LIBDIR)/AllSynapses.o
+$(COMMDIR)/AllSynapses.o: $(COMMDIR)/AllSynapses.cpp $(COMMDIR)/AllSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllSynapses.cpp -o $(COMMDIR)/AllSynapses.o
 
-$(LIBDIR)/Global.o: $(LIBDIR)/Global.cpp $(LIBDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(LIBDIR)/Global.cpp -o $(LIBDIR)/Global.o
+$(COMMDIR)/Global.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/Global.cpp -o $(COMMDIR)/Global.o
 
-$(LIBDIR)/HostSimulator.o: $(LIBDIR)/HostSimulator.cpp $(LIBDIR)/HostSimulator.h $(LIBDIR)/Simulator.h $(LIBDIR)/Global.h $(LIBDIR)/SimulationInfo.h
-	$(CXX) $(CXXFLAGS) $(LIBDIR)/HostSimulator.cpp -o $(LIBDIR)/HostSimulator.o
+$(COMMDIR)/HostSimulator.o: $(COMMDIR)/HostSimulator.cpp $(COMMDIR)/HostSimulator.h $(COMMDIR)/Simulator.h $(COMMDIR)/Global.h $(COMMDIR)/SimulationInfo.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/HostSimulator.cpp -o $(COMMDIR)/HostSimulator.o
 
-$(LIBDIR)/LIFModel.o: $(LIBDIR)/LIFModel.cpp $(LIBDIR)/LIFModel.h $(LIBDIR)/Model.h $(LIBDIR)/ParseParamError.h $(LIBDIR)/Util.h $(XMLDIR)/tinyxml.h
-	$(CXX) $(CXXFLAGS) $(LIBDIR)/LIFModel.cpp -o $(LIBDIR)/LIFModel.o
+$(COMMDIR)/LIFModel.o: $(COMMDIR)/LIFModel.cpp $(COMMDIR)/LIFModel.h $(COMMDIR)/Model.h $(COMMDIR)/ParseParamError.h $(COMMDIR)/Util.h $(XMLDIR)/tinyxml.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/LIFModel.cpp -o $(COMMDIR)/LIFModel.o
 
-$(LIBDIR)/Network.o: $(LIBDIR)/Network.cpp $(LIBDIR)/Network.h
-	$(CXX) $(CXXFLAGS) $(LIBDIR)/Network.cpp -o $(LIBDIR)/Network.o
+$(COMMDIR)/Network.o: $(COMMDIR)/Network.cpp $(COMMDIR)/Network.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/Network.cpp -o $(COMMDIR)/Network.o
 
-$(LIBDIR)/ParseParamError.o: $(LIBDIR)/ParseParamError.cpp $(LIBDIR)/ParseParamError.h
-	$(CXX) $(CXXFLAGS) $(LIBDIR)/ParseParamError.cpp -o $(LIBDIR)/ParseParamError.o
+$(COMMDIR)/ParseParamError.o: $(COMMDIR)/ParseParamError.cpp $(COMMDIR)/ParseParamError.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/ParseParamError.cpp -o $(COMMDIR)/ParseParamError.o
 
-$(LIBDIR)/Timer.o: $(LIBDIR)/Timer.cpp $(LIBDIR)/Timer.h
-	$(CXX) $(CXXFLAGS) $(LIBDIR)/Timer.cpp -o $(LIBDIR)/Timer.o
+$(COMMDIR)/Timer.o: $(COMMDIR)/Timer.cpp $(COMMDIR)/Timer.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/Timer.cpp -o $(COMMDIR)/Timer.o
 
-$(LIBDIR)/Util.o: $(LIBDIR)/Util.cpp $(LIBDIR)/Util.h
-	$(CXX) $(CXXFLAGS) $(LIBDIR)/Util.cpp -o $(LIBDIR)/Util.o
+$(COMMDIR)/Util.o: $(COMMDIR)/Util.cpp $(COMMDIR)/Util.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/Util.cpp -o $(COMMDIR)/Util.o
 
 
 # Matrix
@@ -136,14 +136,14 @@ $(PARAMDIR)/ParamContainer.o: $(PARAMDIR)/ParamContainer.cpp $(PARAMDIR)/ParamCo
 # RNG
 # ------------------------------------------------------------------------------
 
-$(RNGDIR)/Norm.o: $(RNGDIR)/Norm.cpp $(RNGDIR)/Norm.h $(RNGDIR)/MersenneTwister.h $(LIBDIR)/BGTypes.h
+$(RNGDIR)/Norm.o: $(RNGDIR)/Norm.cpp $(RNGDIR)/Norm.h $(RNGDIR)/MersenneTwister.h $(COMMDIR)/BGTypes.h
 	$(CXX) $(CXXFLAGS) $(RNGDIR)/Norm.cpp -o $(RNGDIR)/Norm.o
 
 
 # XML
 # ------------------------------------------------------------------------------
 
-$(XMLDIR)/tinyxml.o: $(XMLDIR)/tinyxml.cpp $(XMLDIR)/tinyxml.h $(XMLDIR)/tinystr.h $(LIBDIR)/BGTypes.h
+$(XMLDIR)/tinyxml.o: $(XMLDIR)/tinyxml.cpp $(XMLDIR)/tinyxml.h $(XMLDIR)/tinystr.h $(COMMDIR)/BGTypes.h
 	$(CXX) $(CXXFLAGS) $(XMLDIR)/tinyxml.cpp -o $(XMLDIR)/tinyxml.o
 
 $(XMLDIR)/tinyxmlparser.o: $(XMLDIR)/tinyxmlparser.cpp $(XMLDIR)/tinyxml.h
@@ -158,7 +158,7 @@ $(XMLDIR)/tinystr.o: $(XMLDIR)/tinystr.cpp $(XMLDIR)/tinystr.h
 # Single Threaded
 # ------------------------------------------------------------------------------
 
-$(MAIN)/BGDriver.o: $(MAIN)/BGDriver.cpp $(LIBDIR)/Global.h $(LIBDIR)/Network.h
+$(MAIN)/BGDriver.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/Network.h
 	$(CXX) $(CXXFLAGS) $(MAIN)/BGDriver.cpp -o $(MAIN)/BGDriver.o
 
 

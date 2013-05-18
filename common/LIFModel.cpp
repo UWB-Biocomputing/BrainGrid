@@ -10,7 +10,7 @@ const bool LIFModel::STARTER_FLAG(true);
 const BGFLOAT LIFModel::SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
 
 /**
- * TODO comment
+ *  Constructor
  */
 LIFModel::LIFModel() :
      m_read_params(0)
@@ -21,7 +21,7 @@ LIFModel::LIFModel() :
 }
 
 /**
- * TODO comment
+ *  Destructor
  */
 LIFModel::~LIFModel()
 {
@@ -39,7 +39,9 @@ bool LIFModel::initializeModel(const SimulationInfo &sim_info)
 
 
 /**
- * TODO comment
+ *  Attempts to read parameters from a XML file.
+ *  @param  source  the TiXmlElement to read from.
+ *  @return true if successful, false otherwise.
  */
 bool LIFModel::readParameters(TiXmlElement *source)
 {
@@ -60,9 +62,18 @@ bool LIFModel::readParameters(TiXmlElement *source)
     return m_read_params == 9;
 }
 
-// Visit an element.
+/**
+ *  Takes an XmlElement and checks for errors. If not, calls getValueList().
+ *  @param  element TiXmlElement to examine.
+ *  @param  firstAttribute  ***NOT USED***.
+ *  @return true if method finishes without errors.
+ */
 bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute)
+//TODO: firstAttribute does not seem to be used!
 {
+    //-----------------------------------------------------------------------//
+    //                           Begin Error Checking                        //
+    //-----------------------------------------------------------------------//
     if (element.ValueStr().compare("LsmParams") == 0) {
         if (element.QueryFLOATAttribute("frac_EXC", &m_frac_excititory_neurons) != TIXML_SUCCESS) {
             throw ParseParamError("frac_EXC", "Fraction Excitatory missing in XML.");
@@ -172,6 +183,9 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
             throw ParseParamError("startRadius", "Growth startRadius 'beta' missing in XML.");
         }
     }
+    //-----------------------------------------------------------------------//
+    //                          End Error Checking                           //
+    //-----------------------------------------------------------------------//
 
     // Parse fixed layout (overrides random layouts)
     if (element.ValueStr().compare("FixedLayout") == 0) {
@@ -191,7 +205,8 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 }
 
 /**
- * TODO comment
+ *  Prints out all parameters of the model to ostream.
+ *  @param  output  ostream to send output to.
  */
 void LIFModel::printParameters(ostream &output) const
 {
@@ -250,7 +265,10 @@ void LIFModel::printParameters(ostream &output) const
 }
 
 /**
- * @return the complete state of the neuron.
+ *  Outputs state of the neuron chosen as a string.
+ *  @param  neurons the entire list of neurons.
+ *  @param  i   index of the neuron (in neurons) to output info from.
+ *  @return the complete state of the neuron.
  */
 string LIFModel::neuronToString(AllNeurons &neurons, const int i) const
 {
@@ -274,7 +292,11 @@ string LIFModel::neuronToString(AllNeurons &neurons, const int i) const
 }
 
 /**
- * TODO comment
+ *  Loads the simulation based on istream input.
+ *  @param  input   istream to read from.
+ *  @param  neurons list of neurons to set.
+ *  @param  synapses    list of synapses to set.
+ *  @param  sim_info    used as a reference to set info for neurons and synapses.
  */
 void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
@@ -327,10 +349,14 @@ void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &syna
 }
 
 /**
- * TODO comment
+ *  Sets the data for Neuron #index to input's data.
+ *  @param  input   istream to read from.
+ *  @param  neurons neuron list to find the indexed neuron from.
+ *  @param  index   index of neuron to set.
  */
 void LIFModel::readNeuron(istream &input, AllNeurons &neurons, const int index)
 {
+    // input.ignore() so input skips over end-of-line characters.
     input >> neurons.deltaT[index]; input.ignore();
     input >> neurons.Cm[index]; input.ignore();
     input >> neurons.Rm[index]; input.ignore();
@@ -352,7 +378,11 @@ void LIFModel::readNeuron(istream &input, AllNeurons &neurons, const int index)
 }
 
 /**
- * TODO comment
+ *  Sets the data for Synapse #synapse_index from Neuron #neuron_index.
+ *  @param  input   istream to read from.
+ *  @param  synapses    synapse list to find the indexed synapse from.
+ *  @param  neuron_index    index of the neuron that the synapse belongs to.
+ *  @param  synapse_index   index of the synapse to set.
  */
 void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
@@ -362,6 +392,7 @@ void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const int neur
 
     int synapse_type(0);
 
+    // input.ignore() so input skips over end-of-line characters.
     input >> synapses.synapseCoord[neuron_index][synapse_index].x; input.ignore();
     input >> synapses.synapseCoord[neuron_index][synapse_index].y; input.ignore();
     input >> synapses.deltaT[neuron_index][synapse_index]; input.ignore();
@@ -385,7 +416,10 @@ void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const int neur
 }
 
 /**
- * TODO comment
+ *  Initializes the queues for the Synapses.
+ *  @param  synapses    synapse list to find the indexed synapse from.
+ *  @param  neuron_index    index of the neuron that the synapse belongs to.
+ *  @param  synapse_index   index of the synapse to set.
  */
 void LIFModel::initSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
@@ -402,7 +436,10 @@ void LIFModel::initSpikeQueue(AllSynapses &synapses, const int neuron_index, con
 }
 
 /**
- * Reset time varying state vars and recompute decay.
+ *  Reset time varying state vars and recompute decay.
+ *  @param  synapses    synapse list to find the indexed synapse from.
+ *  @param  neuron_index    index of the neuron that the synapse belongs to.
+ *  @param  synapse_index   index of the synapse to set.
  */
 void LIFModel::resetSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
@@ -414,7 +451,10 @@ void LIFModel::resetSynapse(AllSynapses &synapses, const int neuron_index, const
 }
 
 /**
- * TODO comment
+ *  Updates the decay if the synapse selected.
+ *  @param  synapses    synapse list to find the indexed synapse from.
+ *  @param  neuron_index    index of the neuron that the synapse belongs to.
+ *  @param  synapse_index   index of the synapse to set.
  */
 bool LIFModel::updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
@@ -430,10 +470,12 @@ bool LIFModel::updateDecay(AllSynapses &synapses, const int neuron_index, const 
 }
 
 /**
-* Write the simulation memory image
-*
-* @param os The filestream to write
-*/
+ *  Write the simulation's memory image.
+ *  @param  output  the filestream to write.
+ *  @param  neurons the neuron list to search from.
+ *  @param  synapses    the synapse list to search from.
+ *  @param  simulation_step the step of the simulation at the current time.
+ */
 void LIFModel::saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, BGFLOAT simulation_step)
 {
     // write the neurons data
@@ -469,7 +511,10 @@ void LIFModel::saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &syn
 }
 
 /**
- * TODO comment
+ *  Writes out the data in the selected Neuron.
+ *  @param  output  stream to write out to.
+ *  @param  neurons the neuron list to search from.
+ *  @param  index   the index of the Neuron to output data from.
  */
 void LIFModel::writeNeuron(ostream& output, AllNeurons &neurons, const int index) const {
     output << neurons.deltaT[index] << ends;
@@ -493,8 +538,11 @@ void LIFModel::writeNeuron(ostream& output, AllNeurons &neurons, const int index
 }
 
 /**
- * Write the synapse data to the stream
- * @param[in] os    The filestream to write
+ *  Write the synapse data to the stream.
+ *  @param  output  stream to print out to.
+ *  @param  synapses    synapse list to find the indexed synapse from.
+ *  @param  neuron_index    index of the neuron that the synapse belongs to.
+ *  @param  synapse_index   index of the synapse to print out.
  */
 void LIFModel::writeSynapse(ostream& output, AllSynapses &synapses, const int neuron_index, const int synapse_index) const {
     output << synapses.summationCoord[neuron_index][synapse_index].x << ends;
@@ -520,7 +568,10 @@ void LIFModel::writeSynapse(ostream& output, AllSynapses &synapses, const int ne
 }
 
 /**
- * TODO comment
+ *  Prepares a stream with data from the model and Neurons.
+ *  @param  output  stream to print out to.
+ *  @param  neurons the Neuron list to search from.
+ *  @param  sim_info    SimulationInfo class to read information from.
  */
 void LIFModel::saveState(ostream &output, const AllNeurons &neurons, const SimulationInfo &sim_info)
 {
@@ -556,10 +607,11 @@ void LIFModel::saveState(ostream &output, const AllNeurons &neurons, const Simul
 }
 
 /**
-* Get starter neuron matrix
-*
-* @param matrix [out] Starter neuron matrix
-*/
+ *  Get starter Neuron matrix.
+ *  @param  matrix   Starter Neuron matrix.
+ *  @param  starter_map bool map to reference neuron matrix location from.
+ *  @param  sim_info    SimulationInfo class to read information from.
+ */
 void LIFModel::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo &sim_info)
 {
     int cur = 0;
@@ -573,6 +625,11 @@ void LIFModel::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_
     }
 }
 
+/**
+ *  Creates all the Neurons and generates data for them.
+ *  @param  neurons the Neuron list to search from.
+ *  @param  sim_info    SimulationInfo class to read information from.
+ */
 void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_info)
 {
     DEBUG(cout << "\nAllocating neurons..." << endl;)
@@ -583,7 +640,8 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_i
     /* set their specific types */
     for (int neuron_index = 0; neuron_index < neurons.size; neuron_index++) {
         setNeuronDefaults(neurons, neuron_index);
-
+        
+        // set the neuron info for neurons
         neurons.Iinject[neuron_index] = rng.inRange(m_Iinject[0], m_Iinject[1]);
         neurons.Inoise[neuron_index] = rng.inRange(m_Inoise[0], m_Inoise[1]);
         neurons.Vthresh[neuron_index] = rng.inRange(m_Vthresh[0], m_Vthresh[1]);
@@ -643,7 +701,9 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_i
 
 /**
  *  Creates a randomly ordered distribution with the specified numbers of neuron types.
- *  @returns A flat vector (to map to 2-d [x,y] = [i % m_width, i / m_width])
+ *  @param  neuron_types    array of the types of neurons to have in the map.
+ *  @param  num_neurons number of the neurons to have in the type map.
+ *  @return a flat vector (to map to 2-d [x,y] = [i % m_width, i / m_width])
  */
 void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
 {
@@ -696,10 +756,11 @@ void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
 }
 
 /**
- * Populates the starter map.
- * Selects \e numStarter excitory neurons and converts them into starter neurons.
- * @pre m_rgNeuronTypeMap must already be properly initialized
- * @post m_pfStarterMap is populated.
+ *  Populates the starter map.
+ *  Selects \e numStarter excitory neurons and converts them into starter neurons.
+ *  @param  starter_map booleam array of neurons to initiate.
+ *  @param  num_neurons number of neurons to have in the map.
+ *  @param  neuron_type_map array of neuronTypes to set the starter map to.
  */
 void LIFModel::initStarterMap(bool *starter_map, const int num_neurons, const neuronType neuron_type_map[])
 {
@@ -746,7 +807,9 @@ void LIFModel::initStarterMap(bool *starter_map, const int num_neurons, const ne
 }
 
 /**
- * TODO comment
+ *  Set the Neuron at the indexed location to default values.
+ *  @param  synapses    synapse list to find the indexed synapse from.
+ *  @param  neuron_index    index of the Neuron that the synapse belongs to.
  */
 void LIFModel::setNeuronDefaults(AllNeurons &neurons, const int index)
 {
@@ -764,7 +827,9 @@ void LIFModel::setNeuronDefaults(AllNeurons &neurons, const int index)
 }
 
 /**
- * TODO comment
+ *  Updates the Neuron at the indexed location.
+ *  @param  synapses    synapse list to find the indexed synapse from.
+ *  @param  neuron_index    index of the Neuron that the synapse belongs to.
  */
 void LIFModel::updateNeuron(AllNeurons &neurons, int neuron_index)
 {
@@ -793,7 +858,9 @@ void LIFModel::updateNeuron(AllNeurons &neurons, int neuron_index)
 }
 
 /**
- * TODO comment
+ *  Sets up the Simulation.
+ *  @param  num_neurons number of Neurons to have in the simulation.
+ *  @param  sim_info    SimulationInfo class to read information from.
  */
 void LIFModel::setupSim(const int num_neurons, const SimulationInfo &sim_info)
 {
@@ -833,7 +900,10 @@ void LIFModel::setupSim(const int num_neurons, const SimulationInfo &sim_info)
 }
 
 /**
- * TODO comment
+ *  Advances the Neurons and Synapses of the simulation.
+ *  @param  neurons the Neuron list to search from.
+ *  @param  synapses    the Synapse list to search from.
+ *  @param  sim_info    SimulationInfo class to read information from.
  */
 void LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
@@ -842,8 +912,10 @@ void LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simulat
 }
 
 /**
- * Notify outgoing synapses if neuron has fired.
- * @param[in] psi - Pointer to the simulation information.
+ *  Notify outgoing synapses if neuron has fired.
+ *  @param  neurons the Neuron list to search from
+ *  @param  synapses    the Synapse list to search from.
+ *  @param  sim_info    SimulationInfo class to read information from.
  */
 void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
@@ -877,6 +949,11 @@ void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, const 
 #endif /* DUMP_VOLTAGES */
 }
 
+/**
+ *  Update the indexed Neuron.
+ *  @param  neurons the Neuron list to search from.
+ *  @param  index   index of the Neuron to update.
+ */
 void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
 {
     BGFLOAT &Vm = neurons.Vm[index];
@@ -919,7 +996,9 @@ void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
 }
 
 /**
- * TODO comment
+ *  Fire the selected Neuron and calculate the result.
+ *  @param  neurons the Neuron list to search from.
+ *  @param  index   index of the Neuron to update.
  */
 void LIFModel::fire(AllNeurons &neurons, const int index) const
 {
@@ -943,7 +1022,10 @@ void LIFModel::fire(AllNeurons &neurons, const int index) const
 }
 
 /**
- * TODO comment
+ *  Prepares Synapse for a spike hit.
+ *  @param  synapses    the Synapse list to search from.
+ *  @param  neuron_index   index of the Neuron that the Synapse connects to.
+ *  @param  synapse_index   index of the Synapse to update.
  */
 void LIFModel::preSpikeHit(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
@@ -968,7 +1050,9 @@ void LIFModel::preSpikeHit(AllSynapses &synapses, const int neuron_index, const 
 }
 
 /**
- * @param[in] psi - Pointer to the simulation information.
+ *  Advance all the Synapses in the simulation.
+ *  @param  num_neurons number of neurons in the simulation to run.
+ *  @param  synapses    list of Synapses to update.
  */
 void LIFModel::advanceSynapses(const int num_neurons, AllSynapses &synapses)
 {
@@ -981,7 +1065,10 @@ void LIFModel::advanceSynapses(const int num_neurons, AllSynapses &synapses)
 }
 
 /**
- * TODO comment
+ *  Advance one specific Synapse.
+ *  @param  synapses    list of the Synapses to advance.
+ *  @param  neuron_index    index of the Neuron that the Synapse connects to.
+ *  @param  synapse_index   index of the Synapse to connect to.
  */
 void LIFModel::advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
@@ -1035,9 +1122,11 @@ void LIFModel::advanceSynapse(AllSynapses &synapses, const int neuron_index, con
 }
 
 /**
- * Check if there is an input spike in the queue.
- * @post The queue index is incremented.
- * @return true if there is an input spike event.
+ *  Checks if there is an input spike in the queue.
+ *  @param  synapses    list of the Synapses to advance.
+ *  @param  neuron_index    index of the Neuron that the Synapse connects to.
+ *  @param  synapse_index   index of the Synapse to connect to.
+ *  @return true if there is an input spike event.
  */
 bool LIFModel::isSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
@@ -1055,7 +1144,11 @@ bool LIFModel::isSpikeQueue(AllSynapses &synapses, const int neuron_index, const
 }
 
 /**
- * TODO comment
+ *  Update the connection of all the Neurons and Synapses of the simulation.
+ *  @param  currentStep the current step of the simulation.
+ *  @param  neurons the Neuron list to search from.
+ *  @param  synapses    the Synapse list to search from.
+ *  @param  sim_info    SimulationInfo class to read information from.
  */
 void LIFModel::updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
@@ -1066,7 +1159,10 @@ void LIFModel::updateConnections(const int currentStep, AllNeurons &neurons, All
 }
 
 /**
- * TODO comment
+ *  Update the Neuron's history.
+ *  @param  currentStep current step of the simulation
+ *  @param  stepDuration    duration of the 
+ *  @param  neurons the list to update.
  */
 void LIFModel::updateHistory(const int currentStep, BGFLOAT stepDuration, AllNeurons &neurons)
 {
@@ -1104,7 +1200,9 @@ void LIFModel::updateHistory(const int currentStep, BGFLOAT stepDuration, AllNeu
 }
 
 /**
- * TODO comment
+ *  Get the spike counts from all Neurons in the simulation into the given pointer.
+ *  @param  neurons the Neuron list to search from.
+ *  @param  spikeCounts integer array to fill with the spike counts.
  */
 void LIFModel::getSpikeCounts(const AllNeurons &neurons, int *spikeCounts)
 {
@@ -1113,6 +1211,11 @@ void LIFModel::getSpikeCounts(const AllNeurons &neurons, int *spikeCounts)
     }
 }
 
+
+/**
+ *  Clear the spike counts out of all Neurons.
+ *  @param  neurons the Neuron list to search from.
+ */
 //! Clear spike count of each neuron.
 void LIFModel::clearSpikeCounts(AllNeurons &neurons)
 {
@@ -1122,7 +1225,8 @@ void LIFModel::clearSpikeCounts(AllNeurons &neurons)
 }
 
 /**
- * TODO comment
+ *  Update the distance between frontiers of Neurons.
+ *  @param  num_neurons in the simulation to update.
  */
 void LIFModel::updateFrontiers(const int num_neurons)
 {
@@ -1137,7 +1241,8 @@ void LIFModel::updateFrontiers(const int num_neurons)
 }
 
 /**
- * TODO comment
+ *  Update the areas of overlap in between Neurons.
+ *  @param  num_neurons number of Neurons to update.
  */
 void LIFModel::updateOverlap(BGFLOAT num_neurons)
 {
@@ -1181,7 +1286,12 @@ void LIFModel::updateOverlap(BGFLOAT num_neurons)
 }
 
 /**
- * Platform Dependent
+ *  Update the weight of the Synapses in the simulation.
+ *  Note: Platform Dependent.
+ *  @param  num_neurons number of neurons to update.
+ *  @param  neurons the Neuron list to search from.
+ *  @param  synapses    the Synapse list to search from.
+ *  @param  sim_info    SimulationInfo to refer from.
  */
 void LIFModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
@@ -1261,10 +1371,11 @@ void LIFModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSyna
 }
 
 /**
-* Remove a synapse from the network.
-* @param neuron_i   Index of a neuron.
-* @param syn_i      Index of a synapse.
-*/
+ *  Remove a synapse from the network.
+ *  @param  neurons the Neuron list to search from.
+ *  @param  neuron_index   Index of a neuron.
+ *  @param  synapse_index      Index of a synapse.
+ */
 void LIFModel::eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
     synapses.synapse_counts[neuron_index]--;
@@ -1273,7 +1384,15 @@ void LIFModel::eraseSynapse(AllSynapses &synapses, const int neuron_index, const
 }
 
 /**
- * TODO comment
+ *  Adds a Synapse to the model, connecting two Neurons.
+ *  @param  synapses    the Neuron list to reference.
+ *  @param  type    the type of the Synapse to add.
+ *  @param  src_neuron  the Neuron that sends to this Synapse.
+ *  @param  dest_neuron the Neuron that receives from the Synapse.
+ *  @param  source  coordinates of the source Neuron.
+ *  @param  dest    coordinates of the destination Neuron.
+ *  @param  sum_point   TODO
+ *  @param  deltaT  TODO
  */
 void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, BGFLOAT deltaT)
 {
@@ -1297,7 +1416,15 @@ void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const int src
 }
 
 /**
- * TODO comment
+ *  Create a Synapse and connect it to the model.
+ *  @param  synapses    the Neuron list to reference.
+ *  @param  neuron_index    TODO 
+ *  @param  synapse_index   TODO
+ *  @param  source  coordinates of the source Neuron.
+ *  @param  dest    coordinates of the destination Neuron.
+ *  @param  sum_point   TODO
+ *  @param  deltaT  TODO
+ *  @param  type    type of the Synapse to create.
  */
 void LIFModel::createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT *sum_point, BGFLOAT deltaT, synapseType type)
 {
@@ -1377,7 +1504,11 @@ void LIFModel::createSynapse(AllSynapses &synapses, const int neuron_index, cons
 }
 
 /**
- * TODO comment
+ *  TODO
+ *  @param  neurons the Neuron list to search from.
+ *  @param  src_coord   the coordinate of the source Neuron.
+ *  @param  dest_coord  the coordinate of the destination Neuron.
+ *  @param  width   TODO
  */
 synapseType LIFModel::synType(AllNeurons &neurons, Coordinate src_coord, Coordinate dest_coord, const int width)
 {
@@ -1385,7 +1516,9 @@ synapseType LIFModel::synType(AllNeurons &neurons, Coordinate src_coord, Coordin
 }
 
 /**
- * TODO comment
+ *  Returns an appropriate synapseType object for the given integer.
+ *  @param  type_ordinal    integer that correspond with a synapseType.
+ *  @return the SynapseType that corresponds with the given integer.
  */
 synapseType LIFModel::synapseOrdinalToType(const int type_ordinal)
 {
@@ -1405,13 +1538,10 @@ synapseType LIFModel::synapseOrdinalToType(const int type_ordinal)
 
 /**
 * Returns the type of synapse at the given coordinates
-* @param rgNeuronTypeMap_d  The neuron type map (INH, EXC).
-* @param ax Source coordinate(x).
-* @param ay Source coordinate(y).
-* @param bx Destination coordinate(x).
-* @param by Destination coordinate(y).
-* @param width  Width of neuron map (assumes square).
-* @return type of synapse at the given coordinate or -1 on error
+* @param    neurons the list of all Neurons .
+* @param    src_neuron  integer that points to a Neuron in the type map as a source.
+* @param    dest_neuron integer that points to a Neuron in the type map as a destination.
+* @return   type of synapse at the given coordinate or -1 on error
 */
 synapseType LIFModel::synType(AllNeurons &neurons, const int src_neuron, const int dest_neuron)
 {
@@ -1428,10 +1558,10 @@ synapseType LIFModel::synType(AllNeurons &neurons, const int src_neuron, const i
 }
 
 /**
-* Return 1 if originating neuron is excitatory, -1 otherwise.
-* @param[in] t  synapseType I to I, I to E, E to I, or E to E
-* @return 1 or -1
-*/
+ *  Get the sign of the synapseType.
+ *  @param    type    synapseType I to I, I to E, E to I, or E to E
+ *  @return   1 or -1, or 0 if error
+ */
 int LIFModel::synSign(const synapseType type)
 {
     switch ( type ) {
@@ -1450,7 +1580,10 @@ int LIFModel::synSign(const synapseType type)
 }
 
 /**
- * TODO comment
+ *  Outputs the spikes of the simulation.
+ *  Note: only done if STORE_SPIKEHISTORY is true.
+ *  @param  neurons list of all Neurons.
+ *  @param  sim_info    SimulationInfo to refer.
  */
 void LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info)
 {
@@ -1476,7 +1609,10 @@ void LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info)
 }
 
 /**
- * TODO comment
+ *  Log this simulation step.
+ *  @param  neurons list of all Neurons
+ *  @param  synapses    list of all Synapses
+ *  @param  sim_info    SimulationInfo to reference.
  */
 void LIFModel::logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const
 {
@@ -1525,7 +1661,9 @@ void LIFModel::logSimStep(const AllNeurons &neurons, const AllSynapses &synapses
 }
 
 /**
- * TODO comment
+ *  Output operator.
+ *  @param  out stream to write to.
+ *  @param  params  parameters to output.
  */
 ostream& operator<<(ostream &out, const LIFModel::GrowthParams &params) {
     out << "epsilon: " << params.epsilon

@@ -1,13 +1,12 @@
-/**
- **    @file BGDriver.cpp
- **  The driver for braingrid.
- **  The driver performs the following steps:\n
- **  1) reads parameters from an xml file (specified as the first argument)\n
- **  2) creates the network\n
- **  3) launches the simulation\n
- **
- **  @authors Allan Ortiz and Cory Mayberry.
- **/
+/*
+ *  The driver for braingrid.
+ *  The driver performs the following steps:
+ *  1) reads parameters from an xml file (specified as the first argument)
+ *  2) creates the network
+ *  3) launches the simulation
+ *
+ *  @authors Allan Ortiz and Cory Mayberry.
+ */
 
 #include <fstream>
 #include "Global.h"
@@ -66,9 +65,12 @@ void printParams();
 bool parseCommandLine(int argc, char* argv[]);
 
 /**
- * Main for Simulator. Handles command line arguments and loads parameters
- * from parameter file. All initial loading before running simulator in Network
- * is here.
+ *  Main for Simulator. Handles command line arguments and loads parameters
+ *  from parameter file. All initial loading before running simulator in Network
+ *  is here.
+ *  @param  argc    argument count.
+ *  @param  argv    arguments.
+ *  @return -1 if error, else if success.
  */
 int main(int argc, char* argv[]) {
 #if defined(USE_GPU)
@@ -147,7 +149,16 @@ int main(int argc, char* argv[]) {
 }
 
 /*
- * Init SimulationInfo parameters
+ *  Init SimulationInfo parameters.
+ *  @param  cols    number of columns for the simulation.
+ *  @param  rows    number of rows for the simulation.
+ *  @param  growthStepDuration  duration in between each growth.
+ *  @param  maxGrowthSteps  TODO
+ *  @param  maxFiringRate   maximum firing rate for the simulation.
+ *  @param  maxSynapsesPerNeuron    cap limit for the number of Synapses each Neuron can have.
+ *  @param  new_deltaT  TODO (model independent)
+ *  @param  seed    seeding for random numbers.
+ *  @return SimulationInfo object encapsulating info given.
  */
 SimulationInfo makeSimulationInfo(int cols, int rows,
         BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps,
@@ -178,7 +189,7 @@ SimulationInfo makeSimulationInfo(int cols, int rows,
 }
 
 /**
- * Prints loaded parameters out to console
+ *  Prints loaded parameters out to console.
  */
 void printParams() {
     cout << "\nPrinting parameters...\n";
@@ -195,6 +206,11 @@ void printParams() {
     cout << "Done printing parameters" << endl;
 }
 
+/**
+ *  Load parameters from a file.
+ *  @param  sim_param_filename  filename of file to read from
+ *  @return true if successful, false if not
+ */
 bool load_simulation_parameters(const string &sim_param_filename)
 {
     TiXmlDocument simDoc(sim_param_filename.c_str());
@@ -228,7 +244,8 @@ bool load_simulation_parameters(const string &sim_param_filename)
 }
 
 /**
- * Handles loading of parameters using tinyxml from the parameter file.
+ *  Handles loading of parameters using tinyxml from the parameter file.
+ *  @param  parms   tinyxml element to load from.
  */
 void LoadSimParms(TiXmlElement* parms)
 {
@@ -310,8 +327,10 @@ void LoadSimParms(TiXmlElement* parms)
 }
 
 /**
- * Handles parsing of the command line
- * @returns if successful
+ *  Handles parsing of the command line
+ *  @param  argc    argument count.
+ *  @param  argv    arguments.
+ *  @returns    true if successful, false otherwise.
  */
 bool parseCommandLine(int argc, char* argv[])
 {

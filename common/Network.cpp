@@ -1,26 +1,22 @@
 /**
  *  @file Network.cpp
  *
- *  @author Allan Ortiz & Cory Mayberry
+ *  @author Allan Ortiz 
+ *  @author Cory Mayberry
  *
  *  @brief A grid of LIF Neurons and their interconnecting synapses.
  */
 #include "Network.h"
 
 /** 
- * The constructor for Network.
- * @post The network is setup according to parameters and ready for simulation.
+ *  The constructor for Network.
  */
 Network::Network(Model *model, SimulationInfo &simInfo) :
-    
     m_model(model),
     neurons(simInfo.cNeurons),
     synapses(simInfo.cNeurons,simInfo.maxSynapsesPerNeuron),
-    
     m_summationMap(NULL),
-    
     m_sim_info(simInfo)
-
 {
     cout << "Neuron count: " << simInfo.cNeurons << endl;
     g_simulationStep = 0;
@@ -30,20 +26,17 @@ Network::Network(Model *model, SimulationInfo &simInfo) :
 }
 
 /**
-* Destructor
-*
-*/
+ *  Destructor.
+ */
 Network::~Network()
 {
     freeResources();
 }
 
 /**
- * Initialize and prepare network for simulation.
- *
- * @param growthStepDuration
- *
- * @param maxGrowthSteps
+ *  Initialize and prepare network for simulation.
+ *  @param  growthStepDuration  the duration of each growth in the simulation.
+ *  @param  maxGrowthSteps  the maximum amount of steps for this simulation.
  */
 void Network::setup(BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps)
 {
@@ -51,6 +44,11 @@ void Network::setup(BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps)
     m_model->setupSim(neurons.size, m_sim_info);
 }
 
+/**
+ *  Begin terminating the simulator.
+ *  @param  growthStepDuration    the duration of each growth in the simulation.
+ *  @param  maxGrowthSteps  the maximum amount of steps for this simulation.
+ */
 void Network::finish(BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps)
 {
     // Terminate the simulator
@@ -58,7 +56,7 @@ void Network::finish(BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps)
 }
 
 /**
- * Advance the network one step in the current epoch.
+ *  Advance the network one step in the current epoch.
  */
 void Network::advance()
 {
@@ -66,9 +64,8 @@ void Network::advance()
 }
 
 /**
- * Performs growth in the network: updating connections between neurons for the current epoch.
- *
- * @params currentStep - the current epoch of the simulation.
+ *  Performs growth in the network: updating connections between neurons for the current epoch.
+ *  @params currentStep the current epoch of the simulation.
  */
 void Network::updateConnections(const int currentStep)
 {
@@ -76,7 +73,7 @@ void Network::updateConnections(const int currentStep)
 }
 
 /**
- * Print debug output of current internal state of the network for the current step.
+ *  Print debug output of current internal state of the network for the current step.
  */
 void Network::logSimStep() const
 {
@@ -84,9 +81,8 @@ void Network::logSimStep() const
 }
 
 /**
-* Clean up heap objects
-*
-*/
+ *  Clean up heap objects.
+ */
 void Network::freeResources()
 {
     if (m_summationMap != NULL) 
@@ -123,30 +119,27 @@ void Network::reset()
 }
 
 /**
-* Save current simulation state to XML
-*
-* @param os
-*/
+ * Save current simulation state to XML.
+ * @param   os  the output stream to send the state data to.
+ */
 void Network::saveState(ostream& os)
 {
     m_model->saveState(os, neurons, m_sim_info);
 }
 
 /**
-* Write the simulation memory image
-*
-* @param os	The filestream to write
-*/
+ *  Write the simulation memory image.
+ *  @param  os  yhe filestream to write.
+ */
 void Network::writeSimMemory(BGFLOAT simulation_step, ostream& os)
 {
     m_model->saveMemory(os, neurons, synapses, simulation_step);
 }
 
 /**
-* Read the simulation memory image
-*
-* @param is	The filestream to read
-*/
+ *  Read the simulation memory image.
+ *  @param  is  the filestream to read.
+ */
 void Network::readSimMemory(istream& is)
 {
     // read the neuron data
