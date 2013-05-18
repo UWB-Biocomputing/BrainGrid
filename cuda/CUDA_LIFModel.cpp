@@ -1,29 +1,28 @@
-#include "LIFModel.h"
-
+#include "CUDA_LIFModel.h"
+#include "MersenneTwisterCUDA.h"
 #include "../tinyxml/tinyxml.h"
 
 #include "ParseParamError.h"
 #include "Util.h"
 
-const bool LIFModel::STARTER_FLAG(true);
+const bool CUDA_LIFModel::STARTER_FLAG(true);
 
-const BGFLOAT LIFModel::SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
+const BGFLOAT CUDA_LIFModel::SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
 
 /**
  * TODO comment
  */
-LIFModel::LIFModel() :
+CUDA_LIFModel::CUDA_LIFModel() :
      m_read_params(0)
     ,m_fixed_layout(false)
     ,m_conns(NULL)
 {
-
 }
 
 /**
  * TODO comment
  */
-LIFModel::~LIFModel()
+CUDA_LIFModel::~CUDA_LIFModel()
 {
     if (m_conns != NULL) {
         delete m_conns;
@@ -31,17 +30,15 @@ LIFModel::~LIFModel()
     }
 }
 
-bool LIFModel::initializeModel(const SimulationInfo &sim_info)
+bool CUDA_LIFModel::initializeModel(const SimulationInfo &sim_info)
 {
-	// nothing to do for this platform
 	return true;
 }
-
 
 /**
  * TODO comment
  */
-bool LIFModel::readParameters(TiXmlElement *source)
+bool CUDA_LIFModel::readParameters(TiXmlElement *source)
 {
     m_read_params = 0;
     try {
@@ -61,7 +58,7 @@ bool LIFModel::readParameters(TiXmlElement *source)
 }
 
 // Visit an element.
-bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute)
+bool CUDA_LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute)
 {
     if (element.ValueStr().compare("LsmParams") == 0) {
         if (element.QueryFLOATAttribute("frac_EXC", &m_frac_excititory_neurons) != TIXML_SUCCESS) {
@@ -193,7 +190,7 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 /**
  * TODO comment
  */
-void LIFModel::printParameters(ostream &output) const
+void CUDA_LIFModel::printParameters(ostream &output) const
 {
     output << "frac_EXC:" << m_frac_excititory_neurons
            << " starter_neurons:" << m_frac_starter_neurons
@@ -252,7 +249,7 @@ void LIFModel::printParameters(ostream &output) const
 /**
  * @return the complete state of the neuron.
  */
-string LIFModel::neuronToString(AllNeurons &neurons, const int i) const
+string CUDA_LIFModel::neuronToString(AllNeurons &neurons, const int i) const
 {
     stringstream ss;
     ss << "Cm: " << neurons.Cm[i] << " "; // membrane capacitance
@@ -276,7 +273,7 @@ string LIFModel::neuronToString(AllNeurons &neurons, const int i) const
 /**
  * TODO comment
  */
-void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
+void CUDA_LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
     for (int i = 0; i < neurons.size; i++) {
         readNeuron(input, neurons, i);
@@ -329,7 +326,7 @@ void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &syna
 /**
  * TODO comment
  */
-void LIFModel::readNeuron(istream &input, AllNeurons &neurons, const int index)
+void CUDA_LIFModel::readNeuron(istream &input, AllNeurons &neurons, const int index)
 {
     input >> neurons.deltaT[index]; input.ignore();
     input >> neurons.Cm[index]; input.ignore();
@@ -354,7 +351,7 @@ void LIFModel::readNeuron(istream &input, AllNeurons &neurons, const int index)
 /**
  * TODO comment
  */
-void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const int neuron_index, const int synapse_index)
+void CUDA_LIFModel::readSynapse(istream &input, AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
     // initialize spike queue
     initSpikeQueue(synapses, neuron_index, synapse_index);
@@ -387,7 +384,7 @@ void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const int neur
 /**
  * TODO comment
  */
-void LIFModel::initSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index)
+void CUDA_LIFModel::initSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
     int &total_delay = synapses.total_delay[neuron_index][synapse_index];
     uint32_t &delayQueue = synapses.delayQueue[neuron_index][synapse_index][0];
@@ -404,7 +401,7 @@ void LIFModel::initSpikeQueue(AllSynapses &synapses, const int neuron_index, con
 /**
  * Reset time varying state vars and recompute decay.
  */
-void LIFModel::resetSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index)
+void CUDA_LIFModel::resetSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
     synapses.psr[neuron_index][synapse_index] = 0.0;
     assert( updateDecay(synapses, neuron_index, synapse_index) );
@@ -416,7 +413,7 @@ void LIFModel::resetSynapse(AllSynapses &synapses, const int neuron_index, const
 /**
  * TODO comment
  */
-bool LIFModel::updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index)
+bool CUDA_LIFModel::updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
     BGFLOAT &tau = synapses.tau[neuron_index][synapse_index];
     BGFLOAT &deltaT = synapses.deltaT[neuron_index][synapse_index];
@@ -434,7 +431,7 @@ bool LIFModel::updateDecay(AllSynapses &synapses, const int neuron_index, const 
 *
 * @param os The filestream to write
 */
-void LIFModel::saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, BGFLOAT simulation_step)
+void CUDA_LIFModel::saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, BGFLOAT simulation_step)
 {
     // write the neurons data
     output << neurons.size;
@@ -471,7 +468,7 @@ void LIFModel::saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &syn
 /**
  * TODO comment
  */
-void LIFModel::writeNeuron(ostream& output, AllNeurons &neurons, const int index) const {
+void CUDA_LIFModel::writeNeuron(ostream& output, AllNeurons &neurons, const int index) const {
     output << neurons.deltaT[index] << ends;
     output << neurons.Cm[index] << ends;
     output << neurons.Rm[index] << ends;
@@ -496,7 +493,7 @@ void LIFModel::writeNeuron(ostream& output, AllNeurons &neurons, const int index
  * Write the synapse data to the stream
  * @param[in] os    The filestream to write
  */
-void LIFModel::writeSynapse(ostream& output, AllSynapses &synapses, const int neuron_index, const int synapse_index) const {
+void CUDA_LIFModel::writeSynapse(ostream& output, AllSynapses &synapses, const int neuron_index, const int synapse_index) const {
     output << synapses.summationCoord[neuron_index][synapse_index].x << ends;
     output << synapses.summationCoord[neuron_index][synapse_index].y << ends;
     output << synapses.synapseCoord[neuron_index][synapse_index].x << ends;
@@ -522,7 +519,7 @@ void LIFModel::writeSynapse(ostream& output, AllSynapses &synapses, const int ne
 /**
  * TODO comment
  */
-void LIFModel::saveState(ostream &output, const AllNeurons &neurons, const SimulationInfo &sim_info)
+void CUDA_LIFModel::saveState(ostream &output, const AllNeurons &neurons, const SimulationInfo &sim_info)
 {
     output << "   " << m_conns->radiiHistory.toXML("radiiHistory") << endl;
     output << "   " << m_conns->ratesHistory.toXML("ratesHistory") << endl;
@@ -560,7 +557,7 @@ void LIFModel::saveState(ostream &output, const AllNeurons &neurons, const Simul
 *
 * @param matrix [out] Starter neuron matrix
 */
-void LIFModel::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo &sim_info)
+void CUDA_LIFModel::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo &sim_info)
 {
     int cur = 0;
     for (int x = 0; x < sim_info.width; x++) {
@@ -573,9 +570,17 @@ void LIFModel::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_
     }
 }
 
-void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_info)
+void CUDA_LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_info)
 {
-    DEBUG(cout << "\nAllocating neurons..." << endl;)
+	//initialize Mersenne Twister
+	//assuming neuron_count >= 100 and is a multiple of 100. Note rng_mt_rng_count must be <= MT_RNG_COUNT
+	int rng_blocks = 25; //# of blocks the kernel will use
+	int rng_nPerRng = 4; //# of iterations per thread (thread granularity, # of rands generated per thread)
+	int rng_mt_rng_count = sim_info.cNeurons/rng_nPerRng; //# of threads to generate for neuron_count rand #s
+	int rng_threads = rng_mt_rng_count/rng_blocks; //# threads per block needed
+	initMTGPU(777, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
+
+	DEBUG(cout << "\nAllocating neurons..." << endl;)
 
     generateNeuronTypeMap(neurons.neuron_type_map, neurons.size);
     initStarterMap(neurons.starter_map, neurons.size, neurons.neuron_type_map);
@@ -645,9 +650,9 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_i
  *  Creates a randomly ordered distribution with the specified numbers of neuron types.
  *  @returns A flat vector (to map to 2-d [x,y] = [i % m_width, i / m_width])
  */
-void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
+void CUDA_LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
 {
-    //TODO: m_pInhibitoryNeuronLayout
+	//TODO: m_pInhibitoryNeuronLayout
     int num_inhibitory_neurons = m_inhibitory_neuron_layout.size();
 	int num_excititory_neurons = num_neurons - num_inhibitory_neurons;    
     DEBUG(cout << "\nInitializing neuron type map"<< endl;);
@@ -701,7 +706,7 @@ void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
  * @pre m_rgNeuronTypeMap must already be properly initialized
  * @post m_pfStarterMap is populated.
  */
-void LIFModel::initStarterMap(bool *starter_map, const int num_neurons, const neuronType neuron_type_map[])
+void CUDA_LIFModel::initStarterMap(bool *starter_map, const int num_neurons, const neuronType neuron_type_map[])
 {
     for (int i = 0; i < num_neurons; i++) {
         starter_map[i] = false;
@@ -748,7 +753,7 @@ void LIFModel::initStarterMap(bool *starter_map, const int num_neurons, const ne
 /**
  * TODO comment
  */
-void LIFModel::setNeuronDefaults(AllNeurons &neurons, const int index)
+void CUDA_LIFModel::setNeuronDefaults(AllNeurons &neurons, const int index)
 {
     neurons.deltaT[index] = DEFAULT_dt;
     neurons.Cm[index] = DEFAULT_Cm;
@@ -766,7 +771,7 @@ void LIFModel::setNeuronDefaults(AllNeurons &neurons, const int index)
 /**
  * TODO comment
  */
-void LIFModel::updateNeuron(AllNeurons &neurons, int neuron_index)
+void CUDA_LIFModel::updateNeuron(AllNeurons &neurons, int neuron_index)
 {
     BGFLOAT &Tau = neurons.Tau[neuron_index];
     BGFLOAT &C1 = neurons.C1[neuron_index];
@@ -795,7 +800,7 @@ void LIFModel::updateNeuron(AllNeurons &neurons, int neuron_index)
 /**
  * TODO comment
  */
-void LIFModel::setupSim(const int num_neurons, const SimulationInfo &sim_info)
+void CUDA_LIFModel::setupSim(const int num_neurons, const SimulationInfo &sim_info)
 {
     if (m_conns != NULL) {
         delete m_conns;
@@ -835,7 +840,7 @@ void LIFModel::setupSim(const int num_neurons, const SimulationInfo &sim_info)
 /**
  * TODO comment
  */
-void LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
+void CUDA_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
     advanceNeurons(neurons, synapses, sim_info);
     advanceSynapses(neurons.size, synapses);
@@ -845,7 +850,7 @@ void LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simulat
  * Notify outgoing synapses if neuron has fired.
  * @param[in] psi - Pointer to the simulation information.
  */
-void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
+void CUDA_LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
     // TODO: move this code into a helper class - it's being used in multiple places.
     // For each neuron in the network
@@ -877,7 +882,7 @@ void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, const 
 #endif /* DUMP_VOLTAGES */
 }
 
-void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
+void CUDA_LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
 {
     BGFLOAT &Vm = neurons.Vm[index];
     BGFLOAT &Vthresh = neurons.Vthresh[index];
@@ -921,7 +926,7 @@ void LIFModel::advanceNeuron(AllNeurons &neurons, const int index)
 /**
  * TODO comment
  */
-void LIFModel::fire(AllNeurons &neurons, const int index) const
+void CUDA_LIFModel::fire(AllNeurons &neurons, const int index) const
 {
     // Note that the neuron has fired!
     neurons.hasFired[index] = true;
@@ -945,7 +950,7 @@ void LIFModel::fire(AllNeurons &neurons, const int index) const
 /**
  * TODO comment
  */
-void LIFModel::preSpikeHit(AllSynapses &synapses, const int neuron_index, const int synapse_index)
+void CUDA_LIFModel::preSpikeHit(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
     uint32_t *delay_queue = synapses.delayQueue[neuron_index][synapse_index];
     int &delayIdx = synapses.delayIdx[neuron_index][synapse_index];
@@ -970,7 +975,7 @@ void LIFModel::preSpikeHit(AllSynapses &synapses, const int neuron_index, const 
 /**
  * @param[in] psi - Pointer to the simulation information.
  */
-void LIFModel::advanceSynapses(const int num_neurons, AllSynapses &synapses)
+void CUDA_LIFModel::advanceSynapses(const int num_neurons, AllSynapses &synapses)
 {
     for (int i = num_neurons - 1; i >= 0; --i) {
         for (int z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
@@ -983,7 +988,7 @@ void LIFModel::advanceSynapses(const int num_neurons, AllSynapses &synapses)
 /**
  * TODO comment
  */
-void LIFModel::advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index)
+void CUDA_LIFModel::advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
     uint64_t &lastSpike = synapses.lastSpike[neuron_index][synapse_index];
     BGFLOAT &deltaT = synapses.deltaT[neuron_index][synapse_index];
@@ -1024,14 +1029,7 @@ void LIFModel::advanceSynapse(AllSynapses &synapses, const int neuron_index, con
     // decay the post spike response
     psr *= decay;
     // and apply it to the summation point
-#ifdef USE_OMP
-#pragma omp atomic
-#endif
     summationPoint += psr;
-#ifdef USE_OMP
-    //PAB: atomic above has implied flush (following statement generates error -- can't be member variable)
-    //#pragma omp flush (summationPoint)
-#endif
 }
 
 /**
@@ -1039,7 +1037,7 @@ void LIFModel::advanceSynapse(AllSynapses &synapses, const int neuron_index, con
  * @post The queue index is incremented.
  * @return true if there is an input spike event.
  */
-bool LIFModel::isSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index)
+bool CUDA_LIFModel::isSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
     uint32_t *delay_queue = synapses.delayQueue[neuron_index][synapse_index];
     int &delayIdx = synapses.delayIdx[neuron_index][synapse_index];
@@ -1057,7 +1055,7 @@ bool LIFModel::isSpikeQueue(AllSynapses &synapses, const int neuron_index, const
 /**
  * TODO comment
  */
-void LIFModel::updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
+void CUDA_LIFModel::updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
     updateHistory(currentStep, sim_info.stepDuration, neurons);
     updateFrontiers(neurons.size);
@@ -1068,7 +1066,7 @@ void LIFModel::updateConnections(const int currentStep, AllNeurons &neurons, All
 /**
  * TODO comment
  */
-void LIFModel::updateHistory(const int currentStep, BGFLOAT stepDuration, AllNeurons &neurons)
+void CUDA_LIFModel::updateHistory(const int currentStep, BGFLOAT stepDuration, AllNeurons &neurons)
 {
     // Calculate growth cycle firing rate for previous period
     //getSpikeCounts(neurons, m_conns->spikeCounts);
@@ -1106,7 +1104,7 @@ void LIFModel::updateHistory(const int currentStep, BGFLOAT stepDuration, AllNeu
 /**
  * TODO comment
  */
-void LIFModel::getSpikeCounts(const AllNeurons &neurons, int *spikeCounts)
+void CUDA_LIFModel::getSpikeCounts(const AllNeurons &neurons, int *spikeCounts)
 {
     for (int i = 0; i < neurons.size; i++) {
         spikeCounts[i] = neurons.spikeCount[i];
@@ -1114,7 +1112,7 @@ void LIFModel::getSpikeCounts(const AllNeurons &neurons, int *spikeCounts)
 }
 
 //! Clear spike count of each neuron.
-void LIFModel::clearSpikeCounts(AllNeurons &neurons)
+void CUDA_LIFModel::clearSpikeCounts(AllNeurons &neurons)
 {
     for (int i = 0; i < neurons.size; i++) {
         neurons.spikeCount[i] = 0;
@@ -1124,7 +1122,7 @@ void LIFModel::clearSpikeCounts(AllNeurons &neurons)
 /**
  * TODO comment
  */
-void LIFModel::updateFrontiers(const int num_neurons)
+void CUDA_LIFModel::updateFrontiers(const int num_neurons)
 {
     DEBUG(cout << "Updating distance between frontiers..." << endl;)
     // Update distance between frontiers
@@ -1139,7 +1137,7 @@ void LIFModel::updateFrontiers(const int num_neurons)
 /**
  * TODO comment
  */
-void LIFModel::updateOverlap(BGFLOAT num_neurons)
+void CUDA_LIFModel::updateOverlap(BGFLOAT num_neurons)
 {
     DEBUG(cout << "computing areas of overlap" << endl;)
 
@@ -1183,7 +1181,7 @@ void LIFModel::updateOverlap(BGFLOAT num_neurons)
 /**
  * Platform Dependent
  */
-void LIFModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
+void CUDA_LIFModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
 
     // For now, we just set the weights to equal the areas. We will later
@@ -1265,7 +1263,7 @@ void LIFModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSyna
 * @param neuron_i   Index of a neuron.
 * @param syn_i      Index of a synapse.
 */
-void LIFModel::eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index)
+void CUDA_LIFModel::eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
     synapses.synapse_counts[neuron_index]--;
     synapses.in_use[neuron_index][synapse_index] = false;
@@ -1275,7 +1273,7 @@ void LIFModel::eraseSynapse(AllSynapses &synapses, const int neuron_index, const
 /**
  * TODO comment
  */
-void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, BGFLOAT deltaT)
+void CUDA_LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, BGFLOAT deltaT)
 {
     if (synapses.synapse_counts[src_neuron] >= synapses.max_synapses) {
         return; // TODO: ERROR!
@@ -1299,7 +1297,7 @@ void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const int src
 /**
  * TODO comment
  */
-void LIFModel::createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT *sum_point, BGFLOAT deltaT, synapseType type)
+void CUDA_LIFModel::createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT *sum_point, BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
 
@@ -1379,7 +1377,7 @@ void LIFModel::createSynapse(AllSynapses &synapses, const int neuron_index, cons
 /**
  * TODO comment
  */
-synapseType LIFModel::synType(AllNeurons &neurons, Coordinate src_coord, Coordinate dest_coord, const int width)
+synapseType CUDA_LIFModel::synType(AllNeurons &neurons, Coordinate src_coord, Coordinate dest_coord, const int width)
 {
     return synType(neurons, src_coord.x + src_coord.y * width, dest_coord.x + dest_coord.y * width);
 }
@@ -1387,7 +1385,7 @@ synapseType LIFModel::synType(AllNeurons &neurons, Coordinate src_coord, Coordin
 /**
  * TODO comment
  */
-synapseType LIFModel::synapseOrdinalToType(const int type_ordinal)
+synapseType CUDA_LIFModel::synapseOrdinalToType(const int type_ordinal)
 {
     switch (type_ordinal) {
         case 0:
@@ -1413,7 +1411,7 @@ synapseType LIFModel::synapseOrdinalToType(const int type_ordinal)
 * @param width  Width of neuron map (assumes square).
 * @return type of synapse at the given coordinate or -1 on error
 */
-synapseType LIFModel::synType(AllNeurons &neurons, const int src_neuron, const int dest_neuron)
+synapseType CUDA_LIFModel::synType(AllNeurons &neurons, const int src_neuron, const int dest_neuron)
 {
     if ( neurons.neuron_type_map[src_neuron] == INH && neurons.neuron_type_map[dest_neuron] == INH )
         return II;
@@ -1432,7 +1430,7 @@ synapseType LIFModel::synType(AllNeurons &neurons, const int src_neuron, const i
 * @param[in] t  synapseType I to I, I to E, E to I, or E to E
 * @return 1 or -1
 */
-int LIFModel::synSign(const synapseType type)
+int CUDA_LIFModel::synSign(const synapseType type)
 {
     switch ( type ) {
         case II:
@@ -1452,7 +1450,7 @@ int LIFModel::synSign(const synapseType type)
 /**
  * TODO comment
  */
-void LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info)
+void CUDA_LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info)
 {
 #ifdef STORE_SPIKEHISTORY
     // output spikes
@@ -1478,7 +1476,7 @@ void LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info)
 /**
  * TODO comment
  */
-void LIFModel::logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const
+void CUDA_LIFModel::logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const
 {
     cout << "format:\ntype,radius,firing rate" << endl;
 
@@ -1527,7 +1525,7 @@ void LIFModel::logSimStep(const AllNeurons &neurons, const AllSynapses &synapses
 /**
  * TODO comment
  */
-ostream& operator<<(ostream &out, const LIFModel::GrowthParams &params) {
+ostream& operator<<(ostream &out, const CUDA_LIFModel::GrowthParams &params) {
     out << "epsilon: " << params.epsilon
         << " beta: " << params.beta
         << " rho: " << params.rho
@@ -1539,14 +1537,14 @@ ostream& operator<<(ostream &out, const LIFModel::GrowthParams &params) {
 }
 
 // TODO comment
-const string LIFModel::Connections::MATRIX_TYPE = "complete";
+const string CUDA_LIFModel::Connections::MATRIX_TYPE = "complete";
 // TODO comment
-const string LIFModel::Connections::MATRIX_INIT = "const";
+const string CUDA_LIFModel::Connections::MATRIX_INIT = "const";
 
 /**
  * TODO comment
  */
-LIFModel::Connections::Connections(const int num_neurons, const BGFLOAT start_radius, const BGFLOAT growthStepDuration, const BGFLOAT maxGrowthSteps) :
+CUDA_LIFModel::Connections::Connections(const int num_neurons, const BGFLOAT start_radius, const BGFLOAT growthStepDuration, const BGFLOAT maxGrowthSteps) :
     xloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
     yloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
     W(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),

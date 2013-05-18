@@ -16,17 +16,16 @@
 #include "Network.h"
 #include "HostSimulator.h"
 #include "Model.h"
-#include "LIFModel.h"
 
 // Uncomment to use visual leak detector (Visual Studios Plugin)
 // #include <vld.h>
 
 #if defined(USE_GPU)
-//    #include "GpuSim.h"
+#include "cuda/CUDA_LIFModel.h"
 #elif defined(USE_OMP)
 //    #include "MultiThreadedSim.h"
 #else
-//    #include "SingleThreadedSim.h"
+#include "LIFModel.h"
 #endif
 
 using namespace std;
@@ -72,7 +71,11 @@ bool parseCommandLine(int argc, char* argv[]);
  * is here.
  */
 int main(int argc, char* argv[]) {
+#if defined(USE_GPU)
+    model = new CUDA_LIFModel();
+#else
     model = new LIFModel();
+#endif
     
     DEBUG(cout << "reading parameters from xml file" << endl;)
 

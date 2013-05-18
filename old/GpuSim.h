@@ -32,14 +32,13 @@
 #include <cstdio>
 #include <cassert>
 #include <cstdlib>
-#include "ISimulation.h"
-#include "DynamicSpikingSynapse_struct.h"
-#include "LifNeuron_struct.h"
-#include "HostSim.h"
+//#include "DynamicSpikingSynapse_struct.h"
+//#include "LifNeuron_struct.h"
+#include "HostSimulator.h"
 #include "global.h"
 
 
-class GpuSim : public ISimulation
+class GpuSim : public HostSimulator
 {
 public:
     //! The constructor for GpuSim.

@@ -1,5 +1,5 @@
 /**
- * @brief A leaky-integrate-and-fire (I&F) neural network model.
+ * @brief A leaky-integrate-and-fire (I&F) neural network model for GPU CUDA
  *
  * @class LIFModel LIFModel.h "LIFModel.h"
  *
@@ -27,10 +27,11 @@
  * This model is a rewrite of work by Stiber, Kawasaki, Allan Ortiz, and Cory Mayberry
  *
  * @authors Derek McLean
+ *          Paul Bunn - GPULifModel derived from LIFModel and GPUSim (Auth: Fumitaka Kawasaki)
  */
 #pragma once
-#ifndef _LIFMODEL_H_
-#define _LIFMODEL_H_
+#ifndef _CUDA_LIFMODEL_H_
+#define _CUDA_LIFMODEL_H_
 
 #include "Model.h"
 #include "Coordinate.h"
@@ -46,12 +47,12 @@ using namespace std;
 /**
  * Implementation of Model for the Leaky-Integrate-and-Fire model.
  */
-class LIFModel : public Model, TiXmlVisitor
+class CUDA_LIFModel : public Model, TiXmlVisitor
 {
 
     public:
-        LIFModel();
-        virtual ~LIFModel();
+        CUDA_LIFModel();
+        virtual ~CUDA_LIFModel();
 
         /*
          * Declarations of concrete implementations of Model interface for an Leaky-Integrate-and-Fire
@@ -59,6 +60,7 @@ class LIFModel : public Model, TiXmlVisitor
          *
          * @see Model.h
          */
+
 		bool initializeModel(const SimulationInfo &sim_info);
         bool readParameters(TiXmlElement *source);
         void printParameters(ostream &output) const;
@@ -261,7 +263,7 @@ class LIFModel : public Model, TiXmlVisitor
  * Maintains intra-epoch state of connections in the network. This includes history and parameters
  * that inform how new connections are made during growth.
  */
-struct LIFModel::Connections
+struct CUDA_LIFModel::Connections
 {
         // TODO
         static const string MATRIX_TYPE;

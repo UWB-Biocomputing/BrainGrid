@@ -29,7 +29,7 @@
 
 #include <iostream>
 using namespace std;
-#include "MersenneTwister.h"
+#include "MersenneTwisterCUDA.h"
 
 __device__ static mt_struct_stripped ds_MT[MT_RNG_COUNT];
 static mt_struct_stripped h_MT[MT_RNG_COUNT];

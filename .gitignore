@@ -6,6 +6,8 @@
 *.suo
 *.sln
 *.sdf
+*historyDump.xml
+*.nvuser
 GPU Debug/
 GPU Release/
 IOCP Debug/
