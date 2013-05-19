@@ -204,7 +204,7 @@ const VectorMatrix VectorMatrix::operator+(BGFLOAT c) const {
 }
 
 // There are two possible products. This is an inner product.
-const BGFLOAT VectorMatrix::operator*(const VectorMatrix& rhs) const {
+BGFLOAT VectorMatrix::operator*(const VectorMatrix& rhs) const {
 	if (rhs.size != size) {
 		throw KII_domain_error("Illegal vector inner product. Vectors must be equal length.");
 	}
@@ -313,7 +313,7 @@ const VectorMatrix VectorMatrix::Limit(BGFLOAT low, BGFLOAT high) const {
 }
 
 // Find minimum value
-const BGFLOAT VectorMatrix::Min(void) const {
+BGFLOAT VectorMatrix::Min(void) const {
 	BGFLOAT min = theVector[0];
 
 	for (int i = 1; i < size; i++)
@@ -324,7 +324,7 @@ const BGFLOAT VectorMatrix::Min(void) const {
 }
 
 // Find maximum value
-const BGFLOAT VectorMatrix::Max(void) const {
+BGFLOAT VectorMatrix::Max(void) const {
 	BGFLOAT max = theVector[0];
 
 	for (int i = 1; i < size; i++)

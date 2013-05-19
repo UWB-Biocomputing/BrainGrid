@@ -85,6 +85,20 @@ class LIFModel : public Model, TiXmlVisitor
         // Parse an element for parameter values.
         // Required by TiXmlVisitor, which is used by #readParameters
         bool VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute);
+		/// Visit a document.
+		bool VisitEnter( const TiXmlDocument& doc )	{ return TiXmlVisitor::VisitEnter(doc); }
+		/// Visit a document.
+		bool VisitExit( const TiXmlDocument& doc )	{ return TiXmlVisitor::VisitExit(doc); }
+		/// Visit an element.
+		bool VisitExit( const TiXmlElement& element )			{ return TiXmlVisitor::VisitExit(element); }
+		/// Visit a declaration
+		bool Visit( const TiXmlDeclaration& declaration )		{ return TiXmlVisitor::Visit(declaration); }
+		/// Visit a text node
+		bool Visit( const TiXmlText& text )						{ return TiXmlVisitor::Visit(text); }
+		/// Visit a comment node
+		bool Visit( const TiXmlComment& comment )				{ return TiXmlVisitor::Visit(comment); }
+		/// Visit an unknown node
+		bool Visit( const TiXmlUnknown& unknown )				{ return TiXmlVisitor::Visit(unknown); }
 
         // # Print Parameters
         // ------------------

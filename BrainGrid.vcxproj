@@ -166,20 +166,13 @@
     <ClCompile Include="BGDriver.cpp" />
     <ClCompile Include="common\global.cpp" />
     <ClCompile Include="common\HostSimulator.cpp" />
-    <ClCompile Include="cuda\CUDA_LIFModel.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|X64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="rng\norm.cpp" />
     <ClCompile Include="paramcontainer\ParamContainer.cpp" />
     <ClCompile Include="common\Timer.cpp" />
     <ClCompile Include="tinyxml\tinyxml.cpp" />
     <ClCompile Include="tinyxml\tinyxmlerror.cpp" />
     <ClCompile Include="tinyxml\tinyxmlparser.cpp" />
-    <ClCompile Include="common\LIFModel.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='GPU Debug|X64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='GPU Release|X64'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="common\LIFModel.cpp" />
     <ClCompile Include="matrix\CompleteMatrix.cpp" />
     <ClCompile Include="matrix\Matrix.cpp" />
     <ClCompile Include="matrix\SparseMatrix.cpp" />
@@ -189,6 +182,10 @@
     <ClCompile Include="common\Util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="cuda\CUDA_LIFModel.cu">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|X64'">true</ExcludedFromBuild>
+    </CudaCompile>
     <CudaCompile Include="cuda\MersenneTwister_kernel.cu">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|X64'">true</ExcludedFromBuild>
