@@ -31,7 +31,8 @@ LIFModel::~LIFModel()
     }
 }
 
-bool LIFModel::initializeModel(const SimulationInfo &sim_info)
+bool LIFMmeasurement in seconds to base calculations on
+odel::initializeModel(const SimulationInfo &sim_info)
 {
 	// nothing to do for this platform
 	return true;
