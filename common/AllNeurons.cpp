@@ -50,7 +50,7 @@ AllNeurons::AllNeurons(const int size) :
     Vthresh = new BGFLOAT[size];
     deltaT = new TIMEFLOAT[size];
     hasFired = new bool[size];
-    nStepsInRefr = new int[size];
+    nStepsInRefr = new uint32_t[size];
     neuron_type_map = new neuronType[size];
     spikeCount = new uint32_t[size];
     totalSpikeCount = new uint32_t[size];
