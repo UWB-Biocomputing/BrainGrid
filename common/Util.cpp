@@ -4,7 +4,9 @@
 #include "Util.h"
 
 /**
- * Helper function that helps with parsing integers in a fixed layout
+ *  Helper function that helps with parsing integers in a fixed layout
+ *  @param  val_string  list to read from
+ *  @param  values_list list to fill
  */
 void getValueList(const char *val_string, vector<uint32_t> *value_list) {
     std::istringstream val_stream(val_string);
