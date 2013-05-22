@@ -1,13 +1,12 @@
 #ifndef _DELAYIDX_H_
 #define _DELAYIDX_H_
-#include "DynamicSpikingSynapse.h"
 
 //! Utility structure for tracking the time slot for a delayed queue
 struct DelayIdx {
     //! The index indicating the current time slot in the delayed queue
-    int delayIdx;
+    uint32_t delayIdx;
     //! length of the delayed queue in bits
-    int ldelayQueue;
+    uint32_t ldelayQueue;
 
     DelayIdx( ) {
         delayIdx = 0;

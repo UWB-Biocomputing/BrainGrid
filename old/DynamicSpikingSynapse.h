@@ -26,10 +26,10 @@
 #ifndef _DYNAMICSPIKINGSYNAPSE_H_
 #define _DYNAMICSPIKINGSYNAPSE_H_
 
-#include "ISynapse.h"	
+#include "AllSynapses.h"
 
 //! Implementation of ISynapse: A Dynamic Spiking Synapse
-class DynamicSpikingSynapse : public ISynapse
+class DynamicSpikingSynapse : public AllSynapses
 {
 public:
 
@@ -39,9 +39,6 @@ public:
 	//! Constructor, with params. Loads directly from input stream
     DynamicSpikingSynapse( istream& is, BGFLOAT* pSummationMap, int width );
     virtual ~DynamicSpikingSynapse();
-
-	//! Copy constructor.
-    DynamicSpikingSynapse( const ISynapse &other );
 
     //! Advance a single time step.
     void advance();

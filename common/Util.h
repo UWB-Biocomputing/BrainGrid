@@ -7,6 +7,6 @@
 
 using namespace std;
 
-void getValueList(const char *val_string, vector<int> *value_list);
+void getValueList(const char *val_string, vector<uint32_t> *value_list);
 
 #endif

@@ -69,10 +69,10 @@ class Network
         void readSimMemory(istream& is);
 
         // Setup simulation
-        void setup(BGFLOAT growthStepDuration, BGFLOAT num_growth_steps);
+        void setup();
 
         // Cleanup after simulation
-        void finish(BGFLOAT growthStepDuration, BGFLOAT num_growth_steps);
+        void finish();
 
         /**
          * Advance the network one step in an epoch.

@@ -24,22 +24,20 @@ struct AllSynapses
         Coordinate **synapseCoord;
 
         //! The time step size.
-        BGFLOAT **deltaT;
+        TIMEFLOAT **deltaT; // must be double for compatibility with GPU code
 
         //! The post-synaptic response is the result of whatever computation is going on in the synapse.
         BGFLOAT **psr;
         //! The decay for the psr.
         BGFLOAT **decay;
         //! The synaptic transmission delay, descretized into time steps.
-        int **total_delay;
-#define BYTES_OF_DELAYQUEUE         ( sizeof(uint32_t) / sizeof(uint8_t) )
-#define LENGTH_OF_DELAYQUEUE        ( BYTES_OF_DELAYQUEUE * 8 )
+        uint32_t **total_delay;
         //! The delayed queue
         uint32_t ***delayQueue;
         //! The index indicating the current time slot in the delayed queue
-        int **delayIdx;
+        uint32_t **delayIdx;
         //! Length of the delayed queue
-        int **ldelayQueue;
+        uint32_t **ldelayQueue;
         //! Synapse type
         synapseType **type;
 

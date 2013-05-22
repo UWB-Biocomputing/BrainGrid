@@ -42,9 +42,7 @@
 #define _LIFNEURON_STRUCT_H_
 
 #include <cstdlib>
-#include "global.h"
-#include "LifNeuron.h"
-#include "DynamicSpikingSynapse_struct.h"
+#include "AllNeurons.h"
 
 // forward declaration
 struct LifNeuron_struct;
@@ -54,13 +52,13 @@ struct LifNeuron_struct;
  * @param neuron
  * @param count
  */
-void allocNeuronStruct(LifNeuron_struct* neuron, int count);
+void allocNeuronStruct(LifNeuron_struct& neuron, uint32_t count);
 
 /**
  * Deallocate data members in the LifNeuron_struct.
  * @param neuron
  */
-void deleteNeuronStruct(LifNeuron_struct* neuron);
+void deleteNeuronStruct(LifNeuron_struct& neuron);
 
 /**
  * Copy INeuron data into a LifNeuron_struct for GPU processing.
@@ -68,7 +66,7 @@ void deleteNeuronStruct(LifNeuron_struct* neuron);
  * @param out
  * @param idx
  */
-void copyNeuronToStruct(INeuron* in, LifNeuron_struct* out, int idx);
+void copyNeuronToStruct(AllNeurons &neurons, LifNeuron_struct& out, int idx);
 
 /**
  * Copy LifNeuron_struct array data into a INeuron.
@@ -76,7 +74,7 @@ void copyNeuronToStruct(INeuron* in, LifNeuron_struct* out, int idx);
  * @param out
  * @param idx
  */
-void copyNeuronStructToNeuron(LifNeuron_struct* in, INeuron* out, int idx);
+void copyNeuronStructToNeuron(LifNeuron_struct& in, AllNeurons &neurons, int idx);
 
 /**
  * Copy a neuronArray into a neuronMap
@@ -84,12 +82,12 @@ void copyNeuronStructToNeuron(LifNeuron_struct* in, INeuron* out, int idx);
  * @param pNeuronList
  * @param numNeurons
  */
-void neuronArrayToMap(LifNeuron_struct* neuron, vector<INeuron*>* pNeuronList, int numNeurons);
+void neuronArrayToMap(LifNeuron_struct& neuron, AllNeurons &neurons, int numNeurons);
 
 struct LifNeuron_struct {
 	
 	//! The simulation time step size.
-	BGFLOAT* deltaT;
+	TIMEFLOAT* deltaT;
 
 	//! The pooling location for all incoming spikes.
 	PBGFLOAT* summationPoint;
@@ -128,7 +126,7 @@ struct LifNeuron_struct {
 	BGFLOAT* Isyn;
 
 	//! The remaining number of time steps for the absolute refractory period.
-	int* nStepsInRefr;
+	uint32_t* nStepsInRefr;
 
 	//! Internal constant for the exponential Euler integration of \f$V_m\f$.
 	BGFLOAT* C1;
@@ -147,25 +145,21 @@ struct LifNeuron_struct {
 	BGFLOAT* Tau;
 
 	//! The number of spikes since the last growth cycle.
-	int* spikeCount;
+	uint32_t* spikeCount;
 
 	//! The beginning index of the outgoing dynamic spiking synapse array.
-	int* outgoingSynapse_begin;
+	uint32_t* outgoingSynapse_begin;
 
 	//! The number of outgoing synapses.
-	int* synapseCount;
+	uint32_t* synapseCount;
 
 	//! The beginning index of the incoming dynamic spiking synapse array.
-	int* incomingSynapse_begin;
+	uint32_t* incomingSynapse_begin;
 
 	//! The number of incoming synapses.
-	int* inverseCount;	
+	uint32_t* inverseCount;	
 
-	//! The number of neurons.
-	int* numNeurons;
-
-	//! the TSim from the input file
-	int* stepDuration;    // NOTE: unused. TODO: delete??
+	uint32_t  neuronCount;
 };
 
 #endif

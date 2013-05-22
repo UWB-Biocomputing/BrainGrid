@@ -10,7 +10,7 @@ struct AllNeurons
 {
     public:
         //! The number of neurons stored.
-        int size;
+        uint32_t size;
 
         //! A boolean which tracks whether the neuron has fired
         bool *hasFired;
@@ -30,7 +30,7 @@ struct AllNeurons
         //! The initial condition for \f$V_m\f$ at time \f$t=0\f$. [units=V; range=(-1,1);]
         BGFLOAT *Vinit;
         //! The simulation time step size.
-        BGFLOAT *deltaT;
+        TIMEFLOAT *deltaT; // must be double for compatibility with GPU code
 
         //! The membrane capacitance \f$C_m\f$ [range=(0,1); units=F;]
         BGFLOAT *Cm;
@@ -49,7 +49,7 @@ struct AllNeurons
         BGFLOAT *Isyn;
 
         //! The remaining number of time steps for the absolute refractory period.
-        int *nStepsInRefr;
+        uint32_t *nStepsInRefr;
 
         //! Internal constant for the exponential Euler integration of \f$V_m\f$.
         BGFLOAT *C1;
@@ -65,10 +65,10 @@ struct AllNeurons
         BGFLOAT *Tau;
 
         //! The number of spikes since the last growth cycle
-        int *spikeCount;
+        uint32_t *spikeCount;
 
         //! The total number of spikes since the start of the simulation
-        int *totalSpikeCount;        
+        uint32_t *totalSpikeCount;        
 
         uint64_t **spike_history;
 

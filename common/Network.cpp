@@ -21,8 +21,9 @@ Network::Network(Model *model, SimulationInfo &simInfo) :
     cout << "Neuron count: " << simInfo.cNeurons << endl;
     g_simulationStep = 0;
     cout << "Initializing neurons in network." << endl;
-	m_model->initializeModel(m_sim_info);
     m_model->createAllNeurons(neurons, m_sim_info);
+    setup();
+	m_model->initializeModel(m_sim_info, neurons, synapses);
 }
 
 /**
@@ -35,10 +36,8 @@ Network::~Network()
 
 /**
  *  Initialize and prepare network for simulation.
- *  @param  growthStepDuration  the duration of each growth in the simulation.
- *  @param  maxGrowthSteps  the maximum amount of steps for this simulation.
  */
-void Network::setup(BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps)
+void Network::setup()
 {
 
     m_model->setupSim(neurons.size, m_sim_info);
@@ -46,10 +45,8 @@ void Network::setup(BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps)
 
 /**
  *  Begin terminating the simulator.
- *  @param  growthStepDuration    the duration of each growth in the simulation.
- *  @param  maxGrowthSteps  the maximum amount of steps for this simulation.
  */
-void Network::finish(BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps)
+void Network::finish()
 {
     // Terminate the simulator
     m_model->cleanupSim(neurons, m_sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
@@ -69,7 +66,14 @@ void Network::advance()
  */
 void Network::updateConnections(const int currentStep)
 {
-    m_model->updateConnections(currentStep, neurons, synapses, m_sim_info);
+    // Calculate growth cycle firing rate for previous period
+    m_model->getSpikeCounts(neurons);
+    m_model->updateHistory(currentStep, m_sim_info.stepDuration, neurons);
+    m_model->updateFrontiers(neurons.size);
+    m_model->updateOverlap(neurons.size);
+    m_model->updateWeights(neurons.size, neurons, synapses, m_sim_info);
+    // clear spike count
+    m_model->clearSpikeCounts(neurons);
 }
 
 /**

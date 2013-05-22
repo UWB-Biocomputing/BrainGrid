@@ -48,12 +48,12 @@ AllNeurons::AllNeurons(const int size) :
     Vreset = new BGFLOAT[size];
     Vrest = new BGFLOAT[size];
     Vthresh = new BGFLOAT[size];
-    deltaT = new BGFLOAT[size];
+    deltaT = new TIMEFLOAT[size];
     hasFired = new bool[size];
     nStepsInRefr = new int[size];
     neuron_type_map = new neuronType[size];
-    spikeCount = new int[size];
-    totalSpikeCount = new int[size];
+    spikeCount = new uint32_t[size];
+    totalSpikeCount = new uint32_t[size];
     starter_map = new bool[size];
     summation_map = new BGFLOAT[size];
     spike_history = new uint64_t*[size];

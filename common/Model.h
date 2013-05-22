@@ -21,6 +21,9 @@ using namespace std;
 #include "AllSynapses.h"
 #include "SimulationInfo.h"
 
+#define BYTES_OF_DELAYQUEUE         ( sizeof(uint32_t) / sizeof(uint8_t) )
+#define LENGTH_OF_DELAYQUEUE        ( BYTES_OF_DELAYQUEUE * 8 )
+
 /**
  * Neural Network Model interface.
  *
@@ -49,7 +52,7 @@ class Model {
 		 * platform-specific model initialization
 		 *
 		 */
-		virtual bool initializeModel(const SimulationInfo &sim_info) =0;
+		virtual bool initializeModel(const SimulationInfo &sim_info, AllNeurons& neurons, AllSynapses& synapses) =0;
 
         /**
          * Read model specific parameters from the xml parameter file and finishes setting up model
@@ -107,7 +110,7 @@ class Model {
          * @param num_neurons - count of neurons in network
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void setupSim(const int num_neurons, const SimulationInfo &sim_info) =0;
+        virtual void setupSim(const uint32_t num_neurons, const SimulationInfo &sim_info) =0;
 
         /**
          * Advances network state one simulation step.
@@ -117,17 +120,6 @@ class Model {
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
         virtual void advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info) =0;
-
-        /**
-         * Modifies connections between neurons based on current state of the network and behavior
-         * over the past epoch. Should be called once every epoch.
-         *
-         * @param currentStep - The epoch step in which the connections are being updated.
-         * @param neurons - collection of neurons in network
-         * @param synapses - collection of connections between neurons in network.
-         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
-         */
-        virtual void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info) =0;
 
         /**
          * Performs any finalization tasks on network following a simulation.
@@ -144,6 +136,19 @@ class Model {
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
         virtual void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const =0;
+
+        // TODO
+        virtual void updateHistory(uint32_t currentStep, BGFLOAT stepDuration, AllNeurons &neurons) =0;
+        // TODO
+        virtual void updateFrontiers(const uint32_t num_neurons) =0;
+        // TODO
+        virtual void updateOverlap(BGFLOAT num_neurons) =0;
+        // TODO
+        virtual void updateWeights(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info) =0;
+        // TODO
+        virtual void getSpikeCounts(const AllNeurons &neurons) =0;
+        // TODO
+        virtual void clearSpikeCounts(AllNeurons &neurons) =0;
 };
 
 #endif

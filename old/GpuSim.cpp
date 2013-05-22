@@ -40,10 +40,6 @@ void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, uns
 
 void deleteDeviceStruct( );
 
-void getSpikeCounts(int neuron_count, int* spikeCounts);
-
-void clearSpikeCounts(int neuron_count);
-
 void updateNetworkGPU(SimulationInfo* psi, CompleteMatrix& W, int maxSynapses);
 }
 

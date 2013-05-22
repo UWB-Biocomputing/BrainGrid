@@ -16,7 +16,7 @@
    <Vresting min="0.0" max="0.0"/>
    <!-- Interval of reset voltage -->
    <Vreset min="13.5e-03" max="13.5e-03"/>
-   <!-- Interval of initial membrance voltage -->
+   <!-- Interval of initial membrane voltage -->
    <Vinit min="13.0e-03" max="13.0e-03"/>
    <!-- Starter firing threshold -->
    <starter_vthresh min="13.565e-3" max="13.655e-3"/>

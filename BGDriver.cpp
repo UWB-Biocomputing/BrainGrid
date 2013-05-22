@@ -93,12 +93,6 @@ int main(int argc, char* argv[]) {
     /*    verify that params were read correctly */
     DEBUG(printParams();)
 
-// NETWORK MODEL VARIABLES NMV-BEGIN {
-    // calculate the number of inhibitory, excitory, and endogenously active
-    // neurons
-    int numNeurons = poolsize[0] * poolsize[1];
-// } NMV-END
-
     SimulationInfo si = makeSimulationInfo(poolsize[0], poolsize[1],Tsim, numSims,
             maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed);
 

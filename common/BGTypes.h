@@ -19,11 +19,16 @@
 // For floats, uncomment the following two lines and comment DOUBLEPRECISION and the other #define
 //#define BGFLOAT float
 
+// TIMEFLOAT is used by the GPU code and needs to be a double
+#define TIMEFLOAT double
+typedef TIMEFLOAT *PTIMEFLOAT;
+
 #ifdef _WIN32
 #define SINGLEPRECISION
 #define BGFLOAT float
 typedef unsigned long long int uint64_t;	//included in inttypes.h, which is not available in WIN32//included in inttypes.h, which is not available in WIN32
 typedef unsigned int       uint32_t; // same deal as above
+typedef signed int         int32_t;
 #else
 //#define DOUBLEPRECISION
 //#define BGFLOAT double

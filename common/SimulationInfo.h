@@ -88,16 +88,7 @@ struct SimulationInfo
 // } NMV-END
 
 	//! Time elapsed between the beginning and end of the simulation step
-	BGFLOAT deltaT; // Inner Simulation Step Duration !!!!!!!!
-
-	//! List of neurons
-	//vector<INeuron*>* pNeuronList; // NOT NEEDED?
-
-	//! The neuron type map (INH, EXC).
-	neuronType* rgNeuronTypeMap;
-
-	//! The starter existence map (T/F).
-	bool* rgEndogenouslyActiveNeuronMap;
+	TIMEFLOAT deltaT; // Inner Simulation Step Duration !!!!!!!! - must be double for compatibility with GPU code
 
 // NETWORK MODEL VARIABLES NMV-BEGIN {
 	//! growth param TODO: more detail here

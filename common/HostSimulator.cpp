@@ -40,10 +40,7 @@ HostSimulator::~HostSimulator()
  *  @param  maxGrowthSteps
  */
 void HostSimulator::simulate()
-{
-    DEBUG(cout << "Setup simulation." << endl;);
-    network->setup(m_sim_info.stepDuration, m_sim_info.maxSteps);
-    
+{    
     // Main simulation loop - execute maxGrowthSteps
     for (int currentStep = 1; currentStep <= m_sim_info.maxSteps; currentStep++) {
 
@@ -82,7 +79,7 @@ void HostSimulator::simulate()
     }
 
     // Tell network to clean-up and run any post-simulation logic.
-    network->finish(m_sim_info.stepDuration, m_sim_info.maxSteps);
+    network->finish();
 }
 
 /**

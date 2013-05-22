@@ -54,6 +54,7 @@
 #include <sstream>
 #include <algorithm>
 
+#include "BGTypes.h"
 #include "Global.h"
 #include "KIIexceptions.h"
 #include "SparseMatrix.h"
