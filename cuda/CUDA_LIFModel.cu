@@ -855,7 +855,7 @@ __global__ void advanceSynapsesDevice ( uint32_t n, uint32_t width, uint64_t sim
  */
 __global__ void calcSummationMap( uint32_t n, uint32_t* inverseMap ) {
         uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
-        if ( idx >= n )
+        if ( idx >= n || inverseMap == NULL)
                 return;
         
         uint32_t* inverseMap_begin = &inverseMap[neuron_st_d[0].incomingSynapse_begin[idx]];

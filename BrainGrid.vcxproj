@@ -115,12 +115,12 @@
       <CodeGeneration>compute_13,sm_13</CodeGeneration>
     </CudaCompile>
     <CudaCompile>
-      <MaxRegCount>16</MaxRegCount>
+      <MaxRegCount>0</MaxRegCount>
     </CudaCompile>
     <CudaCompile>
       <PtxAsOptionV>true</PtxAsOptionV>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <Keep>true</Keep>
+      <Keep>false</Keep>
       <CInterleavedPTX>true</CInterleavedPTX>
       <GPUDebugInfo>true</GPUDebugInfo>
       <GenerateLineInfo>false</GenerateLineInfo>
@@ -158,6 +158,8 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <CodeGeneration>compute_13,sm_13</CodeGeneration>
+      <MaxRegCount>0</MaxRegCount>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

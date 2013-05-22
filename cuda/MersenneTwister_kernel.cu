@@ -29,14 +29,15 @@
 
 #include <iostream>
 using namespace std;
+#define _MERSENNE_TWISTER_KERNEL
 #include "MersenneTwisterCUDA.h"
+#include "assert.h"
 
 __device__ static mt_struct_stripped ds_MT[MT_RNG_COUNT];
 static mt_struct_stripped h_MT[MT_RNG_COUNT];
 __device__ unsigned int mt[MT_RNG_COUNT*MT_NN];
 
 
-//#define MT_DATAFILE "MersenneTwister/data/MersenneTwister.dat"
 /*
 //globals
 __device__ static mt_struct_stripped * ds_MT;
@@ -50,11 +51,14 @@ unsigned int mt_threads;
 unsigned int mt_nPerRng;
 
 //Load twister configurations
-void loadMTGPU(const char *fname){
+void loadMTGPU(const char *fname) {
 	FILE *fd = fopen(fname, "rb");
 	if(!fd){
 		cerr << "initMTGPU(): failed to open " <<  fname << endl << "FAILED" << endl;
-		exit(0);
+		// use default table already defined in MersenneTwisterCUDA.h
+		assert(mt_rng_count*sizeof(mt_struct_stripped) <= MersenneTwister_dat_len);
+		memcpy(h_MT, MersenneTwister_dat, mt_rng_count*sizeof(mt_struct_stripped));
+		return;
 	}
 	if( !fread(h_MT, mt_rng_count*sizeof(mt_struct_stripped), 1, fd) ){
 		cerr << "initMTGPU(): failed to load " <<  fname << endl << "FAILED" << endl;
