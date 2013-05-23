@@ -50,7 +50,7 @@ class Network
 {
     public:
         //! The constructor for Network.
-        Network(Model *model, SimulationInfo &sim_info);
+        Network(Model *model, SimulationInfo *sim_info);
         ~Network();
 
         //! Frees dynamically allocated memory associated with the maps.
@@ -99,7 +99,7 @@ class Network
 
     private:
         // Struct that holds information about a simulation
-        SimulationInfo m_sim_info;
+        SimulationInfo * m_pSim_info;
     
         Network(); // DOES THIS NEED TO BE DEFINED?
 };

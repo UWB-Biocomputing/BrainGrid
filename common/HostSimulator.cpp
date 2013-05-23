@@ -17,12 +17,12 @@
  *          Clients of HostSimulator should handle memory management of the network.
  *  @param  sim_info    parameters for the simulation.
  */
-HostSimulator::HostSimulator(Network *network, SimulationInfo sim_info) :
+HostSimulator::HostSimulator(Network *network, SimulationInfo *sim_info) :
     network(network),
-    m_sim_info(sim_info)
+    m_pSim_info(sim_info)
 {
     // Create a normalized random number generator
-    rgNormrnd.push_back(new Norm(0, 1, sim_info.seed));
+    rgNormrnd.push_back(new Norm(0, 1, m_pSim_info->seed));
 }
 
 /**
@@ -42,26 +42,26 @@ HostSimulator::~HostSimulator()
 void HostSimulator::simulate()
 {    
     // Main simulation loop - execute maxGrowthSteps
-    for (int currentStep = 1; currentStep <= m_sim_info.maxSteps; currentStep++) {
+    for (m_pSim_info->currentStep = 1; m_pSim_info->currentStep <= m_pSim_info->maxSteps; m_pSim_info->currentStep++) {
 
         DEBUG(cout << endl << endl;)
-        DEBUG(cout << "Performing simulation number " << currentStep << endl;)
+        DEBUG(cout << "Performing simulation number " << m_pSim_info->currentStep << endl;)
         DEBUG(cout << "Begin network state:" << endl;)
 
         // Advance simulation to next growth cycle
-        advanceUntilGrowth(currentStep);
+        advanceUntilGrowth();
 
         DEBUG(cout << endl << endl;)
         DEBUG(
             cout << "Done with simulation cycle, beginning growth update "
-                 << currentStep << endl;
+                 << m_pSim_info->currentStep << endl;
          )
 
         // Update the neuron network
 #ifdef PERFORMANCE_METRICS
         short_timer.start();
 #endif
-        network->updateConnections(currentStep);
+        network->updateConnections(m_pSim_info->currentStep);
 
 #ifdef PERFORMANCE_METRICS
         t_host_adjustSynapses = short_timer.lap() / 1000.0f;
@@ -88,11 +88,11 @@ void HostSimulator::simulate()
  *  synapse activity for one epoch.
  *  @param  currentStep the current epoch in which the network is being simulated.
  */
-void HostSimulator::advanceUntilGrowth(const int currentStep)
+void HostSimulator::advanceUntilGrowth()
 {
     uint64_t count = 0;
     uint64_t endStep = g_simulationStep
-            + static_cast<uint64_t>(m_sim_info.stepDuration / m_sim_info.deltaT);
+            + static_cast<uint64_t>(m_pSim_info->stepDuration / m_pSim_info->deltaT);
 
     DEBUG_MID(network->logSimStep();) // Generic model debug call
 
@@ -100,9 +100,9 @@ void HostSimulator::advanceUntilGrowth(const int currentStep)
         DEBUG_LOW(
             if (count % 10000 == 0) 
             {
-                cout << currentStep << "/" << m_sim_info.maxSteps
+                cout << m_pSim_info->currentStep << "/" << m_pSim_info->maxSteps
                      << " simulating time: "
-                     << g_simulationStep * m_sim_info.deltaT << endl;
+                     << g_simulationStep * m_pSim_info->deltaT << endl;
                 count = 0;
             }
             count++;
@@ -133,12 +133,12 @@ void HostSimulator::saveState(ostream &state_out) const
 
     // write time between growth cycles
     state_out << "   <Matrix name=\"Tsim\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
-    state_out << "   " << m_sim_info.stepDuration << endl;
+    state_out << "   " << m_pSim_info->stepDuration << endl;
     state_out << "</Matrix>" << endl;
 
     // write simulation end time
     state_out << "   <Matrix name=\"simulationEndTime\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
-    state_out << "   " << g_simulationStep * m_sim_info.deltaT << endl;
+    state_out << "   " << g_simulationStep * m_pSim_info->deltaT << endl;
     state_out << "</Matrix>" << endl;
     state_out << "</SimState>" << endl;
 }
@@ -162,5 +162,5 @@ void HostSimulator::readMemory(istream &memory_in)
  */
 void HostSimulator::saveMemory(ostream &memory_out) const
 {
-    network->writeSimMemory(m_sim_info.maxSteps, memory_out);
+    network->writeSimMemory(m_pSim_info->maxSteps, memory_out);
 }

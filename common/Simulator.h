@@ -37,7 +37,7 @@ class Simulator
          *  Advance simulation to next growth cycle.
          *  @param  currentStep the current epoch of the simulation.
          */
-        virtual void advanceUntilGrowth(const int currentStep) =0;
+        virtual void advanceUntilGrowth() =0;
 
         /**
          *  Write the result of the simulation.

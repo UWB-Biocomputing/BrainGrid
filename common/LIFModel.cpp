@@ -31,7 +31,7 @@ LIFModel::~LIFModel()
     }
 }
 
-bool LIFModel::initializeModel(const SimulationInfo &sim_info, AllNeurons& neurons, AllSynapses& synapses)
+bool LIFModel::initializeModel(SimulationInfo *sim_info, AllNeurons& neurons, AllSynapses& synapses)
 {
 	// nothing to do for this platform
 	return true;
@@ -298,7 +298,7 @@ string LIFModel::neuronToString(AllNeurons &neurons, const uint32_t i) const
  *  @param  synapses    list of synapses to set.
  *  @param  sim_info    used as a reference to set info for neurons and synapses.
  */
-void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
+void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info)
 {
     for (uint32_t i = 0; i < neurons.size; i++) {
         readNeuron(input, neurons, i);
@@ -319,14 +319,14 @@ void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &syna
         input >> summation_coord.x;
         input >> summation_coord.y;
 
-        uint32_t neuron_index = summation_coord.x + summation_coord.y * sim_info.width;
+        uint32_t neuron_index = summation_coord.x + summation_coord.y * sim_info->width;
         uint32_t synapses_index = read_synapses_counts[neuron_index];
 
         synapses.summationCoord[neuron_index][synapses_index] = summation_coord;
 
         readSynapse(input, synapses, neuron_index, synapses_index);
 
-        synapses.summationPoint[neuron_index][synapses_index] = &(neurons.summation_map[summation_coord.x + summation_coord.y * sim_info.width]);
+        synapses.summationPoint[neuron_index][synapses_index] = &(neurons.summation_map[summation_coord.x + summation_coord.y * sim_info->width]);
 
         read_synapses_counts[neuron_index]++;
 
@@ -573,7 +573,7 @@ void LIFModel::writeSynapse(ostream& output, AllSynapses &synapses, const uint32
  *  @param  neurons the Neuron list to search from.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void LIFModel::saveState(ostream &output, const AllNeurons &neurons, const SimulationInfo &sim_info)
+void LIFModel::saveState(ostream &output, const AllNeurons &neurons, SimulationInfo *sim_info)
 {
     output << "   " << m_conns->radiiHistory.toXML("radiiHistory") << endl;
     output << "   " << m_conns->ratesHistory.toXML("ratesHistory") << endl;
@@ -612,13 +612,13 @@ void LIFModel::saveState(ostream &output, const AllNeurons &neurons, const Simul
  *  @param  starter_map bool map to reference neuron matrix location from.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void LIFModel::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo &sim_info)
+void LIFModel::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, SimulationInfo *sim_info)
 {
     uint32_t cur = 0;
-    for (uint32_t x = 0; x < sim_info.width; x++) {
-        for (uint32_t y = 0; y < sim_info.height; y++) {
-            if (starter_map[x + y * sim_info.width]) {
-                matrix[cur] = x + y * sim_info.height;
+    for (uint32_t x = 0; x < sim_info->width; x++) {
+        for (uint32_t y = 0; y < sim_info->height; y++) {
+            if (starter_map[x + y * sim_info->width]) {
+                matrix[cur] = x + y * sim_info->height;
                 cur++;
             }
         }
@@ -630,7 +630,7 @@ void LIFModel::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_
  *  @param  neurons the Neuron list to search from.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_info)
+void LIFModel::createAllNeurons(AllNeurons &neurons, SimulationInfo *sim_info)
 {
     DEBUG(cout << "\nAllocating neurons..." << endl;)
 
@@ -649,11 +649,11 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_i
         neurons.Vreset[neuron_index] = rng.inRange(m_Vreset[0], m_Vreset[1]);
         neurons.Vinit[neuron_index] = rng.inRange(m_Vinit[0], m_Vinit[1]);
         neurons.Vm[neuron_index] = neurons.Vinit[neuron_index];
-        neurons.deltaT[neuron_index] = sim_info.deltaT;
+        neurons.deltaT[neuron_index] = sim_info->deltaT;
 
         updateNeuron(neurons, neuron_index);
 
-        uint32_t max_spikes = (uint32_t) ((sim_info.stepDuration * m_growth.maxRate * sim_info.maxSteps));
+        uint32_t max_spikes = (uint32_t) ((sim_info->stepDuration * m_growth.maxRate * sim_info->maxSteps));
         neurons.spike_history[neuron_index] = new uint64_t[max_spikes];
         for (uint32_t j = 0; j < max_spikes; ++j) {
             neurons.spike_history[neuron_index][j] = -1;
@@ -862,20 +862,20 @@ void LIFModel::updateNeuron(AllNeurons &neurons, uint32_t neuron_index)
  *  @param  num_neurons number of Neurons to have in the simulation.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void LIFModel::setupSim(const uint32_t num_neurons, const SimulationInfo &sim_info)
+void LIFModel::setupSim(const uint32_t num_neurons, SimulationInfo *sim_info)
 {
     if (m_conns != NULL) {
         delete m_conns;
         m_conns = NULL;
     }
 
-    m_conns = new Connections(num_neurons, m_growth.startRadius, sim_info.stepDuration, sim_info.maxSteps);
+    m_conns = new Connections(num_neurons, m_growth.startRadius, sim_info->stepDuration, sim_info->maxSteps);
 	m_conns->spikeCounts = NULL;
 
     // Initialize neuron locations
     for (uint32_t i = 0; i < num_neurons; i++) {
-        m_conns->xloc[i] = i % sim_info.width;
-        m_conns->yloc[i] = i / sim_info.width;
+        m_conns->xloc[i] = i % sim_info->width;
+        m_conns->yloc[i] = i / sim_info->width;
     }
 
     // calculate the distance between neurons
@@ -907,7 +907,7 @@ void LIFModel::setupSim(const uint32_t num_neurons, const SimulationInfo &sim_in
  *  @param  synapses    the Synapse list to search from.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
+void LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info)
 {
     advanceNeurons(neurons, synapses, sim_info);
     advanceSynapses(neurons.size, synapses);
@@ -919,7 +919,7 @@ void LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simulat
  *  @param  synapses    the Synapse list to search from.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
+void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info)
 {
     // TODO: move this code into a helper class - it's being used in multiple places.
     // For each neuron in the network
@@ -929,7 +929,7 @@ void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, const 
 
         // notify outgoing synapses if neuron has fired
         if (neurons.hasFired[i]) {
-            DEBUG_MID(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * sim_info.deltaT << endl;)
+            DEBUG_MID(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * sim_info->deltaT << endl;)
 
             for (uint32_t z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
                 preSpikeHit(synapses, i, z);
@@ -1274,7 +1274,7 @@ void LIFModel::updateOverlap(BGFLOAT num_neurons)
  *  @param  synapses    the Synapse list to search from.
  *  @param  sim_info    SimulationInfo to refer from.
  */
-void LIFModel::updateWeights(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
+void LIFModel::updateWeights(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info)
 {
 
     // For now, we just set the weights to equal the areas. We will later
@@ -1291,14 +1291,14 @@ void LIFModel::updateWeights(const uint32_t num_neurons, AllNeurons &neurons, Al
     // Scale and add sign to the areas
     // visit each neuron 'a'
     for (uint32_t src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
-        uint32_t xa = src_neuron % sim_info.width;
-        uint32_t ya = src_neuron / sim_info.width;
+        uint32_t xa = src_neuron % sim_info->width;
+        uint32_t ya = src_neuron / sim_info->width;
         Coordinate src_coord(xa, ya);
 
         // and each destination neuron 'b'
         for (uint32_t dest_neuron = 0; dest_neuron < num_neurons; dest_neuron++) {
-            uint32_t xb = dest_neuron % sim_info.width;
-            uint32_t yb = dest_neuron / sim_info.width;
+            uint32_t xb = dest_neuron % sim_info->width;
+            uint32_t yb = dest_neuron / sim_info->width;
             Coordinate dest_coord(xb, yb);
 
             // visit each synapse at (xa,ya)
@@ -1339,7 +1339,7 @@ void LIFModel::updateWeights(const uint32_t num_neurons, AllNeurons &neurons, Al
                 BGFLOAT* sum_point = &( neurons.summation_map[dest_neuron] );
                 added++;
 
-                addSynapse(synapses, type, src_neuron, dest_neuron, src_coord, dest_coord, sum_point, sim_info.deltaT);
+                addSynapse(synapses, type, src_neuron, dest_neuron, src_coord, dest_coord, sum_point, sim_info->deltaT);
 
             }
         }
@@ -1566,22 +1566,22 @@ int32_t LIFModel::synSign(const synapseType type)
  *  @param  neurons list of all Neurons.
  *  @param  sim_info    SimulationInfo to refer.
  */
-void LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info)
+void LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info)
 {
 #ifdef STORE_SPIKEHISTORY
     // output spikes
-    for (uint32_t i = 0; i < sim_info.width; i++) {
-        for (uint32_t j = 0; j < sim_info.height; j++) {
-            uint32_t neuron_index = i + j * sim_info.width;
+    for (uint32_t i = 0; i < sim_info->width; i++) {
+        for (uint32_t j = 0; j < sim_info->height; j++) {
+            uint32_t neuron_index = i + j * sim_info->width;
             uint64_t *pSpikes = neurons.spike_history[neuron_index];
 
             DEBUG_MID (cout << endl << coordToString(i, j) << endl;);
 
             for (uint32_t i = 0; i < neurons.totalSpikeCount[neuron_index]; i++) {
                 DEBUG_MID (cout << i << " ";);
-                uint32_t idx1 = pSpikes[i] * sim_info.deltaT;
+                uint32_t idx1 = pSpikes[i] * sim_info->deltaT;
                 m_conns->burstinessHist[idx1] = m_conns->burstinessHist[idx1] + 1.0;
-                uint32_t idx2 = pSpikes[i] * sim_info.deltaT * 100;
+                uint32_t idx2 = pSpikes[i] * sim_info->deltaT * 100;
                 m_conns->spikesHistory[idx2] = m_conns->spikesHistory[idx2] + 1.0;
             }
         }
@@ -1595,19 +1595,19 @@ void LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info)
  *  @param  synapses    list of all Synapses
  *  @param  sim_info    SimulationInfo to reference.
  */
-void LIFModel::logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const
+void LIFModel::logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, SimulationInfo *sim_info) const
 {
     cout << "format:\ntype,radius,firing rate" << endl;
 
-    for (uint32_t y = 0; y < sim_info.height; y++) {
+    for (uint32_t y = 0; y < sim_info->height; y++) {
         stringstream ss;
         ss << fixed;
         ss.precision(1);
 
-        for (uint32_t x = 0; x < sim_info.width; x++) {
-            switch (neurons.neuron_type_map[x + y * sim_info.width]) {
+        for (uint32_t x = 0; x < sim_info->width; x++) {
+            switch (neurons.neuron_type_map[x + y * sim_info->width]) {
                 case EXC:
-                    if (neurons.starter_map[x + y * sim_info.width])
+                    if (neurons.starter_map[x + y * sim_info->width])
                         ss << "s";
                     else
                         ss << "e";
@@ -1620,10 +1620,10 @@ void LIFModel::logSimStep(const AllNeurons &neurons, const AllSynapses &synapses
                     break;
             }
 
-            ss << " " << m_conns->radii[x + y * sim_info.width];
-            ss << " " << m_conns->radii[x + y * sim_info.width];
+            ss << " " << m_conns->radii[x + y * sim_info->width];
+            ss << " " << m_conns->radii[x + y * sim_info->width];
 
-            if (x + 1 < sim_info.width) {
+            if (x + 1 < sim_info->width) {
                 ss.width(2);
                 ss << "|";
                 ss.width(2);

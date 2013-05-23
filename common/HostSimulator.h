@@ -32,7 +32,7 @@ class HostSimulator: public Simulator
          * Constructor
          * Constructs a simulator with a given network and given parameters.
          */
-        HostSimulator(Network *network, SimulationInfo sim_info);
+        HostSimulator(Network *network, SimulationInfo *sim_info);
         /** Destructor */
         virtual ~HostSimulator();
 
@@ -44,7 +44,7 @@ class HostSimulator: public Simulator
         /**
          * Advance simulation to next growth cycle. Helper for #simulate().
          */
-        void advanceUntilGrowth(const int currentStep);
+        void advanceUntilGrowth();
 
         /**
          * Write the result of the simulation.
@@ -78,7 +78,7 @@ class HostSimulator: public Simulator
         /**
          * Parameters for the simulation.
          */
-        SimulationInfo m_sim_info;
+        SimulationInfo *m_pSim_info;
 };
 
 #endif /* _HOSTSIMULATOR_H_ */

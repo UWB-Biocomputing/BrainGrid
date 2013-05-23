@@ -63,7 +63,7 @@ class CUDA_LIFModel  : public LIFModel
 
 		// Only deviations from LIFModel are defined
 
-		void advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
+		void advance(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info);
 
     protected:
 
@@ -94,14 +94,14 @@ class CUDA_LIFModel  : public LIFModel
 		/// Visit an unknown node
 		bool Visit( const TiXmlUnknown& unknown )				{ return LIFModel::Visit(unknown); }
 
-		bool initializeModel(const SimulationInfo &sim_info, AllNeurons& neurons, AllSynapses& synapses);
-		void updateWeights(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
+		bool initializeModel(SimulationInfo *sim_info, AllNeurons& neurons, AllSynapses& synapses);
+		void updateWeights(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info);
 	private:
 #ifdef STORE_SPIKEHISTORY
 		//! pointer to an array to keep spike history for one activity epoch
 		uint64_t* spikeArray;
 #endif // STORE_SPIKEHISTORY
-		void dataToCStructs(const SimulationInfo &psi, AllNeurons& neurons, AllSynapses& synapses, LifNeuron_struct &neuron_st, LifSynapse_struct &synapse_st);
+		void dataToCStructs(SimulationInfo *psi, AllNeurons& neurons, AllSynapses& synapses, LifNeuron_struct &neuron_st, LifSynapse_struct &synapse_st);
 		void readSpikesFromDevice(uint32_t neuron_count, uint32_t *spikecounts);
 		void clearSpikesFromDevice(uint32_t neuron_count);
 };
@@ -115,7 +115,7 @@ class CUDA_LIFModel  : public LIFModel
 extern "C" {
 //! Perform updating neurons and synapses for one activity epoch.
 void advanceGPU( 
-		const SimulationInfo &psi,
+		SimulationInfo *psi,
 		AllNeurons& neurons,
 		AllSynapses& synapses, 
 		uint32_t maxSynapses
@@ -127,7 +127,7 @@ void advanceGPU(
 		 );
 
 //! Allocate GPU device memory and copy data from host memory.
-void allocDeviceStruct(const SimulationInfo& psi, 
+void allocDeviceStruct(SimulationInfo * psi, 
 		LifNeuron_struct& neuron_st, 
 		LifSynapse_struct& synapse_st,
 		AllNeurons& neurons,
@@ -148,7 +148,7 @@ void copyNeuronDeviceToHost( LifNeuron_struct& neuron_h, uint32_t count );
 void deleteDeviceStruct( );
 
 //! Create synapse inverse map.
-void createSynapseImap(const SimulationInfo& psi, uint32_t maxSynapses );
+void createSynapseImap(SimulationInfo * psi, uint32_t maxSynapses );
 
 //! Generate random number (normal distribution)
 void normalMTGPU(float * randNoise_d);
@@ -218,6 +218,7 @@ __constant__ FLOAT g_synapseStrengthAdjustmentConstant_d = 1.0e-8;
 #ifdef STORE_SPIKEHISTORY
 //! Pointer to device spike history array.
 uint64_t* spikeHistory_d = NULL;	
+size_t spikeHistory_d_size = 0;
 #endif // STORE_SPIKEHISTORY
 
 //! Pointer to device summation point.

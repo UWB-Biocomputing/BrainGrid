@@ -56,17 +56,17 @@ class LIFModel : public Model, TiXmlVisitor
          *
          * @see Model.h
          */
-		bool initializeModel(const SimulationInfo &sim_info, AllNeurons& neurons, AllSynapses& synapses);
+		bool initializeModel(SimulationInfo *sim_info, AllNeurons& neurons, AllSynapses& synapses);
         bool readParameters(TiXmlElement *source);
         void printParameters(ostream &output) const;
-        void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
+        void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info);
         void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, BGFLOAT simulation_step);
-        void saveState(ostream& output, const AllNeurons &neurons,  const SimulationInfo &sim_info);
-        void createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_info);
-        void setupSim(const uint32_t num_neurons, const SimulationInfo &sim_info);
-        void advance(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
-        void cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info);
-        void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const;
+        void saveState(ostream& output, const AllNeurons &neurons,  SimulationInfo *sim_info);
+        void createAllNeurons(AllNeurons &neurons, SimulationInfo *sim_info);
+        void setupSim(const uint32_t num_neurons, SimulationInfo *sim_info);
+        void advance(AllNeurons& neurons, AllSynapses &synapses, SimulationInfo *sim_info);
+        void cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info);
+        void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, SimulationInfo *sim_info) const;
 
     protected:
 
@@ -128,7 +128,7 @@ class LIFModel : public Model, TiXmlVisitor
         // ------------
 
         // TODO
-        void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo &sim_info);
+        void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, SimulationInfo *sim_info);
 
         // # Create All Neurons
         // --------------------
@@ -146,7 +146,7 @@ class LIFModel : public Model, TiXmlVisitor
         // -----------------------
 
         // Update the state of all neurons for a time step
-        void advanceNeurons(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
+        void advanceNeurons(AllNeurons& neurons, AllSynapses &synapses, SimulationInfo *sim_info);
         // Helper for #advanceNeuron. Updates state of a single neuron.
         void advanceNeuron(AllNeurons& neurons, const uint32_t index);
         // Initiates a firing of a neuron to connected neurons
@@ -170,7 +170,7 @@ class LIFModel : public Model, TiXmlVisitor
         // TODO
         void updateOverlap(BGFLOAT num_neurons);
         // TODO
-        void updateWeights(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
+        void updateWeights(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info);
 
         // TODO
         void getSpikeCounts(const AllNeurons &neurons);

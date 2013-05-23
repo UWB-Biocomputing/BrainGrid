@@ -11,19 +11,19 @@
 /** 
  *  The constructor for Network.
  */
-Network::Network(Model *model, SimulationInfo &simInfo) :
+Network::Network(Model *model, SimulationInfo *simInfo) :
     m_model(model),
-    neurons(simInfo.cNeurons),
-    synapses(simInfo.cNeurons,simInfo.maxSynapsesPerNeuron),
+    neurons(simInfo->cNeurons),
+    synapses(simInfo->cNeurons, simInfo->maxSynapsesPerNeuron),
     m_summationMap(NULL),
-    m_sim_info(simInfo)
+    m_pSim_info(simInfo)
 {
-    cout << "Neuron count: " << simInfo.cNeurons << endl;
+    cout << "Neuron count: " << simInfo->cNeurons << endl;
     g_simulationStep = 0;
     cout << "Initializing neurons in network." << endl;
-    m_model->createAllNeurons(neurons, m_sim_info);
+    m_model->createAllNeurons(neurons, m_pSim_info);
     setup();
-	m_model->initializeModel(m_sim_info, neurons, synapses);
+	m_model->initializeModel(m_pSim_info, neurons, synapses);
 }
 
 /**
@@ -40,7 +40,7 @@ Network::~Network()
 void Network::setup()
 {
 
-    m_model->setupSim(neurons.size, m_sim_info);
+    m_model->setupSim(neurons.size, m_pSim_info);
 }
 
 /**
@@ -49,7 +49,7 @@ void Network::setup()
 void Network::finish()
 {
     // Terminate the simulator
-    m_model->cleanupSim(neurons, m_sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
+    m_model->cleanupSim(neurons, m_pSim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
 }
 
 /**
@@ -57,7 +57,7 @@ void Network::finish()
  */
 void Network::advance()
 {
-    m_model->advance(neurons, synapses, m_sim_info);
+    m_model->advance(neurons, synapses, m_pSim_info);
 }
 
 /**
@@ -68,10 +68,10 @@ void Network::updateConnections(const int currentStep)
 {
     // Calculate growth cycle firing rate for previous period
     m_model->getSpikeCounts(neurons);
-    m_model->updateHistory(currentStep, m_sim_info.stepDuration, neurons);
+    m_model->updateHistory(currentStep, m_pSim_info->stepDuration, neurons);
     m_model->updateFrontiers(neurons.size);
     m_model->updateOverlap(neurons.size);
-    m_model->updateWeights(neurons.size, neurons, synapses, m_sim_info);
+    m_model->updateWeights(neurons.size, neurons, synapses, m_pSim_info);
     // clear spike count
     m_model->clearSpikeCounts(neurons);
 }
@@ -81,7 +81,7 @@ void Network::updateConnections(const int currentStep)
  */
 void Network::logSimStep() const
 {
-    m_model->logSimStep(neurons, synapses, m_sim_info);
+    m_model->logSimStep(neurons, synapses, m_pSim_info);
 }
 
 /**
@@ -103,21 +103,21 @@ void Network::reset()
 
     freeResources();
 
-    neurons = AllNeurons(m_sim_info.cNeurons);
-    synapses = AllSynapses(m_sim_info.cNeurons, m_sim_info.maxSynapsesPerNeuron);
+    neurons = AllNeurons(m_pSim_info->cNeurons);
+    synapses = AllSynapses(m_pSim_info->cNeurons, m_pSim_info->maxSynapsesPerNeuron);
 
     // Reset global simulation Step to 0
     g_simulationStep = 0;
 
-    m_summationMap = new BGFLOAT[m_sim_info.cNeurons];
+    m_summationMap = new BGFLOAT[m_pSim_info->cNeurons];
 
     // initialize maps
-    for (int i = 0; i < m_sim_info.cNeurons; i++)
+    for (int i = 0; i < m_pSim_info->cNeurons; i++)
     {
         m_summationMap[i] = 0;
     }
 
-    m_sim_info.pSummationMap = m_summationMap;
+    m_pSim_info->pSummationMap = m_summationMap;
 
     DEBUG(cout << "\nExiting Network::reset()";)
 }
@@ -128,7 +128,7 @@ void Network::reset()
  */
 void Network::saveState(ostream& os)
 {
-    m_model->saveState(os, neurons, m_sim_info);
+    m_model->saveState(os, neurons, m_pSim_info);
 }
 
 /**
@@ -148,6 +148,6 @@ void Network::readSimMemory(istream& is)
 {
     // read the neuron data
     is >> neurons.size;
-    assert(neurons.size == m_sim_info.cNeurons);
-    m_model->loadMemory(is, neurons, synapses, m_sim_info);
+    assert(neurons.size == m_pSim_info->cNeurons);
+    m_model->loadMemory(is, neurons, synapses, m_pSim_info);
 }

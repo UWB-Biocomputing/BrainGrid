@@ -24,9 +24,15 @@ CUDA_LIFModel::CUDA_LIFModel()
 
 CUDA_LIFModel::~CUDA_LIFModel()
 {
+#ifdef STORE_SPIKEHISTORY
+    delete[] spikeArray;
+#endif // STORE_SPIKEHISTORY
+	delete[] m_conns->spikeCounts;
+	m_conns->spikeCounts = NULL;
+	deleteDeviceStruct();
 }
 
-bool CUDA_LIFModel::initializeModel(const SimulationInfo &sim_info, AllNeurons& neurons, AllSynapses& synapses)
+bool CUDA_LIFModel::initializeModel(SimulationInfo *sim_info, AllNeurons& neurons, AllSynapses& synapses)
 {
 	LifNeuron_struct neuron_st;
 	LifSynapse_struct synapse_st;
@@ -34,26 +40,26 @@ bool CUDA_LIFModel::initializeModel(const SimulationInfo &sim_info, AllNeurons& 
 	// copy synapse and neuron maps into arrays
 	dataToCStructs(sim_info, neurons, synapses, neuron_st, synapse_st);
 
-	uint32_t neuron_count = sim_info.cNeurons;
+	uint32_t neuron_count = sim_info->cNeurons;
 	delete[] m_conns->spikeCounts;
 	m_conns->spikeCounts = new uint32_t[neuron_count]();
 
 #ifdef STORE_SPIKEHISTORY
-    uint32_t maxSpikes = static_cast<uint32_t> (sim_info.stepDuration * sim_info.maxFiringRate);
+    uint32_t maxSpikes = static_cast<uint32_t> (sim_info->stepDuration * sim_info->maxFiringRate);
     spikeArray = new uint64_t[maxSpikes * neuron_count]();
 
 	// allocate device memory
-	allocDeviceStruct(sim_info, neuron_st, synapse_st, neurons, synapses, sim_info.maxSynapsesPerNeuron, maxSpikes);
+	allocDeviceStruct(sim_info, neuron_st, synapse_st, neurons, synapses, sim_info->maxSynapsesPerNeuron, maxSpikes);
 #else
 	// allocate device memory
-	allocDeviceStruct(sim_info, neuron_st, synapse_st, neurons, synapses, sim_info.maxSynapsesPerNeuron);
+	allocDeviceStruct(sim_info, neuron_st, synapse_st, neurons, synapses, sim_info->maxSynapsesPerNeuron);
 #endif // STORE_SPIKEHISTORY
 
 	//initialize Mersenne Twister
 	//assuming neuron_count >= 100 and is a multiple of 100. Note rng_mt_rng_count must be <= MT_RNG_COUNT
 	uint32_t rng_blocks = 25; //# of blocks the kernel will use
 	uint32_t rng_nPerRng = 4; //# of iterations per thread (thread granularity, # of rands generated per thread)
-	uint32_t rng_mt_rng_count = sim_info.cNeurons/rng_nPerRng; //# of threads to generate for neuron_count rand #s
+	uint32_t rng_mt_rng_count = sim_info->cNeurons/rng_nPerRng; //# of threads to generate for neuron_count rand #s
 	uint32_t rng_threads = rng_mt_rng_count/rng_blocks; //# threads per block needed
 	initMTGPU(777, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
 
@@ -71,20 +77,20 @@ bool CUDA_LIFModel::initializeModel(const SimulationInfo &sim_info, AllNeurons& 
  * @param [out] neuron_count
  * @param [out] synapse_count
  */ 
-void CUDA_LIFModel::dataToCStructs(const SimulationInfo &psi, AllNeurons& neurons, AllSynapses& synapses, LifNeuron_struct &neuron_st, LifSynapse_struct &synapse_st) 
+void CUDA_LIFModel::dataToCStructs(SimulationInfo *psi, AllNeurons& neurons, AllSynapses& synapses, LifNeuron_struct &neuron_st, LifSynapse_struct &synapse_st) 
 {
 	// Allocate memory
-	uint32_t neuron_count = psi.cNeurons;
+	uint32_t neuron_count = psi->cNeurons;
 	allocNeuronStruct(neuron_st, neuron_count);
-	allocSynapseStruct(synapse_st, neuron_count * psi.maxSynapsesPerNeuron);
+	allocSynapseStruct(synapse_st, neuron_count * psi->maxSynapsesPerNeuron);
 
 	// Copy memory
 	for (uint32_t i = 0; i < neuron_count; i++)
 	{
 		copyNeuronToStruct(neurons, neuron_st, i);
 		neuron_st.synapseCount[i] = synapses.synapse_counts[i];
-		assert(neuron_st.synapseCount[i] <= psi.maxSynapsesPerNeuron);
-		neuron_st.outgoingSynapse_begin[i] = i * psi.maxSynapsesPerNeuron;
+		assert(neuron_st.synapseCount[i] <= psi->maxSynapsesPerNeuron);
+		neuron_st.outgoingSynapse_begin[i] = i * psi->maxSynapsesPerNeuron;
 
 		for (uint32_t j = 0; j < synapses.synapse_counts[i]; j++)
 		{
@@ -115,28 +121,28 @@ void CUDA_LIFModel::clearSpikesFromDevice(uint32_t neuron_count)
 	HANDLE_ERROR( cudaMemset( neuron.spikeCount, 0, neuron_count * sizeof( uint32_t ) ) );
 }
 
-void CUDA_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
+void CUDA_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info)
 {
 #ifdef STORE_SPIKEHISTORY
-	uint32_t maxSpikes = static_cast<uint32_t> (sim_info.stepDuration * sim_info.maxFiringRate);
+	uint32_t maxSpikes = static_cast<uint32_t> (sim_info->stepDuration * sim_info->maxFiringRate);
 #endif // STORE_SPIKEHISTORY
 
 #ifdef STORE_SPIKEHISTORY
-	advanceGPU(sim_info, neurons, synapses, sim_info.maxSynapsesPerNeuron, spikeArray, maxSpikes);
+	advanceGPU(sim_info, neurons, synapses, sim_info->maxSynapsesPerNeuron, spikeArray, maxSpikes);
 #else
-	advanceGPU(sim_info, neurons, synapses, sim_info.maxSynapsesPerNeuron);
+	advanceGPU(sim_info, neurons, synapses, sim_info->maxSynapsesPerNeuron);
 #endif // STORE_SPIKEHISTORY
 
 #ifdef STORE_SPIKEHISTORY
-	uint32_t neuron_count = sim_info.cNeurons;
+	uint32_t neuron_count = sim_info->cNeurons;
 
 	// record spike time      neurons.spike_history[index][neurons.totalSpikeCount[index]] = g_simulationStep;
 
 	readSpikesFromDevice(neuron_count, m_conns->spikeCounts);
 	for (uint32_t i = 0; i < neuron_count; i++) {
-		if (neurons.spikeCount[i] > 0) {
-			assert(neurons.spikeCount[i] < maxSpikes);
-			for(uint32_t j = 0; j < spikeArray[i * maxSpikes]; j++) {
+		if (m_conns->spikeCounts[i] > 0) {
+			assert(m_conns->spikeCounts[i] + neurons.totalSpikeCount[i] < maxSpikes);
+			for(uint32_t j = 0; j < m_conns->spikeCounts[i]; j++) {
 				neurons.spike_history[i][neurons.totalSpikeCount[i]] = spikeArray[i * maxSpikes + j];
 				neurons.totalSpikeCount[i]++;
 				neurons.spikeCount[i]++;
@@ -155,10 +161,10 @@ void CUDA_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Si
  *  @param  synapses    the Synapse list to search from.
  *  @param  sim_info    SimulationInfo to refer from.
  */
-void CUDA_LIFModel::updateWeights(const uint32_t neuron_count, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
+void CUDA_LIFModel::updateWeights(const uint32_t neuron_count, AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info)
 {
-	uint32_t width = sim_info.width;
-	TIMEFLOAT deltaT = sim_info.deltaT;
+	uint32_t width = sim_info->width;
+	TIMEFLOAT deltaT = sim_info->deltaT;
 
     // CUDA parameters
     const uint32_t threadsPerBlock = 256;
@@ -178,14 +184,14 @@ void CUDA_LIFModel::updateWeights(const uint32_t neuron_count, AllNeurons &neuro
 	HANDLE_ERROR( cudaMemcpy ( W_d, W_h, W_d_size, cudaMemcpyHostToDevice ) );
 
 	blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-	updateNetworkDevice <<< blocksPerGrid, threadsPerBlock >>> ( summationPoint_d, rgNeuronTypeMap_d, neuron_count, width, deltaT, W_d, sim_info.maxSynapsesPerNeuron );
+	updateNetworkDevice <<< blocksPerGrid, threadsPerBlock >>> ( summationPoint_d, rgNeuronTypeMap_d, neuron_count, width, deltaT, W_d, sim_info->maxSynapsesPerNeuron );
 
 	// free memories
 	HANDLE_ERROR( cudaFree( W_d ) );
 	delete[] W_h;
 
 	// create synapse inverse map
-	createSynapseImap( sim_info, sim_info.maxSynapsesPerNeuron );
+	createSynapseImap( sim_info, sim_info->maxSynapsesPerNeuron );
 }
 
 void allocNeuronStruct_d( uint32_t count ) {
@@ -419,7 +425,7 @@ void copySynapseSumCoordDeviceToHost( LifSynapse_struct& synapse_h, uint32_t cou
  * @param[in] maxSynapses	Maximum number of synapses per neuron.
  * @param[in] maxSpikes		Maximum number of spikes per neuron per one epoch.
  */
-void allocDeviceStruct(const SimulationInfo& psi, 
+void allocDeviceStruct(SimulationInfo * psi, 
 		LifNeuron_struct& neuron_st,
 		LifSynapse_struct& synapse_st,
 		AllNeurons& neurons,
@@ -440,13 +446,13 @@ void allocDeviceStruct(const SimulationInfo& psi,
 	uint32_t blocksPerGrid;
 
 	// Allocate GPU device memory
-	uint32_t neuron_count = psi.cNeurons;
+	uint32_t neuron_count = psi->cNeurons;
 	uint32_t synapse_count = neuron_count * maxSynapses;
 	allocNeuronStruct_d( neuron_count );				// and allocate device memory for each member
 	allocSynapseStruct_d( synapse_count );				// and allocate device memory for each member
 
 #ifdef STORE_SPIKEHISTORY
-	size_t spikeHistory_d_size = neuron_count * maxSpikes * sizeof (uint64_t);		// size of spike history array
+	spikeHistory_d_size = neuron_count * maxSpikes * sizeof (uint64_t);		// size of spike history array
 #endif // STORE_SPIKEHISTORY
 	size_t summationPoint_d_size = neuron_count * sizeof (FLOAT);	// size of summation point
 	size_t randNoise_d_size = neuron_count * sizeof (float);	// size of random noise array
@@ -466,7 +472,7 @@ void allocDeviceStruct(const SimulationInfo& psi,
 	// Copy neuron type map into device memory
 	HANDLE_ERROR( cudaMemcpy ( rgNeuronTypeMap_d,  neurons.neuron_type_map, rgNeuronTypeMap_d_size, cudaMemcpyHostToDevice ) );
 
-	uint32_t width = psi.width;	
+	uint32_t width = psi->width;	
 	blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 	calcOffsets<<< blocksPerGrid, threadsPerBlock >>>( neuron_count, summationPoint_d, width, randNoise_d );
 
@@ -483,6 +489,8 @@ void deleteDeviceStruct(  )
 	deleteSynapseStruct_d(  );
 #ifdef STORE_SPIKEHISTORY
 	HANDLE_ERROR( cudaFree( spikeHistory_d ) );
+	spikeHistory_d_size = 0;
+	spikeHistory_d = NULL;
 #endif // STORE_SPIKEHISTORY
 	HANDLE_ERROR( cudaFree( summationPoint_d ) );
 	HANDLE_ERROR( cudaFree( randNoise_d ) );
@@ -498,22 +506,22 @@ void deleteDeviceStruct(  )
  * @param[in] spikeArray	Array to save spike history for neurons. 
  * @param[in] maxSpikes		Maximum number of spikes per neuron per one epoch.
  */
-void advanceGPU(const SimulationInfo &psi, AllNeurons& neurons, AllSynapses& synapses, uint32_t maxSynapses, uint64_t* spikeArray, uint32_t maxSpikes )
+void advanceGPU(SimulationInfo *psi, AllNeurons& neurons, AllSynapses& synapses, uint32_t maxSynapses, uint64_t* spikeArray, uint32_t maxSpikes )
 #else
 /**
  * @param[in] psi		Pointer to the simulation information. 
  * @param[in] maxSynapses	Maximum number of synapses per neuron.
  */
-void advanceGPU(const SimulationInfo &psi, AllNeurons& neurons, AllSynapses& synapses, uint32_t maxSynapses )
+void advanceGPU(SimulationInfo *psi, AllNeurons& neurons, AllSynapses& synapses, uint32_t maxSynapses )
 #endif
 {
-	FLOAT deltaT = psi.deltaT;
-	uint32_t width = psi.width;
-	uint32_t neuron_count = psi.cNeurons;
+	FLOAT deltaT = psi->deltaT;
+	uint32_t width = psi->width;
+	uint32_t neuron_count = psi->cNeurons;
 	uint32_t synapse_count = neuron_count * maxSynapses;
 
-        // simulate to next growth cycle
-        uint64_t endStep = g_simulationStep + static_cast<uint64_t>(psi.stepDuration / deltaT);
+    // simulate to next growth cycle
+    uint64_t endStep = g_simulationStep + static_cast<uint64_t>(psi->stepDuration / deltaT);
 	
 	DEBUG(cout << "Beginning GPU sim cycle, simTime = " << g_simulationStep * deltaT << ", endTime = " << endStep * deltaT << endl;)
 
@@ -538,7 +546,7 @@ void advanceGPU(const SimulationInfo &psi, AllNeurons& neurons, AllSynapses& syn
 	{
         	DEBUG( if (count %10000 == 0)
               	{
-                  	cout << psi.currentStep << "/" << psi.maxSteps
+                  	cout << psi->currentStep << "/" << psi->maxSteps
                       		<< " simulating time: " << g_simulationStep * deltaT << endl;
                   	count = 0;
               	}
@@ -619,7 +627,6 @@ void advanceGPU(const SimulationInfo &psi, AllNeurons& neurons, AllSynapses& syn
 
 #ifdef STORE_SPIKEHISTORY
 	// Copy processed data from GPU device memory to host
-	size_t spikeHistory_d_size = neuron_count * maxSpikes * sizeof (uint64_t);		// size of spike history array
 	cudaDeviceSynchronize();
 	HANDLE_ERROR( cudaMemcpy ( spikeArray, spikeHistory_d, spikeHistory_d_size, cudaMemcpyDeviceToHost ) );
 #endif // STORE_SPIKEHISTORY
@@ -632,11 +639,11 @@ void advanceGPU(const SimulationInfo &psi, AllNeurons& neurons, AllSynapses& syn
  * @param[in] psi		Pointer to the simulation information.
  * @param[in] maxSynapses	Maximum number of synapses per neuron.
  */
-void createSynapseImap(const SimulationInfo& psi, uint32_t maxSynapses )
+void createSynapseImap(SimulationInfo * psi, uint32_t maxSynapses )
 {
 	LifNeuron_struct neuron_st;
 	LifSynapse_struct synapse_st;
-	uint32_t neuron_count = psi.cNeurons;
+	uint32_t neuron_count = psi->cNeurons;
 	uint32_t synapse_count = 0;
 
 	// copy device neuron struct to host memory
@@ -677,7 +684,7 @@ void createSynapseImap(const SimulationInfo& psi, uint32_t maxSynapses )
 			if ( synapse_st.inUse[syn_i] == true )
 			{
 				uint32_t idx = synapse_st.summationCoord[syn_i].x 
-					+ synapse_st.summationCoord[syn_i].y * psi.width;
+					+ synapse_st.summationCoord[syn_i].y * psi->width;
 				rgSynapseInverseMap[idx].push_back(syn_i);
 				DEBUG ( n_inUse++; )
 			}

@@ -52,7 +52,7 @@ class Model {
 		 * platform-specific model initialization
 		 *
 		 */
-		virtual bool initializeModel(const SimulationInfo &sim_info, AllNeurons& neurons, AllSynapses& synapses) =0;
+		virtual bool initializeModel(SimulationInfo *sim_info, AllNeurons& neurons, AllSynapses& synapses) =0;
 
         /**
          * Read model specific parameters from the xml parameter file and finishes setting up model
@@ -74,7 +74,7 @@ class Model {
         /**
          * TODO(derek) comment.
          */
-        virtual void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info) =0;
+        virtual void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info) =0;
 
         /**
          * TODO(derek) comment.
@@ -84,7 +84,7 @@ class Model {
         /**
          * TODO(derek) comment.
          */
-        virtual void saveState(ostream& output, const AllNeurons &neurons, const SimulationInfo &sim_info) =0;
+        virtual void saveState(ostream& output, const AllNeurons &neurons, SimulationInfo *sim_info) =0;
 
         /* -----------------------------------------------------------------------------------------
          * Network Creation
@@ -97,7 +97,7 @@ class Model {
          * @param neurons - collection of neurons to populate.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_info) =0;
+        virtual void createAllNeurons(AllNeurons &neurons, SimulationInfo *sim_info) =0;
 
         /* -----------------------------------------------------------------------------------------
          * Network Simulation Methods
@@ -110,7 +110,7 @@ class Model {
          * @param num_neurons - count of neurons in network
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void setupSim(const uint32_t num_neurons, const SimulationInfo &sim_info) =0;
+        virtual void setupSim(const uint32_t num_neurons, SimulationInfo *sim_info) =0;
 
         /**
          * Advances network state one simulation step.
@@ -119,14 +119,14 @@ class Model {
          * @param synapses - collection of connections between neurons in network.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info) =0;
+        virtual void advance(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info) =0;
 
         /**
          * Performs any finalization tasks on network following a simulation.
          * @param neurons - collection of neurons in network
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info) =0;
+        virtual void cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info) =0;
 
         /**
          * Prints debug information about the current state of the network.
@@ -135,7 +135,7 @@ class Model {
          * @param synapses - collection of connections between neurons in network.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const =0;
+        virtual void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, SimulationInfo *sim_info) const =0;
 
         // TODO
         virtual void updateHistory(uint32_t currentStep, BGFLOAT stepDuration, AllNeurons &neurons) =0;
@@ -144,7 +144,7 @@ class Model {
         // TODO
         virtual void updateOverlap(BGFLOAT num_neurons) =0;
         // TODO
-        virtual void updateWeights(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info) =0;
+        virtual void updateWeights(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info) =0;
         // TODO
         virtual void getSpikeCounts(const AllNeurons &neurons) =0;
         // TODO

@@ -97,12 +97,12 @@ int main(int argc, char* argv[]) {
             maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed);
 
     // create the network
-    Network network(model, si);
+    Network network(model, &si);
 
     time_t start_time, end_time;
     time(&start_time);
 
-    Simulator *simulator = new HostSimulator(&network, si);
+    Simulator *simulator = new HostSimulator(&network, &si);
 
     if (fReadMemImage) {
         ifstream memory_in;
