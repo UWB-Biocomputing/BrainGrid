@@ -8,6 +8,8 @@
  *  @authors Allan Ortiz and Cory Mayberry.
  */
 
+using namespace std;
+
 #include <fstream>
 #include "Global.h"
 #include "paramcontainer/ParamContainer.h"
@@ -27,7 +29,6 @@
 #include "LIFModel.h"
 #endif
 
-using namespace std;
 
 // state file name
 string stateOutputFileName;

@@ -15,7 +15,7 @@
 #include "ParseParamError.h"
 #include "Util.h"
 #include "Global.h"
-#include "book.h"
+#include "Book.h"
 #include "CUDA_LIFModel.h"
 
 CUDA_LIFModel::CUDA_LIFModel()

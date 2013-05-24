@@ -35,7 +35,7 @@
 
 #include "LIFModel.h"
 #include "Coordinate.h"
-#include "LIFNeuron_struct.h"
+#include "LifNeuron_struct.h"
 #include "LifSynapse_struct.h"
 #include "DelayIdx.h"
 
