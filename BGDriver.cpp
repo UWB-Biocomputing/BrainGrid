@@ -25,6 +25,8 @@ using namespace std;
 #include "cuda/CUDA_LIFModel.h"
 #elif defined(USE_OMP)
 //    #include "MultiThreadedSim.h"
+#elif defined(USE_AMP)
+	#include "AMP/AMP_LIFModel.h"
 #else
 #include "LIFModel.h"
 #endif
@@ -76,6 +78,8 @@ bool parseCommandLine(int argc, char* argv[]);
 int main(int argc, char* argv[]) {
 #if defined(USE_GPU)
     model = new CUDA_LIFModel();
+#elif defined(USE_AMP)
+	model = new AMP_LIFModel();
 #else
     model = new LIFModel();
 #endif

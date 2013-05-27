@@ -923,7 +923,7 @@ void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, Simula
 {
     // TODO: move this code into a helper class - it's being used in multiple places.
     // For each neuron in the network
-    for (uint32_t i = neurons.size - 1; i >= 0; --i) {
+    for (int32_t i = neurons.size - 1; i >= 0; --i) {
         // advance neurons
         advanceNeuron(neurons, i);
 
@@ -931,7 +931,7 @@ void LIFModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, Simula
         if (neurons.hasFired[i]) {
             DEBUG_MID(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * sim_info->deltaT << endl;)
 
-            for (uint32_t z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
+            for (int32_t z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
                 preSpikeHit(synapses, i, z);
             }
 
@@ -1058,8 +1058,8 @@ void LIFModel::preSpikeHit(AllSynapses &synapses, const uint32_t neuron_index, c
  */
 void LIFModel::advanceSynapses(const uint32_t num_neurons, AllSynapses &synapses)
 {
-    for (uint32_t i = num_neurons - 1; i >= 0; --i) {
-        for (uint32_t z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
+    for (int32_t i = num_neurons - 1; i >= 0; --i) {
+        for (int32_t z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
             // Advance Synapse
             advanceSynapse(synapses, i, z);
         }
@@ -1416,8 +1416,8 @@ void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index,
     synapses.summationCoord[neuron_index][synapse_index] = dest;
     synapses.synapseCoord[neuron_index][synapse_index] = source;
     synapses.deltaT[neuron_index][synapse_index] = deltaT;
-    synapses.W[neuron_index][synapse_index] = 10.0e-9;
-    synapses.psr[neuron_index][synapse_index] = 0.0;
+    synapses.W[neuron_index][synapse_index] = 10.0e-9f;
+    synapses.psr[neuron_index][synapse_index] = 0.0f;
     synapses.delayQueue[neuron_index][synapse_index][0] = 0;
     DEBUG(
         cout << "synapse ("
@@ -1429,8 +1429,8 @@ void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index,
             << " => " << LENGTH_OF_DELAYQUEUE << endl;
     )
     synapses.ldelayQueue[neuron_index][synapse_index] = LENGTH_OF_DELAYQUEUE;
-    synapses.r[neuron_index][synapse_index] = 1.0;
-    synapses.u[neuron_index][synapse_index] = 0.4;     // DEFAULT_U
+    synapses.r[neuron_index][synapse_index] = 1.0f;
+    synapses.u[neuron_index][synapse_index] = 0.4f;     // DEFAULT_U
     synapses.lastSpike[neuron_index][synapse_index] = ULONG_MAX;
     synapses.type[neuron_index][synapse_index] = type;
 
@@ -1443,32 +1443,32 @@ void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index,
     BGFLOAT tau;
     switch (type) {
         case II:
-            U = 0.32;
-            D = 0.144;
-            F = 0.06;
-            tau = 6e-3;
-            delay = 0.8e-3;
+            U = 0.32f;
+            D = 0.144f;
+            F = 0.06f;
+            tau = 6e-3f;
+            delay = 0.8e-3f;
             break;
         case IE:
-            U = 0.25;
-            D = 0.7;
-            F = 0.02;
-            tau = 6e-3;
-            delay = 0.8e-3;
+            U = 0.25f;
+            D = 0.7f;
+            F = 0.02f;
+            tau = 6e-3f;
+            delay = 0.8e-3f;
             break;
         case EI:
-            U = 0.05;
-            D = 0.125;
-            F = 1.2;
-            tau = 3e-3;
-            delay = 0.8e-3;
+            U = 0.05f;
+            D = 0.125f;
+            F = 1.2f;
+            tau = 3e-3f;
+            delay = 0.8e-3f;
             break;
         case EE:
-            U = 0.5;
-            D = 1.1;
-            F = 0.05;
-            tau = 3e-3;
-            delay = 1.5e-3;
+            U = 0.5f;
+            D = 1.1f;
+            F = 0.05f;
+            tau = 3e-3f;
+            delay = 1.5e-3f;
             break;
         default:
             assert( false );
@@ -1579,9 +1579,9 @@ void LIFModel::cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info)
 
             for (uint32_t i = 0; i < neurons.totalSpikeCount[neuron_index]; i++) {
                 DEBUG_MID (cout << i << " ";);
-                uint32_t idx1 = pSpikes[i] * sim_info->deltaT;
+                uint32_t idx1 = (uint32_t)(pSpikes[i] * sim_info->deltaT);
                 m_conns->burstinessHist[idx1] = m_conns->burstinessHist[idx1] + 1.0;
-                uint32_t idx2 = pSpikes[i] * sim_info->deltaT * 100;
+                uint32_t idx2 = (uint32_t)(pSpikes[i] * sim_info->deltaT * 100.0f);
                 m_conns->spikesHistory[idx2] = m_conns->spikesHistory[idx2] + 1.0;
             }
         }
