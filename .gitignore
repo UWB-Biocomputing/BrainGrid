@@ -13,6 +13,7 @@ GPU Release/
 IOCP Debug/
 IOCP Release/
 OMP Debug/
+X64/
 
 #################
 ## Eclipse
