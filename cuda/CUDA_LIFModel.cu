@@ -8,7 +8,6 @@
  **/
 
 #define _CUDA_LIFModel
-
 #include "MersenneTwisterCUDA.h"
 #include "../tinyxml/tinyxml.h"
 
@@ -62,6 +61,14 @@ bool CUDA_LIFModel::initializeModel(SimulationInfo *sim_info, AllNeurons& neuron
 	uint32_t rng_mt_rng_count = sim_info->cNeurons/rng_nPerRng; //# of threads to generate for neuron_count rand #s
 	uint32_t rng_threads = rng_mt_rng_count/rng_blocks; //# threads per block needed
 	initMTGPU(777, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
+
+	size_t randNoise_d_size = sim_info->cNeurons * sizeof (float);	// size of random noise array
+	HANDLE_ERROR( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
+	float myrnds[100];
+	for(int i = 0; i < 10000 ; i++) {
+		normalMTGPU(randNoise_d);
+		HANDLE_ERROR( cudaMemcpy ( &myrnds, randNoise_d, randNoise_d_size, cudaMemcpyDeviceToHost ) );
+	}
 
 	// delete the arrays
 	deleteNeuronStruct(neuron_st);

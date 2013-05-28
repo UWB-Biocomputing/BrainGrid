@@ -19,7 +19,17 @@
 #define      DCMT_SEED 4172
 #define  MT_RNG_PERIOD 607
 
-
+#ifdef USE_AMP
+//AMP:
+typedef struct
+{
+    unsigned int matrix_a;
+    unsigned int mask_b;
+    unsigned int mask_c;
+    unsigned int seed;
+} mt_struct;
+#else
+//CUDA:
 typedef struct{
     unsigned int matrix_a;
     unsigned int mask_b;
@@ -32,10 +42,9 @@ typedef struct{
 	unsigned int iState;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 } mt_struct_stripped;
+#endif//USE_AMP
 
-
-//#define   MT_RNG_COUNT 4096
-#define   MT_RNG_COUNT 2500	//max threads 
+#define   MT_RNG_COUNT 4096
 #define   MT_MM 9
 #define   MT_NN 19
 #define   MT_WMASK 0xFFFFFFFFU
@@ -51,6 +60,8 @@ typedef struct{
 
 #ifdef USE_AMP
 void initMTGPU_AMP(unsigned int seed, unsigned int blocks, unsigned int threads, unsigned int nPerRng, unsigned int mt_rng_c);
+void generate_rand_on_amp(std::vector<float>& v_random_nums);
+void reseed_MTGPU_AMP(uint32_t newseed);
 #else // must be CUDA
 extern "C" void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, unsigned int nPerRng, unsigned int mt_rng_c);
 #endif//USE_AMP

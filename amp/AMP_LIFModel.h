@@ -91,6 +91,8 @@ class AMP_LIFModel  : public LIFModel
 //
 // Following declarations are only used when compiling AMP_LIFModel.cpp
 //
+//! Pointer to device random noise array.
+vector<float> randNoise_d;	
 
 #endif//_AMP_LIFModel
 

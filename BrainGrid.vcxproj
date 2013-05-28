@@ -250,6 +250,7 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\dropbox\Education\CSS432\HW3\hw3.cpp" />
     <ClCompile Include="common\AllNeurons.cpp" />
     <ClCompile Include="common\AllSynapses.cpp" />
     <ClCompile Include="BGDriver.cpp" />
