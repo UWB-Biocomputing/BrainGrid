@@ -30,7 +30,7 @@
 #include <iostream>
 using namespace std;
 #define _MERSENNE_TWISTER_KERNEL
-#include "MersenneTwisterCUDA.h"
+#include "../cuda/MersenneTwisterGPU.h"
 #include "assert.h"
 
 __device__ static mt_struct_stripped ds_MT[MT_RNG_COUNT];
@@ -55,7 +55,7 @@ void loadMTGPU(const char *fname) {
 	FILE *fd = fopen(fname, "rb");
 	if(!fd){
 		cerr << "initMTGPU(): failed to open " <<  fname << endl << "FAILED" << endl;
-		// use default table already defined in MersenneTwisterCUDA.h
+		// use default table already defined in MersenneTwisterGPU.h
 		assert(mt_rng_count*sizeof(mt_struct_stripped) <= MersenneTwister_dat_len);
 		memcpy(h_MT, MersenneTwister_dat, mt_rng_count*sizeof(mt_struct_stripped));
 		return;

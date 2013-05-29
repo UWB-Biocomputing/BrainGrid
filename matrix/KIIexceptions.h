@@ -22,13 +22,12 @@
 // Initial revision
 //
 
+using namespace std;
 
 #ifndef _KIIEXCEPTIONS_H_
 #define _KIIEXCEPTIONS_H_
 
 #include <stdexcept>
-
-using namespace std;
 
 /*!
   @brief Master base class for KII exceptions

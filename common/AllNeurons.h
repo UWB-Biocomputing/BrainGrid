@@ -13,7 +13,7 @@ struct AllNeurons
         uint32_t size;
 
         //! A boolean which tracks whether the neuron has fired
-        bool *hasFired;
+        vector<bool> hasFired;
 
         //! The length of the absolute refractory period. [units=sec; range=(0,1);]
         BGFLOAT *Trefract;

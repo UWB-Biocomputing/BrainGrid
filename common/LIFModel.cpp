@@ -33,7 +33,8 @@ LIFModel::~LIFModel()
 
 bool LIFModel::initializeModel(SimulationInfo *sim_info, AllNeurons& neurons, AllSynapses& synapses)
 {
-	// nothing to do for this platform
+	delete m_conns->spikeCounts;
+	m_conns->spikeCounts = new uint32_t[sim_info->cNeurons]();
 	return true;
 }
 
@@ -373,7 +374,7 @@ void LIFModel::readNeuron(istream &input, AllNeurons &neurons, const uint32_t in
     input >> neurons.C2[index]; input.ignore();
     input >> neurons.I0[index]; input.ignore();
     input >> neurons.Vm[index]; input.ignore();
-    input >> neurons.hasFired[index]; input.ignore();
+//    input >> neurons.hasFired[index]; input.ignore();
     input >> neurons.Tau[index]; input.ignore();
 }
 

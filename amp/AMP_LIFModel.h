@@ -26,8 +26,6 @@
 
 #define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=NULL; } }
 
-using namespace std;
-
 /**
  * Implementation of Model for the Leaky-Integrate-and-Fire model.
  */
@@ -93,6 +91,11 @@ class AMP_LIFModel  : public LIFModel
 //
 //! Pointer to device random noise array.
 vector<float> randNoise_d;	
+extern std::vector<unsigned int> v_matrix, v_mask_b, v_mask_c, v_seed;
+extern unsigned int mt_rng_count;
+extern unsigned int mt_blocks;
+extern unsigned int mt_threads;
+extern unsigned int mt_nPerRng;
 
 #endif//_AMP_LIFModel
 

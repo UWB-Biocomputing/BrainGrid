@@ -42,8 +42,6 @@
 #include <vector>
 #include <iostream>
 
-using namespace std;
-
 /**
  * Implementation of Model for the Leaky-Integrate-and-Fire model.
  */

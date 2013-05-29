@@ -8,7 +8,7 @@
  **/
 
 #define _CUDA_LIFModel
-#include "MersenneTwisterCUDA.h"
+#include "../cuda/MersenneTwisterGPU.h"
 #include "../tinyxml/tinyxml.h"
 
 #include "ParseParamError.h"

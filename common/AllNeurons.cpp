@@ -19,7 +19,7 @@ AllNeurons::AllNeurons() :
     Vrest = NULL;
     Vthresh = NULL;
     deltaT = NULL;
-    hasFired = NULL;
+	hasFired.resize(0);
     nStepsInRefr = NULL;
     neuron_type_map = NULL;
     spikeCount = NULL;
@@ -49,7 +49,7 @@ AllNeurons::AllNeurons(const int size) :
     Vrest = new BGFLOAT[size];
     Vthresh = new BGFLOAT[size];
     deltaT = new TIMEFLOAT[size];
-    hasFired = new bool[size];
+    hasFired.resize(size);
     nStepsInRefr = new uint32_t[size];
     neuron_type_map = new neuronType[size];
     spikeCount = new uint32_t[size];
@@ -86,7 +86,7 @@ AllNeurons::~AllNeurons()
     delete[] Vrest;
     delete[] Vthresh;
     delete[] deltaT;
-    delete[] hasFired;
+    hasFired.resize(0);
     delete[] nStepsInRefr;
     delete[] neuron_type_map;
     delete[] spikeCount;
@@ -110,7 +110,7 @@ AllNeurons::~AllNeurons()
     Vrest = NULL;
     Vthresh = NULL;
     deltaT = NULL;
-    hasFired = NULL;
+    hasFired.clear();
     nStepsInRefr = NULL;
     neuron_type_map = NULL;
     spikeCount = NULL;
