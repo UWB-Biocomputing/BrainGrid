@@ -13,7 +13,7 @@ struct AllNeurons
         uint32_t size;
 
         //! A boolean which tracks whether the neuron has fired
-        vector<uint32_t> hasFired; // used as a bool (must be int sized/cannot be bool because of incompatibility with AMP)
+        vector<GPU_COMPAT_BOOL> hasFired; // used as a bool (must be int sized/cannot be bool because of incompatibility with AMP)
 
         //! The length of the absolute refractory period. [units=sec; range=(0,1);]
         vector<BGFLOAT> Trefract;

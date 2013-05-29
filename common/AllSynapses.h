@@ -58,8 +58,7 @@ struct AllSynapses
         //! The time of the last spike.
         uint64_t **lastSpike;
 
-	//! TODO: Define
-        bool **in_use;
+        GPU_COMPAT_BOOL **in_use; // indicates whethere there is a synapse living here or not (for array(neuron, synapse))
 
         // The number of synapses for each neuron.
         size_t *synapse_counts;

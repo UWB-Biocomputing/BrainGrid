@@ -26,6 +26,11 @@ typedef TIMEFLOAT *PTIMEFLOAT;
 #ifdef _WIN32
 #define SINGLEPRECISION
 #define BGFLOAT float
+#ifdef USE_AMP
+#define GPU_COMPAT_BOOL uint32_t
+#else
+#define GPU_COMPAT_BOOL bool
+#endif//USE_AMP
 typedef unsigned long long int uint64_t;	//included in inttypes.h, which is not available in WIN32//included in inttypes.h, which is not available in WIN32
 typedef unsigned int       uint32_t; // same deal as above
 typedef signed int         int32_t;
@@ -34,7 +39,7 @@ typedef signed int         int32_t;
 //#define BGFLOAT double
 #define SINGLEPRECISION
 #define BGFLOAT float
-
+#define GPU_COMPAT_BOOL bool
 // solution to get rid of typedef redefine errors on different platforms
 #ifdef __APPLE__
   

@@ -197,6 +197,16 @@ void AMP_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, Simulatio
 		Concurrency::extent<1> numN(neuron_count);
 		array_view<uint32_t> v_hasFired(neuron_count, neurons.hasFired);
 		array_view<uint32_t> v_nStepsInRefr(neuron_count, neurons.nStepsInRefr);
+		array_view<uint32_t> v_Vm(neuron_count, neurons.Vm);
+		array_view<uint32_t> v_Vthresh(neuron_count, neurons.Vthresh);
+		array_view<uint32_t> v_spikeCount(neuron_count, neurons.spikeCount);
+		array_view<uint32_t> v_summationPoint(neuron_count, neurons.summation_map);
+		array_view<uint32_t> v_Trefract(neuron_count, neurons.Trefract);
+		array_view<uint32_t> v_deltaT(neuron_count, neurons.deltaT);
+		array_view<uint32_t> v_Vreset(neuron_count, neurons.Vreset);
+		array_view<uint32_t> v_(neuron_count, neurons.);
+		array_view<GPU_COMPAT_BOOL, 2> v_SynapseInUse(neuron_count, psi->maxSynapsesPerNeuron, synapses.in_use);
+
 		parallel_for_each(numN, [=](index<1> idx) restrict(amp)
 		{
 			uint32_t temp = v_hasFired[idx];

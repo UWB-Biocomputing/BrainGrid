@@ -50,7 +50,7 @@ AllSynapses::AllSynapses(const int num_neurons, const int max_synapses) :
     U = new BGFLOAT*[num_neurons];
     F = new BGFLOAT*[num_neurons];
     lastSpike = new uint64_t*[num_neurons];
-    in_use = new bool*[num_neurons];
+	in_use = new GPU_COMPAT_BOOL*[num_neurons];
     synapse_counts = new size_t[num_neurons];
 
     for (int i = 0; i < num_neurons; i++) {
@@ -73,7 +73,7 @@ AllSynapses::AllSynapses(const int num_neurons, const int max_synapses) :
         U[i] = new BGFLOAT[max_synapses];
         F[i] = new BGFLOAT[max_synapses];
         lastSpike[i] = new uint64_t[max_synapses];
-        in_use[i] = new bool[max_synapses];
+		in_use[i] = new GPU_COMPAT_BOOL[max_synapses];
 
         for (int j = 0; j < max_synapses; j++) {
             summationPoint[i][j] = NULL;
