@@ -13,70 +13,70 @@ struct AllNeurons
         uint32_t size;
 
         //! A boolean which tracks whether the neuron has fired
-        vector<bool> hasFired;
+        vector<uint32_t> hasFired; // used as a bool (must be int sized/cannot be bool because of incompatibility with AMP)
 
         //! The length of the absolute refractory period. [units=sec; range=(0,1);]
-        BGFLOAT *Trefract;
+        vector<BGFLOAT> Trefract;
 
         //! If \f$V_m\f$ exceeds \f$V_{thresh}\f$ a spike is emmited. [units=V; range=(-10,100);]
-        BGFLOAT *Vthresh;
+        vector<BGFLOAT> Vthresh;
 
         //! The resting membrane voltage. [units=V; range=(-1,1);]
-        BGFLOAT *Vrest;
+        vector<BGFLOAT> Vrest;
 
         //! The voltage to reset \f$V_m\f$ to after a spike. [units=V; range=(-1,1);]
-        BGFLOAT *Vreset;
+        vector<BGFLOAT> Vreset;
 
         //! The initial condition for \f$V_m\f$ at time \f$t=0\f$. [units=V; range=(-1,1);]
-        BGFLOAT *Vinit;
+        vector<BGFLOAT> Vinit;
         //! The simulation time step size.
-        TIMEFLOAT *deltaT; // must be double for compatibility with GPU code
+        vector <TIMEFLOAT> deltaT; // must be double for compatibility with GPU code
 
         //! The membrane capacitance \f$C_m\f$ [range=(0,1); units=F;]
-        BGFLOAT *Cm;
+        vector<BGFLOAT> Cm;
 
         //! The membrane resistance \f$R_m\f$ [units=Ohm; range=(0,1e30)]
-        BGFLOAT *Rm;
+        vector<BGFLOAT> Rm;
 
         //! The standard deviation of the noise to be added each integration time constant. [range=(0,1); units=A;]
-        BGFLOAT *Inoise;
+		vector<BGFLOAT> Inoise;
 
         //! A constant current to be injected into the LIF neuron. [units=A; range=(-1,1);]
-        BGFLOAT *Iinject;
+        vector<BGFLOAT> Iinject;
 
         // What the hell is this used for???
         //! The synaptic input current.
-        BGFLOAT *Isyn;
+        vector<BGFLOAT> Isyn;
 
         //! The remaining number of time steps for the absolute refractory period.
-        uint32_t *nStepsInRefr;
+        vector<uint32_t> nStepsInRefr;
 
         //! Internal constant for the exponential Euler integration of \f$V_m\f$.
-        BGFLOAT *C1;
+        vector<BGFLOAT> C1;
         //! Internal constant for the exponential Euler integration of \f$V_m\f$.
-        BGFLOAT *C2;
+        vector<BGFLOAT> C2;
         //! Internal constant for the exponential Euler integration of \f$V_m\f$.
-        BGFLOAT *I0;
+        vector<BGFLOAT> I0;
 
         //! The membrane voltage \f$V_m\f$ [readonly; units=V;]
-        BGFLOAT *Vm;
+        vector<BGFLOAT> Vm;
 
         //! The membrane time constant \f$(R_m \cdot C_m)\f$
-        BGFLOAT *Tau;
+        vector<BGFLOAT> Tau;
 
         //! The number of spikes since the last growth cycle
-        uint32_t *spikeCount;
+        vector<uint32_t> spikeCount;
 
         //! The total number of spikes since the start of the simulation
-        uint32_t *totalSpikeCount;        
+        vector<uint32_t> totalSpikeCount;        
 
         uint64_t **spike_history;
 
         //! The neuron type map (INH, EXC).
-        neuronType *neuron_type_map;
+        vector<neuronType> neuron_type_map;
 
         // List of summation points for each neuron
-        BGFLOAT *summation_map;
+        vector<BGFLOAT> summation_map;
 
         //! The starter existence map (T/F).
         bool *starter_map;

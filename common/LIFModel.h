@@ -134,9 +134,9 @@ class LIFModel : public Model, TiXmlVisitor
         // --------------------
 
         // TODO
-        void generateNeuronTypeMap(neuronType neuron_types[], uint32_t num_neurons);
+        void generateNeuronTypeMap(vector<neuronType> &neuron_types, uint32_t num_neurons);
         // TODO
-        void initStarterMap(bool *starter_map, const uint32_t num_neurons, const neuronType neuron_type_map[]);
+        void initStarterMap(bool *starter_map, const uint32_t num_neurons, const vector<neuronType> &neuron_type_map);
         // TODO
         void setNeuronDefaults(AllNeurons &neurons, const uint32_t index);
         // TODO

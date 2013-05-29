@@ -164,6 +164,7 @@ void AMP_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, Simulatio
 
 	DEBUG(cout << "Beginning GPU sim cycle, simTime = " << g_simulationStep * deltaT << ", endTime = " << endStep * deltaT << endl;)
 
+	assert((n_per_RNG & 1) == 0); // ensure it's even -- odd not allowed
 	while ( g_simulationStep < endStep )
 	{
 		Concurrency::extent<1> e_c(v_matrix.size());
@@ -187,14 +188,23 @@ void AMP_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, Simulatio
 		array<unsigned int, 1> mask_b(e_c, v_mask_b.begin());
 		array<unsigned int, 1> mask_c(e_c, v_mask_c.begin());
 
-		assert((n_per_RNG & 1) == 0); // ensure it's even -- odd not allowed
 		// generate random numbers
 		parallel_for_each(e_c, [=, &random_nums, &matrix_a, &mask_b, &mask_c, &seed] (index<1> idx) restrict(amp)
 		{
 			rand_MT_kernel(idx, random_nums, matrix_a[idx], mask_b[idx], mask_c[idx], seed[idx], n_per_RNG);
 		});
 
-//		array<mt_struct, 1> 
+		Concurrency::extent<1> numN(neuron_count);
+		array_view<uint32_t> v_hasFired(neuron_count, neurons.hasFired);
+		array_view<uint32_t> v_nStepsInRefr(neuron_count, neurons.nStepsInRefr);
+		parallel_for_each(numN, [=](index<1> idx) restrict(amp)
+		{
+			uint32_t temp = v_hasFired[idx];
+			v_hasFired[idx] = v_nStepsInRefr[idx];
+			v_nStepsInRefr[idx] = temp;
+		});
+		v_hasFired.synchronize();
+		v_nStepsInRefr.synchronize();
 	}
 
 	return;

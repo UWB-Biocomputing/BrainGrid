@@ -3,118 +3,91 @@
 AllNeurons::AllNeurons() :
         size(0)
 {
-    C1 = NULL;
-    C2 = NULL;
-    Cm = NULL;
-    I0 = NULL;
-    Iinject = NULL;
-    Inoise = NULL;
-    Isyn = NULL;
-    Rm = NULL;
-    Tau = NULL;
-    Trefract = NULL;
-    Vinit = NULL;
-    Vm = NULL;
-    Vreset = NULL;
-    Vrest = NULL;
-    Vthresh = NULL;
-    deltaT = NULL;
-	hasFired.resize(0);
-    nStepsInRefr = NULL;
-    neuron_type_map = NULL;
-    spikeCount = NULL;
-    totalSpikeCount = NULL;
+    C1.clear();
+    C2.clear();
+    Cm.clear();
+    I0.clear();
+    Iinject.clear();
+    Inoise.clear();
+    Isyn.clear();
+    Rm.clear();
+    Tau.clear();
+    Trefract.clear();
+    Vinit.clear();
+    Vm.clear();
+    Vreset.clear();
+    Vrest.clear();
+    Vthresh.clear();
+    deltaT.clear();
+	hasFired.clear();
+    nStepsInRefr.clear();
+    neuron_type_map.clear();
+    spikeCount.clear();
+    totalSpikeCount.clear();
     spike_history = NULL;
     starter_map = NULL;
-    summation_map = NULL;
+    summation_map.clear();
 }
 
 AllNeurons::AllNeurons(const int size) :
         size(size)
 {
     // TODO: Rename variables for easier identification
-    C1 = new BGFLOAT[size];
-    C2 = new BGFLOAT[size];
-    Cm = new BGFLOAT[size];
-    I0 = new BGFLOAT[size];
-    Iinject = new BGFLOAT[size];
-    Inoise = new BGFLOAT[size];
-    Isyn = new BGFLOAT[size];
-    Rm = new BGFLOAT[size];
-    Tau = new BGFLOAT[size];
-    Trefract = new BGFLOAT[size];
-    Vinit = new BGFLOAT[size];
-    Vm = new BGFLOAT[size];
-    Vreset = new BGFLOAT[size];
-    Vrest = new BGFLOAT[size];
-    Vthresh = new BGFLOAT[size];
-    deltaT = new TIMEFLOAT[size];
-    hasFired.resize(size);
-    nStepsInRefr = new uint32_t[size];
-    neuron_type_map = new neuronType[size];
-    spikeCount = new uint32_t[size];
-    totalSpikeCount = new uint32_t[size];
-    starter_map = new bool[size];
-    summation_map = new BGFLOAT[size];
-    spike_history = new uint64_t*[size];
+    C1.resize(size);
+    C2.resize(size);
+    Cm.resize(size);
+    I0.resize(size);
+    Iinject.resize(size);
+    Inoise.resize(size);
+    Isyn.resize(size);
+    Rm.resize(size);
+    Tau.resize(size);
+    Trefract.resize(size);
+    Vinit.resize(size);
+    Vm.resize(size);
+    Vreset.resize(size);
+    Vrest.resize(size);
+    Vthresh.resize(size);
+    deltaT.resize(size);
+	hasFired.resize(size);
+    nStepsInRefr.resize(size);
+    neuron_type_map.resize(size);
+    spikeCount.resize(size);
+    totalSpikeCount.resize(size);
+    starter_map = NULL;
+    summation_map.resize(size);
 
-    for (int i = 0; i < size; ++i) {
-        summation_map[i] = 0;
-        nStepsInRefr[i] = 0;
-        spike_history[i] = NULL;
-        hasFired[i] = false;
-        spikeCount[i] = 0;
-        totalSpikeCount[i] = 0;
-    }
+    starter_map = new bool[size];
+    spike_history = new uint64_t*[size]();
 }
 
 AllNeurons::~AllNeurons()
 {
-    delete[] C1;
-    delete[] C2;
-    delete[] Cm;
-    delete[] I0;
-    delete[] Iinject;
-    delete[] Inoise;
-    delete[] Isyn;
-    delete[] Rm;
-    delete[] Tau;
-    delete[] Trefract;
-    delete[] Vinit;
-    delete[] Vm;
-    delete[] Vreset;
-    delete[] Vrest;
-    delete[] Vthresh;
-    delete[] deltaT;
-    hasFired.resize(0);
-    delete[] nStepsInRefr;
-    delete[] neuron_type_map;
-    delete[] spikeCount;
-    delete[] totalSpikeCount;
-    delete[] starter_map;
-    delete[] summation_map;
-
-    C1 = NULL;
-    C2 = NULL;
-    Cm = NULL;
-    I0 = NULL;
-    Iinject = NULL;
-    Inoise = NULL;
-    Isyn = NULL;
-    Rm = NULL;
-    Tau = NULL;
-    Trefract = NULL;
-    Vinit = NULL;
-    Vm = NULL;
-    Vreset = NULL;
-    Vrest = NULL;
-    Vthresh = NULL;
-    deltaT = NULL;
-    hasFired.clear();
-    nStepsInRefr = NULL;
-    neuron_type_map = NULL;
-    spikeCount = NULL;
-    totalSpikeCount = NULL;
+	delete[] starter_map;
+	delete[] spike_history;
     starter_map = NULL;
-    summation_map = NULL;
+	spike_history = NULL;
+
+    C1.clear();
+    C2.clear();
+    Cm.clear();
+    I0.clear();
+    Iinject.clear();
+    Inoise.clear();
+    Isyn.clear();
+    Rm.clear();
+    Tau.clear();
+    Trefract.clear();
+    Vinit.clear();
+    Vm.clear();
+    Vreset.clear();
+    Vrest.clear();
+    Vthresh.clear();
+    deltaT.clear();
+    hasFired.clear();
+    nStepsInRefr.clear();
+    neuron_type_map.clear();
+    spikeCount.clear();
+    totalSpikeCount.clear();
+    summation_map.clear();
 }

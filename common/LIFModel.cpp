@@ -357,7 +357,7 @@ void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &syna
  */
 void LIFModel::readNeuron(istream &input, AllNeurons &neurons, const uint32_t index)
 {
-    // input.ignore() so input skips over end-of-line characters.
+	// input.ignore() so input skips over end-of-line characters.
     input >> neurons.deltaT[index]; input.ignore();
     input >> neurons.Cm[index]; input.ignore();
     input >> neurons.Rm[index]; input.ignore();
@@ -374,7 +374,7 @@ void LIFModel::readNeuron(istream &input, AllNeurons &neurons, const uint32_t in
     input >> neurons.C2[index]; input.ignore();
     input >> neurons.I0[index]; input.ignore();
     input >> neurons.Vm[index]; input.ignore();
-//    input >> neurons.hasFired[index]; input.ignore();
+    input >> neurons.hasFired[index]; input.ignore();
     input >> neurons.Tau[index]; input.ignore();
 }
 
@@ -706,7 +706,7 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, SimulationInfo *sim_info)
  *  @param  num_neurons number of the neurons to have in the type map.
  *  @return a flat vector (to map to 2-d [x,y] = [i % m_width, i / m_width])
  */
-void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], uint32_t num_neurons)
+void LIFModel::generateNeuronTypeMap(vector<neuronType> &neuron_types, uint32_t num_neurons)
 {
     //TODO: m_pInhibitoryNeuronLayout
     uint32_t num_inhibitory_neurons = m_inhibitory_neuron_layout.size();
@@ -763,7 +763,7 @@ void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], uint32_t num_neu
  *  @param  num_neurons number of neurons to have in the map.
  *  @param  neuron_type_map array of neuronTypes to set the starter map to.
  */
-void LIFModel::initStarterMap(bool *starter_map, const uint32_t num_neurons, const neuronType neuron_type_map[])
+void LIFModel::initStarterMap(bool *starter_map, const uint32_t num_neurons, const vector<neuronType> &neuron_type_map)
 {
     for (uint32_t i = 0; i < num_neurons; i++) {
         starter_map[i] = false;

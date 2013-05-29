@@ -139,7 +139,7 @@ struct LifNeuron_struct {
 	BGFLOAT* Vm;
 
 	 //! A boolean which tracks whether the neuron has fired
-        bool* hasFired;
+    bool* hasFired;
 
 	//! The membrane time constant \f$(R_m \cdot C_m)\f$
 	BGFLOAT* Tau;

@@ -222,7 +222,7 @@ void allocNeuronStruct_d( uint32_t count ) {
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &neuron.C2, count * sizeof( BGFLOAT ) ) );
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &neuron.I0, count * sizeof( BGFLOAT ) ) );
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &neuron.Vm, count * sizeof( BGFLOAT ) ) );
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &neuron.hasFired, count * sizeof( bool ) ) );
+	HANDLE_ERROR( cudaMalloc( ( void ** ) &neuron.hasFired, count * sizeof( char ) ) );
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &neuron.Tau, count * sizeof( BGFLOAT ) ) );
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &neuron.spikeCount, count * sizeof( uint32_t ) ) );
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &neuron.outgoingSynapse_begin, count * sizeof( uint32_t ) ) );
@@ -283,7 +283,7 @@ void copyNeuronHostToDevice( LifNeuron_struct& neuron_h, uint32_t count ) {
 	HANDLE_ERROR( cudaMemcpy ( neuron.C2, neuron_h.C2, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 	HANDLE_ERROR( cudaMemcpy ( neuron.I0, neuron_h.I0, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 	HANDLE_ERROR( cudaMemcpy ( neuron.Vm, neuron_h.Vm, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
-	HANDLE_ERROR( cudaMemcpy ( neuron.hasFired, neuron_h.hasFired, count * sizeof( bool ), cudaMemcpyHostToDevice ) );
+	HANDLE_ERROR( cudaMemcpy ( neuron.hasFired, neuron_h.hasFired, count * sizeof( char ), cudaMemcpyHostToDevice ) );
 	HANDLE_ERROR( cudaMemcpy ( neuron.Tau, neuron_h.Tau, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 	HANDLE_ERROR( cudaMemcpy ( neuron.spikeCount, neuron_h.spikeCount, count * sizeof( uint32_t ), cudaMemcpyHostToDevice ) );
 	HANDLE_ERROR( cudaMemcpy ( neuron.outgoingSynapse_begin, neuron_h.outgoingSynapse_begin, count * sizeof( uint32_t ), cudaMemcpyHostToDevice ) );
