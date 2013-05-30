@@ -30,7 +30,7 @@ struct AllNeurons
         //! The initial condition for \f$V_m\f$ at time \f$t=0\f$. [units=V; range=(-1,1);]
         vector<BGFLOAT> Vinit;
         //! The simulation time step size.
-        vector <TIMEFLOAT> deltaT; // must be double for compatibility with GPU code
+        vector<TIMEFLOAT> deltaT; // must be double for compatibility with GPU code
 
         //! The membrane capacitance \f$C_m\f$ [range=(0,1); units=F;]
         vector<BGFLOAT> Cm;

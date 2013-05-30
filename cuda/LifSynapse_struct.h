@@ -63,7 +63,7 @@ void deleteSynapseSumCoord(LifSynapse_struct& synapse);
  * @param out
  * @param idx
  */
-void copySynapseToStruct(AllSynapses &synapses, int neuron, LifSynapse_struct& out, int idx);
+void copySynapseToStruct(uint32_t num_neurons, AllSynapses &synapses, int neuron, LifSynapse_struct& out, int idx);
 
 /**
  * Copy a DynamicSpikingSynapse_struct into a ISynapse.

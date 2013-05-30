@@ -26,6 +26,7 @@ typedef TIMEFLOAT *PTIMEFLOAT;
 #ifdef _WIN32
 #define SINGLEPRECISION
 #define BGFLOAT float
+typedef unsigned _int8 uint8_t;
 #ifdef USE_AMP
 #define GPU_COMPAT_BOOL uint32_t
 #else

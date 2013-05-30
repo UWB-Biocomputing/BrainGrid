@@ -85,24 +85,24 @@ void deleteSynapseSumCoord(LifSynapse_struct& synapse) {
  * @param out
  * @param idx
  */
-void copySynapseToStruct(AllSynapses &synapses, int neuron, LifSynapse_struct& out, int idx) {
+void copySynapseToStruct(uint32_t num_neurons, AllSynapses &synapses, int neuron, LifSynapse_struct& out, int idx) {
 	// copy everything necessary
 	out.inUse[idx] 		= true;
-	out.W[idx] 			= synapses.W[neuron][idx];
-	out.decay[idx] 		= synapses.decay[neuron][idx];
-	out.deltaT[idx] 		= synapses.deltaT[neuron][idx];
-	out.lastSpike[idx] 	= synapses.lastSpike[neuron][idx];
-	out.psr[idx] 			= synapses.psr[neuron][idx];
-	out.r[idx] 			= synapses.r[neuron][idx];
-	out.summationCoord[idx]= synapses.summationCoord[neuron][idx];
-	out.synapseCoord[idx] 	= synapses.synapseCoord[neuron][idx];
+	out.W[idx] 			= synapses.W[neuron * num_neurons + idx];
+	out.decay[idx] 		= synapses.decay[neuron * num_neurons + idx];
+	out.deltaT[idx] 		= synapses.deltaT[neuron * num_neurons + idx];
+	out.lastSpike[idx] 	= synapses.lastSpike[neuron * num_neurons + idx];
+	out.psr[idx] 			= synapses.psr[neuron * num_neurons + idx];
+	out.r[idx] 			= synapses.r[neuron * num_neurons + idx];
+	out.summationCoord[idx]= synapses.summationCoord[neuron * num_neurons + idx];
+	out.synapseCoord[idx] 	= synapses.synapseCoord[neuron * num_neurons + idx];
 	out.summationPoint[idx]= 0;
-	out.tau[idx] 			= synapses.tau[neuron][idx];
-	out.total_delay[idx] 	= synapses.total_delay[neuron][idx];
-	out.u[idx] 			= synapses.u[neuron][idx];
-	out.ldelayQueue[idx] 	= synapses.ldelayQueue[neuron][idx];
-	out.type[idx] 			= synapses.type[neuron][idx];
-	out.delayQueue[idx] 	= synapses.delayQueue[neuron][idx][0];
+	out.tau[idx] 			= synapses.tau[neuron * num_neurons + idx];
+	out.total_delay[idx] 	= synapses.total_delay[neuron * num_neurons + idx];
+	out.u[idx] 			= synapses.u[neuron * num_neurons + idx];
+	out.ldelayQueue[idx] 	= synapses.ldelayQueue[neuron * num_neurons + idx];
+	out.type[idx] 			= synapses.type[neuron * num_neurons + idx];
+	out.delayQueue[idx] 	= synapses.delayQueue[neuron * num_neurons + idx][0];
 }
 
 /**
@@ -113,19 +113,21 @@ void copySynapseToStruct(AllSynapses &synapses, int neuron, LifSynapse_struct& o
  */
 void copyStructToSynapse(LifSynapse_struct& in, AllSynapses &synapses, int neuron, int idx) {
 	// copy everything necessary
-	synapses.W[neuron][idx]				= in.W[idx];
-	synapses.decay[neuron][idx]			= in.decay[idx];
-	synapses.deltaT[neuron][idx] 		= in.deltaT[idx];
-	synapses.lastSpike[neuron][idx] 	= in.lastSpike[idx];
-	synapses.psr[neuron][idx] 			= in.psr[idx];
-	synapses.r[neuron][idx] 			= in.r[idx];
-	synapses.summationCoord[neuron][idx]= in.summationCoord[idx];
-	synapses.synapseCoord[neuron][idx]	= in.synapseCoord[idx];
-	synapses.tau[neuron][idx] 			= in.tau[idx];
-	synapses.total_delay[neuron][idx] 	= in.total_delay[idx];
-	synapses.u[neuron][idx] 			= in.u[idx];
-	synapses.type[neuron][idx]			= in.type[idx];
-	synapses.delayQueue[neuron][idx][0]	= in.delayQueue[idx];
+	uint32_t num_neurons = synapses.count_neurons;
+
+	synapses.W[neuron * num_neurons + idx]				= in.W[idx];
+	synapses.decay[neuron * num_neurons + idx]			= in.decay[idx];
+	synapses.deltaT[neuron * num_neurons + idx] 		= in.deltaT[idx];
+	synapses.lastSpike[neuron * num_neurons + idx]		= in.lastSpike[idx];
+	synapses.psr[neuron * num_neurons + idx]			= in.psr[idx];
+	synapses.r[neuron * num_neurons + idx]				= in.r[idx];
+	synapses.summationCoord[neuron * num_neurons + idx]	= in.summationCoord[idx];
+	synapses.synapseCoord[neuron * num_neurons + idx]	= in.synapseCoord[idx];
+	synapses.tau[neuron * num_neurons + idx]			= in.tau[idx];
+	synapses.total_delay[neuron * num_neurons + idx]	= in.total_delay[idx];
+	synapses.u[neuron * num_neurons + idx]				= in.u[idx];
+	synapses.type[neuron * num_neurons + idx]			= in.type[idx];
+	synapses.delayQueue[neuron * num_neurons + idx][0]	= in.delayQueue[idx];
 }
 
 #if 0

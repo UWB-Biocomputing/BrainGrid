@@ -4,64 +4,61 @@
 #define _ALLSYNAPSES_H_
 
 #include "Global.h"
-#ifdef _WIN32
-typedef unsigned _int8 uint8_t;
-#endif
 
 struct AllSynapses
 {
     public:
         //! The coordinates of the summation point.
-        Coordinate **summationCoord;
+        vector<Coordinate> summationCoord;
 
         //! The weight (scaling factor, strength, maximal amplitude) of the synapse.
-        BGFLOAT **W;
+        vector<BGFLOAT> W;
 
-        //! This synapse's summation point's address.
-        BGFLOAT ***summationPoint;
+        //! This synapse's summation point's address (the index of neuron, ie neuron[summationPoint] is the sp)
+        vector<uint32_t> summationPoint;
 
         //! The location of the synapse.
-        Coordinate **synapseCoord;
+        vector<Coordinate> synapseCoord;
 
         //! The time step size.
-        TIMEFLOAT **deltaT; // must be double for compatibility with GPU code
+        vector<TIMEFLOAT> deltaT; // must be double for compatibility with GPU code
 
         //! The post-synaptic response is the result of whatever computation is going on in the synapse.
-        BGFLOAT **psr;
+        vector<BGFLOAT> psr;
         //! The decay for the psr.
-        BGFLOAT **decay;
+        vector<BGFLOAT> decay;
         //! The synaptic transmission delay, descretized into time steps.
-        uint32_t **total_delay;
+        vector<uint32_t> total_delay;
         //! The delayed queue
-        uint32_t ***delayQueue;
+        vector<uint32_t> delayQueue;
         //! The index indicating the current time slot in the delayed queue
-        uint32_t **delayIdx;
+        vector<uint32_t> delayIdx;
         //! Length of the delayed queue
-        uint32_t **ldelayQueue;
+        vector<uint32_t> ldelayQueue;
         //! Synapse type
-        synapseType **type;
+        vector<synapseType> type;
 
         //! The synaptic time constant \f$\tau\f$ [units=sec; range=(0,100)].
-        BGFLOAT **tau;
+        vector<BGFLOAT> tau;
 
         // dynamic synapse vars...........
         //! The time varying state variable \f$r\f$ for depression.
-        BGFLOAT **r;
+        vector<BGFLOAT> r;
         //! The time varying state variable \f$u\f$ for facilitation.
-        BGFLOAT **u;
+        vector<BGFLOAT> u;
         //! The time constant of the depression of the dynamic synapse [range=(0,10); units=sec].
-        BGFLOAT **D;
+        vector<BGFLOAT> D;
         //! The use parameter of the dynamic synapse [range=(1e-5,1)].
-        BGFLOAT **U;
+        vector<BGFLOAT> U;
         //! The time constant of the facilitation of the dynamic synapse [range=(0,10); units=sec].
-        BGFLOAT **F;
+        vector<BGFLOAT> F;
         //! The time of the last spike.
-        uint64_t **lastSpike;
+        vector<uint64_t> lastSpike;
 
-        GPU_COMPAT_BOOL **in_use; // indicates whethere there is a synapse living here or not (for array(neuron, synapse))
+        vector<GPU_COMPAT_BOOL> in_use; // indicates whethere there is a synapse living here or not (for array(neuron, synapse))
 
         // The number of synapses for each neuron.
-        size_t *synapse_counts;
+        vector<size_t> synapse_counts;
 
 	// The number of neurons
         int count_neurons;

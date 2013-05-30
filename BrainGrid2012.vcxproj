@@ -272,10 +272,12 @@
     <ClCompile Include="cuda\LifNeuron_struct.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|X64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='AMP Debug|X64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="cuda\LifSynapse_struct.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|X64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='AMP Debug|X64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="AMP\AMP_LIFModel.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='GPU Debug|X64'">true</ExcludedFromBuild>

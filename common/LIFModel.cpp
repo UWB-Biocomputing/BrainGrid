@@ -320,14 +320,16 @@ void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &syna
         input >> summation_coord.x;
         input >> summation_coord.y;
 
+		// TODO: (PAB) I don't think this is correct, but leaving it for now.
         uint32_t neuron_index = summation_coord.x + summation_coord.y * sim_info->width;
         uint32_t synapses_index = read_synapses_counts[neuron_index];
 
-        synapses.summationCoord[neuron_index][synapses_index] = summation_coord;
+        synapses.summationCoord[neuron_index * neurons.size + synapses_index] = summation_coord;
 
         readSynapse(input, synapses, neuron_index, synapses_index);
 
-        synapses.summationPoint[neuron_index][synapses_index] = &(neurons.summation_map[summation_coord.x + summation_coord.y * sim_info->width]);
+//       synapses.summationPoint[neuron_index * neurons.size + synapses_index] = &neurons.summation_map[summation_coord.x + summation_coord.y * sim_info->width];
+//        synapses.summationPoint = neuron_index * neurons.size + synapses_index;
 
         read_synapses_counts[neuron_index]++;
 
@@ -357,6 +359,8 @@ void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &syna
  */
 void LIFModel::readNeuron(istream &input, AllNeurons &neurons, const uint32_t index)
 {
+	uint32_t temp;
+
 	// input.ignore() so input skips over end-of-line characters.
     input >> neurons.deltaT[index]; input.ignore();
     input >> neurons.Cm[index]; input.ignore();
@@ -374,7 +378,7 @@ void LIFModel::readNeuron(istream &input, AllNeurons &neurons, const uint32_t in
     input >> neurons.C2[index]; input.ignore();
     input >> neurons.I0[index]; input.ignore();
     input >> neurons.Vm[index]; input.ignore();
-    input >> neurons.hasFired[index]; input.ignore();
+    input >> temp; neurons.hasFired[index] = temp; input.ignore();
     input >> neurons.Tau[index]; input.ignore();
 }
 
@@ -392,28 +396,29 @@ void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const uint32_t
     resetSynapse(synapses, neuron_index, synapse_index);
 
     uint32_t synapse_type(0);
+	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
 
     // input.ignore() so input skips over end-of-line characters.
-    input >> synapses.synapseCoord[neuron_index][synapse_index].x; input.ignore();
-    input >> synapses.synapseCoord[neuron_index][synapse_index].y; input.ignore();
-    input >> synapses.deltaT[neuron_index][synapse_index]; input.ignore();
-    input >> synapses.W[neuron_index][synapse_index]; input.ignore();
-    input >> synapses.psr[neuron_index][synapse_index]; input.ignore();
-    input >> synapses.decay[neuron_index][synapse_index]; input.ignore();
-    input >> synapses.total_delay[neuron_index][synapse_index]; input.ignore();
-    input >> synapses.delayQueue[neuron_index][synapse_index][0]; input.ignore();
-    input >> synapses.delayIdx[neuron_index][synapse_index]; input.ignore();
-    input >> synapses.ldelayQueue[neuron_index][synapse_index]; input.ignore();
+	input >> synapses.synapseCoord[idx].x; input.ignore();
+    input >> synapses.synapseCoord[idx].y; input.ignore();
+    input >> synapses.deltaT[idx]; input.ignore();
+    input >> synapses.W[idx]; input.ignore();
+    input >> synapses.psr[idx]; input.ignore();
+    input >> synapses.decay[idx]; input.ignore();
+    input >> synapses.total_delay[idx]; input.ignore();
+    input >> synapses.delayQueue[idx]; input.ignore();
+    input >> synapses.delayIdx[idx]; input.ignore();
+    input >> synapses.ldelayQueue[idx]; input.ignore();
     input >> synapse_type; input.ignore();
-    input >> synapses.tau[neuron_index][synapse_index]; input.ignore();
-    input >> synapses.r[neuron_index][synapse_index]; input.ignore();
-    input >> synapses.u[neuron_index][synapse_index]; input.ignore();
-    input >> synapses.D[neuron_index][synapse_index]; input.ignore();
-    input >> synapses.U[neuron_index][synapse_index]; input.ignore();
-    input >> synapses.F[neuron_index][synapse_index]; input.ignore();
-    input >> synapses.lastSpike[neuron_index][synapse_index]; input.ignore();
+    input >> synapses.tau[idx]; input.ignore();
+    input >> synapses.r[idx]; input.ignore();
+    input >> synapses.u[idx]; input.ignore();
+    input >> synapses.D[idx]; input.ignore();
+    input >> synapses.U[idx]; input.ignore();
+    input >> synapses.F[idx]; input.ignore();
+    input >> synapses.lastSpike[idx]; input.ignore();
 
-    synapses.type[neuron_index][synapse_index] = synapseOrdinalToType(synapse_type);
+    synapses.type[idx] = synapseOrdinalToType(synapse_type);
 }
 
 /**
@@ -424,10 +429,12 @@ void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const uint32_t
  */
 void LIFModel::initSpikeQueue(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index)
 {
-    uint32_t &total_delay = synapses.total_delay[neuron_index][synapse_index];
-    uint32_t &delayQueue = synapses.delayQueue[neuron_index][synapse_index][0];
-    uint32_t &delayIdx = synapses.delayIdx[neuron_index][synapse_index];
-    uint32_t &ldelayQueue = synapses.ldelayQueue[neuron_index][synapse_index];
+	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+
+	uint32_t &total_delay = synapses.total_delay[idx];
+    uint32_t &delayQueue = synapses.delayQueue[idx];
+    uint32_t &delayIdx = synapses.delayIdx[idx];
+    uint32_t &ldelayQueue = synapses.ldelayQueue[idx];
 
     size_t size = total_delay / ( sizeof(uint8_t) * 8 ) + 1;
     assert( size <= BYTES_OF_DELAYQUEUE );
@@ -444,11 +451,13 @@ void LIFModel::initSpikeQueue(AllSynapses &synapses, const uint32_t neuron_index
  */
 void LIFModel::resetSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index)
 {
-    synapses.psr[neuron_index][synapse_index] = 0.0;
+	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+
+	synapses.psr[idx] = 0.0;
     assert( updateDecay(synapses, neuron_index, synapse_index) );
-    synapses.u[neuron_index][synapse_index] = DEFAULT_U;
-    synapses.r[neuron_index][synapse_index] = 1.0;
-    synapses.lastSpike[neuron_index][synapse_index] = ULONG_MAX;
+    synapses.u[idx] = DEFAULT_U;
+    synapses.r[idx] = 1.0;
+    synapses.lastSpike[idx] = ULONG_MAX;
 }
 
 /**
@@ -459,9 +468,11 @@ void LIFModel::resetSynapse(AllSynapses &synapses, const uint32_t neuron_index, 
  */
 bool LIFModel::updateDecay(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index)
 {
-    BGFLOAT &tau = synapses.tau[neuron_index][synapse_index];
-    TIMEFLOAT &deltaT = synapses.deltaT[neuron_index][synapse_index];
-    BGFLOAT &decay = synapses.decay[neuron_index][synapse_index];
+	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+
+	BGFLOAT &tau = synapses.tau[idx];
+    TIMEFLOAT &deltaT = synapses.deltaT[idx];
+    BGFLOAT &decay = synapses.decay[idx];
 
     if (tau > 0) {
         decay = exp( -deltaT / tau );
@@ -546,26 +557,28 @@ void LIFModel::writeNeuron(ostream& output, AllNeurons &neurons, const uint32_t 
  *  @param  synapse_index   index of the synapse to print out.
  */
 void LIFModel::writeSynapse(ostream& output, AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index) const {
-    output << synapses.summationCoord[neuron_index][synapse_index].x << ends;
-    output << synapses.summationCoord[neuron_index][synapse_index].y << ends;
-    output << synapses.synapseCoord[neuron_index][synapse_index].x << ends;
-    output << synapses.synapseCoord[neuron_index][synapse_index].y << ends;
-    output << synapses.deltaT[neuron_index][synapse_index] << ends;
-    output << synapses.W[neuron_index][synapse_index] << ends;
-    output << synapses.psr[neuron_index][synapse_index] << ends;
-    output << synapses.decay[neuron_index][synapse_index] << ends;
-    output << synapses.total_delay[neuron_index][synapse_index] << ends;
-    output << synapses.delayQueue[neuron_index][synapse_index][0] << ends;
-    output << synapses.delayIdx[neuron_index][synapse_index] << ends;
-    output << synapses.ldelayQueue[neuron_index][synapse_index] << ends;
-    output << synapses.type[neuron_index][synapse_index] << ends;
-    output << synapses.tau[neuron_index][synapse_index] << ends;
-    output << synapses.r[neuron_index][synapse_index] << ends;
-    output << synapses.u[neuron_index][synapse_index] << ends;
-    output << synapses.D[neuron_index][synapse_index] << ends;
-    output << synapses.U[neuron_index][synapse_index] << ends;
-    output << synapses.F[neuron_index][synapse_index] << ends;
-    output << synapses.lastSpike[neuron_index][synapse_index] << ends;
+	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+
+	output << synapses.summationCoord[idx].x << ends;
+    output << synapses.summationCoord[idx].y << ends;
+    output << synapses.synapseCoord[idx].x << ends;
+    output << synapses.synapseCoord[idx].y << ends;
+    output << synapses.deltaT[idx] << ends;
+    output << synapses.W[idx] << ends;
+    output << synapses.psr[idx] << ends;
+    output << synapses.decay[idx] << ends;
+    output << synapses.total_delay[idx] << ends;
+    output << synapses.delayQueue[idx] << ends;
+    output << synapses.delayIdx[idx] << ends;
+    output << synapses.ldelayQueue[idx] << ends;
+    output << synapses.type[idx] << ends;
+    output << synapses.tau[idx] << ends;
+    output << synapses.r[idx] << ends;
+    output << synapses.u[idx] << ends;
+    output << synapses.D[idx] << ends;
+    output << synapses.U[idx] << ends;
+    output << synapses.F[idx] << ends;
+    output << synapses.lastSpike[idx] << ends;
 }
 
 /**
@@ -1032,10 +1045,12 @@ void LIFModel::fire(AllNeurons &neurons, const uint32_t index) const
  */
 void LIFModel::preSpikeHit(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index)
 {
-    uint32_t *delay_queue = synapses.delayQueue[neuron_index][synapse_index];
-    uint32_t &delayIdx = synapses.delayIdx[neuron_index][synapse_index];
-    uint32_t &ldelayQueue = synapses.ldelayQueue[neuron_index][synapse_index];
-    uint32_t &total_delay = synapses.total_delay[neuron_index][synapse_index];
+	uint32_t src_idx = neuron_index * synapses.count_neurons + synapse_index;
+
+	uint32_t &delay_queue = synapses.delayQueue[src_idx];
+    uint32_t &delayIdx = synapses.delayIdx[src_idx];
+    uint32_t &ldelayQueue = synapses.ldelayQueue[src_idx];
+    uint32_t &total_delay = synapses.total_delay[src_idx];
 
     // Add to spike queue
 
@@ -1046,10 +1061,10 @@ void LIFModel::preSpikeHit(AllSynapses &synapses, const uint32_t neuron_index, c
     }
 
     // set a spike
-    assert( !(delay_queue[0] & (0x1 << idx)) );
-    delay_queue[0] |= (0x1 << idx);
+    assert( !(delay_queue & (0x1 << idx)) );
+    delay_queue |= (0x1 << idx);
 
-    delay_queue = NULL;
+    delay_queue = 0;
 }
 
 /**
@@ -1075,17 +1090,19 @@ void LIFModel::advanceSynapses(const uint32_t num_neurons, AllSynapses &synapses
  */
 void LIFModel::advanceSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index)
 {
-    uint64_t &lastSpike = synapses.lastSpike[neuron_index][synapse_index];
-    TIMEFLOAT &deltaT = synapses.deltaT[neuron_index][synapse_index];
-    BGFLOAT &r = synapses.r[neuron_index][synapse_index];
-    BGFLOAT &u = synapses.u[neuron_index][synapse_index];
-    BGFLOAT &D = synapses.D[neuron_index][synapse_index];
-    BGFLOAT &F = synapses.F[neuron_index][synapse_index];
-    BGFLOAT &U = synapses.U[neuron_index][synapse_index];
-    BGFLOAT &W = synapses.W[neuron_index][synapse_index];
-    BGFLOAT &decay = synapses.decay[neuron_index][synapse_index];
-    BGFLOAT &psr = synapses.psr[neuron_index][synapse_index];
-    BGFLOAT &summationPoint = *(synapses.summationPoint[neuron_index][synapse_index]);
+	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+
+	uint64_t &lastSpike = synapses.lastSpike[idx];
+    TIMEFLOAT &deltaT = synapses.deltaT[idx];
+    BGFLOAT &r = synapses.r[idx];
+    BGFLOAT &u = synapses.u[idx];
+    BGFLOAT &D = synapses.D[idx];
+    BGFLOAT &F = synapses.F[idx];
+    BGFLOAT &U = synapses.U[idx];
+    BGFLOAT &W = synapses.W[idx];
+    BGFLOAT &decay = synapses.decay[idx];
+    BGFLOAT &psr = synapses.psr[idx];
+    uint32_t summationPoint = synapses.summationPoint[idx];
 
     // is an input in the queue?
     if (isSpikeQueue(synapses, neuron_index, synapse_index)) {
@@ -1133,16 +1150,18 @@ void LIFModel::advanceSynapse(AllSynapses &synapses, const uint32_t neuron_index
  */
 bool LIFModel::isSpikeQueue(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index)
 {
-    uint32_t *delay_queue = synapses.delayQueue[neuron_index][synapse_index];
-    uint32_t &delayIdx = synapses.delayIdx[neuron_index][synapse_index];
-    uint32_t &ldelayQueue = synapses.ldelayQueue[neuron_index][synapse_index];
+	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
 
-    bool r = delay_queue[0] & (0x1 << delayIdx);
-    delay_queue[0] &= ~(0x1 << delayIdx);
+	uint32_t &delay_queue = synapses.delayQueue[idx];
+    uint32_t &delayIdx = synapses.delayIdx[idx];
+    uint32_t &ldelayQueue = synapses.ldelayQueue[idx];
+
+    bool r = delay_queue & (0x1 << delayIdx);
+    delay_queue &= ~(0x1 << delayIdx);
     if ( ++delayIdx >= ldelayQueue ) {
         delayIdx = 0;
     }
-    delay_queue = NULL;
+    delay_queue = 0;
     return r;
 }
 
@@ -1309,7 +1328,9 @@ void LIFModel::updateWeights(const uint32_t num_neurons, AllNeurons &neurons, Al
             // for each existing synapse
             for (size_t synapse_index = 0; synapse_index < synapses.synapse_counts[src_neuron]; synapse_index++) {
                 // if there is a synapse between a and b
-                if (synapses.summationCoord[src_neuron][synapse_index] == dest_coord) {
+				uint32_t src_idx = src_neuron * num_neurons + synapse_index;
+
+                if (synapses.summationCoord[src_idx] == dest_coord) {
                     connected = true;
                     adjusted++;
 
@@ -1323,12 +1344,12 @@ void LIFModel::updateWeights(const uint32_t num_neurons, AllNeurons &neurons, Al
                     } else {
                         // adjust
                         // g_synapseStrengthAdjustmentConstant is 1.0e-8;
-                        synapses.W[src_neuron][synapse_index] = m_conns->W(src_neuron, dest_neuron) *
+                        synapses.W[src_idx] = m_conns->W(src_neuron, dest_neuron) *
                             synSign(type) * SYNAPSE_STRENGTH_ADJUSTMENT;
 
                         DEBUG_MID(cout << "weight of rgSynapseMap" <<
                                coordToString(xa, ya)<<"[" <<synapse_index<<"]: " <<
-                               synapses.W[src_neuron][synapse_index] << endl;);
+                               synapses.W[src_idx] << endl;);
                     }
                 }
             }
@@ -1337,7 +1358,7 @@ void LIFModel::updateWeights(const uint32_t num_neurons, AllNeurons &neurons, Al
             if (!connected && (m_conns->W(src_neuron, dest_neuron) > 0)) {
 
                 // locate summation point
-                BGFLOAT* sum_point = &( neurons.summation_map[dest_neuron] );
+				uint32_t sum_point = dest_neuron;
                 added++;
 
                 addSynapse(synapses, type, src_neuron, dest_neuron, src_coord, dest_coord, sum_point, sim_info->deltaT);
@@ -1360,9 +1381,11 @@ void LIFModel::updateWeights(const uint32_t num_neurons, AllNeurons &neurons, Al
  */
 void LIFModel::eraseSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index)
 {
-    synapses.synapse_counts[neuron_index]--;
-    synapses.in_use[neuron_index][synapse_index] = false;
-    synapses.summationPoint[neuron_index][synapse_index] = NULL;
+	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+
+	synapses.synapse_counts[neuron_index]--;
+    synapses.in_use[idx] = false;
+    synapses.summationPoint[idx] = NULL;
 }
 
 /**
@@ -1376,16 +1399,16 @@ void LIFModel::eraseSynapse(AllSynapses &synapses, const uint32_t neuron_index, 
  *  @param  sum_point   TODO
  *  @param  deltaT  TODO
  */
-void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const uint32_t src_neuron, const uint32_t dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, TIMEFLOAT deltaT)
+void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const uint32_t src_neuron, const uint32_t dest_neuron, Coordinate &source, Coordinate &dest, uint32_t sum_point, TIMEFLOAT deltaT)
 {
-    if (synapses.synapse_counts[src_neuron] >= synapses.max_synapses) {
+	if (synapses.synapse_counts[src_neuron] >= synapses.max_synapses) {
         return; // TODO: ERROR!
     }
 
     // add it to the list
     size_t synapse_index;
     for (synapse_index = 0; synapse_index < synapses.max_synapses; synapse_index++) {
-        if (!synapses.in_use[src_neuron][synapse_index]) {
+		if (!synapses.in_use[src_neuron * synapses.count_neurons + synapse_index]) {
             break;
         }
     }
@@ -1394,7 +1417,7 @@ void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const uint32_
 
     // create a synapse
     createSynapse(synapses, src_neuron, synapse_index, source, dest, sum_point, deltaT, type );
-    synapses.W[src_neuron][synapse_index] = m_conns->W(src_neuron, dest_neuron) * synSign(type) * SYNAPSE_STRENGTH_ADJUSTMENT;
+	synapses.W[src_neuron * synapses.count_neurons + synapse_index] = m_conns->W(src_neuron, dest_neuron) * synSign(type) * SYNAPSE_STRENGTH_ADJUSTMENT;
 }
 
 /**
@@ -1408,35 +1431,36 @@ void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const uint32_
  *  @param  deltaT  TODO
  *  @param  type    type of the Synapse to create.
  */
-void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index, Coordinate source, Coordinate dest, BGFLOAT *sum_point, TIMEFLOAT deltaT, synapseType type)
+void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index, Coordinate source, Coordinate dest, uint32_t sum_point, TIMEFLOAT deltaT, synapseType type)
 {
+	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
     BGFLOAT delay;
 
-    synapses.in_use[neuron_index][synapse_index] = true;
-    synapses.summationPoint[neuron_index][synapse_index] = sum_point;
-    synapses.summationCoord[neuron_index][synapse_index] = dest;
-    synapses.synapseCoord[neuron_index][synapse_index] = source;
-    synapses.deltaT[neuron_index][synapse_index] = deltaT;
-    synapses.W[neuron_index][synapse_index] = 10.0e-9f;
-    synapses.psr[neuron_index][synapse_index] = 0.0f;
-    synapses.delayQueue[neuron_index][synapse_index][0] = 0;
+    synapses.in_use[idx] = true;
+    synapses.summationPoint[idx] = sum_point;
+    synapses.summationCoord[idx] = dest;
+    synapses.synapseCoord[idx] = source;
+    synapses.deltaT[idx] = deltaT;
+    synapses.W[idx] = 10.0e-9f;
+    synapses.psr[idx] = 0.0f;
+    synapses.delayQueue[idx] = 0;
     DEBUG(
         cout << "synapse ("
                 << neuron_index << flush
                 << ","
                 << synapse_index << flush
             << ")"
-            << "delay queue length := " << synapses.ldelayQueue[neuron_index][synapse_index] << flush
+            << "delay queue length := " << synapses.ldelayQueue[idx] << flush
             << " => " << LENGTH_OF_DELAYQUEUE << endl;
     )
-    synapses.ldelayQueue[neuron_index][synapse_index] = LENGTH_OF_DELAYQUEUE;
-    synapses.r[neuron_index][synapse_index] = 1.0f;
-    synapses.u[neuron_index][synapse_index] = 0.4f;     // DEFAULT_U
-    synapses.lastSpike[neuron_index][synapse_index] = ULONG_MAX;
-    synapses.type[neuron_index][synapse_index] = type;
+    synapses.ldelayQueue[idx] = LENGTH_OF_DELAYQUEUE;
+    synapses.r[idx] = 1.0f;
+    synapses.u[idx] = 0.4f;     // DEFAULT_U
+    synapses.lastSpike[idx] = ULONG_MAX;
+    synapses.type[idx] = type;
 
-    synapses.U[neuron_index][synapse_index] = DEFAULT_U;
-    synapses.tau[neuron_index][synapse_index] = DEFAULT_tau;
+    synapses.U[idx] = DEFAULT_U;
+    synapses.tau[idx] = DEFAULT_tau;
 
     BGFLOAT U;
     BGFLOAT D;
@@ -1476,13 +1500,13 @@ void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index,
             break;
     }
 
-    synapses.U[neuron_index][synapse_index] = U;
-    synapses.D[neuron_index][synapse_index] = D;
-    synapses.F[neuron_index][synapse_index] = F;
+    synapses.U[idx] = U;
+    synapses.D[idx] = D;
+    synapses.F[idx] = F;
 
-    synapses.tau[neuron_index][synapse_index] = tau;
-    synapses.total_delay[neuron_index][synapse_index] = static_cast<uint32_t>( delay / deltaT ) + 1;
-    synapses.decay[neuron_index][synapse_index] = exp( -deltaT / tau );
+    synapses.tau[idx] = tau;
+    synapses.total_delay[idx] = static_cast<uint32_t>( delay / deltaT ) + 1;
+    synapses.decay[idx] = exp( -deltaT / tau );
 }
 
 /**

@@ -62,14 +62,6 @@ bool CUDA_LIFModel::initializeModel(SimulationInfo *sim_info, AllNeurons& neuron
 	uint32_t rng_threads = rng_mt_rng_count/rng_blocks; //# threads per block needed
 	initMTGPU(777, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
 
-	size_t randNoise_d_size = sim_info->cNeurons * sizeof (float);	// size of random noise array
-	HANDLE_ERROR( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
-	float myrnds[100];
-	for(int i = 0; i < 10000 ; i++) {
-		normalMTGPU(randNoise_d);
-		HANDLE_ERROR( cudaMemcpy ( &myrnds, randNoise_d, randNoise_d_size, cudaMemcpyDeviceToHost ) );
-	}
-
 	// delete the arrays
 	deleteNeuronStruct(neuron_st);
 	deleteSynapseStruct(synapse_st);
@@ -101,7 +93,7 @@ void CUDA_LIFModel::dataToCStructs(SimulationInfo *psi, AllNeurons& neurons, All
 
 		for (uint32_t j = 0; j < synapses.synapse_counts[i]; j++)
 		{
-			copySynapseToStruct(synapses, i, synapse_st, j);
+			copySynapseToStruct(psi->cNeurons, synapses, i, synapse_st, j);
 		}
 	}
 }

@@ -113,7 +113,6 @@ void rand_MT_kernel(index<1> idx,
         x ^= (x << MT_SHIFTC) & mask_c;
         x ^= (x >> MT_SHIFT1);
 
-		// This is why the number of RNGs gernerated must be even:
 		if(boxFlag){
 			float r, phi;
 			regVal2 = ((float)x + 1.0f) / 4294967296.0f;
@@ -134,6 +133,65 @@ void rand_MT_kernel(index<1> idx,
 void advance_neurons_amp_kernel(index<1> idx,
                const array<float, 2>& random_nums) restrict(amp)
 {
+}
+
+void test_kernel(
+	index<2> idx,
+	array_view<GPU_COMPAT_BOOL, 2> v_Vm) restrict(amp) {
+		uint32_t f1 = idx[0] * 1000 + idx[1];
+		v_Vm[idx[0]][idx[1]] = f1;
+}
+
+void advanceNeurons_amp(
+	index<1> idx,
+	array_view<uint32_t> v_hasFired,
+	array_view<uint32_t> v_nStepsInRefr,
+	array_view<BGFLOAT> v_Vm,
+	array_view<BGFLOAT> v_Vthresh,
+	array_view<uint32_t> v_spikeCount,
+	array_view<uint32_t> v_totalSpikeCount,
+	array_view<BGFLOAT> v_Trefract,
+	array_view<TIMEFLOAT> v_deltaT,
+	array_view<BGFLOAT> v_Vreset,
+	array_view<BGFLOAT> v_I0,
+	array_view<BGFLOAT> v_C1,
+	array_view<BGFLOAT> v_C2,
+	array_view<BGFLOAT> v_Inoise
+	) restrict(amp) {
+	
+	v_hasFired[idx] = false;
+
+	if ( v_nStepsInRefr[idx] > 0 ) { // is neuron refractory?
+		--v_nStepsInRefr[idx];
+	}
+	else {
+		if ( v_Vm[idx] >= v_Vthresh[idx] ) { // should it fire?
+			// Note that the neuron has fired!
+			v_hasFired[idx] = true;
+
+#ifdef STORE_SPIKEHISTORY
+			// record spike time
+	//      neurons.spike_history[index][neurons.totalSpikeCount[index]] = g_simulationStep;
+#endif // STORE_SPIKEHISTORY
+			v_spikeCount[idx]++;
+			v_totalSpikeCount[idx]++;
+
+			// calculate the number of steps in the absolute refractory period
+			v_nStepsInRefr[idx] = static_cast<uint32_t> ( v_Trefract[idx] / v_deltaT[idx] + 0.5f );
+
+			// reset to 'Vreset'
+			v_Vm[idx] = v_Vreset[idx];
+		} else {
+
+#if 0//fix
+		r_sp += v_I0[idx]; // add IO
+		
+		// Random number alg. goes here    
+		r_sp += (*v_randNoise[idx] * v_Inoise[idx]); // add cheap noise
+		vm = neuron_st_d[0].C1[idx] * r_vm + neuron_st_d[0].C2[idx] * ( r_sp ); // decay Vm and add inputs
+#endif
+		}
+	}
 }
 
 void AMP_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *psi)
@@ -165,11 +223,30 @@ void AMP_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, Simulatio
 	DEBUG(cout << "Beginning GPU sim cycle, simTime = " << g_simulationStep * deltaT << ", endTime = " << endStep * deltaT << endl;)
 
 	assert((n_per_RNG & 1) == 0); // ensure it's even -- odd not allowed
+	Concurrency::extent<1> e_c(v_matrix.size());
+	Concurrency::extent<2> rn(mt_nPerRng, mt_rng_count);
+	Concurrency::extent<1> e_numN(neuron_count);
+	Concurrency::extent<2> e_synapses(neuron_count, psi->maxSynapsesPerNeuron);
+	array<float, 2> random_nums(rn); 
+	array_view<uint32_t> v_hasFired(e_numN, neurons.hasFired);
+	array_view<uint32_t> v_nStepsInRefr(e_numN, neurons.nStepsInRefr);
+	array_view<BGFLOAT> v_Vm(e_numN, neurons.Vm);
+	array_view<BGFLOAT> v_Vthresh(e_numN, neurons.Vthresh);
+	array_view<uint32_t> v_spikeCount(e_numN, neurons.spikeCount);
+	array_view<uint32_t> v_totalSpikeCount(e_numN, neurons.totalSpikeCount);
+	array_view<BGFLOAT> v_summationPoint(e_numN, neurons.summation_map);
+	array_view<BGFLOAT> v_Trefract(e_numN, neurons.Trefract);
+	array_view<TIMEFLOAT> v_deltaT(neuron_count, neurons.deltaT);
+	array_view<BGFLOAT> v_Vreset(neuron_count, neurons.Vreset);
+	array_view<BGFLOAT> v_I0(neuron_count, neurons.I0);
+	array_view<BGFLOAT> v_C1(neuron_count, neurons.C1);
+	array_view<BGFLOAT> v_C2(neuron_count, neurons.C2);
+	array_view<BGFLOAT> v_Inoise(neuron_count, neurons.Inoise);
+	array_view<uint32_t, 2> v_total_delay(e_synapses, synapses.total_delay);
+	array_view<uint32_t, 2> v_delayQueue(e_synapses, synapses.delayQueue);
+	array_view<GPU_COMPAT_BOOL, 2> v_SynapseInUse(e_synapses, synapses.in_use);
 	while ( g_simulationStep < endStep )
 	{
-		Concurrency::extent<1> e_c(v_matrix.size());
-		Concurrency::extent<2> rn(mt_nPerRng, mt_rng_count);
-
 		DEBUG( if(count % 10000 == 0) {
 				cout << psi->currentStep << "/" << psi->maxSteps
 						<< " simulating time: " << g_simulationStep * deltaT << endl;
@@ -179,14 +256,11 @@ void AMP_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, Simulatio
 
 		reseed_MTGPU_AMP(MT_ceng());
 
-		array<float, 2> random_nums(rn); 
-		array<float, 2> normalized_random_nums(rn);
-
 		// Copy to GPU
-		array<unsigned int, 1> matrix_a(e_c, v_matrix.begin());
-		array<unsigned int, 1> seed(e_c, v_seed.begin());
-		array<unsigned int, 1> mask_b(e_c, v_mask_b.begin());
-		array<unsigned int, 1> mask_c(e_c, v_mask_c.begin());
+		const array<unsigned int, 1> matrix_a(e_c, v_matrix.begin());
+		const array<unsigned int, 1> seed(e_c, v_seed.begin());
+		const array<unsigned int, 1> mask_b(e_c, v_mask_b.begin());
+		const array<unsigned int, 1> mask_c(e_c, v_mask_c.begin());
 
 		// generate random numbers
 		parallel_for_each(e_c, [=, &random_nums, &matrix_a, &mask_b, &mask_c, &seed] (index<1> idx) restrict(amp)
@@ -194,20 +268,23 @@ void AMP_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, Simulatio
 			rand_MT_kernel(idx, random_nums, matrix_a[idx], mask_b[idx], mask_c[idx], seed[idx], n_per_RNG);
 		});
 
-		Concurrency::extent<1> numN(neuron_count);
-		array_view<uint32_t> v_hasFired(neuron_count, neurons.hasFired);
-		array_view<uint32_t> v_nStepsInRefr(neuron_count, neurons.nStepsInRefr);
-		array_view<uint32_t> v_Vm(neuron_count, neurons.Vm);
-		array_view<uint32_t> v_Vthresh(neuron_count, neurons.Vthresh);
-		array_view<uint32_t> v_spikeCount(neuron_count, neurons.spikeCount);
-		array_view<uint32_t> v_summationPoint(neuron_count, neurons.summation_map);
-		array_view<uint32_t> v_Trefract(neuron_count, neurons.Trefract);
-		array_view<uint32_t> v_deltaT(neuron_count, neurons.deltaT);
-		array_view<uint32_t> v_Vreset(neuron_count, neurons.Vreset);
-		array_view<uint32_t> v_(neuron_count, neurons.);
-		array_view<GPU_COMPAT_BOOL, 2> v_SynapseInUse(neuron_count, psi->maxSynapsesPerNeuron, synapses.in_use);
+		const array_view<BGFLOAT, 2> v_rnd(random_nums);
+		int a = v_rnd.extent[0];
+		int b = v_rnd.extent[1];
 
-		parallel_for_each(numN, [=](index<1> idx) restrict(amp)
+		parallel_for_each(e_numN, [=](index<1> idx) restrict(amp)
+		{
+			advanceNeurons_amp(idx, v_hasFired, v_nStepsInRefr, v_Vm, v_Vthresh, v_spikeCount, v_totalSpikeCount,
+				v_Trefract, v_deltaT, v_Vreset, v_I0, v_C1, v_C2, v_Inoise);
+		});
+
+		parallel_for_each(e_synapses, [=](index<2> idx) restrict(amp)
+		{
+			test_kernel(idx, v_SynapseInUse);
+		});
+		v_SynapseInUse.synchronize();
+
+		parallel_for_each(e_numN, [=](index<1> idx) restrict(amp)
 		{
 			uint32_t temp = v_hasFired[idx];
 			v_hasFired[idx] = v_nStepsInRefr[idx];
