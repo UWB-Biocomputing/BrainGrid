@@ -31,6 +31,12 @@ LIFModel::~LIFModel()
     }
 }
 
+/**
+ *  Generates a new array of spikeCounts.
+ *  @param  sim_info    pointer to SimulationInfo object.
+ *  @param  neurons the list of all neurons in simulation.
+ *  @param  synapses    the list of all synapses in simulation.  
+ */
 bool LIFModel::initializeModel(SimulationInfo *sim_info, AllNeurons& neurons, AllSynapses& synapses)
 {
 	delete m_conns->spikeCounts;
@@ -1373,8 +1379,8 @@ void LIFModel::eraseSynapse(AllSynapses &synapses, const uint32_t neuron_index, 
  *  @param  dest_neuron the Neuron that receives from the Synapse.
  *  @param  source  coordinates of the source Neuron.
  *  @param  dest    coordinates of the destination Neuron.
- *  @param  sum_point   TODO
- *  @param  deltaT  TODO
+ *  @param  sum_point   where all Synapses of a Neuron add their info to.
+ *  @param  deltaT  difference of each timestep. TODO: remove from allSynapse
  */
 void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const uint32_t src_neuron, const uint32_t dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, TIMEFLOAT deltaT)
 {
@@ -1400,15 +1406,18 @@ void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const uint32_
 /**
  *  Create a Synapse and connect it to the model.
  *  @param  synapses    the Neuron list to reference.
- *  @param  neuron_index    TODO 
- *  @param  synapse_index   TODO
+ *  @param  neuron_index    index of the neuron to connect the synapse to.
+ *  @param  synapse_index   index of the synapse to create.
  *  @param  source  coordinates of the source Neuron.
  *  @param  dest    coordinates of the destination Neuron.
- *  @param  sum_point   TODO
- *  @param  deltaT  TODO
+ *  @param  sum_point   where all Synapses of a Neuron add their info to.
+ *  @param  deltaT  difference of each timestep. TODO: remove from allSynapse
  *  @param  type    type of the Synapse to create.
  */
-void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index, Coordinate source, Coordinate dest, BGFLOAT *sum_point, TIMEFLOAT deltaT, synapseType type)
+void LIFModel::createSynapse(AllSynapses &synapses, 
+    const uint32_t neuron_index, const uint32_t synapse_index, 
+    Coordinate source, Coordinate dest, BGFLOAT *sum_point, TIMEFLOAT deltaT, 
+    synapseType type)
 {
     BGFLOAT delay;
 
@@ -1426,7 +1435,8 @@ void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index,
                 << ","
                 << synapse_index << flush
             << ")"
-            << "delay queue length := " << synapses.ldelayQueue[neuron_index][synapse_index] << flush
+            << "delay queue length := " << 
+                synapses.ldelayQueue[neuron_index][synapse_index] << flush
             << " => " << LENGTH_OF_DELAYQUEUE << endl;
     )
     synapses.ldelayQueue[neuron_index][synapse_index] = LENGTH_OF_DELAYQUEUE;
@@ -1486,11 +1496,11 @@ void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index,
 }
 
 /**
- *  TODO
+ *  Returns the synapseType of the given Synapse
  *  @param  neurons the Neuron list to search from.
  *  @param  src_coord   the coordinate of the source Neuron.
  *  @param  dest_coord  the coordinate of the destination Neuron.
- *  @param  width   TODO
+ *  @param  width   width of the array (used to fetch appropriate synapse info)
  */
 synapseType LIFModel::synType(AllNeurons &neurons, Coordinate src_coord, Coordinate dest_coord, const uint32_t width)
 {
@@ -1658,13 +1668,16 @@ ostream& operator<<(ostream &out, const LIFModel::GrowthParams &params) {
     return out;
 }
 
-// TODO comment
+// Initialize basic connection labels
 const string LIFModel::Connections::MATRIX_TYPE = "complete";
-// TODO comment
 const string LIFModel::Connections::MATRIX_INIT = "const";
 
 /**
- * TODO comment
+ *  Initializes the radii and rates history matrices.
+ *  @param  num_neurons number of neurons to initialize in matrices.
+ *  @param  start_radius    radius to start neurons with.
+ *  @param  growthepochDuration the epoch duration of growth.
+ *  @param  maxGrowthSteps  maximum number of steps before a growth.
  */
 LIFModel::Connections::Connections(const uint32_t num_neurons, const BGFLOAT start_radius, const BGFLOAT growthepochDuration, const BGFLOAT maxGrowthSteps) :
     xloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
@@ -1683,7 +1696,6 @@ LIFModel::Connections::Connections(const uint32_t num_neurons, const BGFLOAT sta
     burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, (uint32_t)(growthepochDuration * maxGrowthSteps), 0),
     spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, (uint32_t)(growthepochDuration * maxGrowthSteps * 100), 0)
 {
-    // Init radii and rates history matrices with current radii and rates
     for (uint32_t i = 0; i < num_neurons; i++) {
         radiiHistory(0, i) = start_radius;
         ratesHistory(0, i) = 0;
