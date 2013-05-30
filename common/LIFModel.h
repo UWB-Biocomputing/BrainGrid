@@ -164,7 +164,7 @@ class LIFModel : public Model, TiXmlVisitor
         // # Update Connections
         // --------------------
 
-        void updateHistory(uint32_t currentStep, BGFLOAT stepDuration, AllNeurons &neurons);
+        void updateHistory(uint32_t currentStep, BGFLOAT epochDuration, AllNeurons &neurons);
         // TODO
         void updateFrontiers(const uint32_t num_neurons);
         // TODO
@@ -314,7 +314,7 @@ struct LIFModel::Connections
         VectorMatrix spikesHistory;
 
         // TODO
-        Connections(const uint32_t neuron_count, const BGFLOAT start_radius, const BGFLOAT growthStepDuration, const BGFLOAT maxGrowthSteps);
+        Connections(const uint32_t neuron_count, const BGFLOAT start_radius, const BGFLOAT growthepochDuration, const BGFLOAT maxGrowthSteps);
 };
 
 #endif

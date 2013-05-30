@@ -58,7 +58,7 @@ long seed;  // Seed for random generator (single-threaded)
 
 // functions
 SimulationInfo makeSimulationInfo(int cols, int rows,
-    BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps,
+    BGFLOAT growthepochDuration, BGFLOAT maxGrowthSteps,
     int maxFiringRate, int maxSynapsesPerNeuron, BGFLOAT new_deltaT,
     long seed);
 bool load_simulation_parameters(const string &sim_param_filename);
@@ -151,7 +151,7 @@ int main(int argc, char* argv[]) {
  *  Init SimulationInfo parameters.
  *  @param  cols    number of columns for the simulation.
  *  @param  rows    number of rows for the simulation.
- *  @param  growthStepDuration  duration in between each growth.
+ *  @param  growthepochDuration  duration in between each growth.
  *  @param  maxGrowthSteps  TODO
  *  @param  maxFiringRate   maximum firing rate for the simulation.
  *  @param  maxSynapsesPerNeuron    cap limit for the number of Synapses each Neuron can have.
@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
  *  @return SimulationInfo object encapsulating info given.
  */
 SimulationInfo makeSimulationInfo(int cols, int rows,
-        BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps,
+        BGFLOAT growthepochDuration, BGFLOAT maxGrowthSteps,
         int maxFiringRate, int maxSynapsesPerNeuron, BGFLOAT new_deltaT,
         long seed)
 {
@@ -169,7 +169,7 @@ SimulationInfo makeSimulationInfo(int cols, int rows,
     int max_neurons = cols * rows;
 
     si.cNeurons = max_neurons;
-    si.stepDuration = growthStepDuration;
+    si.epochDuration = growthepochDuration;
     si.maxSteps = (int)maxGrowthSteps;
 
     // May be model-dependent
