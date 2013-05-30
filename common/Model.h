@@ -138,7 +138,7 @@ class Model {
         virtual void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, SimulationInfo *sim_info) const =0;
 
         // TODO
-        virtual void updateHistory(uint32_t currentStep, BGFLOAT stepDuration, AllNeurons &neurons) =0;
+        virtual void updateHistory(uint32_t currentStep, BGFLOAT epochDuration, AllNeurons &neurons) =0;
         // TODO
         virtual void updateFrontiers(const uint32_t num_neurons) =0;
         // TODO

@@ -68,7 +68,7 @@ void Network::updateConnections(const int currentStep)
 {
     // Calculate growth cycle firing rate for previous period
     m_model->getSpikeCounts(neurons);
-    m_model->updateHistory(currentStep, m_pSim_info->stepDuration, neurons);
+    m_model->updateHistory(currentStep, m_pSim_info->epochDuration, neurons);
     m_model->updateFrontiers(neurons.size);
     m_model->updateOverlap(neurons.size);
     m_model->updateWeights(neurons.size, neurons, synapses, m_pSim_info);

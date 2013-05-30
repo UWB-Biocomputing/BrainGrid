@@ -36,7 +36,7 @@ HostSimulator::~HostSimulator()
 
 /**
  *  Run simulation
- *  @param  growthStepDuration
+ *  @param  growthepochDuration
  *  @param  maxGrowthSteps
  */
 void HostSimulator::simulate()
@@ -92,7 +92,7 @@ void HostSimulator::advanceUntilGrowth()
 {
     uint64_t count = 0;
     uint64_t endStep = g_simulationStep
-            + static_cast<uint64_t>(m_pSim_info->stepDuration / m_pSim_info->deltaT);
+            + static_cast<uint64_t>(m_pSim_info->epochDuration / m_pSim_info->deltaT);
 
     DEBUG_MID(network->logSimStep();) // Generic model debug call
 
@@ -133,7 +133,7 @@ void HostSimulator::saveState(ostream &state_out) const
 
     // write time between growth cycles
     state_out << "   <Matrix name=\"Tsim\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
-    state_out << "   " << m_pSim_info->stepDuration << endl;
+    state_out << "   " << m_pSim_info->epochDuration << endl;
     state_out << "</Matrix>" << endl;
 
     // write simulation end time

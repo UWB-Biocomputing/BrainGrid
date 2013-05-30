@@ -37,7 +37,7 @@ struct SimulationInfo
         cNeurons(0),
         currentStep(0),
         maxSteps(0),
-        stepDuration(0),
+        epochDuration(0),
         deltaT(0),
         //pNeuronList(NULL), // NOT NEEDED?
         epsilon(0),
@@ -77,7 +77,7 @@ struct SimulationInfo
 	int maxSteps; // TODO: delete
 
 	//! The length of each step in simulation time
-	BGFLOAT stepDuration; // Epoch duration !!!!!!!!
+	BGFLOAT epochDuration; // Epoch duration !!!!!!!!
 
 // NETWORK MODEL VARIABLES NMV-BEGIN {
 	//! Maximum firing rate. **Only used by GPU simulation.**
