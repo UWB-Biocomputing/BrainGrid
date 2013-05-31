@@ -44,7 +44,7 @@ bool CUDA_LIFModel::initializeModel(SimulationInfo *sim_info, AllNeurons& neuron
 	m_conns->spikeCounts = new uint32_t[neuron_count]();
 
 #ifdef STORE_SPIKEHISTORY
-    uint32_t maxSpikes = static_cast<uint32_t> (sim_info->stepDuration * sim_info->maxFiringRate);
+	uint32_t maxSpikes = static_cast<uint32_t> (sim_info->epochDuration * sim_info->maxFiringRate);
     spikeArray = new uint64_t[maxSpikes * neuron_count]();
 
 	// allocate device memory
@@ -123,7 +123,7 @@ void CUDA_LIFModel::clearSpikesFromDevice(uint32_t neuron_count)
 void CUDA_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info)
 {
 #ifdef STORE_SPIKEHISTORY
-	uint32_t maxSpikes = static_cast<uint32_t> (sim_info->stepDuration * sim_info->maxFiringRate);
+	uint32_t maxSpikes = static_cast<uint32_t> (sim_info->epochDuration * sim_info->maxFiringRate);
 #endif // STORE_SPIKEHISTORY
 
 #ifdef STORE_SPIKEHISTORY
@@ -469,7 +469,7 @@ void allocDeviceStruct(SimulationInfo * psi,
 	copySynapseHostToDevice( synapse_st, synapse_count );
 
 	// Copy neuron type map into device memory
-	HANDLE_ERROR( cudaMemcpy ( rgNeuronTypeMap_d,  neurons.neuron_type_map, rgNeuronTypeMap_d_size, cudaMemcpyHostToDevice ) );
+	HANDLE_ERROR( cudaMemcpy ( rgNeuronTypeMap_d,  neurons.neuron_type_map.data(), rgNeuronTypeMap_d_size, cudaMemcpyHostToDevice ) );
 
 	uint32_t width = psi->width;	
 	blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
@@ -520,7 +520,7 @@ void advanceGPU(SimulationInfo *psi, AllNeurons& neurons, AllSynapses& synapses,
 	uint32_t synapse_count = neuron_count * maxSynapses;
 
     // simulate to next growth cycle
-    uint64_t endStep = g_simulationStep + static_cast<uint64_t>(psi->stepDuration / deltaT);
+    uint64_t endStep = g_simulationStep + static_cast<uint64_t>(psi->epochDuration / deltaT);
 	
 	DEBUG(cout << "Beginning GPU sim cycle, simTime = " << g_simulationStep * deltaT << ", endTime = " << endStep * deltaT << endl;)
 

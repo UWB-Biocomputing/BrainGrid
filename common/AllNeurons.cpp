@@ -24,9 +24,9 @@ AllNeurons::AllNeurons() :
     neuron_type_map.clear();
     spikeCount.clear();
     totalSpikeCount.clear();
+	summation.clear();
     spike_history = NULL;
     starter_map = NULL;
-    summation_map.clear();
 }
 
 AllNeurons::AllNeurons(const int size) :
@@ -54,8 +54,8 @@ AllNeurons::AllNeurons(const int size) :
     neuron_type_map.resize(size);
     spikeCount.resize(size);
     totalSpikeCount.resize(size);
+	summation.resize(size);
     starter_map = NULL;
-    summation_map.resize(size);
 
     starter_map = new bool[size];
     spike_history = new uint64_t*[size]();
@@ -89,5 +89,5 @@ AllNeurons::~AllNeurons()
     neuron_type_map.clear();
     spikeCount.clear();
     totalSpikeCount.clear();
-    summation_map.clear();
+	summation.clear();
 }

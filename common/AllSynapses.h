@@ -14,9 +14,6 @@ struct AllSynapses
         //! The weight (scaling factor, strength, maximal amplitude) of the synapse.
         vector<BGFLOAT> W;
 
-        //! This synapse's summation point's address (the index of neuron, ie neuron[summationPoint] is the sp)
-        vector<uint32_t> summationPoint;
-
         //! The location of the synapse.
         vector<Coordinate> synapseCoord;
 

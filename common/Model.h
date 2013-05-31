@@ -21,8 +21,7 @@ using namespace std;
 #include "AllSynapses.h"
 #include "SimulationInfo.h"
 
-#define BYTES_OF_DELAYQUEUE         ( sizeof(uint32_t) / sizeof(uint8_t) )
-#define LENGTH_OF_DELAYQUEUE        ( BYTES_OF_DELAYQUEUE * 8 )
+#define LENGTH_OF_DELAYQUEUE        ( sizeof(uint32_t) )
 
 /**
  * Neural Network Model interface.

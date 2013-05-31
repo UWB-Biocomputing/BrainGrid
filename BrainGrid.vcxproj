@@ -250,7 +250,6 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\dropbox\Education\CSS432\HW3\hw3.cpp" />
     <ClCompile Include="common\AllNeurons.cpp" />
     <ClCompile Include="common\AllSynapses.cpp" />
     <ClCompile Include="BGDriver.cpp" />
@@ -262,12 +261,6 @@
     </ClCompile>
     <ClCompile Include="cuda\LifSynapse_struct.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|X64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="DirectCompute\DC_LIFModel.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='GPU Debug|X64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='GPU Release|X64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|X64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="rng\norm.cpp" />
@@ -298,18 +291,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DC Debug|X64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DC Release|X64'">true</ExcludedFromBuild>
     </CudaCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="DirectCompute\DC_MersenneTwister.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='GPU Debug|X64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='GPU Release|X64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|X64'">true</ExcludedFromBuild>
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='DC Debug|X64'">fxc /Tcs_5_0  /E CS_MersenneTwister  /Zpr /Gfp /Fo %(RelativeDir)%(Filename).hlo /Fc %(RelativeDir)%(Filename).hla %(FullPath)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='DC Debug|X64'">$(RelativeDir)%(Filename).hlo;%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='DC Debug|X64'">Direct3D Shader Compiler</Message>
-    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

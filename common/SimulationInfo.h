@@ -39,28 +39,16 @@ struct SimulationInfo
         maxSteps(0),
         epochDuration(0),
         deltaT(0),
-        //pNeuronList(NULL), // NOT NEEDED?
         epsilon(0),
         beta(0),
         rho(0),
         maxRate(0),
         minRadius(0),
         startRadius(0),
-        //rgSynapseMap(NULL), // NOT NEEDED?
-        pSummationMap(NULL),
 		seed(0)
     {
     }
 
-/* NOT NEEDED?
-	void reset(int neurons, vector<INeuron*>* neronList, vector<ISynapse*>* synapseList, BGFLOAT* sumMap, BGFLOAT delta) {
-		cNeurons = neurons;
-		pNeuronList = neronList;
-		rgSynapseMap = synapseList;
-		pSummationMap = sumMap;
-		deltaT = delta;
-	}
-*/
 	//! Width of neuron map (assumes square)
 	int width;
 
@@ -112,9 +100,6 @@ struct SimulationInfo
 
 	//! List of lists of synapses (3d array)
 	//vector<ISynapse*>* rgSynapseMap; // NOT NEEDED?
-
-	//! List of summation points
-	BGFLOAT* pSummationMap;
 
 	//! Seed used for the simulation random SINGLE THREADED
 	long seed;

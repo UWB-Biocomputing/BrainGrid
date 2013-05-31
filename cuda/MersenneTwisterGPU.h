@@ -59,9 +59,16 @@ typedef struct{
 // Function declarations 
 
 #ifdef USE_AMP
+using namespace concurrency;
+
 void initMTGPU_AMP(unsigned int seed, unsigned int blocks, unsigned int threads, unsigned int nPerRng, unsigned int mt_rng_c);
 void generate_rand_on_amp(std::vector<float>& v_random_nums);
 void reseed_MTGPU_AMP(uint32_t newseed);
+void rand_MT_kernel(index<1> idx,
+               array<float, 2>& random_nums, 
+               const unsigned int matrix_a, 
+               const unsigned int mask_b, const unsigned int mask_c, 
+               const unsigned int seed, const int n_per_RNG) restrict(amp);
 #else // must be CUDA
 extern "C" void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, unsigned int nPerRng, unsigned int mt_rng_c);
 #endif//USE_AMP

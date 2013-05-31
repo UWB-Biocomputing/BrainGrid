@@ -23,12 +23,12 @@
 #include <amp.h>
 #include <amp_math.h>
 #include <assert.h>
+#include <iostream>
 #include "../cuda/MersenneTwisterGPU.h"
 
+using namespace std;
 // Disable "conversion from 'size_t' to 'int', possible loss of data" errors:
 #pragma warning (disable : 4267)
-
-using namespace concurrency;
 
 // Variables used throughout this file for parameters
 // initialized by initMTGPU_AMP
@@ -73,36 +73,6 @@ void loadMTGPU_AMP(const char *fname)
 }
 
 
-#if 0
-// this does a built-in box-muller transformation
-
-void generate_rand_on_amp(std::vector<float>& v_random_nums)
-{
-    extent<1> e_c(v_matrix.size());
-    int n_per_RNG = mt_nPerRng;
-    extent<2> rn(mt_nPerRng, mt_rng_count);
-
-    array<float, 2> random_nums(rn); 
-    array<float, 2> normalized_random_nums(rn);
-
-    // Copy to GPU
-    array<unsigned int, 1> matrix_a(e_c, v_matrix.begin());
-    array<unsigned int, 1> seed(e_c, v_seed.begin());
-    array<unsigned int, 1> mask_b(e_c, v_mask_b.begin());
-    array<unsigned int, 1> mask_c(e_c, v_mask_c.begin());
-
-	assert((n_per_RNG & 1) == 0); // ensure it's even -- odd not allowed
-    // generate random numbers
-    parallel_for_each(e_c, [=, &random_nums, &matrix_a, &mask_b, &mask_c, &seed] (index<1> idx) restrict(amp)
-    {
-        rand_MT_kernel(idx, random_nums, matrix_a[idx], mask_b[idx], mask_c[idx], seed[idx], n_per_RNG);
-    });
-
-	// Because box-muller is not called, copy the un-normalized random nums
-	copy(random_nums, v_random_nums.begin()); 
-}
-#endif
-
 //Initialize/seed twister for current GPU context
 void seed_MT(unsigned int seed0, std::vector<unsigned int>& matrix, 
                std::vector<unsigned int>& mask_b, std::vector<unsigned int>& mask_c, 
@@ -123,7 +93,16 @@ void initMTGPU_AMP(unsigned int seed, unsigned int blocks, unsigned int threads,
 	mt_threads = threads;
 	mt_nPerRng = nPerRng;
 	mt_rng_count = mt_rng_c;
-
+    auto accelerators = accelerator::get_all();
+    for_each(begin(accelerators), end(accelerators),[=](accelerator acc){ 
+        wcout << "New accelerator: " << acc.description << endl;
+        wcout << "is_debug = " << acc.is_debug << endl;
+        wcout << "is_emulated = " << acc.is_emulated <<endl;
+        wcout << "dedicated_memory = " << acc.dedicated_memory << endl;
+        wcout << "device_path = " << acc.device_path << endl;
+        wcout << "has_display = " << acc.has_display << endl;                
+        wcout << "version = " << (acc.version >> 16) << '.' << (acc.version & 0xFFFF) << endl;
+    });
 	accelerator default_device;
 	std::wcout << L"AMP Using device : " << default_device.get_description() << std::endl;
 	if (default_device == accelerator(accelerator::direct3d_ref))

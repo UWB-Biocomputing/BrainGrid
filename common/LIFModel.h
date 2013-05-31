@@ -155,9 +155,9 @@ class LIFModel : public Model, TiXmlVisitor
         void preSpikeHit(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index);
 
         // Update the state of all synapses for a time step
-        void advanceSynapses(const uint32_t num_neurons, AllSynapses &synapses);
+        void advanceSynapses(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses);
         // Helper for #advanceSynapses. Updates state of a single synapse.
-        void advanceSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index);
+        void advanceSynapse(AllSynapses &synapses, AllNeurons &neurons, const uint32_t neuron_index, const uint32_t synapse_index);
         // TODO
         bool isSpikeQueue(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index);
 
@@ -180,9 +180,9 @@ class LIFModel : public Model, TiXmlVisitor
         // TODO
         void eraseSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index);
         // TODO
-        void addSynapse(AllSynapses &synapses, synapseType type, const uint32_t src_neuron, const uint32_t dest_neuron, Coordinate &source, Coordinate &dest, uint32_t sum_point, TIMEFLOAT deltaT);
+        void addSynapse(AllSynapses &synapses, synapseType type, const uint32_t src_neuron, const uint32_t dest_neuron, Coordinate &source, Coordinate &dest, TIMEFLOAT deltaT);
         // TODO
-        void createSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index, Coordinate source, Coordinate dest, uint32_t sp, TIMEFLOAT deltaT, synapseType type);
+        void createSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index, Coordinate source, Coordinate dest, TIMEFLOAT deltaT, synapseType type);
 
         // -----------------------------------------------------------------------------------------
         // # Generic Functions for handling synapse types

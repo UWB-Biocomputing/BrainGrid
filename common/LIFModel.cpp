@@ -326,7 +326,6 @@ void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &syna
         input >> summation_coord.x;
         input >> summation_coord.y;
 
-		// TODO: (PAB) I don't think this is correct, but leaving it for now.
         uint32_t neuron_index = summation_coord.x + summation_coord.y * sim_info->width;
         uint32_t synapses_index = read_synapses_counts[neuron_index];
 
@@ -442,8 +441,6 @@ void LIFModel::initSpikeQueue(AllSynapses &synapses, const uint32_t neuron_index
     uint32_t &delayIdx = synapses.delayIdx[idx];
     uint32_t &ldelayQueue = synapses.ldelayQueue[idx];
 
-    size_t size = total_delay / ( sizeof(uint8_t) * 8 ) + 1;
-    assert( size <= BYTES_OF_DELAYQUEUE );
     delayQueue = 0;
     delayIdx = 0;
     ldelayQueue = LENGTH_OF_DELAYQUEUE;
@@ -930,7 +927,7 @@ void LIFModel::setupSim(const uint32_t num_neurons, SimulationInfo *sim_info)
 void LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info)
 {
     advanceNeurons(neurons, synapses, sim_info);
-    advanceSynapses(neurons.size, synapses);
+    advanceSynapses(neurons.size, neurons, synapses);
 }
 
 /**
@@ -980,7 +977,7 @@ void LIFModel::advanceNeuron(AllNeurons &neurons, const uint32_t index)
 {
     BGFLOAT &Vm = neurons.Vm[index];
     BGFLOAT &Vthresh = neurons.Vthresh[index];
-    BGFLOAT &summationPoint = neurons.summation_map[index];
+    BGFLOAT &summationPoint = neurons.summation[index];
     BGFLOAT &I0 = neurons.I0[index];
     BGFLOAT &Inoise = neurons.Inoise[index];
     BGFLOAT &C1 = neurons.C1[index];
@@ -996,7 +993,7 @@ void LIFModel::advanceNeuron(AllNeurons &neurons, const uint32_t index)
     } else {
         summationPoint += I0; // add IO
         // add noise
-        BGFLOAT noise = (*rgNormrnd[0])();
+        BGFLOAT noise = (*rgNormrnd[0])(); // get random number from our RNG routine
         DEBUG_MID(cout << "ADVANCE NEURON[" << index << "] :: noise = " << noise << endl;)
         summationPoint += noise * Inoise; // add noise
         Vm = C1 * Vm + C2 * summationPoint; // decay Vm and add inputs
@@ -1078,12 +1075,12 @@ void LIFModel::preSpikeHit(AllSynapses &synapses, const uint32_t neuron_index, c
  *  @param  num_neurons number of neurons in the simulation to run.
  *  @param  synapses    list of Synapses to update.
  */
-void LIFModel::advanceSynapses(const uint32_t num_neurons, AllSynapses &synapses)
+void LIFModel::advanceSynapses(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses)
 {
     for (int32_t i = num_neurons - 1; i >= 0; --i) {
         for (int32_t z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
             // Advance Synapse
-            advanceSynapse(synapses, i, z);
+            advanceSynapse(synapses, neurons, i, z);
         }
     }
 }
@@ -1094,7 +1091,7 @@ void LIFModel::advanceSynapses(const uint32_t num_neurons, AllSynapses &synapses
  *  @param  neuron_index    index of the Neuron that the Synapse connects to.
  *  @param  synapse_index   index of the Synapse to connect to.
  */
-void LIFModel::advanceSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index)
+void LIFModel::advanceSynapse(AllSynapses &synapses, AllNeurons &neurons, const uint32_t neuron_index, const uint32_t synapse_index)
 {
 	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
 
@@ -1108,7 +1105,7 @@ void LIFModel::advanceSynapse(AllSynapses &synapses, const uint32_t neuron_index
     BGFLOAT &W = synapses.W[idx];
     BGFLOAT &decay = synapses.decay[idx];
     BGFLOAT &psr = synapses.psr[idx];
-    uint32_t summationPoint = synapses.summationPoint[idx];
+    BGFLOAT &summationPoint = neurons.summation[neuron_index];
 
     // is an input in the queue?
     if (isSpikeQueue(synapses, neuron_index, synapse_index)) {
@@ -1364,10 +1361,9 @@ void LIFModel::updateWeights(const uint32_t num_neurons, AllNeurons &neurons, Al
             if (!connected && (m_conns->W(src_neuron, dest_neuron) > 0)) {
 
                 // locate summation point
-				uint32_t sum_point = dest_neuron;
                 added++;
 
-                addSynapse(synapses, type, src_neuron, dest_neuron, src_coord, dest_coord, sum_point, sim_info->deltaT);
+                addSynapse(synapses, type, src_neuron, dest_neuron, src_coord, dest_coord, sim_info->deltaT);
 
             }
         }
@@ -1391,7 +1387,6 @@ void LIFModel::eraseSynapse(AllSynapses &synapses, const uint32_t neuron_index, 
 
 	synapses.synapse_counts[neuron_index]--;
     synapses.in_use[idx] = false;
-    synapses.summationPoint[idx] = NULL;
 }
 
 /**
@@ -1402,10 +1397,9 @@ void LIFModel::eraseSynapse(AllSynapses &synapses, const uint32_t neuron_index, 
  *  @param  dest_neuron the Neuron that receives from the Synapse.
  *  @param  source  coordinates of the source Neuron.
  *  @param  dest    coordinates of the destination Neuron.
- *  @param  sum_point   where all Synapses of a Neuron add their info to.
  *  @param  deltaT  difference of each timestep. TODO: remove from allSynapse
  */
-void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const uint32_t src_neuron, const uint32_t dest_neuron, Coordinate &source, Coordinate &dest, uint32_t sum_point, TIMEFLOAT deltaT)
+void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const uint32_t src_neuron, const uint32_t dest_neuron, Coordinate &source, Coordinate &dest, TIMEFLOAT deltaT)
 {
 	if (synapses.synapse_counts[src_neuron] >= synapses.max_synapses) {
         return; // TODO: ERROR!
@@ -1422,7 +1416,7 @@ void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const uint32_
     synapses.synapse_counts[src_neuron]++;
 
     // create a synapse
-    createSynapse(synapses, src_neuron, synapse_index, source, dest, sum_point, deltaT, type );
+    createSynapse(synapses, src_neuron, synapse_index, source, dest, deltaT, type );
 	synapses.W[src_neuron * synapses.count_neurons + synapse_index] = m_conns->W(src_neuron, dest_neuron) * synSign(type) * SYNAPSE_STRENGTH_ADJUSTMENT;
 }
 
@@ -1433,17 +1427,15 @@ void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const uint32_
  *  @param  synapse_index   index of the synapse to create.
  *  @param  source  coordinates of the source Neuron.
  *  @param  dest    coordinates of the destination Neuron.
- *  @param  sum_point   where all Synapses of a Neuron add their info to.
  *  @param  deltaT  difference of each timestep. TODO: remove from allSynapse
  *  @param  type    type of the Synapse to create.
  */
-void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index, Coordinate source, Coordinate dest, uint32_t sum_point, TIMEFLOAT deltaT, synapseType type)
+void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index, Coordinate source, Coordinate dest, TIMEFLOAT deltaT, synapseType type)
 {
 	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
     BGFLOAT delay;
 
     synapses.in_use[idx] = true;
-    synapses.summationPoint[idx] = sum_point;
     synapses.summationCoord[idx] = dest;
     synapses.synapseCoord[idx] = source;
     synapses.deltaT[idx] = deltaT;

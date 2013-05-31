@@ -102,7 +102,7 @@ void copySynapseToStruct(uint32_t num_neurons, AllSynapses &synapses, int neuron
 	out.u[idx] 			= synapses.u[neuron * num_neurons + idx];
 	out.ldelayQueue[idx] 	= synapses.ldelayQueue[neuron * num_neurons + idx];
 	out.type[idx] 			= synapses.type[neuron * num_neurons + idx];
-	out.delayQueue[idx] 	= synapses.delayQueue[neuron * num_neurons + idx][0];
+	out.delayQueue[idx] 	= synapses.delayQueue[neuron * num_neurons + idx];
 }
 
 /**
@@ -127,7 +127,7 @@ void copyStructToSynapse(LifSynapse_struct& in, AllSynapses &synapses, int neuro
 	synapses.total_delay[neuron * num_neurons + idx]	= in.total_delay[idx];
 	synapses.u[neuron * num_neurons + idx]				= in.u[idx];
 	synapses.type[neuron * num_neurons + idx]			= in.type[idx];
-	synapses.delayQueue[neuron * num_neurons + idx][0]	= in.delayQueue[idx];
+	synapses.delayQueue[neuron * num_neurons + idx]		= in.delayQueue[idx];
 }
 
 #if 0

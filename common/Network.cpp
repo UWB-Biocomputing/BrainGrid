@@ -15,7 +15,6 @@ Network::Network(Model *model, SimulationInfo *simInfo) :
     m_model(model),
     neurons(simInfo->cNeurons),
     synapses(simInfo->cNeurons, simInfo->maxSynapsesPerNeuron),
-    m_summationMap(NULL),
     m_pSim_info(simInfo)
 {
     cout << "Neuron count: " << simInfo->cNeurons << endl;
@@ -89,8 +88,6 @@ void Network::logSimStep() const
  */
 void Network::freeResources()
 {
-    if (m_summationMap != NULL) 
-		delete[] m_summationMap;
 }
 
 /**
@@ -108,16 +105,6 @@ void Network::reset()
 
     // Reset global simulation Step to 0
     g_simulationStep = 0;
-
-    m_summationMap = new BGFLOAT[m_pSim_info->cNeurons];
-
-    // initialize maps
-    for (int i = 0; i < m_pSim_info->cNeurons; i++)
-    {
-        m_summationMap[i] = 0;
-    }
-
-    m_pSim_info->pSummationMap = m_summationMap;
 
     DEBUG(cout << "\nExiting Network::reset()";)
 }

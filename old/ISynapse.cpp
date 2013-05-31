@@ -191,8 +191,6 @@ void ISynapse::preSpikeHit() {
  */
 void ISynapse::initSpikeQueue()
 {
-	size_t size = total_delay / ( sizeof(uint8_t) * 8 ) + 1;
-	assert( size <= BYTES_OF_DELAYQUEUE );
 	delayQueue[0] = 0;
 	delayIdx = 0;
 	ldelayQueue = LENGTH_OF_DELAYQUEUE;

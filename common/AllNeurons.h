@@ -75,8 +75,8 @@ struct AllNeurons
         //! The neuron type map (INH, EXC).
         vector<neuronType> neuron_type_map;
 
-        // List of summation points for each neuron
-        vector<BGFLOAT> summation_map;
+        // Each synapse (for this neuron) keeps a total summation here
+        vector<BGFLOAT> summation;
 
         //! The starter existence map (T/F).
         bool *starter_map;

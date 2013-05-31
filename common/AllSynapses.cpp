@@ -6,7 +6,6 @@ AllSynapses::AllSynapses() :
 {
     summationCoord.clear();
     W.clear();
-    summationPoint.clear();
     synapseCoord.clear();
     deltaT.clear();
     psr.clear();
@@ -35,7 +34,6 @@ AllSynapses::AllSynapses(const int num_neurons, const int max_synapses) :
 
     summationCoord.resize(total_synapses);
     W.resize(total_synapses);
-    summationPoint.resize(total_synapses);
     synapseCoord.resize(total_synapses);
     deltaT.resize(total_synapses);
     psr.resize(total_synapses);
@@ -60,7 +58,6 @@ AllSynapses::~AllSynapses()
 {
     summationCoord.clear();
     W.clear();
-    summationPoint.clear();
     synapseCoord.clear();
     deltaT.clear();
     psr.clear();

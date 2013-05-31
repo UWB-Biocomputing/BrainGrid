@@ -94,9 +94,6 @@ class Network
         // TODO comment
         AllSynapses synapses;
 
-        //! The map of summation points.
-        BGFLOAT* m_summationMap;
-
     private:
         // Struct that holds information about a simulation
         SimulationInfo * m_pSim_info;
