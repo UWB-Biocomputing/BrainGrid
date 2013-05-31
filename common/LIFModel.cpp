@@ -1171,7 +1171,7 @@ bool LIFModel::isSpikeQueue(AllSynapses &synapses, const uint32_t neuron_index, 
 /**
  *  Update the Neuron's history.
  *  @param  currentStep current step of the simulation
- *  @param  epochDuration    duration of the 
+ *  @param  epochDuration    duration of a epoch. 
  *  @param  neurons the list to update.
  */
 void LIFModel::updateHistory(const uint32_t currentStep, BGFLOAT epochDuration, AllNeurons &neurons)
