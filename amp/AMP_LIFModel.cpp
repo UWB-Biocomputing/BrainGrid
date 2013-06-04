@@ -52,7 +52,7 @@ bool AMP_LIFModel::initializeModel(SimulationInfo *sim_info, AllNeurons& neurons
 	//assuming neuron_count >= 100 and is a multiple of 100. Note rng_mt_rng_count must be <= MT_RNG_COUNT
 	uint32_t rng_blocks = 256; //# of blocks the kernel will use
 	uint32_t rng_nPerRng = 16; //# of iterations per thread (thread granularity, # of rands generated per thread)
-	uint32_t rng_mt_rng_count = 4096;//sim_info->cNeurons/rng_nPerRng; //# of threads to generate for neuron_count rand #s
+	uint32_t rng_mt_rng_count = (sim_info->cNeurons + rng_nPerRng - 1)/rng_nPerRng; //# of threads to generate for neuron_count rand #s
 	uint32_t rng_threads = rng_mt_rng_count/rng_blocks; //# threads per block needed
 	initMTGPU_AMP(777, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
 	randNoise_d.resize(sim_info->cNeurons);
@@ -176,6 +176,12 @@ void AMP_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, Simulatio
 	array_view<uint32_t, 2> v_total_delay(e_synapses, synapses.total_delay);
 	array_view<uint32_t, 2> v_delayQueue(e_synapses, synapses.delayQueue);
 	array_view<GPU_COMPAT_BOOL, 2> v_SynapseInUse(e_synapses, synapses.in_use);
+	// Copy to GPU
+	const array<unsigned int, 1> matrix_a(e_c, v_matrix.begin());
+	const array<unsigned int, 1> seed(e_c, v_seed.begin());
+	const array<unsigned int, 1> mask_b(e_c, v_mask_b.begin());
+	const array<unsigned int, 1> mask_c(e_c, v_mask_c.begin());
+	reseed_MTGPU_AMP(777); // for first seed use the same as cuda
 	while ( g_simulationStep < endStep )
 	{
 		DEBUG( if(count % 10000 == 0) {
@@ -184,14 +190,6 @@ void AMP_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, Simulatio
 				count = 0;
 			}
 			count++; )
-
-		reseed_MTGPU_AMP(MT_ceng());
-
-		// Copy to GPU
-		const array<unsigned int, 1> matrix_a(e_c, v_matrix.begin());
-		const array<unsigned int, 1> seed(e_c, v_seed.begin());
-		const array<unsigned int, 1> mask_b(e_c, v_mask_b.begin());
-		const array<unsigned int, 1> mask_c(e_c, v_mask_c.begin());
 
 		// generate random numbers
 		parallel_for_each(e_c, [=, &random_nums, &matrix_a, &mask_b, &mask_c, &seed] (index<1> idx) restrict(amp)
@@ -205,10 +203,14 @@ void AMP_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, Simulatio
 		{
 			advanceNeurons_amp(idx, v_rand, v_hasFired, v_nStepsInRefr, v_Vm, v_Vthresh, v_spikeCount, v_totalSpikeCount,
 				v_Trefract, v_deltaT, v_Vreset, v_I0, v_C1, v_C2, v_Inoise, v_Summation,
-				v_total_delay, v_delayQueue, v_SynapseInUse);
+				v_total_delay, v_delayQueue, v_SynapseInUse
+				);
 		});
 
+		reseed_MTGPU_AMP(MT_ceng());
+
 #if 0
+
 		parallel_for_each(e_synapses, [=](index<2> idx) restrict(amp)
 		{
 			test_kernel(idx, v_SynapseInUse);
