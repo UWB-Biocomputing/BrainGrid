@@ -93,7 +93,8 @@ void initMTGPU_AMP(unsigned int seed, unsigned int blocks, unsigned int threads,
 	mt_threads = threads;
 	mt_nPerRng = nPerRng;
 	mt_rng_count = mt_rng_c;
-    auto accelerators = accelerator::get_all();
+#if 0// Code to enumerate all adapters available:
+	auto accelerators = accelerator::get_all();
     for_each(begin(accelerators), end(accelerators),[=](accelerator acc){ 
         wcout << "New accelerator: " << acc.description << endl;
         wcout << "is_debug = " << acc.is_debug << endl;
@@ -103,6 +104,8 @@ void initMTGPU_AMP(unsigned int seed, unsigned int blocks, unsigned int threads,
         wcout << "has_display = " << acc.has_display << endl;                
         wcout << "version = " << (acc.version >> 16) << '.' << (acc.version & 0xFFFF) << endl;
     });
+#endif
+	//accelerator default_device(accelerator::direct3d_ref);
 	accelerator default_device;
 	std::wcout << L"AMP Using device : " << default_device.get_description() << std::endl;
 	if (default_device == accelerator(accelerator::direct3d_ref))
