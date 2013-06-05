@@ -79,19 +79,19 @@ __global__ void advanceNeuronsDevice( int n, uint64_t simulationStep, int delayI
 __global__ void advanceSynapsesDevice( int n, int width, uint64_t simulationStep, uint32_t bmask );
 
 //! Calculate neuron/synapse offsets.
-__global__ void calcOffsets( int n, FLOAT* summationPoint_d, int width, float* randNoise_d );
+__global__ void calcOffsets( int n, BGFLOAT* summationPoint_d, int width, float* randNoise_d );
 
 //! Calculate summation point.
 __global__ void calcSummationMap( int n, uint32_t* inverseMap );
 
 //! Update the network.
-__global__ void updateNetworkDevice( FLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, int n, int width, FLOAT deltaT, FLOAT* W_d, int maxSynapses );
+__global__ void updateNetworkDevice( BGFLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, int n, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses );
 
 //! Add a synapse to the network.
-__device__ void addSynapse( FLOAT W_new, FLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, int neuron_i, int source_x, int source_y, int dest_x, int dest_y, int width, FLOAT deltaT, int maxSynapses );
+__device__ void addSynapse( BGFLOAT W_new, BGFLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, int neuron_i, int source_x, int source_y, int dest_x, int dest_y, int width, BGFLOAT deltaT, int maxSynapses );
 
 //! Create a synapse.
-__device__ void createSynapse( int syn_i, int source_x, int source_y, int dest_x, int dest_y, FLOAT* sp, FLOAT deltaT, synapseType type );
+__device__ void createSynapse( int syn_i, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT* sp, BGFLOAT deltaT, synapseType type );
 
 //! Remove a synapse from the network.
 __device__ void removeSynapse( int neuron_i, int syn_i );
@@ -111,13 +111,13 @@ float getEffectiveBandwidth( uint64_t count, int Br, int Bw, float time );
 DelayIdx delayIdx;
 
 //! Synapse constant (U)stored in device constant memory.
-__constant__ FLOAT synapse_U_d[4] = { 0.32, 0.25, 0.05, 0.5 };	// II, IE, EI, EE
+__constant__ BGFLOAT synapse_U_d[4] = { 0.32, 0.25, 0.05, 0.5 };	// II, IE, EI, EE
 
 //! Synapse constant(D) stored in device constant memory.
-__constant__ FLOAT synapse_D_d[4] = { 0.144, 0.7, 0.125, 1.1 };	// II, IE, EI, EE
+__constant__ BGFLOAT synapse_D_d[4] = { 0.144, 0.7, 0.125, 1.1 };	// II, IE, EI, EE
 
 //! Synapse constant(F) stored in device constant memory.
-__constant__ FLOAT synapse_F_d[4] = { 0.06, 0.02, 1.2, 0.05 };	// II, IE, EI, EE
+__constant__ BGFLOAT synapse_F_d[4] = { 0.06, 0.02, 1.2, 0.05 };	// II, IE, EI, EE
 
 //! Neuron structure in device constant memory.
 __constant__ LifNeuron_struct neuron_st_d[1];
@@ -125,7 +125,7 @@ __constant__ LifNeuron_struct neuron_st_d[1];
 //! Synapse structures in device constant memory.
 __constant__ DynamicSpikingSynapse_struct synapse_st_d[1];
 
-__constant__ FLOAT g_synapseStrengthAdjustmentConstant_d = 1.0e-8;
+__constant__ BGFLOAT g_synapseStrengthAdjustmentConstant_d = 1.0e-8;
 
 #include "LifNeuron_struct_d.cu"
 #include "DynamicSpikingSynapse_struct_d.cu"
@@ -136,7 +136,7 @@ uint64_t* spikeHistory_d = NULL;
 #endif // STORE_SPIKEHISTORY
 
 //! Pointer to device summation point.
-FLOAT* summationPoint_d = NULL;	
+BGFLOAT* summationPoint_d = NULL;	
 
 //! Pointer to device random noise array.
 float* randNoise_d = NULL;	
@@ -180,7 +180,7 @@ void allocDeviceStruct( SimulationInfo* psi,
 #ifdef STORE_SPIKEHISTORY
 	size_t spikeHistory_d_size = neuron_count * maxSpikes * sizeof (uint64_t);		// size of spike history array
 #endif // STORE_SPIKEHISTORY
-	size_t summationPoint_d_size = neuron_count * sizeof (FLOAT);	// size of summation point
+	size_t summationPoint_d_size = neuron_count * sizeof (BGFLOAT);	// size of summation point
 	size_t randNoise_d_size = neuron_count * sizeof (float);	// size of random noise array
 	size_t rgNeuronTypeMap_d_size = neuron_count * sizeof(neuronType);
 
@@ -239,7 +239,7 @@ void advanceGPU( SimulationInfo* psi, int maxSynapses, uint64_t* spikeArray, int
 void advanceGPU( SimulationInfo* psi, int maxSynapses )
 #endif
 {
-	FLOAT deltaT = psi->deltaT;
+	BGFLOAT deltaT = psi->deltaT;
 	int width = psi->width;
 	int neuron_count = psi->cNeurons;
 	int synapse_count = neuron_count * maxSynapses;
@@ -389,16 +389,16 @@ void updateNetworkGPU( SimulationInfo* psi, CompleteMatrix& W, int maxSynapses )
 {
 	int neuron_count = psi->cNeurons;
 	int width = psi->width;
-	FLOAT deltaT = psi->deltaT;
+	BGFLOAT deltaT = psi->deltaT;
 
         // CUDA parameters
         const int threadsPerBlock = 256;
         int blocksPerGrid;
 
 	// allocate memories
-	size_t W_d_size = neuron_count * neuron_count * sizeof (FLOAT);
-	FLOAT* W_h = new FLOAT[W_d_size];
-	FLOAT* W_d;
+	size_t W_d_size = neuron_count * neuron_count * sizeof (BGFLOAT);
+	BGFLOAT* W_h = new BGFLOAT[W_d_size];
+	BGFLOAT* W_d;
 	HANDLE_ERROR( cudaMalloc ( ( void ** ) &W_d, W_d_size ) );
 
 	// copy weight data to the device memory
@@ -550,10 +550,10 @@ __global__ void advanceNeuronsDevice( int n, uint64_t simulationStep, int delayI
 		return;
 
 	neuron_st_d[0].hasFired[idx] = false;
-	FLOAT& sp = *neuron_st_d[0].summationPoint[idx];
-	FLOAT& vm = neuron_st_d[0].Vm[idx];
-	FLOAT r_sp = sp;
-	FLOAT r_vm = vm;
+	BGFLOAT& sp = *neuron_st_d[0].summationPoint[idx];
+	BGFLOAT& vm = neuron_st_d[0].Vm[idx];
+	BGFLOAT r_sp = sp;
+	BGFLOAT r_vm = vm;
 
 	if ( neuron_st_d[0].nStepsInRefr[idx] > 0 ) { // is neuron refractory?
 		--neuron_st_d[0].nStepsInRefr[idx];
@@ -621,11 +621,11 @@ __global__ void advanceSynapsesDevice ( int n, int width, uint64_t simulationSte
 	uint32_t s_delayQueue = synapse_st_d[0].delayQueue[idx];
 	bool isFired = s_delayQueue & bmask;
 	synapse_st_d[0].delayQueue[idx] = s_delayQueue & (~bmask);
-	FLOAT s_decay = synapse_st_d[0].decay[idx];
+	BGFLOAT s_decay = synapse_st_d[0].decay[idx];
 	if ( isFired ) {
 		// adjust synapse paramaters
 		if ( synapse_st_d[0].lastSpike[idx] != ULONG_MAX ) {
-			FLOAT isi = (simulationStep - synapse_st_d[0].lastSpike[idx]) * synapse_st_d[0].deltaT[idx];
+			BGFLOAT isi = (simulationStep - synapse_st_d[0].lastSpike[idx]) * synapse_st_d[0].deltaT[idx];
 			synapse_st_d[0].r[idx] = 1 + ( synapse_st_d[0].r[idx] * ( 1 - synapse_st_d[0].u[idx] ) - 1 ) * exp ( -isi / synapse_D_d[itype] );
 			synapse_st_d[0].u[idx] = synapse_U_d[itype] + synapse_st_d[0].u[idx] * ( 1 - synapse_U_d[itype] ) * exp ( -isi / synapse_F_d[itype] );
 		}
@@ -649,7 +649,7 @@ __global__ void calcSummationMap( int n, uint32_t* inverseMap ) {
                 return;
         
         uint32_t* inverseMap_begin = &inverseMap[neuron_st_d[0].incomingSynapse_begin[idx]];
-        FLOAT sum = 0.0;
+        BGFLOAT sum = 0.0;
         uint32_t iCount = neuron_st_d[0].inverseCount[idx];
         for ( uint32_t i = 0; i < iCount; i++ ) {
                 uint32_t syn_i = inverseMap_begin[i];
@@ -665,7 +665,7 @@ __global__ void calcSummationMap( int n, uint32_t* inverseMap ) {
  * @param[in] width		Width of neuron map (assumes square).
  * @param[in] randNoise_d	Array of randum numbers. 
  */
-__global__ void calcOffsets( int n, FLOAT* summationPoint_d, int width, float* randNoise_d )
+__global__ void calcOffsets( int n, BGFLOAT* summationPoint_d, int width, float* randNoise_d )
 {
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	if ( idx >= n )
@@ -689,7 +689,7 @@ __global__ void calcOffsets( int n, FLOAT* summationPoint_d, int width, float* r
  * @param[in] W_d		Array of synapse weight.
  * @param[in] maxSynapses	Maximum number of synapses per neuron.
  */
-__global__ void updateNetworkDevice( FLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, int n, int width, FLOAT deltaT, FLOAT* W_d, int maxSynapses )
+__global__ void updateNetworkDevice( BGFLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, int n, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses )
 {
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	if ( idx >= n )
@@ -749,7 +749,7 @@ __global__ void updateNetworkDevice( FLOAT* summationPoint_d, neuronType* rgNeur
 		if ( !connected && ( W_d[a * n + b] > 0 ) )
 		{
 			added++;
-			FLOAT W_new = W_d[a * n + b] 
+			BGFLOAT W_new = W_d[a * n + b] 
 				* synSign( synType( rgNeuronTypeMap_d, xa, ya, xb, yb, width ) ) 
 				* g_synapseStrengthAdjustmentConstant_d;	
 			addSynapse( W_new, summationPoint_d, rgNeuronTypeMap_d, a, xa, ya, xb, yb, width, deltaT, maxSynapses );
@@ -772,13 +772,13 @@ __global__ void updateNetworkDevice( FLOAT* summationPoint_d, neuronType* rgNeur
 * @param deltaT			The time step size.
 * @param maxSynapses		Maximum number of synapses per neuron.
 */
-__device__ void addSynapse( FLOAT W_new, FLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, int neuron_i, int source_x, int source_y, int dest_x, int dest_y, int width, FLOAT deltaT, int maxSynapses )
+__device__ void addSynapse( BGFLOAT W_new, BGFLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, int neuron_i, int source_x, int source_y, int dest_x, int dest_y, int width, BGFLOAT deltaT, int maxSynapses )
 {
 	if ( neuron_st_d[0].synapseCount[neuron_i] >= maxSynapses )
 		return;			// TODO: ERROR!
 
 	// locate summation point
-	FLOAT* sp = &( summationPoint_d[dest_x + dest_y * width] );
+	BGFLOAT* sp = &( summationPoint_d[dest_x + dest_y * width] );
 
 	// determine the synapse type
 	synapseType type = synType( rgNeuronTypeMap_d, source_x, source_y, dest_x, dest_y, width );
@@ -807,9 +807,9 @@ __device__ void addSynapse( FLOAT W_new, FLOAT* summationPoint_d, neuronType* rg
 * @param deltaT		The time step size.
 * @param type		Type of the synapse.
 */
-__device__ void createSynapse( int syn_i, int source_x, int source_y, int dest_x, int dest_y, FLOAT* sp, FLOAT deltaT, synapseType type )
+__device__ void createSynapse( int syn_i, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT* sp, BGFLOAT deltaT, synapseType type )
 {
-	FLOAT delay;
+	BGFLOAT delay;
 
 	synapse_st_d[0].inUse[syn_i] = true;
 	synapse_st_d[0].summationPoint[syn_i] = sp;
@@ -827,7 +827,7 @@ __device__ void createSynapse( int syn_i, int source_x, int source_y, int dest_x
 	synapse_st_d[0].lastSpike[syn_i] = ULONG_MAX;
 	synapse_st_d[0].type[syn_i] = type;
 
-	FLOAT tau;
+	BGFLOAT tau;
 	switch ( type ) {
 	case II:
 		tau = 6e-3;

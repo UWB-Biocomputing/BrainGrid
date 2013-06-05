@@ -18,20 +18,20 @@ void allocSynapseStruct_d( int count ) {
 	if ( count > 0 ) {
 		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.inUse, count * sizeof( bool ) ) );
 		HANDLE_ERROR( cudaMemset( synapse.inUse, 0, count * sizeof( bool ) ) );
-		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.summationPoint, count * sizeof( PFLOAT ) ) );
+		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.summationPoint, count * sizeof( PBGFLOAT ) ) );
 		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.summationCoord, count * sizeof( Coordinate ) ) );
 		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.synapseCoord, count * sizeof( Coordinate ) ) );
-		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.deltaT, count * sizeof( FLOAT ) ) );
-		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.W, count * sizeof( FLOAT ) ) );
-		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.psr, count * sizeof( FLOAT ) ) );
-		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.decay, count * sizeof( FLOAT ) ) );
+		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.deltaT, count * sizeof( BGFLOAT ) ) );
+		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.W, count * sizeof( BGFLOAT ) ) );
+		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.psr, count * sizeof( BGFLOAT ) ) );
+		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.decay, count * sizeof( BGFLOAT ) ) );
 		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.total_delay, count * sizeof( int ) ) );
 		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.type, count * sizeof( synapseType ) ) );
 		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.delayQueue, count * sizeof( uint32_t ) ) );
 		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.ldelayQueue, count * sizeof( int ) ) );
-		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.tau, count * sizeof( FLOAT ) ) );
-		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.r, count * sizeof( FLOAT ) ) );
-		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.u, count * sizeof( FLOAT ) ) );
+		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.tau, count * sizeof( BGFLOAT ) ) );
+		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.r, count * sizeof( BGFLOAT ) ) );
+		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.u, count * sizeof( BGFLOAT ) ) );
 		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.lastSpike, count * sizeof( uint64_t ) ) );
 
 		HANDLE_ERROR( cudaMemcpyToSymbol ( synapse_st_d, &synapse, sizeof( DynamicSpikingSynapse_struct ) ) );
@@ -79,18 +79,18 @@ void copySynapseHostToDevice( DynamicSpikingSynapse_struct& synapse_h, int count
 		HANDLE_ERROR( cudaMemcpy ( synapse.inUse, synapse_h.inUse, count * sizeof( bool ), cudaMemcpyHostToDevice ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse.summationCoord, synapse_h.summationCoord, count * sizeof( Coordinate ), cudaMemcpyHostToDevice ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse.synapseCoord, synapse_h.synapseCoord, count * sizeof( Coordinate ), cudaMemcpyHostToDevice ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse.summationPoint, synapse_h.summationPoint, count * sizeof( PFLOAT ), cudaMemcpyHostToDevice ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse.deltaT, synapse_h.deltaT, count * sizeof( FLOAT ), cudaMemcpyHostToDevice ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse.W, synapse_h.W, count * sizeof( FLOAT ), cudaMemcpyHostToDevice ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse.psr, synapse_h.psr, count * sizeof( FLOAT ), cudaMemcpyHostToDevice ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse.decay, synapse_h.decay, count * sizeof( FLOAT ), cudaMemcpyHostToDevice ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse.summationPoint, synapse_h.summationPoint, count * sizeof( PBGFLOAT ), cudaMemcpyHostToDevice ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse.deltaT, synapse_h.deltaT, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse.W, synapse_h.W, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse.psr, synapse_h.psr, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse.decay, synapse_h.decay, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse.total_delay, synapse_h.total_delay, count * sizeof( int ), cudaMemcpyHostToDevice ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse.type, synapse_h.type, count * sizeof( synapseType ), cudaMemcpyHostToDevice ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse.delayQueue, synapse_h.delayQueue, count * sizeof( uint32_t ), cudaMemcpyHostToDevice ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse.ldelayQueue, synapse_h.ldelayQueue, count * sizeof( int ), cudaMemcpyHostToDevice ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse.r, synapse_h.r, count * sizeof( FLOAT ), cudaMemcpyHostToDevice ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse.u, synapse_h.u, count * sizeof( FLOAT ), cudaMemcpyHostToDevice ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse.tau, synapse_h.tau, count * sizeof( FLOAT ), cudaMemcpyHostToDevice ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse.r, synapse_h.r, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse.u, synapse_h.u, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse.tau, synapse_h.tau, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse.lastSpike, synapse_h.lastSpike, count * sizeof( uint64_t ), cudaMemcpyHostToDevice ) );
 	}
 }
@@ -110,15 +110,15 @@ void copySynapseDeviceToHost( DynamicSpikingSynapse_struct& synapse_h, int count
 		HANDLE_ERROR( cudaMemcpy ( synapse_h.inUse, synapse.inUse, count * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse_h.summationCoord, synapse.summationCoord, count * sizeof( Coordinate ), cudaMemcpyDeviceToHost ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse_h.synapseCoord, synapse.synapseCoord, count * sizeof( Coordinate ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse_h.deltaT, synapse.deltaT, count * sizeof( FLOAT ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse_h.W, synapse.W, count * sizeof( FLOAT ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse_h.psr, synapse.psr, count * sizeof( FLOAT ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse_h.decay, synapse.decay, count * sizeof( FLOAT ), cudaMemcpyDeviceToHost ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse_h.deltaT, synapse.deltaT, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse_h.W, synapse.W, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse_h.psr, synapse.psr, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse_h.decay, synapse.decay, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse_h.total_delay, synapse.total_delay, count * sizeof( int ), cudaMemcpyDeviceToHost ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse_h.type, synapse.type, count * sizeof( synapseType ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse_h.r, synapse.r, count * sizeof( FLOAT ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse_h.u, synapse.u, count * sizeof( FLOAT ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse_h.tau, synapse.tau, count * sizeof( FLOAT ), cudaMemcpyDeviceToHost ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse_h.r, synapse.r, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse_h.u, synapse.u, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+		HANDLE_ERROR( cudaMemcpy ( synapse_h.tau, synapse.tau, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse_h.delayQueue, synapse.delayQueue, count * sizeof( uint32_t ), cudaMemcpyDeviceToHost ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse_h.lastSpike, synapse.lastSpike, count * sizeof( uint64_t ), cudaMemcpyDeviceToHost ) );
 	}

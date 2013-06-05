@@ -76,7 +76,7 @@ growth_cuda:$(LIBOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS)
 	nvcc -o growth_cuda -g -G $(LDFLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
 
 clean:
-	rm -f $(MAIN)/*.o $(COMMDIR)/*.o $(MATRIXDIR)/*.o $(PARAMDIR)/*.o $(RNGDIR)/*.o $(XMLDIR)/*.o ./growth ./growth_cuda
+	rm -f $(MAIN)/*.o $(COMMDIR)/*.o $(MATRIXDIR)/*.o $(PARAMDIR)/*.o $(RNGDIR)/*.o $(XMLDIR)/*.o $(CUDADIR)/*.o  ./growth ./growth_cuda
 	
 
 ################################################################################
@@ -85,10 +85,10 @@ clean:
 
 # CUDA
 # ------------------------------------------------------------------------------
-$(CUDADIR)/MersenneTwister_kernel.o: $(CUDADIR)/MersenneTwister_kernel.cu $(COMMDIR)/Global.h $(CUDADIR)/MersenneTwisterCUDA.h
+$(CUDADIR)/MersenneTwister_kernel.o: $(CUDADIR)/MersenneTwister_kernel.cu $(COMMDIR)/Global.h $(CUDADIR)/MersenneTwisterGPU.h
 	nvcc -c -g -G -arch=sm_13 $(CUDADIR)/CUDA_LIFModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -DSTORE_SPIKEHISTORY -o $(CUDADIR)/MersenneTwister_kernel.o
 
-$(CUDADIR)/CUDA_LIFModel.o: $(CUDADIR)/CUDA_LIFModel.cu $(COMMDIR)/Global.h $(CUDADIR)/MersenneTwisterCUDA.h $(COMMDIR)/LifNeuron_struct.h $(CUDADIR)/DelayIdx.h $(CUDADIR)/LifSynapse_struct.h  $(COMMDIR)/AllNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Model.h 
+$(CUDADIR)/CUDA_LIFModel.o: $(CUDADIR)/CUDA_LIFModel.cu $(COMMDIR)/Global.h $(CUDADIR)/MersenneTwisterGPU.h $(COMMDIR)/LifNeuron_struct.h $(CUDADIR)/DelayIdx.h $(CUDADIR)/LifSynapse_struct.h  $(COMMDIR)/AllNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Model.h 
 	nvcc -c -g -G -arch=sm_13 $(CUDADIR)/CUDA_LIFModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -DSTORE_SPIKEHISTORY -o $(CUDADIR)/CUDA_LIFModel.o
 
 $(CUDADIR)/LifNeuron_struct.o: $(CUDADIR)/LifNeuron_struct.cpp $(COMMDIR)/Global.h $(COMMDIR)/LifNeuron_struct.h $(CUDADIR)/LifSynapse_struct.h $(CUDADIR)/DelayIdx.h

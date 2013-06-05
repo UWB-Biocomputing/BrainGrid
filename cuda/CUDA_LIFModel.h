@@ -163,19 +163,19 @@ __global__ void advanceNeuronsDevice( uint32_t n, uint64_t simulationStep, uint3
 __global__ void advanceSynapsesDevice( uint32_t n, uint32_t width, uint64_t simulationStep, uint32_t bmask );
 
 //! Calculate neuron/synapse offsets.
-__global__ void calcOffsets( uint32_t n, FLOAT* summationPoint_d, uint32_t width, float* randNoise_d );
+__global__ void calcOffsets( uint32_t n, BGFLOAT* summationPoint_d, uint32_t width, float* randNoise_d );
 
 //! Calculate summation point.
 __global__ void calcSummationMap( uint32_t n, uint32_t* inverseMap );
 
 //! Update the network.
-__global__ void updateNetworkDevice( FLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, uint32_t n, uint32_t width, FLOAT deltaT, FLOAT* W_d, uint32_t maxSynapses );
+__global__ void updateNetworkDevice( BGFLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, uint32_t n, uint32_t width, BGFLOAT deltaT, BGFLOAT* W_d, uint32_t maxSynapses );
 
 //! Add a synapse to the network.
-__device__ void addSynapse( FLOAT W_new, FLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, uint32_t neuron_i, uint32_t source_x, uint32_t source_y, uint32_t dest_x, uint32_t dest_y, uint32_t width, FLOAT deltaT, uint32_t maxSynapses );
+__device__ void addSynapse( BGFLOAT W_new, BGFLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, uint32_t neuron_i, uint32_t source_x, uint32_t source_y, uint32_t dest_x, uint32_t dest_y, uint32_t width, BGFLOAT deltaT, uint32_t maxSynapses );
 
 //! Create a synapse.
-__device__ void createSynapse( uint32_t syn_i, uint32_t source_x, uint32_t source_y, uint32_t dest_x, uint32_t dest_y, FLOAT* sp, FLOAT deltaT, synapseType type );
+__device__ void createSynapse( uint32_t syn_i, uint32_t source_x, uint32_t source_y, uint32_t dest_x, uint32_t dest_y, BGFLOAT* sp, BGFLOAT deltaT, synapseType type );
 
 //! Remove a synapse from the network.
 __device__ void removeSynapse( uint32_t neuron_i, uint32_t syn_i );
@@ -195,13 +195,13 @@ float getEffectiveBandwidth( uint64_t count, uint32_t Br, uint32_t Bw, float tim
 DelayIdx delayIdx;
 
 //! Synapse constant (U)stored in device constant memory.
-__constant__ FLOAT synapse_U_d[4] = { 0.32, 0.25, 0.05, 0.5 };	// II, IE, EI, EE
+__constant__ BGFLOAT synapse_U_d[4] = { 0.32, 0.25, 0.05, 0.5 };	// II, IE, EI, EE
 
 //! Synapse constant(D) stored in device constant memory.
-__constant__ FLOAT synapse_D_d[4] = { 0.144, 0.7, 0.125, 1.1 };	// II, IE, EI, EE
+__constant__ BGFLOAT synapse_D_d[4] = { 0.144, 0.7, 0.125, 1.1 };	// II, IE, EI, EE
 
 //! Synapse constant(F) stored in device constant memory.
-__constant__ FLOAT synapse_F_d[4] = { 0.06, 0.02, 1.2, 0.05 };	// II, IE, EI, EE
+__constant__ BGFLOAT synapse_F_d[4] = { 0.06, 0.02, 1.2, 0.05 };	// II, IE, EI, EE
 
 //! Neuron structure in device constant memory.
 __constant__ LifNeuron_struct neuron_st_d[1];
@@ -209,7 +209,7 @@ __constant__ LifNeuron_struct neuron_st_d[1];
 //! Synapse structures in device constant memory.
 __constant__ LifSynapse_struct synapse_st_d[1];
 
-__constant__ FLOAT g_synapseStrengthAdjustmentConstant_d = 1.0e-8;
+__constant__ BGFLOAT g_synapseStrengthAdjustmentConstant_d = 1.0e-8;
 
 
 
@@ -220,7 +220,7 @@ size_t spikeHistory_d_size = 0;
 #endif // STORE_SPIKEHISTORY
 
 //! Pointer to device summation point.
-FLOAT* summationPoint_d = NULL;	
+BGFLOAT* summationPoint_d = NULL;	
 
 //! Pointer to device random noise array.
 float* randNoise_d = NULL;	

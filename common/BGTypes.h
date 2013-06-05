@@ -1,8 +1,6 @@
 #ifndef __BGTYPES_H_
 #define __BGTYPES_H_
 
-#pragma once
-
 // This type is used to measure the difference between 
 // IEEE Standard 754 single and double-precision floating 
 // point values.

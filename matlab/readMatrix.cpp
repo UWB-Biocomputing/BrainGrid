@@ -62,7 +62,7 @@
 using namespace std;
 
 // Read a row of a sparse Matrix
-void readSparseRow(TiXmlElement* rowElement, FLOAT* arrayData, int rows)
+void readSparseRow(TiXmlElement* rowElement, BGFLOAT* arrayData, int rows)
 {
   int rowNum;
   if (rowElement->QueryIntAttribute("number", &rowNum)!=TIXML_SUCCESS)
@@ -72,7 +72,7 @@ void readSparseRow(TiXmlElement* rowElement, FLOAT* arrayData, int rows)
   for (TiXmlElement* child = rowElement->FirstChildElement("Entry"); 
        child != NULL; child=child->NextSiblingElement("Entry")) {
     int colNum;
-    FLOAT val;
+    BGFLOAT val;
     if (child->QueryIntAttribute("number", &colNum)!=TIXML_SUCCESS)
       mexErrMsgTxt("Attempt to read SparseMatrix Entry without a number");
     if (child->QueryDoubleAttribute("value", &val)!=TIXML_SUCCESS)
@@ -86,7 +86,7 @@ void readSparseRow(TiXmlElement* rowElement, FLOAT* arrayData, int rows)
 mxArray* ReadMatrix(TiXmlElement* matrix)
 {
   int rows, columns;
-  FLOAT multiplier;
+  BGFLOAT multiplier;
   string init, type;
 
   // Get matrix type
@@ -119,7 +119,7 @@ mxArray* ReadMatrix(TiXmlElement* matrix)
 
   // Create the mxArray
   mxArray *theArray = mxCreateDoubleMatrix(rows, columns, mxREAL);
-  FLOAT *arrayData = mxGetPr(theArray);
+  BGFLOAT *arrayData = mxGetPr(theArray);
 
   // No init -- get the Matrix contents
   if (init == "none") {

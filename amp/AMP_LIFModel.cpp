@@ -137,7 +137,7 @@ void AMP_LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, Simulatio
 	uint32_t maxSpikes = static_cast<uint32_t> (psi->epochDuration * psi->maxFiringRate);
 #endif // STORE_SPIKEHISTORY
 
-	FLOAT deltaT = psi->deltaT;
+	BGFLOAT deltaT = psi->deltaT;
 	uint32_t width = psi->width;
 	uint32_t neuron_count = psi->cNeurons;
 	uint32_t synapse_count = neuron_count * psi->maxSynapsesPerNeuron;
