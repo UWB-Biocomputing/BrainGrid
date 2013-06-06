@@ -196,7 +196,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);TIXML_USE_STL;DEBUG_OUT;NDEBUG</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);TIXML_USE_STL;DEBUG_OUT;NDEBUG;STORE_SPIKEHISTORY</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>common</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
