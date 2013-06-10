@@ -63,7 +63,7 @@ class Network
         void saveState(ostream& os);
 
         //! Write the simulation memory image to an ostream
-        void writeSimMemory(BGFLOAT simulation_step, ostream& os);
+        void writeSimMemory(uint32_t simulation_step, ostream& os);
 
         //! Read the simulation memory image from an istream
         void readSimMemory(istream& is);

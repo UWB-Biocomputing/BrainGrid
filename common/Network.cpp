@@ -122,7 +122,7 @@ void Network::saveState(ostream& os)
  *  Write the simulation memory image.
  *  @param  os  yhe filestream to write.
  */
-void Network::writeSimMemory(BGFLOAT simulation_step, ostream& os)
+void Network::writeSimMemory(uint32_t simulation_step, ostream& os)
 {
     m_model->saveMemory(os, neurons, synapses, simulation_step);
 }

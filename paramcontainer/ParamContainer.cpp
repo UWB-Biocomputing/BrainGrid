@@ -5,9 +5,9 @@
 */
 static void absToRelPath(std::string spath, std::string &tpath)
 {
-	size_t i,s;
-    int j, k;
-	const char* div;
+	size_t i=0,s=0; // initialized only to remove compiler warnings
+    int j=0, k=0;
+	const char* div = NULL;
 	if(!spath.length()) return;
 	if(spath[0]=='/')
 	{
@@ -49,8 +49,8 @@ static void absToRelPath(std::string spath, std::string &tpath)
 
 static void relToAbsPath(std::string spath, std::string &tpath)
 {
-	const char* div;
-	int s;
+	const char* div = NULL; // initialized only to remove compiler warnings
+	int s = 0; // initialized only to remove compiler warnings
 	if(spath[0]=='/')
 	{
 		// Unix
@@ -259,9 +259,9 @@ ParamContainer::errcode ParamContainer::lexicalAnalysis(std::string s)
 		quotedvalue,	// Внутри строчки в кавычках
 	} state=normal;
 	// Тип лексической единицы
-	cmdlineel::elflag flag;
+	cmdlineel::elflag flag = cmdlineel::value; // Only initialized to remove compiler warnings
 	// Стартовая позиция значения текущей лексической единицы
-	int startpos, pos=0;
+	int startpos=0, pos=0;
 	std::string valpart="";
 	// Очистка таблицы лексической свёртки
 	lexconv.clear();
@@ -726,7 +726,7 @@ void ParamContainer::dumpHelp(FILE *f, bool showparamlist, unsigned int width, s
 	// Итератор по списку параметров
 	int i;
 	char s[maxpnamelength*2+10];
-	unsigned int pos;
+	unsigned int pos=0;// Only initialized to remove compiler warnings
 	// Вывод списка параметров
 	// Отступ на 8 позиций для красоты
 	if(showparamlist)
