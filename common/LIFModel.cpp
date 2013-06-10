@@ -602,7 +602,7 @@ void LIFModel::saveState(ostream &output, const AllNeurons &neurons, SimulationI
     }
     output << "   " << neuronTypes.toXML("neuronTypes") << endl;
 
-    int32_t num_starter_neurons = m_frac_starter_neurons * neurons.size;
+    int32_t num_starter_neurons = (int32_t) (m_frac_starter_neurons * neurons.size);
     if (num_starter_neurons > 0) {
         VectorMatrix starterNeuronsM("complete", "const", 1, num_starter_neurons);
         getStarterNeuronMatrix(starterNeuronsM, neurons.starter_map, sim_info);
