@@ -76,6 +76,7 @@ bool parseCommandLine(int argc, char* argv[]);
  *  @return -1 if error, else if success.
  */
 int main(int argc, char* argv[]) {
+
 #if defined(USE_GPU)
     model = new CUDA_LIFModel();
 #elif defined(USE_AMP)

@@ -29,9 +29,7 @@ struct AllSynapses
         //! The delayed queue
         vector<uint32_t> delayQueue;
         //! The index indicating the current time slot in the delayed queue
-        vector<uint32_t> delayIdx;
-        //! Length of the delayed queue
-        vector<uint32_t> ldelayQueue;
+        vector<uint32_t> delay;
         //! Synapse type
         vector<synapseType> type;
 

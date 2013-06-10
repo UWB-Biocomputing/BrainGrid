@@ -401,7 +401,7 @@ void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const uint32_t
     resetSynapse(synapses, neuron_index, synapse_index);
 
     uint32_t synapse_type(0);
-	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+	uint32_t idx = neuron_index * synapses.max_synapses + synapse_index;
 
     // input.ignore() so input skips over end-of-line characters.
 	input >> synapses.synapseCoord[idx].x; input.ignore();
@@ -412,8 +412,7 @@ void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const uint32_t
     input >> synapses.decay[idx]; input.ignore();
     input >> synapses.total_delay[idx]; input.ignore();
     input >> synapses.delayQueue[idx]; input.ignore();
-    input >> synapses.delayIdx[idx]; input.ignore();
-    input >> synapses.ldelayQueue[idx]; input.ignore();
+    input >> synapses.delay[idx]; input.ignore();
     input >> synapse_type; input.ignore();
     input >> synapses.tau[idx]; input.ignore();
     input >> synapses.r[idx]; input.ignore();
@@ -434,16 +433,13 @@ void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const uint32_t
  */
 void LIFModel::initSpikeQueue(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index)
 {
-	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+	uint32_t idx = neuron_index * synapses.max_synapses + synapse_index;
 
-	uint32_t &total_delay = synapses.total_delay[idx];
-    uint32_t &delayQueue = synapses.delayQueue[idx];
-    uint32_t &delayIdx = synapses.delayIdx[idx];
-    uint32_t &ldelayQueue = synapses.ldelayQueue[idx];
+	uint32_t &delayQueue = synapses.delayQueue[idx];
+    uint32_t &delay = synapses.delay[idx];
 
     delayQueue = 0;
-    delayIdx = 0;
-    ldelayQueue = LENGTH_OF_DELAYQUEUE;
+    delay = 0;
 }
 
 /**
@@ -454,7 +450,7 @@ void LIFModel::initSpikeQueue(AllSynapses &synapses, const uint32_t neuron_index
  */
 void LIFModel::resetSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index)
 {
-	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+	uint32_t idx = neuron_index * synapses.max_synapses + synapse_index;
 
 	synapses.psr[idx] = 0.0;
     assert( updateDecay(synapses, neuron_index, synapse_index) );
@@ -471,7 +467,7 @@ void LIFModel::resetSynapse(AllSynapses &synapses, const uint32_t neuron_index, 
  */
 bool LIFModel::updateDecay(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index)
 {
-	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+	uint32_t idx = neuron_index * synapses.max_synapses + synapse_index;
 
 	BGFLOAT &tau = synapses.tau[idx];
     TIMEFLOAT &deltaT = synapses.deltaT[idx];
@@ -491,7 +487,7 @@ bool LIFModel::updateDecay(AllSynapses &synapses, const uint32_t neuron_index, c
  *  @param  synapses    the synapse list to search from.
  *  @param  simulation_step the step of the simulation at the current time.
  */
-void LIFModel::saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, BGFLOAT simulation_step)
+void LIFModel::saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, uint32_t simulation_step)
 {
     // write the neurons data
     output << neurons.size;
@@ -560,7 +556,7 @@ void LIFModel::writeNeuron(ostream& output, AllNeurons &neurons, const uint32_t 
  *  @param  synapse_index   index of the synapse to print out.
  */
 void LIFModel::writeSynapse(ostream& output, AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index) const {
-	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+	uint32_t idx = neuron_index * synapses.max_synapses + synapse_index;
 
 	output << synapses.summationCoord[idx].x << ends;
     output << synapses.summationCoord[idx].y << ends;
@@ -572,8 +568,7 @@ void LIFModel::writeSynapse(ostream& output, AllSynapses &synapses, const uint32
     output << synapses.decay[idx] << ends;
     output << synapses.total_delay[idx] << ends;
     output << synapses.delayQueue[idx] << ends;
-    output << synapses.delayIdx[idx] << ends;
-    output << synapses.ldelayQueue[idx] << ends;
+    output << synapses.delay[idx] << ends;
     output << synapses.type[idx] << ends;
     output << synapses.tau[idx] << ends;
     output << synapses.r[idx] << ends;
@@ -1048,26 +1043,24 @@ void LIFModel::fire(AllNeurons &neurons, const uint32_t index) const
  */
 void LIFModel::preSpikeHit(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index)
 {
-	uint32_t src_idx = neuron_index * synapses.count_neurons + synapse_index;
+	uint32_t src_idx = neuron_index * synapses.max_synapses + synapse_index;
 
 	uint32_t &delay_queue = synapses.delayQueue[src_idx];
-    uint32_t &delayIdx = synapses.delayIdx[src_idx];
-    uint32_t &ldelayQueue = synapses.ldelayQueue[src_idx];
+    uint32_t &delay = synapses.delay[src_idx];
     uint32_t &total_delay = synapses.total_delay[src_idx];
 
     // Add to spike queue
 
     // calculate index where to insert the spike into delayQueue
-    uint32_t idx = delayIdx +  total_delay;
-    if ( idx >= ldelayQueue ) {
-        idx -= ldelayQueue;
+    uint32_t idx = delay +  total_delay;
+    if ( idx >= LENGTH_OF_DELAYQUEUE ) {
+        idx -= LENGTH_OF_DELAYQUEUE;
     }
 
     // set a spike
     assert( !(delay_queue & (0x1 << idx)) );
     delay_queue |= (0x1 << idx);
 
-    delay_queue = 0;
 }
 
 /**
@@ -1093,7 +1086,7 @@ void LIFModel::advanceSynapses(const uint32_t num_neurons, AllNeurons &neurons, 
  */
 void LIFModel::advanceSynapse(AllSynapses &synapses, AllNeurons &neurons, const uint32_t neuron_index, const uint32_t synapse_index)
 {
-	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+	uint32_t idx = neuron_index * synapses.max_synapses + synapse_index;
 
 	uint64_t &lastSpike = synapses.lastSpike[idx];
     TIMEFLOAT &deltaT = synapses.deltaT[idx];
@@ -1153,16 +1146,15 @@ void LIFModel::advanceSynapse(AllSynapses &synapses, AllNeurons &neurons, const 
  */
 bool LIFModel::isSpikeQueue(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index)
 {
-	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+	uint32_t idx = neuron_index * synapses.max_synapses + synapse_index;
 
 	uint32_t &delay_queue = synapses.delayQueue[idx];
-    uint32_t &delayIdx = synapses.delayIdx[idx];
-    uint32_t &ldelayQueue = synapses.ldelayQueue[idx];
-
-    bool r = delay_queue & (0x1 << delayIdx);
-    delay_queue &= ~(0x1 << delayIdx);
-    if ( ++delayIdx >= ldelayQueue ) {
-        delayIdx = 0;
+    uint32_t &delay = synapses.delay[idx];
+    
+    bool r = delay_queue & (0x1 << delay);
+    delay_queue &= ~(0x1 << delay);
+    if ( ++delay >= LENGTH_OF_DELAYQUEUE ) {
+        delay = 0;
     }
     delay_queue = 0;
     return r;
@@ -1190,7 +1182,7 @@ void LIFModel::updateHistory(const uint32_t currentStep, BGFLOAT epochDuration, 
     m_conns->radii += m_conns->deltaR;
 
     // Cap minimum radius size and record radii to history matrix
-    for (uint32_t i = 0; i < m_conns->radii.Size(); i++) {
+    for (int32_t i = 0; i < m_conns->radii.Size(); i++) {
         // TODO: find out why we cap this here.
         if (m_conns->radii[i] < m_growth.minRadius) {
             m_conns->radii[i] = m_growth.minRadius;
@@ -1331,7 +1323,7 @@ void LIFModel::updateWeights(const uint32_t num_neurons, AllNeurons &neurons, Al
             // for each existing synapse
             for (size_t synapse_index = 0; synapse_index < synapses.synapse_counts[src_neuron]; synapse_index++) {
                 // if there is a synapse between a and b
-				uint32_t src_idx = src_neuron * num_neurons + synapse_index;
+				uint32_t src_idx = src_neuron * synapses.max_synapses + synapse_index;
 
                 if (synapses.summationCoord[src_idx] == dest_coord) {
                     connected = true;
@@ -1383,7 +1375,7 @@ void LIFModel::updateWeights(const uint32_t num_neurons, AllNeurons &neurons, Al
  */
 void LIFModel::eraseSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index)
 {
-	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+	uint32_t idx = neuron_index * synapses.max_synapses + synapse_index;
 
 	synapses.synapse_counts[neuron_index]--;
     synapses.in_use[idx] = false;
@@ -1408,7 +1400,7 @@ void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const uint32_
     // add it to the list
     size_t synapse_index;
     for (synapse_index = 0; synapse_index < synapses.max_synapses; synapse_index++) {
-		if (!synapses.in_use[src_neuron * synapses.count_neurons + synapse_index]) {
+		if (!synapses.in_use[src_neuron * synapses.max_synapses + synapse_index]) {
             break;
         }
     }
@@ -1417,7 +1409,7 @@ void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const uint32_
 
     // create a synapse
     createSynapse(synapses, src_neuron, synapse_index, source, dest, deltaT, type );
-	synapses.W[src_neuron * synapses.count_neurons + synapse_index] = m_conns->W(src_neuron, dest_neuron) * synSign(type) * SYNAPSE_STRENGTH_ADJUSTMENT;
+	synapses.W[src_neuron * synapses.max_synapses + synapse_index] = m_conns->W(src_neuron, dest_neuron) * synSign(type) * SYNAPSE_STRENGTH_ADJUSTMENT;
 }
 
 /**
@@ -1432,7 +1424,7 @@ void LIFModel::addSynapse(AllSynapses &synapses, synapseType type, const uint32_
  */
 void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index, Coordinate source, Coordinate dest, TIMEFLOAT deltaT, synapseType type)
 {
-	uint32_t idx = neuron_index * synapses.count_neurons + synapse_index;
+	uint32_t idx = neuron_index * synapses.max_synapses + synapse_index;
     BGFLOAT delay;
 
     synapses.in_use[idx] = true;
@@ -1447,12 +1439,9 @@ void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index,
                 << neuron_index << flush
                 << ","
                 << synapse_index << flush
-            << ")"
-            << "delay queue length := " << 
-                synapses.ldelayQueue[idx] << flush
+            << ")" << flush
             << " => " << LENGTH_OF_DELAYQUEUE << endl;
     )
-    synapses.ldelayQueue[idx] = LENGTH_OF_DELAYQUEUE;
     synapses.r[idx] = 1.0f;
     synapses.u[idx] = 0.4f;     // DEFAULT_U
     synapses.lastSpike[idx] = ULONG_MAX;

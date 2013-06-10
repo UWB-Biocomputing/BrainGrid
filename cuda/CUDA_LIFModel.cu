@@ -325,7 +325,6 @@ void allocSynapseStruct_d( uint32_t count ) {
 		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.total_delay, count * sizeof( uint32_t ) ) );
 		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.type, count * sizeof( synapseType ) ) );
 		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.delayQueue, count * sizeof( uint32_t ) ) );
-		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.ldelayQueue, count * sizeof( uint32_t ) ) );
 		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.tau, count * sizeof( BGFLOAT ) ) );
 		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.r, count * sizeof( BGFLOAT ) ) );
 		HANDLE_ERROR( cudaMalloc( ( void ** ) &synapse.u, count * sizeof( BGFLOAT ) ) );
@@ -351,7 +350,6 @@ void deleteSynapseStruct_d( ) {
 	HANDLE_ERROR( cudaFree( synapse.total_delay ) );
 	HANDLE_ERROR( cudaFree( synapse.type ) );
 	HANDLE_ERROR( cudaFree( synapse.delayQueue ) );
-	HANDLE_ERROR( cudaFree( synapse.ldelayQueue ) );
 	HANDLE_ERROR( cudaFree( synapse.tau ) );
 	HANDLE_ERROR( cudaFree( synapse.r ) );
 	HANDLE_ERROR( cudaFree( synapse.u ) );
@@ -376,7 +374,6 @@ void copySynapseHostToDevice( LifSynapse_struct& synapse_h, uint32_t count ) {
 		HANDLE_ERROR( cudaMemcpy ( synapse.total_delay, synapse_h.total_delay, count * sizeof( uint32_t ), cudaMemcpyHostToDevice ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse.type, synapse_h.type, count * sizeof( synapseType ), cudaMemcpyHostToDevice ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse.delayQueue, synapse_h.delayQueue, count * sizeof( uint32_t ), cudaMemcpyHostToDevice ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse.ldelayQueue, synapse_h.ldelayQueue, count * sizeof( uint32_t ), cudaMemcpyHostToDevice ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse.r, synapse_h.r, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse.u, synapse_h.u, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 		HANDLE_ERROR( cudaMemcpy ( synapse.tau, synapse_h.tau, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
@@ -749,18 +746,18 @@ float getEffectiveBandwidth( uint64_t count, uint32_t Br, uint32_t Bw, float tim
  * @param[in] spikeHistory_d	Spike history list.
  * @param[in] simulationStep	The current simulation step.
  * @param[in] maxSpikes		Maximum number of spikes per neuron per one epoch.
- * @param[in] delayIdx		Index of the delayed list (spike queue).
+ * @param[in] delay   		Index of the delayed list (spike queue).
  * @param[in] maxSynapses	Maximum number of synapses per neuron.
  */
-__global__ void advanceNeuronsDevice( uint32_t n, uint64_t* spikeHistory_d, uint64_t simulationStep, uint32_t maxSpikes, uint32_t delayIdx, uint32_t maxSynapses )
+__global__ void advanceNeuronsDevice( uint32_t n, uint64_t* spikeHistory_d, uint64_t simulationStep, uint32_t maxSpikes, uint32_t delay, uint32_t maxSynapses )
 #else
 /**
- * @param[in] n			Number of synapses.
+ * @param[in] n		    	Number of synapses.
  * @param[in] simulationStep	The current simulation step.
- * @param[in] delayIdx		Index of the delayed list (spike queue).
+ * @param[in] delay  		Index of the delayed list (spike queue).
  * @param[in] maxSynapses	Maximum number of synapses per neuron.
  */
-__global__ void advanceNeuronsDevice( uint32_t n, uint64_t simulationStep, uint32_t delayIdx, uint32_t maxSynapses )
+__global__ void advanceNeuronsDevice( uint32_t n, uint64_t simulationStep, uint32_t delay, uint32_t maxSynapses )
 #endif // STORE_SPIKEHISTORY
 {
 	// determine which neuron this thread is processing
@@ -798,7 +795,7 @@ __global__ void advanceNeuronsDevice( uint32_t n, uint64_t simulationStep, uint3
 			if ( synapse_st_d[0].inUse[syn_i + i] == true )
 			{
 				// notify synapses of spike...
-				uint32_t idx0 = delayIdx + synapse_st_d[0].total_delay[syn_i + i];
+				uint32_t idx0 = delay + synapse_st_d[0].total_delay[syn_i + i];
 				if ( idx0 >= LENGTH_OF_DELAYQUEUE )
 					idx0 -= LENGTH_OF_DELAYQUEUE;
 
@@ -1039,7 +1036,6 @@ __device__ void createSynapse( uint32_t syn_i, uint32_t source_x, uint32_t sourc
 	synapse_st_d[0].W[syn_i] = 10.0e-9;
 	synapse_st_d[0].psr[syn_i] = 0.0;
 	synapse_st_d[0].delayQueue[syn_i] = 0;
-	synapse_st_d[0].ldelayQueue[syn_i] = LENGTH_OF_DELAYQUEUE;
 	synapse_st_d[0].r[syn_i] = 1.0;
 	synapse_st_d[0].u[syn_i] = 0.4;		// DEFAULT_U
 	synapse_st_d[0].lastSpike[syn_i] = ULONG_MAX;

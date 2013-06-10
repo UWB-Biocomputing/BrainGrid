@@ -60,7 +60,7 @@ class LIFModel : public Model, TiXmlVisitor
         bool readParameters(TiXmlElement *source);
         void printParameters(ostream &output) const;
         void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info);
-        void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, BGFLOAT simulation_step);
+        void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, uint32_t simulation_step);
         void saveState(ostream& output, const AllNeurons &neurons,  SimulationInfo *sim_info);
         void createAllNeurons(AllNeurons &neurons, SimulationInfo *sim_info);
         void setupSim(const uint32_t num_neurons, SimulationInfo *sim_info);

@@ -110,8 +110,6 @@ struct LifSynapse_struct {
 
 	//! The delayed queue
 	uint32_t* delayQueue;
-	//! Length of the delayed queue
-	int* ldelayQueue;
 
 	 //! The synaptic time constant \f$\tau\f$ [units=sec; range=(0,100)];.
 	BGFLOAT* tau;

@@ -12,8 +12,7 @@ AllSynapses::AllSynapses() :
     decay.clear();
     total_delay.clear();
     delayQueue.clear();
-    delayIdx.clear();
-    ldelayQueue.clear();
+    delay.clear();
     type.clear();
     tau.clear();
     r.clear();
@@ -40,8 +39,7 @@ AllSynapses::AllSynapses(const int num_neurons, const int max_synapses) :
     decay.resize(total_synapses);
     total_delay.resize(total_synapses);
     delayQueue.resize(total_synapses);
-    delayIdx.resize(total_synapses);
-    ldelayQueue.resize(total_synapses);
+    delay.resize(total_synapses);
     type.resize(total_synapses);
     tau.resize(total_synapses);
     r.resize(total_synapses);
@@ -64,8 +62,7 @@ AllSynapses::~AllSynapses()
     decay.clear();
     total_delay.clear();
     delayQueue.clear();
-    delayIdx.clear();
-    ldelayQueue.clear();
+    delay.clear();
     type.clear();
     tau.clear();
     r.clear();

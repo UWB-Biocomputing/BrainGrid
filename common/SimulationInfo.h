@@ -50,19 +50,19 @@ struct SimulationInfo
     }
 
 	//! Width of neuron map (assumes square)
-	int width;
+	uint32_t width;
 
 	//! Height of neuron map
-	int height;
+	uint32_t height;
 
 	//! Count of neurons in the simulation
-	int cNeurons;
+	uint32_t cNeurons;
 
 	//! Current simulation step
-	int currentStep;
+	uint32_t currentStep;
 
 	//! Maximum number of simulation steps NOTE: Not Currently Used
-	int maxSteps; // TODO: delete
+	uint32_t maxSteps; // TODO: delete
 
 	//! The length of each step in simulation time
 	BGFLOAT epochDuration; // Epoch duration !!!!!!!!
@@ -72,7 +72,7 @@ struct SimulationInfo
 	int maxFiringRate;
 
 	//! Maximum number of synapses per neuron. **Only used by GPU simulation.**
-	int maxSynapsesPerNeuron;
+	uint32_t maxSynapsesPerNeuron;
 // } NMV-END
 
 	//! Time elapsed between the beginning and end of the simulation step

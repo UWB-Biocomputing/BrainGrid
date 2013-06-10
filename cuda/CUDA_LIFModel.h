@@ -154,10 +154,10 @@ void normalMTGPU(float * randNoise_d);
 
 #ifdef STORE_SPIKEHISTORY
 //! Perform updating neurons for one time step.
-__global__ void advanceNeuronsDevice( uint32_t n, uint64_t* spikeHistory_d, uint64_t simulationStep, uint32_t maxSpikes, uint32_t delayIdx, uint32_t maxSynapses );
+__global__ void advanceNeuronsDevice( uint32_t n, uint64_t* spikeHistory_d, uint64_t simulationStep, uint32_t maxSpikes, uint32_t delay, uint32_t maxSynapses );
 #else
 //! Perform updating neurons for one time step.
-__global__ void advanceNeuronsDevice( uint32_t n, uint64_t simulationStep, uint32_t delayIdx, uint32_t maxSynapses );
+__global__ void advanceNeuronsDevice( uint32_t n, uint64_t simulationStep, uint32_t delay, uint32_t maxSynapses );
 #endif // STORE_SPIKEHISTORY
 //! Perform updating synapses for one time step.
 __global__ void advanceSynapsesDevice( uint32_t n, uint32_t width, uint64_t simulationStep, uint32_t bmask );
