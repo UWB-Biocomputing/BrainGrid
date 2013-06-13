@@ -5,6 +5,7 @@
 #include "ParseParamError.h"
 #include "Util.h"
 
+
 const bool LIFModel::STARTER_FLAG(true);
 
 const BGFLOAT LIFModel::SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
@@ -717,7 +718,7 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, SimulationInfo *sim_info)
  *  @param  num_neurons number of the neurons to have in the type map.
  *  @return a flat vector (to map to 2-d [x,y] = [i % m_width, i / m_width])
  */
-void LIFModel::generateNeuronTypeMap(vector<neuronType> &neuron_types, uint32_t num_neurons)
+void LIFModel::generateNeuronTypeMap(neuronType *neuron_types, uint32_t num_neurons)
 {
     //TODO: m_pInhibitoryNeuronLayout
     uint32_t num_inhibitory_neurons = m_inhibitory_neuron_layout.size();
@@ -774,7 +775,7 @@ void LIFModel::generateNeuronTypeMap(vector<neuronType> &neuron_types, uint32_t 
  *  @param  num_neurons number of neurons to have in the map.
  *  @param  neuron_type_map array of neuronTypes to set the starter map to.
  */
-void LIFModel::initStarterMap(bool *starter_map, const uint32_t num_neurons, const vector<neuronType> &neuron_type_map)
+void LIFModel::initStarterMap(bool *starter_map, const uint32_t num_neurons, neuronType *neuron_type_map)
 {
     for (uint32_t i = 0; i < num_neurons; i++) {
         starter_map[i] = false;
@@ -922,7 +923,7 @@ void LIFModel::setupSim(const uint32_t num_neurons, SimulationInfo *sim_info)
 void LIFModel::advance(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info)
 {
     advanceNeurons(neurons, synapses, sim_info);
-    advanceSynapses(neurons.size, neurons, synapses);
+    advanceSynapses(neurons.size, neurons, synapses, sim_info);
 }
 
 /**
@@ -972,7 +973,7 @@ void LIFModel::advanceNeuron(AllNeurons &neurons, const uint32_t index)
 {
     BGFLOAT &Vm = neurons.Vm[index];
     BGFLOAT &Vthresh = neurons.Vthresh[index];
-    BGFLOAT &summationPoint = neurons.summation[index];
+    BGFLOAT &summationPoint = neurons.summation[index]; // The summation here is directly to this neuron
     BGFLOAT &I0 = neurons.I0[index];
     BGFLOAT &Inoise = neurons.Inoise[index];
     BGFLOAT &C1 = neurons.C1[index];
@@ -1068,12 +1069,12 @@ void LIFModel::preSpikeHit(AllSynapses &synapses, const uint32_t neuron_index, c
  *  @param  num_neurons number of neurons in the simulation to run.
  *  @param  synapses    list of Synapses to update.
  */
-void LIFModel::advanceSynapses(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses)
+void LIFModel::advanceSynapses(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info)
 {
     for (int32_t i = num_neurons - 1; i >= 0; --i) {
         for (int32_t z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
             // Advance Synapse
-            advanceSynapse(synapses, neurons, i, z);
+            advanceSynapse(synapses, neurons, i, z, sim_info);
         }
     }
 }
@@ -1084,7 +1085,7 @@ void LIFModel::advanceSynapses(const uint32_t num_neurons, AllNeurons &neurons, 
  *  @param  neuron_index    index of the Neuron that the Synapse connects to.
  *  @param  synapse_index   index of the Synapse to connect to.
  */
-void LIFModel::advanceSynapse(AllSynapses &synapses, AllNeurons &neurons, const uint32_t neuron_index, const uint32_t synapse_index)
+void LIFModel::advanceSynapse(AllSynapses &synapses, AllNeurons &neurons, const uint32_t neuron_index, const uint32_t synapse_index, SimulationInfo *sim_info)
 {
 	uint32_t idx = neuron_index * synapses.max_synapses + synapse_index;
 
@@ -1098,7 +1099,7 @@ void LIFModel::advanceSynapse(AllSynapses &synapses, AllNeurons &neurons, const 
     BGFLOAT &W = synapses.W[idx];
     BGFLOAT &decay = synapses.decay[idx];
     BGFLOAT &psr = synapses.psr[idx];
-    BGFLOAT &summationPoint = neurons.summation[neuron_index];
+    BGFLOAT &summationPoint = neurons.summation[synapses.summationCoord[idx].x + synapses.summationCoord[idx].y * sim_info->width];
 
     // is an input in the queue?
     if (isSpikeQueue(synapses, neuron_index, synapse_index)) {

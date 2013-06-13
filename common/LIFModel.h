@@ -134,9 +134,9 @@ class LIFModel : public Model, TiXmlVisitor
         // --------------------
 
         // TODO
-        void generateNeuronTypeMap(vector<neuronType> &neuron_types, uint32_t num_neurons);
+        void generateNeuronTypeMap(neuronType *neuron_types, uint32_t num_neurons);
         // TODO
-        void initStarterMap(bool *starter_map, const uint32_t num_neurons, const vector<neuronType> &neuron_type_map);
+        void initStarterMap(bool *starter_map, const uint32_t num_neurons, neuronType *neuron_type_map);
         // TODO
         void setNeuronDefaults(AllNeurons &neurons, const uint32_t index);
         // TODO
@@ -155,9 +155,9 @@ class LIFModel : public Model, TiXmlVisitor
         void preSpikeHit(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index);
 
         // Update the state of all synapses for a time step
-        void advanceSynapses(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses);
+        void advanceSynapses(const uint32_t num_neurons, AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info);
         // Helper for #advanceSynapses. Updates state of a single synapse.
-        void advanceSynapse(AllSynapses &synapses, AllNeurons &neurons, const uint32_t neuron_index, const uint32_t synapse_index);
+        void advanceSynapse(AllSynapses &synapses, AllNeurons &neurons, const uint32_t neuron_index, const uint32_t synapse_index, SimulationInfo *sim_info);
         // TODO
         bool isSpikeQueue(AllSynapses &synapses, const uint32_t neuron_index, const uint32_t synapse_index);
 
