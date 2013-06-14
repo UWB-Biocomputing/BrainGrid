@@ -453,6 +453,11 @@ void LIFModel::resetSynapse(AllSynapses &synapses, const uint32_t neuron_index, 
 {
 	uint32_t idx = neuron_index * synapses.max_synapses + synapse_index;
 
+	if(synapses.tau[idx] > 0) {
+		synapses.decay[idx] = exp( -synapses.deltaT[idx] / synapses.tau[idx] );
+	} else {
+		synapses.decay[idx] = 0;
+	}
 	synapses.psr[idx] = 0.0;
     assert( updateDecay(synapses, neuron_index, synapse_index) );
     synapses.u[idx] = DEFAULT_U;
@@ -1106,8 +1111,7 @@ void LIFModel::advanceSynapse(AllSynapses &synapses, AllNeurons &neurons, const 
         // adjust synapse parameters
         if (lastSpike != ULONG_MAX) {
             BGFLOAT isi = (g_simulationStep - lastSpike) * deltaT ;
-            /*
-            DEBUG(
+            DEBUG_MID(
                     cout << "Synapse (" << neuron_index << "," << synapse_index << ") =>"
                          << "r := " << r << " " << flush
                          << "u := " << u << " " << flush
@@ -1117,7 +1121,6 @@ void LIFModel::advanceSynapse(AllSynapses &synapses, AllNeurons &neurons, const 
                          << "F := " << F
                          << endl;
             )
-            */
             r = 1 + ( r * ( 1 - u ) - 1 ) * exp( -isi / D );
             u = U + u * ( 1 - U ) * exp( -isi / F );
         }
@@ -1157,7 +1160,6 @@ bool LIFModel::isSpikeQueue(AllSynapses &synapses, const uint32_t neuron_index, 
     if ( ++delay >= LENGTH_OF_DELAYQUEUE ) {
         delay = 0;
     }
-    delay_queue = 0;
     return r;
 }
 
@@ -1435,7 +1437,7 @@ void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index,
     synapses.W[idx] = 10.0e-9f;
     synapses.psr[idx] = 0.0f;
     synapses.delayQueue[idx] = 0;
-    DEBUG(
+    DEBUG_MID(
         cout << "synapse ("
                 << neuron_index << flush
                 << ","
@@ -1495,7 +1497,10 @@ void LIFModel::createSynapse(AllSynapses &synapses, const uint32_t neuron_index,
 
     synapses.tau[idx] = tau;
     synapses.total_delay[idx] = static_cast<uint32_t>( delay / deltaT ) + 1;
-    synapses.decay[idx] = exp( -deltaT / tau );
+	// initSpikeQueue:
+	synapses.delay[idx] = 0;
+	synapses.delayQueue[idx] = 0;
+	resetSynapse(synapses, neuron_index, synapse_index);
 }
 
 /**

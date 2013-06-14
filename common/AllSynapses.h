@@ -57,7 +57,6 @@ struct AllSynapses
 
 	// The number of neurons
         uint32_t count_neurons;
-
 	
         uint32_t max_synapses;
 

@@ -21,7 +21,7 @@ using namespace std;
 #include "AllSynapses.h"
 #include "SimulationInfo.h"
 
-#define LENGTH_OF_DELAYQUEUE        ( sizeof(uint32_t) )
+const int LENGTH_OF_DELAYQUEUE = 32;  // PAB: This was stored per-neuron, but never modified
 
 /**
  * Neural Network Model interface.

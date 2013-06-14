@@ -468,7 +468,7 @@ void allocDeviceStruct(SimulationInfo * psi,
 	copySynapseHostToDevice( synapse_st, synapse_count );
 
 	// Copy neuron type map into device memory
-	HANDLE_ERROR( cudaMemcpy ( rgNeuronTypeMap_d,  neurons.neuron_type_map.data(), rgNeuronTypeMap_d_size, cudaMemcpyHostToDevice ) );
+	HANDLE_ERROR( cudaMemcpy ( rgNeuronTypeMap_d,  neurons.neuron_type_map, rgNeuronTypeMap_d_size, cudaMemcpyHostToDevice ) );
 
 	uint32_t width = psi->width;	
 	blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
@@ -1064,6 +1064,7 @@ __device__ void createSynapse( uint32_t syn_i, uint32_t source_x, uint32_t sourc
 	synapse_st_d[0].tau[syn_i] = tau;
 	synapse_st_d[0].total_delay[syn_i] = static_cast<uint32_t>( delay / deltaT ) + 1;
 	synapse_st_d[0].decay[syn_i] = exp( -deltaT / tau );
+	//PAB: This diverges from Single-Threaded behavior -- an initSpikeQueue would be performed here
 }
 
 /**
