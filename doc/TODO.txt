@@ -1,7 +1,7 @@
 ================================================================================
 Documentation TODO
 ================================================================================
-	[ ] Merge Current LaTeX Documentation into the repository
+	[X] Merge Current LaTeX Documentation into the repository
 	
 	[ ] Create a README in the root folder:
 		- What you need installed:
@@ -13,9 +13,9 @@ Documentation TODO
 		- Generating a pdf of the documentation
 		- Building simulator
 		
-	[ ] Split the current documentation into multiple files
+	[X] Split the current documentation into multiple files
 	[ ] Add a Makefile to make the documentation pdf and clean up aftwards.
-	[ ] Create Hypelinks in the TOC.
+	[X] Create Hypelinks in the TOC.
 	
 	[ ] Expand FAQ
 		[ ] Supported Versions of CUDA
