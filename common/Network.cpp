@@ -34,10 +34,10 @@ Network::~Network()
 
 /**
  *  Initialize and prepare network for simulation.
- *  @param  growthStepDuration  the duration of each growth in the simulation.
+ *  @param  growthEpochDuration  the duration of each growth in the simulation.
  *  @param  maxGrowthSteps  the maximum amount of steps for this simulation.
  */
-void Network::setup(BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps)
+void Network::setup(BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps)
 {
 
     m_model->setupSim(neurons.size, m_sim_info);
@@ -45,10 +45,10 @@ void Network::setup(BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps)
 
 /**
  *  Begin terminating the simulator.
- *  @param  growthStepDuration    the duration of each growth in the simulation.
+ *  @param  growthEpochDuration    the duration of each growth in the simulation.
  *  @param  maxGrowthSteps  the maximum amount of steps for this simulation.
  */
-void Network::finish(BGFLOAT growthStepDuration, BGFLOAT maxGrowthSteps)
+void Network::finish(BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps)
 {
     // Terminate the simulator
     m_model->cleanupSim(neurons, m_sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION

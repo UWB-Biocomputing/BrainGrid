@@ -1,7 +1,7 @@
 ################################################################################
 # Default Target
 ################################################################################
-all: growth 
+all: growth growth_cuda
 
 ################################################################################
 # Source Directories
@@ -33,7 +33,11 @@ LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
 # Objects
 ################################################################################
 
-CUDAOBJS = \
+CUDAOBJS =  $(CUDADIR)/CUDA_LIFModel.o \
+            $(CUDADIR)/LifNeuron_struct.o \
+            $(CUDADIR)/LifSynapse_struct.o \
+            $(CUDADIR)/MersenneTwister_kernel.o \
+            $(CUDADIR)/BGDriver_cuda.o
 
 LIBOBJS = $(COMMDIR)/AllNeurons.o \
 			$(COMMDIR)/AllSynapses.o \
@@ -67,6 +71,9 @@ XMLOBJS = $(XMLDIR)/tinyxml.o \
 growth: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) 
 	$(LD) -o growth -g $(LDFLAGS) $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) 
 
+growth_cuda:$(LIBOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS)
+	nvcc -o growth_cuda -g -G $(LDFLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
+
 clean:
 	rm -f $(MAIN)/*.o $(COMMDIR)/*.o $(MATRIXDIR)/*.o $(PARAMDIR)/*.o $(RNGDIR)/*.o $(XMLDIR)/*.o ./growth
 	
@@ -77,7 +84,20 @@ clean:
 
 # CUDA
 # ------------------------------------------------------------------------------
-#TODO: Fill in when new CUDA code is implemented.  See './old/Makefile' for reference on compiling CUDA code.
+$(CUDADIR)/MersenneTwister_kernel.o: $(CUDADIR)/MersenneTwister_kernel.cu $(COMMDIR)/Global.h $(CUDADIR)/MersenneTwisterGPU.h
+	nvcc -c -g -G -arch=sm_13 $(CUDADIR)/CUDA_LIFModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -DSTORE_SPIKEHISTORY -o $(CUDADIR)/MersenneTwister_kernel.o
+
+$(CUDADIR)/CUDA_LIFModel.o: $(CUDADIR)/CUDA_LIFModel.cu $(COMMDIR)/Global.h $(CUDADIR)/MersenneTwisterGPU.h $(CUDADIR)/LifNeuron_struct.h $(CUDADIR)/DelayIdx.h $(CUDADIR)/LifSynapse_struct.h  $(COMMDIR)/AllNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Model.h 
+	nvcc -c -g -G -arch=sm_13 $(CUDADIR)/CUDA_LIFModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -DSTORE_SPIKEHISTORY -o $(CUDADIR)/CUDA_LIFModel.o
+
+$(CUDADIR)/LifNeuron_struct.o: $(CUDADIR)/LifNeuron_struct.cpp $(COMMDIR)/Global.h $(CUDADIR)/LifNeuron_struct.h $(CUDADIR)/LifSynapse_struct.h $(CUDADIR)/DelayIdx.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(CUDADIR)/LifNeuron_struct.cpp -o $(CUDADIR)/LifNeuron_struct.o
+
+$(CUDADIR)/LifSynapse_struct.o: $(CUDADIR)/LifSynapse_struct.cpp $(COMMDIR)/Global.h $(CUDADIR)/LifNeuron_struct.h $(CUDADIR)/LifSynapse_struct.h $(CUDADIR)/DelayIdx.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(CUDADIR)/LifSynapse_struct.cpp -o $(CUDADIR)/LifSynapse_struct.o
+
+$(CUDADIR)/BGDriver_cuda.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/Model.h $(COMMDIR)/AllNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Model.h $(COMMDIR)/Network.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -c $(MAIN)/BGDriver.cpp -o $(CUDADIR)/BGDriver_cuda.o
 
 
 # Library

@@ -36,13 +36,13 @@ HostSimulator::~HostSimulator()
 
 /**
  *  Run simulation
- *  @param  growthStepDuration
+ *  @param  growthEpochDuration
  *  @param  maxGrowthSteps
  */
 void HostSimulator::simulate()
 {
     DEBUG(cout << "Setup simulation." << endl;);
-    network->setup(m_sim_info.stepDuration, m_sim_info.maxSteps);
+    network->setup(m_sim_info.epochDuration, m_sim_info.maxSteps);
     
     // Main simulation loop - execute maxGrowthSteps
     for (int currentStep = 1; currentStep <= m_sim_info.maxSteps; currentStep++) {
@@ -82,7 +82,7 @@ void HostSimulator::simulate()
     }
 
     // Tell network to clean-up and run any post-simulation logic.
-    network->finish(m_sim_info.stepDuration, m_sim_info.maxSteps);
+    network->finish(m_sim_info.epochDuration, m_sim_info.maxSteps);
 }
 
 /**
@@ -95,7 +95,7 @@ void HostSimulator::advanceUntilGrowth(const int currentStep)
 {
     uint64_t count = 0;
     uint64_t endStep = g_simulationStep
-            + static_cast<uint64_t>(m_sim_info.stepDuration / m_sim_info.deltaT);
+            + static_cast<uint64_t>(m_sim_info.epochDuration / m_sim_info.deltaT);
 
     DEBUG_MID(network->logSimStep();) // Generic model debug call
 
@@ -136,7 +136,7 @@ void HostSimulator::saveState(ostream &state_out) const
 
     // write time between growth cycles
     state_out << "   <Matrix name=\"Tsim\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
-    state_out << "   " << m_sim_info.stepDuration << endl;
+    state_out << "   " << m_sim_info.epochDuration << endl;
     state_out << "</Matrix>" << endl;
 
     // write simulation end time

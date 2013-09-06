@@ -22,6 +22,7 @@
 #define DOUBLEPRECISION
 #define BGFLOAT double
 
+typedef BGFLOAT* PBGFLOAT;
 
 // TIMEFLOAT is used by the GPU code and needs to be a double
 #define TIMEFLOAT double

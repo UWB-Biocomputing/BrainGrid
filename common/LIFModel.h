@@ -155,7 +155,7 @@ class LIFModel : public Model, TiXmlVisitor
         // --------------------
 
         // TODO
-        void updateHistory(int currentStep, BGFLOAT stepDuration, AllNeurons &neurons);
+        void updateHistory(int currentStep, BGFLOAT epochDuration, AllNeurons &neurons);
         // TODO
         void updateFrontiers(const int num_neurons);
         // TODO
@@ -191,7 +191,8 @@ class LIFModel : public Model, TiXmlVisitor
         // TODO
         static const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT;
 
-    private:
+	// CUDA needs these all to be visible... 
+    //private:
         /** State of connections in the network. */
         struct Connections;
 
@@ -305,7 +306,7 @@ struct LIFModel::Connections
         VectorMatrix spikesHistory;
 
         // TODO
-        Connections(const int neuron_count, const BGFLOAT start_radius, const BGFLOAT growthStepDuration, const BGFLOAT maxGrowthSteps);
+        Connections(const int neuron_count, const BGFLOAT start_radius, const BGFLOAT growthEpochDuration, const BGFLOAT maxGrowthSteps);
 };
 
 #endif

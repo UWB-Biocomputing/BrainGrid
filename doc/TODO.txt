@@ -14,7 +14,7 @@ Documentation TODO
 		- Building simulator
 		
 	[X] Split the current documentation into multiple files
-	[ ] Add a Makefile to make the documentation pdf and clean up aftwards.
+	[X] Add a Makefile to make the documentation pdf and clean up aftwards.
 	[X] Create Hypelinks in the TOC.
 	
 	[ ] Expand FAQ
@@ -41,7 +41,7 @@ Documentation TODO
 			- 
 			
 	[ ] Add Future Features
-		[ ] Direct Input to Neurons
+		[ ] External Input to Neurons
 		[ ] Unsupervised Learning Applications Are Being Investigated
 		
 	[ ] Expand Tools / Features
