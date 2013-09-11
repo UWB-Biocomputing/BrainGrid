@@ -1,6 +1,8 @@
 \documentclass[11pt]{article}
 \usepackage[pdftex]{graphicx}
 \usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage[T1]{fontenc}
 
 % Enable Hyperlinking of TOC entries
 \usepackage{hyperref}
@@ -43,6 +45,9 @@ keepaspectratio]{./logos/logo.png}%
 %------------------------------------- Table of Contents
 \tableofcontents
 \pagebreak
+
+%------------------------------------- Linux Crash Course
+\input{./tex/linux-crash-course.tex}
 
 %------------------------------------- Design Section
 \input{./tex/simulation-design.tex}
