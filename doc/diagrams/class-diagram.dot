@@ -4,49 +4,97 @@ digraph {
 		shape = "record"
 	]
 
+
+//##############################################################################
+// Data Structures and Global Data
+//##############################################################################
+
+	AllSynapses [
+		label = "{" + "AllSynapses\n\<\<struct\>\>" +
+				"|" +
+				"|" + "}"
+	];
+	
+	AllNeurons [
+		label = "{" + "AllNeurons\n\<\<struct\>\>" +
+				"|" +
+				"|" + "}"
+	];
+
+	
+	SimulationInfo [
+		label = "{" + "SimulationInfo" +
+				"|" +
+				"|" + "}"
+	];
+
+
 //##############################################################################
 // Model Classes
 //##############################################################################
 	Model [
-		label = "Model" +
+		label = "{" + "Model\n\<\<interface\>\>" +
 				"|" +
 				"" +
 				"|" +
-				""
-	];
-	LIFModel [
-		label = "LIFModel" +
-				"|" +
-				"|"
+				"bool readParameters(...) \l" +
+				"void printParameters(...) \l" +
+				"void loadMemory(...) \l" + 
+				"void saveMemory(...) \l" +
+				"void saveState(...) \l" +
+				"void createAllNeurons(...) \l" +
+				"void setupSim(...) \l" +
+				"void advance(...) \l" + 
+				"void updateConnections(...) \l" + 
+				"void cleanupSim(...) \l" +
+				"void logSimStep(...) \l" + "}"
 	];
 	
-	LIFModelSingleThreaded [
-		label = "LIFModelSingleThreaded" +
+	LIFModel [
+		label = "{" + "LIFModel" +
 				"|" +
-				"|"
+				"|" + "}"
+	];
+	
+	LIFModelST [
+		label = "{" + "LIFModelST" +
+				"|" +
+				"|" + "}"
 	];
 
 	LIFModelCUDA [
-		label = "LIFModelCUDA" +
+		label = "{" + "LIFModelCUDA" +
 				"|" +
-				"|"
+				"|" + "}"
 	];
 
-	LIFModelMultiThreaded [
-		label = "LIFModelMultiThreaded" +
+	LIFModelMT [
+		label = "{" + "LIFModelMT" +
 				"|" +
-				"|"
+				"|" + "}"
 	];
 
 //#############################################################################
 // Network Classes
 //#############################################################################
 	Network [
-		label = "Network" +
+		label = "{" + "Network" +
 				"|" +
-				"" +
+				"m_model : *Model \l" +
+				"neurons : AllNeurons \l" +
+				"synapses : AllSynapses \l" +
+				"m_sin_info : SimulationInfo \l" +
 				"|" +
-				""
+				"void freeResources() \l" + 
+				"void reset() \l" +
+				"void saveState(...) \l" + 
+				"void writeSimMemory(...) \l" +
+				"void readsimMemory(...) \l" +
+				"void setup(...) \l" + 
+				"void finish(...) \l" +
+				"void advance() \l" + 
+				"void updateConnections(...) \l" +
+				"void logSimStep() \l" + "}"
 	];
 
 
@@ -54,46 +102,62 @@ digraph {
 // Simulator Classes
 //#############################################################################
 	Simulator [
-		label = "Simulator" +
+		label = "{" + "Simulator\n\<\<interface\>\>" +
 				"|" +
 				"" +
 				"|" +
-				""
+				"void simulate() \l" +
+				"void advanceUntilGrowth(...) \l" +
+				"void saveState(...) \l" +
+				"void readMemory(...) \l" +
+				"void saveMemory(...) \l" + "}"
 	];
 
-	HostSimulator [
-		label = "HostSimulator" +
+	STSimulator [
+		label = "{" + "STSimulator" +
 				"|" +
 				"" +
 				"|" +
-				""
+				"" + "}"
 	];
 	
-	SingleThreadedSimulator [
-		label = "SingleThreadedSimulator" +
-				"|" +
-				"" +
-				"|" +
-				""
-	];
-
 	CUDASimulator [
-		label = "CUDASimulator" +
+		label = "{" + "CUDASimulator" +
 				"|" +
 				"" +
 				"|" +
-				""
+				"" + "}"
 	];
 
-
-	MultiThreadedSimulator [
-		label = "MultiThreadedSimulator " +
+	MTSimulator [
+		label = "{" + "MTSimulator" +
 				"|" +
 				"" +
 				"|" +
-				""
+				"" + "}"
 	];
 
-	Foo -> Bar [arrowhead=empty];
+//#############################################################################
+// Layout Classes 
+//#############################################################################
+	rankdir = BT;
+	nodesep = 1;
+	{rank = same;	Network;		Simulator;		Model;}
+	{rank = same;	LIFModelST;		LIFModelMT;		LIFModelCUDA;
+					MTSimulator;	CUDASimulator;	STSimulator;}
+
+	LIFModel -> Model [arrowhead=empty];
+	LIFModelST -> LIFModel [arrowhead=empty];
+	LIFModelMT -> LIFModel [arrowhead=empty];
+	LIFModelCUDA -> LIFModel [arrowhead=empty];
+
+	STSimulator -> Simulator [arrowhead=empty];
+	MTSimulator -> Simulator [arrowhead=empty];
+	CUDASimulator -> Simulator [arrowhead=empty];
 	
+	Model -> Network [arrowhead=ediamond];
+	Network -> Simulator [arrowhead=ediamond];
+
+	AllSynapses -> AllNeurons -> SimulationInfo [style=invis];
+
 }
