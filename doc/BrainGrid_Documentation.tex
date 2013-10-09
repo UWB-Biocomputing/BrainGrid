@@ -1,8 +1,25 @@
 \documentclass[11pt]{article}
 \usepackage[pdftex]{graphicx}
 \usepackage[utf8]{inputenc}
+\usepackage{lmodern}
 \usepackage{listings}
 \usepackage[T1]{fontenc}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{tabularx}
+
+
+\DeclareCaptionFont{white}{\color{white}}
+\DeclareCaptionFormat{listing}{%
+	\parbox{\textwidth}{\colorbox{gray}{\parbox{\textwidth}{#1#2#3}}\vskip-4pt}}
+\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white}
+\lstset{frame=lrb,xleftmargin=\fboxsep,xrightmargin=-\fboxsep}
+
+
+
+
+% Set the default font
+\renewcommand*{\familydefault}{\sfdefault}
 
 % Enable Hyperlinking of TOC entries
 \usepackage{hyperref}

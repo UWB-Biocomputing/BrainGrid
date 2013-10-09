@@ -1,0 +1,367 @@
+!Introduction
+Chances are, many readers will already be familiar with how to use linux or another unix like system.  If this is the case than you are welcome to skip this entire section. However, more than likely there will be at least a few who aren't.  This section is for them, and if it helps at least one person get started faster, then it has served its purpose.
+
+This section is not designed to be the absolute authority on Linux, but is instead designed to introduce the reader to what they may need to begin working on this project in as efficient a way as possible.  There will be an overview of the terminal, directory and file system, useful commands (programs), and hopefully any "gotcha's" that may crop up.  Basically, I wanted to be longer than a blog, but shorter than a book.
+	
+
+!Terminal
+!!Quick Introduction
+Strictly speaking, you will likely be using a terminal emulator such as Bash (Bourne-again shell), but I'll try to leave semantics aside.  The terminal (aka: command line, bash prompt, shell, TTY) is where the magic happens in Linux (as well as any other *nix OS).  Here, you can run programs, modify files, view the contents of directories, run scripts, and even play games.  When you first open up a terminal you will be presented with a prompt followed by a cursor, though not very interesting or inviting I'm afraid.  Generally the prompt will have the following form:
+	
+{{{
+username@hostname:currentdirectory$
+}}}
+	
+A specific example may be the following:
+	
+{{{
+foo@bar:~$
+}}}
+	
+In the above prompt, foo is your username, bar is the hostname or computer name, the tilde '~'  is a shortcut representing your home directory, and the dollar-sign '$' is just to indicate that you are running as a non-root user.  You are actually quite able to edit the prompt to your liking, and I highly recommend that you do.  My recommendation is not because it's cool, or to show off, but because there is a very practical reason; color.  The standard prompts are generally grey on grey on grey on...  The prompt is grey, the output from commands and programs is grey; you get the picture.  When working in a purely text environment it can be very easy to lose your place.  Actually your place is at the very end of the text block where you see a blinking cursor, but there will invariably be some point where you care about the output above (e.g. when you print out the contents of a directory).
+
+The prompt is defined by the environment variable 'PS1' (without quotes).  You can edit this by appending it to the end of your ~/.bashrc file (remember the tilda is your home directory).  The dot '.' in the previous file makes the file hidden.  The PS1 prompt which I use was an idea shamelessly stolen from someone who shamelessly stole the idea from someone else.  I will provide it here for you to shamelessly steal ;-).  Just copy the following line in its entirety to the end of your ~/.bashrc file.
+
+{{{
+PS1='\[\e[0;33m\]┌─[\[\e[0;36m\]\u@\h \@\[\e[0;33m\]]──[\[\e[0;36m\]\w\[\e[0;33m\]]\n└─■ \[\e[0m\]'
+}}}
+	
+It's a multi-line prompt that is colored so you can easily see where the last command was.  The multiple lines are simply to allow a more complete path to be displayed.
+
+
+!!Running Commands
+Running commands is simple in Linux, all you have to do is call the command from the command line.  For example, if I wanted to list the contents of the current directory, I would run the following command:
+
+{{{
+ls
+}}}
+
+If I wanted to run Firefox, I would run the following command:
+
+{{{
+$ firefox
+}}}
+
+Yes, it's that easy!  Now for running BrainGrid you would do something like the following:
+
+{{{
+$ ./growth -t config/test-medium-2.xml
+}}}
+	
+Breaking it down, you need to specify the complete path when executing a program that is not in your systems PATH.  While it doesn't appear that we have specified the entire path to the file we actually have.  The dot character '.' above is a *nix shortcut to the present working directory.  The '-t' is a flag and is read in as a parameter.  If you haven't done much command line work in the past, you may have wondered what the 'argc, and argv' arguments were in your main() function.  In short, these are the command line parameters that you pass when executing your program.  The '-t' parameter itself requires another parameter, the configuration file which, we have specified in our command above.  Note, that the configuration file can be a relative path, whereas your program had to be an absolute path.
+
+
+!!Environment Variables
+The terminal utilizes a number of different environment variables to hold certain configurations.  The most important to us are listed below:
+{{{
+HOME
+PS1
+PATH
+LD_LIBRARY_PATH
+}}}
+	
+They are pretty self-explanatory, so I won't go into detail about what each is.  If you wish to view what is stored in each of these variables just run the following command:
+
+{{{
+echo $VARIABLE
+}}}
+	
+where 'VARIABLE' is the particular environment variable you wish to see.  For example:
+
+{{{
+echo $PATH
+}}}
+
+
+!!Pipes and Redirects and the Universal Interface 
+In Linux the universal interface is text; it is passed around and modified in any imaginable way!  Let's say you wanted to pass the output of program "a" into program "b".  You would do so with the vertical bar character '|' as follows:
+	
+{{{
+ls | grep "foo"
+}}}
+	
+What the above is doing is sending the standard output of the "ls" command to the standard input of the "grep" command.  The grep command is then searching the input for the substring "foo."  You can chain any number of programs together in this way.  Remember "cin" and "cout" in C++? These are the exact samething.
+
+To dump the output of a program to a file you would use the redirect command such as the following:
+
+{{{
+ls > directory-list.txt
+}}}
+	
+This will send the list of the files and folders in the current working directory to a file called "directory-list.txt".  Now, this will send anything indiscriminantly, but let's say you wanted to get a bit more specific.  Say you wrote a program that printed some messages to standard error and others to standard out.  You could independently redirect each of these to a separate file.  "2>" will redirect standard error, and "1>" will redirect standard out.
+
+{{{
+./foo 1> foo.out 2> foo.err
+}}}
+	
+The above, will send the standard output to a file called "foo.out" and the standard error to a file called "foo.err".  Simple enough :-).
+
+	
+!Directories and the Filesystem
+!!Main Overview of the Filesystem 
+The filesystem of Linux is quite different from that of Windows.  Linux does not have a 'C' drive or 'D' drive, instead everything is a file (yes, even directories are a type of file).  The root of any Linux filesystem is simply '/'.  Yup, that's it, no fancy "C:\" here!  Another important note is that files don't get installed to their own directory, and there is a good reason for this.  In the golden days of Unix, disk space was especially limited so programs shared all libraries.  Two programs need the ncurses library? That's fine, we only need one copy of ncurses.  This means that disk space is saved by eliminating duplicate pieces of software.  The obvious downside is that all software must use the same library(ies).  Also, it is difficult to have multiple versions of the same file on your computer.  We will see this later when we go over installing CUDA.  Now, what are the important libraries?  The ones you will most likely be concerned with are as follows:
+
+|! Directory |! Description |
+|/usr |The "user" directory |
+|/usr/lib |The most common library directory (though there are several others) |
+|/usr/bin |The most common binary directory.  This is where most executables are actually stored |
+|/usr/local |The /usr/local directory is where custom software *should* be installed.  This is rarely used anymore as it is trivial to make packages which a package manager can install.  As we will see later, CUDA, in keeping with tradition, installs here. |
+|/home |This is where the users home directories are located |
+|/var |This is the "variable" directory.  Any log files will generally be located here (/var/log). |
+|/dev |This is the "device" directory.  Your disk may likely be mounted to /dev/sda1 and your optical drive will likely be mounted to /dev/sr0. |
+
+!!Directory Delimiter
+A few notes on directories.  First notice that all directory separations are the forward slash '/'.  This is due to the backslash '\' character being reserved for escaping characters.  
+
+!!Directory and File Naming (Case, Spaces, and Style)
+Note a that the directory names in the previous list are all lower case.  This raises two points: first, directories are case sensitive; second, *nix gurus hate to press the Shift key.  No really, they're lower-case to make typing easier.  It's a style I definitely recommend adhering to.  Finally, try to avoid spaces in file names.  This is not verboten, but avoiding spaces will, in general, make your life easier.  You see, if you create a directory called "foo bar" and then try to change directory into it with the following command:
+
+{{{
+cd foo bar
+}}}
+
+It will fail miserably.  This assumes of course that the directory "foo bar" already exists; creating it in that above fashion would also fail.  Now to get around this you either need to put the entire directory path in quotes, or escape the space with the backslash character.  See the following for examples of each.
+
+{{{
+mkdir "foo bar"
+cd foo\ bar
+}}}
+
+I recommend using the minus character '-' as separator between multi-word names.  The obvious alternative is the underscore character '_' (hehehe, looks like a face :P), but we here at BrainGrid would like to avoid carpal-tunnel syndrome.  I mean let's face it, does anybody actually like pressing the Shift key?  It's either an awkward pinkey stretch, or a hand movement the could otherwise be avoided by just sticking with a simple '-' character.  
+
+
+!!Directory Shortcuts
+Here are a few directory shortcuts.  You have already seen essentially how they are used, and you will see more examples later.
+
+	.	Current directory (current working directory)
+	..	Parent directory
+	~	Your home directory
+
+
+!!Line Endings
+Tne endings in Linux are a bit different than those on Windows.  Linux uses '\\n' the newline character to end a line.  Windows uses '\\r\\n' the carriage return followed by a new line to end a line in a file.  While most text editors are smart enough to know the difference and automatically adjust, there are some that don't.  As a result a file created on Windows when opened on Linux may appear to have extra blank lines added in.  Conversely, a file created on Linux and then opened on Windows may appear to have now new lines at all, making the full text of the document on a single line.
+
+
+!Useful Commands (Programs)
+If you've been introduced to Linux before you've probably been told to "run command x" or "run command y"; you've been lied to!  Well, kinda.  These "commands" are really just tiny programs... Actually, many of them are quite large and complex such as gcc.  Anyways, without further adoo, I present to you a list of the most useful (according to me) Linux commands!  Note each one will have a more detailed description and examples so that you will be sure to not be lost.
+
+|!Command|!Description|
+|cd |change directory |
+|ls |list contents of directory |
+|pwd |print working directory |
+|mv |move [a] to [b] (this is also how you rename things) |
+|cp |copy0 |
+|rm |remove |
+|mkdir |make a new directory |
+|rmdir |remove directory |
+|touch |alter the time stamp of a file, also used to create a file |
+|man |manual (view the included documentation for programs) |
+|make |runs a Makefile which will (among other things) compile your code |
+|ssh |login remotely to a linux machine using a secure shell (ssh) |
+|sftp |Transfer a file securely from a remote *nix machine (secure ftp) |
+|screen |Allows you to detach a currently running process so that it may run to completion in the background. |
+|exit |Self explanatory.  It will exit your session.  If you're logged in it will log you out, etc. |
+|find |Searches the provided path for the given file or directory |
+|which |Returns the path of an executable for the given command.   |
+|echo |Will echo a string to the command line (more useful than you might imagine). |
+|chmod |Changes the mode of a file (for example, to make a file executable) |
+|chown |Changes the ownership of a file |
+|tar |Archiver for files |
+		
+Just a quick reminder on the way commands are presented.  The command is always prefaced by "$ ".  This is just to show that you are executing the command as a regular user, nothing more.
+
+!!cd
+This is the change directory command, and will change into either a relative or absolute directory.  An absolute directory will always begin with the forward slash '/', and a relative directory will never begin with the forward slash character.  This will hold true for all programs.
+
+{{{
+$ cd ../		# changes into the parent directory
+$ cd ~			# changes directory into your home directory
+$ cd ~/foo-bar	# changes into a directory called "foo-bar" located in your home directory
+$ cd ../bar		# changes into a sibling directory called "bar"
+}}}
+
+!!ls
+This is the list command.  It will list the contents of the current working directory.  There are different parameters (flags) you can pass to it to show greater or lesser detail.
+	
+{{{
+$ ls		# Lists the current directory
+$ ls -l	# Lists the current directory with additional information about each file / folder
+$ ls -a	# Lists the current directory including hidden files and folders
+$ ls -al	# Combines the above two commands to provide a detailed list of all files and folders in the current working directory
+}}}
+
+!!pwd
+This is the "Print Working Directory" command.  You were wondering why I kept using the phrase "current working directory" weren't ya? ;-).  It does just that, and is generally fairly useless...  The reason for this is that most command prompts will show you your current directory, at least in part.  The PS1 provided above will display the entire path.  However, in the event that your prompt does truncate the path you can get your current working directory by just executing the above command.  You may also like to use this command in conjunction with the echo command to dump the output to a file for use elsewhere.
+
+{{{
+$ pwd
+}}}
+	
+
+!!mv
+This is the move command.  It will move a file or directory from "a" to "b".  Additionally this is how you rename files or folders on the command line.
+
+{{{
+$ mkdir foo				# Creates directory foo
+$ touch foo/bar.txt		# Creates a file "bar.txt" inside directory "foo"
+$ mv foo bar			# Moves the entire directory from "foo" to "bar"
+$ mkdir foo				# Creates a new directory called "foo"
+$ mv bar/bar.txt foo/	# Moves "bar.txt" from directory "bar" to directory "foo"
+}}}
+
+
+!!cp
+This is the copy command.  Since it is used almost identically to the move command, only a single example will be given.
+
+{{{
+$ cp foo.txt bar.txt	# Creates a copy of "foo.txt" called "bar.txt"
+}}}
+
+!!rm
+This is the remove command.  In general, it is only designed to work on files, but you can make it work with directories as well.
+
+{{{
+$ mkdir foo				# Creates a directory called foo
+$ touch foo/bar.txt		# Creates a file called "bar.txt" inside "foo"
+$ touch foo/foo.txt		# Creates a file called "foo.txt" inside "foo"
+$ rm foo/bar.txt		# Removes the file "bar.txt" inside "foo"
+$ rm -rf foo			# Recursively removes the directory "foo" as well as all sub-folders and files
+}}}
+
+
+!!mkdir
+This is the create directory command, and it does just that.  If you don't specify the "-p" flag, then this command will fail if the parent directory does not exist.
+
+{{{
+$ mkdir foo			# Creates the directory "foo"
+$ mkdir -p bar/foo	# Creates two directories; the parent "bar" and the child "foo"
+}}}
+
+
+!!rmdir
+This is the remove directory command and is a little redundant with the "rm" command.  It will fail if the specified directory is not empty.  There is a long flag """"--"""ignore-fail-on-non-empty", but it's easier just to do "rm -rf".
+
+{{{
+$ mkdir foo		# Create directory foo
+$ rmdir foo		# Remove directory foo
+}}}
+
+!!touch
+Touch allows one to adjust a files time stamps.  It is often used however, to create an empty file.  This happens when the specified file does not already exist.
+
+{{{
+$ touch foo.txt		# Creates the file "foo.txt"
+}}}
+
+!!man
+This is the manual command.  It will allow you to look up the documentation associated with almost any installed program.  Except the "cd" command above, you should be able to view the documentation for any of these commands.
+
+{{{
+$ man mkdir
+$ man firefox
+}}}
+
+!!make
+This is the GNU make utility.  It will process a Makefile and the targets within.  If no target is specified, it will run the first target in the file; usually this is "all", but it doesn't have to be.  Targets are allowed to specify additional targets.  Common targets include "all" and "clean".  Additionally, you do not need to have your Makefile called "Makefile"; it can be called whatever you like, this is just the default.  The following will use BrainGrid as an example.  
+
+{{{
+$ make growth	# Makes the target "growth"
+$ make			# Makes the first target in the Makefile
+$ make all		# Makes the target "all" which in our case is redundant with just calling "make"
+$ make clean	# Makes the target "clean" which in our program will clean up any files generated by issuing a different call to "make".
+}}}
+
+
+!!ssh
+This is the secure shell, and will allow you to log in remotely to a computer.  The following is a generic use case.
+
+{{{
+$ ssh foo@bar.com	# Log into the computer located at "bar.com" under username foo.
+}}}
+	
+	
+!!sftp
+The is the secure file transfer protocol.  It uses the same secure system as the secure shell above.  For BrainGrid this will be useful for copying outputs from the remote machine to your local machine for easier analysis.
+
+{{{
+$ sftp foo@bar.com	# Log into the computer located at "bar.com" under username foo.  You will then be given the sftp prompt "sftp>"
+	sftp> get foo.txt	# Grabs the file "foo.txt" from the remote machine, and copies it to the local machine
+	sftp> put bar.txt	# Takes the file "bar.txt" from the local machine and uploads it to the remote machine
+}}}
+
+!!screen
+The screen command essentiall runs a screen manager.  It is useful for a variety of reasons, but for our purposes it will allow us to run the BrainGrid simulation on a remote computer and then log out without interrupting the simulation.
+
+{{{
+$ screen		# Starts a new screen.
+$ detach		# Detaches the current screen.  Alternately you may press the following keys: "Ctrl + a" followed by "Ctrl + d"
+	
+$ screen -r 	# Reattaches a previously detached screen.  Should not be used within a currently running screen.
+}}}
+
+!!exit
+This command "causes normal process termination".  Which is pretty self-explanatory.  If you want to exit out of a secure remote connection such as ssh, or sftp, you would just run the exit command.  Also, if you are logged into a terminal, it will log you out.  If you are running a graphical terminal it will also close the terminal.
+
+{{{
+$ exit		# exits the current process
+}}}
+
+
+!!find
+The find command will recursively search the given path for the given file or folder.
+
+{{{
+$ find ~/ -name foo.txt		# Searchs all folders in you home directory and outputs a file or folder with name "foo.txt"
+$ find ~/					# Recursively prints out all files in the home directory.
+}}}
+
+
+!!which
+The which command searches the system path (stored in the PATH environment variable) for the given command.  It then prints the path of this file.
+
+{{{
+$ which gcc		# This searches for the program "gcc".  On my system this outputs "/usr/bin/gcc".  
+}}}
+
+!!echo
+The echo command takes the input and dumps it as a string to standard out.  There are some important variations.
+
+{{{
+$ echo "ls"		# print the string "ls" to standard out
+$ echo 'ls'		# prints the string "ls" to standard out
+$ echo ls		# prints the string "ls" to standard out
+$ echo `ls`		# The backquotes here actually say to execute the command ls first, then dump that output to standard output as a string.
+$ `echo ls`		# The backquotes here say to take the string output from the echo command and then try to execute it.  This is the same as executing the "ls" command.
+}}}
+
+!!chmod
+The chmod command changes the mode of a file, and can be used in a number of different ways.  The mode is essentially the permissions of a file (read, write and execute).  Each file has 9 permissions bits.  These are visible with the "ls -l" command.  The 9 bits are "rwxrwxrwx".  The first three bits are the user bits, the second group is the group bits, and the third group bits.  It looks like this: "rwx|rwx|rwx|"""-->""" owner|group|other".  Each set of bits specifies what each "group" is allowed to do with the file.  Thus you can make a file only executable by the user (owner), or make a file read-only to everyone.  There are a number of ways to change the permissions to include masking with a decimal number.  This way allows you to specify in more detail who can do what.
+
+{{{
+$ chmod +x foo.txt		# Makes the file "foo.txt" executable by everyone
+$ chmod -x foo.txt		# Makes the file "foo.txt" un-executable by anyone
+$ chmod -w foo.txt		# Makes the file "foo.txt" read only (but you may still be able to execute it)
+$ chmod =r foo.txt		# Makes the file "foo.txt" read only without 
+$ chmod 777 foo.txt		# Makes the file "foo.txt" readable, writable, and executable by everyone
+$ chmod 700 foo.txt		# Makes the file "foo.txt" readable, writeable, and executable only by the owner of the file.  Noone else can do anything with the file.
+$ chmod 000 foo.txt		# Makes the file "foo.txt" unreadable, unwriteable, and unexecutable by everyone (including the owner)
+}}}
+	
+!!chown
+This is the change owner command and will change the ownership of a file or directory.  
+
+{{{
+$ chown john foo.txt	# Sets the owner of file "foo.txt" to the user "john".
+$ chown -R john bar		# Recursively sets the owner of directory "bar" and all of its contents to the user "john"
+}}}
+
+!!tar
+Tar stands for tape archive, and is from the days when backups were primarily done to tapes.  Actually, tapes are still one of the best archiving formats as they have the greatest information density, but I digress.  Essentially, tar will make many files into one.  It is almost always used in conjunction with a compression utility such as gzip (no that's not a typo).  They are also referred to as tarballs.  A compressed tarball will likely have one of the following extenstions: "tar.gz" or "tar.bz" or "tar.bz2".  The order of the flags matters!  For example, when compressing a folder, if you place the "-f" flag anywhere else, it will fail.  The "-f" flag forces compression with the gzip utility.
+
+{{{
+$ tar -xvzf foo.tar.gz			# This will extract the tarball "foo.tar.gz" to the directory "foo"
+$ tar -cvz foo.tar.gz foo		# This will createa tarball of the directory "foo" and all of its contents and then compress it with the gzip compression program.
+}}}
+
+
+
