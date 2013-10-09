@@ -1,0 +1,99 @@
+digraph {
+
+	node [
+		shape = "record"
+	]
+
+//##############################################################################
+// Model Classes
+//##############################################################################
+	Model [
+		label = "Model" +
+				"|" +
+				"" +
+				"|" +
+				""
+	];
+	LIFModel [
+		label = "LIFModel" +
+				"|" +
+				"|"
+	];
+	
+	LIFModelSingleThreaded [
+		label = "LIFModelSingleThreaded" +
+				"|" +
+				"|"
+	];
+
+	LIFModelCUDA [
+		label = "LIFModelCUDA" +
+				"|" +
+				"|"
+	];
+
+	LIFModelMultiThreaded [
+		label = "LIFModelMultiThreaded" +
+				"|" +
+				"|"
+	];
+
+//#############################################################################
+// Network Classes
+//#############################################################################
+	Network [
+		label = "Network" +
+				"|" +
+				"" +
+				"|" +
+				""
+	];
+
+
+//#############################################################################
+// Simulator Classes
+//#############################################################################
+	Simulator [
+		label = "Simulator" +
+				"|" +
+				"" +
+				"|" +
+				""
+	];
+
+	HostSimulator [
+		label = "HostSimulator" +
+				"|" +
+				"" +
+				"|" +
+				""
+	];
+	
+	SingleThreadedSimulator [
+		label = "SingleThreadedSimulator" +
+				"|" +
+				"" +
+				"|" +
+				""
+	];
+
+	CUDASimulator [
+		label = "CUDASimulator" +
+				"|" +
+				"" +
+				"|" +
+				""
+	];
+
+
+	MultiThreadedSimulator [
+		label = "MultiThreadedSimulator " +
+				"|" +
+				"" +
+				"|" +
+				""
+	];
+
+	Foo -> Bar [arrowhead=empty];
+	
+}
