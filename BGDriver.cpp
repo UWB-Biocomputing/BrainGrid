@@ -13,7 +13,6 @@
 #include "paramcontainer/ParamContainer.h"
 
 #include "Network.h"
-#include "HostSimulator.h"
 #include "Model.h"
 #include "LIFModel.h"
 
@@ -25,7 +24,7 @@
 #elif defined(USE_OMP)
 //    #include "MultiThreadedSim.h"
 #else
-//    #include "SingleThreadedSim.h"
+    #include "SingleThreadedSim.h"
 #endif
 
 using namespace std;
@@ -105,8 +104,18 @@ int main(int argc, char* argv[]) {
     time_t start_time, end_time;
     time(&start_time);
 
-    Simulator *simulator = new HostSimulator(&network, si);
+    Simulator *simulator;
 
+	#if defined(USE_GPU)
+	simulator = new SingleThreadedSim(&network, si);
+	#elif defined(USE_OMP)
+	simulator = new SingleThreadedSim(&network, si);
+	#else
+   	 simulator = new SingleThreadedSim(&network, si);
+	#endif
+
+	
+	
     if (fReadMemImage) {
         ifstream memory_in;
         memory_in.open(memInputFileName.c_str(), ofstream::binary | ofstream::in);

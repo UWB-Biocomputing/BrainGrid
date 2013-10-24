@@ -42,7 +42,8 @@ CUDAOBJS =  $(CUDADIR)/CUDA_LIFModel.o \
 LIBOBJS = $(COMMDIR)/AllNeurons.o \
 			$(COMMDIR)/AllSynapses.o \
 			$(COMMDIR)/Global.o \
-			$(COMMDIR)/HostSimulator.o \
+			$(COMMDIR)/Simulator.o \
+			$(COMMDIR)/SingleThreadedSim.o \
 			$(COMMDIR)/LIFModel.o \
 			$(COMMDIR)/Network.o \
 			$(COMMDIR)/ParseParamError.o \
@@ -91,6 +92,7 @@ $(CUDADIR)/CUDA_LIFModel.o: $(CUDADIR)/CUDA_LIFModel.cu $(COMMDIR)/Global.h $(CU
 	nvcc -c -g -G -arch=sm_13 $(CUDADIR)/CUDA_LIFModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -DSTORE_SPIKEHISTORY -o $(CUDADIR)/CUDA_LIFModel.o
 
 $(CUDADIR)/LifNeuron_struct.o: $(CUDADIR)/LifNeuron_struct.cpp $(COMMDIR)/Global.h $(CUDADIR)/LifNeuron_struct.h $(CUDADIR)/LifSynapse_struct.h $(CUDADIR)/DelayIdx.h
+
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(CUDADIR)/LifNeuron_struct.cpp -o $(CUDADIR)/LifNeuron_struct.o
 
 $(CUDADIR)/LifSynapse_struct.o: $(CUDADIR)/LifSynapse_struct.cpp $(COMMDIR)/Global.h $(CUDADIR)/LifNeuron_struct.h $(CUDADIR)/LifSynapse_struct.h $(CUDADIR)/DelayIdx.h
@@ -112,8 +114,11 @@ $(COMMDIR)/AllSynapses.o: $(COMMDIR)/AllSynapses.cpp $(COMMDIR)/AllSynapses.h $(
 $(COMMDIR)/Global.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Global.cpp -o $(COMMDIR)/Global.o
 
-$(COMMDIR)/HostSimulator.o: $(COMMDIR)/HostSimulator.cpp $(COMMDIR)/HostSimulator.h $(COMMDIR)/Simulator.h $(COMMDIR)/Global.h $(COMMDIR)/SimulationInfo.h
-	$(CXX) $(CXXFLAGS) $(COMMDIR)/HostSimulator.cpp -o $(COMMDIR)/HostSimulator.o
+$(COMMDIR)/Simulator.o: $(COMMDIR)/Simulator.cpp $(COMMDIR)/Simulator.h $(COMMDIR)/Global.h $(COMMDIR)/SimulationInfo.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/Simulator.cpp -o $(COMMDIR)/Simulator.o
+
+$(COMMDIR)/SingleThreadedSim.o: $(COMMDIR)/SingleThreadedSim.cpp $(COMMDIR)/SingleThreadedSim.h $(COMMDIR)/Simulator.h $(COMMDIR)/Global.h $(COMMDIR)/SimulationInfo.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/SingleThreadedSim.cpp -o $(COMMDIR)/SingleThreadedSim.o
 
 $(COMMDIR)/LIFModel.o: $(COMMDIR)/LIFModel.cpp $(COMMDIR)/LIFModel.h $(COMMDIR)/Model.h $(COMMDIR)/ParseParamError.h $(COMMDIR)/Util.h $(XMLDIR)/tinyxml.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/LIFModel.cpp -o $(COMMDIR)/LIFModel.o

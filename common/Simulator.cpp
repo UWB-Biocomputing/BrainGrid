@@ -1,45 +1,30 @@
 /**
- *  @file Simulator.cpp
- *
- *  @author Derek McLean
- *
- *  @brief Base class for model-independent simulators targeting different
- *          platforms.
- */
+* @file Simulator.cpp
+*
+* @author Derek McLean
+*
+* @brief Base class for model-independent simulators targeting different
+* platforms.
+*/
 
-#include "HostSimulator.h"
+#include "Simulator.h"
 
-/**
- *  Constructor
- *  @param  network 
- *          pointer to a neural network implementation to be simulated by BrainGrid. (It would be
- *          nice if this was a parameter to #simulate). Note: this reference will not be deleted.
- *          Clients of HostSimulator should handle memory management of the network.
- *  @param  sim_info    parameters for the simulation.
- */
-HostSimulator::HostSimulator(Network *network, SimulationInfo sim_info) :
-    network(network),
-    m_sim_info(sim_info)
-{
-    // Create a normalized random number generator
-    rgNormrnd.push_back(new Norm(0, 1, sim_info.seed));
-}
 
 /**
- *  Destructor.
- *  Releases reference to network.
- */
-HostSimulator::~HostSimulator()
+* Destructor.
+* Releases reference to network.
+*/
+Simulator::~Simulator()
 {
     network = NULL;
 }
 
 /**
- *  Run simulation
- *  @param  growthEpochDuration
- *  @param  maxGrowthSteps
- */
-void HostSimulator::simulate()
+* Run simulation
+* @param growthEpochDuration
+* @param maxGrowthSteps
+*/
+void Simulator::simulate()
 {
     DEBUG(cout << "Setup simulation." << endl;);
     network->setup(m_sim_info.epochDuration, m_sim_info.maxSteps);
@@ -86,12 +71,12 @@ void HostSimulator::simulate()
 }
 
 /**
- *  Helper for #simulate().
- *  Advance simulation until its ready for the next growth cycle. This should simulate all neuron and
- *  synapse activity for one epoch.
- *  @param  currentStep the current epoch in which the network is being simulated.
- */
-void HostSimulator::advanceUntilGrowth(const int currentStep)
+* Helper for #simulate().
+* Advance simulation until its ready for the next growth cycle. This should simulate all neuron and
+* synapse activity for one epoch.
+* @param currentStep the current epoch in which the network is being simulated.
+*/
+void Simulator::advanceUntilGrowth(const int currentStep)
 {
     uint64_t count = 0;
     uint64_t endStep = g_simulationStep
@@ -101,7 +86,7 @@ void HostSimulator::advanceUntilGrowth(const int currentStep)
 
     while (g_simulationStep < endStep) {
         DEBUG_LOW(
-            if (count % 10000 == 0) 
+            if (count % 10000 == 0)
             {
                 cout << currentStep << "/" << m_sim_info.maxSteps
                      << " simulating time: "
@@ -117,10 +102,10 @@ void HostSimulator::advanceUntilGrowth(const int currentStep)
 }
 
 /**
- *  Writes simulation results to an output destination.
- *  @param  state_out   where to write the simulation to.
- */
-void HostSimulator::saveState(ostream &state_out) const
+* Writes simulation results to an output destination.
+* @param state_out where to write the simulation to.
+*/
+void Simulator::saveState(ostream &state_out) const
 {
     // (if we are using xml... shouldn't this be an XML object of some sort?).
 
@@ -147,23 +132,23 @@ void HostSimulator::saveState(ostream &state_out) const
 }
 
 /**
- *  Deserializes internal state from a prior run of the simulation.
- *  This allows simulations to be continued from a particular point, to be restarted, or to be
- *  started from a known state.
- *  @param memory_in - where to read the state from.
- */
-void HostSimulator::readMemory(istream &memory_in)
+* Deserializes internal state from a prior run of the simulation.
+* This allows simulations to be continued from a particular point, to be restarted, or to be
+* started from a known state.
+* @param memory_in - where to read the state from.
+*/
+void Simulator::readMemory(istream &memory_in)
 {
     network->readSimMemory(memory_in);
 }
 
 /**
- *  Serializes internal state for the current simulation.
- *  This allows simulations to be continued from a particular point, to be restarted, or to be
- *  started from a known state.
- *  @param memory_out - where to write the state to.
- */
-void HostSimulator::saveMemory(ostream &memory_out) const
+* Serializes internal state for the current simulation.
+* This allows simulations to be continued from a particular point, to be restarted, or to be
+* started from a known state.
+* @param memory_out - where to write the state to.
+*/
+void Simulator::saveMemory(ostream &memory_out) const
 {
     network->writeSimMemory(m_sim_info.maxSteps, memory_out);
 }
