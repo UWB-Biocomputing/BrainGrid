@@ -14,7 +14,7 @@
 
 #include "Network.h"
 #include "Model.h"
-#include "LIFModel.h"
+
 
 // Uncomment to use visual leak detector (Visual Studios Plugin)
 // #include <vld.h>
@@ -23,7 +23,8 @@
 //    #include "GpuSim.h"
 #elif defined(USE_OMP)
 //    #include "MultiThreadedSim.h"
-#else
+#else 
+    #include "LIFSingleThreadedModel.h"
     #include "SingleThreadedSim.h"
 #endif
 
@@ -73,7 +74,15 @@ bool parseCommandLine(int argc, char* argv[]);
  *  @return -1 if error, else if success.
  */
 int main(int argc, char* argv[]) {
-    model = new LIFModel();
+
+
+    #if defined(USE_GPU)
+	// model = new LIFSingleThreadedModel();
+    #elif defined(USE_OMP)
+	// model = new LIFSingleThreadedModel();
+    #else
+	 model = new LIFSingleThreadedModel();
+    #endif
     
     DEBUG(cout << "reading parameters from xml file" << endl;)
 

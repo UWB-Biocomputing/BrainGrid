@@ -73,7 +73,9 @@ struct SimulationInfo
 	//! Current simulation step
 	int currentStep;
 
-	//! Maximum number of simulation steps NOTE: Not Currently Used
+	//! Maximum number of simulation steps
+	// Not clear what this is, but it is being used by the Simulator.writeMemory methods
+	// Those methods are not currently functional.
 	int maxSteps; // TODO: delete
 
 	//! The length of each step in simulation time

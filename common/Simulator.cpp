@@ -9,6 +9,12 @@
 
 #include "Simulator.h"
 
+/*
+* Constructor
+*/
+Simulator::Simulator(Network *network, SimulationInfo sim_info) : network(network), m_sim_info(sim_info) 
+{
+}
 
 /**
 * Destructor.
@@ -147,6 +153,7 @@ void Simulator::readMemory(istream &memory_in)
 * This allows simulations to be continued from a particular point, to be restarted, or to be
 * started from a known state.
 * @param memory_out - where to write the state to.
+* This method needs to be debugged to verify that it works.
 */
 void Simulator::saveMemory(ostream &memory_out) const
 {

@@ -26,6 +26,7 @@ class Simulator
 {
     public:
 
+	 Simulator(Network *network, SimulationInfo sim_info);
         /** Destructor */
         virtual ~Simulator() = 0;
 
