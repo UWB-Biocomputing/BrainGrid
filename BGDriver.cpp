@@ -13,9 +13,8 @@
 #include "paramcontainer/ParamContainer.h"
 
 #include "Network.h"
-#include "HostSimulator.h"
 #include "Model.h"
-#include "LIFModel.h"
+
 
 // Uncomment to use visual leak detector (Visual Studios Plugin)
 // #include <vld.h>
@@ -24,8 +23,9 @@
 //    #include "GpuSim.h"
 #elif defined(USE_OMP)
 //    #include "MultiThreadedSim.h"
-#else
-//    #include "SingleThreadedSim.h"
+#else 
+    #include "LIFSingleThreadedModel.h"
+    #include "SingleThreadedSim.h"
 #endif
 
 using namespace std;
@@ -74,7 +74,15 @@ bool parseCommandLine(int argc, char* argv[]);
  *  @return -1 if error, else if success.
  */
 int main(int argc, char* argv[]) {
-    model = new LIFModel();
+
+
+    #if defined(USE_GPU)
+	// model = new LIFSingleThreadedModel();
+    #elif defined(USE_OMP)
+	// model = new LIFSingleThreadedModel();
+    #else
+	 model = new LIFSingleThreadedModel();
+    #endif
     
     DEBUG(cout << "reading parameters from xml file" << endl;)
 
@@ -105,8 +113,18 @@ int main(int argc, char* argv[]) {
     time_t start_time, end_time;
     time(&start_time);
 
-    Simulator *simulator = new HostSimulator(&network, si);
+    Simulator *simulator;
 
+	#if defined(USE_GPU)
+	simulator = new SingleThreadedSim(&network, si);
+	#elif defined(USE_OMP)
+	simulator = new SingleThreadedSim(&network, si);
+	#else
+   	 simulator = new SingleThreadedSim(&network, si);
+	#endif
+
+	
+	
     if (fReadMemImage) {
         ifstream memory_in;
         memory_in.open(memInputFileName.c_str(), ofstream::binary | ofstream::in);

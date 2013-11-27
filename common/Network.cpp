@@ -128,10 +128,13 @@ void Network::saveState(ostream& os)
 
 /**
  *  Write the simulation memory image.
+ *  @param simulation_step should be an integer type.
  *  @param  os  yhe filestream to write.
+ *  This needs to be debugged and verified to be working.
  */
 void Network::writeSimMemory(BGFLOAT simulation_step, ostream& os)
 {
+	cerr << "Network::writeSimMemory was called. " << endl;
     m_model->saveMemory(os, neurons, synapses, simulation_step);
 }
 

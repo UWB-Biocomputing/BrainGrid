@@ -3,9 +3,9 @@
 <!-- This file holds constants, not state information -->
 <SimParams>
    <!-- Parameters for LSM -->
-   <LsmParams frac_EXC="0.98" starter_neurons="0.01"/>
+   <LsmParams frac_EXC="0.98" starter_neurons="0.10"/>
    <!-- size of pool of neurons [x y z] -->
-   <PoolSize x="30" y="30" z="1"/>
+   <PoolSize x="10" y="10" z="1"/>
    <!-- Interval of constant injected current -->
    <Iinject min="13.5e-09" max="13.5e-09"/>
    <!-- Interval of STD of (gaussian) noise current -->
@@ -25,26 +25,23 @@
    <!-- Growth parameters -->
    <GrowthParams epsilon="0.60" beta="0.10" rho="0.0001" targetRate="1.9" minRadius="0.1" startRadius="0.4"/>
    <!-- Simulation Parameters -->
-   <SimParams Tsim="100.0" numSims="20" maxFiringRate="200" maxSynapsesPerNeuron="200"/>
+   <SimParams Tsim="100.0" numSims="2" maxFiringRate="200" maxSynapsesPerNeuron="200"/>
   
-  <OutputParams stateOutputFileName="test-medium-historyDump.xml"/>
+  <OutputParams stateOutputFileName="test-small-out.xml"/>
 
   <!-- Random seed - set to zero to use /dev/random -->
   <!-- TODO: implement support for this -->
   <Seed value="1" />
 
   <!-- If FixedLayout is present, the grid will be laid out according to the positions below, rather than randomly based on LsmParams -->
-  <!-- frac_EXC="0.98" means that 18 inhibitory neurons need to be defined
-       starter_neurons="0.01" means than 9 starter (endogenously active) neurons need to be defined-->
   <FixedLayout>
     <!-- 0-indexed positions of endogenously active neurons in the list -->
-    <A>7 11 14 37 41 77 690 777 779</A>
+    <A>7 11 14 37 41 44 67 71 74 97</A>
 
     <!-- 0-indexed positions of inhibitory neurons in the list -->
-    <I>33 66 111 159 200 299 349 380 411 555 590 655 701 788 810 840 901 920</I>
+    <I>33 66</I>
 
     <!--
-    original 10x10 (not updated for 30x30)
        9 . . . . . . . A . .
        8 . . . . . . . . . .
        7 . A . . A . . . . .

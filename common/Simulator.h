@@ -1,62 +1,78 @@
 /**
  * @file Simulator.h
  *
- * @authors Derek McLean
+ * @authors Derek McLean & Sean Blackbourn
  *
- * @brief Interface for model-independent simulators targeting different platforms.
+ * @brief Abstract base class for BrainGrid simulator for different platforms
  */
-
-#pragma once
 
 #ifndef _SIMULATOR_H_
 #define _SIMULATOR_H_
 
-#include <iostream>
+#include "Global.h"
+#include "SimulationInfo.h"
+#include "Network.h"
 
-using namespace std;
+#include "Timer.h"
 
 /**
  * @class Simulator
  *
- * This class provides an interface and common logic for Simulators running on
- * different platforms.
+ * @brief Platform independent base class for the Brain Grid simulator.
  *
- * As of the current version, this class is a staging area of extracting into
- * a common location core simulator code.
+ * This class should be extended when developing the simulator for a specific platform.
  */
-
 class Simulator
 {
     public:
-        virtual ~Simulator() {};
-        
+
+	 Simulator(Network *network, SimulationInfo sim_info);
+        /** Destructor */
+        virtual ~Simulator() = 0;
+
         /**
          * Performs the simulation.
          */
-        virtual void simulate() =0;
-        
+        void simulate();
+
         /**
-         * Advance simulation to next growth cycle.
-         *
-         * @param currentStep - the current epoch of the simulation.
+         * Advance simulation to next growth cycle. Helper for #simulate().
          */
-        virtual void advanceUntilGrowth(const int currentStep) =0;
+        void advanceUntilGrowth(const int currentStep);
 
         /**
          * Write the result of the simulation.
          */
-        virtual void saveState(ostream &state_out) const =0;
+        void saveState(ostream &state_out) const;
 
         /**
          * Read serialized internal state from a previous run of the simulator.
          */
-        virtual void readMemory(istream &memory_in) =0;
-
+        void readMemory(istream &memory_in);
         /**
          * Write current internal state of the simulator.
          */
-        virtual void saveMemory(ostream &memory_out) const =0;
+        void saveMemory(ostream &memory_out) const;
+
+    protected:
+        /**
+         * Timer for measuring performance of an epoch.
+         */
+        Timer timer;
+        /**
+         * Timer for measuring performance of connection update.
+         */
+        Timer short_timer;
+
+        /**
+         * The network being simulated.
+         */
+        Network *network;
+
+        /**
+         * Parameters for the simulation.
+         */
+        SimulationInfo m_sim_info;
 };
 
-#endif // _SIMULATOR_H_
-
+#endif /* _SIMULATOR_H_ */
