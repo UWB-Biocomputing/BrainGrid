@@ -22,6 +22,8 @@ Simulator::Simulator(Network *network, SimulationInfo sim_info) : network(networ
 */
 Simulator::~Simulator()
 {
+    //network is allocated externally from simulator,
+    //do not delete.
     network = NULL;
 }
 
