@@ -104,8 +104,8 @@ class LIFModel : public Model, TiXmlVisitor
         void initSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index);
         // TODO
         void resetSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
-		// TODO
-		virtual bool updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index) = 0;
+	 // TODO
+	 virtual bool updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index) = 0;
 
         // # Save Memory
         // -------------
@@ -132,49 +132,6 @@ class LIFModel : public Model, TiXmlVisitor
         void setNeuronDefaults(AllNeurons &neurons, const int index);
         // TODO
         virtual void updateNeuron(AllNeurons &neurons, int neuron_index) = 0;
-
-        // # Advance Network/Model
-        // -----------------------
-
-        // Update the state of all neurons for a time step
-        virtual void advanceNeurons(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo &sim_info) = 0;
-        // Helper for #advanceNeuron. Updates state of a single neuron.
-        virtual void advanceNeuron(AllNeurons& neurons, const int index) = 0;
-        // Initiates a firing of a neuron to connected neurons
-        virtual void fire(AllNeurons &neurons, const int index) const = 0;
-        // TODO
-		virtual void preSpikeHit(AllSynapses &synapses, const int neuron_index, const int synapse_index) = 0;
-
-        // Update the state of all synapses for a time step
-        virtual void advanceSynapses(const int num_neurons, AllSynapses &synapses) = 0;
-        // Helper for #advanceSynapses. Updates state of a single synapse.
-        virtual void advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index) = 0;
-        // TODO
-        virtual bool isSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index) = 0;
-
-        // # Update Connections
-        // --------------------
-
-        // TODO
-        virtual void updateHistory(int currentStep, BGFLOAT epochDuration, AllNeurons &neurons) = 0;
-        // TODO
-        virtual void updateFrontiers(const int num_neurons) = 0;
-        // TODO
-        virtual void updateOverlap(BGFLOAT num_neurons) = 0;
-        // TODO
-        virtual void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info) = 0;
-
-        // TODO
-        virtual void getSpikeCounts(const AllNeurons &neurons, int *spikeCounts) = 0;
-        // TODO
-        virtual void clearSpikeCounts(AllNeurons &neurons) = 0;
-
-        // TODO
-        virtual void eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index) = 0;
-        // TODO
-        virtual void addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, BGFLOAT deltaT) = 0;
-        // TODO
-        virtual void createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT* sp, BGFLOAT deltaT, synapseType type) = 0;
 
         // -----------------------------------------------------------------------------------------
         // # Generic Functions for handling synapse types
