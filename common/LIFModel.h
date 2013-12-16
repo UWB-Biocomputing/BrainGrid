@@ -158,7 +158,7 @@ class LIFModel : public Model, TiXmlVisitor
         struct GrowthParams
         {
             // TODO
-            BGFLOAT epsilon;
+            BGFLOAT epsilon; 
             // TODO
             BGFLOAT beta;
             // TODO
