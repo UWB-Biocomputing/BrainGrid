@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
     delete simulator;
     simulator = NULL;
 
-    exit(EXIT_SUCCESS);
+    return 0;
 }
 
 /*
