@@ -145,6 +145,10 @@ int main(int argc, char* argv[]) {
         memory_out.close();
     }
 
+    for(int i = 0; i < rgNormrnd.size(); ++i) {
+        delete rgNormrnd[i];
+    }
+
     rgNormrnd.clear();
 
     time(&end_time);
