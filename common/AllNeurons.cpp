@@ -70,6 +70,10 @@ AllNeurons::AllNeurons(const int size) :
 
 AllNeurons::~AllNeurons()
 {
+    for(int i = 0; i < size; i++) {
+    	delete[] spike_history[i];    
+    }
+
     delete[] C1;
     delete[] C2;
     delete[] Cm;
@@ -95,11 +99,6 @@ AllNeurons::~AllNeurons()
     delete[] summation_map;
     delete[] spike_history;
 
-    for(int i = 0; i < size; i++) {
-    	delete[] spike_history[i];    
-
-    }
-
     C1 = NULL;
     C2 = NULL;
     Cm = NULL;
@@ -123,4 +122,5 @@ AllNeurons::~AllNeurons()
     totalSpikeCount = NULL;
     starter_map = NULL;
     summation_map = NULL;
+    spike_history = NULL;
 }
