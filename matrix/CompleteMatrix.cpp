@@ -170,6 +170,13 @@ void CompleteMatrix::copy(const CompleteMatrix& source)
 
 
 // Allocate internal storage
+//
+// Note: If you are getting this memory allocaiton error:
+//
+// " terminate called after throwing an instance of 'std::bad_alloc'
+//       what():  St9bad_alloc "
+//
+// Please refer to LIFModel::Connections()
 void CompleteMatrix::alloc(int rows, int columns)
 {
   if (theMatrix != NULL)

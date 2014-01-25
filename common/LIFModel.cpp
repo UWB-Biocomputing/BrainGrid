@@ -935,17 +935,47 @@ ostream& operator<<(ostream &out, const LIFModel::GrowthParams &params) {
 }
 
 
-//---------------------------------------------
-//			Connections Struct
-//---------------------------------------------
+/* ------------- CONNECTIONS STRUCT ------------ *\
+ * Below all of the resources for the various 
+ * connections are instantiated and initialized. 
+ * All of the allocation for memory is done in the 
+ * constructor’s parameters and not in the body of 
+ * the function. Once all memory has been allocated 
+ * the constructor fills in known information 
+ * into “radii” and “rates”.
+\* --------------------------------------------- */
 // TODO comment
 const string LIFModel::Connections::MATRIX_TYPE = "complete";
 // TODO comment
 const string LIFModel::Connections::MATRIX_INIT = "const";
-
-/**
- * TODO comment
- */
+/* ------------------- ERROR ------------------- *\
+ * terminate called after throwing an instance of 'std::bad_alloc'
+ *	what():  St9bad_alloc 
+ * ------------------- CAUSE ------------------- *|
+ * As simulations expand in size the number of 
+ * neurons in total increases exponentially. When 
+ * using a MATRIX_TYPE = “complete” the amount of 
+ * used memory increases by another order of magnitude. 
+ * Once enough memory is used no more memory can be 
+ * allocated and a “bsd_alloc” will be thrown. 
+ * The following members of the connection constructor 
+ * consume equally vast amounts of memory as the 
+ * simulation sizes grow:
+ *	- W		- radii
+ * 	- rates		- dist2
+ * 	- delta		- dist
+ * 	- areai
+ * ----------------- 1/25/14 ------------------- *|
+ * Currently when running a simulation of sizes
+ * equal to or greater than 100 * 100 the above
+ * error is thrown. After some testing we have
+ * determined that this is a hardware dependent 
+ * issue, not software. We are also looking into
+ * switching matrix types from "complete" to 
+ * "sparce". If successful it is possible the 
+ * problematic matricies mentioned above will use
+ * only 1/250 of their current space. 
+\* --------------------------------------------- */
 LIFModel::Connections::Connections(const int num_neurons, const BGFLOAT start_radius, const BGFLOAT growthEpochDuration, const BGFLOAT maxGrowthSteps) :
     xloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
     yloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
