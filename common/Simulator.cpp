@@ -80,13 +80,14 @@ void Simulator::simulate()
 
 /**
 * Helper for #simulate().
-* Advance simulation until its ready for the next growth cycle. This should simulate all neuron and
+* Advance simulation until it's ready for the next growth cycle. This should simulate all neuron and
 * synapse activity for one epoch.
 * @param currentStep the current epoch in which the network is being simulated.
 */
 void Simulator::advanceUntilGrowth(const int currentStep)
 {
     uint64_t count = 0;
+    // Compute step number at end of this simulation epoch
     uint64_t endStep = g_simulationStep
             + static_cast<uint64_t>(m_sim_info.epochDuration / m_sim_info.deltaT);
 
@@ -94,6 +95,7 @@ void Simulator::advanceUntilGrowth(const int currentStep)
 
     while (g_simulationStep < endStep) {
         DEBUG_LOW(
+		  // Output status once every 10,000 steps
             if (count % 10000 == 0)
             {
                 cout << currentStep << "/" << m_sim_info.maxSteps
@@ -104,6 +106,7 @@ void Simulator::advanceUntilGrowth(const int currentStep)
             count++;
         )
 
+	  // Advance the Network one time step
         network->advance();
         g_simulationStep++;
     }
