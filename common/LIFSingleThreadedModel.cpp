@@ -19,7 +19,8 @@ LIFSingleThreadedModel::~LIFSingleThreadedModel()
 
 
 /**
- *  Advances the Neurons and Synapses of the simulation.
+ *  Advance everything in the model one time step. In this case, that
+ *  means advancing just the Neurons and Synapses.
  *  @param  neurons the Neuron list to search from.
  *  @param  synapses    the Synapse list to search from.
  *  @param  sim_info    SimulationInfo class to read information from.
