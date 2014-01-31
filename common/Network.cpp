@@ -55,7 +55,9 @@ void Network::finish(BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps)
 }
 
 /**
- *  Advance the network one step in the current epoch.
+ *  Advance the network one step in the current epoch. This means do
+ *  everything that needs to be done within the model to move
+ *  everything forward one time step.
  */
 void Network::advance()
 {
