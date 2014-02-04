@@ -1,10 +1,14 @@
-/* @authors
-  Sean Blackbourn 
-  Aaron Oziel
-*/
-
+/** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - **\ 
+ * @authors Aaron Oziel, Sean Blackbourn 
+ *
+ * Aaron Wrote (2/3/14):
+ * This file is extremely out of date and will be need to be updated to
+ * reflect changes made to the corresponding .cu file. Functions will need
+ * to be added/removed where necessary and the LIFModel super class will need
+ * to be edited to reflect a more abstract Model that can be used for both
+ * single-threaded and GPU implementations. 
+\** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - **/
 #pragma once
-
 #include "LIFModel.h"
 
 class LIFGPUModel : public LIFModel  {
@@ -14,11 +18,9 @@ class LIFGPUModel : public LIFModel  {
 	void cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info);
 	void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const;
 
-
-	/* -----------------------------------------------------------------------------------------
-	* # Helper Functions
-	* ------------------
-	*/
+	/* ------------------*\
+	|* # Helper Functions
+	\* ------------------*/
 
 	// # Load Memory
 	// -------------
@@ -26,13 +28,11 @@ class LIFGPUModel : public LIFModel  {
 	// TODO
 	bool updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index);
 
-
 	// # Create All Neurons
 	// --------------------
 
 	// TODO
 	void updateNeuron(AllNeurons &neurons, int neuron_index);
-
 
 	// # Advance Network/Model
 	// -----------------------
@@ -57,14 +57,13 @@ class LIFGPUModel : public LIFModel  {
 	// --------------------
 
 	// TODO
-	void updateHistory(int currentStep, BGFLOAT epochDuration, AllNeurons &neurons);
+	void updateHistory(int currentStep, BGBGFLOAT epochDuration, AllNeurons &neurons);
 	// TODO
 	void updateFrontiers(const int num_neurons);
 	// TODO
-	void updateOverlap(BGFLOAT num_neurons);
+	void updateOverlap(BGBGFLOAT num_neurons);
 	// TODO
 	void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
-
 	// TODO
 	void getSpikeCounts(const AllNeurons &neurons, int *spikeCounts);
 	// TODO
@@ -73,13 +72,13 @@ class LIFGPUModel : public LIFModel  {
 	// TODO
 	void eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
 	// TODO
-	void addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, BGFLOAT deltaT);
+	void addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGBGFLOAT *sum_point, BGBGFLOAT deltaT);
 	// TODO
-	void createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT* sp, BGFLOAT deltaT, synapseType type);
+	void createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGBGFLOAT* sp, BGBGFLOAT deltaT, synapseType type);
 
-	// -----------------------------------------------------------------------------------------
-	// # Generic Functions for handling synapse types
-	// ---------------------------------------------
+	/*----------------------------------------------*\
+	|  Generic Functions for handling synapse types
+	\*----------------------------------------------*/
 
 	// Determines the type of synapse for a synapse at a given location in the network.
 	synapseType synType(AllNeurons &neurons, Coordinate src_coord, Coordinate dest_coord, const int width);
@@ -87,9 +86,5 @@ class LIFGPUModel : public LIFModel  {
 	synapseType synType(AllNeurons &neurons, const int src_neuron, const int dest_neuron);
 	// Determines the direction of the weight for a given synapse type.
 	int synSign(const synapseType t);
-
-
- private:
-
 
 };
