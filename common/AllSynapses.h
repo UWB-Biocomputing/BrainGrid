@@ -1,7 +1,7 @@
 /**
  * @authors Aaron Oziel, Sean Blackbourn
  * 
- *  In this fiel you will find usage statistics for every variable inside the
+ *  In this file you will find usage statistics for every variable inside the
  *  the LIFCingleThreaded.cpp file. These statistics can be used to help 
  *  determine if a variable is being used, where it is being used, and how it
  *  is being used in each function (either Modified or Accessed).
@@ -9,7 +9,7 @@
  *  For Example:
  *
  *  Usage:
- *  function():    Modified OR Accessed
+ *  function():		Modified OR Accessed
  *  function():     Accessed   
  */
 
