@@ -5,14 +5,14 @@
  * All comments are now tracking progress in conversion from old GpuSim_struct.cu
  * file to the new one here. This is a quick key to keep track of their meanings. 
  *
- *		TODO = 	Needs work and/or is blank. Used to indicate possibly problematic 
+ *	TODO = 	Needs work and/or is blank. Used to indicate possibly problematic 
  *				functions. 
- *		DONE = 	Likely complete functions. Will still need to be checked for
+ *	DONE = 	Likely complete functions. Will still need to be checked for
  *				variable continuity and proper arguments. 
- *	 REMOVED = 	Deleted, likely due to it becoming unnecessary or not necessary 
+ *   REMOVED =	Deleted, likely due to it becoming unnecessary or not necessary 
  *				for GPU implementation. These functions will likely have to be 
  *				removed from the LIFModel super class.
- *	  COPIED = 	These functions were in the original GpuSim_struct.cu file 
+ *    COPIED = 	These functions were in the original GpuSim_struct.cu file 
  *				and were directly copy-pasted across to this file. 
  *
 \** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - **/

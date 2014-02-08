@@ -16,7 +16,7 @@ public:
 	void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const;
 
 
-	/* -----------------------------------------------------------------------------------------
+	/* -----------------
 	* # Helper Functions
 	* ------------------
 	*/

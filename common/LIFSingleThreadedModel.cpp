@@ -16,8 +16,6 @@ LIFSingleThreadedModel::~LIFSingleThreadedModel()
 	//Let LIFModel base class handle de-allocation
 }
 
-
-
 /**
  *  Advance everything in the model one time step. In this case, that
  *  means advancing just the Neurons and Synapses.
@@ -127,7 +125,7 @@ void LIFSingleThreadedModel::logSimStep(const AllNeurons &neurons, const AllSyna
     }
 }
 
-/* -----------------------------------------------------------------------------------------
+/* -----------------
 * # Helper Functions
 * ------------------
 */
@@ -814,7 +812,6 @@ int LIFSingleThreadedModel::synSign(const synapseType type)
 
     return 0;
 }
-
 
 
 
