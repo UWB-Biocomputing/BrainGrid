@@ -70,7 +70,7 @@ struct AllNeurons
         BGFLOAT *Vreset;
 
         /*! The initial condition for \f$V_m\f$ at time \f$t=0\f$. [units=V; range=(-1,1);]
-         *  
+         *  We think this is used to initialize Vm (and then not used after that)
          *  Usage:
          *  NOT USED
          */
@@ -85,7 +85,7 @@ struct AllNeurons
         BGFLOAT *deltaT;
 
         /*! The membrane capacitance \f$C_m\f$ [range=(0,1); units=F;]
-         *  
+         *  Used to initialize Tau (no use after that)
          *  Usage:
          *  NOT USED
          */
@@ -114,6 +114,8 @@ struct AllNeurons
         BGFLOAT *Iinject;
 
         /*! What the hell is this used for???
+	  *  It does not seem to be used; seems to be a candidate for deletion.
+	  *  Possibly from the old code before using a separate summation point
          *  The synaptic input current.
          *  
          *  Usage:
@@ -183,7 +185,7 @@ struct AllNeurons
          */
         int *totalSpikeCount;        
 
-		/*! TODO
+		/*! Step count for each spike fired by each neuron
 		 *
 		 *  Usage:
          *  cleanupSim()		Accessed

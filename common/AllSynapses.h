@@ -48,8 +48,8 @@ struct AllSynapses
          *  
          *  Usage:
          *  createSynapse()	Modified
-	 *  advanceNeuron()	Modified
-	 *  advanceSynapse()	Modified
+	 *  advanceNeuron()	Modified ?
+	 *  advanceSynapse()	Modified ?
 	 *  eraseSynapse()	= NULL 
          */
         BGFLOAT ***summationPoint;
@@ -62,7 +62,8 @@ struct AllSynapses
         Coordinate **synapseCoord;
 
         /*! The time step size.
-         *  
+	  *
+         *  Why isn't this just the global step size?
          *  Usage:
          *  createSynapse()	Modified
 	 *  cleanupSim()	Accessed (Sym Info?)
