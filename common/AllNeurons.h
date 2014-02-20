@@ -26,25 +26,25 @@ struct AllNeurons
         /*! The number of neurons stored.
          *  
          *  Usage:
-         *  advanceNeurons()	Accessed
-		 *  updateHistory()		Accessed
-		 *  getSpikeCounts()	Accessed
-		 *  clearSpikeCounts()	Accessed
+         *  advanceNeurons()		Accessed
+	 *  updateHistory()		Accessed
+	 *  getSpikeCounts()		Accessed
+	 *  clearSpikeCounts()		Accessed
          */
         int size;
 
         /*! A boolean which tracks whether the neuron has fired
          *  
          *  Usage:
-         *  advanceNeurons()	Modified
-		 *  fire()				Modified
+         *  advanceNeurons()		Modified
+	 *  fire()			Modified
          */
         bool *hasFired;
 
         /*! The length of the absolute refractory period. [units=sec; range=(0,1);]
          *  
          *  Usage:
-         *  fire()				Accessed
+         *  fire()			Accessed
          */
         BGFLOAT *Trefract;
 
@@ -65,7 +65,7 @@ struct AllNeurons
         /*! The voltage to reset \f$V_m\f$ to after a spike. [units=V; range=(-1,1);]
          *  
          *  Usage:
-         *  fire()				Accessed
+         *  fire()			Accessed
          */
         BGFLOAT *Vreset;
 
@@ -79,8 +79,8 @@ struct AllNeurons
         /*! The simulation time step size.
          *  
          *  Usage:
-		 *  updateNeuron()		Accessed
-         *  fire()				Accessed
+	 *  updateNeuron()		Accessed
+         *  fire()			Accessed
          */
         BGFLOAT *deltaT;
 
@@ -114,8 +114,8 @@ struct AllNeurons
         BGFLOAT *Iinject;
 
         /*! What the hell is this used for???
-	  *  It does not seem to be used; seems to be a candidate for deletion.
-	  *  Possibly from the old code before using a separate summation point
+	 *  It does not seem to be used; seems to be a candidate for deletion.
+	 *  Possibly from the old code before using a separate summation point
          *  The synaptic input current.
          *  
          *  Usage:
@@ -127,7 +127,7 @@ struct AllNeurons
          *  
          *  Usage:
          *  advanceNeuron()		Modified
-		 *  fire()				Modified
+	 *  fire()			Modified
          */
         int *nStepsInRefr;
 
@@ -135,7 +135,7 @@ struct AllNeurons
          *  
          *  Usage:
          *  updateNeuron()		Modified
-		 *  advanceNeuron()		Accessed
+	 *  advanceNeuron()		Accessed
          */
         BGFLOAT *C1;
         /*! Internal constant for the exponential Euler integration of \f$V_m\f$.
@@ -148,7 +148,7 @@ struct AllNeurons
          *  
          *  Usage:
          *  updateNeuron()		Modified
-		 *  advanceNeuron()		Accessed
+	 *  advanceNeuron()		Accessed
          */
         BGFLOAT *I0;
 
@@ -156,7 +156,7 @@ struct AllNeurons
          *  
          *  Usage:
          *  advanceNeuron()		Modified
-		 *  fire()				Modified
+	 *  fire()			Modified
          */
         BGFLOAT *Vm;
 
@@ -170,10 +170,10 @@ struct AllNeurons
         /*! The number of spikes since the last growth cycle
          *  
          *  Usage:
-		 *  fire()				Modified
-		 *  updateHistory()		Accessed
-		 *  getSpikeCounts()	Accessed
-		 *  clearSpikeCounts()	Modified
+	 *  fire()			Modified
+	 *  updateHistory()		Accessed
+	 *  getSpikeCounts()		Accessed
+	 *  clearSpikeCounts()		Modified
          */
         int *spikeCount;
 
@@ -181,15 +181,15 @@ struct AllNeurons
          *  
          *  Usage:
          *  cleanupSim()		Accessed
-		 *  fire()				Modified
+	 *  fire()			Modified
          */
         int *totalSpikeCount;        
 
-		/*! Step count for each spike fired by each neuron
-		 *
-		 *  Usage:
+	/*! Step count for each spike fired by each neuron
+	 *
+	 *  Usage:
          *  cleanupSim()		Accessed
-		 *  fire()				Modified
+	 *  fire()			Modified
          */
         uint64_t **spike_history;
 
@@ -197,7 +197,7 @@ struct AllNeurons
          *  
          *  Usage:
          *  logSimStep()		Accessed
-		 *  synType()			Accessed
+	 *  synType()			Accessed
          */
         neuronType *neuron_type_map;
 
@@ -205,7 +205,7 @@ struct AllNeurons
          *  
          *  Usage:
          *  advanceNeuron()		Modified
-		 *  updateWeights()		Accessed
+	 *  updateWeights()		Accessed
          */
         BGFLOAT *summation_map;
 

@@ -618,6 +618,8 @@ __global__ void advanceSynapsesDevice ( int n, int width, uint64_t simulationSte
 		// is there a spike in the queue?
 		uint32_t s_delayQueue = synapse_st_d[0].delayQueue[idx];
 		bool isFired = s_delayQueue & bmask;
+		
+		
 		synapse_st_d[0].delayQueue[idx] = s_delayQueue & (~bmask);
 		FLOAT s_decay = synapse_st_d[0].decay[idx];
 		if ( isFired ) {
