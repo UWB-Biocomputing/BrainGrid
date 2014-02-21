@@ -1,18 +1,17 @@
-/**
+/** 
  * @authors Aaron Oziel, Sean Blackbourn
  * 
- *  In this file you will find usage statistics for every variable inside the
- *  the LIFCingleThreaded.cpp file. These statistics can be used to help 
+ *  In this file you will find usage statistics for every variable inthe BrainGrid 
+ *  project as we find them. These statistics can be used to help 
  *  determine if a variable is being used, where it is being used, and how it
- *  is being used in each function (either Modified or Accessed).
+ *  is being used in each class::function() (either Modified or Accessed).
  *  
- *  For Example:
+ *  For Example
  *
  *  Usage:
- *  Class::function():		    Modified OR Accessed
+ *  Class::function():			Modified OR Accessed
  *  OtherClass::function():     Accessed   
  */
-
 #pragma once
 
 #ifndef _ALLSYNAPSES_H_
