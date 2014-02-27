@@ -23,16 +23,6 @@
 struct AllNeurons
 {
     public:
-        /*! The number of neurons stored.
-         *  
-         *  Usage:
-         *  LIFSingleThreadedModel::advanceNeurons()		Accessed
-		 *  LIFSingleThreadedModel::updateHistory()			Accessed
-		 *  LIFSingleThreadedModel::getSpikeCounts()		Accessed
-		 *  LIFSingleThreadedModel::clearSpikeCounts()		Accessed
-		 *	GpuSim_struct.cu::NOT USED
-         */
-        int size;
 
         /*! A boolean which tracks whether the neuron has fired
          *  

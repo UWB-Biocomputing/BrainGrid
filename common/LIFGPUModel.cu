@@ -22,6 +22,9 @@
 //! Neuron structure in device constant memory.
 __constant__ AllNeurons allNeuronsDevice[1];
 
+//! Synapse structures in device constant memory.
+__constant__ AllSynapses allSynapsesDevice[1];
+
 LIFGPUModel::LIFGPUModel() : LIFModel()
 {
 
@@ -236,7 +239,7 @@ bool LIFGPUModel::isSpikeQueue(AllSynapses &synapses, const int neuron_index, co
 void LIFGPUModel::getSpikeCounts(const AllNeurons &neurons, int *spikeCounts)
 {
 	LifNeuron_struct neuron;
-	HANDLE_ERROR( cudaMemcpyFromSymbol ( &neuron, neuron_st_d, sizeof( LifNeuron_struct ) ) );
+	HANDLE_ERROR( cudaMemcpyFromSymbol ( &neuron, allNeuronsDevice, sizeof( LifNeuron_struct ) ) );
 	HANDLE_ERROR( cudaMemcpy ( spikeCounts, neuron.spikeCount, neuron_count * sizeof( int ), cudaMemcpyDeviceToHost ) );
 }
 
@@ -248,7 +251,7 @@ void LIFGPUModel::getSpikeCounts(const AllNeurons &neurons, int *spikeCounts)
 void LIFGPUModel::clearSpikeCounts(AllNeurons &neurons)
 {
 	LifNeuron_struct neuron;
-	HANDLE_ERROR( cudaMemcpyFromSymbol ( &neuron, neuron_st_d, sizeof( LifNeuron_struct ) ) );
+	HANDLE_ERROR( cudaMemcpyFromSymbol ( &neuron, allNeuronsDevice, sizeof( LifNeuron_struct ) ) );
 	HANDLE_ERROR( cudaMemset( neuron.spikeCount, 0, neuron_count * sizeof( int ) ) );
 }
 
@@ -328,51 +331,51 @@ __global__ void advanceNeuronsDevice( int n, uint64_t simulationStep, int delayI
 	if ( idx >= n )
 	return;
 
-	neuron_st_d[0].hasFired[idx] = false;
-	BGFLOAT& sp = *neuron_st_d[0].summationPoint[idx];
-	BGFLOAT& vm = neuron_st_d[0].Vm[idx];
+	allNeuronsDevice[0].hasFired[idx] = false;
+	BGFLOAT& sp = *allNeuronsDevice[0].summationPoint[idx];
+	BGFLOAT& vm = allNeuronsDevice[0].Vm[idx];
 	BGFLOAT r_sp = sp;
 	BGFLOAT r_vm = vm;
 
-	if ( neuron_st_d[0].nStepsInRefr[idx] > 0 ) { // is neuron refractory?
-		--neuron_st_d[0].nStepsInRefr[idx];
-	} else if ( r_vm >= neuron_st_d[0].Vthresh[idx] ) { // should it fire?
+	if ( allNeuronsDevice[0].nStepsInRefr[idx] > 0 ) { // is neuron refractory?
+		--allNeuronsDevice[0].nStepsInRefr[idx];
+	} else if ( r_vm >= allNeuronsDevice[0].Vthresh[idx] ) { // should it fire?
 		// Note that the neuron has fired!
-		neuron_st_d[0].hasFired[idx] = true;
+		allNeuronsDevice[0].hasFired[idx] = true;
 
 #ifdef STORE_SPIKEHISTORY
 		// record spike time
-		spikeHistory_d[(idx * maxSpikes) + neuron_st_d[0].spikeCount[idx]] = simulationStep;
+		spikeHistory_d[(idx * maxSpikes) + allNeuronsDevice[0].spikeCount[idx]] = simulationStep;
 #endif // STORE_SPIKEHISTORY
-		neuron_st_d[0].spikeCount[idx]++;
+		allNeuronsDevice[0].spikeCount[idx]++;
 
 		// calculate the number of steps in the absolute refractory period
-		neuron_st_d[0].nStepsInRefr[idx] = static_cast<int> ( neuron_st_d[0].Trefract[idx] / neuron_st_d[0].deltaT[idx] + 0.5 );
+		allNeuronsDevice[0].nStepsInRefr[idx] = static_cast<int> ( allNeuronsDevice[0].Trefract[idx] / allNeuronsDevice[0].deltaT[idx] + 0.5 );
 
 		// reset to 'Vreset'
-		vm = neuron_st_d[0].Vreset[idx];
+		vm = allNeuronsDevice[0].Vreset[idx];
 
 		// notify synapses of spike
-		int syn_i = neuron_st_d[0].outgoingSynapse_begin[idx];
+		int syn_i = allNeuronsDevice[0].outgoingSynapse_begin[idx];
 		for ( int i = 0; i < maxSynapses; i++ ) {
-			if ( synapse_st_d[0].inUse[syn_i + i] == true )
+			if ( allSynapsesDevice[0].inUse[syn_i + i] == true )
 			{
 				// notify synapses of spike...
-				int idx0 = delayIdx + synapse_st_d[0].total_delay[syn_i + i];
+				int idx0 = delayIdx + allSynapsesDevice[0].total_delay[syn_i + i];
 				if ( idx0 >= LENGTH_OF_DELAYQUEUE )
 				idx0 -= LENGTH_OF_DELAYQUEUE;
 
 				// set a spike
-				synapse_st_d[0].delayQueue[syn_i + i] |= (0x1 << idx0);
+				allSynapsesDevice[0].delayQueue[syn_i + i] |= (0x1 << idx0);
 			}
 		}
 	} else {
 
-		r_sp += neuron_st_d[0].I0[idx]; // add IO
+		r_sp += allNeuronsDevice[0].I0[idx]; // add IO
 		
 		// Random number alg. goes here    
-		r_sp += (*neuron_st_d[0].randNoise[idx] * neuron_st_d[0].Inoise[idx]); // add cheap noise
-		vm = neuron_st_d[0].C1[idx] * r_vm + neuron_st_d[0].C2[idx] * ( r_sp ); // decay Vm and add inputs
+		r_sp += (*allNeuronsDevice[0].randNoise[idx] * allNeuronsDevice[0].Inoise[idx]); // add cheap noise
+		vm = allNeuronsDevice[0].C1[idx] * r_vm + allNeuronsDevice[0].C2[idx] * ( r_sp ); // decay Vm and add inputs
 	}
 
 	// clear synaptic input for next time step
@@ -390,30 +393,30 @@ __global__ void advanceSynapsesDevice ( int n, int width, uint64_t simulationSte
 	if ( idx >= n )
 	return;
 
-	if ( synapse_st_d[0].inUse[idx] != true )
+	if ( allSynapsesDevice[0].inUse[idx] != true )
 	return;
 
-	int itype = synapse_st_d[0].type[idx];
+	int itype = allSynapsesDevice[0].type[idx];
 
 	// is there a spike in the queue?
-	uint32_t s_delayQueue = synapse_st_d[0].delayQueue[idx];
+	uint32_t s_delayQueue = allSynapsesDevice[0].delayQueue[idx];
 	bool isFired = s_delayQueue & bmask;
-	synapse_st_d[0].delayQueue[idx] = s_delayQueue & (~bmask);
-	BGFLOAT s_decay = synapse_st_d[0].decay[idx];
+	allSynapsesDevice[0].delayQueue[idx] = s_delayQueue & (~bmask);
+	BGFLOAT s_decay = allSynapsesDevice[0].decay[idx];
 	if ( isFired ) {
 		// adjust synapse paramaters
-		if ( synapse_st_d[0].lastSpike[idx] != ULONG_MAX ) {
-			BGFLOAT isi = (simulationStep - synapse_st_d[0].lastSpike[idx]) * synapse_st_d[0].deltaT[idx];
-			synapse_st_d[0].r[idx] = 1 + ( synapse_st_d[0].r[idx] * ( 1 - synapse_st_d[0].u[idx] ) - 1 ) * exp ( -isi / synapse_D_d[itype] );
-			synapse_st_d[0].u[idx] = synapse_U_d[itype] + synapse_st_d[0].u[idx] * ( 1 - synapse_U_d[itype] ) * exp ( -isi / synapse_F_d[itype] );
+		if ( allSynapsesDevice[0].lastSpike[idx] != ULONG_MAX ) {
+			BGFLOAT isi = (simulationStep - allSynapsesDevice[0].lastSpike[idx]) * allSynapsesDevice[0].deltaT[idx];
+			allSynapsesDevice[0].r[idx] = 1 + ( allSynapsesDevice[0].r[idx] * ( 1 - allSynapsesDevice[0].u[idx] ) - 1 ) * exp ( -isi / synapse_D_d[itype] );
+			allSynapsesDevice[0].u[idx] = synapse_U_d[itype] + allSynapsesDevice[0].u[idx] * ( 1 - synapse_U_d[itype] ) * exp ( -isi / synapse_F_d[itype] );
 		}
 
-		synapse_st_d[0].psr[idx] += ( ( synapse_st_d[0].W[idx] / s_decay ) * synapse_st_d[0].u[idx] * synapse_st_d[0].r[idx] );// calculate psr
-		synapse_st_d[0].lastSpike[idx] = simulationStep; // record the time of the spike
+		allSynapsesDevice[0].psr[idx] += ( ( allSynapsesDevice[0].W[idx] / s_decay ) * allSynapsesDevice[0].u[idx] * allSynapsesDevice[0].r[idx] );// calculate psr
+		allSynapsesDevice[0].lastSpike[idx] = simulationStep; // record the time of the spike
 	}
 
 	// decay the post spike response
-	synapse_st_d[0].psr[idx] *= s_decay;
+	allSynapsesDevice[0].psr[idx] *= s_decay;
 }
 
 /** COPIED
@@ -425,14 +428,14 @@ __global__ void calcSummationMap( int n, uint32_t* inverseMap ) {
 	if ( idx >= n )
 	return;
 	
-	uint32_t* inverseMap_begin = &inverseMap[neuron_st_d[0].incomingSynapse_begin[idx]];
+	uint32_t* inverseMap_begin = &inverseMap[allNeuronsDevice[0].incomingSynapse_begin[idx]];
 	BGFLOAT sum = 0.0;
-	uint32_t iCount = neuron_st_d[0].inverseCount[idx];
+	uint32_t iCount = allNeuronsDevice[0].inverseCount[idx];
 	for ( uint32_t i = 0; i < iCount; i++ ) {
 		uint32_t syn_i = inverseMap_begin[i];
-		sum += synapse_st_d[0].psr[syn_i];
+		sum += allSynapsesDevice[0].psr[syn_i];
 	}
-	*neuron_st_d[0].summationPoint[idx] = sum;
+	*allNeuronsDevice[0].summationPoint[idx] = sum;
 } 
 
 /** COPIED
@@ -447,10 +450,10 @@ __global__ void calcOffsets( int n, BGFLOAT* summationPoint_d, int width, BGFLOA
 	return;
 
 	// set summation pointer
-	neuron_st_d[0].summationPoint[idx] = &summationPoint_d[idx];
-	*neuron_st_d[0].summationPoint[idx] = 0;
+	allNeuronsDevice[0].summationPoint[idx] = &summationPoint_d[idx];
+	*allNeuronsDevice[0].summationPoint[idx] = 0;
 
-	neuron_st_d[0].randNoise[idx] = &randNoise_d[idx];
+	allNeuronsDevice[0].randNoise[idx] = &randNoise_d[idx];
 }
 
 /** COPIED
@@ -489,14 +492,14 @@ __global__ void updateNetworkDevice( BGFLOAT* summationPoint_d, neuronType* rgNe
 		bool connected = false;
 
 		// for each existing synapse
-		int syn_i = neuron_st_d[0].outgoingSynapse_begin[a];
+		int syn_i = allNeuronsDevice[0].outgoingSynapse_begin[a];
 		for ( int i = 0; i < maxSynapses; i++ )
 		{
-			if ( synapse_st_d[0].inUse[syn_i + i] != true)
+			if ( allSynapsesDevice[0].inUse[syn_i + i] != true)
 			continue;
 			// if there is a synapse between a and b
-			if ( synapse_st_d[0].summationCoord[syn_i + i].x == xb &&
-					synapse_st_d[0].summationCoord[syn_i + i].y == yb )
+			if ( allSynapsesDevice[0].summationCoord[syn_i + i].x == xb &&
+					allSynapsesDevice[0].summationCoord[syn_i + i].y == yb )
 			{
 				connected = true;
 				adjusted++;
@@ -513,7 +516,7 @@ __global__ void updateNetworkDevice( BGFLOAT* summationPoint_d, neuronType* rgNe
 				{
 					// adjust
 					// g_synapseStrengthAdjustmentConstant is 1.0e-8;
-					synapse_st_d[0].W[syn_i + i] = W_d[a * n + b] 
+					allSynapsesDevice[0].W[syn_i + i] = W_d[a * n + b] 
 					* synSign( synType( rgNeuronTypeMap_d, xa, ya, xb, yb, width ) ) 
 					* g_synapseStrengthAdjustmentConstant_d;
 				}
@@ -543,8 +546,8 @@ __global__ void updateNetworkDevice( BGFLOAT* summationPoint_d, neuronType* rgNe
 */
 __device__ void removeSynapse( int neuron_i, int syn_i )
 {
-	neuron_st_d[0].synapseCount[neuron_i]--;
-	synapse_st_d[0].inUse[syn_i] = false;
+	allNeuronsDevice[0].synapseCount[neuron_i]--;
+	allSynapsesDevice[0].inUse[syn_i] = false;
 }
 
 /** DONE
@@ -564,7 +567,7 @@ __device__ void removeSynapse( int neuron_i, int syn_i )
 */
 __device__ void addSynapse( BGBGFLOAT W_new, BGBGFLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, int neuron_i, int source_x, int source_y, int dest_x, int dest_y, int width, BGBGFLOAT deltaT, int maxSynapses )
 {
-	if ( neuron_st_d[0].synapseCount[neuron_i] >= maxSynapses )
+	if ( allNeuronsDevice[0].synapseCount[neuron_i] >= maxSynapses )
 	return;			// TODO: ERROR!
 
 	// locate summation point
@@ -574,16 +577,16 @@ __device__ void addSynapse( BGBGFLOAT W_new, BGBGFLOAT* summationPoint_d, neuron
 	synapseType type = synType( rgNeuronTypeMap_d, source_x, source_y, dest_x, dest_y, width );
 
 	// add it to the list
-	int syn_i = neuron_st_d[0].outgoingSynapse_begin[neuron_i];
+	int syn_i = allNeuronsDevice[0].outgoingSynapse_begin[neuron_i];
 	for ( int i = 0; i < maxSynapses; i++, syn_i++ )
-	if ( synapse_st_d[0].inUse[syn_i] != true )
+	if ( allSynapsesDevice[0].inUse[syn_i] != true )
 	break;
 
-	neuron_st_d[0].synapseCount[neuron_i]++;
+	allNeuronsDevice[0].synapseCount[neuron_i]++;
 
 	// create a synapse
 	createSynapse( syn_i, source_x, source_y, dest_x, dest_y, sp, deltaT, type );	
-	synapse_st_d[0].W[syn_i] = W_new;
+	allSynapsesDevice[0].W[syn_i] = W_new;
 }
 
 /** DONE
@@ -601,21 +604,21 @@ __device__ void createSynapse( int syn_i, int source_x, int source_y, int dest_x
 {
 	BGBGFLOAT delay;
 
-	synapse_st_d[0].inUse[syn_i] = true;
-	synapse_st_d[0].summationPoint[syn_i] = sp;
-	synapse_st_d[0].summationCoord[syn_i].x = dest_x;
-	synapse_st_d[0].summationCoord[syn_i].y = dest_y;
-	synapse_st_d[0].synapseCoord[syn_i].x = source_x;	
-	synapse_st_d[0].synapseCoord[syn_i].y = source_y;	
-	synapse_st_d[0].deltaT[syn_i] = deltaT;
-	synapse_st_d[0].W[syn_i] = 10.0e-9;
-	synapse_st_d[0].psr[syn_i] = 0.0;
-	synapse_st_d[0].delayQueue[syn_i] = 0;
-	synapse_st_d[0].ldelayQueue[syn_i] = LENGTH_OF_DELAYQUEUE;
-	synapse_st_d[0].r[syn_i] = 1.0;
-	synapse_st_d[0].u[syn_i] = 0.4;		// DEFAULT_U
-	synapse_st_d[0].lastSpike[syn_i] = ULONG_MAX;
-	synapse_st_d[0].type[syn_i] = type;
+	allSynapsesDevice[0].inUse[syn_i] = true;
+	allSynapsesDevice[0].summationPoint[syn_i] = sp;
+	allSynapsesDevice[0].summationCoord[syn_i].x = dest_x;
+	allSynapsesDevice[0].summationCoord[syn_i].y = dest_y;
+	allSynapsesDevice[0].synapseCoord[syn_i].x = source_x;	
+	allSynapsesDevice[0].synapseCoord[syn_i].y = source_y;	
+	allSynapsesDevice[0].deltaT[syn_i] = deltaT;
+	allSynapsesDevice[0].W[syn_i] = 10.0e-9;
+	allSynapsesDevice[0].psr[syn_i] = 0.0;
+	allSynapsesDevice[0].delayQueue[syn_i] = 0;
+	allSynapsesDevice[0].ldelayQueue[syn_i] = LENGTH_OF_DELAYQUEUE;
+	allSynapsesDevice[0].r[syn_i] = 1.0;
+	allSynapsesDevice[0].u[syn_i] = 0.4;		// DEFAULT_U
+	allSynapsesDevice[0].lastSpike[syn_i] = ULONG_MAX;
+	allSynapsesDevice[0].type[syn_i] = type;
 
 	BGBGFLOAT tau;
 	switch ( type ) {
@@ -637,9 +640,9 @@ __device__ void createSynapse( int syn_i, int source_x, int source_y, int dest_x
 		break;
 	}
 
-	synapse_st_d[0].tau[syn_i] = tau;
-	synapse_st_d[0].total_delay[syn_i] = static_cast<int>( delay / deltaT ) + 1;
-	synapse_st_d[0].decay[syn_i] = exp( -deltaT / tau );
+	allSynapsesDevice[0].tau[syn_i] = tau;
+	allSynapsesDevice[0].total_delay[syn_i] = static_cast<int>( delay / deltaT ) + 1;
+	allSynapsesDevice[0].decay[syn_i] = exp( -deltaT / tau );
 }
 
 /** DONE

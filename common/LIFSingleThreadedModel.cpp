@@ -26,7 +26,7 @@ LIFSingleThreadedModel::~LIFSingleThreadedModel()
 void LIFSingleThreadedModel::advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
     advanceNeurons(neurons, synapses, sim_info);
-    advanceSynapses(neurons.size, synapses);
+    advanceSynapses(sim_info.totalNeurons, synapses);
 }
 
 /**
@@ -39,9 +39,9 @@ void LIFSingleThreadedModel::advance(AllNeurons &neurons, AllSynapses &synapses,
 void LIFSingleThreadedModel::updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
     updateHistory(currentStep, sim_info.epochDuration, neurons);
-    updateFrontiers(neurons.size);
-    updateOverlap(neurons.size);
-    updateWeights(neurons.size, neurons, synapses, sim_info);
+    updateFrontiers(sim_info.totalNeurons);
+    updateOverlap(sim_info.totalNeurons);
+    updateWeights(sim_info.totalNeurons, neurons, synapses, sim_info);
 }
 
 /**
@@ -192,7 +192,7 @@ void LIFSingleThreadedModel::advanceNeurons(AllNeurons &neurons, AllSynapses &sy
 {
     // TODO: move this code into a helper class - it's being used in multiple places.
     // For each neuron in the network
-    for (int i = neurons.size - 1; i >= 0; --i) {
+    for (int i = sim_info.totalNeurons - 1; i >= 0; --i) {
         // advance neurons
         advanceNeuron(neurons, i);
 
@@ -426,7 +426,7 @@ void LIFSingleThreadedModel::updateHistory(const int currentStep, BGFLOAT epochD
     //getSpikeCounts(neurons, m_conns->spikeCounts);
 
     // Calculate growth cycle firing rate for previous period
-    for (int i = 0; i < neurons.size; i++) {
+    for (int i = 0; i < sim_info.totalNeurons; i++) {
         // Calculate firing rate
         m_conns->rates[i] = neurons.spikeCount[i] / epochDuration;
         // record firing rate to history matrix
@@ -462,7 +462,7 @@ void LIFSingleThreadedModel::updateHistory(const int currentStep, BGFLOAT epochD
  */
 void LIFSingleThreadedModel::getSpikeCounts(const AllNeurons &neurons, int *spikeCounts)
 {
-    for (int i = 0; i < neurons.size; i++) {
+    for (int i = 0; i < sim_info.totalNeurons; i++) {
         spikeCounts[i] = neurons.spikeCount[i];
     }
 }
@@ -474,7 +474,7 @@ void LIFSingleThreadedModel::getSpikeCounts(const AllNeurons &neurons, int *spik
 //! Clear spike count of each neuron.
 void LIFSingleThreadedModel::clearSpikeCounts(AllNeurons &neurons)
 {
-    for (int i = 0; i < neurons.size; i++) {
+    for (int i = 0; i < sim_info.totalNeurons; i++) {
         neurons.spikeCount[i] = 0;
     }
 }
