@@ -17,25 +17,25 @@
 //Forward Declarations
 extern "C" {
 	//! Perform updating neurons and synapses for one activity epoch.
-	void advanceGPU( 
+	void advanceGPU(
 #ifdef STORE_SPIKEHISTORY
 	SimulationInfo* psi,
-	int maxSynapses, 
+	int maxSynapses,
 	uint64_t* spikeArray,
 	int maxSpikes
 #else
 	SimulationInfo* psi,
-	int maxSynapses 
+	int maxSynapses
 #endif // STORE_SPIKEHISTORY
 	);
 
 	//! Allocate GPU device memory and copy data from host memory.
-	void allocDeviceStruct( SimulationInfo* psi, 
-	LifNeuron_struct& neuron_st, 
+	void allocDeviceStruct( SimulationInfo* psi,
+	LifNeuron_struct& neuron_st,
 	DynamicSpikingSynapse_struct& synapse_st,
 #ifdef STORE_SPIKEHISTORY
 	int maxSynapses,
-	int maxSpikes 
+	int maxSpikes
 #else
 	int maxSynapses
 #endif // STORE_SPIKEHISTORY
@@ -128,17 +128,17 @@ __constant__ FLOAT g_synapseStrengthAdjustmentConstant_d = 1.0e-8;
 
 #ifdef STORE_SPIKEHISTORY
 //! Pointer to device spike history array.
-uint64_t* spikeHistory_d = NULL;	
+uint64_t* spikeHistory_d = NULL;
 #endif // STORE_SPIKEHISTORY
 
 //! Pointer to device summation point.
-FLOAT* summationPoint_d = NULL;	
+FLOAT* summationPoint_d = NULL;
 
 //! Pointer to device random noise array.
-float* randNoise_d = NULL;	
+float* randNoise_d = NULL;
 
 //! Pointer to device inverse map.
-uint32_t* inverseMap_d = NULL;	
+uint32_t* inverseMap_d = NULL;
 
 //! Pointer to neuron type map.
 neuronType* rgNeuronTypeMap_d = NULL;
@@ -149,12 +149,12 @@ neuronType* rgNeuronTypeMap_d = NULL;
 * @param[in] maxSynapses	Maximum number of synapses per neuron.
 * @param[in] maxSpikes		Maximum number of spikes per neuron per one epoch.
 */
-void allocDeviceStruct( SimulationInfo* psi, 
+void allocDeviceStruct( SimulationInfo* psi,
 LifNeuron_struct& neuron_st,
 DynamicSpikingSynapse_struct& synapse_st,
 #ifdef STORE_SPIKEHISTORY
 int maxSynapses,
-int maxSpikes 
+int maxSpikes
 #else
 int maxSynapses
 #endif // STORE_SPIKEHISTORY
@@ -194,7 +194,7 @@ int maxSynapses
 	// Copy neuron type map into device memory
 	HANDLE_ERROR( cudaMemcpy ( rgNeuronTypeMap_d, psi->rgNeuronTypeMap, rgNeuronTypeMap_d_size, cudaMemcpyHostToDevice ) );
 
-	int width = psi->width;	
+	int width = psi->width;
 	blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 	calcOffsets<<< blocksPerGrid, threadsPerBlock >>>( neuron_count, summationPoint_d, width, randNoise_d );
 
@@ -221,15 +221,15 @@ void deleteDeviceStruct(  )
 
 #ifdef STORE_SPIKEHISTORY
 /**
-* @param[in] psi		Pointer to the simulation information. 
+* @param[in] psi		Pointer to the simulation information.
 * @param[in] maxSynapses	Maximum number of synapses per neuron.
-* @param[in] spikeArray	Array to save spike history for neurons. 
+* @param[in] spikeArray	Array to save spike history for neurons.
 * @param[in] maxSpikes		Maximum number of spikes per neuron per one epoch.
 */
 void advanceGPU( SimulationInfo* psi, int maxSynapses, uint64_t* spikeArray, int maxSpikes )
 #else
 /**
-* @param[in] psi		Pointer to the simulation information. 
+* @param[in] psi		Pointer to the simulation information.
 * @param[in] maxSynapses	Maximum number of synapses per neuron.
 */
 void advanceGPU( SimulationInfo* psi, int maxSynapses )
@@ -242,7 +242,7 @@ void advanceGPU( SimulationInfo* psi, int maxSynapses )
 
 	// simulate to next growth cycle
 	uint64_t endStep = g_simulationStep + static_cast<uint64_t>(psi->stepDuration / deltaT);
-	
+
 	DEBUG(cout << "Beginning GPU sim cycle, simTime = " << g_simulationStep * deltaT << ", endTime = " << endStep * deltaT << endl;)
 
 	// CUDA parameters
@@ -260,7 +260,7 @@ void advanceGPU( SimulationInfo* psi, int maxSynapses )
 	t_gpu_calcSummation = 0.0f;
 
 	cudaEventCreate( &start );
-	cudaEventCreate( &stop ); 
+	cudaEventCreate( &stop );
 #endif // PERFORMANCE_METRICS
 	while ( g_simulationStep < endStep )
 	{
@@ -341,7 +341,7 @@ void advanceGPU( SimulationInfo* psi, int maxSynapses )
 	cout << endl;
 	cout << "neuron_count: " << neuron_count << endl;
 	cout << "synapse_count: " << synapse_count << endl;
-	cout << "  effective bandwidth: " << 
+	cout << "  effective bandwidth: " <<
 	getEffectiveBandwidth( count, neuron_count * 44 + synapse_count * 20, neuron_count * 8, t_gpu_calcSummation ) << " GB/s" << endl;
 #endif // PERFORMANCE_METRICS
 	cout << endl;
@@ -357,7 +357,7 @@ void advanceGPU( SimulationInfo* psi, int maxSynapses )
 
 /**
 * @param[in] neuron_count	Number of neurons.
-* @param[out] spikeCounts	Array to store spike counts for neurons. 
+* @param[out] spikeCounts	Array to store spike counts for neurons.
 */
 void getSpikeCounts( int neuron_count, int* spikeCounts )
 {
@@ -445,7 +445,7 @@ void createSynapseImap( SimulationInfo* psi, int maxSynapses )
 		return;
 	}
 
-	// copy device synapse struct to host memory 
+	// copy device synapse struct to host memory
 	allocSynapseSumCoord( synapse_st, maxSynapses * neuron_count );
 	copySynapseSumCoordDeviceToHost( synapse_st, maxSynapses * neuron_count );
 
@@ -462,7 +462,7 @@ void createSynapseImap( SimulationInfo* psi, int maxSynapses )
 		{
 			if ( synapse_st.inUse[syn_i] == true )
 			{
-				int idx = synapse_st.summationCoord[syn_i].x 
+				int idx = synapse_st.summationCoord[syn_i].x
 				+ synapse_st.summationCoord[syn_i].y * psi->width;
 				rgSynapseInverseMap[idx].push_back(syn_i);
 				DEBUG ( n_inUse++; )
@@ -587,8 +587,8 @@ __global__ void advanceNeuronsDevice( int n, uint64_t* spikeHistory_d, uint64_t 
 		} else {
 
 			r_sp += neuron_st_d[0].I0[idx]; // add IO
-			
-			// Random number alg. goes here    
+
+			// Random number alg. goes here
 			r_sp += (*neuron_st_d[0].randNoise[idx] * neuron_st_d[0].Inoise[idx]); // add cheap noise
 			vm = neuron_st_d[0].C1[idx] * r_vm + neuron_st_d[0].C2[idx] * ( r_sp ); // decay Vm and add inputs
 		}
@@ -618,8 +618,8 @@ __global__ void advanceSynapsesDevice ( int n, int width, uint64_t simulationSte
 		// is there a spike in the queue?
 		uint32_t s_delayQueue = synapse_st_d[0].delayQueue[idx];
 		bool isFired = s_delayQueue & bmask;
-		
-		
+
+
 		synapse_st_d[0].delayQueue[idx] = s_delayQueue & (~bmask);
 		FLOAT s_decay = synapse_st_d[0].decay[idx];
 		if ( isFired ) {
@@ -647,7 +647,7 @@ __global__ void calcSummationMap( int n, uint32_t* inverseMap ) {
 		int idx = blockIdx.x * blockDim.x + threadIdx.x;
 		if ( idx >= n )
 		return;
-		
+
 		uint32_t* inverseMap_begin = &inverseMap[neuron_st_d[0].incomingSynapse_begin[idx]];
 		FLOAT sum = 0.0;
 		uint32_t iCount = neuron_st_d[0].inverseCount[idx];
@@ -656,14 +656,14 @@ __global__ void calcSummationMap( int n, uint32_t* inverseMap ) {
 			sum += synapse_st_d[0].psr[syn_i];
 		}
 		*neuron_st_d[0].summationPoint[idx] = sum;
-	} 
+	}
 
 	// CUDA code for calculating neuron/synapse offsets -----------------------------------------------------
 	/**
 * @param[in] n			Number of neurons.
 * @param[in] summationPoint_d	The summation map.
 * @param[in] width		Width of neuron map (assumes square).
-* @param[in] randNoise_d	Array of randum numbers. 
+* @param[in] randNoise_d	Array of randum numbers.
 */
 __global__ void calcOffsets( int n, FLOAT* summationPoint_d, int width, float* randNoise_d ) {
 		int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -678,7 +678,7 @@ __global__ void calcOffsets( int n, FLOAT* summationPoint_d, int width, float* r
 	}
 
 	/**
-* Adjust the strength of the synapse or remove it from the synapse map if it has gone below 
+* Adjust the strength of the synapse or remove it from the synapse map if it has gone below
 * zero.
 * @param[in] summationPoint_d	The summation map.
 * @param[in] rgNeuronTypeMap_d	The neuron type map (INH, EXC).
@@ -725,7 +725,7 @@ __global__ void calcOffsets( int n, FLOAT* summationPoint_d, int width, float* r
 					connected = true;
 					adjusted++;
 
-					// adjust the strength of the synapse or remove 
+					// adjust the strength of the synapse or remove
 					// it from the synapse map if it has gone below
 					// zero.
 					if ( W_d[a * n + b] < 0 )
@@ -737,8 +737,8 @@ __global__ void calcOffsets( int n, FLOAT* summationPoint_d, int width, float* r
 					{
 						// adjust
 						// g_synapseStrengthAdjustmentConstant is 1.0e-8;
-						synapse_st_d[0].W[syn_i + i] = W_d[a * n + b] 
-						* synSign( synType( rgNeuronTypeMap_d, xa, ya, xb, yb, width ) ) 
+						synapse_st_d[0].W[syn_i + i] = W_d[a * n + b]
+						* synSign( synType( rgNeuronTypeMap_d, xa, ya, xb, yb, width ) )
 						* g_synapseStrengthAdjustmentConstant_d;
 					}
 				}
@@ -748,9 +748,9 @@ __global__ void calcOffsets( int n, FLOAT* summationPoint_d, int width, float* r
 			if ( !connected && ( W_d[a * n + b] > 0 ) )
 			{
 				added++;
-				FLOAT W_new = W_d[a * n + b] 
-				* synSign( synType( rgNeuronTypeMap_d, xa, ya, xb, yb, width ) ) 
-				* g_synapseStrengthAdjustmentConstant_d;	
+				FLOAT W_new = W_d[a * n + b]
+				* synSign( synType( rgNeuronTypeMap_d, xa, ya, xb, yb, width ) )
+				* g_synapseStrengthAdjustmentConstant_d;
 				addSynapse( W_new, summationPoint_d, rgNeuronTypeMap_d, a, xa, ya, xb, yb, width, deltaT, maxSynapses );
 			}
 		}
@@ -791,7 +791,7 @@ __global__ void calcOffsets( int n, FLOAT* summationPoint_d, int width, float* r
 		neuron_st_d[0].synapseCount[neuron_i]++;
 
 		// create a synapse
-		createSynapse( syn_i, source_x, source_y, dest_x, dest_y, sp, deltaT, type );	
+		createSynapse( syn_i, source_x, source_y, dest_x, dest_y, sp, deltaT, type );
 		synapse_st_d[0].W[syn_i] = W_new;
 	}
 
@@ -814,8 +814,8 @@ __global__ void calcOffsets( int n, FLOAT* summationPoint_d, int width, float* r
 		synapse_st_d[0].summationPoint[syn_i] = sp;
 		synapse_st_d[0].summationCoord[syn_i].x = dest_x;
 		synapse_st_d[0].summationCoord[syn_i].y = dest_y;
-		synapse_st_d[0].synapseCoord[syn_i].x = source_x;	
-		synapse_st_d[0].synapseCoord[syn_i].y = source_y;	
+		synapse_st_d[0].synapseCoord[syn_i].x = source_x;
+		synapse_st_d[0].synapseCoord[syn_i].y = source_y;
 		synapse_st_d[0].deltaT[syn_i] = deltaT;
 		synapse_st_d[0].W[syn_i] = 10.0e-9;
 		synapse_st_d[0].psr[syn_i] = 0.0;
@@ -904,4 +904,4 @@ __global__ void calcOffsets( int n, FLOAT* summationPoint_d, int width, float* r
 		}
 
 		return 0;
-	}
+
