@@ -68,7 +68,7 @@ struct SimulationInfo
 	int height;
 
 	//! Count of neurons in the simulation
-	int cNeurons;
+	int totalNeurons;
 
 	//! Current simulation step
 	int currentStep;
