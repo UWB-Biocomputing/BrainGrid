@@ -19,6 +19,9 @@
 
 #include "LIFGPUModel.h"
 
+//! Neuron structure in device constant memory.
+__constant__ AllNeurons allNeuronsDevice[1];
+
 LIFGPUModel::LIFGPUModel() : LIFModel()
 {
 
