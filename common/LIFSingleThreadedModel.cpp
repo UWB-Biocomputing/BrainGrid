@@ -38,7 +38,7 @@ void LIFSingleThreadedModel::advance(AllNeurons &neurons, AllSynapses &synapses,
  */
 void LIFSingleThreadedModel::updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
-	updateHistory(currentStep, sim_info.epochDuration, neurons);
+    updateHistory(currentStep, sim_info.epochDuration, neurons);
     updateFrontiers(neurons.size);
     updateOverlap(neurons.size);
     updateWeights(neurons.size, neurons, synapses, sim_info);
