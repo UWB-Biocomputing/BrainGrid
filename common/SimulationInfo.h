@@ -34,7 +34,7 @@ struct SimulationInfo
     SimulationInfo() :
         width(0),
         height(0),
-        cNeurons(0),
+        totalNeurons(0),
         currentStep(0),
         maxSteps(0),
         epochDuration(0),

@@ -10,7 +10,7 @@
  *
  *  Usage:
  *  Class::function():			Modified OR Accessed
- *  OtherClass::function():     Accessed   
+ *  OtherClass::function():     	Accessed   
  */
 #pragma once
 
@@ -78,12 +78,12 @@ struct AllSynapses
 	  *
          *  Why isn't this just the global step size?
          *  Usage:
-         *  LIFSingleThreadedModel::createSynapse()	    Modified
-    	 *  LIFSingleThreadedModel::cleanupSim()	    Accessed (Sym Info?)
-    	 *  LIFSingleThreadedModel::updateDecay()	    Modified
-	     *  LIFSingleThreadedModel::advanceSynapse()	Modified
-   	     *  GpuSim_Struct::createSynapse()              Modified
-   	     *  GpuSim_Struct::advanceSynapsesDevice()      Accessed
+         *  LIFSingleThreadedModel::createSynapse()	Modified
+    	 *  LIFSingleThreadedModel::cleanupSim()	Accessed (Sym Info?)
+    	 *  LIFSingleThreadedModel::updateDecay()	Modified
+         *  LIFSingleThreadedModel::advanceSynapse()	Modified
+         *  GpuSim_Struct::createSynapse()              Modified
+         *  GpuSim_Struct::advanceSynapsesDevice()      Accessed
          */         
         BGFLOAT **deltaT;
 
@@ -91,11 +91,11 @@ struct AllSynapses
          *  is going on in the synapse.
          *  
          *  Usage:
-	     *  LIFSingleThreadedModel::advanceSynapse()	Modified
-         *  LIFSingleThreadedModel::createSynapse()	    Modified (= 0.0)
+	 *  LIFSingleThreadedModel::advanceSynapse()	Modified
+         *  LIFSingleThreadedModel::createSynapse()	Modified
          *  GpuSim_Struct::createSynapse()              Modified
-   	     *  GpuSim_Struct::advanceSynapsesDevice()      Accessed
-   	     *  GpuSim_Struct::calcSummationMap()           Accessed
+   	 *  GpuSim_Struct::advanceSynapsesDevice()      Accessed
+   	 *  GpuSim_Struct::calcSummationMap()           Accessed
          */
         BGFLOAT **psr;
         

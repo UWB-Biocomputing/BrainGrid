@@ -9,12 +9,10 @@ public:
 	LIFSingleThreadedModel();
 	~LIFSingleThreadedModel();
 
-
 	void advance(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
 	void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
 	void cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info);
 	void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const;
-
 
 	/* -----------------
 	* # Helper Functions
@@ -27,13 +25,11 @@ public:
 	// TODO
 	bool updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index);
 
-
 	// # Create All Neurons
 	// --------------------
 
 	// TODO
 	void updateNeuron(AllNeurons &neurons, int neuron_index);
-
 
 	// # Advance Network/Model
 	// -----------------------
