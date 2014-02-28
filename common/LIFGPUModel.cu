@@ -19,6 +19,9 @@
 
 #include "LIFGPUModel.h"
 
+//! Delayed queue index - global to all synapses.
+DelayIdx delayIdx;
+
 //! Neuron structure in device constant memory.
 __constant__ AllNeurons allNeuronsDevice[1];
 
@@ -34,6 +37,24 @@ __constant__ FLOAT synapse_D_d[4] = { 0.144, 0.7, 0.125, 1.1 };	// II, IE, EI, E
 //! Synapse constant(F) stored in device constant memory.
 __constant__ FLOAT synapse_F_d[4] = { 0.06, 0.02, 1.2, 0.05 };	// II, IE, EI, EE
 
+#ifdef STORE_SPIKEHISTORY
+//! Pointer to device spike history array.
+uint64_t* spikeHistory_d = NULL;
+#endif // STORE_SPIKEHISTORY
+
+//! Pointer to device summation point.
+FLOAT* summationPoint_d = NULL;
+
+//! Pointer to device random noise array.
+float* randNoise_d = NULL;
+
+//! Pointer to device inverse map.
+uint32_t* inverseMap_d = NULL;
+
+//! Pointer to neuron type map.
+neuronType* rgNeuronTypeMap_d = NULL;
+
+// ----------------------------------------------------------------------------
 LIFGPUModel::LIFGPUModel() : LIFModel()
 {
 
@@ -43,6 +64,68 @@ LIFGPUModel::~LIFGPUModel()
 {
 	//Let LIFModel base class handle de-allocation
 }
+
+
+/**
+* @param[in] psi		Pointer to the simulation information.
+* @param[in] neuron_st		A leaky-integrate-and-fire (I&F) neuron structure.
+* @param[in] maxSynapses	Maximum number of synapses per neuron.
+* @param[in] maxSpikes		Maximum number of spikes per neuron per one epoch.
+*/
+void allocDeviceStruct(const SimulationInfo &sim_info,
+LifNeuron_struct& neuron_st,
+DynamicSpikingSynapse_struct& synapse_st,
+#ifdef STORE_SPIKEHISTORY
+int maxSynapses,
+int maxSpikes
+#else
+int maxSynapses
+#endif // STORE_SPIKEHISTORY
+)
+{
+	// Set device ID
+	HANDLE_ERROR( cudaSetDevice( g_deviceId ) );
+
+	// CUDA parameters
+	const int threadsPerBlock = 256;
+	int blocksPerGrid;
+
+	// Allocate GPU device memory
+	int neuron_count = psi->cNeurons;
+	int synapse_count = neuron_count * maxSynapses;
+	allocNeuronStruct_d( neuron_count );				// and allocate device memory for each member
+	allocSynapseStruct_d( synapse_count );				// and allocate device memory for each member
+
+#ifdef STORE_SPIKEHISTORY
+	size_t spikeHistory_d_size = neuron_count * maxSpikes * sizeof (uint64_t);		// size of spike history array
+#endif // STORE_SPIKEHISTORY
+	size_t summationPoint_d_size = neuron_count * sizeof (FLOAT);	// size of summation point
+	size_t randNoise_d_size = neuron_count * sizeof (float);	// size of random noise array
+	size_t rgNeuronTypeMap_d_size = neuron_count * sizeof(neuronType);
+
+#ifdef STORE_SPIKEHISTORY
+	HANDLE_ERROR( cudaMalloc ( ( void ** ) &spikeHistory_d, spikeHistory_d_size ) );
+#endif // STORE_SPIKEHISTORY
+	HANDLE_ERROR( cudaMalloc ( ( void ** ) &summationPoint_d, summationPoint_d_size ) );
+	HANDLE_ERROR( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
+	HANDLE_ERROR( cudaMalloc ( ( void ** ) &rgNeuronTypeMap_d, rgNeuronTypeMap_d_size ) );
+
+	// Copy host neuron and synapse arrays into GPU device
+	copyNeuronHostToDevice( neuron_st, neuron_count );
+	copySynapseHostToDevice( synapse_st, synapse_count );
+
+	// Copy neuron type map into device memory
+	HANDLE_ERROR( cudaMemcpy ( rgNeuronTypeMap_d, psi->rgNeuronTypeMap, rgNeuronTypeMap_d_size, cudaMemcpyHostToDevice ) );
+
+	int width = psi->width;
+	blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
+	calcOffsets<<< blocksPerGrid, threadsPerBlock >>>( neuron_count, summationPoint_d, width, randNoise_d );
+
+	// create synapse inverse map
+	createSynapseImap( psi, maxSynapses );
+}
+
+
 
 /** DONE
 *  Advance everything in the model one time step. In this case, that
@@ -163,16 +246,17 @@ void LIFGPUModel::updateNeuron(AllNeurons &neurons, int neuron_index)
 }
 */
 
-/** TODO: Determine if this can be replaced by __global__ advanceNeuronDevice
+/**Replaced by __global__ advanceNeuronDevice
 *  Notify outgoing synapses if neuron has fired.
 *  @param  neurons the Neuron list to search from
 *  @param  synapses    the Synapse list to search from.
 *  @param  sim_info    SimulationInfo class to read information from.
-*/
+
 void LIFGPUModel::advanceNeurons(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
 
 }
+*/
 
 /** REMOVED
 *  Update the indexed Neuron.
@@ -185,16 +269,18 @@ void LIFGPUModel::advanceNeuron(AllNeurons &neurons, const int index)
 }
 */
 
-/** TODO
+/** REMOVED
 *  Prepares Synapse for a spike hit.
 *  @param  synapses    the Synapse list to search from.
 *  @param  neuron_index   index of the Neuron that the Synapse connects to.
 *  @param  synapse_index   index of the Synapse to update.
-*/
+
 void LIFGPUModel::preSpikeHit(AllSynapses &synapses, const int neuron_index, const int synapse_index)
 {
 
 }
+*/
+
 
 /** TODO
 *  Fire the selected Neuron and calculate the result.
@@ -328,23 +414,38 @@ void LIFGPUModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllS
 |* # Global Functions
 \* ------------------*/
 
-/** COPIED
+
+// CUDA code for advancing neurons
+#ifdef STORE_SPIKEHISTORY
+/**
+* @param[in] n			Number of synapses.
+* @param[in] spikeHistory_d	Spike history list.
+* @param[in] simulationStep	The current simulation step.
+* @param[in] maxSpikes		Maximum number of spikes per neuron per one epoch.
+* @param[in] delayIdx		Index of the delayed list (spike queue).
+* @param[in] maxSynapses	Maximum number of synapses per neuron.
+*/
+__global__ void advanceNeuronsDevice( int n, uint64_t* spikeHistory_d, uint64_t simulationStep, int maxSpikes, int delayIdx, int maxSynapses ) {
+#else
+	/**
 * @param[in] n			Number of synapses.
 * @param[in] simulationStep	The current simulation step.
 * @param[in] delayIdx		Index of the delayed list (spike queue).
 * @param[in] maxSynapses	Maximum number of synapses per neuron.
 */
+
 __global__ void advanceNeuronsDevice( int n, uint64_t simulationStep, int delayIdx, int maxSynapses ) {
+#endif // STORE_SPIKEHISTORY
 	// determine which neuron this thread is processing
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	if ( idx >= n )
 	return;
 
 	allNeuronsDevice[0].hasFired[idx] = false;
-	BGFLOAT& sp = *allNeuronsDevice[0].summationPoint[idx];
-	BGFLOAT& vm = allNeuronsDevice[0].Vm[idx];
-	BGFLOAT r_sp = sp;
-	BGFLOAT r_vm = vm;
+	FLOAT& sp = *allNeuronsDevice[0].summationPoint[idx];
+	FLOAT& vm = allNeuronsDevice[0].Vm[idx];
+	FLOAT r_sp = sp;
+	FLOAT r_vm = vm;
 
 	if ( allNeuronsDevice[0].nStepsInRefr[idx] > 0 ) { // is neuron refractory?
 		--allNeuronsDevice[0].nStepsInRefr[idx];
@@ -354,7 +455,7 @@ __global__ void advanceNeuronsDevice( int n, uint64_t simulationStep, int delayI
 
 #ifdef STORE_SPIKEHISTORY
 		// record spike time
-		spikeHistory_d[(idx * maxSpikes) + allNeuronsDevice[0].spikeCount[idx]] = simulationStep;
+			spikeHistory_d[(idx * maxSpikes) + allNeuronsDevice[0].spikeCount[idx]] = simulationStep;
 #endif // STORE_SPIKEHISTORY
 		allNeuronsDevice[0].spikeCount[idx]++;
 
@@ -367,22 +468,22 @@ __global__ void advanceNeuronsDevice( int n, uint64_t simulationStep, int delayI
 		// notify synapses of spike
 		int syn_i = allNeuronsDevice[0].outgoingSynapse_begin[idx];
 		for ( int i = 0; i < maxSynapses; i++ ) {
-			if ( allSynapsesDevice[0].inUse[syn_i + i] == true )
+			if ( synapse_st_d[0].inUse[syn_i + i] == true )
 			{
 				// notify synapses of spike...
-				int idx0 = delayIdx + allSynapsesDevice[0].total_delay[syn_i + i];
+				int idx0 = delayIdx + synapse_st_d[0].total_delay[syn_i + i];
 				if ( idx0 >= LENGTH_OF_DELAYQUEUE )
-				idx0 -= LENGTH_OF_DELAYQUEUE;
+					idx0 -= LENGTH_OF_DELAYQUEUE;
 
 				// set a spike
-				allSynapsesDevice[0].delayQueue[syn_i + i] |= (0x1 << idx0);
+				synapse_st_d[0].delayQueue[syn_i + i] |= (0x1 << idx0);
 			}
 		}
 	} else {
 
 		r_sp += allNeuronsDevice[0].I0[idx]; // add IO
-		
-		// Random number alg. goes here    
+
+		// Random number alg. goes here
 		r_sp += (*allNeuronsDevice[0].randNoise[idx] * allNeuronsDevice[0].Inoise[idx]); // add cheap noise
 		vm = allNeuronsDevice[0].C1[idx] * r_vm + allNeuronsDevice[0].C2[idx] * ( r_sp ); // decay Vm and add inputs
 	}
@@ -390,6 +491,8 @@ __global__ void advanceNeuronsDevice( int n, uint64_t simulationStep, int delayI
 	// clear synaptic input for next time step
 	sp = 0;
 }
+
+
 
 /** COPIED
 * @param[in] n			Number of synapses.

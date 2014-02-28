@@ -426,7 +426,7 @@ void LIFSingleThreadedModel::updateHistory(const int currentStep, BGFLOAT epochD
     //getSpikeCounts(neurons, m_conns->spikeCounts);
 
     // Calculate growth cycle firing rate for previous period
-    for (int i = 0; i < sim_info.totalNeurons; i++) {
+    for (int i = 0; i < neurons.size; i++) {
         // Calculate firing rate
         m_conns->rates[i] = neurons.spikeCount[i] / epochDuration;
         // record firing rate to history matrix
@@ -462,7 +462,7 @@ void LIFSingleThreadedModel::updateHistory(const int currentStep, BGFLOAT epochD
  */
 void LIFSingleThreadedModel::getSpikeCounts(const AllNeurons &neurons, int *spikeCounts)
 {
-    for (int i = 0; i < sim_info.totalNeurons; i++) {
+    for (int i = 0; i < neurons.size; i++) {
         spikeCounts[i] = neurons.spikeCount[i];
     }
 }
@@ -474,7 +474,7 @@ void LIFSingleThreadedModel::getSpikeCounts(const AllNeurons &neurons, int *spik
 //! Clear spike count of each neuron.
 void LIFSingleThreadedModel::clearSpikeCounts(AllNeurons &neurons)
 {
-    for (int i = 0; i < sim_info.totalNeurons; i++) {
+    for (int i = 0; i < neurons.size; i++) {
         neurons.spikeCount[i] = 0;
     }
 }

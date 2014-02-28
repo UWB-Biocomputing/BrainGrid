@@ -32,24 +32,22 @@ class LIFGPUModel : public LIFModel  {
 	// --------------------
 
 	// TODO
-	void updateNeuron(AllNeurons &neurons, int neuron_index);
+	//void updateNeuron(AllNeurons &neurons, int neuron_index);
 
 	// # Advance Network/Model
 	// -----------------------
 
 	// Update the state of all neurons for a time step
 	void advanceNeurons(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
-	// Helper for #advanceNeuron. Updates state of a single neuron.
-	void advanceNeuron(AllNeurons& neurons, const int index);
+	// Helper for #advanceNeurons. Updates state of a single neuron.
+	// void advanceNeuron(AllNeurons& neurons, const int index);
 	// Initiates a firing of a neuron to connected neurons
 	void fire(AllNeurons &neurons, const int index) const;
-	// TODO
-	void preSpikeHit(AllSynapses &synapses, const int neuron_index, const int synapse_index);
 
 	// Update the state of all synapses for a time step
 	void advanceSynapses(const int num_neurons, AllSynapses &synapses);
 	// Helper for #advanceSynapses. Updates state of a single synapse.
-	void advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+	// void advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
 	// TODO
 	bool isSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index);
 

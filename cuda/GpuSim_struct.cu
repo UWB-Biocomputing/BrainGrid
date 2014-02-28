@@ -539,51 +539,51 @@ __global__ void advanceNeuronsDevice( int n, uint64_t* spikeHistory_d, uint64_t 
 * @param[in] maxSynapses	Maximum number of synapses per neuron.
 */
 
-	__global__ void advanceNeuronsDevice( int n, uint64_t simulationStep, int delayIdx, int maxSynapses ) {
+__global__ void advanceNeuronsDevice( int n, uint64_t simulationStep, int delayIdx, int maxSynapses ) {
 #endif // STORE_SPIKEHISTORY
-		// determine which neuron this thread is processing
-		int idx = blockIdx.x * blockDim.x + threadIdx.x;
-		if ( idx >= n )
+	// determine which neuron this thread is processing
+	int idx = blockIdx.x * blockDim.x + threadIdx.x;
+	if ( idx >= n )
 		return;
 
-		neuron_st_d[0].hasFired[idx] = false;
-		FLOAT& sp = *neuron_st_d[0].summationPoint[idx];
-		FLOAT& vm = neuron_st_d[0].Vm[idx];
-		FLOAT r_sp = sp;
-		FLOAT r_vm = vm;
+	neuron_st_d[0].hasFired[idx] = false;
+	FLOAT& sp = *neuron_st_d[0].summationPoint[idx];
+	FLOAT& vm = neuron_st_d[0].Vm[idx];
+	FLOAT r_sp = sp;
+	FLOAT r_vm = vm;
 
-		if ( neuron_st_d[0].nStepsInRefr[idx] > 0 ) { // is neuron refractory?
-			--neuron_st_d[0].nStepsInRefr[idx];
-		} else if ( r_vm >= neuron_st_d[0].Vthresh[idx] ) { // should it fire?
-			// Note that the neuron has fired!
-			neuron_st_d[0].hasFired[idx] = true;
+	if ( neuron_st_d[0].nStepsInRefr[idx] > 0 ) { // is neuron refractory?
+		--neuron_st_d[0].nStepsInRefr[idx];
+	} else if ( r_vm >= neuron_st_d[0].Vthresh[idx] ) { // should it fire?
+		// Note that the neuron has fired!
+		neuron_st_d[0].hasFired[idx] = true;
 
 #ifdef STORE_SPIKEHISTORY
-			// record spike time
-			spikeHistory_d[(idx * maxSpikes) + neuron_st_d[0].spikeCount[idx]] = simulationStep;
+		// record spike time
+		spikeHistory_d[(idx * maxSpikes) + neuron_st_d[0].spikeCount[idx]] = simulationStep;
 #endif // STORE_SPIKEHISTORY
-			neuron_st_d[0].spikeCount[idx]++;
+		neuron_st_d[0].spikeCount[idx]++;
 
-			// calculate the number of steps in the absolute refractory period
-			neuron_st_d[0].nStepsInRefr[idx] = static_cast<int> ( neuron_st_d[0].Trefract[idx] / neuron_st_d[0].deltaT[idx] + 0.5 );
+		// calculate the number of steps in the absolute refractory period
+		neuron_st_d[0].nStepsInRefr[idx] = static_cast<int> ( neuron_st_d[0].Trefract[idx] / neuron_st_d[0].deltaT[idx] + 0.5 );
 
-			// reset to 'Vreset'
-			vm = neuron_st_d[0].Vreset[idx];
+		// reset to 'Vreset'
+		vm = neuron_st_d[0].Vreset[idx];
 
-			// notify synapses of spike
-			int syn_i = neuron_st_d[0].outgoingSynapse_begin[idx];
-			for ( int i = 0; i < maxSynapses; i++ ) {
-				if ( synapse_st_d[0].inUse[syn_i + i] == true )
-				{
-					// notify synapses of spike...
-					int idx0 = delayIdx + synapse_st_d[0].total_delay[syn_i + i];
-					if ( idx0 >= LENGTH_OF_DELAYQUEUE )
+		// notify synapses of spike
+		int syn_i = neuron_st_d[0].outgoingSynapse_begin[idx];
+		for ( int i = 0; i < maxSynapses; i++ ) {
+			if ( synapse_st_d[0].inUse[syn_i + i] == true )
+			{
+				// notify synapses of spike...
+				int idx0 = delayIdx + synapse_st_d[0].total_delay[syn_i + i];
+				if ( idx0 >= LENGTH_OF_DELAYQUEUE )
 					idx0 -= LENGTH_OF_DELAYQUEUE;
 
-					// set a spike
-					synapse_st_d[0].delayQueue[syn_i + i] |= (0x1 << idx0);
-				}
+				// set a spike
+				synapse_st_d[0].delayQueue[syn_i + i] |= (0x1 << idx0);
 			}
+		}
 		} else {
 
 			r_sp += neuron_st_d[0].I0[idx]; // add IO

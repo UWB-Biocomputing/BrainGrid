@@ -13,12 +13,12 @@
  */
 Network::Network(Model *model, SimulationInfo &simInfo) :
     m_model(model),
-    neurons(simInfo.cNeurons),
-    synapses(simInfo.cNeurons,simInfo.maxSynapsesPerNeuron),
+    neurons(simInfo.totalNeurons),
+    synapses(simInfo.totalNeurons,simInfo.maxSynapsesPerNeuron),
     m_summationMap(NULL),
     m_sim_info(simInfo)
 {
-    cout << "Neuron count: " << simInfo.cNeurons << endl;
+    cout << "Neuron count: " << simInfo.totalNeurons << endl;
     g_simulationStep = 0;
     cout << "Initializing neurons in network." << endl;
     m_model->createAllNeurons(neurons, m_sim_info);
@@ -100,16 +100,16 @@ void Network::reset()
 
     freeResources();
 
-    neurons = AllNeurons(m_sim_info.cNeurons);
-    synapses = AllSynapses(m_sim_info.cNeurons, m_sim_info.maxSynapsesPerNeuron);
+    neurons = AllNeurons(m_sim_info.totalNeurons);
+    synapses = AllSynapses(m_sim_info.totalNeurons, m_sim_info.maxSynapsesPerNeuron);
 
     // Reset global simulation Step to 0
     g_simulationStep = 0;
 
-    m_summationMap = new BGFLOAT[m_sim_info.cNeurons];
+    m_summationMap = new BGFLOAT[m_sim_info.totalNeurons];
 
     // initialize maps
-    for (int i = 0; i < m_sim_info.cNeurons; i++)
+    for (int i = 0; i < m_sim_info.totalNeurons; i++)
     {
         m_summationMap[i] = 0;
     }
@@ -148,6 +148,6 @@ void Network::readSimMemory(istream& is)
 {
     // read the neuron data
     is >> neurons.size;
-    assert(neurons.size == m_sim_info.cNeurons);
+    assert(neurons.size == m_sim_info.totalNeurons);
     m_model->loadMemory(is, neurons, synapses, m_sim_info);
 }

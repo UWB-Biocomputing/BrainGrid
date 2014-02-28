@@ -88,11 +88,11 @@ int main(int argc, char* argv[]) {
 
     if (!parseCommandLine(argc, argv)) {
         cerr << "! ERROR: failed during command line parse" << endl;
-        exit(-1);
+        return -1;
     }
     if (!load_simulation_parameters(stateInputFileName)) {
         cerr << "! ERROR: failed while parsing simulation parameters." << endl;
-        exit(-1);
+        return -1;
     }
 
     /*    verify that params were read correctly */
@@ -188,7 +188,7 @@ SimulationInfo makeSimulationInfo(int cols, int rows,
     // Init SimulationInfo parameters
     int max_neurons = cols * rows;
 
-    si.cNeurons = max_neurons;
+    si.totalNeurons = max_neurons;
     si.epochDuration = growthEpochDuration;
     si.maxSteps = (int)maxGrowthSteps;
 

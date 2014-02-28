@@ -67,11 +67,6 @@ class LIFModel : public Model, TiXmlVisitor
         void saveState(ostream& output, const AllNeurons &neurons,  const SimulationInfo &sim_info);
         void createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_info);
         void setupSim(const int num_neurons, const SimulationInfo &sim_info);
-       
-		void advance(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo &sim_info) =0;
-		void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info) = 0;
-		void cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info) = 0;
-		void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const = 0;
 
     protected:
 

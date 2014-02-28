@@ -1,7 +1,6 @@
 #include "AllNeurons.h"
 // Default constructor
-AllNeurons::AllNeurons() :
-        size(0)
+AllNeurons::AllNeurons() : size(0)
 {
     C1 = NULL;
     C2 = NULL;
