@@ -209,6 +209,7 @@ struct AllSynapses
          *  Usage:
 	     *  LIFSingleThreadedModel::createSynapse()	    Modified
 	     *  GpuSim_Struct::NOT USED
+	     *  Note: Likely under a different name in GpuSim_struct, see synapse_D_d. -Aaron
          */
         BGFLOAT **D;
         
@@ -219,7 +220,7 @@ struct AllSynapses
 	     *  LIFSingleThreadedModel::createSynapse()	    Modified
 	     *  
 	     *  Note: In GpuSim_struct.cu I cannot differentiate between the
-	     *  variables "u" and "U". -Aaron
+	     *  variables "u" and "U". Likely under a different name in GpuSim_struct, see synapse_U_d.-Aaron
          */
         BGFLOAT **U;
         
@@ -228,7 +229,9 @@ struct AllSynapses
          *  Usage:
          *  LIFSingleThreadedModel::advanceSynapse()	Modified 
 	     *  LIFSingleThreadedModel::createSynapse()	    Modified
-	     *  GpuSim_Struct::NOT USED  
+	     *  GpuSim_Struct::NOT USED
+	     *
+	     *  Note: Likely under a different name in GpuSim_struct, see synapse_F_d. -Aaron
          */
         BGFLOAT **F;
         
@@ -261,6 +264,8 @@ struct AllSynapses
     	 *  LIFSingleThreadedModel::eraseSynapse()	    Modified
     	 *  LIFSingleThreadedModel::addSynapse()	    Modified
  	     *  GpuSim_Struct::NOT USED  
+         * 	     
+   	     *  Note: Likely under a different name in GpuSim_struct, see synapse_count. -Aaron
          */
         size_t *synapse_counts;
 
