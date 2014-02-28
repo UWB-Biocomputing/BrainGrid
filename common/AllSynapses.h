@@ -266,7 +266,7 @@ struct AllSynapses
 
     	/*! The number of neurons
          *  Aaron: Is this even supposed to be here?!
-         *  Usage: NOT USED ANYWHERE
+         *  Usage: Used by destructor
          */
         int count_neurons;
 

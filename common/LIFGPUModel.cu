@@ -25,6 +25,15 @@ __constant__ AllNeurons allNeuronsDevice[1];
 //! Synapse structures in device constant memory.
 __constant__ AllSynapses allSynapsesDevice[1];
 
+//! Synapse constant (U)stored in device constant memory.
+__constant__ FLOAT synapse_U_d[4] = { 0.32, 0.25, 0.05, 0.5 };	// II, IE, EI, EE
+
+//! Synapse constant(D) stored in device constant memory.
+__constant__ FLOAT synapse_D_d[4] = { 0.144, 0.7, 0.125, 1.1 };	// II, IE, EI, EE
+
+//! Synapse constant(F) stored in device constant memory.
+__constant__ FLOAT synapse_F_d[4] = { 0.06, 0.02, 1.2, 0.05 };	// II, IE, EI, EE
+
 LIFGPUModel::LIFGPUModel() : LIFModel()
 {
 
@@ -58,14 +67,14 @@ void LIFGPUModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simu
 
 	// display running info to console
 	// Advance neurons ------------->
-	blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
+	blocksPerGrid = ( sim_info.totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
 #ifdef PERFORMANCE_METRICS
 	cudaEventRecord( start, 0 );
 #endif // PERFORMANCE_METRICS
 #ifdef STORE_SPIKEHISTORY
-	advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, spikeHistory_d, g_simulationStep, maxSpikes, delayIdx.getIndex(), maxSynapses );
+	advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info.totalNeurons, spikeHistory_d, g_simulationStep, maxSpikes, delayIdx.getIndex(), maxSynapses );
 #else
-	advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, g_simulationStep, delayIdx.getIndex(), maxSynapses );
+	advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info.totalNeurons, g_simulationStep, delayIdx.getIndex(), maxSynapses );
 #endif // STORE_SPIKEHISTORY
 #ifdef PERFORMANCE_METRICS
 	cudaEventRecord( stop, 0 );
@@ -89,11 +98,11 @@ void LIFGPUModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simu
 #endif // PERFORMANCE_METRICS
 
 	// calculate summation point
-	blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
+	blocksPerGrid = ( sim_info.totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
 #ifdef PERFORMANCE_METRICS
 	cudaEventRecord( start, 0 );
 #endif // PERFORMANCE_METRICS
-	calcSummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, inverseMap_d );
+	calcSummationMap <<< blocksPerGrid, threadsPerBlock >>> ( sim_info.totalNeurons, inverseMap_d );
 #ifdef PERFORMANCE_METRICS
 	cudaEventRecord( stop, 0 );
 	cudaEventSynchronize( stop );
@@ -240,7 +249,7 @@ void LIFGPUModel::getSpikeCounts(const AllNeurons &neurons, int *spikeCounts)
 {
 	LifNeuron_struct neuron;
 	HANDLE_ERROR( cudaMemcpyFromSymbol ( &neuron, allNeuronsDevice, sizeof( LifNeuron_struct ) ) );
-	HANDLE_ERROR( cudaMemcpy ( spikeCounts, neuron.spikeCount, neuron_count * sizeof( int ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( spikeCounts, neuron.spikeCount, sim_info.totalNeurons * sizeof( int ), cudaMemcpyDeviceToHost ) );
 }
 
 /** DONE
@@ -252,7 +261,7 @@ void LIFGPUModel::clearSpikeCounts(AllNeurons &neurons)
 {
 	LifNeuron_struct neuron;
 	HANDLE_ERROR( cudaMemcpyFromSymbol ( &neuron, allNeuronsDevice, sizeof( LifNeuron_struct ) ) );
-	HANDLE_ERROR( cudaMemset( neuron.spikeCount, 0, neuron_count * sizeof( int ) ) );
+	HANDLE_ERROR( cudaMemset( neuron.spikeCount, 0, sim_info.totalNeurons * sizeof( int ) ) );
 }
 
 /** TODO
@@ -283,7 +292,7 @@ void LIFGPUModel::updateOverlap(BGBGBGFLOAT num_neurons)
 */
 void LIFGPUModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
-	int neuron_count = psi->cNeurons;
+	int sim_info.totalNeurons = psi->cNeurons;
 	int width = psi->width;
 	BGFLOAT deltaT = psi->deltaT;
 
@@ -292,20 +301,20 @@ void LIFGPUModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllS
 	int blocksPerGrid;
 
 	// allocate memories
-	size_t W_d_size = neuron_count * neuron_count * sizeof (BGFLOAT);
+	size_t W_d_size = sim_info.totalNeurons * sim_info.totalNeurons * sizeof (BGFLOAT);
 	BGFLOAT* W_h = new BGFLOAT[W_d_size];
 	BGFLOAT* W_d;
 	HANDLE_ERROR( cudaMalloc ( ( void ** ) &W_d, W_d_size ) );
 
 	// copy weight data to the device memory
-	for ( int i = 0 ; i < neuron_count; i++ )
-	for ( int j = 0; j < neuron_count; j++ )
-	W_h[i * neuron_count + j] = W(i, j);
+	for ( int i = 0 ; i < sim_info.totalNeurons; i++ )
+	for ( int j = 0; j < sim_info.totalNeurons; j++ )
+	W_h[i * sim_info.totalNeurons + j] = W(i, j);
 
 	HANDLE_ERROR( cudaMemcpy ( W_d, W_h, W_d_size, cudaMemcpyHostToDevice ) );
 
-	blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-	updateNetworkDevice <<< blocksPerGrid, threadsPerBlock >>> ( summationPoint_d, rgNeuronTypeMap_d, neuron_count, width, deltaT, W_d, maxSynapses );
+	blocksPerGrid = ( sim_info.totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
+	updateNetworkDevice <<< blocksPerGrid, threadsPerBlock >>> ( summationPoint_d, rgNeuronTypeMap_d, sim_info.totalNeurons, width, deltaT, W_d, maxSynapses );
 
 	// free memories
 	HANDLE_ERROR( cudaFree( W_d ) );
