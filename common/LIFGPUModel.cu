@@ -19,8 +19,40 @@
 
 #include "LIFGPUModel.h"
 
-//! Delayed queue index - global to all synapses.
-DelayIdx delayIdx;
+#ifdef STORE_SPIKEHISTORY
+//! Perform updating neurons for one time step.
+__global__ void advanceNeuronsDevice( int n, uint64_t* spikeHistory_d, uint64_t simulationStep, int maxSpikes, int delayIdx, int maxSynapses );
+#else
+//! Perform updating neurons for one time step.
+__global__ void advanceNeuronsDevice( int n, uint64_t simulationStep, int delayIdx, int maxSynapses );
+#endif // STORE_SPIKEHISTORY
+//! Perform updating synapses for one time step.
+__global__ void advanceSynapsesDevice( int n, int width, uint64_t simulationStep, uint32_t bmask );
+
+//! Calculate neuron/synapse offsets.
+__global__ void calcOffsets( int n, FLOAT* summationPoint_d, int width, float* randNoise_d );
+
+//! Calculate summation point.
+__global__ void calcSummationMap( int n, uint32_t* inverseMap );
+
+//! Update the network.
+__global__ void updateNetworkDevice( FLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, int n, int width, FLOAT deltaT, FLOAT* W_d, int maxSynapses );
+
+//! Add a synapse to the network.
+__device__ void addSynapse( FLOAT W_new, FLOAT* summationPoint_d, neuronType* rgNeuronTypeMap_d, int neuron_i, int source_x, int source_y, int dest_x, int dest_y, int width, FLOAT deltaT, int maxSynapses );
+
+//! Create a synapse.
+__device__ void createSynapse( int syn_i, int source_x, int source_y, int dest_x, int dest_y, FLOAT* sp, FLOAT deltaT, synapseType type );
+
+//! Remove a synapse from the network.
+__device__ void removeSynapse( int neuron_i, int syn_i );
+
+//! Get the type of synapse.
+__device__ synapseType synType( neuronType* rgNeuronTypeMap_d, int ax, int ay, int bx, int by, int width );
+
+//! Get the type of synapse (excitatory or inhibitory)
+__device__ int synSign( synapseType t );
+
 
 //! Neuron structure in device constant memory.
 __constant__ AllNeurons allNeuronsDevice[1];
@@ -37,25 +69,17 @@ __constant__ FLOAT synapse_D_d[4] = { 0.144, 0.7, 0.125, 1.1 };	// II, IE, EI, E
 //! Synapse constant(F) stored in device constant memory.
 __constant__ FLOAT synapse_F_d[4] = { 0.06, 0.02, 1.2, 0.05 };	// II, IE, EI, EE
 
-#ifdef STORE_SPIKEHISTORY
-//! Pointer to device spike history array.
-uint64_t* spikeHistory_d = NULL;
-#endif // STORE_SPIKEHISTORY
-
-//! Pointer to device summation point.
-FLOAT* summationPoint_d = NULL;
-
-//! Pointer to device random noise array.
-float* randNoise_d = NULL;
-
-//! Pointer to device inverse map.
-uint32_t* inverseMap_d = NULL;
-
-//! Pointer to neuron type map.
-neuronType* rgNeuronTypeMap_d = NULL;
 
 // ----------------------------------------------------------------------------
-LIFGPUModel::LIFGPUModel() : LIFModel()
+LIFGPUModel::LIFGPUModel() : 	
+	#ifdef STORE_SPIKEHISTORY
+	spikeHistory_d(NULL),
+	#endif // STORE_SPIKEHISTORY
+	summationPoint_d(NULL),
+	randNoise_d(NULL),
+	inverseMap_d(NULL),
+	rgNeuronTypeMap_d(NULL),
+	LIFModel()
 {
 
 }
@@ -155,7 +179,7 @@ void LIFGPUModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simu
 	cudaEventRecord( start, 0 );
 #endif // PERFORMANCE_METRICS
 #ifdef STORE_SPIKEHISTORY
-	advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info.totalNeurons, spikeHistory_d, g_simulationStep, maxSpikes, delayIdx.getIndex(), maxSynapses );
+	advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info.totalNeurons, spikeHistory_d, g_simulationStep, maxSpikes, /*delayIdx goes here */, maxSynapses );
 #else
 	advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info.totalNeurons, g_simulationStep, delayIdx.getIndex(), maxSynapses );
 #endif // STORE_SPIKEHISTORY
@@ -378,7 +402,6 @@ void LIFGPUModel::updateOverlap(BGBGBGFLOAT num_neurons)
 */
 void LIFGPUModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
-	int sim_info.totalNeurons = psi->cNeurons;
 	int width = psi->width;
 	BGFLOAT deltaT = psi->deltaT;
 

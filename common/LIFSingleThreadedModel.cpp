@@ -35,6 +35,7 @@ void LIFSingleThreadedModel::advance(AllNeurons &neurons, AllSynapses &synapses,
  *  @param  neurons the Neuron list to search from.
  *  @param  synapses    the Synapse list to search from.
  *  @param  sim_info    SimulationInfo class to read information from.
+ * TODO: refactor updateHistory to receive simInfo instead of epochDuration
  */
 void LIFSingleThreadedModel::updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {

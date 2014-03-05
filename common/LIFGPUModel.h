@@ -13,11 +13,13 @@
 
 class LIFGPUModel : public LIFModel  {
 
+public:
 	void advance(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
 	void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
 	void cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info);
 	void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const;
 
+private: 
 	/* ------------------*\
 	|* # Helper Functions
 	\* ------------------*/
@@ -84,5 +86,26 @@ class LIFGPUModel : public LIFModel  {
 	synapseType synType(AllNeurons &neurons, const int src_neuron, const int dest_neuron);
 	// Determines the direction of the weight for a given synapse type.
 	int synSign(const synapseType t);
+
+	/*----------------------------------------------*\
+	|  Member variables
+	\*----------------------------------------------*/
+
+	#ifdef STORE_SPIKEHISTORY
+	//! Pointer to device spike history array.
+	uint64_t* spikeHistory_d = NULL;
+	#endif // STORE_SPIKEHISTORY
+
+	//! Pointer to device summation point.
+	FLOAT* summationPoint_d = NULL;
+
+	//! Pointer to device random noise array.
+	float* randNoise_d = NULL;
+
+	//! Pointer to device inverse map.
+	uint32_t* inverseMap_d = NULL;
+
+	//! Pointer to neuron type map.
+	neuronType* rgNeuronTypeMap_d = NULL;
 
 };
