@@ -10,7 +10,7 @@
  *          Clients of HostSimulator should handle memory management of the network.
  *  @param  sim_info    parameters for the simulation.
  */
-SingleThreadedSim::SingleThreadedSim(Network *network, SimulationInfo sim_info) : Simulator(network, sim_info)
+SingleThreadedSim::SingleThreadedSim(Network *network, const SimulationInfo& sim_info) : Simulator(network, sim_info)
 {
 
 	// Create a normalized random number generator

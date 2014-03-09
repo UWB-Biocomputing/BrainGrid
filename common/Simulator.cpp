@@ -12,7 +12,7 @@
 /*
 * Constructor
 */
-Simulator::Simulator(Network *network, SimulationInfo sim_info) : network(network), m_sim_info(sim_info) 
+Simulator::Simulator(Network *network, const SimulationInfo& sim_info) : network(network), m_sim_info(sim_info) 
 {
 }
 

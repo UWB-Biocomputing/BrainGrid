@@ -14,7 +14,7 @@
 class GPUSimulator : public Simulator {
 
 public:
-	GPUSimulator(Network *network, SimulationInfo sim_info);
+	GPUSimulator(Network *network, const SimulationInfo& sim_info);
 	//virtual ~SingleThreadedSim() ; 
 };
 
