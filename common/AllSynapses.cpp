@@ -94,7 +94,7 @@ AllSynapses::~AllSynapses()
         // not owned by the synapse.
         for (size_t j = 0; j < max_synapses; j++) {
             summationPoint[i][j] = NULL;
-            delete delayQueue[i][j];
+            delete [] delayQueue[i][j];
             delayQueue[i][j] = NULL;
         }
 
