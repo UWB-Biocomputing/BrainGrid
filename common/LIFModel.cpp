@@ -558,13 +558,13 @@ void LIFModel::saveState(ostream &output, const AllNeurons &neurons, const Simul
     output << "   " << m_conns->yloc.toXML("yloc") << endl;
 
     //Write Neuron Types
-    VectorMatrix neuronTypes("complete", "const", 1, neurons.size, EXC);
-    for (int i = 0; i < neurons.size; i++) {
+    VectorMatrix neuronTypes("complete", "const", 1, sim_info.totalNeurons, EXC);
+    for (int i = 0; i < sim_info.totalNeurons; i++) {
         neuronTypes[i] = neurons.neuron_type_map[i];
     }
     output << "   " << neuronTypes.toXML("neuronTypes") << endl;
 
-    int num_starter_neurons = m_frac_starter_neurons * neurons.size;
+    int num_starter_neurons = m_frac_starter_neurons * sim_info.totalNeurons;
     if (num_starter_neurons > 0) {
         VectorMatrix starterNeuronsM("complete", "const", 1, num_starter_neurons);
         getStarterNeuronMatrix(starterNeuronsM, neurons.starter_map, sim_info);
@@ -573,8 +573,8 @@ void LIFModel::saveState(ostream &output, const AllNeurons &neurons, const Simul
 
     // Write neuron threshold
     // neuron threshold
-    VectorMatrix neuronThresh("complete", "const", 1, neurons.size, 0);
-    for (int i = 0; i < neurons.size; i++) {
+    VectorMatrix neuronThresh("complete", "const", 1, sim_info.totalNeurons, 0);
+    for (int i = 0; i < sim_info.totalNeurons; i++) {
         neuronThresh[i] = neurons.Vthresh[i];
     }
     output << "   " << neuronThresh.toXML("neuronThresh") << endl;
@@ -608,11 +608,11 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_i
 {
     DEBUG(cout << "\nAllocating neurons..." << endl;)
 
-    generateNeuronTypeMap(neurons.neuron_type_map, neurons.size);
-    initStarterMap(neurons.starter_map, neurons.size, neurons.neuron_type_map);
+    generateNeuronTypeMap(neurons.neuron_type_map, sim_info.totalNeurons);
+    initStarterMap(neurons.starter_map, sim_info.totalNeurons, neurons.neuron_type_map);
     
     /* set their specific types */
-    for (int neuron_index = 0; neuron_index < neurons.size; neuron_index++) {
+    for (int neuron_index = 0; neuron_index < sim_info.totalNeurons; neuron_index++) {
         setNeuronDefaults(neurons, neuron_index);
         
         // set the neuron info for neurons

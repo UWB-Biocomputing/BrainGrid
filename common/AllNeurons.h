@@ -227,12 +227,15 @@ struct AllNeurons
          */
         bool *starter_map;
 
-	int size;
+	
 
         AllNeurons();
         AllNeurons(const int size);
         ~AllNeurons();
 
+    private:
+
+	int size;
 };
 
 #endif
