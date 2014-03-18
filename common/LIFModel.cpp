@@ -293,12 +293,12 @@ string LIFModel::neuronToString(AllNeurons &neurons, const int i) const
  */
 void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info)
 {
-    for (int i = 0; i < neurons.size; i++) {
+    for (int i = 0; i < sim_info.totalNeurons; i++) {
         readNeuron(input, neurons, i);
     }
 
-    int* read_synapses_counts= new int[neurons.size];
-    for (int i = 0; i < neurons.size; i++) {
+    int* read_synapses_counts= new int[sim_info.totalNeurons];
+    for (int i = 0; i < sim_info.totalNeurons; i++) {
         read_synapses_counts[i] = 0;
     }
 
@@ -327,15 +327,15 @@ void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &syna
     delete[] read_synapses_counts;
 
     // read the radii
-    for (int i = 0; i < neurons.size; i++)
+    for (int i = 0; i < sim_info.totalNeurons; i++)
         input >> m_conns->radii[i];
 
     // read the rates
-    for (int i = 0; i < neurons.size; i++) {
+    for (int i = 0; i < sim_info.totalNeurons; i++) {
         input >> m_conns->rates[i];
     }
 
-    for (int i = 0; i < neurons.size; i++) {
+    for (int i = 0; i < sim_info.totalNeurons; i++) {
         m_conns->radiiHistory(0, i) = m_conns->radii[i]; // NOTE: Radii Used for read.
         m_conns->ratesHistory(0, i) = m_conns->rates[i]; // NOTE: Rates Used for read.
     }
