@@ -114,6 +114,11 @@ int main(int argc, char* argv[]) {
     time(&start_time);
 
     Simulator *simulator;
+	// It might be possible to do away with virtual function calls
+	// by having simulator be a reference to a auto allocated derived class 
+	// similar to the below code:
+	//SingleThreadedSim test(&network, si);
+	//simulator = &test;
 
 	#if defined(USE_GPU)
 	simulator = new SingleThreadedSim(&network, si);

@@ -564,7 +564,9 @@ void LIFModel::saveState(ostream &output, const AllNeurons &neurons, const Simul
     }
     output << "   " << neuronTypes.toXML("neuronTypes") << endl;
 
-    int num_starter_neurons = m_frac_starter_neurons * sim_info.totalNeurons;
+    // Should this be rounding?
+    int num_starter_neurons = static_cast<int>(m_frac_starter_neurons * sim_info.totalNeurons);
+
     if (num_starter_neurons > 0) {
         VectorMatrix starterNeuronsM("complete", "const", 1, num_starter_neurons);
         getStarterNeuronMatrix(starterNeuronsM, neurons.starter_map, sim_info);

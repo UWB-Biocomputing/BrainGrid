@@ -71,6 +71,8 @@ struct SimulationInfo
 	int totalNeurons;
 
 	//! Current simulation step
+  	//  Not clear if this is actually used, but probably should be.
+	// Main loop in simulator uses local signed stepCount that is never saved.
 	int currentStep;
 
 	//! Maximum number of simulation steps

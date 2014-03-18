@@ -38,6 +38,7 @@ void Simulator::simulate()
     network->setup(m_sim_info.epochDuration, m_sim_info.maxSteps);
     
     // Main simulation loop - execute maxGrowthSteps
+    // Shouldn't currentStep be an unsigned long?
     for (int currentStep = 1; currentStep <= m_sim_info.maxSteps; currentStep++) {
 
         DEBUG(cout << endl << endl;)
