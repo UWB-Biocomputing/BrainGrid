@@ -50,7 +50,7 @@ class Network
 {
     public:
         //! The constructor for Network.
-        Network(Model *model, SimulationInfo &sim_info);
+        Network(Model *model, SimulationInfo *sim_info);
         ~Network();
 
         //! Frees dynamically allocated memory associated with the maps.
@@ -63,7 +63,7 @@ class Network
         void saveState(ostream& os);
 
         //! Write the simulation memory image to an ostream
-        void writeSimMemory(BGFLOAT simulation_step, ostream& os);
+        void writeSimMemory(ostream& os);
 
         //! Read the simulation memory image from an istream
         void readSimMemory(istream& is);
@@ -99,7 +99,7 @@ class Network
 
     private:
         // Struct that holds information about a simulation
-        SimulationInfo m_sim_info;
+        SimulationInfo *m_sim_info;
     
         Network(); // DOES THIS NEED TO BE DEFINED?
 };

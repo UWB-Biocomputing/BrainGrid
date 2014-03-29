@@ -26,7 +26,7 @@ class Simulator
 {
     public:
 
-	 Simulator(Network *network, const SimulationInfo& sim_info);
+	 Simulator(Network *network, SimulationInfo *sim_info);
         /** Destructor */
         virtual ~Simulator() = 0;
 
@@ -72,7 +72,7 @@ class Simulator
         /**
          * Parameters for the simulation.
          */
-        SimulationInfo m_sim_info;
+        SimulationInfo *m_sim_info;
 };
 
 #endif /* _SIMULATOR_H_ */

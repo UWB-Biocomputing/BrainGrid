@@ -15,7 +15,7 @@
 class SingleThreadedSim : public Simulator {
 
 public:
-	SingleThreadedSim(Network *network, const SimulationInfo& sim_info);
+	SingleThreadedSim(Network *network, SimulationInfo *sim_info);
 	//virtual ~SingleThreadedSim() ; 
 };
 

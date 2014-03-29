@@ -71,13 +71,11 @@ struct SimulationInfo
 	int totalNeurons;
 
 	//! Current simulation step
-  	//  Not clear if this is actually used, but probably should be.
-	// Main loop in simulator uses local signed stepCount that is never saved.
+	// Main loop in simulator modifies this, and is being used by the LIFModel::saveMemory methods.
+	// Those methods are not currently functional.
 	int currentStep;
 
 	//! Maximum number of simulation steps
-	// Not clear what this is, but it is being used by the Simulator.writeMemory methods
-	// Those methods are not currently functional.
 	int maxSteps; // TODO: delete
 
 	//! The length of each step in simulation time

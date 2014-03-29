@@ -9,10 +9,10 @@ public:
 	LIFSingleThreadedModel();
 	~LIFSingleThreadedModel();
 
-	void advance(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
-	void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
-	void cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info);
-	void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const;
+	void advance(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
+	void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
+	void cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info);
+	void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo *sim_info) const;
 
 	/* -----------------
 	* # Helper Functions
@@ -35,7 +35,7 @@ public:
 	// -----------------------
 
 	// Update the state of all neurons for a time step
-	void advanceNeurons(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
+	void advanceNeurons(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 	// Helper for #advanceNeuron. Updates state of a single neuron.
 	void advanceNeuron(AllNeurons& neurons, const int index);
 	// Initiates a firing of a neuron to connected neurons
@@ -54,18 +54,18 @@ public:
 	// --------------------
 
 	// TODO
-	void updateHistory(int currentStep, BGFLOAT epochDuration, AllNeurons &neurons);
+	void updateHistory(int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info);
 	// TODO
 	void updateFrontiers(const int num_neurons);
 	// TODO
 	void updateOverlap(BGFLOAT num_neurons);
 	// TODO
-	void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
+	void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 
 	// TODO
-	void getSpikeCounts(const AllNeurons &neurons, int *spikeCounts);
+	void getSpikeCounts(const AllNeurons &neurons, int *spikeCounts, const SimulationInfo *sim_info);
 	// TODO
-	void clearSpikeCounts(AllNeurons &neurons);
+	void clearSpikeCounts(AllNeurons &neurons, const SimulationInfo *sim_info);
 
 	// TODO
 	void eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);

@@ -12,7 +12,7 @@
 /*
 * Constructor
 */
-Simulator::Simulator(Network *network, const SimulationInfo& sim_info) : network(network), m_sim_info(sim_info) 
+Simulator::Simulator(Network *network, SimulationInfo *sim_info) : network(network), m_sim_info(sim_info)
 {
 }
 
@@ -35,15 +35,18 @@ Simulator::~Simulator()
 void Simulator::simulate()
 {
     DEBUG(cout << "Setup simulation." << endl;);
-    network->setup(m_sim_info.epochDuration, m_sim_info.maxSteps);
+    network->setup(m_sim_info->epochDuration, m_sim_info->maxSteps);
     
     // Main simulation loop - execute maxGrowthSteps
     // Shouldn't currentStep be an unsigned long?
-    for (int currentStep = 1; currentStep <= m_sim_info.maxSteps; currentStep++) {
+    for (int currentStep = 1; currentStep <= m_sim_info->maxSteps; currentStep++) {
 
         DEBUG(cout << endl << endl;)
         DEBUG(cout << "Performing simulation number " << currentStep << endl;)
         DEBUG(cout << "Begin network state:" << endl;)
+
+        // Init SimulationInfo parameters
+        m_sim_info->currentStep = currentStep;
 
         // Advance simulation to next growth cycle
         advanceUntilGrowth(currentStep);
@@ -76,7 +79,7 @@ void Simulator::simulate()
     }
 
     // Tell network to clean-up and run any post-simulation logic.
-    network->finish(m_sim_info.epochDuration, m_sim_info.maxSteps);
+    network->finish(m_sim_info->epochDuration, m_sim_info->maxSteps);
 }
 
 /**
@@ -90,7 +93,7 @@ void Simulator::advanceUntilGrowth(const int currentStep)
     uint64_t count = 0;
     // Compute step number at end of this simulation epoch
     uint64_t endStep = g_simulationStep
-            + static_cast<uint64_t>(m_sim_info.epochDuration / m_sim_info.deltaT);
+            + static_cast<uint64_t>(m_sim_info->epochDuration / m_sim_info->deltaT);
 
     DEBUG_MID(network->logSimStep();) // Generic model debug call
 
@@ -99,9 +102,9 @@ void Simulator::advanceUntilGrowth(const int currentStep)
 		  // Output status once every 10,000 steps
             if (count % 10000 == 0)
             {
-                cout << currentStep << "/" << m_sim_info.maxSteps
+                cout << currentStep << "/" << m_sim_info->maxSteps
                      << " simulating time: "
-                     << g_simulationStep * m_sim_info.deltaT << endl;
+                     << g_simulationStep * m_sim_info->deltaT << endl;
                 count = 0;
             }
             count++;
@@ -133,12 +136,12 @@ void Simulator::saveState(ostream &state_out) const
 
     // write time between growth cycles
     state_out << "   <Matrix name=\"Tsim\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
-    state_out << "   " << m_sim_info.epochDuration << endl;
+    state_out << "   " << m_sim_info->epochDuration << endl;
     state_out << "</Matrix>" << endl;
 
     // write simulation end time
     state_out << "   <Matrix name=\"simulationEndTime\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
-    state_out << "   " << g_simulationStep * m_sim_info.deltaT << endl;
+    state_out << "   " << g_simulationStep * m_sim_info->deltaT << endl;
     state_out << "</Matrix>" << endl;
     state_out << "</SimState>" << endl;
 }
@@ -163,5 +166,5 @@ void Simulator::readMemory(istream &memory_in)
 */
 void Simulator::saveMemory(ostream &memory_out) const
 {
-    network->writeSimMemory(m_sim_info.maxSteps, memory_out);
+    network->writeSimMemory(memory_out);
 }

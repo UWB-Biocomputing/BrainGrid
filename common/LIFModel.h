@@ -62,11 +62,11 @@ class LIFModel : public Model, TiXmlVisitor
 
         bool readParameters(TiXmlElement *source);
         void printParameters(ostream &output) const;
-        void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info);
-        void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, BGFLOAT simulation_step);
-        void saveState(ostream& output, const AllNeurons &neurons,  const SimulationInfo &sim_info);
-        void createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_info);
-        void setupSim(const int num_neurons, const SimulationInfo &sim_info);
+        void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
+        void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
+        void saveState(ostream& output, const AllNeurons &neurons,  const SimulationInfo *sim_info);
+        void createAllNeurons(AllNeurons &neurons, const SimulationInfo *sim_info);
+        void setupSim(const SimulationInfo *sim_info);
 
     protected:
 
@@ -114,7 +114,7 @@ class LIFModel : public Model, TiXmlVisitor
         // ------------
 
         // TODO
-        void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo &sim_info);
+        void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info);
 
         // # Create All Neurons
         // --------------------

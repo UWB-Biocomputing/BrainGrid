@@ -65,17 +65,17 @@ class Model {
         /**
          * TODO(derek) comment.
          */
-        virtual void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info) =0;
+        virtual void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info) =0;
 
         /**
          * TODO(derek) comment.
          */
-        virtual void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, BGFLOAT simulation_step) =0;
+        virtual void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info) =0;
 
         /**
          * TODO(derek) comment.
          */
-        virtual void saveState(ostream& output, const AllNeurons &neurons, const SimulationInfo &sim_info) =0;
+        virtual void saveState(ostream& output, const AllNeurons &neurons, const SimulationInfo *sim_info) =0;
 
         /* ----------------
          * Network Creation
@@ -88,7 +88,7 @@ class Model {
          * @param neurons - collection of neurons to populate.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void createAllNeurons(AllNeurons &neurons, const SimulationInfo &sim_info) =0;
+        virtual void createAllNeurons(AllNeurons &neurons, const SimulationInfo *sim_info) =0;
 
         /* --------------------------
          * Network Simulation Methods
@@ -101,7 +101,7 @@ class Model {
          * @param num_neurons - count of neurons in network
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void setupSim(const int num_neurons, const SimulationInfo &sim_info) =0;
+        virtual void setupSim(const SimulationInfo *sim_info) =0;
 
         /**
          * Advances network state one simulation step.
@@ -110,7 +110,7 @@ class Model {
          * @param synapses - collection of connections between neurons in network.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info) =0;
+        virtual void advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info) =0;
 
         /**
          * Modifies connections between neurons based on current state of the network and behavior
@@ -121,14 +121,14 @@ class Model {
          * @param synapses - collection of connections between neurons in network.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo &sim_info) =0;
+        virtual void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info) =0;
 
         /**
          * Performs any finalization tasks on network following a simulation.
          * @param neurons - collection of neurons in network
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void cleanupSim(AllNeurons &neurons, SimulationInfo &sim_info) =0;
+        virtual void cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info) =0;
 
         /**
          * Prints debug information about the current state of the network.
@@ -137,7 +137,7 @@ class Model {
          * @param synapses - collection of connections between neurons in network.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo &sim_info) const =0;
+        virtual void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo *sim_info) const =0;
 };
 
 #endif

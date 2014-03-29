@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
             maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed);
 
     // create the network
-    Network network(model, si);
+    Network network(model, &si);
 
     time_t start_time, end_time;
     time(&start_time);
@@ -121,11 +121,11 @@ int main(int argc, char* argv[]) {
 	//simulator = &test;
 
 	#if defined(USE_GPU)
-	simulator = new SingleThreadedSim(&network, si);
+	simulator = new SingleThreadedSim(&network, &si);
 	#elif defined(USE_OMP)
-	simulator = new SingleThreadedSim(&network, si);
+	simulator = new SingleThreadedSim(&network, &si);
 	#else
-   	 simulator = new SingleThreadedSim(&network, si);
+   	 simulator = new SingleThreadedSim(&network, &si);
 	#endif
 
 	

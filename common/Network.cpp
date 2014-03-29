@@ -11,14 +11,14 @@
 /** 
  *  The constructor for Network.
  */
-Network::Network(Model *model, SimulationInfo &simInfo) :
+Network::Network(Model *model, SimulationInfo *simInfo) :
     m_model(model),
-    neurons(simInfo.totalNeurons),
-    synapses(simInfo.totalNeurons,simInfo.maxSynapsesPerNeuron),
+    neurons(simInfo->totalNeurons),
+    synapses(simInfo->totalNeurons,simInfo->maxSynapsesPerNeuron),
     m_summationMap(NULL),
     m_sim_info(simInfo)
 {
-    cout << "Neuron count: " << simInfo.totalNeurons << endl;
+    cout << "Neuron count: " << simInfo->totalNeurons << endl;
     g_simulationStep = 0;
     cout << "Initializing neurons in network." << endl;
     m_model->createAllNeurons(neurons, m_sim_info);
@@ -40,7 +40,7 @@ Network::~Network()
 void Network::setup(BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps)
 {
 
-    m_model->setupSim(neurons.size, m_sim_info);
+    m_model->setupSim(m_sim_info);
 }
 
 /**
@@ -100,21 +100,21 @@ void Network::reset()
 
     freeResources();
 
-    neurons = AllNeurons(m_sim_info.totalNeurons);
-    synapses = AllSynapses(m_sim_info.totalNeurons, m_sim_info.maxSynapsesPerNeuron);
+    neurons = AllNeurons(m_sim_info->totalNeurons);
+    synapses = AllSynapses(m_sim_info->totalNeurons, m_sim_info->maxSynapsesPerNeuron);
 
     // Reset global simulation Step to 0
     g_simulationStep = 0;
 
-    m_summationMap = new BGFLOAT[m_sim_info.totalNeurons];
+    m_summationMap = new BGFLOAT[m_sim_info->totalNeurons];
 
     // initialize maps
-    for (int i = 0; i < m_sim_info.totalNeurons; i++)
+    for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
         m_summationMap[i] = 0;
     }
 
-    m_sim_info.pSummationMap = m_summationMap;
+    m_sim_info->pSummationMap = m_summationMap;
 
     DEBUG(cout << "\nExiting Network::reset()";)
 }
@@ -134,10 +134,10 @@ void Network::saveState(ostream& os)
  *  @param  os  yhe filestream to write.
  *  This needs to be debugged and verified to be working.
  */
-void Network::writeSimMemory(BGFLOAT simulation_step, ostream& os)
+void Network::writeSimMemory(ostream& os)
 {
 	cerr << "Network::writeSimMemory was called. " << endl;
-    m_model->saveMemory(os, neurons, synapses, simulation_step);
+    m_model->saveMemory(os, neurons, synapses, m_sim_info);
 }
 
 /**
@@ -147,7 +147,6 @@ void Network::writeSimMemory(BGFLOAT simulation_step, ostream& os)
 void Network::readSimMemory(istream& is)
 {
     // read the neuron data
-    is >> neurons.size;
-    assert(neurons.size == m_sim_info.totalNeurons);
+    is >> m_sim_info->totalNeurons;
     m_model->loadMemory(is, neurons, synapses, m_sim_info);
 }
