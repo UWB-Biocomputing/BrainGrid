@@ -23,13 +23,13 @@ public:
 	// -------------
 
 	// TODO
-	bool updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+	bool updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT);
 
 	// # Create All Neurons
 	// --------------------
 
 	// TODO
-	void updateNeuron(AllNeurons &neurons, int neuron_index);
+	void updateNeuron(AllNeurons &neurons, int neuron_index, const BGFLOAT deltaT);
 
 	// # Advance Network/Model
 	// -----------------------
@@ -37,16 +37,16 @@ public:
 	// Update the state of all neurons for a time step
 	void advanceNeurons(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 	// Helper for #advanceNeuron. Updates state of a single neuron.
-	void advanceNeuron(AllNeurons& neurons, const int index);
+	void advanceNeuron(AllNeurons& neurons, const int index, const BGFLOAT deltaT);
 	// Initiates a firing of a neuron to connected neurons
-	void fire(AllNeurons &neurons, const int index) const;
+	void fire(AllNeurons &neurons, const int index, const BGFLOAT deltaT) const;
 	// TODO
 	void preSpikeHit(AllSynapses &synapses, const int neuron_index, const int synapse_index);
 
 	// Update the state of all synapses for a time step
-	void advanceSynapses(const int num_neurons, AllSynapses &synapses);
+	void advanceSynapses(const int num_neurons, AllSynapses &synapses, const BGFLOAT deltaT);
 	// Helper for #advanceSynapses. Updates state of a single synapse.
-	void advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+	void advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT);
 	// TODO
 	bool isSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index);
 
@@ -70,9 +70,9 @@ public:
 	// TODO
 	void eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
 	// TODO
-	void addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, BGFLOAT deltaT);
+	void addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, const BGFLOAT deltaT);
 	// TODO
-	void createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT* sp, BGFLOAT deltaT, synapseType type);
+	void createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
 
 	// -----------------------------------------------------------------------------------------
 	// # Generic Functions for handling synapse types

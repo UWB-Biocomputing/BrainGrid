@@ -94,13 +94,13 @@ class LIFModel : public Model, TiXmlVisitor
         // Deserialize a neuron from some input source.
         void readNeuron(istream &input, AllNeurons &neurons, const int index);
         // Deserialize a synapse from some input source.
-        void readSynapse(istream &input, AllSynapses &synapses, const int neuron_index, const int synapse_index);
+        void readSynapse(istream &input, AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT);
         // TODO
         void initSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index);
         // TODO
-        void resetSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+        void resetSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT);
 	 // TODO
-	 virtual bool updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index) = 0;
+	 virtual bool updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT) = 0;
 
         // # Save Memory
         // -------------
@@ -126,7 +126,7 @@ class LIFModel : public Model, TiXmlVisitor
         // TODO
         void setNeuronDefaults(AllNeurons &neurons, const int index);
         // TODO
-        virtual void updateNeuron(AllNeurons &neurons, int neuron_index) = 0;
+        virtual void updateNeuron(AllNeurons &neurons, int neuron_index, const BGFLOAT deltaT) = 0;
 
         // -----------------------------------------------------------------------------------------
         // # Generic Functions for handling synapse types

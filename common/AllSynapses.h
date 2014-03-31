@@ -74,19 +74,6 @@ struct AllSynapses
          */
         Coordinate **synapseCoord;
 
-        /*! The time step size.
-	  *
-         *  Why isn't this just the global step size?
-         *  Usage:
-         *  LIFSingleThreadedModel::createSynapse()	Modified
-    	 *  LIFSingleThreadedModel::cleanupSim()	Accessed (Sym Info?)
-    	 *  LIFSingleThreadedModel::updateDecay()	Modified
-         *  LIFSingleThreadedModel::advanceSynapse()	Modified
-         *  GpuSim_Struct::createSynapse()              Modified
-         *  GpuSim_Struct::advanceSynapsesDevice()      Accessed
-         */         
-        BGFLOAT **deltaT;
-
         /*! The post-synaptic response is the result of whatever computation 
          *  is going on in the synapse.
          *  

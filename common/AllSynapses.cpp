@@ -8,7 +8,6 @@ AllSynapses::AllSynapses() :
     W = NULL;
     summationPoint = NULL;
     synapseCoord = NULL;
-    deltaT = NULL;
     psr = NULL;
     decay = NULL;
     total_delay = NULL;
@@ -35,7 +34,6 @@ AllSynapses::AllSynapses(const int num_neurons, const int max_synapses) :
     W = new BGFLOAT*[num_neurons];
     summationPoint = new BGFLOAT**[num_neurons];
     synapseCoord = new Coordinate*[num_neurons];
-    deltaT = new BGFLOAT*[num_neurons];
     psr = new BGFLOAT*[num_neurons];
     decay = new BGFLOAT*[num_neurons];
     total_delay = new int*[num_neurons];
@@ -58,7 +56,6 @@ AllSynapses::AllSynapses(const int num_neurons, const int max_synapses) :
         W[i] = new BGFLOAT[max_synapses];
         summationPoint[i] = new BGFLOAT*[max_synapses];
         synapseCoord[i] = new Coordinate[max_synapses];
-        deltaT[i] = new BGFLOAT[max_synapses];
         psr[i] = new BGFLOAT[max_synapses];
         decay[i] = new BGFLOAT[max_synapses];
         total_delay[i] = new int[max_synapses];
@@ -102,7 +99,6 @@ AllSynapses::~AllSynapses()
         delete[] W[i];
         delete[] summationPoint[i];
         delete[] synapseCoord[i];
-        delete[] deltaT[i];
         delete[] psr[i];
         delete[] decay[i];
         delete[] total_delay[i];
@@ -124,7 +120,6 @@ AllSynapses::~AllSynapses()
     delete[] W;
     delete[] summationPoint;
     delete[] synapseCoord;
-    delete[] deltaT;
     delete[] psr;
     delete[] decay;
     delete[] total_delay;
@@ -146,7 +141,6 @@ AllSynapses::~AllSynapses()
     W = NULL;
     summationPoint = NULL;
     synapseCoord = NULL;
-    deltaT = NULL;
     psr = NULL;
     decay = NULL;
     total_delay = NULL;

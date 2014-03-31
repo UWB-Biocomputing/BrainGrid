@@ -17,7 +17,6 @@ AllNeurons::AllNeurons() : size(0)
     Vreset = NULL;
     Vrest = NULL;
     Vthresh = NULL;
-    deltaT = NULL;
     hasFired = NULL;
     nStepsInRefr = NULL;
     neuron_type_map = NULL;
@@ -47,7 +46,6 @@ AllNeurons::AllNeurons(const int size) :
     Vreset = new BGFLOAT[size];
     Vrest = new BGFLOAT[size];
     Vthresh = new BGFLOAT[size];
-    deltaT = new BGFLOAT[size];
     hasFired = new bool[size];
     nStepsInRefr = new int[size];
     neuron_type_map = new neuronType[size];
@@ -88,7 +86,6 @@ AllNeurons::~AllNeurons()
     delete[] Vreset;
     delete[] Vrest;
     delete[] Vthresh;
-    delete[] deltaT;
     delete[] hasFired;
     delete[] nStepsInRefr;
     delete[] neuron_type_map;
@@ -113,7 +110,6 @@ AllNeurons::~AllNeurons()
     Vreset = NULL;
     Vrest = NULL;
     Vthresh = NULL;
-    deltaT = NULL;
     hasFired = NULL;
     nStepsInRefr = NULL;
     neuron_type_map = NULL;

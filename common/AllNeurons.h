@@ -70,15 +70,6 @@ struct AllNeurons
          *  GpuSim_struct.cu::NOT USED
          */
         BGFLOAT *Vinit;
-		
-        /*! The simulation time step size.
-         *  
-         *  Usage:
-		 *  LIFSingleThreadedModel::updateNeuron()			Accessed
-         *  LIFSingleThreadedModel::fire()					Accessed
-		 *	GpuSim_struct.cu::advanceNeuronsDevice()		Accessed
-         */
-        BGFLOAT *deltaT;
 
         /*! The membrane capacitance \f$C_m\f$ [range=(0,1); units=F;]
          *  Used to initialize Tau (no use after that)

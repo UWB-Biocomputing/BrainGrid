@@ -26,7 +26,7 @@ LIFSingleThreadedModel::~LIFSingleThreadedModel()
 void LIFSingleThreadedModel::advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info)
 {
     advanceNeurons(neurons, synapses, sim_info);
-    advanceSynapses(sim_info->totalNeurons, synapses);
+    advanceSynapses(sim_info->totalNeurons, synapses, sim_info->deltaT);
 }
 
 /**
@@ -138,11 +138,11 @@ void LIFSingleThreadedModel::logSimStep(const AllNeurons &neurons, const AllSyna
 *  @param  synapses    synapse list to find the indexed synapse from.
 *  @param  neuron_index    index of the neuron that the synapse belongs to.
 *  @param  synapse_index   index of the synapse to set.
+*  @param  deltaT  inner simulation step duration
 */
-bool LIFSingleThreadedModel::updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index)
+bool LIFSingleThreadedModel::updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT)
 {
     BGFLOAT &tau = synapses.tau[neuron_index][synapse_index];
-    BGFLOAT &deltaT = synapses.deltaT[neuron_index][synapse_index];
     BGFLOAT &decay = synapses.decay[neuron_index][synapse_index];
 
     if (tau > 0) {
@@ -156,15 +156,15 @@ bool LIFSingleThreadedModel::updateDecay(AllSynapses &synapses, const int neuron
  *  Updates the Neuron at the indexed location.
  *  @param  synapses    synapse list to find the indexed synapse from.
  *  @param  neuron_index    index of the Neuron that the synapse belongs to.
+ *  @param  deltaT  inner simulation step duration
  */
-void LIFSingleThreadedModel::updateNeuron(AllNeurons &neurons, int neuron_index)
+void LIFSingleThreadedModel::updateNeuron(AllNeurons &neurons, int neuron_index, const BGFLOAT deltaT)
 {
 	BGFLOAT &Vm = neurons.Vm[neuron_index];
 	BGFLOAT &Vinit = neurons.Vinit[neuron_index];
     BGFLOAT &Tau = neurons.Tau[neuron_index];
     BGFLOAT &C1 = neurons.C1[neuron_index];
     BGFLOAT &C2 = neurons.C2[neuron_index];
-    BGFLOAT &deltaT = neurons.deltaT[neuron_index];
     BGFLOAT &Rm = neurons.Rm[neuron_index];
     BGFLOAT &I0 = neurons.I0[neuron_index];
     BGFLOAT &Iinject = neurons.Iinject[neuron_index];
@@ -199,7 +199,7 @@ void LIFSingleThreadedModel::advanceNeurons(AllNeurons &neurons, AllSynapses &sy
     // For each neuron in the network
     for (int i = sim_info->totalNeurons - 1; i >= 0; --i) {
         // advance neurons
-        advanceNeuron(neurons, i);
+        advanceNeuron(neurons, i, sim_info->deltaT);
 
         // notify outgoing synapses if neuron has fired
         if (neurons.hasFired[i]) {
@@ -215,9 +215,9 @@ void LIFSingleThreadedModel::advanceNeurons(AllNeurons &neurons, AllSynapses &sy
 
 #ifdef DUMP_VOLTAGES
     // ouput a row with every voltage level for each time step
-    cout << g_simulationStep * psi->deltaT;
+    cout << g_simulationStep * sim_info->deltaT;
 
-    for (int i = 0; i < psi->cNeurons; i++) {
+    for (int i = 0; i < sim_info->totalNeurons; i++) {
         cout << "\t i: " << i << " " << m_neuronList[i].toStringVm();
     }
     
@@ -229,8 +229,9 @@ void LIFSingleThreadedModel::advanceNeurons(AllNeurons &neurons, AllSynapses &sy
  *  Update the indexed Neuron.
  *  @param  neurons the Neuron list to search from.
  *  @param  index   index of the Neuron to update.
+ *  @param  deltaT  inner simulation step duration
  */
-void LIFSingleThreadedModel::advanceNeuron(AllNeurons &neurons, const int index)
+void LIFSingleThreadedModel::advanceNeuron(AllNeurons &neurons, const int index, const BGFLOAT deltaT)
 {
     BGFLOAT &Vm = neurons.Vm[index];
     BGFLOAT &Vthresh = neurons.Vthresh[index];
@@ -246,7 +247,7 @@ void LIFSingleThreadedModel::advanceNeuron(AllNeurons &neurons, const int index)
         --nStepsInRefr;
     } else if (Vm >= Vthresh) {
         // should it fire?
-        fire(neurons, index);
+        fire(neurons, index, deltaT);
     } else {
         summationPoint += I0; // add IO
         // add noise
@@ -303,8 +304,9 @@ void LIFSingleThreadedModel::preSpikeHit(AllSynapses &synapses, const int neuron
  *  Fire the selected Neuron and calculate the result.
  *  @param  neurons the Neuron list to search from.
  *  @param  index   index of the Neuron to update.
+ *  @param  deltaT  inner simulation step duration
  */
-void LIFSingleThreadedModel::fire(AllNeurons &neurons, const int index) const
+void LIFSingleThreadedModel::fire(AllNeurons &neurons, const int index, const BGFLOAT deltaT) const
 {
     // Note that the neuron has fired!
     neurons.hasFired[index] = true;
@@ -319,7 +321,7 @@ void LIFSingleThreadedModel::fire(AllNeurons &neurons, const int index) const
     neurons.totalSpikeCount[index]++;
 
     // calculate the number of steps in the absolute refractory period
-    neurons.nStepsInRefr[index] = static_cast<int> ( neurons.Trefract[index] / neurons.deltaT[index] + 0.5 );
+    neurons.nStepsInRefr[index] = static_cast<int> ( neurons.Trefract[index] / deltaT + 0.5 );
 
     // reset to 'Vreset'
     neurons.Vm[index] = neurons.Vreset[index];
@@ -329,13 +331,14 @@ void LIFSingleThreadedModel::fire(AllNeurons &neurons, const int index) const
  *  Advance all the Synapses in the simulation.
  *  @param  num_neurons number of neurons in the simulation to run.
  *  @param  synapses    list of Synapses to update.
+ *  @param  deltaT      inner simulation step duration
  */
-void LIFSingleThreadedModel::advanceSynapses(const int num_neurons, AllSynapses &synapses)
+void LIFSingleThreadedModel::advanceSynapses(const int num_neurons, AllSynapses &synapses, const BGFLOAT deltaT)
 {
     for (int i = num_neurons - 1; i >= 0; --i) {
         for (int z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
             // Advance Synapse
-            advanceSynapse(synapses, i, z);
+            advanceSynapse(synapses, i, z, deltaT);
         }
     }
 }
@@ -345,11 +348,11 @@ void LIFSingleThreadedModel::advanceSynapses(const int num_neurons, AllSynapses 
  *  @param  synapses    list of the Synapses to advance.
  *  @param  neuron_index    index of the Neuron that the Synapse connects to.
  *  @param  synapse_index   index of the Synapse to connect to.
+ *  @param  deltaT   inner simulation step duration
  */
-void LIFSingleThreadedModel::advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index)
+void LIFSingleThreadedModel::advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT)
 {
     uint64_t &lastSpike = synapses.lastSpike[neuron_index][synapse_index];
-    BGFLOAT &deltaT = synapses.deltaT[neuron_index][synapse_index];
     BGFLOAT &r = synapses.r[neuron_index][synapse_index];
     BGFLOAT &u = synapses.u[neuron_index][synapse_index];
     BGFLOAT &D = synapses.D[neuron_index][synapse_index];
@@ -652,9 +655,9 @@ void LIFSingleThreadedModel::eraseSynapse(AllSynapses &synapses, const int neuro
  *  @param  source  coordinates of the source Neuron.
  *  @param  dest    coordinates of the destination Neuron.
  *  @param  sum_point   TODO
- *  @param  deltaT  TODO
+ *  @param deltaT   inner simulation step duration
  */
-void LIFSingleThreadedModel::addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, BGFLOAT deltaT)
+void LIFSingleThreadedModel::addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, const BGFLOAT deltaT)
 {
     if (synapses.synapse_counts[src_neuron] >= synapses.max_synapses) {
         return; // TODO: ERROR!
@@ -686,7 +689,7 @@ void LIFSingleThreadedModel::addSynapse(AllSynapses &synapses, synapseType type,
  *  @param  deltaT  TODO
  *  @param  type    type of the Synapse to create.
  */
-void LIFSingleThreadedModel::createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT *sum_point, BGFLOAT deltaT, synapseType type)
+void LIFSingleThreadedModel::createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
 
@@ -694,7 +697,6 @@ void LIFSingleThreadedModel::createSynapse(AllSynapses &synapses, const int neur
     synapses.summationPoint[neuron_index][synapse_index] = sum_point;
     synapses.summationCoord[neuron_index][synapse_index] = dest;
     synapses.synapseCoord[neuron_index][synapse_index] = source;
-    synapses.deltaT[neuron_index][synapse_index] = deltaT;
     synapses.W[neuron_index][synapse_index] = 10.0e-9;
     synapses.psr[neuron_index][synapse_index] = 0.0;
     synapses.delayQueue[neuron_index][synapse_index][0] = 0;
