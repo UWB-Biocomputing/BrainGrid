@@ -44,7 +44,7 @@ struct AllNeurons
         /*! If \f$V_m\f$ exceeds \f$V_{thresh}\f$ a spike is emmited. [units=V; range=(-10,100);]
          *  
          *  Usage:
-         *  LIFSingleThreadedModel::advanceNeuron()			Modified
+         *  LIFSingleThreadedModel::advanceNeuron()			Accessed
 		 *	GpuSim_struct.cu::advanceNeuronsDevice()		Accessed
          */
         BGFLOAT *Vthresh;
@@ -66,9 +66,8 @@ struct AllNeurons
         BGFLOAT *Vreset;
 
         /*! The initial condition for \f$V_m\f$ at time \f$t=0\f$. [units=V; range=(-1,1);]
-         *  We think this is used to initialize Vm (and then not used after that)
-         *  Usage:
-         *  NOT USED ANYWHERE
+         *  LIFSingleThreadedModel::updateNeuron()			Accessed
+         *  GpuSim_struct.cu::NOT USED
          */
         BGFLOAT *Vinit;
 		
@@ -143,6 +142,8 @@ struct AllNeurons
         /*! Internal constant for the exponential Euler integration of \f$V_m\f$.
          *  
          *  Usage:
+         *  LIFSingleThreadedModel::updateNeuron()			Modified
+		 *  LIFSingleThreadedModel::advanceNeuron()			Accessed
 		 *	GpuSim_struct.cu::advanceNeuronsDevice()		Accessed
          */
         BGFLOAT *C2;

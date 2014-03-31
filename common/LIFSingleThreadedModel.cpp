@@ -159,6 +159,8 @@ bool LIFSingleThreadedModel::updateDecay(AllSynapses &synapses, const int neuron
  */
 void LIFSingleThreadedModel::updateNeuron(AllNeurons &neurons, int neuron_index)
 {
+	BGFLOAT &Vm = neurons.Vm[neuron_index];
+	BGFLOAT &Vinit = neurons.Vinit[neuron_index];
     BGFLOAT &Tau = neurons.Tau[neuron_index];
     BGFLOAT &C1 = neurons.C1[neuron_index];
     BGFLOAT &C2 = neurons.C2[neuron_index];
@@ -168,6 +170,8 @@ void LIFSingleThreadedModel::updateNeuron(AllNeurons &neurons, int neuron_index)
     BGFLOAT &Iinject = neurons.Iinject[neuron_index];
     BGFLOAT &Vrest = neurons.Vrest[neuron_index];
 
+    Vm = Vinit;
+    /* init consts C1,C2 for exponential Euler integration */
     if (Tau > 0) {
         C1 = exp( -deltaT / Tau );
         C2 = Rm * ( 1 - C1 );
