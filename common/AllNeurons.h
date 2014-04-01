@@ -52,7 +52,7 @@ struct AllNeurons
         /*! The resting membrane voltage. [units=V; range=(-1,1);]
          *  
          *  Usage:
-         *  LIFSingleThreadedModel::updateNeuron()			Accessed
+         *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()			Accessed
 		 *	GpuSim_struct.cu::NOT USED
          */
         BGFLOAT *Vrest;
@@ -66,7 +66,7 @@ struct AllNeurons
         BGFLOAT *Vreset;
 
         /*! The initial condition for \f$V_m\f$ at time \f$t=0\f$. [units=V; range=(-1,1);]
-         *  LIFSingleThreadedModel::updateNeuron()			Accessed
+         *  LIFModel::createAllNeurons()			Accessed
          *  GpuSim_struct.cu::NOT USED
          */
         BGFLOAT *Vinit;
@@ -81,7 +81,7 @@ struct AllNeurons
         /*! The membrane resistance \f$R_m\f$ [units=Ohm; range=(0,1e30)]
          *  
          *  Usage:
-         *  LIFSingleThreadedModel::updateNeuron()			Accessed
+         *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()			Accessed
 		 *	GpuSim_struct.cu::NOT USED
          */
         BGFLOAT *Rm;
@@ -98,7 +98,7 @@ struct AllNeurons
         /*! A constant current to be injected into the LIF neuron. [units=A; range=(-1,1);]
          *  
          *  Usage:
-         *  LIFSingleThreadedModel::updateNeuron()			Accessed
+         *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()			Accessed
 		 *	GpuSim_struct.cu::NOT USED
          */
         BGFLOAT *Iinject;
@@ -125,7 +125,7 @@ struct AllNeurons
         /*! Internal constant for the exponential Euler integration of f$V_m\f$.
          *  
          *  Usage:
-         *  LIFSingleThreadedModel::updateNeuron()			Modified
+         *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()			Modified
 		 *  LIFSingleThreadedModel::advanceNeuron()			Accessed
 		 *	GpuSim_struct.cu::advanceNeuronsDevice()		Accessed
          */
@@ -133,7 +133,7 @@ struct AllNeurons
         /*! Internal constant for the exponential Euler integration of \f$V_m\f$.
          *  
          *  Usage:
-         *  LIFSingleThreadedModel::updateNeuron()			Modified
+         *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()			Modified
 		 *  LIFSingleThreadedModel::advanceNeuron()			Accessed
 		 *	GpuSim_struct.cu::advanceNeuronsDevice()		Accessed
          */
@@ -141,7 +141,7 @@ struct AllNeurons
         /*! Internal constant for the exponential Euler integration of \f$V_m\f$.
          *  
          *  Usage:
-         *  LIFSingleThreadedModel::updateNeuron()			Modified
+         *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()			Modified
 		 *  LIFSingleThreadedModel::advanceNeuron()			Accessed
 		 *	GpuSim_struct.cu::advanceNeuronsDevice()		Accessed
          */
@@ -157,7 +157,7 @@ struct AllNeurons
         /*! The membrane time constant \f$(R_m \cdot C_m)\f$
          *  
          *  Usage:
-         *  LIFSingleThreadedModel::updateNeuron()			Accessed
+         *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()			Accessed
 		 *	GpuSim_struct.cu::NOT USED
          */
         BGFLOAT *Tau;

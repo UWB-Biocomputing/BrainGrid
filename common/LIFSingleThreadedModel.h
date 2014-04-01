@@ -29,7 +29,7 @@ public:
 	// --------------------
 
 	// TODO
-	void updateNeuron(AllNeurons &neurons, int neuron_index, const BGFLOAT deltaT);
+	void initNeuronConstsFromParamValues(AllNeurons &neurons, int neuron_index, const BGFLOAT deltaT);
 
 	// # Advance Network/Model
 	// -----------------------

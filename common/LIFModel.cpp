@@ -624,7 +624,7 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo *sim_i
         neurons.Vinit[neuron_index] = rng.inRange(m_Vinit[0], m_Vinit[1]);
         neurons.Vm[neuron_index] = neurons.Vinit[neuron_index];
 
-        updateNeuron(neurons, neuron_index, sim_info->deltaT);
+        initNeuronConstsFromParamValues(neurons, neuron_index, sim_info->deltaT);
 
         int max_spikes = (int) ((sim_info->epochDuration * m_growth.maxRate * sim_info->maxSteps));
         neurons.spike_history[neuron_index] = new uint64_t[max_spikes];

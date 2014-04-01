@@ -126,7 +126,7 @@ class LIFModel : public Model, TiXmlVisitor
         // TODO
         void setNeuronDefaults(AllNeurons &neurons, const int index);
         // TODO
-        virtual void updateNeuron(AllNeurons &neurons, int neuron_index, const BGFLOAT deltaT) = 0;
+        virtual void initNeuronConstsFromParamValues(AllNeurons &neurons, int neuron_index, const BGFLOAT deltaT) = 0;
 
         // -----------------------------------------------------------------------------------------
         // # Generic Functions for handling synapse types
