@@ -98,17 +98,11 @@ int main(int argc, char* argv[]) {
     /*    verify that params were read correctly */
     DEBUG(printParams();)
 
-// NETWORK MODEL VARIABLES NMV-BEGIN {
-    // calculate the number of inhibitory, excitory, and endogenously active
-    // neurons
-    int numNeurons = poolsize[0] * poolsize[1];
-// } NMV-END
-
-    SimulationInfo si = makeSimulationInfo(poolsize[0], poolsize[1],Tsim, numSims,
+    SimulationInfo simInfo = makeSimulationInfo(poolsize[0], poolsize[1],Tsim, numSims,
             maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed);
 
     // create the network
-    Network network(model, &si);
+    Network network(model, &simInfo);
 
     time_t start_time, end_time;
     time(&start_time);
@@ -121,11 +115,11 @@ int main(int argc, char* argv[]) {
 	//simulator = &test;
 
 	#if defined(USE_GPU)
-	simulator = new SingleThreadedSim(&network, &si);
+	simulator = new SingleThreadedSim(&network, &simInfo);
 	#elif defined(USE_OMP)
-	simulator = new SingleThreadedSim(&network, &si);
+	simulator = new SingleThreadedSim(&network, &simInfo);
 	#else
-   	 simulator = new SingleThreadedSim(&network, &si);
+   	 simulator = new SingleThreadedSim(&network, &simInfo);
 	#endif
 
 	
@@ -150,7 +144,7 @@ int main(int argc, char* argv[]) {
         memory_out.close();
     }
 
-    for(int i = 0; i < rgNormrnd.size(); ++i) {
+    for(unsigned int i = 0; i < rgNormrnd.size(); ++i) {
         delete rgNormrnd[i];
     }
 
@@ -189,27 +183,27 @@ SimulationInfo makeSimulationInfo(int cols, int rows,
         int maxFiringRate, int maxSynapsesPerNeuron, BGFLOAT new_deltaT,
         long seed)
 {
-    SimulationInfo si;
+    SimulationInfo simInfo;
     // Init SimulationInfo parameters
     int max_neurons = cols * rows;
 
-    si.totalNeurons = max_neurons;
-    si.epochDuration = growthEpochDuration;
-    si.maxSteps = (int)maxGrowthSteps;
+    simInfo.totalNeurons = max_neurons;
+    simInfo.epochDuration = growthEpochDuration;
+    simInfo.maxSteps = (int)maxGrowthSteps;
 
     // May be model-dependent
-    si.maxFiringRate = maxFiringRate;
-    si.maxSynapsesPerNeuron = maxSynapsesPerNeuron;
+    simInfo.maxFiringRate = maxFiringRate;
+    simInfo.maxSynapsesPerNeuron = maxSynapsesPerNeuron;
 
 // NETWORK MODEL VARIABLES NMV-BEGIN {
-    si.width = cols;
-    si.height = rows;
+    simInfo.width = cols;
+    simInfo.height = rows;
 // } NMV-END
 
-    si.deltaT = new_deltaT;  // Model Independent
-    si.seed = seed;  // Model Independent
+    simInfo.deltaT = new_deltaT;  // Model Independent
+    simInfo.seed = seed;  // Model Independent
 
-    return si;
+    return simInfo;
 }
 
 /**

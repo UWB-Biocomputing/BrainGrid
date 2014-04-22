@@ -1,8 +1,8 @@
 #include "AllSynapses.h"
 
 AllSynapses::AllSynapses() :
-        count_neurons(0),
-        max_synapses(0)
+        max_synapses(0),
+        count_neurons(0)
 {
     summationCoord = NULL;
     W = NULL;
@@ -27,8 +27,9 @@ AllSynapses::AllSynapses() :
 }
 
 AllSynapses::AllSynapses(const int num_neurons, const int max_synapses) :
-        count_neurons(num_neurons),
-        max_synapses(max_synapses)
+max_synapses(max_synapses),
+count_neurons(num_neurons)
+        
 {
     summationCoord = new Coordinate*[num_neurons];
     W = new BGFLOAT*[num_neurons];

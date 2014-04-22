@@ -29,11 +29,7 @@ typedef BGFLOAT* PBGFLOAT;
 
 
 // Platform Specific (are the typdef's redundant?)
-#ifdef __linux__ 
-typedef unsigned int uint32_t;
-typedef signed int int32_t;
-
-#elif defined __APPLE__
+#if defined __linux__ || defined __unix__ || defined __APPLE__
 typedef unsigned int uint32_t;
 typedef signed int int32_t;
 

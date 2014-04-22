@@ -26,7 +26,7 @@ OPT = g++
 ################################################################################
 CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT -DSTORE_SPIKEHISTORY
 CGPUFLAGS = -DUSE_GPU
-LDFLAGS = -lstdc++ 
+#LDFLAGS = -lstdc++ 
 LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
 
 ################################################################################
