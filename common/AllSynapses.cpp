@@ -51,91 +51,97 @@ AllSynapses::AllSynapses(const int num_neurons, const int max_synapses) :
     in_use = new bool*[num_neurons];
     synapse_counts = new size_t[num_neurons];
 
-    for (int i = 0; i < num_neurons; i++) {
-        summationCoord[i] = new Coordinate[max_synapses];
-        W[i] = new BGFLOAT[max_synapses];
-        summationPoint[i] = new BGFLOAT*[max_synapses];
-        synapseCoord[i] = new Coordinate[max_synapses];
-        psr[i] = new BGFLOAT[max_synapses];
-        decay[i] = new BGFLOAT[max_synapses];
-        total_delay[i] = new int[max_synapses];
-        delayQueue[i] = new uint32_t*[max_synapses];
-        delayIdx[i] = new int[max_synapses];
-        ldelayQueue[i] = new int[max_synapses];
-        type[i] = new synapseType[max_synapses];
-        tau[i] = new BGFLOAT[max_synapses];
-        r[i] = new BGFLOAT[max_synapses];
-        u[i] = new BGFLOAT[max_synapses];
-        D[i] = new BGFLOAT[max_synapses];
-        U[i] = new BGFLOAT[max_synapses];
-        F[i] = new BGFLOAT[max_synapses];
-        lastSpike[i] = new uint64_t[max_synapses];
-        in_use[i] = new bool[max_synapses];
+    if (max_synapses != 0) {
+        for (int i = 0; i < num_neurons; i++) {
+            summationCoord[i] = new Coordinate[max_synapses];
+            W[i] = new BGFLOAT[max_synapses];
+            summationPoint[i] = new BGFLOAT*[max_synapses];
+            synapseCoord[i] = new Coordinate[max_synapses];
+            psr[i] = new BGFLOAT[max_synapses];
+            decay[i] = new BGFLOAT[max_synapses];
+            total_delay[i] = new int[max_synapses];
+            delayQueue[i] = new uint32_t*[max_synapses];
+            delayIdx[i] = new int[max_synapses];
+            ldelayQueue[i] = new int[max_synapses];
+            type[i] = new synapseType[max_synapses];
+            tau[i] = new BGFLOAT[max_synapses];
+            r[i] = new BGFLOAT[max_synapses];
+            u[i] = new BGFLOAT[max_synapses];
+            D[i] = new BGFLOAT[max_synapses];
+            U[i] = new BGFLOAT[max_synapses];
+            F[i] = new BGFLOAT[max_synapses];
+            lastSpike[i] = new uint64_t[max_synapses];
+            in_use[i] = new bool[max_synapses];
 
-        for (int j = 0; j < max_synapses; j++) {
-            summationPoint[i][j] = NULL;
-            delayQueue[i][j] = new uint32_t[1];
-            delayIdx[i][j] = 0;
-            ldelayQueue[i][j] = 0;
-            in_use[i][j] = false;
+            for (int j = 0; j < max_synapses; j++) {
+                summationPoint[i][j] = NULL;
+                delayQueue[i][j] = new uint32_t[1];
+                delayIdx[i][j] = 0;
+                ldelayQueue[i][j] = 0;
+                in_use[i][j] = false;
+            }
+
+            synapse_counts[i] = 0;
         }
-
-        synapse_counts[i] = 0;
     }
 }
 
 AllSynapses::~AllSynapses()
 {
-    for (int i = 0; i < count_neurons; i++) {
-        // Release references to summation points - while held by the synapse, these references are
-        // not owned by the synapse.
-        for (size_t j = 0; j < max_synapses; j++) {
-            summationPoint[i][j] = NULL;
-            delete [] delayQueue[i][j];
-            delayQueue[i][j] = NULL;
+    if (count_neurons != 0) {
+        if (max_synapses != 0) {
+            for (int i = 0; i < count_neurons; i++) {
+                // Release references to summation points - while held by the synapse, these references are
+                // not owned by the synapse.
+                for (size_t j = 0; j < max_synapses; j++) {
+                    summationPoint[i][j] = NULL;
+                    delete [] delayQueue[i][j];
+                    delayQueue[i][j] = NULL;
+                }
+
+                delete[] summationCoord[i];
+                delete[] W[i];
+                delete[] summationPoint[i];
+                delete[] synapseCoord[i];
+                delete[] psr[i];
+                delete[] decay[i];
+                delete[] total_delay[i];
+                delete[] delayQueue[i];
+                delete[] delayIdx[i];
+                delete[] ldelayQueue[i];
+                delete[] type[i];
+                delete[] tau[i];
+                delete[] r[i];
+                delete[] u[i];
+                delete[] D[i];
+                delete[] U[i];
+                delete[] F[i];
+                delete[] lastSpike[i];
+                delete[] in_use[i];
+            }
         }
 
-        delete[] summationCoord[i];
-        delete[] W[i];
-        delete[] summationPoint[i];
-        delete[] synapseCoord[i];
-        delete[] psr[i];
-        delete[] decay[i];
-        delete[] total_delay[i];
-        delete[] delayQueue[i];
-        delete[] delayIdx[i];
-        delete[] ldelayQueue[i];
-        delete[] type[i];
-        delete[] tau[i];
-        delete[] r[i];
-        delete[] u[i];
-        delete[] D[i];
-        delete[] U[i];
-        delete[] F[i];
-        delete[] lastSpike[i];
-        delete[] in_use[i];
+        delete[] summationCoord;
+        delete[] W;
+        delete[] summationPoint;
+        delete[] synapseCoord;
+        delete[] psr;
+        delete[] decay;
+        delete[] total_delay;
+        delete[] delayQueue;
+        delete[] delayIdx;
+        delete[] ldelayQueue;
+        delete[] type;
+        delete[] tau;
+        delete[] r;
+        delete[] u;
+        delete[] D;
+        delete[] U;
+        delete[] F;
+        delete[] lastSpike;
+        delete[] in_use;
+        delete[] synapse_counts;
     }
-
-    delete[] summationCoord;
-    delete[] W;
-    delete[] summationPoint;
-    delete[] synapseCoord;
-    delete[] psr;
-    delete[] decay;
-    delete[] total_delay;
-    delete[] delayQueue;
-    delete[] delayIdx;
-    delete[] ldelayQueue;
-    delete[] type;
-    delete[] tau;
-    delete[] r;
-    delete[] u;
-    delete[] D;
-    delete[] U;
-    delete[] F;
-    delete[] lastSpike;
-    delete[] in_use;
-    delete[] synapse_counts;
 
     summationCoord = NULL;
     W = NULL;

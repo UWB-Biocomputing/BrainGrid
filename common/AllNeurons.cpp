@@ -67,33 +67,35 @@ AllNeurons::AllNeurons(const int size) :
 
 AllNeurons::~AllNeurons()
 {
-    for(int i = 0; i < size; i++) {
-    	delete[] spike_history[i];    
-    }
+    if (size != 0) {
+        for(int i = 0; i < size; i++) {
+    	    delete[] spike_history[i];    
+        }
 
-    delete[] C1;
-    delete[] C2;
-    delete[] Cm;
-    delete[] I0;
-    delete[] Iinject;
-    delete[] Inoise;
-    delete[] Isyn;
-    delete[] Rm;
-    delete[] Tau;
-    delete[] Trefract;
-    delete[] Vinit;
-    delete[] Vm;
-    delete[] Vreset;
-    delete[] Vrest;
-    delete[] Vthresh;
-    delete[] hasFired;
-    delete[] nStepsInRefr;
-    delete[] neuron_type_map;
-    delete[] spikeCount;
-    delete[] totalSpikeCount;
-    delete[] starter_map;
-    delete[] summation_map;
-    delete[] spike_history;
+        delete[] C1;
+        delete[] C2;
+        delete[] Cm;
+        delete[] I0;
+        delete[] Iinject;
+        delete[] Inoise;
+        delete[] Isyn;
+        delete[] Rm;
+        delete[] Tau;
+        delete[] Trefract;
+        delete[] Vinit;
+        delete[] Vm;
+        delete[] Vreset;
+        delete[] Vrest;
+        delete[] Vthresh;
+        delete[] hasFired;
+        delete[] nStepsInRefr;
+        delete[] neuron_type_map;
+        delete[] spikeCount;
+        delete[] totalSpikeCount;
+        delete[] starter_map;
+        delete[] summation_map;
+        delete[] spike_history;
+    }
 
     C1 = NULL;
     C2 = NULL;

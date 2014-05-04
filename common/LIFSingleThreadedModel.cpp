@@ -74,115 +74,11 @@ void LIFSingleThreadedModel::cleanupSim(AllNeurons &neurons, SimulationInfo *sim
 #endif // STORE_SPIKEHISTORY
 }
 
-/**
- *  Log this simulation step.
- *  @param  neurons list of all Neurons
- *  @param  synapses    list of all Synapses
- *  @param  sim_info    SimulationInfo to reference.
- */
-void LIFSingleThreadedModel::logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo *sim_info) const
-{
-    cout << "format:\ntype,radius,firing rate" << endl;
-
-    for (int y = 0; y < sim_info->height; y++) {
-        stringstream ss;
-        ss << fixed;
-        ss.precision(1);
-
-        for (int x = 0; x < sim_info->width; x++) {
-            switch (neurons.neuron_type_map[x + y * sim_info->width]) {
-                case EXC:
-                    if (neurons.starter_map[x + y * sim_info->width])
-                        ss << "s";
-                    else
-                        ss << "e";
-                    break;
-                case INH:
-                    ss << "i";
-                    break;
-                case NTYPE_UNDEF:
-                    assert(false);
-                    break;
-            }
-
-            ss << " " << m_conns->radii[x + y * sim_info->width];
-            ss << " " << m_conns->radii[x + y * sim_info->width];
-
-            if (x + 1 < sim_info->width) {
-                ss.width(2);
-                ss << "|";
-                ss.width(2);
-            }
-        }
-
-        ss << endl;
-
-        for (int i = ss.str().length() - 1; i >= 0; i--) {
-            ss << "_";
-        }
-
-        ss << endl;
-        cout << ss.str();
-    }
-}
-
 /* -----------------
 * # Helper Functions
 * ------------------
 */
 
-
-
-/**
-*  Updates the decay if the synapse selected.
-*  @param  synapses    synapse list to find the indexed synapse from.
-*  @param  neuron_index    index of the neuron that the synapse belongs to.
-*  @param  synapse_index   index of the synapse to set.
-*  @param  deltaT  inner simulation step duration
-*/
-bool LIFSingleThreadedModel::updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT)
-{
-    BGFLOAT &tau = synapses.tau[neuron_index][synapse_index];
-    BGFLOAT &decay = synapses.decay[neuron_index][synapse_index];
-
-    if (tau > 0) {
-        decay = exp( -deltaT / tau );
-        return true;
-    }
-    return false;
-}
-
-/**
- *  Initializes the Neuron constants at the indexed location.
- *  @param  neurons    neuron list to find the indexed neuron from.
- *  @param  neuron_index    index of the Neuron.
- *  @param  deltaT  inner simulation step duration
- */
-void LIFSingleThreadedModel::initNeuronConstsFromParamValues(AllNeurons &neurons, int neuron_index, const BGFLOAT deltaT)
-{
-    BGFLOAT &Tau = neurons.Tau[neuron_index];
-    BGFLOAT &C1 = neurons.C1[neuron_index];
-    BGFLOAT &C2 = neurons.C2[neuron_index];
-    BGFLOAT &Rm = neurons.Rm[neuron_index];
-    BGFLOAT &I0 = neurons.I0[neuron_index];
-    BGFLOAT &Iinject = neurons.Iinject[neuron_index];
-    BGFLOAT &Vrest = neurons.Vrest[neuron_index];
-
-    /* init consts C1,C2 for exponential Euler integration */
-    if (Tau > 0) {
-        C1 = exp( -deltaT / Tau );
-        C2 = Rm * ( 1 - C1 );
-    } else {
-        C1 = 0.0;
-        C2 = Rm;
-    }
-    /* calculate const IO */
-    if (Rm > 0) {
-        I0 = Iinject + Vrest / Rm;
-    }else {
-        assert(false);
-    }
-}
 
 /**
  *  Notify outgoing synapses if neuron has fired.
@@ -226,7 +122,7 @@ void LIFSingleThreadedModel::advanceNeurons(AllNeurons &neurons, AllSynapses &sy
  *  Update the indexed Neuron.
  *  @param  neurons the Neuron list to search from.
  *  @param  index   index of the Neuron to update.
- *  @param  deltaT  inner simulation step duration
+ *  @param  deltaT  inner simulation step duration.
  */
 void LIFSingleThreadedModel::advanceNeuron(AllNeurons &neurons, const int index, const BGFLOAT deltaT)
 {
@@ -427,37 +323,10 @@ bool LIFSingleThreadedModel::isSpikeQueue(AllSynapses &synapses, const int neuro
  */
 void LIFSingleThreadedModel::updateHistory(const int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info)
 {
-    // Calculate growth cycle firing rate for previous period
-    //getSpikeCounts(neurons, m_conns->spikeCounts, sim_info);
-
-    // Calculate growth cycle firing rate for previous period
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        // Calculate firing rate
-        m_conns->rates[i] = neurons.spikeCount[i] / epochDuration;
-        // record firing rate to history matrix
-        m_conns->ratesHistory(currentStep, i) = m_conns->rates[i];
-    }
+    LIFModel::updateHistory(currentStep, epochDuration, neurons, sim_info);
 
     // clear spike count
     clearSpikeCounts(neurons, sim_info);
-
-    // compute neuron radii change and assign new values
-    m_conns->outgrowth = 1.0 - 2.0 / (1.0 + exp((m_growth.epsilon - m_conns->rates / m_growth.maxRate) / m_growth.beta));
-    m_conns->deltaR = epochDuration * m_growth.rho * m_conns->outgrowth;
-    m_conns->radii += m_conns->deltaR;
-
-    // Cap minimum radius size and record radii to history matrix
-    for (int i = 0; i < m_conns->radii.Size(); i++) {
-        // TODO: find out why we cap this here.
-        if (m_conns->radii[i] < m_growth.minRadius) {
-            m_conns->radii[i] = m_growth.minRadius;
-        }
-
-        // record radius to history matrix
-        m_conns->radiiHistory(currentStep, i) = m_conns->radii[i];
-
-        DEBUG_MID(cout << "radii[" << i << ":" << m_conns->radii[i] << "]" << endl;);
-    }
 }
 
 /**
@@ -481,67 +350,6 @@ void LIFSingleThreadedModel::clearSpikeCounts(AllNeurons &neurons, const Simulat
 {
     for (int i = 0; i < sim_info->totalNeurons; i++) {
         neurons.spikeCount[i] = 0;
-    }
-}
-
-/**
- *  Update the distance between frontiers of Neurons.
- *  @param  num_neurons in the simulation to update.
- */
-void LIFSingleThreadedModel::updateFrontiers(const int num_neurons)
-{
-    DEBUG(cout << "Updating distance between frontiers..." << endl;)
-    // Update distance between frontiers
-    for (int unit = 0; unit < num_neurons - 1; unit++) {
-        for (int i = unit + 1; i < num_neurons; i++) {
-            m_conns->delta(unit, i) = m_conns->dist(unit, i) - (m_conns->radii[unit] + m_conns->radii[i]);
-            m_conns->delta(i, unit) = m_conns->delta(unit, i);
-        }
-    }
-}
-
-/**
- *  Update the areas of overlap in between Neurons.
- *  @param  num_neurons number of Neurons to update.
- */
-void LIFSingleThreadedModel::updateOverlap(BGFLOAT num_neurons)
-{
-    DEBUG(cout << "computing areas of overlap" << endl;)
-
-    // Compute areas of overlap; this is only done for overlapping units
-    for (int i = 0; i < num_neurons; i++) {
-        for (int j = 0; j < num_neurons; j++) {
-            m_conns->area(i, j) = 0.0;
-
-            if (m_conns->delta(i, j) < 0) {
-                BGFLOAT lenAB = m_conns->dist(i, j);
-                BGFLOAT r1 = m_conns->radii[i];
-                BGFLOAT r2 = m_conns->radii[j];
-
-                if (lenAB + min(r1, r2) <= max(r1, r2)) {
-                    m_conns->area(i, j) = pi * min(r1, r2) * min(r1, r2); // Completely overlapping unit
-#ifdef LOGFILE
-                    logFile << "Completely overlapping (i, j, r1, r2, area): "
-                            << i << ", " << j << ", " << r1 << ", " << r2 << ", " << *pAarea(i, j) << endl;
-#endif // LOGFILE
-                } else {
-                    // Partially overlapping unit
-                    BGFLOAT lenAB2 = m_conns->dist2(i, j);
-                    BGFLOAT r12 = r1 * r1;
-                    BGFLOAT r22 = r2 * r2;
-
-                    BGFLOAT cosCBA = (r22 + lenAB2 - r12) / (2.0 * r2 * lenAB);
-                    BGFLOAT angCBA = acos(cosCBA);
-                    BGFLOAT angCBD = 2.0 * angCBA;
-
-                    BGFLOAT cosCAB = (r12 + lenAB2 - r22) / (2.0 * r1 * lenAB);
-                    BGFLOAT angCAB = acos(cosCAB);
-                    BGFLOAT angCAD = 2.0 * angCAB;
-
-                    m_conns->area(i, j) = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
-                }
-            }
-        }
     }
 }
 
@@ -816,11 +624,3 @@ int LIFSingleThreadedModel::synSign(const synapseType type)
 
     return 0;
 }
-
-
-
-
-
-
-
-

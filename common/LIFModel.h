@@ -66,7 +66,7 @@ class LIFModel : public Model, TiXmlVisitor
         void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
         void saveState(ostream& output, const AllNeurons &neurons,  const SimulationInfo *sim_info);
         void createAllNeurons(AllNeurons &neurons, const SimulationInfo *sim_info);
-        void setupSim(const SimulationInfo *sim_info);
+        void setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, const AllSynapses &synapses);
 
     protected:
 
@@ -91,6 +91,9 @@ class LIFModel : public Model, TiXmlVisitor
         // # Load Memory
         // -------------
 
+        // TODO
+        bool updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT);
+
         // Deserialize a neuron from some input source.
         void readNeuron(istream &input, AllNeurons &neurons, const int index);
         // Deserialize a synapse from some input source.
@@ -99,9 +102,6 @@ class LIFModel : public Model, TiXmlVisitor
         void initSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index);
         // TODO
         void resetSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT);
-	 // TODO
-	 virtual bool updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT) = 0;
-
         // # Save Memory
         // -------------
 
@@ -112,6 +112,7 @@ class LIFModel : public Model, TiXmlVisitor
 
         // # Save State
         // ------------
+	void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo *sim_info) const;
 
         // TODO
         void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info);
@@ -125,19 +126,24 @@ class LIFModel : public Model, TiXmlVisitor
         void initStarterMap(bool *starter_map, const int num_neurons, const neuronType neuron_type_map[]);
         // TODO
         void setNeuronDefaults(AllNeurons &neurons, const int index);
+        // 
+        void initNeuronConstsFromParamValues(AllNeurons &neurons, int neuron_index, const BGFLOAT deltaT);
+
+        // # Update Connections
+        // --------------------
+                
+	// TODO     
+        void updateHistory(int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info);
         // TODO
-        virtual void initNeuronConstsFromParamValues(AllNeurons &neurons, int neuron_index, const BGFLOAT deltaT) = 0;
+        void updateFrontiers(const int num_neurons);
+        // TODO     
+        void updateOverlap(BGFLOAT num_neurons);
+
 
         // -----------------------------------------------------------------------------------------
         // # Generic Functions for handling synapse types
         // ---------------------------------------------
 
-        // Determines the type of synapse for a synapse at a given location in the network.
-        virtual synapseType synType(AllNeurons &neurons, Coordinate src_coord, Coordinate dest_coord, const int width) = 0;
-        // Determines the type of synapse for a synapse between two neurons.
-        virtual synapseType synType(AllNeurons &neurons, const int src_neuron, const int dest_neuron) = 0;
-        // Determines the direction of the weight for a given synapse type.
-        virtual int synSign(const synapseType t) = 0;
         // Converts the ordinal representation of a synapse type to its enum value.
         synapseType synapseOrdinalToType(const int type_ordinal);
 

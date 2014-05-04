@@ -39,8 +39,7 @@ Network::~Network()
  */
 void Network::setup(BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps)
 {
-
-    m_model->setupSim(m_sim_info);
+    m_model->setupSim(m_sim_info, neurons, synapses);
 }
 
 /**

@@ -98,10 +98,11 @@ class Model {
         /**
          * Set up model state, if anym for a specific simulation run.
          *
-         * @param num_neurons - count of neurons in network
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         * @param neurons  - list of all Neurons.
+         * @param synapses - list of all Synapses.
          */
-        virtual void setupSim(const SimulationInfo *sim_info) =0;
+        virtual void setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, const AllSynapses &synapses) =0;
 
         /**
          * Advances network state one simulation step.

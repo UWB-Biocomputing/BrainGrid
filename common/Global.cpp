@@ -86,25 +86,6 @@ uint64_t g_simulationStep = 0;
 
 //const BGFLOAT g_synapseStrengthAdjustmentConstant = 1.0e-8;
 
-/*		Neuron constants	*/
-const BGFLOAT DEFAULT_Cm = 3e-8;
-const BGFLOAT DEFAULT_Rm = 1e6;
-const BGFLOAT DEFAULT_Vrest = 0.0;
-const BGFLOAT DEFAULT_Trefract = 3e-3;
-const BGFLOAT DEFAULT_Inoise = 0.0;
-const BGFLOAT DEFAULT_Iinject = 0.0;
-const BGFLOAT DEFAULT_Vthresh = -0.04;
-const BGFLOAT DEFAULT_Vreset = -0.06;
-const BGFLOAT DEFAULT_dt = 1e-4;
-const BGFLOAT DEFAULT_InhibTrefract = 2.0e-3;
-const BGFLOAT DEFAULT_ExcitTrefract = 3.0e-3;
-
-
-/*		Synapse constants	*/
-const BGFLOAT DEFAULT_tau = 3e-3;
-const BGFLOAT DEFAULT_U = 0.4;
-const BGFLOAT DEFAULT_delay_weight = 0;
-
 /* 		misc constants		*/
 const BGFLOAT pi = 3.1415926536;
 

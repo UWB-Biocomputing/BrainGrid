@@ -24,7 +24,8 @@ OPT = g++
 ################################################################################
 # Flags
 ################################################################################
-CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT -DSTORE_SPIKEHISTORY
+CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT 
+#CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT -DSTORE_SPIKEHISTORY
 CGPUFLAGS = -DUSE_GPU
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
@@ -33,15 +34,19 @@ LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
 # Objects
 ################################################################################
 
-CUDAOBJS =  $(CUDADIR)/CUDA_LIFModel.o \
-            $(CUDADIR)/LifNeuron_struct.o \
-            $(CUDADIR)/LifSynapse_struct.o \
+#CUDAOBJS =  $(CUDADIR)/CUDA_LIFModel.o \
+
+CUDAOBJS =   \
+	    $(COMMDIR)/LIFGPUModel.o \
+	    $(COMMDIR)/GPUSimulator.o \
+            $(CUDADIR)/LifNeuron_struct_d.o \
+            $(CUDADIR)/DynamicSpikingSynapse_struct_d.o \
             $(CUDADIR)/MersenneTwister_kernel.o \
-            $(CUDADIR)/BGDriver_cuda.o
+            $(CUDADIR)/BGDriver_cuda.o \
+            $(CUDADIR)/Global_cuda.o
 
 LIBOBJS = $(COMMDIR)/AllNeurons.o \
 			$(COMMDIR)/AllSynapses.o \
-			$(COMMDIR)/Global.o \
 			$(COMMDIR)/Simulator.o \
 			$(COMMDIR)/SingleThreadedSim.o \
 			$(COMMDIR)/LIFModel.o \
@@ -49,7 +54,8 @@ LIBOBJS = $(COMMDIR)/AllNeurons.o \
 			$(COMMDIR)/Network.o \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
-			$(COMMDIR)/Util.o
+			$(COMMDIR)/Util.o 
+ 
 		
 MATRIXOBJS = $(MATRIXDIR)/CompleteMatrix.o \
 				$(MATRIXDIR)/Matrix.o \
@@ -60,7 +66,8 @@ PARAMOBJS = $(PARAMDIR)/ParamContainer.o
 		
 RNGOBJS = $(RNGDIR)/Norm.o
 
-SINGLEOBJS = $(MAIN)/BGDriver.o 
+SINGLEOBJS = $(MAIN)/BGDriver.o  \
+			$(COMMDIR)/Global.o 
 
 XMLOBJS = $(XMLDIR)/tinyxml.o \
 			$(XMLDIR)/tinyxmlparser.o \
@@ -73,8 +80,8 @@ XMLOBJS = $(XMLDIR)/tinyxml.o \
 growth: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) 
 	$(LD) -o growth -g $(LDFLAGS) $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) 
 
-growth_cuda:$(LIBOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS)
-	nvcc -o growth_cuda -g -G $(LDFLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(XMLOBJS) $(OTHEROBJS)
+growth_cuda:$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS)
+	nvcc -o growth_cuda -g -G $(LDFLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS)
 
 clean:
 	rm -f $(MAIN)/*.o $(COMMDIR)/*.o $(MATRIXDIR)/*.o $(PARAMDIR)/*.o $(RNGDIR)/*.o $(XMLDIR)/*.o ./growth
@@ -86,21 +93,31 @@ clean:
 
 # CUDA
 # ------------------------------------------------------------------------------
-$(CUDADIR)/MersenneTwister_kernel.o: $(CUDADIR)/MersenneTwister_kernel.cu $(COMMDIR)/Global.h $(CUDADIR)/MersenneTwisterGPU.h
-	nvcc -c -g -G -arch=sm_13 $(CUDADIR)/CUDA_LIFModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -DSTORE_SPIKEHISTORY -o $(CUDADIR)/MersenneTwister_kernel.o
+$(CUDADIR)/MersenneTwister_kernel.o: $(CUDADIR)/MersenneTwister_kernel.cu $(COMMDIR)/Global.h $(CUDADIR)/MersenneTwister.h
 
-$(CUDADIR)/CUDA_LIFModel.o: $(CUDADIR)/CUDA_LIFModel.cu $(COMMDIR)/Global.h $(CUDADIR)/MersenneTwisterGPU.h $(CUDADIR)/LifNeuron_struct.h $(CUDADIR)/DelayIdx.h $(CUDADIR)/LifSynapse_struct.h  $(COMMDIR)/AllNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Model.h 
-	nvcc -c -g -G -arch=sm_13 $(CUDADIR)/CUDA_LIFModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -DSTORE_SPIKEHISTORY -o $(CUDADIR)/CUDA_LIFModel.o
+	nvcc -c -g -arch=sm_20 $(CUDADIR)/MersenneTwister_kernel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/MersenneTwister_kernel.o
 
-$(CUDADIR)/LifNeuron_struct.o: $(CUDADIR)/LifNeuron_struct.cpp $(COMMDIR)/Global.h $(CUDADIR)/LifNeuron_struct.h $(CUDADIR)/LifSynapse_struct.h $(CUDADIR)/DelayIdx.h
+	#nvcc -c -g -G -arch=sm_20 $(CUDADIR)/MersenneTwister_kernel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -DSTORE_SPIKEHISTORY -o $(CUDADIR)/MersenneTwister_kernel.o
 
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(CUDADIR)/LifNeuron_struct.cpp -o $(CUDADIR)/LifNeuron_struct.o
+$(COMMDIR)/LIFGPUModel.o: $(COMMDIR)/LIFGPUModel.cu $(COMMDIR)/Global.h $(COMMDIR)/LIFGPUModel.h $(COMMDIR)/AllNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Model.h 
 
-$(CUDADIR)/LifSynapse_struct.o: $(CUDADIR)/LifSynapse_struct.cpp $(COMMDIR)/Global.h $(CUDADIR)/LifNeuron_struct.h $(CUDADIR)/LifSynapse_struct.h $(CUDADIR)/DelayIdx.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(CUDADIR)/LifSynapse_struct.cpp -o $(CUDADIR)/LifSynapse_struct.o
+	nvcc -c -g -G -arch=sm_20 $(COMMDIR)/LIFGPUModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(COMMDIR)/LIFGPUModel.o
+	#nvcc -c -g -G -arch=sm_20 $(COMMDIR)/LIFGPUModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -DSTORE_SPIKEHISTORY -o $(COMMDIR)/LIFGPUModel.o
+
+$(CUDADIR)/LifNeuron_struct_d.o: $(CUDADIR)/LifNeuron_struct_d.cu $(COMMDIR)/Global.h $(COMMDIR)/LIFGPUModel.h
+	nvcc -c -g -arch=sm_20 $(CUDADIR)/LifNeuron_struct_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/LifNeuron_struct_d.o
+
+$(CUDADIR)/DynamicSpikingSynapse_struct_d.o: $(CUDADIR)/DynamicSpikingSynapse_struct_d.cu $(COMMDIR)/Global.h $(COMMDIR)/LIFGPUModel.h
+	nvcc -c -g -arch=sm_20 $(CUDADIR)/DynamicSpikingSynapse_struct_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/DynamicSpikingSynapse_struct_d.o
 
 $(CUDADIR)/BGDriver_cuda.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/Model.h $(COMMDIR)/AllNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Model.h $(COMMDIR)/Network.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -c $(MAIN)/BGDriver.cpp -o $(CUDADIR)/BGDriver_cuda.o
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -I$(CUDADIR) -c $(MAIN)/BGDriver.cpp -o $(CUDADIR)/BGDriver_cuda.o
+
+$(CUDADIR)/Global_cuda.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/Global.cpp -o $(CUDADIR)/Global_cuda.o
+
+$(CUDADIR)/GPUSimulator.o: $(COMMDIR)/GPUSimulator.cpp $(COMMDIR)/GPUSimulator.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/GPUSimulator.cpp -o $(CUDADIR)/GPUSimulator.o
 
 
 # Library

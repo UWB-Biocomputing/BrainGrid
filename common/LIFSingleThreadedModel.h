@@ -12,7 +12,6 @@ public:
 	void advance(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 	void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 	void cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info);
-	void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo *sim_info) const;
 
 	/* -----------------
 	* # Helper Functions
@@ -22,14 +21,8 @@ public:
 	// # Load Memory
 	// -------------
 
-	// TODO
-	bool updateDecay(AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT);
-
 	// # Create All Neurons
 	// --------------------
-
-	// TODO
-	void initNeuronConstsFromParamValues(AllNeurons &neurons, int neuron_index, const BGFLOAT deltaT);
 
 	// # Advance Network/Model
 	// -----------------------
@@ -55,10 +48,6 @@ public:
 
 	// TODO
 	void updateHistory(int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info);
-	// TODO
-	void updateFrontiers(const int num_neurons);
-	// TODO
-	void updateOverlap(BGFLOAT num_neurons);
 	// TODO
 	void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 

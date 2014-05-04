@@ -93,34 +93,34 @@ enum neuronType { INH = 1, EXC = 2, NTYPE_UNDEF = 0 };
 enum synapseType { II = 0, IE = 1, EI = 2, EE = 3, STYPE_UNDEF = -1 };
 
 //! The default membrane capacitance.
-extern const BGFLOAT DEFAULT_Cm;
+#define DEFAULT_Cm		(3e-8)
 //! The default membrane resistance.
-extern const BGFLOAT DEFAULT_Rm;
+#define DEFAULT_Rm		(1e6)
 //! The default resting voltage.
-extern const BGFLOAT DEFAULT_Vrest;
+#define DEFAULT_Vrest		(0.0)
 //! The default reset voltage.
-extern const BGFLOAT DEFAULT_Vreset;
+#define DEFAULT_Vreset		(-0.06)
 //! The default absolute refractory period.
-extern const BGFLOAT DEFAULT_Trefract;
+#define DEFAULT_Trefract	(3e-3)
 //! The default synaptic noise.
-extern const BGFLOAT DEFAULT_Inoise;
+#define DEFAULT_Inoise		(0.0)
 //! The default injected current.
-extern const BGFLOAT DEFAULT_Iinject;
+#define DEFAULT_Iinject		(0.0)
 //! The default threshold voltage.  If \f$V_m >= V_{thresh}\f$ then the neuron fires.
-extern const BGFLOAT DEFAULT_Vthresh;
+#define DEFAULT_Vthresh		(-0.04)
 //! The default time step size.
-extern const BGFLOAT DEFAULT_dt; // MODEL INDEPENDENT
+#define DEFAULT_dt		(1e-4) // MODEL INDEPENDENT
 //! The default absolute refractory period for inhibitory neurons.
-extern const BGFLOAT DEFAULT_InhibTrefract;
+#define DEFAULT_InhibTrefract	(2.0e-3)
 //! The default absolute refractory period for excitory neurons.
-extern const BGFLOAT DEFAULT_ExcitTrefract;
+#define DEFAULT_ExcitTrefract	(3.0e-3)
 
 //! The default synaptic time constant.
-extern const BGFLOAT DEFAULT_tau;
+#define DEFAULT_tau		(3e-3)
 //! The default synaptic efficiency.
-extern const BGFLOAT DEFAULT_U;
+#define DEFAULT_U		(0.4)
 //! The default synaptic efficiency.
-extern const BGFLOAT DEFAULT_delay_weight; // WHAT IS THIS?
+#define DEFAULT_delay_weight	(0)
 // } NMV-END
 
 //! Converts a 1-d index into a coordinate string.
