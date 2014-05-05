@@ -195,7 +195,8 @@ class LIFModel : public Model, TiXmlVisitor
         // TODO
         BGFLOAT m_new_targetRate;
 
-        // Tracks the number of parameters that have been read by read params - kind of a hack to do error handling for read params
+        // Tracks the number of parameters that have been read by read params -
+        // kind of a hack to do error handling for read params
         int m_read_params;
 
         //! True if a fixed layout has been provided
