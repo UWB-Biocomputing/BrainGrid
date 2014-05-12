@@ -118,32 +118,10 @@ void Simulator::advanceUntilGrowth(const int currentStep)
 
 /**
 * Writes simulation results to an output destination.
-* @param state_out where to write the simulation to.
 */
-void Simulator::saveState(ostream &state_out) const
+void Simulator::saveState() const
 {
-    // (if we are using xml... shouldn't this be an XML object of some sort?).
-
-    // Write XML header information:
-    state_out << "<?xml version=\"1.0\" standalone=\"no\"?>" << endl
-       << "<!-- State output file for the DCT growth modeling-->" << endl;
-    //state_out << version; TODO: version
-
-    // Write the core state information:
-    state_out << "<SimState>" << endl;
-
-    network->saveState(state_out);
-
-    // write time between growth cycles
-    state_out << "   <Matrix name=\"Tsim\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
-    state_out << "   " << m_sim_info->epochDuration << endl;
-    state_out << "</Matrix>" << endl;
-
-    // write simulation end time
-    state_out << "   <Matrix name=\"simulationEndTime\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
-    state_out << "   " << g_simulationStep * m_sim_info->deltaT << endl;
-    state_out << "</Matrix>" << endl;
-    state_out << "</SimState>" << endl;
+    network->saveState();
 }
 
 /**

@@ -20,6 +20,7 @@ using namespace std;
 #include "AllNeurons.h"
 #include "AllSynapses.h"
 #include "SimulationInfo.h"
+#include "IRecorder.h"
 
 /**
  * Neural Network Model interface.
@@ -75,7 +76,7 @@ class Model {
         /**
          * TODO(derek) comment.
          */
-        virtual void saveState(ostream& output, const AllNeurons &neurons, const SimulationInfo *sim_info) =0;
+        virtual void saveState(const AllNeurons &neurons, const SimulationInfo *sim_info, IRecorder* simRecorder) =0;
 
         /* ----------------
          * Network Creation
@@ -122,7 +123,7 @@ class Model {
          * @param synapses - collection of connections between neurons in network.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info) =0;
+        virtual void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, IRecorder* simRecorder) =0;
 
         /**
          * Performs any finalization tasks on network following a simulation.

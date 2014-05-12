@@ -186,15 +186,6 @@ struct AllNeurons
          */
         int *spikeCount;
 
-        /*! The total number of spikes since the start of the simulation
-         *  
-         *  Usage: LOCAL VARIABLE
-         *  LIFSingleThreadedModel::cleanupSim()			Accessed
-		 *  LIFSingleThreadedModel::fire()					Modified
-		 *	GpuSim_struct.cu::NOT USED
-         */
-        int *totalSpikeCount;        
-
 		/*! Step count for each spike fired by each neuron
 		 *
 		 *  Usage: LOCAL VARIABLE

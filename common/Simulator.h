@@ -43,7 +43,7 @@ class Simulator
         /**
          * Write the result of the simulation.
          */
-        void saveState(ostream &state_out) const;
+        void saveState() const;
 
         /**
          * Read serialized internal state from a previous run of the simulator.

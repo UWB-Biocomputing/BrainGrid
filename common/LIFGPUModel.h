@@ -27,7 +27,7 @@ public:
  
 	void setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, const AllSynapses &synapses);
 	void advance(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
-	void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
+	void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, IRecorder* simRecorder);
 	void cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info);
 
 	struct InverseMap
@@ -76,8 +76,8 @@ private:
 	\* ------------------*/
 
 	void allocDeviceStruct(const SimulationInfo *sim_info, const AllNeurons &allNeuronsHost, const AllSynapses &allSynapsesHost);
-	void allocNeuronDeviceStruct( int count );
-	void deleteNeuronDeviceStruct(  );
+	void allocNeuronDeviceStruct( int count, int max_spikes );
+	void deleteNeuronDeviceStruct( int count );
 	void copyNeuronHostToDevice( const AllNeurons& allNeuronsHost, int count );
 	void copyNeuronDeviceToHost( AllNeurons& allNeuronsHost, int count );
 
@@ -106,12 +106,11 @@ private:
 	// --------------------
 
 	// TODO
-	void updateHistory(const int currentStep, BGFLOAT epochDuration, AllNeurons &neuron, const SimulationInfo *sim_infos);
+	void updateHistory(const int currentStep, BGFLOAT epochDuration, AllNeurons &neuron, const SimulationInfo *sim_infos, IRecorder* simRecorder);
 	// TODO
 	void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
-#ifdef STORE_SPIKEHISTORY
-	void copyDeviceSpikeHistoryToHost(AllNeurons &allNeuronsHost, int numNeurons);
-#endif
+	// TODO
+	void copyDeviceSpikeHistoryToHost(AllNeurons &allNeuronsHost, const SimulationInfo *sim_info);
 	//
 	void copyDeviceSpikeCountsToHost(AllNeurons &allNeuronsHost, int numNeurons);
 	// TODO
@@ -128,14 +127,10 @@ private:
 	|  Generic Functions for handling synapse types
 	\*----------------------------------------------*/
 
+
 	/*----------------------------------------------*\
 	|  Member variables
 	\*----------------------------------------------*/
-
-	#ifdef STORE_SPIKEHISTORY
-	//! Pointer to device spike history array.
-	uint64_t* spikeHistory_d;
-	#endif // STORE_SPIKEHISTORY
 
 	//! Pointer to device random noise array.
 	float* randNoise_d;

@@ -293,6 +293,7 @@ string LIFModel::neuronToString(AllNeurons &neurons, const int i) const
  */
 void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info)
 {
+#if 0
     for (int i = 0; i < sim_info->totalNeurons; i++) {
         readNeuron(input, neurons, i);
     }
@@ -339,6 +340,7 @@ void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &syna
         m_conns->radiiHistory(0, i) = m_conns->radii[i]; // NOTE: Radii Used for read.
         m_conns->ratesHistory(0, i) = m_conns->rates[i]; // NOTE: Rates Used for read.
     }
+#endif
 }
 
 /**
@@ -471,6 +473,7 @@ bool LIFModel::updateDecay(AllSynapses &synapses, const int neuron_index, const 
  */
 void LIFModel::saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info)
 {
+#if 0
     // write the neurons data
     output << sim_info->totalNeurons;
     for (int i = 0; i < sim_info->totalNeurons; i++) {
@@ -501,6 +504,7 @@ void LIFModel::saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &syn
     }
 
     output << flush;
+#endif
 }
 
 /**
@@ -560,43 +564,36 @@ void LIFModel::writeSynapse(ostream& output, AllSynapses &synapses, const int ne
 
 /**
  *  Prepares a stream with data from the model and Neurons.
- *  @param  output  stream to print out to.
  *  @param  neurons the Neuron list to search from.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void LIFModel::saveState(ostream &output, const AllNeurons &neurons, const SimulationInfo *sim_info)
+void LIFModel::saveState(const AllNeurons &neurons, const SimulationInfo *sim_info, IRecorder* simRecorder)
 {
-    output << "   " << m_conns->radiiHistory.toXML("radiiHistory") << endl;
-    output << "   " << m_conns->ratesHistory.toXML("ratesHistory") << endl;
-    output << "   " << m_conns->burstinessHist.toXML("burstinessHist") << endl;
-    output << "   " << m_conns->spikesHistory.toXML("spikesHistory") << endl;
-
-    output << "   " << m_conns->xloc.toXML("xloc") << endl;
-    output << "   " << m_conns->yloc.toXML("yloc") << endl;
-
-    //Write Neuron Types
+    // create Neuron Types matrix
     VectorMatrix neuronTypes("complete", "const", 1, sim_info->totalNeurons, EXC);
     for (int i = 0; i < sim_info->totalNeurons; i++) {
         neuronTypes[i] = neurons.neuron_type_map[i];
     }
-    output << "   " << neuronTypes.toXML("neuronTypes") << endl;
 
-    // Should this be rounding?
-    int num_starter_neurons = static_cast<int>(m_frac_starter_neurons * sim_info->totalNeurons);
-
-    if (num_starter_neurons > 0) {
-        VectorMatrix starterNeuronsM("complete", "const", 1, num_starter_neurons);
-        getStarterNeuronMatrix(starterNeuronsM, neurons.starter_map, sim_info);
-        output << "   " << starterNeuronsM.toXML("starterNeurons") << endl;
-    }
-
-    // Write neuron threshold
-    // neuron threshold
+    // create neuron threshold matrix
     VectorMatrix neuronThresh("complete", "const", 1, sim_info->totalNeurons, 0);
     for (int i = 0; i < sim_info->totalNeurons; i++) {
         neuronThresh[i] = neurons.Vthresh[i];
     }
-    output << "   " << neuronThresh.toXML("neuronThresh") << endl;
+
+    // create starter nuerons matrix
+    int num_starter_neurons = static_cast<int>(m_frac_starter_neurons * sim_info->totalNeurons);
+    if (num_starter_neurons > 0)
+    {
+        VectorMatrix starterNeuronsM("complete", "const", 1, num_starter_neurons);
+        getStarterNeuronMatrix(starterNeuronsM, neurons.starter_map, sim_info);
+    	simRecorder->saveSimState(sim_info, neuronTypes, starterNeuronsM, neuronThresh);
+    }
+    else
+    {
+        VectorMatrix starterNeuronsM("complete", "const", 1, 0);
+    	simRecorder->saveSimState(sim_info, neuronTypes, starterNeuronsM, neuronThresh);
+    }
 }
 
 /**
@@ -645,7 +642,7 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo *sim_i
 
         initNeuronConstsFromParamValues(neurons, neuron_index, sim_info->deltaT);
 
-        int max_spikes = (int) ((sim_info->epochDuration * m_growth.maxRate * sim_info->maxSteps));
+        int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
         neurons.spike_history[neuron_index] = new uint64_t[max_spikes];
         for (int j = 0; j < max_spikes; ++j) {
             neurons.spike_history[neuron_index][j] = -1;
@@ -890,7 +887,6 @@ void LIFModel::setupSim(const SimulationInfo *sim_info, const AllNeurons &neuron
 
     // Init connection frontier distance change matrix with the current distances
     m_conns->delta = m_conns->dist;
-
 }
 
 /**
@@ -947,21 +943,20 @@ void LIFModel::logSimStep(const AllNeurons &neurons, const AllSynapses &synapses
 
 /**
  *  Update the Neuron's history.
- *  @param  currentStep current step of the simulation
- *  @param  epochDuration    duration of the 
- *  @param  neurons the list to update.
+ *  @param  currentStep 	current step of the simulation
+ *  @param  epochDuration    	duration of the epoch
+ *  @param  neurons 		The entire list of neurons.
+ *  @param  sim_info  		Pointer to the simulation information.
+ *  @param  simRecorder 	Pointer to the simulation recordig object.
  */
-void LIFModel::updateHistory(const int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info)
+void LIFModel::updateHistory(const int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info, IRecorder* simRecorder)
 {
     // Calculate growth cycle firing rate for previous period
-    //getSpikeCounts(neurons, m_conns->spikeCounts, sim_info);
-
-    // Calculate growth cycle firing rate for previous period
+    int max_spikes = static_cast<int> (sim_info->epochDuration * sim_info->maxFiringRate);
     for (int i = 0; i < sim_info->totalNeurons; i++) {
         // Calculate firing rate
+        assert(neurons.spikeCount[i] < max_spikes);   
         m_conns->rates[i] = neurons.spikeCount[i] / epochDuration;
-        // record firing rate to history matrix
-        m_conns->ratesHistory(currentStep, i) = m_conns->rates[i];
     }
 
     // compute neuron radii change and assign new values
@@ -969,17 +964,22 @@ void LIFModel::updateHistory(const int currentStep, BGFLOAT epochDuration, AllNe
     m_conns->deltaR = epochDuration * m_growth.rho * m_conns->outgrowth;
     m_conns->radii += m_conns->deltaR;
 
-    // Cap minimum radius size and record radii to history matrix
-    for (int i = 0; i < m_conns->radii.Size(); i++) {
-        // TODO: find out why we cap this here.
-        if (m_conns->radii[i] < m_growth.minRadius) {
-            m_conns->radii[i] = m_growth.minRadius;
-        }
+    // Compile history information in every epoch
+    simRecorder->compileHistories(sim_info, m_conns->rates, m_conns->radii, neurons);
 
-        // record radius to history matrix
-        m_conns->radiiHistory(currentStep, i) = m_conns->radii[i];
+    // clear spike count
+    clearSpikeCounts(neurons, sim_info);
+}
 
-        DEBUG_MID(cout << "radii[" << i << ":" << m_conns->radii[i] << "]" << endl;);
+/**
+ *  Clear the spike counts out of all Neurons.
+ *  @param  neurons the Neuron list to search from.
+ */
+//! Clear spike count of each neuron.
+void LIFModel::clearSpikeCounts(AllNeurons &neurons, const SimulationInfo *sim_info)
+{
+    for (int i = 0; i < sim_info->totalNeurons; i++) {
+        neurons.spikeCount[i] = 0;
     }
 }
 
@@ -1135,17 +1135,19 @@ LIFModel::Connections::Connections(const int num_neurons, const BGFLOAT start_ra
     dist(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
     area(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),
     outgrowth(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
-    deltaR(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
-    radiiHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
-    ratesHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
-    burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthEpochDuration * maxGrowthSteps), 0),
-    spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthEpochDuration * maxGrowthSteps * 100), 0)
+    deltaR(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons)
+    //radiiHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
+    //ratesHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
+    //burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthEpochDuration * maxGrowthSteps), 0),
+    //spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthEpochDuration * maxGrowthSteps * 100), 0)
 {
+#if 0
     // Init radii and rates history matrices with current radii and rates
     for (int i = 0; i < num_neurons; i++) {
         radiiHistory(0, i) = start_radius;
         ratesHistory(0, i) = 0;
     }
+#endif
 }
 
 

@@ -56,7 +56,7 @@ void LIFGPUModel::allocSynapseDeviceStruct( int num_neurons, int max_synapses ) 
 			HANDLE_ERROR( cudaMalloc( ( void ** ) &pDelayQueue[j], sizeof( uint32_t ) ) );
 		}
 		HANDLE_ERROR( cudaMemcpy ( allSynapses_1.delayQueue[i], pDelayQueue, 
-			max_synapses * sizeof( uint32_t ), cudaMemcpyHostToDevice ) );
+			max_synapses * sizeof( uint32_t* ), cudaMemcpyHostToDevice ) );
 	}
 	HANDLE_ERROR( cudaMemcpy ( allSynapses_0.summationCoord, allSynapses_1.summationCoord, 
 		num_neurons * sizeof( Coordinate* ), cudaMemcpyHostToDevice ) );
@@ -290,11 +290,11 @@ void LIFGPUModel::copySynapseHostToDevice( const AllSynapses& allSynapsesHost, i
 	}
 }
 
+#if 0
 void LIFGPUModel::copySynapseDeviceToHost( AllSynapses& allSynapsesHost, int num_neurons, int max_synapses ) {
 	// copy everything necessary
 	AllSynapses allSynapses;
 
-#if 0
         HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSynapses ), cudaMemcpyDeviceToHost ) );
 	HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.synapse_counts, allSynapses.synapse_counts, 
 		num_neurons * sizeof( size_t ), cudaMemcpyDeviceToHost ) );
@@ -339,8 +339,8 @@ void LIFGPUModel::copySynapseDeviceToHost( AllSynapses& allSynapsesHost, int num
 		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.in_use[i], allSynapses.in_use[i],
 			max_synapses * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 	}
-#endif
 }
+#endif
 
 #if 0
 void copySynapseSumCoordDeviceToHost( DynamicSpikingSynapse_struct& synapse_h, int count ) {

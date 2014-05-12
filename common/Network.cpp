@@ -11,12 +11,13 @@
 /** 
  *  The constructor for Network.
  */
-Network::Network(Model *model, SimulationInfo *simInfo) :
+Network::Network(Model *model, SimulationInfo *simInfo, IRecorder* simRecorder) :
     m_model(model),
     neurons(simInfo->totalNeurons),
-    synapses(simInfo->totalNeurons,simInfo->maxSynapsesPerNeuron),
+    synapses(simInfo->totalNeurons, simInfo->maxSynapsesPerNeuron),
     m_summationMap(NULL),
-    m_sim_info(simInfo)
+    m_sim_info(simInfo),
+    m_simRecorder(simRecorder)
 {
     cout << "Neuron count: " << simInfo->totalNeurons << endl;
     g_simulationStep = 0;
@@ -69,7 +70,7 @@ void Network::advance()
  */
 void Network::updateConnections(const int currentStep)
 {
-    m_model->updateConnections(currentStep, neurons, synapses, m_sim_info);
+    m_model->updateConnections(currentStep, neurons, synapses, m_sim_info, m_simRecorder);
 }
 
 /**
@@ -120,11 +121,10 @@ void Network::reset()
 
 /**
  * Save current simulation state to XML.
- * @param   os  the output stream to send the state data to.
  */
-void Network::saveState(ostream& os)
+void Network::saveState()
 {
-    m_model->saveState(os, neurons, m_sim_info);
+    m_model->saveState(neurons, m_sim_info, m_simRecorder);
 }
 
 /**

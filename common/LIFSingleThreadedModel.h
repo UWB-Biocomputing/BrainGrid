@@ -10,7 +10,7 @@ public:
 	~LIFSingleThreadedModel();
 
 	void advance(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
-	void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
+	void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, IRecorder* simRecorder);
 	void cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info);
 
 	/* -----------------
@@ -47,14 +47,9 @@ public:
 	// --------------------
 
 	// TODO
-	void updateHistory(int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info);
+	void updateHistory(int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info, IRecorder* simRecorder);
 	// TODO
 	void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
-
-	// TODO
-	void getSpikeCounts(const AllNeurons &neurons, int *spikeCounts, const SimulationInfo *sim_info);
-	// TODO
-	void clearSpikeCounts(AllNeurons &neurons, const SimulationInfo *sim_info);
 
 	// TODO
 	void eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);

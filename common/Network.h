@@ -50,7 +50,7 @@ class Network
 {
     public:
         //! The constructor for Network.
-        Network(Model *model, SimulationInfo *sim_info);
+        Network(Model *model, SimulationInfo *sim_info, IRecorder* simRecorder);
         ~Network();
 
         //! Frees dynamically allocated memory associated with the maps.
@@ -60,7 +60,7 @@ class Network
         void reset();
 
         //! Write the network state to an ostream.
-        void saveState(ostream& os);
+        void saveState();
 
         //! Write the simulation memory image to an ostream
         void writeSimMemory(ostream& os);
@@ -93,6 +93,8 @@ class Network
         AllNeurons neurons;
         // TODO comment
         AllSynapses synapses;
+        // TODO comment
+        IRecorder* m_simRecorder;
 
         //! The map of summation points.
         BGFLOAT* m_summationMap;

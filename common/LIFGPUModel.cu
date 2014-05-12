@@ -28,13 +28,8 @@ void normalMTGPU(float * randNoise_d);
 void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, unsigned int nPerRng, unsigned int mt_rng_count);
 }
 
-#ifdef STORE_SPIKEHISTORY
-//! Perform updating neurons for one time step.
-__global__ void advanceNeuronsDevice( int n, uint64_t* spikeHistory_d, uint64_t simulationStep, int maxSpikes, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice );
-#else
 //! Perform updating neurons for one time step.
 __global__ void advanceNeuronsDevice( int n, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice );
-#endif // STORE_SPIKEHISTORY
 
 //! Perform updating synapses for one time step.
 __global__ void advanceSynapsesDevice ( int n, int maxSynapsesPerNeuron, uint64_t simulationStep, const BGFLOAT deltaT, AllSynapses* allSynapsesDevice );
@@ -62,14 +57,10 @@ __device__ int synSign( synapseType t );
 
 // ----------------------------------------------------------------------------
 LIFGPUModel::LIFGPUModel() : 	
-	#ifdef STORE_SPIKEHISTORY
-	spikeHistory_d(NULL),
-	#endif // STORE_SPIKEHISTORY
 	randNoise_d(NULL),
 	allNeuronsDevice(NULL),
 	allSynapsesDevice(NULL),
-	inverseMapDevice(NULL),
-	LIFModel()
+	inverseMapDevice(NULL)
 {
     // Set device ID
     HANDLE_ERROR( cudaSetDevice( g_deviceId ) );
@@ -91,14 +82,10 @@ void LIFGPUModel::allocDeviceStruct(const SimulationInfo *sim_info, const AllNeu
 	// Allocate Neurons and Synapses strucs on GPU device memory
 	int neuron_count = sim_info->totalNeurons;
 	int max_synapses = sim_info->maxSynapsesPerNeuron;
-	allocNeuronDeviceStruct( neuron_count );		// allocate device memory for each member
+	int max_spikes = static_cast<int> (sim_info->epochDuration * sim_info->maxFiringRate);
+	allocNeuronDeviceStruct( neuron_count, max_spikes );		// allocate device memory for each member
 	allocSynapseDeviceStruct( neuron_count, max_synapses );	// allocate device memory for each member
 
-#ifdef STORE_SPIKEHISTORY
-	int maxSpikes = static_cast<int> (sim_info->epochDuration * sim_info->maxFiringRate);
-	size_t spikeHistory_d_size = neuron_count * maxSpikes * sizeof (uint64_t);		// size of spike history array
-	HANDLE_ERROR( cudaMalloc ( ( void ** ) &spikeHistory_d, spikeHistory_d_size ) );
-#endif // STORE_SPIKEHISTORY
 	// Allocate memory for random noise array
 	size_t randNoise_d_size = neuron_count * sizeof (float);	// size of random noise array
 	HANDLE_ERROR( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
@@ -165,11 +152,8 @@ void LIFGPUModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simu
 #ifdef PERFORMANCE_METRICS
 	cudaEventRecord( start, 0 );
 #endif // PERFORMANCE_METRICS
-#ifdef STORE_SPIKEHISTORY
-	advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, spikeHistory_d, g_simulationStep, maxSpikes, maxSynapses, sim_info->deltaT, randNoise_d, allNeuronsDevice, allSynapsesDevice );
-#else
 	advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, g_simulationStep, sim_info->maxSynapsesPerNeuron, sim_info->deltaT, randNoise_d, allNeuronsDevice, allSynapsesDevice );
-#endif // STORE_SPIKEHISTORY
+
 #ifdef PERFORMANCE_METRICS
 	cudaEventRecord( stop, 0 );
 	cudaEventSynchronize( stop );
@@ -183,6 +167,7 @@ void LIFGPUModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simu
 	cudaEventRecord( start, 0 );
 #endif // PERFORMANCE_METRICS
 	advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, sim_info->maxSynapsesPerNeuron, g_simulationStep, sim_info->deltaT, allSynapsesDevice );
+
 #ifdef PERFORMANCE_METRICS
 	cudaEventRecord( stop, 0 );
 	cudaEventSynchronize( stop );
@@ -210,10 +195,11 @@ void LIFGPUModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simu
 *  @param  neurons     the Neuron list to search from.
 *  @param  synapses    the Synapse list to search from.
 *  @param  sim_info    SimulationInfo class to read information from.
+*  @param  simRecorder Pointer to the simulation recordig object.
 */
-void LIFGPUModel::updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info)
+void LIFGPUModel::updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, IRecorder* simRecorder)
 {
-	updateHistory(currentStep, sim_info->epochDuration, neurons, sim_info);
+	updateHistory(currentStep, sim_info->epochDuration, neurons, sim_info, simRecorder);
 	updateFrontiers(sim_info->totalNeurons);
 	updateOverlap(sim_info->totalNeurons);
 	updateWeights(sim_info->totalNeurons, neurons, synapses, sim_info);
@@ -226,32 +212,8 @@ void LIFGPUModel::updateConnections(const int currentStep, AllNeurons &neurons, 
 */
 void LIFGPUModel::cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info)
 {
-#ifdef STORE_SPIKEHISTORY
-    // output the spikes of the simulation
-    copyDeviceSpikeHistoryToHost(neurons, sim_info->totalNeurons);
-
-    for (int i = 0; i < sim_info->width; i++) {
-        for (int j = 0; j < sim_info->height; j++) {
-            int neuron_index = i + j * sim_info->width;
-            uint64_t *pSpikes = neurons.spike_history[neuron_index];
-
-            DEBUG_MID (cout << endl << coordToString(i, j) << endl;);
-
-            for (int i = 0; i < neurons.totalSpikeCount[neuron_index]; i++) {
-                DEBUG_MID (cout << i << " ";);
-                int idx1 = pSpikes[i] * sim_info->deltaT;
-                m_conns->burstinessHist[idx1] = m_conns->burstinessHist[idx1] + 1.0;
-                int idx2 = pSpikes[i] * sim_info->deltaT * 100;
-                m_conns->spikesHistory[idx2] = m_conns->spikesHistory[idx2] + 1.0;
-            }
-        }
-    }
-
-    HANDLE_ERROR( cudaFree( spikeHistory_d ) );
-#endif // STORE_SPIKEHISTORY
-
     // Deallocate device memory
-    deleteNeuronDeviceStruct();
+    deleteNeuronDeviceStruct(sim_info->totalNeurons);
     deleteSynapseDeviceStruct(sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron);
     deleteSynapseImap();
 
@@ -428,15 +390,26 @@ void LIFGPUModel::createSynapseImap(AllSynapses &synapses, const SimulationInfo*
         delete[] rgSynapseInverseMap;
 }
 
-#ifdef STORE_SPIKEHISTORY
-void LIFGPUModel::copyDeviceSpikeHistoryToHost(AllNeurons &allNeuronsHost, int numNeurons)
+/**
+ *  Get spike history in AllNeurons struct on device memory.
+ *  @param  allNeuronsHost      Reference to the allNeurons struct on host memory.
+ *  @param  sim_info    SimulationInfo to refer from.
+ */
+void LIFGPUModel::copyDeviceSpikeHistoryToHost(AllNeurons &allNeuronsHost, const SimulationInfo *sim_info)
 {
 	AllNeurons allNeurons;
 	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllNeurons ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.spike_history, allNeurons.spike_history, numNeurons * sizeof( uint64_t ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.totalSpikeCount, allNeurons.totalSpikeCount, numNeurons * sizeof( int ), cudaMemcpyDeviceToHost ) );
+
+	int numNeurons = sim_info->totalNeurons;
+	uint64_t* pSpikeHistory[numNeurons];
+	HANDLE_ERROR( cudaMemcpy ( pSpikeHistory, allNeurons.spike_history, numNeurons * sizeof( uint64_t* ), cudaMemcpyDeviceToHost ) );
+
+	int max_spikes = static_cast<int> (sim_info->epochDuration * sim_info->maxFiringRate);
+	for (int i = 0; i < numNeurons; i++) {
+		HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.spike_history[i], pSpikeHistory[i], 
+			max_spikes * sizeof( uint64_t ), cudaMemcpyDeviceToHost ) );
+	}
 }
-#endif
 
 /**
  *  Get spikeCount in AllNeurons struct on device memory.
@@ -466,14 +439,16 @@ void LIFGPUModel::clearSpikeCounts(int numNeurons)
  *  @param  currentStep current step of the simulation
  *  @param  epochDuration    duration of the 
  *  @param  neurons the list to update.
-*  @param  sim_info    SimulationInfo to refer from.
+ *  @param  sim_info    SimulationInfo to refer from.
+ *  @param  simRecorder Pointer to the simulation recordig object.
  */
-void LIFGPUModel::updateHistory(const int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info)
+void LIFGPUModel::updateHistory(const int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info, IRecorder* simRecorder)
 {
     // Calculate growth cycle firing rate for previous period
     copyDeviceSpikeCountsToHost(neurons, sim_info->totalNeurons);
+    copyDeviceSpikeHistoryToHost(neurons, sim_info);
 
-    LIFModel::updateHistory(currentStep, epochDuration, neurons, sim_info);
+    LIFModel::updateHistory(currentStep, epochDuration, neurons, sim_info, simRecorder);
 
     // clear spike count
     clearSpikeCounts(sim_info->totalNeurons);
@@ -529,20 +504,6 @@ void LIFGPUModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllS
 \* ------------------*/
 
 // CUDA code for advancing neurons
-#ifdef STORE_SPIKEHISTORY
-/**
-* @param[in] n			Number of synapses.
-* @param[in] spikeHistory_d	Spike history list.
-* @param[in] simulationStep	The current simulation step.
-* @param[in] maxSpikes		Maximum number of spikes per neuron per one epoch.
-* @param[in] maxSynapses	Maximum number of synapses per neuron.
-* @param[in] deltaT		Inner simulation step duration.
-* @param[in] randNoise		Pointer to device random noise array.
-* @param[in] allNeuronsDevice	Pointer to Neuron structures in device memory.
-* @param[in] allSynapsesDevice	Pointer to Synapse structures in device memory.
-*/
-__global__ void advanceNeuronsDevice( int n, uint64_t* spikeHistory_d, uint64_t simulationStep, int maxSpikes, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice ) {
-#else
 /**
 * @param[in] n			Number of synapses.
 * @param[in] simulationStep	The current simulation step.
@@ -553,7 +514,6 @@ __global__ void advanceNeuronsDevice( int n, uint64_t* spikeHistory_d, uint64_t 
 * @param[in] allSynapsesDevice	Pointer to Synapse structures in device memory.
 */
 __global__ void advanceNeuronsDevice( int n, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice ) {
-#endif // STORE_SPIKEHISTORY
 	// determine which neuron this thread is processing
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	if ( idx >= n )
@@ -571,10 +531,8 @@ __global__ void advanceNeuronsDevice( int n, uint64_t simulationStep, int maxSyn
 		// Note that the neuron has fired!
 		allNeuronsDevice->hasFired[idx] = true;
 
-#ifdef STORE_SPIKEHISTORY
 		// record spike time
-		spikeHistory_d[(idx * maxSpikes) + allNeuronsDevice->spikeCount[idx]] = simulationStep;
-#endif // STORE_SPIKEHISTORY
+		allNeuronsDevice->spike_history[idx][allNeuronsDevice->spikeCount[idx]] = simulationStep;
 		allNeuronsDevice->spikeCount[idx]++;
 
 		// calculate the number of steps in the absolute refractory period

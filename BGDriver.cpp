@@ -14,6 +14,7 @@
 
 #include "Network.h"
 #include "Model.h"
+#include "XmlRecorder.h"
 
 
 // Uncomment to use visual leak detector (Visual Studios Plugin)
@@ -75,8 +76,7 @@ bool parseCommandLine(int argc, char* argv[]);
  *  @return -1 if error, else if success.
  */
 int main(int argc, char* argv[]) {
-
-
+    // create the model
     #if defined(USE_GPU)
 	 model = new LIFGPUModel();
     #elif defined(USE_OMP)
@@ -99,29 +99,48 @@ int main(int argc, char* argv[]) {
     /*    verify that params were read correctly */
     DEBUG(printParams();)
 
+    // init SimulationInfo parameters
     SimulationInfo simInfo = makeSimulationInfo(poolsize[0], poolsize[1],Tsim, numSims,
             maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed);
 
+    // create & init simulation recorder
+    IRecorder* simRecorder = NULL;
+    if (stateOutputFileName.find(".xml") != string::npos) {
+        simRecorder = new XmlRecorder(&simInfo);
+    }
+    else if (stateOutputFileName.find(".h5") != string::npos) {
+        //simRecorder = new Hdf5Recorder(&simInfo); 
+    }
+    else {
+        cerr << "! ERROR: invalid state output file name extension." << endl;
+        return -1;
+    }
+    string probedNListFileName;
+    simRecorder->init(&simInfo, stateOutputFileName, probedNListFileName);
+
+    // Init radii and rates history matrices with default values
+    simRecorder->initValues(&simInfo);
+
     // create the network
-    Network network(model, &simInfo);
+    Network network(model, &simInfo, simRecorder);
 
     time_t start_time, end_time;
     time(&start_time);
 
     Simulator *simulator;
-	// It might be possible to do away with virtual function calls
-	// by having simulator be a reference to a auto allocated derived class 
-	// similar to the below code:
-	//SingleThreadedSim test(&network, si);
-	//simulator = &test;
+    // It might be possible to do away with virtual function calls
+    // by having simulator be a reference to a auto allocated derived class 
+    // similar to the below code:
+    //SingleThreadedSim test(&network, si);
+    //simulator = &test;
 
-	#if defined(USE_GPU)
-	simulator = new GPUSimulator(&network, &simInfo);
-	#elif defined(USE_OMP)
-	simulator = new SingleThreadedSim(&network, &simInfo);
-	#else
-   	 simulator = new SingleThreadedSim(&network, &simInfo);
-	#endif
+    #if defined(USE_GPU)
+        simulator = new GPUSimulator(&network, &simInfo);
+    #elif defined(USE_OMP)
+        simulator = new SingleThreadedSim(&network, &simInfo);
+    #else
+        simulator = new SingleThreadedSim(&network, &simInfo);
+    #endif
 
 	
 	
@@ -134,9 +153,11 @@ int main(int argc, char* argv[]) {
 
     simulator->simulate();
 
-    ofstream state_out(stateOutputFileName.c_str());
-    simulator->saveState(state_out);
-    state_out.close();
+    // writes simulation results to an output destination
+    simulator->saveState();
+
+    // terminates the simulation recorder
+    simRecorder->term(&simInfo);
 
     ofstream memory_out;
     if (fWriteMemImage) {
@@ -161,6 +182,9 @@ int main(int argc, char* argv[]) {
     delete model;
     model = NULL;
     
+    delete simRecorder;
+    simRecorder = NULL;
+
     delete simulator;
     simulator = NULL;
 

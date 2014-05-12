@@ -35,11 +35,11 @@ void LIFSingleThreadedModel::advance(AllNeurons &neurons, AllSynapses &synapses,
  *  @param  neurons the Neuron list to search from.
  *  @param  synapses    the Synapse list to search from.
  *  @param  sim_info    SimulationInfo class to read information from.
- * TODO: refactor updateHistory to receive simInfo instead of epochDuration
+ *  @param  simRecorder Pointer to the simulation recordig object.
  */
-void LIFSingleThreadedModel::updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info)
+void LIFSingleThreadedModel::updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, IRecorder* simRecorder)
 {
-    updateHistory(currentStep, sim_info->epochDuration, neurons, sim_info);
+    updateHistory(currentStep, sim_info->epochDuration, neurons, sim_info, simRecorder);
     updateFrontiers(sim_info->totalNeurons);
     updateOverlap(sim_info->totalNeurons);
     updateWeights(sim_info->totalNeurons, neurons, synapses, sim_info);
@@ -47,31 +47,11 @@ void LIFSingleThreadedModel::updateConnections(const int currentStep, AllNeurons
 
 /**
  *  Outputs the spikes of the simulation.
- *  Note: only done if STORE_SPIKEHISTORY is true.
  *  @param  neurons list of all Neurons.
  *  @param  sim_info    SimulationInfo to refer.
  */
 void LIFSingleThreadedModel::cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info)
 {
-#ifdef STORE_SPIKEHISTORY
-    // output spikes
-    for (int i = 0; i < sim_info->width; i++) {
-        for (int j = 0; j < sim_info->height; j++) {
-            int neuron_index = i + j * sim_info->width;
-            uint64_t *pSpikes = neurons.spike_history[neuron_index];
-
-            DEBUG_MID (cout << endl << coordToString(i, j) << endl;);
-
-            for (int i = 0; i < neurons.totalSpikeCount[neuron_index]; i++) {
-                DEBUG_MID (cout << i << " ";);
-                int idx1 = pSpikes[i] * sim_info->deltaT;
-                m_conns->burstinessHist[idx1] = m_conns->burstinessHist[idx1] + 1.0;
-                int idx2 = pSpikes[i] * sim_info->deltaT * 100;
-                m_conns->spikesHistory[idx2] = m_conns->spikesHistory[idx2] + 1.0;
-            }
-        }
-    }
-#endif // STORE_SPIKEHISTORY
 }
 
 /* -----------------
@@ -97,6 +77,9 @@ void LIFSingleThreadedModel::advanceNeurons(AllNeurons &neurons, AllSynapses &sy
         // notify outgoing synapses if neuron has fired
         if (neurons.hasFired[i]) {
             DEBUG_MID(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * sim_info->deltaT << endl;)
+
+            int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
+            assert( neurons.spikeCount[i] < max_spikes );
 
             for (int z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
                 preSpikeHit(synapses, i, z);
@@ -204,14 +187,11 @@ void LIFSingleThreadedModel::fire(AllNeurons &neurons, const int index, const BG
     // Note that the neuron has fired!
     neurons.hasFired[index] = true;
 
-#ifdef STORE_SPIKEHISTORY
     // record spike time
-    neurons.spike_history[index][neurons.totalSpikeCount[index]] = g_simulationStep;
-#endif // STORE_SPIKEHISTORY
+    neurons.spike_history[index][neurons.spikeCount[index]] = g_simulationStep;
 
     // increment spike count and total spike count
     neurons.spikeCount[index]++;
-    neurons.totalSpikeCount[index]++;
 
     // calculate the number of steps in the absolute refractory period
     neurons.nStepsInRefr[index] = static_cast<int> ( neurons.Trefract[index] / deltaT + 0.5 );
@@ -320,37 +300,11 @@ bool LIFSingleThreadedModel::isSpikeQueue(AllSynapses &synapses, const int neuro
  *  @param  currentStep current step of the simulation
  *  @param  epochDuration    duration of the 
  *  @param  neurons the list to update.
+ *  @param  simRecorder Pointer to the simulation recordig object.
  */
-void LIFSingleThreadedModel::updateHistory(const int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info)
+void LIFSingleThreadedModel::updateHistory(const int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info, IRecorder* simRecorder)
 {
-    LIFModel::updateHistory(currentStep, epochDuration, neurons, sim_info);
-
-    // clear spike count
-    clearSpikeCounts(neurons, sim_info);
-}
-
-/**
- *  Get the spike counts from all Neurons in the simulation into the given pointer.
- *  @param  neurons the Neuron list to search from.
- *  @param  spikeCounts integer array to fill with the spike counts.
- */
-void LIFSingleThreadedModel::getSpikeCounts(const AllNeurons &neurons, int *spikeCounts, const SimulationInfo *sim_info)
-{
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        spikeCounts[i] = neurons.spikeCount[i];
-    }
-}
-
-/**
- *  Clear the spike counts out of all Neurons.
- *  @param  neurons the Neuron list to search from.
- */
-//! Clear spike count of each neuron.
-void LIFSingleThreadedModel::clearSpikeCounts(AllNeurons &neurons, const SimulationInfo *sim_info)
-{
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        neurons.spikeCount[i] = 0;
-    }
+    LIFModel::updateHistory(currentStep, epochDuration, neurons, sim_info, simRecorder);
 }
 
 /**

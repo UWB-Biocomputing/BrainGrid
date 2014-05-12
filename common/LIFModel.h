@@ -64,7 +64,7 @@ class LIFModel : public Model, TiXmlVisitor
         void printParameters(ostream &output) const;
         void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
         void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
-        void saveState(ostream& output, const AllNeurons &neurons,  const SimulationInfo *sim_info);
+        void saveState(const AllNeurons &neurons,  const SimulationInfo *sim_info, IRecorder* simRecorder);
         void createAllNeurons(AllNeurons &neurons, const SimulationInfo *sim_info);
         void setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, const AllSynapses &synapses);
 
@@ -133,7 +133,11 @@ class LIFModel : public Model, TiXmlVisitor
         // --------------------
                 
 	// TODO     
-        void updateHistory(int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info);
+        void updateHistory(int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info, IRecorder* simRecorder);
+
+	// TODO
+	void clearSpikeCounts(AllNeurons &neurons, const SimulationInfo *sim_info);
+
         // TODO
         void updateFrontiers(const int num_neurons);
         // TODO     
@@ -257,13 +261,13 @@ struct LIFModel::Connections
         VectorMatrix deltaR;
 
         // track radii
-        CompleteMatrix radiiHistory; // state
+        //CompleteMatrix radiiHistory; // state
         // track firing rate
-        CompleteMatrix ratesHistory;
+        //CompleteMatrix ratesHistory;
         // burstiness Histogram goes through the
-        VectorMatrix burstinessHist;
+        //VectorMatrix burstinessHist;
         // spikes history - history of accumulated spikes count of all neurons (10 ms bin)
-        VectorMatrix spikesHistory;
+        //VectorMatrix spikesHistory;
 
         // TODO
         Connections(const int neuron_count, const BGFLOAT start_radius, const BGFLOAT growthEpochDuration, const BGFLOAT maxGrowthSteps);
