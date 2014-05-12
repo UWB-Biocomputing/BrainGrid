@@ -25,6 +25,9 @@ typedef unsigned _int8 uint8_t;
 struct AllSynapses
 {
     public:
+        AllSynapses();
+        AllSynapses(const int num_neurons, const int max_synapses);
+        ~AllSynapses();
  
         /*! The coordinates of the summation point.
          *  
@@ -266,10 +269,6 @@ struct AllSynapses
  	     *  GpuSim_Struct::NOT USED  
          */
         size_t max_synapses;
-
-        AllSynapses();
-        AllSynapses(const int num_neurons, const int max_synapses);
-        ~AllSynapses();
 
     private:
         /*! The number of neurons

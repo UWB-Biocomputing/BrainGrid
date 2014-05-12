@@ -158,16 +158,13 @@ class LIFModel : public Model, TiXmlVisitor
         // TODO
         struct GrowthParams
         {
-            // TODO
-            BGFLOAT epsilon; 
-            // TODO
-            BGFLOAT beta;
-            // TODO
-            BGFLOAT rho;
+            BGFLOAT epsilon; //null firing rate(zero outgrowth)
+            BGFLOAT beta;  //sensitivity of outgrowth to firing rate
+            BGFLOAT rho;  //outgrowth rate constant
             BGFLOAT targetRate; // Spikes/second
             BGFLOAT maxRate; // = targetRate / epsilon;
             BGFLOAT minRadius; // To ensure that even rapidly-firing neurons will connect to
-                             // other neurons, when within their RFS.
+                               // other neurons, when within their RFS.
             BGFLOAT startRadius; // No need to wait a long time before RFs start to overlap
         };
 

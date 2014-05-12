@@ -13,7 +13,7 @@ const BGFLOAT LIFModel::SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
  *  Constructor
  */
 LIFModel::LIFModel() :
-    										 m_read_params(0)
+ m_read_params(0)
 ,m_fixed_layout(false)
 ,m_conns(NULL)
 {
@@ -80,6 +80,9 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 		if (element.QueryFLOATAttribute("min", &m_Iinject[0]) != TIXML_SUCCESS) {
 			throw ParseParamError("Iinject min", "Iinject missing minimum value in XML.");
 		}
+		if (m_Iinject[0] < 0) {
+			throw ParseParamError("Iinject min", "Invalid negative Iinject value.");
+		}
 		if (element.QueryFLOATAttribute("max", &m_Iinject[1]) != TIXML_SUCCESS) {
 			throw ParseParamError("Iinject max", "Iinject missing maximum value in XML.");
 		}
@@ -92,6 +95,9 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 	if (element.ValueStr().compare("Inoise") == 0) {
 		if (element.QueryFLOATAttribute("min", &m_Inoise[0]) != TIXML_SUCCESS) {
 			throw ParseParamError("Inoise min", "Inoise missing minimum value in XML.");
+		}
+		if (m_Inoise[0] < 0) {
+			throw ParseParamError("Inoise min", "Invalid negative Inoise value.");
 		}
 		if (element.QueryFLOATAttribute("max", &m_Inoise[1]) != TIXML_SUCCESS) {
 			throw ParseParamError("Inoise max", "Inoise missing maximum value in XML.");
@@ -106,6 +112,9 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 		if (element.QueryFLOATAttribute("min", &m_Vthresh[0]) != TIXML_SUCCESS) {
 			throw ParseParamError("Vthresh min", "Vthresh missing minimum value in XML.");
 		}
+		if (m_Vthresh[0] < 0) {
+			throw ParseParamError("Vthresh min", "Invalid negative Vthresh value.");
+		}
 		if (element.QueryFLOATAttribute("max", &m_Vthresh[1]) != TIXML_SUCCESS) {
 			throw ParseParamError("Vthresh max", "Vthresh missing maximum value in XML.");
 		}
@@ -118,6 +127,9 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 	if (element.ValueStr().compare("Vresting") == 0) {
 		if (element.QueryFLOATAttribute("min", &m_Vresting[0]) != TIXML_SUCCESS) {
 			throw ParseParamError("Vresting min", "Vresting missing minimum value in XML.");
+		}
+		if (m_Vresting[0] < 0) {
+			throw ParseParamError("Vresting min", "Invalid negative Vresting value.");
 		}
 		if (element.QueryFLOATAttribute("max", &m_Vresting[1]) != TIXML_SUCCESS) {
 			throw ParseParamError("Vresting max", "Vresting missing maximum value in XML.");
@@ -132,6 +144,9 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 		if (element.QueryFLOATAttribute("min", &m_Vreset[0]) != TIXML_SUCCESS) {
 			throw ParseParamError("Vreset min", "Vreset missing minimum value in XML.");
 		}
+		if (m_Vreset[0] < 0) {
+			throw ParseParamError("Vreset min", "Invalid negative Vreset value.");
+		}
 		if (element.QueryFLOATAttribute("max", &m_Vreset[1]) != TIXML_SUCCESS) {
 			throw ParseParamError("Vreset max", "Vreset missing maximum value in XML.");
 		}
@@ -144,6 +159,9 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 	if (element.ValueStr().compare("Vinit") == 0) {
 		if (element.QueryFLOATAttribute("min", &m_Vinit[0]) != TIXML_SUCCESS) {
 			throw ParseParamError("Vinit min", "Vinit missing minimum value in XML.");
+		}
+		if (m_Vinit[0] < 0) {
+			throw ParseParamError("Vinit min", "Invalid negative Vinit value.");
 		}
 		if (element.QueryFLOATAttribute("max", &m_Vinit[1]) != TIXML_SUCCESS) {
 			throw ParseParamError("Vinit max", "Vinit missing maximum value in XML.");
@@ -159,6 +177,9 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 		if (element.QueryFLOATAttribute("min", &m_starter_Vthresh[0]) != TIXML_SUCCESS) {
 			throw ParseParamError("starter_vthresh min", "starter_vthresh missing minimum value in XML.");
 		}
+		if (m_starter_Vthresh[0] < 0) {
+			throw ParseParamError("starter_vthresh min", "Invalid negative starter_vthresh value.");
+		}
 		if (element.QueryFLOATAttribute("max", &m_starter_Vthresh[1]) != TIXML_SUCCESS) {
 			throw ParseParamError("starter_vthresh max", "starter_vthresh missing maximum value in XML.");
 		}
@@ -171,6 +192,9 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 	if (element.ValueStr().compare("starter_vreset") == 0) {
 		if (element.QueryFLOATAttribute("min", &m_starter_Vreset[0]) != TIXML_SUCCESS) {
 			throw ParseParamError("starter_vreset min", "starter_vreset missing minimum value in XML.");
+		}
+		if (m_starter_Vreset[0] < 0) {
+			throw ParseParamError("starter_vreset min", "Invalid negative starter_vreset value.");
 		}
 		if (element.QueryFLOATAttribute("max", &m_starter_Vreset[1]) != TIXML_SUCCESS) {
 			throw ParseParamError("starter_vreset max", "starter_vreset missing maximum value in XML.");
@@ -185,22 +209,44 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 		if (element.QueryFLOATAttribute("epsilon", &m_growth.epsilon) != TIXML_SUCCESS) {
 			throw ParseParamError("epsilon", "Growth param 'epsilon' missing in XML.");
 		}
+		if (m_growth.epsilon < 0) {
+			throw ParseParamError("epsilon", "Invalid negative Growth param 'epsilon' value.");
+		}
+
 		if (element.QueryFLOATAttribute("beta", &m_growth.beta) != TIXML_SUCCESS) {
 			throw ParseParamError("beta", "Growth param 'beta' missing in XML.");
 		}
+		if (m_growth.beta < 0) {
+			throw ParseParamError("beta", "Invalid negative Growth param 'beta' value.");
+		}
+
 		if (element.QueryFLOATAttribute("rho", &m_growth.rho) != TIXML_SUCCESS) {
 			throw ParseParamError("rho", "Growth param 'rho' missing in XML.");
 		}
+		if (m_growth.rho < 0) {
+			throw ParseParamError("rho", "Invalid negative Growth param 'rho' value.");
+		}
 
-		//check if 'beta' is relevent info
+		//check if 'beta' is erroneous info
 		if (element.QueryFLOATAttribute("targetRate", &m_growth.targetRate) != TIXML_SUCCESS) {
 			throw ParseParamError("targetRate", "Growth targetRate 'beta' missing in XML.");
 		}
+		if (m_growth.targetRate < 0) {
+			throw ParseParamError("targetRate", "Invalid negative Growth targetRate.");
+		}
+
 		if (element.QueryFLOATAttribute("minRadius", &m_growth.minRadius) != TIXML_SUCCESS) {
 			throw ParseParamError("minRadius", "Growth minRadius 'beta' missing in XML.");
 		}
+		if (m_growth.minRadius < 0) {
+			throw ParseParamError("minRadius", "Invalid negative Growth minRadius.");
+		}
+
 		if (element.QueryFLOATAttribute("startRadius", &m_growth.startRadius) != TIXML_SUCCESS) {
 			throw ParseParamError("startRadius", "Growth startRadius 'beta' missing in XML.");
+		}
+		if (m_growth.startRadius < 0) {
+			throw ParseParamError("startRadius", "Invalid negative Growth startRadius.");
 		}
 	}
 	//-----------------------------------------------------------------------//
@@ -769,12 +815,12 @@ void LIFModel::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
 
 	if (m_fixed_layout) {
 		DEBUG(cout << "Total neurons: " << num_neurons << endl;)
-        										DEBUG(cout << "Inhibitory Neurons: " << num_inhibitory_neurons << endl;)
-        										DEBUG(cout << "Excitatory Neurons: " << num_excititory_neurons << endl;)
+        DEBUG(cout << "Inhibitory Neurons: " << num_inhibitory_neurons << endl;)
+        DEBUG(cout << "Excitatory Neurons: " << num_excititory_neurons << endl;)
 
-        										for (int i = 0; i < num_inhibitory_neurons; i++) {
-        											neuron_types[m_inhibitory_neuron_layout.at(i)] = INH;
-        										}
+        for (int i = 0; i < num_inhibitory_neurons; i++) {
+        	neuron_types[m_inhibitory_neuron_layout.at(i)] = INH;
+        }
 	} else {
 		int num_excititory_neurons = (int) (m_frac_excititory_neurons * num_neurons + 0.5);
 		int num_inhibitory_neurons = num_neurons - num_excititory_neurons;
@@ -1152,21 +1198,21 @@ const string LIFModel::Connections::MATRIX_INIT = "const";
  * only 1/250 of their current space. 
 \* --------------------------------------------- */
 LIFModel::Connections::Connections(const int num_neurons, const BGFLOAT start_radius, const BGFLOAT growthEpochDuration, const BGFLOAT maxGrowthSteps) :
-    										xloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
-    										yloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
-    										W(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),
-    										radii(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, start_radius),
-    										rates(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, 0),
-    										dist2(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
-    										delta(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
-    										dist(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
-    										area(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),
-    										outgrowth(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
-    										deltaR(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
-    										radiiHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
-    										ratesHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
-    										burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthEpochDuration * maxGrowthSteps), 0),
-    										spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthEpochDuration * maxGrowthSteps * 100), 0)
+    	xloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
+    	yloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
+		W(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),
+		radii(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, start_radius),
+    	rates(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, 0),
+    	dist2(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
+    	delta(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
+    	dist(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
+    	area(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),
+    	outgrowth(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
+    	deltaR(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
+    	radiiHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
+    	ratesHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
+    	burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthEpochDuration * maxGrowthSteps), 0),
+    	spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthEpochDuration * maxGrowthSteps * 100), 0)
 {
 	// Init radii and rates history matrices with current radii and rates
 	for (int i = 0; i < num_neurons; i++) {
