@@ -13,6 +13,7 @@ MATRIXDIR = $(MAIN)/matrix
 PARAMDIR = $(MAIN)/paramcontainer
 RNGDIR = $(MAIN)/rng
 XMLDIR = $(MAIN)/tinyxml
+H5INCDIR = /opt/hdf5/latest/include
 
 ################################################################################
 # Build tools
@@ -24,7 +25,7 @@ OPT = g++
 ################################################################################
 # Flags
 ################################################################################
-CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT 
+CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -I$(H5INCDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT 
 CGPUFLAGS = -DUSE_GPU
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
@@ -55,9 +56,8 @@ LIBOBJS = $(COMMDIR)/AllNeurons.o \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
 			$(COMMDIR)/Util.o \
-			$(COMMDIR)/XmlRecorder.o 
-
-#			$(COMMDIR)/Hdf5Recorder.o \
+			$(COMMDIR)/XmlRecorder.o \
+			$(COMMDIR)/Hdf5Recorder.o 
  
 		
 MATRIXOBJS = $(MATRIXDIR)/CompleteMatrix.o \

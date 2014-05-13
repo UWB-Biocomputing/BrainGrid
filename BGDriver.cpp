@@ -15,6 +15,7 @@
 #include "Network.h"
 #include "Model.h"
 #include "XmlRecorder.h"
+#include "Hdf5Recorder.h"
 
 
 // Uncomment to use visual leak detector (Visual Studios Plugin)
@@ -51,9 +52,8 @@ Model *model = NULL;
 // Simulation Parameters
 BGFLOAT Tsim;  // Simulation time (s) (between growth updates) rename: epochLength
 int numSims;  // Number of Tsim simulation to run
-int maxFiringRate;  // Maximum firing rate (only used by GPU version)
+int maxFiringRate;  // Maximum firing rate
 int maxSynapsesPerNeuron;  // Maximum number of synapses per neuron
-                           // (only used by GPU version)
 long seed;  // Seed for random generator (single-threaded)
 
 // functions
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
     #if defined(USE_GPU)
 	 model = new LIFGPUModel();
     #elif defined(USE_OMP)
-	// model = new LIFSingleThreadedModel();
+	 model = new LIFSingleThreadedModel();
     #else
 	 model = new LIFSingleThreadedModel();
     #endif
@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
         simRecorder = new XmlRecorder(&simInfo);
     }
     else if (stateOutputFileName.find(".h5") != string::npos) {
-        //simRecorder = new Hdf5Recorder(&simInfo); 
+        simRecorder = new Hdf5Recorder(&simInfo); 
     }
     else {
         cerr << "! ERROR: invalid state output file name extension." << endl;

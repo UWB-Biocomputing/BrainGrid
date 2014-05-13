@@ -97,7 +97,7 @@ void XmlRecorder::compileHistories(const SimulationInfo* sim_info, VectorMatrix&
         uint64_t* pSpikes = neurons.spike_history[iNeuron];
 
         int& spike_count = neurons.spikeCount[iNeuron];
-        for (unsigned int i = 0; i < spike_count; i++)
+        for (int i = 0; i < spike_count; i++)
         {
             // compile network wide burstiness index data in 1s bins
             int idx1 = static_cast<int>( pSpikes[i] * sim_info->deltaT );
