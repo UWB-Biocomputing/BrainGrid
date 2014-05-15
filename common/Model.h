@@ -76,7 +76,7 @@ class Model {
         /**
          * TODO(derek) comment.
          */
-        virtual void saveState(const AllNeurons &neurons, const SimulationInfo *sim_info, IRecorder* simRecorder) =0;
+        virtual void saveState(const AllNeurons &neurons, IRecorder* simRecorder) =0;
 
         /* ----------------
          * Network Creation

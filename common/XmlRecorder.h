@@ -32,66 +32,53 @@
 #define _XMLRECORDER_H_
 
 #include "IRecorder.h"
+#include "LIFModel.h"
 #include <fstream>
 
 class XmlRecorder : public IRecorder
 {
 public:
     //! THe constructor and destructor
-    XmlRecorder(SimulationInfo* psi);
+    XmlRecorder(Model *model, SimulationInfo* sim_info);
     ~XmlRecorder();
 
     /**
      * Initialize data
      * @param[in] stateOutputFileName       File name to save histories
-     * @param[in] probedNListFileName       File name to get locations of probed neurons list
      */
-    virtual void init(SimulationInfo* psi, const string& stateOutputFileName, const string& probedNListFileName);
+    virtual void init(const string& stateOutputFileName);
 
     /*
      * Init radii and rates history matrices with default values
-     * @param[in] psi       Pointer to the simulation information.
      */
-    virtual void initValues(SimulationInfo* psi);
+    virtual void initDefaultValues();
 
     /*
      * Init radii and rates history matrices with current radii and rates
-     * @param[in] psi       Pointer to the simulation information.
-     * @param[in] radii     Matrix to hold current radii.
-     * @param[in] rates     Matrix to hold current rates.
      */
-    virtual void initValues(SimulationInfo* psi, const VectorMatrix& radii, const VectorMatrix& rates);
+    virtual void initValues();
 
     /*
      * Get the current radii and rates vlaues
-     * @param[in] psi       Pointer to the simulation information.
-     * @param[out] radii    Current radii values
-     * @param[out] rates    Current rates values
      */
-    virtual void getValues(SimulationInfo* psi, VectorMatrix& radii, VectorMatrix& rates);
+    virtual void getValues();
 
     /**
      * Terminate process
      */
-    virtual void term(SimulationInfo* psi);
+    virtual void term();
 
     /**
      * Compile history information in every epoch
-     * @param[in] psi       Pointer to the simulation information.
-     * @param[in] rates     Reference to the rates matrix.
-     * @param[in] radii     Reference to the radii matrix.
      * @param[in] neurons   The entire list of neurons.
      */
-    virtual void compileHistories(const SimulationInfo* psi, VectorMatrix& rates, VectorMatrix& radii, AllNeurons &neurons);
+    virtual void compileHistories(const AllNeurons &neurons);
 
     /**
      * Save current simulation state to XML
-     * @param[in] psi       Pointer to the simulation information.
-     * @param[in] neuronTypes       Neuron types: INH or EXC
-     * @param[in] starterNeurons    Starter neurons matrix
-     * @param[in] neuronThresh      Neuron thresold
+     * @param  neurons the Neuron list to search from.
      **/
-    virtual void saveSimState(const SimulationInfo* psi, VectorMatrix& neuronTypes, VectorMatrix& starterNeurons, VectorMatrix& neuronThresh);
+    virtual void saveSimState(const AllNeurons &neurons);
 
 private:
     // a file stream for xml output
@@ -108,6 +95,12 @@ private:
 
     // track firing rate
     CompleteMatrix ratesHistory;
+
+    // Struct that holds information about a simulation
+    SimulationInfo *m_sim_info;
+
+    // TODO comment
+    LIFModel *m_model;
 };
 
 #endif // _XMLRECORDER_H_

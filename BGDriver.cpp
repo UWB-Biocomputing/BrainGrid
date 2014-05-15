@@ -106,20 +106,19 @@ int main(int argc, char* argv[]) {
     // create & init simulation recorder
     IRecorder* simRecorder = NULL;
     if (stateOutputFileName.find(".xml") != string::npos) {
-        simRecorder = new XmlRecorder(&simInfo);
+        simRecorder = new XmlRecorder(model, &simInfo);
     }
     else if (stateOutputFileName.find(".h5") != string::npos) {
-        simRecorder = new Hdf5Recorder(&simInfo); 
+        simRecorder = new Hdf5Recorder(model, &simInfo); 
     }
     else {
         cerr << "! ERROR: invalid state output file name extension." << endl;
         return -1;
     }
-    string probedNListFileName;
-    simRecorder->init(&simInfo, stateOutputFileName, probedNListFileName);
+    simRecorder->init(stateOutputFileName);
 
     // Init radii and rates history matrices with default values
-    simRecorder->initValues(&simInfo);
+    simRecorder->initDefaultValues();
 
     // create the network
     Network network(model, &simInfo, simRecorder);
@@ -157,7 +156,7 @@ int main(int argc, char* argv[]) {
     simulator->saveState();
 
     // terminates the simulation recorder
-    simRecorder->term(&simInfo);
+    simRecorder->term();
 
     ofstream memory_out;
     if (fWriteMemImage) {

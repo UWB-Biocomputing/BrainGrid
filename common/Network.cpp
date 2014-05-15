@@ -124,7 +124,7 @@ void Network::reset()
  */
 void Network::saveState()
 {
-    m_model->saveState(neurons, m_sim_info, m_simRecorder);
+    m_model->saveState(neurons, m_simRecorder);
 }
 
 /**

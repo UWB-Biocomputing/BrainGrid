@@ -186,10 +186,71 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 
         const TiXmlNode* pNode = NULL;
         while ((pNode = element.IterateChildren(pNode)) != NULL) {
+            string activeNListFileName;
+            string inhNListFileName;
+            string probedNListFileName;
+
             if (strcmp(pNode->Value(), "A") == 0) {
                 getValueList(pNode->ToElement()->GetText(), &m_endogenously_active_neuron_list);
             } else if (strcmp(pNode->Value(), "I") == 0) {
                 getValueList(pNode->ToElement()->GetText(), &m_inhibitory_neuron_layout);
+            }
+            else if (strcmp(pNode->Value(), "LayoutFiles") == 0)
+            {
+                if (pNode->ToElement()->QueryValueAttribute( "inhNListFileName", &inhNListFileName ) == TIXML_SUCCESS)
+                {
+                    TiXmlDocument simDoc( inhNListFileName.c_str( ) );
+                    if (!simDoc.LoadFile( ))
+                    {
+                        cerr << "Failed loading positions of inhibitory neurons list file " << inhNListFileName << ":" << "\n\t"
+                            << simDoc.ErrorDesc( ) << endl;
+                        cerr << " error: " << simDoc.ErrorRow( ) << ", " << simDoc.ErrorCol( ) << endl;
+                        break;
+                    }
+                    TiXmlNode* temp2 = NULL;
+                    if (( temp2 = simDoc.FirstChildElement( "I" ) ) == NULL)
+                    {
+                        cerr << "Could not find <I> in positons of inhibitory neurons list file " << inhNListFileName << endl;
+                        break;
+                    }
+                    getValueList(temp2->ToElement()->GetText(), &m_inhibitory_neuron_layout);
+                }
+                if (pNode->ToElement()->QueryValueAttribute( "activeNListFileName", &activeNListFileName ) == TIXML_SUCCESS)
+                {
+                    TiXmlDocument simDoc( activeNListFileName.c_str( ) );
+                    if (!simDoc.LoadFile( ))
+                    {
+                        cerr << "Failed loading positions of endogenously active neurons list file " << activeNListFileName << ":" << "\n\t"
+                            << simDoc.ErrorDesc( ) << endl;
+                        cerr << " error: " << simDoc.ErrorRow( ) << ", " << simDoc.ErrorCol( ) << endl;
+                        break;
+                    }
+                    TiXmlNode* temp2 = NULL;
+                    if (( temp2 = simDoc.FirstChildElement( "A" ) ) == NULL)
+                    {
+                        cerr << "Could not find <A> in positons of endogenously active neurons list file " << activeNListFileName << endl;
+                        break;
+                    }
+                    getValueList(temp2->ToElement()->GetText(), &m_endogenously_active_neuron_list);
+                }
+
+                if (pNode->ToElement()->QueryValueAttribute( "probedNListFileName", &probedNListFileName ) == TIXML_SUCCESS) {
+                    TiXmlDocument simDoc( probedNListFileName.c_str( ) );
+                    if (!simDoc.LoadFile( ))
+                    {
+                        cerr << "Failed loading positions of probed neurons list file " << probedNListFileName << ":" << "\n\t"
+                            << simDoc.ErrorDesc( ) << endl;
+                        cerr << " error: " << simDoc.ErrorRow( ) << ", " << simDoc.ErrorCol( ) << endl;
+                        break;
+                    }
+                    TiXmlNode* temp2 = NULL;
+                    if (( temp2 = simDoc.FirstChildElement( "P" ) ) == NULL)
+                    {
+                        cerr << "Could not find <P> in positions of probed neurons list file " << probedNListFileName << endl;
+                        break;
+                    }
+                    getValueList(temp2->ToElement()->GetText(), &m_probed_neuron_list);
+               }
             }
         }
     }
@@ -251,6 +312,13 @@ void LIFModel::printParameters(ostream &output) const
         cout << "\tInhibitory neuron positions: ";
         for (size_t i = 0; i < m_inhibitory_neuron_layout.size(); i++) {
             output << m_inhibitory_neuron_layout[i] << " ";
+        }
+
+        cout << endl;
+
+        cout << "\tProbed neuron positions: ";
+        for (size_t i = 0; i < m_probed_neuron_list.size(); i++) {
+            output << m_probed_neuron_list[i] << " ";
         }
 
         output << endl;
@@ -565,35 +633,10 @@ void LIFModel::writeSynapse(ostream& output, AllSynapses &synapses, const int ne
 /**
  *  Prepares a stream with data from the model and Neurons.
  *  @param  neurons the Neuron list to search from.
- *  @param  sim_info    SimulationInfo class to read information from.
  */
-void LIFModel::saveState(const AllNeurons &neurons, const SimulationInfo *sim_info, IRecorder* simRecorder)
+void LIFModel::saveState(const AllNeurons &neurons, IRecorder* simRecorder)
 {
-    // create Neuron Types matrix
-    VectorMatrix neuronTypes("complete", "const", 1, sim_info->totalNeurons, EXC);
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        neuronTypes[i] = neurons.neuron_type_map[i];
-    }
-
-    // create neuron threshold matrix
-    VectorMatrix neuronThresh("complete", "const", 1, sim_info->totalNeurons, 0);
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        neuronThresh[i] = neurons.Vthresh[i];
-    }
-
-    // create starter nuerons matrix
-    int num_starter_neurons = static_cast<int>(m_frac_starter_neurons * sim_info->totalNeurons);
-    if (num_starter_neurons > 0)
-    {
-        VectorMatrix starterNeuronsM("complete", "const", 1, num_starter_neurons);
-        getStarterNeuronMatrix(starterNeuronsM, neurons.starter_map, sim_info);
-    	simRecorder->saveSimState(sim_info, neuronTypes, starterNeuronsM, neuronThresh);
-    }
-    else
-    {
-        VectorMatrix starterNeuronsM("complete", "const", 1, 0);
-    	simRecorder->saveSimState(sim_info, neuronTypes, starterNeuronsM, neuronThresh);
-    }
+    simRecorder->saveSimState(neurons);
 }
 
 /**
@@ -965,7 +1008,7 @@ void LIFModel::updateHistory(const int currentStep, BGFLOAT epochDuration, AllNe
     m_conns->radii += m_conns->deltaR;
 
     // Compile history information in every epoch
-    simRecorder->compileHistories(sim_info, m_conns->rates, m_conns->radii, neurons);
+    simRecorder->compileHistories(neurons);
 
     // clear spike count
     clearSpikeCounts(neurons, sim_info);
@@ -1136,18 +1179,7 @@ LIFModel::Connections::Connections(const int num_neurons, const BGFLOAT start_ra
     area(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),
     outgrowth(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
     deltaR(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons)
-    //radiiHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
-    //ratesHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(maxGrowthSteps + 1), num_neurons),
-    //burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthEpochDuration * maxGrowthSteps), 0),
-    //spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, (int)(growthEpochDuration * maxGrowthSteps * 100), 0)
 {
-#if 0
-    // Init radii and rates history matrices with current radii and rates
-    for (int i = 0; i < num_neurons; i++) {
-        radiiHistory(0, i) = start_radius;
-        ratesHistory(0, i) = 0;
-    }
-#endif
 }
 
 

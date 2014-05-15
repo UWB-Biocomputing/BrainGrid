@@ -28,44 +28,44 @@ struct AllNeurons
          *  
          *  Usage: LOCAL VARIABLE
          *  LIFSingleThreadedModel::advanceNeurons()		Modified
-		 *  LIFSingleThreadedModel::fire()					Modified
-		 *	GpuSim_struct.cu::advanceNeuronsDevice()		Modified
+         *  LIFSingleThreadedModel::fire()			Modified
+         *  GpuSim_struct.cu::advanceNeuronsDevice()		Modified
          */
         bool *hasFired;
 
         /*! The length of the absolute refractory period. [units=sec; range=(0,1);]
          *  
          *  Usage: LOCAL CONSTANT depending on a type of neuron
-         *  LIFModel::createAllNeurons						Initialized
-         *  LIFSingleThreadedModel::fire()					Accessed
-		 *	GpuSim_struct.cu::advanceNeuronsDevice()		Accessed
+         *  LIFModel::createAllNeurons				Initialized
+         *  LIFSingleThreadedModel::fire()			Accessed
+         *  GpuSim_struct.cu::advanceNeuronsDevice()		Accessed
          */
         BGFLOAT *Trefract;
 
         /*! If \f$V_m\f$ exceeds \f$V_{thresh}\f$ a spike is emmited. [units=V; range=(-10,100);]
          *  
          *  Usage: LOCAL CONSTANT
-         *  LIFModel::createAllNeurons						Initialized
-         *  LIFSingleThreadedModel::advanceNeuron()			Accessed
-		 *	GpuSim_struct.cu::advanceNeuronsDevice()		Accessed
+         *  LIFModel::createAllNeurons				Initialized
+         *  LIFSingleThreadedModel::advanceNeuron()		Accessed
+         *  GpuSim_struct.cu::advanceNeuronsDevice()		Accessed
          */
         BGFLOAT *Vthresh;
 
         /*! The resting membrane voltage. [units=V; range=(-1,1);]
          *  
          *  Usage: LOCAL CONSTANT
-         *  LIFModel::createAllNeurons											Initialized
-         *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()			Accessed
-		 *	GpuSim_struct.cu::NOT USED
+         *  LIFModel::createAllNeurons						Initialized
+         *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()		Accessed
+         *  GpuSim_struct.cu::							NOT USED
          */
         BGFLOAT *Vrest;
 
         /*! The voltage to reset \f$V_m\f$ to after a spike. [units=V; range=(-1,1);]
          *  
          *  Usage: LOCAL CONSTANT
-         *  LIFModel::createAllNeurons						Initialized
-         *  LIFSingleThreadedModel::fire()					Accessed
-		 *	GpuSim_struct.cu::advanceNeuronsDevice()		Accessed
+         *  LIFModel::createAllNeurons				Initialized
+         *  LIFSingleThreadedModel::fire()			Accessed
+         *  GpuSim_struct.cu::advanceNeuronsDevice()		Accessed
          */
         BGFLOAT *Vreset;
 
@@ -74,7 +74,7 @@ struct AllNeurons
          *  Usage: LOCAL CONSTANT
          *  LIFModel::createAllNeurons				Initialized
          *  LIFModel::createAllNeurons()			Accessed
-         *  GpuSim_struct.cu::NOT USED
+         *  GpuSim_struct.cu::					NOT USED
          */
         BGFLOAT *Vinit;
 
@@ -89,9 +89,9 @@ struct AllNeurons
         /*! The membrane resistance \f$R_m\f$ [units=Ohm; range=(0,1e30)]
          *  
          *  Usage: GLOBAL CONSTANT
-         *  LIFModel::setNeuronDefaults									Initialized and accessed
+         *  LIFModel::setNeuronDefaults					Initialized and accessed
          *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()	Accessed
-		 *	GpuSim_struct.cu::NOT USED
+         *  GpuSim_struct.cu::						NOT USED
          */
         BGFLOAT *Rm;
 
@@ -99,24 +99,24 @@ struct AllNeurons
 		 *	[range=(0,1); units=A;]
          *  
          *  Usage: LOCAL CONSTANT
-         *  LIFModel::createAllNeurons						Initialized
-         *  LIFSingleThreadedModel::advanceNeuron()			Accessed
-		 *	GpuSim_struct.cu::advanceNeuronsDevice()		Accessed
+         *  LIFModel::createAllNeurons				Initialized
+         *  LIFSingleThreadedModel::advanceNeuron()		Accessed
+         *  GpuSim_struct.cu::advanceNeuronsDevice()		Accessed
          */
         BGFLOAT *Inoise;
 
         /*! A constant current to be injected into the LIF neuron. [units=A; range=(-1,1);]
          *  
          *  Usage: LOCAL CONSTANT
-         *  LIFModel::createAllNeurons									Initialized
+         *  LIFModel::createAllNeurons					Initialized
          *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()	Accessed
-		 *	GpuSim_struct.cu::NOT USED
+         *  GpuSim_struct.cu::						NOT USED
          */
         BGFLOAT *Iinject;
 
         /*! What the hell is this used for???
-		 *  It does not seem to be used; seems to be a candidate for deletion.
-		 *  Possibly from the old code before using a separate summation point
+         *  It does not seem to be used; seems to be a candidate for deletion.
+         *  Possibly from the old code before using a separate summation point
          *  The synaptic input current.
          *  
          *  Usage: NOT USED ANYWHERE
@@ -126,9 +126,9 @@ struct AllNeurons
         /*! The remaining number of time steps for the absolute refractory period.
          *  
          *  Usage: LOCAL VARIABLE
-         *  LIFSingleThreadedModel::advanceNeuron()			Modified
-		 *  LIFSingleThreadedModel::fire()					Modified
-		 *	GpuSim_struct.cu::advanceNeuronsDevice()		Modified
+         *  LIFSingleThreadedModel::advanceNeuron()		Modified
+         *  LIFSingleThreadedModel::fire()			Modified
+         *  GpuSim_struct.cu::advanceNeuronsDevice()		Modified
          */
         int *nStepsInRefr;
 
@@ -136,72 +136,72 @@ struct AllNeurons
          *  
          *  Usage: GLOBAL CONSTANT
          *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()	Initialized
-		 *  LIFSingleThreadedModel::advanceNeuron()						Accessed
-		 *	GpuSim_struct.cu::advanceNeuronsDevice()					Accessed
+         *  LIFSingleThreadedModel::advanceNeuron()			Accessed
+         *  GpuSim_struct.cu::advanceNeuronsDevice()			Accessed
          */
         BGFLOAT *C1;
         /*! Internal constant for the exponential Euler integration of \f$V_m\f$.
          *  
          *  Usage: GLOBAL CONSTANT
          *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()	Initialized
-		 *  LIFSingleThreadedModel::advanceNeuron()						Accessed
-		 *	GpuSim_struct.cu::advanceNeuronsDevice()					Accessed
+         *  LIFSingleThreadedModel::advanceNeuron()			Accessed
+         *  GpuSim_struct.cu::advanceNeuronsDevice()			Accessed
          */
         BGFLOAT *C2;
         /*! Internal constant for the exponential Euler integration of \f$V_m\f$.
          *  
          *  Usage: LOCAL CONSTANT
          *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()	Initialized
-		 *  LIFSingleThreadedModel::advanceNeuron()						Accessed
-		 *	GpuSim_struct.cu::advanceNeuronsDevice()					Accessed
+         *  LIFSingleThreadedModel::advanceNeuron()			Accessed
+         *  GpuSim_struct.cu::advanceNeuronsDevice()			Accessed
          */
         BGFLOAT *I0;
         /*! The membrane voltage \f$V_m\f$ [readonly; units=V;]
          *  
          *  Usage: LOCAL VARIABLE
          *  LIFSingleThreadedModel::advanceNeuron()			Modified
-		 *  LIFSingleThreadedModel::fire()					Modified
-		 *	GpuSim_struct.cu::advanceNeuronsDevice()		Modified
+         *  LIFSingleThreadedModel::fire()				Modified
+         *  GpuSim_struct.cu::advanceNeuronsDevice()			Modified
          */
         BGFLOAT *Vm;
         /*! The membrane time constant \f$(R_m \cdot C_m)\f$
          *  
          *  Usage: GLOBAL CONSTANT
-         *  LIFModel::setNeuronDefaults									Initialized
+         *  LIFModel::setNeuronDefaults					Initialized
          *  LIFSingleThreadedModel::initNeuronConstsFromParamValues()	Accessed
-		 *	GpuSim_struct.cu::NOT USED
+         *  GpuSim_struct.cu::						NOT USED
          */
         BGFLOAT *Tau;
 
         /*! The number of spikes since the last growth cycle
          *  
          *  Usage: LOCAL VARIABLE
-		 *  LIFSingleThreadedModel::fire()					Modified
-		 *  LIFSingleThreadedModel::updateHistory()			Accessed
-		 *  LIFSingleThreadedModel::getSpikeCounts()		Accessed
-		 *  LIFSingleThreadedModel::clearSpikeCounts()		Modified
-		 *	GpuSim_struct.cu::getSpikeCounts()				Accessed
-		 *	GpuSim_struct.cu::clearSpikeCounts()			Accessed
- 		 *	GpuSim_struct.cu::advanceNeuronsDevice()		Modified
+         *  LIFSingleThreadedModel::fire()				Modified
+         *  LIFSingleThreadedModel::updateHistory()			Accessed
+         *  LIFSingleThreadedModel::getSpikeCounts()			Accessed
+         *  LIFSingleThreadedModel::clearSpikeCounts()			Modified
+         *  GpuSim_struct.cu::getSpikeCounts()				Accessed
+         *  GpuSim_struct.cu::clearSpikeCounts()			Accessed
+         *  GpuSim_struct.cu::advanceNeuronsDevice()			Modified
          */
         int *spikeCount;
 
-		/*! Step count for each spike fired by each neuron
-		 *
-		 *  Usage: LOCAL VARIABLE
+        /*! Step count for each spike fired by each neuron
+         *
+         *  Usage: LOCAL VARIABLE
          *  LIFSingleThreadedModel::cleanupSim()			Accessed
-		 *  LIFSingleThreadedModel::fire()					Modified
-		 *	GpuSim_struct.cu::NOT USED
+         *  LIFSingleThreadedModel::fire()				Modified
+         *  GpuSim_struct.cu::						NOT USED
          */
         uint64_t **spike_history;
 
         /*! The neuron type map (INH, EXC).
          *  
          *  Usage: LOCAL CONSTANT
-         *  LIFModel::generateNeuronTypeMap					Initialized
+         *  LIFModel::generateNeuronTypeMap				Initialized
          *  LIFSingleThreadedModel::logSimStep()			Accessed
-		 *  LIFSingleThreadedModel::synType()				Accessed
-		 *	GpuSim_struct.cu::NOT USED
+         *  LIFSingleThreadedModel::synType()				Accessed
+         *  GpuSim_struct.cu::						NOT USED
          */
         neuronType *neuron_type_map;
 
@@ -209,8 +209,8 @@ struct AllNeurons
          *  
          *  Usage: LOCAL VARIABLE
          *  LIFSingleThreadedModel::advanceNeuron()			Modified
-		 *  LIFSingleThreadedModel::updateWeights()			Accessed
-		 *	GpuSim_struct.cu::NOT USED
+         *  LIFSingleThreadedModel::updateWeights()			Accessed
+         *  GpuSim_struct.cu::						NOT USED
          */
         BGFLOAT *summation_map;
 
@@ -218,8 +218,8 @@ struct AllNeurons
          *  
          *  Usage: LOCAL CONSTANT
          *  LIFModel::initStarterMap					Initialized
-         *  LIFSingleThreadedModel::logSimStep()		Accessed
-		 *	GpuSim_struct.cu::NOT USED
+         *  LIFSingleThreadedModel::logSimStep()			Accessed
+         *  GpuSim_struct.cu::						NOT USED
          */
         bool *starter_map;
 
