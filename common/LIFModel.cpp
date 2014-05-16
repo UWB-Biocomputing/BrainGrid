@@ -13,9 +13,9 @@ const BGFLOAT LIFModel::SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
  *  Constructor
  */
 LIFModel::LIFModel() :
- m_read_params(0)
-,m_fixed_layout(false)
-,m_conns(NULL)
+    m_read_params(0)
+   ,m_fixed_layout(false)
+   ,m_conns(NULL)
 {
 
 }
@@ -71,8 +71,15 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 		if (element.QueryFLOATAttribute("frac_EXC", &m_frac_excititory_neurons) != TIXML_SUCCESS) {
 			throw ParseParamError("frac_EXC", "Fraction Excitatory missing in XML.");
 		}
+		if (m_frac_excititory_neurons < 0 || m_frac_excititory_neurons > 1) {
+			throw ParseParamError("frac_EXC", "Invalid range for a fraction.");
+		}
+
 		if (element.QueryFLOATAttribute("starter_neurons", &m_frac_starter_neurons) != TIXML_SUCCESS) {
 			throw ParseParamError("starter_neurons", "Fraction endogenously active missing in XML.");
+		}
+		if (m_frac_starter_neurons < 0 || m_frac_starter_neurons > 1) {
+			throw ParseParamError("starter_neurons", "Invalid range for a fraction.");
 		}
 	}
 
@@ -257,6 +264,7 @@ bool LIFModel::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* fir
 	if (element.ValueStr().compare("FixedLayout") == 0) {
 		m_fixed_layout = true;
 
+		//int neuronSetupCount = -1;  //tracking of how many neurons have been allocated
 		const TiXmlNode* pNode = NULL;
 		while ((pNode = element.IterateChildren(pNode)) != NULL) {
 			if (strcmp(pNode->Value(), "A") == 0) {
@@ -1200,8 +1208,8 @@ const string LIFModel::Connections::MATRIX_INIT = "const";
 LIFModel::Connections::Connections(const int num_neurons, const BGFLOAT start_radius, const BGFLOAT growthEpochDuration, const BGFLOAT maxGrowthSteps) :
     	xloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
     	yloc(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons),
-		W(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),
-		radii(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, start_radius),
+    	W(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0),
+    	radii(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, start_radius),
     	rates(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, 0),
     	dist2(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
     	delta(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons),
