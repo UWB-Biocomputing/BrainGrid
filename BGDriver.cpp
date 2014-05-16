@@ -45,24 +45,18 @@ bool fReadMemImage = false;  // True if dumped memory image is read before
 bool fWriteMemImage = false;  // True if dumped memory image is written after
                               // simulation
 
-int poolsize[3];  // size of pool of neurons [x y z]
 
 Model *model = NULL;
+SimulationInfo *simInfo = NULL;
 
-// Simulation Parameters
-BGFLOAT Tsim;  // Simulation time (s) (between growth updates) rename: epochLength
-int numSims;  // Number of Tsim simulation to run
-int maxFiringRate;  // Maximum firing rate
-int maxSynapsesPerNeuron;  // Maximum number of synapses per neuron
-long seed;  // Seed for random generator (single-threaded)
 
 // functions
 SimulationInfo makeSimulationInfo(int cols, int rows,
     BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps,
     int maxFiringRate, int maxSynapsesPerNeuron, BGFLOAT new_deltaT,
     long seed);
-bool load_simulation_parameters(const string &sim_param_filename);
-void LoadSimParms(TiXmlElement*);
+bool LoadAllParameters(const string &sim_param_filename);
+void LoadSimulationParameters(TiXmlElement*);
 //void SaveSimState(ostream &);
 void printParams();
 bool parseCommandLine(int argc, char* argv[]);
@@ -91,17 +85,13 @@ int main(int argc, char* argv[]) {
         cerr << "! ERROR: failed during command line parse" << endl;
         return -1;
     }
-    if (!load_simulation_parameters(stateInputFileName)) {
+    if (!LoadAllParameters(stateInputFileName)) {
         cerr << "! ERROR: failed while parsing simulation parameters." << endl;
         return -1;
     }
 
     /*    verify that params were read correctly */
     DEBUG(printParams();)
-
-    // init SimulationInfo parameters
-    SimulationInfo simInfo = makeSimulationInfo(poolsize[0], poolsize[1],Tsim, numSims,
-            maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed);
 
     // create & init simulation recorder
     IRecorder* simRecorder = NULL;
@@ -121,7 +111,7 @@ int main(int argc, char* argv[]) {
     simRecorder->initDefaultValues();
 
     // create the network
-    Network network(model, &simInfo, simRecorder);
+    Network network(model, simInfo, simRecorder);
 
     time_t start_time, end_time;
     time(&start_time);
@@ -134,14 +124,13 @@ int main(int argc, char* argv[]) {
     //simulator = &test;
 
     #if defined(USE_GPU)
-        simulator = new GPUSimulator(&network, &simInfo);
+        simulator = new GPUSimulator(&network, simInfo);
     #elif defined(USE_OMP)
-        simulator = new SingleThreadedSim(&network, &simInfo);
+        simulator = new SingleThreadedSim(&network, simInfo);
     #else
-        simulator = new SingleThreadedSim(&network, &simInfo);
+        simulator = new SingleThreadedSim(&network, simInfo);
     #endif
 
-	
 	
     if (fReadMemImage) {
         ifstream memory_in;
@@ -173,8 +162,8 @@ int main(int argc, char* argv[]) {
 
     time(&end_time);
     double time_elapsed = difftime(end_time, start_time);
-    double ssps = Tsim * numSims / time_elapsed;
-    cout << "time simulated: " << Tsim * numSims << endl;
+    double ssps = simInfo->epochDuration * simInfo->maxSteps / time_elapsed;
+    cout << "time simulated: " << simInfo->epochDuration * simInfo->maxSteps << endl;
     cout << "time elapsed: " << time_elapsed << endl;
     cout << "ssps (simulation seconds / real time seconds): " << ssps << endl;
     
@@ -183,6 +172,9 @@ int main(int argc, char* argv[]) {
     
     delete simRecorder;
     simRecorder = NULL;
+
+    delete simInfo;
+    simInfo = NULL;
 
     delete simulator;
     simulator = NULL;
@@ -235,13 +227,14 @@ SimulationInfo makeSimulationInfo(int cols, int rows,
  */
 void printParams() {
     cout << "\nPrinting parameters...\n";
-    cout << "poolsize x:" << poolsize[0]
-         << " y:" << poolsize[1]
-         << " z:" << poolsize[2]
+    cout << "poolsize x:" << simInfo->width
+         << " y:" << simInfo->height
+         //z dimmension is for future expansion and not currently supported
+         //<< " z:" <<
          << endl;
     cout << "Simulation Parameters:\n";
-    cout << "\tTime between growth updates (in seconds): " << Tsim << endl;
-    cout << "\tNumber of simulations to run: " << numSims << endl;
+    cout << "\tTime between growth updates (in seconds): " << simInfo->epochDuration << endl;
+    cout << "\tNumber of simulations to run: " << simInfo->maxSteps << endl;
 
     cout << "Model Parameters:" << endl;
     model->printParameters(cout);
@@ -253,7 +246,7 @@ void printParams() {
  *  @param  sim_param_filename  filename of file to read from
  *  @return true if successful, false if not
  */
-bool load_simulation_parameters(const string &sim_param_filename)
+bool LoadAllParameters(const string &sim_param_filename)
 {
     TiXmlDocument simDoc(sim_param_filename.c_str());
     if (!simDoc.LoadFile()) {
@@ -274,7 +267,7 @@ bool load_simulation_parameters(const string &sim_param_filename)
     }
 
     try {
-        LoadSimParms(parms);
+        LoadSimulationParameters(parms);
         model->readParameters(parms);
     } catch (KII_exception &e) {
         cerr << "Failure loading simulation parameters from file "
@@ -289,10 +282,21 @@ bool load_simulation_parameters(const string &sim_param_filename)
  *  Handles loading of parameters using tinyxml from the parameter file.
  *  @param  parms   tinyxml element to load from.
  */
-void LoadSimParms(TiXmlElement* parms)
+void LoadSimulationParameters(TiXmlElement* parms)
 {
     
     TiXmlElement* temp = NULL;
+
+    // Simulation Parameters
+    int poolsize[2];  // size of pool of neurons [x y z]
+                      //z currently not supported
+    BGFLOAT Tsim;  // Simulation time (s) (between growth updates) rename: epochLength
+    int numSims;  // Number of Tsim simulation to run
+    int maxFiringRate;  // Maximum firing rate (only used by GPU version)
+    int maxSynapsesPerNeuron;  // Maximum number of synapses per neuron
+                               // (only used by GPU version)
+    long seed;  // Seed for random generator (single-threaded)
+
 
     // Flag indicating that the variables were correctly read
     bool fSet = true;
@@ -312,10 +316,12 @@ void LoadSimParms(TiXmlElement* parms)
             fSet = false;
             cerr << "error y" << endl;
         }
-        if (temp->QueryIntAttribute("z", &poolsize[2]) != TIXML_SUCCESS) {
+
+        //z dimmension is for future expansion and not currently supported
+        /*if (temp->QueryIntAttribute("z", &poolsize[2]) != TIXML_SUCCESS) {
             fSet = false;
             cerr << "error z" << endl;
-        }
+        }*/
     } else {
         fSet = false;
         cerr << "missing PoolSize" << endl;
@@ -366,6 +372,9 @@ void LoadSimParms(TiXmlElement* parms)
     // Ideally, an error message would be output for each failed Query
     // above, but that's just too much code for me right now.
     if (!fSet) throw KII_exception("Failed to initialize one or more simulation parameters; check XML");
+
+    simInfo = new SimulationInfo(makeSimulationInfo(poolsize[0], poolsize[1],Tsim, numSims,
+            maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed));
 }
 
 /**
