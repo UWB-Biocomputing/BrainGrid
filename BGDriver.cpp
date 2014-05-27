@@ -130,16 +130,11 @@ int main(int argc, char* argv[]) {
     #else
         simulator = new SingleThreadedSim(&network, simInfo);
     #endif
-<<<<<<< HEAD
 	
     // setup simulation
     DEBUG(cout << "Setup simulation." << endl;);
     network.setup(simInfo.epochDuration, simInfo.maxSteps);
 
-=======
-
-	
->>>>>>> FETCH_HEAD
     if (fReadMemImage) {
         ifstream memory_in;
         memory_in.open(memInputFileName.c_str(), ofstream::binary | ofstream::in);

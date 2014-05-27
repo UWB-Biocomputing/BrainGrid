@@ -442,89 +442,53 @@ string LIFModel::neuronToString(AllNeurons &neurons, const int i) const
  */
 void LIFModel::loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info)
 {
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        readNeuron(input, neurons, i);
-    }
+	for (int i = 0; i < sim_info->totalNeurons; i++) {
+		readNeuron(input, neurons, i);
+	}
 
 	int* read_synapses_counts= new int[sim_info->totalNeurons];
 	for (int i = 0; i < sim_info->totalNeurons; i++) {
 		read_synapses_counts[i] = 0;
 	}
 
-<<<<<<< HEAD
-    // read the synapse data & create synapses
-    int synapse_count;
-    input >> synapse_count; input.ignore();
-    for (int i = 0; i < synapse_count; i++) {
-    // read the synapse data and add it to the list
-        // create synapse
-        Coordinate synapseCoord_coord;
-        input >> synapseCoord_coord.x; input.ignore();
-        input >> synapseCoord_coord.y; input.ignore();
-
-        int neuron_index = synapseCoord_coord.x + synapseCoord_coord.y * sim_info->width;
-        int synapses_index = read_synapses_counts[neuron_index];
-
-        synapses.synapseCoord[neuron_index][synapses_index] = synapseCoord_coord;
-=======
 	// read the synapse data & create synapses
 	int synapse_count;
-	input >> synapse_count;
+	input >> synapse_count; input.ignore();
 	for (int i = 0; i < synapse_count; i++) {
 		// read the synapse data and add it to the list
 		// create synapse
-		Coordinate summation_coord;
-		input >> summation_coord.x;
-		input >> summation_coord.y;
+		Coordinate synapseCoord_coord;
+		input >> synapseCoord_coord.x; input.ignore();
+		input >> synapseCoord_coord.y; input.ignore();
 
-		int neuron_index = summation_coord.x + summation_coord.y * sim_info->width;
+		int neuron_index = synapseCoord_coord.x + synapseCoord_coord.y * sim_info->width;
 		int synapses_index = read_synapses_counts[neuron_index];
 
-		synapses.summationCoord[neuron_index][synapses_index] = summation_coord;
->>>>>>> FETCH_HEAD
+		synapses.synapseCoord[neuron_index][synapses_index] = synapseCoord_coord;
 
 		readSynapse(input, synapses, neuron_index, synapses_index, sim_info->deltaT);
 
-<<<<<<< HEAD
-        synapses.summationPoint[neuron_index][synapses_index] = 
-		&(neurons.summation_map[synapses.summationCoord[neuron_index][synapses_index].x 
-		+ synapses.summationCoord[neuron_index][synapses_index].y * sim_info->width]);
-=======
-		synapses.summationPoint[neuron_index][synapses_index] = &(neurons.summation_map[summation_coord.x + summation_coord.y * sim_info->width]);
->>>>>>> FETCH_HEAD
+		synapses.summationPoint[neuron_index][synapses_index] = 
+				&(neurons.summation_map[synapses.summationCoord[neuron_index][synapses_index].x 
+				+ synapses.summationCoord[neuron_index][synapses_index].y * sim_info->width]);
 
 		read_synapses_counts[neuron_index]++;
+	}
 
-<<<<<<< HEAD
-    }
-
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        synapses.synapse_counts[i] = read_synapses_counts[i];
-    }
-    delete[] read_synapses_counts;
-
-    // read the radii
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        input >> m_conns->radii[i]; input.ignore();
-    }
-=======
+	for (int i = 0; i < sim_info->totalNeurons; i++) {
+			synapses.synapse_counts[i] = read_synapses_counts[i];
 	}
 	delete[] read_synapses_counts;
 
 	// read the radii
-	for (int i = 0; i < sim_info->totalNeurons; i++)
-		input >> m_conns->radii[i];
-
-	// read the rates
 	for (int i = 0; i < sim_info->totalNeurons; i++) {
-		input >> m_conns->rates[i];
+		input >> m_conns->radii[i]; input.ignore();
 	}
->>>>>>> FETCH_HEAD
 
-    // read the rates
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        input >> m_conns->rates[i]; input.ignore();
-    }
+// read the rates
+	for (int i = 0; i < sim_info->totalNeurons; i++) {
+		input >> m_conns->rates[i]; input.ignore();
+	}
 }
 
 /**
@@ -565,7 +529,6 @@ void LIFModel::readNeuron(istream &input, AllNeurons &neurons, const int index)
  */
 void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT)
 {
-<<<<<<< HEAD
     int synapse_type(0);
 
     // input.ignore() so input skips over end-of-line characters.
@@ -589,34 +552,6 @@ void LIFModel::readSynapse(istream &input, AllSynapses &synapses, const int neur
     input >> synapses.in_use[neuron_index][synapse_index]; input.ignore();
 
     synapses.type[neuron_index][synapse_index] = synapseOrdinalToType(synapse_type);
-=======
-	// initialize spike queue
-	initSpikeQueue(synapses, neuron_index, synapse_index);
-	resetSynapse(synapses, neuron_index, synapse_index, deltaT);
-
-	int synapse_type(0);
-
-	// input.ignore() so input skips over end-of-line characters.
-	input >> synapses.synapseCoord[neuron_index][synapse_index].x; input.ignore();
-	input >> synapses.synapseCoord[neuron_index][synapse_index].y; input.ignore();
-	input >> synapses.W[neuron_index][synapse_index]; input.ignore();
-	input >> synapses.psr[neuron_index][synapse_index]; input.ignore();
-	input >> synapses.decay[neuron_index][synapse_index]; input.ignore();
-	input >> synapses.total_delay[neuron_index][synapse_index]; input.ignore();
-	input >> synapses.delayQueue[neuron_index][synapse_index][0]; input.ignore();
-	input >> synapses.delayIdx[neuron_index][synapse_index]; input.ignore();
-	input >> synapses.ldelayQueue[neuron_index][synapse_index]; input.ignore();
-	input >> synapse_type; input.ignore();
-	input >> synapses.tau[neuron_index][synapse_index]; input.ignore();
-	input >> synapses.r[neuron_index][synapse_index]; input.ignore();
-	input >> synapses.u[neuron_index][synapse_index]; input.ignore();
-	input >> synapses.D[neuron_index][synapse_index]; input.ignore();
-	input >> synapses.U[neuron_index][synapse_index]; input.ignore();
-	input >> synapses.F[neuron_index][synapse_index]; input.ignore();
-	input >> synapses.lastSpike[neuron_index][synapse_index]; input.ignore();
-
-	synapses.type[neuron_index][synapse_index] = synapseOrdinalToType(synapse_type);
->>>>>>> FETCH_HEAD
 }
 
 /**
@@ -713,11 +648,6 @@ void LIFModel::saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &syn
     }
 
     output << flush;
-<<<<<<< HEAD
-=======
-#endif
-
->>>>>>> FETCH_HEAD
 }
 
 /**
@@ -754,7 +684,6 @@ void LIFModel::writeNeuron(ostream& output, AllNeurons &neurons, const int index
  *  @param  synapse_index   index of the synapse to print out.
  */
 void LIFModel::writeSynapse(ostream& output, AllSynapses &synapses, const int neuron_index, const int synapse_index) const {
-<<<<<<< HEAD
     output << synapses.synapseCoord[neuron_index][synapse_index].x << ends;
     output << synapses.synapseCoord[neuron_index][synapse_index].y << ends;
     output << synapses.summationCoord[neuron_index][synapse_index].x << ends;
@@ -775,27 +704,6 @@ void LIFModel::writeSynapse(ostream& output, AllSynapses &synapses, const int ne
     output << synapses.F[neuron_index][synapse_index] << ends;
     output << synapses.lastSpike[neuron_index][synapse_index] << ends;
     output << synapses.in_use[neuron_index][synapse_index] << ends;
-=======
-	output << synapses.summationCoord[neuron_index][synapse_index].x << ends;
-	output << synapses.summationCoord[neuron_index][synapse_index].y << ends;
-	output << synapses.synapseCoord[neuron_index][synapse_index].x << ends;
-	output << synapses.synapseCoord[neuron_index][synapse_index].y << ends;
-	output << synapses.W[neuron_index][synapse_index] << ends;
-	output << synapses.psr[neuron_index][synapse_index] << ends;
-	output << synapses.decay[neuron_index][synapse_index] << ends;
-	output << synapses.total_delay[neuron_index][synapse_index] << ends;
-	output << synapses.delayQueue[neuron_index][synapse_index][0] << ends;
-	output << synapses.delayIdx[neuron_index][synapse_index] << ends;
-	output << synapses.ldelayQueue[neuron_index][synapse_index] << ends;
-	output << synapses.type[neuron_index][synapse_index] << ends;
-	output << synapses.tau[neuron_index][synapse_index] << ends;
-	output << synapses.r[neuron_index][synapse_index] << ends;
-	output << synapses.u[neuron_index][synapse_index] << ends;
-	output << synapses.D[neuron_index][synapse_index] << ends;
-	output << synapses.U[neuron_index][synapse_index] << ends;
-	output << synapses.F[neuron_index][synapse_index] << ends;
-	output << synapses.lastSpike[neuron_index][synapse_index] << ends;
->>>>>>> FETCH_HEAD
 }
 
 /**
