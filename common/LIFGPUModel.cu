@@ -92,10 +92,13 @@ void LIFGPUModel::allocDeviceStruct(const SimulationInfo *sim_info, const AllNeu
 
 	// Copy host neuron and synapse arrays into GPU device
 	copyNeuronHostToDevice( allNeuronsHost, neuron_count );
-	copySynapseHostToDevice( allSynapsesHost, neuron_count, max_synapses );
+	copySynapseHostToDevice( allSynapsesHost, sim_info );
 
 	// allocate synapse inverse map
 	allocSynapseImap( neuron_count );
+
+	// create a synapse inverse map on device memory
+	createSynapseImap(allSynapsesHost, sim_info);
 }
 
 /**
@@ -116,6 +119,26 @@ void LIFGPUModel::setupSim(const SimulationInfo *sim_info, const AllNeurons &neu
     int rng_mt_rng_count = sim_info->totalNeurons/rng_nPerRng; //# of threads to generate for neuron_count rand #s
     int rng_threads = rng_mt_rng_count/rng_blocks; //# threads per block needed
     initMTGPU(777, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
+}
+
+/**
+ *  Loads the simulation based on istream input.
+ *  @param  input   istream to read from.
+ *  @param  neurons list of neurons to set.
+ *  @param  synapses    list of synapses to set.
+ *  @param  sim_info    used as a reference to set info for neurons and synapses.
+ */
+void LIFGPUModel::loadMemory(istream& input, AllNeurons &allNeuronsHost, AllSynapses &allSynapsesHost, const SimulationInfo *sim_info)
+{
+    LIFModel::loadMemory(input, allNeuronsHost, allSynapsesHost, sim_info);
+   
+    // Reinitialize device struct - Copy host neuron and synapse arrays into GPU device
+    int neuron_count = sim_info->totalNeurons;
+    copyNeuronHostToDevice( allNeuronsHost, neuron_count );
+    copySynapseHostToDevice( allSynapsesHost, sim_info );
+
+    // create a synapse inverse map on device memory
+    createSynapseImap(allSynapsesHost, sim_info);
 }
 
 /** 
@@ -208,10 +231,15 @@ void LIFGPUModel::updateConnections(const int currentStep, AllNeurons &neurons, 
 /** 
 *  Begin terminating the simulator.
 *  @param  neurons     list of all Neurons.
+*  @param  synapses    the Synapse list to search from.
 *  @param  sim_info    SimulationInfo to refer.
 */
-void LIFGPUModel::cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info)
+void LIFGPUModel::cleanupSim(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info)
 {
+    // copy device synapse and neuron structs to host memory
+    copyNeuronDeviceToHost( neurons, sim_info->totalNeurons );
+    copySynapseDeviceToHost( synapses, sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron );
+
     // Deallocate device memory
     deleteNeuronDeviceStruct(sim_info->totalNeurons);
     deleteSynapseDeviceStruct(sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron);
@@ -320,15 +348,11 @@ void LIFGPUModel::copyDeviceSynapseSumCoordToHost(AllSynapses &allSynapsesHost, 
  *  @param  synapses     Reference to the AllSynapses struct on host memory.
  *  @param] sim_info     Pointer to the simulation information.
  */
-void LIFGPUModel::createSynapseImap(AllSynapses &synapses, const SimulationInfo* sim_info )
+void LIFGPUModel::createSynapseImap(const AllSynapses &synapses, const SimulationInfo* sim_info )
 {
-	int max_synapses = sim_info->maxSynapsesPerNeuron;
 	int neuron_count = sim_info->totalNeurons;
 	int width = sim_info->width;
 	int synapse_count = 0;
-
-        // copy device synapse count to host memory
-	copyDeviceSynapseCountsToHost(synapses, neuron_count);
 
 	// count the total synapses
         for ( int i = 0; i < neuron_count; i++ )
@@ -343,9 +367,6 @@ void LIFGPUModel::createSynapseImap(AllSynapses &synapses, const SimulationInfo*
         {
                 return;
         }
-
-        // copy device synapse summation coordinate to host memory
-	copyDeviceSynapseSumCoordToHost(synapses, neuron_count, max_synapses);
 
         // allocate memories for inverse map
         vector<uint32_t>* rgSynapseInverseMap = new vector<uint32_t>[neuron_count];
@@ -495,6 +516,10 @@ void LIFGPUModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllS
 	HANDLE_ERROR( cudaFree( W_d ) );
 	delete[] W_h;
 
+        // copy device synapse count to host memory
+	copyDeviceSynapseCountsToHost(synapses, num_neurons);
+        // copy device synapse summation coordinate to host memory
+	copyDeviceSynapseSumCoordToHost(synapses, num_neurons, sim_info->maxSynapsesPerNeuron);
 	// create synapse inverse map
 	createSynapseImap( synapses, sim_info );
 }
@@ -811,10 +836,12 @@ __device__ void createSynapse(AllSynapses* allSynapsesDevice, const int neuron_i
     allSynapsesDevice->synapseCoord[neuron_index][synapse_index].x = source_x;
     allSynapsesDevice->synapseCoord[neuron_index][synapse_index].y = source_y;
     allSynapsesDevice->W[neuron_index][synapse_index] = 10.0e-9;
-    allSynapsesDevice->psr[neuron_index][synapse_index] = 0.0;
-    allSynapsesDevice->delayQueue[neuron_index][synapse_index][0] = 0;
 
+    allSynapsesDevice->delayQueue[neuron_index][synapse_index][0] = 0;
+    allSynapsesDevice->delayIdx[neuron_index][synapse_index] = 0;
     allSynapsesDevice->ldelayQueue[neuron_index][synapse_index] = LENGTH_OF_DELAYQUEUE;
+
+    allSynapsesDevice->psr[neuron_index][synapse_index] = 0.0;
     allSynapsesDevice->r[neuron_index][synapse_index] = 1.0;
     allSynapsesDevice->u[neuron_index][synapse_index] = 0.4;     // DEFAULT_U
     allSynapsesDevice->lastSpike[neuron_index][synapse_index] = ULONG_MAX;

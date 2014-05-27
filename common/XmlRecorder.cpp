@@ -49,27 +49,23 @@ void XmlRecorder::initDefaultValues()
  */
 void XmlRecorder::initValues()
 {
-#if 0
-    for (int i = 0; i < sim_info->totalNeurons; i++)
+    for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
-        radiiHistory(0, i) = radii[i];
-        ratesHistory(0, i) = rates[i];
+        radiiHistory(0, i) = m_model->m_conns->radii[i];
+        ratesHistory(0, i) = m_model->m_conns->rates[i];
     }
-#endif
 }
 
 /*
- * Get the current radii and rates vlaues
+ * Get the current radii and rates values
  */
 void XmlRecorder::getValues()
 {
-#if 0
-    for (int i = 0; i < sim_info->totalNeurons; i++)
+    for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
-        radii[i] = radiiHistory(sim_info->currentStep, i);
-        rates[i] = ratesHistory(sim_info->currentStep, i);
+        m_model->m_conns->radii[i] = radiiHistory(m_sim_info->currentStep, i);
+        m_model->m_conns->rates[i] = ratesHistory(m_sim_info->currentStep, i);
     }
-#endif
 }
 
 /**

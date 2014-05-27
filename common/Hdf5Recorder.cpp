@@ -162,31 +162,27 @@ void Hdf5Recorder::initDefaultValues()
  */
 void Hdf5Recorder::initValues()
 {
-#if 0
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
-        radiiHistory[i] = radii[i];
-        ratesHistory[i] = rates[i];
+        radiiHistory[i] = m_model->m_conns->radii[i];
+        ratesHistory[i] = m_model->m_conns->rates[i];
     }
 
     // write initial radii and rate 
     // because compileHistories function is not called when simulation starts
-    writeRadiiRates(m_sim_info);
-#endif
+    writeRadiiRates();
 }
 
 /*
- * Get the current radii and rates vlaues
+ * Get the current radii and rates values
  */
 void Hdf5Recorder::getValues()
 {
-#if 0
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
-        radii[i] = radiiHistory[i];
-        rates[i] = ratesHistory[i];
+        m_model->m_conns->radii[i] = radiiHistory[i];
+        m_model->m_conns->rates[i] = ratesHistory[i];
     }
-#endif
 }
 
 /**

@@ -48,9 +48,10 @@ void LIFSingleThreadedModel::updateConnections(const int currentStep, AllNeurons
 /**
  *  Outputs the spikes of the simulation.
  *  @param  neurons list of all Neurons.
+ *  @param  synapses    the Synapse list to search from.
  *  @param  sim_info    SimulationInfo to refer.
  */
-void LIFSingleThreadedModel::cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info)
+void LIFSingleThreadedModel::cleanupSim(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info)
 {
 }
 
@@ -457,21 +458,6 @@ void LIFSingleThreadedModel::createSynapse(AllSynapses &synapses, const int neur
     synapses.summationCoord[neuron_index][synapse_index] = dest;
     synapses.synapseCoord[neuron_index][synapse_index] = source;
     synapses.W[neuron_index][synapse_index] = 10.0e-9;
-    synapses.psr[neuron_index][synapse_index] = 0.0;
-    synapses.delayQueue[neuron_index][synapse_index][0] = 0;
-    DEBUG(
-        cout << "synapse ("
-                << neuron_index << flush
-                << ","
-                << synapse_index << flush
-            << ")"
-            << "delay queue length := " << synapses.ldelayQueue[neuron_index][synapse_index] << flush
-            << " => " << LENGTH_OF_DELAYQUEUE << endl;
-    )
-    synapses.ldelayQueue[neuron_index][synapse_index] = LENGTH_OF_DELAYQUEUE;
-    synapses.r[neuron_index][synapse_index] = 1.0;
-    synapses.u[neuron_index][synapse_index] = 0.4;     // DEFAULT_U
-    synapses.lastSpike[neuron_index][synapse_index] = ULONG_MAX;
     synapses.type[neuron_index][synapse_index] = type;
 
     synapses.U[neuron_index][synapse_index] = DEFAULT_U;
@@ -521,7 +507,11 @@ void LIFSingleThreadedModel::createSynapse(AllSynapses &synapses, const int neur
 
     synapses.tau[neuron_index][synapse_index] = tau;
     synapses.total_delay[neuron_index][synapse_index] = static_cast<int>( delay / deltaT ) + 1;
-    synapses.decay[neuron_index][synapse_index] = exp( -deltaT / tau );
+
+    // initializes the queues for the Synapses
+    LIFModel::initSpikeQueue(synapses, neuron_index, synapse_index);
+    // reset time varying state vars and recompute decay
+    LIFModel::resetSynapse(synapses, neuron_index, synapse_index, deltaT);    
 }
 
 /**

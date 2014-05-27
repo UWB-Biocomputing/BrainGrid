@@ -11,7 +11,7 @@ public:
 
 	void advance(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 	void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, IRecorder* simRecorder);
-	void cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info);
+	void cleanupSim(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info);
 
 	/* -----------------
 	* # Helper Functions

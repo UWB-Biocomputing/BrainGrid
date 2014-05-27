@@ -26,9 +26,10 @@ public:
 	~LIFGPUModel();
  
 	void setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, const AllSynapses &synapses);
+        void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 	void advance(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 	void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, IRecorder* simRecorder);
-	void cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info);
+	void cleanupSim(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info);
 
 	struct InverseMap
 	{
@@ -83,7 +84,7 @@ private:
 
 	void allocSynapseDeviceStruct( int num_neurons, int max_synapses );
 	void deleteSynapseDeviceStruct( int num_neurons, int max_synapses );
-	void copySynapseHostToDevice( const AllSynapses& allSynapsesHost, int num_neurons, int max_synapses );
+	void copySynapseHostToDevice( const AllSynapses& allSynapsesHost, const SimulationInfo *sim_info );
 	void copySynapseDeviceToHost( AllSynapses& allSynapsesHost, int num_neurons, int max_synapses );
 
 	void allocSynapseImap( int count );
@@ -91,7 +92,7 @@ private:
 	void copyInverseMapHostToDevice(InverseMap &inverseMapHost, int neuron_count, int synapse_count);
 	void copyDeviceSynapseCountsToHost(AllSynapses &allSynapsesHost, int neuron_count);
 	void copyDeviceSynapseSumCoordToHost(AllSynapses &allSynapsesHost, int neuron_count, int max_synapses);
-	void createSynapseImap( AllSynapses &synapses, const SimulationInfo* sim_info );
+	void createSynapseImap( const AllSynapses &synapses, const SimulationInfo* sim_info );
 
 	// # Load Memory
 	// -------------

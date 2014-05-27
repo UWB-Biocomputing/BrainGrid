@@ -105,10 +105,9 @@ void LIFGPUModel::copyNeuronHostToDevice( const AllNeurons& allNeuronsHost, int 
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.neuron_type_map, allNeuronsHost.neuron_type_map, count * sizeof( neuronType ), cudaMemcpyHostToDevice ) );
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.spikeCount, allNeuronsHost.spikeCount, count * sizeof( int ), cudaMemcpyHostToDevice ) );
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.starter_map, allNeuronsHost.starter_map, count * sizeof( bool ), cudaMemcpyHostToDevice ) );
-	//HANDLE_ERROR( cudaMemcpy ( allNeurons.spike_history, allNeuronsHost.spike_history, count * sizeof( uint64_t ), cudaMemcpyHostToDevice ) );
+	//HANDLE_ERROR( cudaMemcpy ( allNeurons.spike_history, allNeuronsHost.spike_history, count * sizeof( uint64_t* ), cudaMemcpyHostToDevice ) );
 }
 
-#if 0
 void LIFGPUModel::copyNeuronDeviceToHost( AllNeurons& allNeuronsHost, int count ) {
 	AllNeurons allNeurons;
 	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllNeurons ), cudaMemcpyDeviceToHost ) );
@@ -128,11 +127,10 @@ void LIFGPUModel::copyNeuronDeviceToHost( AllNeurons& allNeuronsHost, int count 
 	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.Vreset, allNeurons.Vreset, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.Vrest, allNeurons.Vrest, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.Vthresh, allNeurons.Vthresh, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.hasFired, allNeurons.hasFired, count * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.nStepsInRefr, allNeurons.nStepsInRefr, count * sizeof( int ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.neuron_type_map, allNeurons.neuron_type_map, count * sizeof( int ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.neuron_type_map, allNeurons.neuron_type_map, count * sizeof( neuronType ), cudaMemcpyDeviceToHost ) );
 	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.spikeCount, allNeurons.spikeCount, count * sizeof( int ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.starter_map, allNeurons.starter_map, count * sizeof( int ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.summation_map, allNeurons.summation_map, count * sizeof( int ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.spike_history, allNeurons.spike_history, count * sizeof( int ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.starter_map, allNeurons.starter_map, count * sizeof( bool ), cudaMemcpyDeviceToHost ) );
+	//HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.spike_history, allNeurons.spike_history, count * sizeof( uint64_t* ), cudaMemcpyDeviceToHost ) );
 }
-#endif

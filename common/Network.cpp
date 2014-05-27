@@ -51,7 +51,7 @@ void Network::setup(BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps)
 void Network::finish(BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps)
 {
     // Terminate the simulator
-    m_model->cleanupSim(neurons, m_sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
+    m_model->cleanupSim(neurons, synapses, m_sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
 }
 
 /**
@@ -135,7 +135,10 @@ void Network::saveState()
  */
 void Network::writeSimMemory(ostream& os)
 {
-	cerr << "Network::writeSimMemory was called. " << endl;
+    cerr << "Network::writeSimMemory was called. " << endl;
+    // get history matrices with current values
+    m_simRecorder->getValues();
+
     m_model->saveMemory(os, neurons, synapses, m_sim_info);
 }
 
@@ -146,6 +149,9 @@ void Network::writeSimMemory(ostream& os)
 void Network::readSimMemory(istream& is)
 {
     // read the neuron data
-    is >> m_sim_info->totalNeurons;
+    is >> m_sim_info->totalNeurons; is.ignore();
     m_model->loadMemory(is, neurons, synapses, m_sim_info);
+
+    // Init history matrices with current values
+    m_simRecorder->initValues();
 }

@@ -5,6 +5,8 @@
 
 #include "LIFGPUModel.h"
 
+__global__ void setSynapseSummationPointDevice(int num_neurons, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, int width);
+
 void LIFGPUModel::allocSynapseDeviceStruct( int num_neurons, int max_synapses ) {
 	AllSynapses allSynapses_0;
 	AllSynapses allSynapses_1(num_neurons, 0);
@@ -199,7 +201,9 @@ void LIFGPUModel::deleteSynapseDeviceStruct( int num_neurons, int max_synapses )
 	HANDLE_ERROR( cudaFree( allSynapsesDevice ) );
 }
 
-void LIFGPUModel::copySynapseHostToDevice( const AllSynapses& allSynapsesHost, int num_neurons, int max_synapses ) { // copy everything necessary
+void LIFGPUModel::copySynapseHostToDevice( const AllSynapses& allSynapsesHost, const SimulationInfo *sim_info ) { // copy everything necessary
+	int num_neurons = sim_info->totalNeurons;
+	int max_synapses = sim_info->maxSynapsesPerNeuron;
 	AllSynapses allSynapses_0;
 	AllSynapses allSynapses_1(num_neurons, 0);
 
@@ -287,71 +291,123 @@ void LIFGPUModel::copySynapseHostToDevice( const AllSynapses& allSynapsesHost, i
 			max_synapses * sizeof( uint64_t ), cudaMemcpyHostToDevice ) );
 		HANDLE_ERROR( cudaMemcpy ( allSynapses_1.in_use[i], allSynapsesHost.in_use[i],
 			max_synapses * sizeof( bool ), cudaMemcpyHostToDevice ) );
+
+                // set summation points
+                const int threadsPerBlock = 256;
+                int blocksPerGrid = ( sim_info->totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;       
+                setSynapseSummationPointDevice <<< blocksPerGrid, threadsPerBlock >>> (sim_info->totalNeurons, allNeuronsDevice, allSynapsesDevice, sim_info->width);
 	}
 }
 
-#if 0
+/**
+ * Set the summation points in device memory
+ * @param[in] num_neurons        Number of neurons.
+ * @param[in] allNeuronsDevice   Pointer to the Neuron structures in device memory.
+ * @param[in] allSynapsesDevice  Pointer to the Synapse structures in device memory.
+ * @param[in] width              Width of neuron map (assumes square).
+ */
+__global__ void setSynapseSummationPointDevice(int num_neurons, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, int width)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( idx >= num_neurons )
+        return;
+
+    int src_neuron = idx; 
+    for (int syn_index = 0; syn_index < allSynapsesDevice->synapse_counts[src_neuron]; syn_index++) {
+        int dest_neuron = allSynapsesDevice->summationCoord[src_neuron][syn_index].x 
+            + allSynapsesDevice->summationCoord[src_neuron][syn_index].y * width;
+        allSynapsesDevice->summationPoint[src_neuron][syn_index] = &( allNeuronsDevice->summation_map[dest_neuron] );
+    }
+}
+
 void LIFGPUModel::copySynapseDeviceToHost( AllSynapses& allSynapsesHost, int num_neurons, int max_synapses ) {
 	// copy everything necessary
-	AllSynapses allSynapses;
+	AllSynapses allSynapses_0;
+	AllSynapses allSynapses_1(num_neurons, 0);
 
-        HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSynapses ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.synapse_counts, allSynapses.synapse_counts, 
+        HANDLE_ERROR( cudaMemcpy ( &allSynapses_0, allSynapsesDevice, sizeof( AllSynapses ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.synapse_counts, allSynapses_0.synapse_counts, 
 		num_neurons * sizeof( size_t ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( &allSynapsesHost.max_synapses, &allSynapsesDevice->max_synapses, 
+		sizeof( size_t ), cudaMemcpyDeviceToHost ) );
+
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.summationCoord, allSynapses_0.summationCoord, 
+		num_neurons * sizeof( Coordinate* ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.W, allSynapses_0.W,
+		num_neurons * sizeof( BGFLOAT* ), cudaMemcpyDeviceToHost ) );
+	//HANDLE_ERROR( cudaMemcpy ( allSynapses_1.summationPoint, allSynapses_0.summationPoint,
+	//	num_neurons * sizeof( BGFLOAT** ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.synapseCoord, allSynapses_0.synapseCoord,
+		num_neurons * sizeof( Coordinate* ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.psr, allSynapses_0.psr,
+		num_neurons * sizeof( BGFLOAT* ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.decay, allSynapses_0.decay,
+		num_neurons * sizeof( BGFLOAT* ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.total_delay, allSynapses_0.total_delay,
+		num_neurons * sizeof( int* ), cudaMemcpyDeviceToHost ) );
+	//HANDLE_ERROR( cudaMemcpy ( allSynapses_1.delayQueue, allSynapses_0.delayQueue,
+	//	num_neurons * sizeof( uint32_t** ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.delayIdx, allSynapses_0.delayIdx,
+		num_neurons * sizeof( int* ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.ldelayQueue, allSynapses_0.ldelayQueue,
+		num_neurons * sizeof( int* ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.type, allSynapses_0.type,
+		num_neurons * sizeof( synapseType* ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.tau, allSynapses_0.tau,
+		num_neurons * sizeof( BGFLOAT* ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.r, allSynapses_0.r,
+		num_neurons * sizeof( BGFLOAT* ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.u, allSynapses_0.u,
+		num_neurons * sizeof( BGFLOAT* ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.D, allSynapses_0.D,
+		num_neurons * sizeof( BGFLOAT* ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.U, allSynapses_0.U,
+		num_neurons * sizeof( BGFLOAT* ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.F, allSynapses_0.F,
+		num_neurons * sizeof( BGFLOAT* ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.lastSpike, allSynapses_0.lastSpike,
+		num_neurons * sizeof( uint64_t* ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( allSynapses_1.in_use, allSynapses_0.in_use,
+		num_neurons * sizeof( bool* ), cudaMemcpyDeviceToHost ) );
 
 	for (int i = 0; i < num_neurons; i++) {
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.summationCoord[i], allSynapses.summationCoord[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.summationCoord[i], allSynapses_1.summationCoord[i],
 			max_synapses * sizeof( Coordinate ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.W[i], allSynapses.W[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.W[i], allSynapses_1.W[i],
 			max_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-		//HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.summationPoint[i], allSynapses.summationPoint[i],
+		//HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.summationPoint[i], allSynapses_1.summationPoint[i],
 		//	max_synapses * sizeof( BGFLOAT* ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.synapseCoord[i], allSynapses.synapseCoord[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.synapseCoord[i], allSynapses_1.synapseCoord[i],
 			max_synapses * sizeof( Coordinate ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.psr[i], allSynapses.psr[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.psr[i], allSynapses_1.psr[i],
 			max_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.decay[i], allSynapses.decay[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.decay[i], allSynapses_1.decay[i],
 			max_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.total_delay[i], allSynapses.total_delay[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.total_delay[i], allSynapses_1.total_delay[i],
 			max_synapses * sizeof( int ), cudaMemcpyDeviceToHost ) );
-		//HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.delayQueue[i], allSynapses.delayQueue[i],
+		//HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.delayQueue[i], allSynapses_1.delayQueue[i],
 		//	max_synapses * sizeof( uint32_t* ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.delayIdx[i], allSynapses.delayIdx[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.delayIdx[i], allSynapses_1.delayIdx[i],
 			max_synapses * sizeof( int ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.ldelayQueue[i], allSynapses.ldelayQueue[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.ldelayQueue[i], allSynapses_1.ldelayQueue[i],
 			max_synapses * sizeof( int ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.type[i], allSynapses.type[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.type[i], allSynapses_1.type[i],
 			max_synapses * sizeof( synapseType ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.tau[i], allSynapses.tau[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.tau[i], allSynapses_1.tau[i],
 			max_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.r[i], allSynapses.r[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.r[i], allSynapses_1.r[i],
 			max_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.u[i], allSynapses.u[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.u[i], allSynapses_1.u[i],
 			max_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.D[i], allSynapses.D[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.D[i], allSynapses_1.D[i],
 			max_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.U[i], allSynapses.U[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.U[i], allSynapses_1.U[i],
 			max_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.F[i], allSynapses.F[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.F[i], allSynapses_1.F[i],
 			max_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.lastSpike[i], allSynapses.lastSpike[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.lastSpike[i], allSynapses_1.lastSpike[i],
 			max_synapses * sizeof( uint64_t ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.in_use[i], allSynapses.in_use[i],
+		HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.in_use[i], allSynapses_1.in_use[i],
 			max_synapses * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 	}
 }
-#endif
-
-#if 0
-void copySynapseSumCoordDeviceToHost( DynamicSpikingSynapse_struct& synapse_h, int count ) {
-	// copy everything necessary
-	DynamicSpikingSynapse_struct synapse;
-
-	if ( count > 0 ) {
-        	HANDLE_ERROR( cudaMemcpyFromSymbol ( &synapse, synapse_st_d, sizeof( DynamicSpikingSynapse_struct ) ) );
-
-		HANDLE_ERROR( cudaMemcpy ( synapse_h.in_use, synapse.in_use, count * sizeof( bool ), cudaMemcpyDeviceToHost ) );
-		HANDLE_ERROR( cudaMemcpy ( synapse_h.summationCoord, synapse.summationCoord, count * sizeof( Coordinate ), cudaMemcpyDeviceToHost ) );
-	}
-}
-#endif

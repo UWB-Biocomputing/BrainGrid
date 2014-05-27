@@ -128,9 +128,10 @@ class Model {
         /**
          * Performs any finalization tasks on network following a simulation.
          * @param neurons - collection of neurons in network
+         * @param synapses - collection of synapses in network
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void cleanupSim(AllNeurons &neurons, SimulationInfo *sim_info) =0;
+        virtual void cleanupSim(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info) =0;
 
         /**
          * Prints debug information about the current state of the network.

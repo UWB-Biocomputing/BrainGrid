@@ -140,9 +140,11 @@ int main(int argc, char* argv[]) {
     #else
         simulator = new SingleThreadedSim(&network, &simInfo);
     #endif
+	
+    // setup simulation
+    DEBUG(cout << "Setup simulation." << endl;);
+    network.setup(simInfo.epochDuration, simInfo.maxSteps);
 
-	
-	
     if (fReadMemImage) {
         ifstream memory_in;
         memory_in.open(memInputFileName.c_str(), ofstream::binary | ofstream::in);
@@ -155,15 +157,16 @@ int main(int argc, char* argv[]) {
     // writes simulation results to an output destination
     simulator->saveState();
 
-    // terminates the simulation recorder
-    simRecorder->term();
-
+    // write the simulation memory image
     ofstream memory_out;
     if (fWriteMemImage) {
         memory_out.open(memOutputFileName.c_str(),ofstream::binary | ofstream::trunc);
         simulator->saveMemory(memory_out);
         memory_out.close();
     }
+
+    // terminates the simulation recorder
+    simRecorder->term();
 
     for(unsigned int i = 0; i < rgNormrnd.size(); ++i) {
         delete rgNormrnd[i];
