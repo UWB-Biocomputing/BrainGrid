@@ -96,10 +96,10 @@ int main(int argc, char* argv[]) {
     // create & init simulation recorder
     IRecorder* simRecorder = NULL;
     if (stateOutputFileName.find(".xml") != string::npos) {
-        simRecorder = new XmlRecorder(model, &simInfo);
+        simRecorder = new XmlRecorder(model, simInfo);
     }
     else if (stateOutputFileName.find(".h5") != string::npos) {
-        simRecorder = new Hdf5Recorder(model, &simInfo); 
+        simRecorder = new Hdf5Recorder(model, simInfo); 
     }
     else {
         cerr << "! ERROR: invalid state output file name extension." << endl;
@@ -133,7 +133,7 @@ int main(int argc, char* argv[]) {
 	
     // setup simulation
     DEBUG(cout << "Setup simulation." << endl;);
-    network.setup(simInfo.epochDuration, simInfo.maxSteps);
+    network.setup(simInfo->epochDuration, simInfo->maxSteps);
 
     if (fReadMemImage) {
         ifstream memory_in;
