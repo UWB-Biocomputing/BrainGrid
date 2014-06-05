@@ -28,6 +28,11 @@ void normalMTGPU(float * randNoise_d);
 void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, unsigned int nPerRng, unsigned int mt_rng_count);
 }
 
+#ifdef PERFORMANCE_METRICS
+float g_time;
+cudaEvent_t start, stop;
+#endif // PERFORMANCE_METRICS
+
 //! Perform updating neurons for one time step.
 __global__ void advanceNeuronsDevice( int n, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice );
 
@@ -62,8 +67,6 @@ LIFGPUModel::LIFGPUModel() :
 	allSynapsesDevice(NULL),
 	inverseMapDevice(NULL)
 {
-    // Set device ID
-    HANDLE_ERROR( cudaSetDevice( g_deviceId ) );
 }
 
 LIFGPUModel::~LIFGPUModel() 
@@ -109,6 +112,9 @@ void LIFGPUModel::allocDeviceStruct(const SimulationInfo *sim_info, const AllNeu
  */
 void LIFGPUModel::setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, const AllSynapses &synapses)
 {
+    // Set device ID
+    HANDLE_ERROR( cudaSetDevice( g_deviceId ) );
+
     LIFModel::setupSim(sim_info, neurons, synapses);
     allocDeviceStruct(sim_info, neurons, synapses);
 
@@ -119,6 +125,16 @@ void LIFGPUModel::setupSim(const SimulationInfo *sim_info, const AllNeurons &neu
     int rng_mt_rng_count = sim_info->totalNeurons/rng_nPerRng; //# of threads to generate for neuron_count rand #s
     int rng_threads = rng_mt_rng_count/rng_blocks; //# threads per block needed
     initMTGPU(777, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
+
+#ifdef PERFORMANCE_METRICS
+    cudaEventCreate( &start );
+    cudaEventCreate( &stop );
+
+    t_gpu_rndGeneration = 0.0f;
+    t_gpu_advanceNeurons = 0.0f;
+    t_gpu_advanceSynapses = 0.0f;
+    t_gpu_calcSummation = 0.0f;
+#endif // PERFORMANCE_METRICS
 }
 
 /**
@@ -165,8 +181,8 @@ void LIFGPUModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simu
 #ifdef PERFORMANCE_METRICS
 	cudaEventRecord( stop, 0 );
 	cudaEventSynchronize( stop );
-	cudaEventElapsedTime( &time, start, stop );
-	t_gpu_rndGeneration += time;
+	cudaEventElapsedTime( &g_time, start, stop );
+	t_gpu_rndGeneration += g_time;
 #endif // PERFORMANCE_METRICS
 
 	// display running info to console
@@ -180,8 +196,8 @@ void LIFGPUModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simu
 #ifdef PERFORMANCE_METRICS
 	cudaEventRecord( stop, 0 );
 	cudaEventSynchronize( stop );
-	cudaEventElapsedTime( &time, start, stop );
-	t_gpu_advanceNeurons += time;
+	cudaEventElapsedTime( &g_time, start, stop );
+	t_gpu_advanceNeurons += g_time;
 #endif // PERFORMANCE_METRICS
 
 	// Advance synapses ------------->
@@ -194,8 +210,8 @@ void LIFGPUModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simu
 #ifdef PERFORMANCE_METRICS
 	cudaEventRecord( stop, 0 );
 	cudaEventSynchronize( stop );
-	cudaEventElapsedTime( &time, start, stop );
-	t_gpu_advanceSynapses += time;
+	cudaEventElapsedTime( &g_time, start, stop );
+	t_gpu_advanceSynapses += g_time;
 #endif // PERFORMANCE_METRICS
 
 	// calculate summation point
@@ -207,8 +223,8 @@ void LIFGPUModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simu
 #ifdef PERFORMANCE_METRICS
 	cudaEventRecord( stop, 0 );
 	cudaEventSynchronize( stop );
-	cudaEventElapsedTime( &time, start, stop );
-	t_gpu_calcSummation += time;
+	cudaEventElapsedTime( &g_time, start, stop );
+	t_gpu_calcSummation += g_time;
 #endif // PERFORMANCE_METRICS
 }
 
@@ -246,6 +262,11 @@ void LIFGPUModel::cleanupSim(AllNeurons &neurons, AllSynapses &synapses, Simulat
     deleteSynapseImap();
 
     HANDLE_ERROR( cudaFree( randNoise_d ) );
+
+#ifdef PERFORMANCE_METRICS
+    cudaEventDestroy( start );
+    cudaEventDestroy( stop );
+#endif // PERFORMANCE_METRICS
 }
 
 /* ------------------*\
