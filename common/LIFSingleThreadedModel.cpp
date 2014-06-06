@@ -82,8 +82,13 @@ void LIFSingleThreadedModel::advanceNeurons(AllNeurons &neurons, AllSynapses &sy
             int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
             assert( neurons.spikeCount[i] < max_spikes );
 
-            for (int z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
-                preSpikeHit(synapses, i, z);
+            size_t synapse_counts = synapses.synapse_counts[i];
+            int synapse_notified = 0;
+            for (int z = 0; synapse_notified < synapse_counts; z++) {
+                if (synapses.in_use[i][z] == true) {
+                    preSpikeHit(synapses, i, z);
+                    synapse_notified++;
+                }
             }
 
             neurons.hasFired[i] = false;
@@ -209,10 +214,13 @@ void LIFSingleThreadedModel::fire(AllNeurons &neurons, const int index, const BG
  */
 void LIFSingleThreadedModel::advanceSynapses(const int num_neurons, AllSynapses &synapses, const BGFLOAT deltaT)
 {
-    for (int i = num_neurons - 1; i >= 0; --i) {
-        for (int z = synapses.synapse_counts[i] - 1; z >= 0; --z) {
+    for (int i = 0; i < num_neurons; i++) {
+        size_t synapse_counts = synapses.synapse_counts[i];
+        int synapse_advanced = 0;
+        for (int z = 0; z < synapse_counts; z++) {
             // Advance Synapse
             advanceSynapse(synapses, i, z, deltaT);
+            synapse_advanced++;
         }
     }
 }
@@ -348,29 +356,33 @@ void LIFSingleThreadedModel::updateWeights(const int num_neurons, AllNeurons &ne
             synapseType type = synType(neurons, src_neuron, dest_neuron);
 
             // for each existing synapse
-            for (size_t synapse_index = 0; synapse_index < synapses.synapse_counts[src_neuron]; synapse_index++) {
-                // if there is a synapse between a and b
-                if (synapses.summationCoord[src_neuron][synapse_index] == dest_coord) {
-                    connected = true;
-                    adjusted++;
+            size_t synapse_counts = synapses.synapse_counts[src_neuron];
+            int synapse_adjusted = 0;
+            for (size_t synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++) {
+                if (synapses.in_use[src_neuron][synapse_index] == true) {
+                    // if there is a synapse between a and b
+                    if (synapses.summationCoord[src_neuron][synapse_index] == dest_coord) {
+                        connected = true;
+                        adjusted++;
 
-                    // adjust the strength of the synapse or remove
-                    // it from the synapse map if it has gone below
-                    // zero.
-                    if (m_conns->W(src_neuron, dest_neuron) < 0) {
-                        removed++;
-                        eraseSynapse(synapses, src_neuron, synapse_index);
-                        //sim_info->rgSynapseMap[a].erase(sim_info->rgSynapseMap[a].begin() + syn);
-                    } else {
-                        // adjust
-                        // g_synapseStrengthAdjustmentConstant is 1.0e-8;
-                        synapses.W[src_neuron][synapse_index] = m_conns->W(src_neuron, dest_neuron) *
-                            synSign(type) * SYNAPSE_STRENGTH_ADJUSTMENT;
+                        // adjust the strength of the synapse or remove
+                        // it from the synapse map if it has gone below
+                        // zero.
+                        if (m_conns->W(src_neuron, dest_neuron) < 0) {
+                            removed++;
+                            eraseSynapse(synapses, src_neuron, synapse_index);
+                        } else {
+                            // adjust
+                            // g_synapseStrengthAdjustmentConstant is 1.0e-8;
+                            synapses.W[src_neuron][synapse_index] = m_conns->W(src_neuron, dest_neuron) *
+                                synSign(type) * SYNAPSE_STRENGTH_ADJUSTMENT;
 
-                        DEBUG_MID(cout << "weight of rgSynapseMap" <<
-                               coordToString(xa, ya)<<"[" <<synapse_index<<"]: " <<
-                               synapses.W[src_neuron][synapse_index] << endl;);
+                            DEBUG_MID(cout << "weight of rgSynapseMap" <<
+                                   coordToString(xa, ya)<<"[" <<synapse_index<<"]: " <<
+                                   synapses.W[src_neuron][synapse_index] << endl;);
+                        }
                     }
+                    synapse_adjusted++;
                 }
             }
 
