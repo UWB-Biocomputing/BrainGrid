@@ -2,6 +2,7 @@
 
 AllSynapses::AllSynapses() :
         max_synapses(0),
+        total_synapse_counts(0),
         count_neurons(0)
 {
     summationCoord = NULL;
@@ -28,6 +29,7 @@ AllSynapses::AllSynapses() :
 
 AllSynapses::AllSynapses(const int num_neurons, const int max_synapses) :
         max_synapses(max_synapses),
+        total_synapse_counts(0),
         count_neurons(num_neurons)
 {
     summationCoord = new Coordinate*[num_neurons];
@@ -85,6 +87,7 @@ AllSynapses::AllSynapses(const int num_neurons, const int max_synapses) :
         }
     }
 }
+
 
 AllSynapses::~AllSynapses()
 {

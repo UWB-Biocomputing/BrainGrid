@@ -972,7 +972,7 @@ void LIFModel::setNeuronDefaults(AllNeurons &neurons, const int index)
  *  @param  neurons     List of all Neurons.
  *  @param  synapses    List of all Synapses.
  */
-void LIFModel::setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, const AllSynapses &synapses)
+void LIFModel::setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses)
 {
     if (m_conns != NULL) {
         delete m_conns;

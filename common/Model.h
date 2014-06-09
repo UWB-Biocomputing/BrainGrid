@@ -103,7 +103,7 @@ class Model {
          * @param neurons  - list of all Neurons.
          * @param synapses - list of all Synapses.
          */
-        virtual void setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, const AllSynapses &synapses) =0;
+        virtual void setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses) =0;
 
         /**
          * Advances network state one simulation step.

@@ -71,7 +71,7 @@ class LIFModel : public Model, TiXmlVisitor
         void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
         void saveState(const AllNeurons &neurons, IRecorder* simRecorder);
         void createAllNeurons(AllNeurons &neurons, const SimulationInfo *sim_info);
-        void setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, const AllSynapses &synapses);
+        void setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses);
 
     protected:
 

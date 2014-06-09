@@ -260,6 +260,14 @@ struct AllSynapses
          */
         size_t *synapse_counts;
 
+        /*! The total number of active synapses.
+         *
+         *  Usage: LOCAL VARIABLE
+         *  LIFGPUModel::createSynapseImap()           Modified
+         *  LIFGPUModel::advance()                     Accessed
+         */
+        size_t total_synapse_counts;
+
     	/*! TODO: Define
          *  
          *  Usage: GLOBAL CONSTANT

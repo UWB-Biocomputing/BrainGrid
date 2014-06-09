@@ -25,13 +25,13 @@ public:
 	LIFGPUModel();
 	~LIFGPUModel();
  
-	void setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, const AllSynapses &synapses);
+	void setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses);
         void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 	void advance(AllNeurons& neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 	void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, IRecorder* simRecorder);
 	void cleanupSim(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info);
 
-	struct InverseMap
+	struct SynapseIndexMap
 	{
 		//! The beginning index of the incoming dynamic spiking synapse array.
 		int* incomingSynapse_begin;
@@ -39,31 +39,38 @@ public:
 		//! The number of incoming synapses.
 		int* synapseCount;
 
-		//! Pointer to synapse inverse map.
+		//! Pointer to the synapse inverse map.
 		uint32_t* inverseIndex;	
 
-		InverseMap() : num_neurons(0), num_synapses(0)
+		//! Pointer to the active synapse map.
+		uint32_t* activeSynapseIndex;
+
+		SynapseIndexMap() : num_neurons(0), num_synapses(0)
 		{
 			incomingSynapse_begin = NULL;
 			synapseCount = NULL;
 			inverseIndex = NULL;	
+			activeSynapseIndex = NULL;
 		};
 
-		InverseMap(int neuron_count, int synapse_count) : num_neurons(neuron_count), num_synapses(synapse_count)
+		SynapseIndexMap(int neuron_count, int synapse_count) : num_neurons(neuron_count), num_synapses(synapse_count)
 		{
 			incomingSynapse_begin = new int[neuron_count];
 			synapseCount = new int[neuron_count];
 			inverseIndex = new uint32_t[synapse_count];
+			activeSynapseIndex = new uint32_t[synapse_count];
 		};
 
-		~InverseMap()
+		~SynapseIndexMap()
 		{
 			if (num_neurons != 0) {
 				delete[] incomingSynapse_begin;
 				delete[] synapseCount;
 			}
-			if (num_synapses != 0) 
+			if (num_synapses != 0) {
 				delete[] inverseIndex;
+				delete[] activeSynapseIndex;
+			}
 		}
 
 	private:
@@ -76,7 +83,7 @@ private:
 	|* # Helper Functions
 	\* ------------------*/
 
-	void allocDeviceStruct(const SimulationInfo *sim_info, const AllNeurons &allNeuronsHost, const AllSynapses &allSynapsesHost);
+	void allocDeviceStruct(const SimulationInfo *sim_info, const AllNeurons &allNeuronsHost, AllSynapses &allSynapsesHost);
 	void allocNeuronDeviceStruct( int count, int max_spikes );
 	void deleteNeuronDeviceStruct( int count );
 	void copyNeuronHostToDevice( const AllNeurons& allNeuronsHost, int count );
@@ -89,10 +96,10 @@ private:
 
 	void allocSynapseImap( int count );
 	void deleteSynapseImap( );
-	void copyInverseMapHostToDevice(InverseMap &inverseMapHost, int neuron_count, int synapse_count);
+	void copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIndexMapHost, int neuron_count, int synapse_count);
 	void copyDeviceSynapseCountsToHost(AllSynapses &allSynapsesHost, int neuron_count);
 	void copyDeviceSynapseSumCoordToHost(AllSynapses &allSynapsesHost, int neuron_count, int max_synapses);
-	void createSynapseImap( const AllSynapses &synapses, const SimulationInfo* sim_info );
+	void createSynapseImap( AllSynapses &synapses, const SimulationInfo* sim_info );
 
 	// # Load Memory
 	// -------------
@@ -143,5 +150,5 @@ private:
 	AllSynapses* allSynapsesDevice;
 
 	//! Pointer to device inverse map.
-	InverseMap* inverseMapDevice;
+	SynapseIndexMap* synapseIndexMapDevice;
 };
