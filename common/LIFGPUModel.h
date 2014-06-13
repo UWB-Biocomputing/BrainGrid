@@ -13,6 +13,7 @@
 \** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - **/
 #pragma once
 #include "LIFModel.h"
+#include "AllSynapsesDevice.h"
 #ifdef __CUDACC__
 #include "Book.h"
 #endif
@@ -140,14 +141,14 @@ private:
 	|  Member variables
 	\*----------------------------------------------*/
 
-	//! Pointer to device random noise array.
-	float* randNoise_d;
-
 	//! Neuron structure in device memory.
 	AllNeurons* allNeuronsDevice;
 
 	//! Synapse structures in device memory.
-	AllSynapses* allSynapsesDevice;
+	AllSynapsesDevice* allSynapsesDevice;
+
+	//! Pointer to device random noise array.
+	float* randNoise_d;
 
 	//! Pointer to device inverse map.
 	SynapseIndexMap* synapseIndexMapDevice;

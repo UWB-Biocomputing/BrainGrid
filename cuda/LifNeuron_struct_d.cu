@@ -39,7 +39,7 @@ void LIFGPUModel::allocNeuronDeviceStruct( int count, int max_spikes ) {
 		count * sizeof( uint64_t* ), cudaMemcpyHostToDevice ) );
 
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeuronsDevice, sizeof( AllNeurons ) ) );
-	HANDLE_ERROR( cudaMemcpy( allNeuronsDevice, &allNeurons, sizeof( AllNeurons ), cudaMemcpyHostToDevice ) );
+	HANDLE_ERROR( cudaMemcpy ( allNeuronsDevice, &allNeurons, sizeof( AllNeurons ), cudaMemcpyHostToDevice ) );
 }
 
 void LIFGPUModel::deleteNeuronDeviceStruct( int count ) {
