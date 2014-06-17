@@ -132,6 +132,22 @@ private:
 	// TODO
 	void createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT* sp, BGFLOAT deltaT, synapseType type);
 
+	/*-----------------------------------------------------*\
+	|  Inline Functions for handling performance recording
+	\*-----------------------------------------------------*/
+#if defined(PERFORMANCE_METRICS) && defined(__CUDACC__)
+	inline void startTimer() {
+        	cudaEventRecord( start, 0 );
+	};
+
+	inline void lapTime(float& t_event) {
+        	cudaEventRecord( stop, 0 );
+        	cudaEventSynchronize( stop );
+        	cudaEventElapsedTime( &g_time, start, stop );
+        	t_event += g_time;
+	};
+#endif // PERFORMANCE_METRICS
+
 	/*----------------------------------------------*\
 	|  Generic Functions for handling synapse types
 	\*----------------------------------------------*/
@@ -152,4 +168,9 @@ private:
 
 	//! Pointer to device inverse map.
 	SynapseIndexMap* synapseIndexMapDevice;
+
+#if defined(PERFORMANCE_METRICS) && defined(__CUDACC__)
+	float g_time;
+	cudaEvent_t start, stop;
+#endif // PERFORMANCE_METRICS
 };

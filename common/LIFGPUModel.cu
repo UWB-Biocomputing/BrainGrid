@@ -28,11 +28,6 @@ void normalMTGPU(float * randNoise_d);
 void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, unsigned int nPerRng, unsigned int mt_rng_count);
 }
 
-#ifdef PERFORMANCE_METRICS
-float g_time;
-cudaEvent_t start, stop;
-#endif // PERFORMANCE_METRICS
-
 //! Perform updating neurons for one time step.
 __global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice );
 
@@ -176,56 +171,53 @@ void LIFGPUModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simu
 	int blocksPerGrid;
 
 #ifdef PERFORMANCE_METRICS
-	cudaEventRecord( start, 0 );
+	startTimer();
 #endif // PERFORMANCE_METRICS
+
 	normalMTGPU(randNoise_d);
+
 #ifdef PERFORMANCE_METRICS
-	cudaEventRecord( stop, 0 );
-	cudaEventSynchronize( stop );
-	cudaEventElapsedTime( &g_time, start, stop );
-	t_gpu_rndGeneration += g_time;
+	lapTime(t_gpu_rndGeneration);
 #endif // PERFORMANCE_METRICS
 
 	// display running info to console
 	// Advance neurons ------------->
 	blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
+
 #ifdef PERFORMANCE_METRICS
-	cudaEventRecord( start, 0 );
+	startTimer();
 #endif // PERFORMANCE_METRICS
+
 	advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, g_simulationStep, sim_info->maxSynapsesPerNeuron, sim_info->deltaT, randNoise_d, allNeuronsDevice, allSynapsesDevice );
 
 #ifdef PERFORMANCE_METRICS
-	cudaEventRecord( stop, 0 );
-	cudaEventSynchronize( stop );
-	cudaEventElapsedTime( &g_time, start, stop );
-	t_gpu_advanceNeurons += g_time;
+	lapTime(t_gpu_advanceNeurons);
 #endif // PERFORMANCE_METRICS
 
 	// Advance synapses ------------->
 	blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
+
 #ifdef PERFORMANCE_METRICS
-	cudaEventRecord( start, 0 );
+	startTimer();
 #endif // PERFORMANCE_METRICS
+
 	advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, allSynapsesDevice );
 
 #ifdef PERFORMANCE_METRICS
-	cudaEventRecord( stop, 0 );
-	cudaEventSynchronize( stop );
-	cudaEventElapsedTime( &g_time, start, stop );
-	t_gpu_advanceSynapses += g_time;
+	lapTime(t_gpu_advanceSynapses);
 #endif // PERFORMANCE_METRICS
 
 	// calculate summation point
 	blocksPerGrid = ( sim_info->totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
+
 #ifdef PERFORMANCE_METRICS
-	cudaEventRecord( start, 0 );
+	startTimer();
 #endif // PERFORMANCE_METRICS
+
 	calcSummationMap <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, synapseIndexMapDevice, allSynapsesDevice );
+
 #ifdef PERFORMANCE_METRICS
-	cudaEventRecord( stop, 0 );
-	cudaEventSynchronize( stop );
-	cudaEventElapsedTime( &g_time, start, stop );
-	t_gpu_calcSummation += g_time;
+	lapTime(t_gpu_calcSummation);
 #endif // PERFORMANCE_METRICS
 }
 
@@ -934,8 +926,11 @@ __device__ void createSynapse(AllSynapsesDevice* allSynapsesDevice, const int ne
     allSynapsesDevice->F[iSyn] = F;
 
     allSynapsesDevice->tau[iSyn] = tau;
-    allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
     allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
+    allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
+
+    size_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
+    assert( size <= BYTES_OF_DELAYQUEUE );
 }
 
 /** 
