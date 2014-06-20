@@ -1,8 +1,6 @@
 #include "AllSynapsesDevice.h"
 
-AllSynapsesDevice::AllSynapsesDevice() :
-        max_synapses(0),
-        total_synapse_counts(0)
+AllSynapsesDevice::AllSynapsesDevice() 
 {
     summationCoord = NULL;
     W = NULL;
@@ -24,15 +22,14 @@ AllSynapsesDevice::AllSynapsesDevice() :
     lastSpike = NULL;
     in_use = NULL;
     synapse_counts = NULL;
+    total_synapse_counts = 0;
+    max_synapses = 0;
     max_total_synapses = 0;
 }
 
-AllSynapsesDevice::AllSynapsesDevice(const int num_neurons, const int max_synapses) :
-        max_synapses(max_synapses),
-        total_synapse_counts(0)
+AllSynapsesDevice::AllSynapsesDevice(const int num_neurons_c, const int max_synapses_c) 
 {
-    max_total_synapses = max_synapses * num_neurons;
-
+    max_total_synapses = max_synapses_c * num_neurons_c;
     summationCoord = new Coordinate[max_total_synapses];
     W = new BGFLOAT[max_total_synapses];
     summationPoint = new BGFLOAT*[max_total_synapses];
@@ -52,7 +49,9 @@ AllSynapsesDevice::AllSynapsesDevice(const int num_neurons, const int max_synaps
     F = new BGFLOAT[max_total_synapses];
     lastSpike = new uint64_t[max_total_synapses];
     in_use = new bool[max_total_synapses];
-    synapse_counts = new size_t[num_neurons];
+    synapse_counts = new size_t[num_neurons_c];
+    total_synapse_counts = 0;
+    max_synapses = max_synapses_c;
 }
 
 

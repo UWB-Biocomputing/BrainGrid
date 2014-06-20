@@ -95,8 +95,9 @@ void LIFGPUModel::copySynapseHostToDevice( const AllSynapses& allSynapsesHost, c
 			max_synapses * sizeof( BGFLOAT ) );
 		memcpy ( &allSynapses_1.total_delay[max_synapses * i], allSynapsesHost.total_delay[i],
 			max_synapses * sizeof( int ) );
-		memcpy ( &allSynapses_1.delayQueue[max_synapses * i], allSynapsesHost.delayQueue[i],
-			max_synapses * sizeof( uint32_t ) );
+		for (int j = 0; j < max_synapses; j++) {
+			allSynapses_1.delayQueue[max_synapses * i + j] = *allSynapsesHost.delayQueue[i][j];
+		}
 		memcpy ( &allSynapses_1.delayIdx[max_synapses * i], allSynapsesHost.delayIdx[i],
 			max_synapses * sizeof( int ) );
 		memcpy ( &allSynapses_1.ldelayQueue[max_synapses * i], allSynapsesHost.ldelayQueue[i],
@@ -254,6 +255,9 @@ void LIFGPUModel::copySynapseDeviceToHost( AllSynapses& allSynapsesHost, int num
 			max_synapses * sizeof( BGFLOAT ) );
 		memcpy ( allSynapsesHost.total_delay[i], &allSynapses_1.total_delay[max_synapses * i],
 			max_synapses * sizeof( int ) );
+		for (int j = 0; j < max_synapses; j++) {
+			*allSynapsesHost.delayQueue[i][j] = allSynapses_1.delayQueue[max_synapses * i + j];
+		}
 		memcpy ( allSynapsesHost.delayIdx[i], &allSynapses_1.delayIdx[max_synapses * i],
 			max_synapses * sizeof( int ) );
 		memcpy ( allSynapsesHost.ldelayQueue[i], &allSynapses_1.ldelayQueue[max_synapses * i],

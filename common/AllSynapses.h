@@ -236,7 +236,7 @@ struct AllSynapses
          */
         uint64_t **lastSpike;
 
-    	/*! TODO: Define
+    	/*! The boolean value indicating the entry in the array is in use.
          *  
          *  Usage: LOCAL VARIABLE
          *  LIFSingleThreadedModel::eraseSynapse()	    Modified
@@ -268,7 +268,7 @@ struct AllSynapses
          */
         size_t total_synapse_counts;
 
-    	/*! TODO: Define
+    	/*! The maximum number of synapses for each neurons.
          *  
          *  Usage: GLOBAL CONSTANT
          *  LIFSingleThreadedModel::addSynapse()	Accessed

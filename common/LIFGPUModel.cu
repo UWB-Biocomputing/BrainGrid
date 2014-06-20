@@ -28,6 +28,11 @@ void normalMTGPU(float * randNoise_d);
 void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, unsigned int nPerRng, unsigned int mt_rng_count);
 }
 
+#ifdef PERFORMANCE_METRICS
+float g_time;
+cudaEvent_t start, stop;
+#endif // PERFORMANCE_METRICS
+
 //! Perform updating neurons for one time step.
 __global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice );
 
@@ -597,9 +602,9 @@ __global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep,
 			uint32_t iSyn = maxSynapses * idx + i;			
 			if (allSynapsesDevice->in_use[iSyn] == true) {
 				uint32_t &delay_queue = allSynapsesDevice->delayQueue[iSyn];
-				int &delayIdx = allSynapsesDevice->delayIdx[iSyn];
-				int &ldelayQueue = allSynapsesDevice->ldelayQueue[iSyn];
-				int &total_delay = allSynapsesDevice->total_delay[iSyn];
+				int delayIdx = allSynapsesDevice->delayIdx[iSyn];
+				int ldelayQueue = allSynapsesDevice->ldelayQueue[iSyn];
+				int total_delay = allSynapsesDevice->total_delay[iSyn];
 
 				// Add to spike queue
 
