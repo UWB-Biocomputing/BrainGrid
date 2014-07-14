@@ -143,12 +143,13 @@ void Hdf5Recorder::init(const string& stateOutputFileName)
 
 /*
  * Init radii and rates history matrices with default values
+ * @param[in] startRadius       The starting connectivity radius for all neurons
  */
-void Hdf5Recorder::initDefaultValues()
+void Hdf5Recorder::initDefaultValues(BGFLOAT startRadius)
 {
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
-        radiiHistory[i] = m_sim_info->startRadius;
+        radiiHistory[i] = startRadius;
         ratesHistory[i] = 0;
     }
 
@@ -212,8 +213,9 @@ void Hdf5Recorder::term()
 /**
  * Compile history information in every epoch
  * @param[in] neurons   The entire list of neurons.
+ * @param[in] minRadius The minimum possible radius.
  */
-void Hdf5Recorder::compileHistories(const AllNeurons &neurons)
+void Hdf5Recorder::compileHistories(const AllNeurons &neurons, BGFLOAT minRadius)
 {
     VectorMatrix& rates = m_model->m_conns->rates;
     VectorMatrix& radii = m_model->m_conns->radii;
@@ -257,8 +259,8 @@ void Hdf5Recorder::compileHistories(const AllNeurons &neurons)
 
         // Cap minimum radius size and record radii to history matrix
         // TODO: find out why we cap this here.
-        if (radii[iNeuron] < m_sim_info->minRadius)
-            radii[iNeuron] = m_sim_info->minRadius;
+        if (radii[iNeuron] < minRadius)
+            radii[iNeuron] = minRadius;
 
         // record radius to history matrix
         radiiHistory[iNeuron] = radii[iNeuron];

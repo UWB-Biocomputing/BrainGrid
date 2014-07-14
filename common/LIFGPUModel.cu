@@ -110,13 +110,14 @@ void LIFGPUModel::allocDeviceStruct(const SimulationInfo *sim_info, const AllNeu
  *  @param  sim_info    SimulationInfo class to read information from.
  *  @param  neurons     List of all Neurons.
  *  @param  synapses    List of all Synapses.
+ *  @param  simRecorder Pointer to the simulation recordig object.
  */
-void LIFGPUModel::setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses)
+void LIFGPUModel::setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses, IRecorder* simRecorder)
 {
     // Set device ID
     HANDLE_ERROR( cudaSetDevice( g_deviceId ) );
 
-    LIFModel::setupSim(sim_info, neurons, synapses);
+    LIFModel::setupSim(sim_info, neurons, synapses, simRecorder);
     allocDeviceStruct(sim_info, neurons, synapses);
 
     //initialize Mersenne Twister

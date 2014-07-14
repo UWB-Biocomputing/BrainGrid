@@ -804,7 +804,7 @@ void LIFModel::createAllNeurons(AllNeurons &neurons, const SimulationInfo *sim_i
                 << "}" << endl
         ;)
     }
-    
+
     DEBUG(cout << "Done initializing neurons..." << endl;)
 }
 
@@ -971,8 +971,9 @@ void LIFModel::setNeuronDefaults(AllNeurons &neurons, const int index)
  *  @param  sim_info    SimulationInfo class to read information from.
  *  @param  neurons     List of all Neurons.
  *  @param  synapses    List of all Synapses.
+ *  @param  simRecorder Pointer to the simulation recordig object.
  */
-void LIFModel::setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses)
+void LIFModel::setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses, IRecorder* simRecorder)
 {
     if (m_conns != NULL) {
         delete m_conns;
@@ -1007,6 +1008,9 @@ void LIFModel::setupSim(const SimulationInfo *sim_info, const AllNeurons &neuron
 
     // Init connection frontier distance change matrix with the current distances
     m_conns->delta = m_conns->dist;
+
+    // Init radii and rates history matrices with default values
+    simRecorder->initDefaultValues(m_growth.startRadius);
 }
 
 /**
@@ -1085,7 +1089,7 @@ void LIFModel::updateHistory(const int currentStep, BGFLOAT epochDuration, AllNe
     m_conns->radii += m_conns->deltaR;
 
     // Compile history information in every epoch
-    simRecorder->compileHistories(neurons);
+    simRecorder->compileHistories(neurons, m_growth.minRadius);
 
     // clear spike count
     clearSpikeCounts(neurons, sim_info);

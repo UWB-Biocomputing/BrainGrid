@@ -45,7 +45,7 @@ public:
     /*
      * Init radii and rates history matrices with default values
      */
-    virtual void initDefaultValues() = 0;
+    virtual void initDefaultValues(BGFLOAT startRadius) = 0;
 
     /*
      * Init radii and rates history matrices with current radii and rates
@@ -66,7 +66,7 @@ public:
      * Compile history information in every epoch
      * @param[in] neurons   The entire list of neurons.
      */
-    virtual void compileHistories(const AllNeurons &neurons) = 0;
+    virtual void compileHistories(const AllNeurons &neurons, BGFLOAT minRadius) = 0;
 
     /**
      * Save current simulation state to XML

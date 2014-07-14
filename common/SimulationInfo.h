@@ -39,14 +39,7 @@ struct SimulationInfo
         maxSteps(0),
         epochDuration(0),
         deltaT(0),
-        //pNeuronList(NULL), // NOT NEEDED?
-        epsilon(0),
-        beta(0),
-        rho(0),
         maxRate(0),
-        minRadius(0),
-        startRadius(0),
-        //rgSynapseMap(NULL), // NOT NEEDED?
         pSummationMap(NULL),
 		seed(0)
     {
@@ -92,9 +85,6 @@ struct SimulationInfo
 	//! Time elapsed between the beginning and end of the simulation step
 	BGFLOAT deltaT; // Inner Simulation Step Duration !!!!!!!!
 
-	//! List of neurons
-	//vector<INeuron*>* pNeuronList; // NOT NEEDED?
-
 	//! The neuron type map (INH, EXC).
 	neuronType* rgNeuronTypeMap;
 
@@ -102,23 +92,10 @@ struct SimulationInfo
 	bool* rgEndogenouslyActiveNeuronMap;
 
 // NETWORK MODEL VARIABLES NMV-BEGIN {
-	//! growth param TODO: more detail here
-	BGFLOAT epsilon;
-
-	//! growth param TODO: more detail here
-	BGFLOAT beta;
-
-	//! growth param: change in radius scalar
-	BGFLOAT rho;
 
 	//! growth variable (m_targetRate / m_epsilon) TODO: more detail here
 	BGFLOAT maxRate;
 
-	//! The minimum possible radius.  We use this to prevent neurons from disconnecting from the network.
-	BGFLOAT minRadius;
-
-	//! The starting connectivity radius for all neurons.
-	BGFLOAT startRadius;
 // } NMV-END
 
 	//! List of lists of synapses (3d array)

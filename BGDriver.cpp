@@ -107,9 +107,6 @@ int main(int argc, char* argv[]) {
     }
     simRecorder->init(stateOutputFileName);
 
-    // Init radii and rates history matrices with default values
-    simRecorder->initDefaultValues();
-
     // create the network
     Network network(model, simInfo, simRecorder);
 
