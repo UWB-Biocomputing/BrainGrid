@@ -235,14 +235,14 @@ void Hdf5Recorder::compileHistories(const AllNeurons &neurons, BGFLOAT minRadius
         for (int i = 0; i < spike_count; i++)
         {
             // compile network wide burstiness index data in 1s bins
-            int idx1 = static_cast<int>( pSpikes[i] * m_sim_info->deltaT );
-            idx1 -= (m_sim_info->currentStep - 1) * m_sim_info->epochDuration;
+            int idx1 = static_cast<int>( static_cast<double>( pSpikes[i] ) *  m_sim_info->deltaT
+                - ( (m_sim_info->currentStep - 1) * m_sim_info->epochDuration ) );
             assert(idx1 >= 0 && idx1 < m_sim_info->epochDuration);
             burstinessHist[idx1]++;
 
             // compile network wide spike count in 10ms bins
-            int idx2 = static_cast<int>( pSpikes[i] * m_sim_info->deltaT * 100 );
-            idx2 -= (m_sim_info->currentStep - 1) * m_sim_info->epochDuration * 100;
+            int idx2 = static_cast<int>( static_cast<double>( pSpikes[i] ) * m_sim_info->deltaT * 100
+                - ( (m_sim_info->currentStep - 1) * m_sim_info->epochDuration * 100 ) );
             assert(idx2 >= 0 && idx2 < m_sim_info->epochDuration * 100);
             spikesHistory[idx2]++;
         }
