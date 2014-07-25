@@ -126,7 +126,7 @@ void LIFGPUModel::setupSim(const SimulationInfo *sim_info, const AllNeurons &neu
     int rng_nPerRng = 4; //# of iterations per thread (thread granularity, # of rands generated per thread)
     int rng_mt_rng_count = sim_info->totalNeurons/rng_nPerRng; //# of threads to generate for neuron_count rand #s
     int rng_threads = rng_mt_rng_count/rng_blocks; //# threads per block needed
-    initMTGPU(777, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
+    initMTGPU(sim_info->seed, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
 
 #ifdef PERFORMANCE_METRICS
     cudaEventCreate( &start );
