@@ -1,4 +1,4 @@
-/*!
+/**
   @file SparseMatrix.cpp
   @brief An efficient implementation of a dynamically-allocated 2D sparse array.
   @author Michael Stiber
@@ -535,14 +535,14 @@ void SparseMatrix::rowFromXML(TiXmlElement* rowElement)
 void SparseMatrix::alloc(void)
 {
   if (theRows != NULL)
-    throw KII_exception("Attempt to allocate storage for non-cleared SparseMatrix");
+    throw MatrixException("Attempt to allocate storage for non-cleared SparseMatrix");
 
   // Allocate the 1D array
   if ((theRows = new list<Element*>[rows]) == NULL)
     throw KII_bad_alloc("Failed allocating storage for SparseMatrix.");
 
   if (theColumns != NULL)
-    throw KII_exception("Attempt to allocate storage for non-cleared SparseMatrix");
+    throw MatrixException("Attempt to allocate storage for non-cleared SparseMatrix");
 
   // Allocate the 1D array
   if ((theColumns = new list<Element*>[columns]) == NULL)
@@ -636,7 +636,7 @@ BGFLOAT& SparseMatrix::operator()(int r, int c)
   return el->value;
 }
 
-/*!
+/**
   Unary minus. Negate all elements of the SparseMatrix.
   @return A new SparseMatrix, with same size as the current one.
 */

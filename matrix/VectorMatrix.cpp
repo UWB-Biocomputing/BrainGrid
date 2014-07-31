@@ -1,4 +1,4 @@
-/*!
+/**
  @file VectorMatrix.cpp
  @brief  An efficient implementation of a dynamically-allocated 1D array
  @author Michael Stiber
@@ -145,7 +145,7 @@ void VectorMatrix::copy(const VectorMatrix& source) {
 // Allocate internal storage
 void VectorMatrix::alloc(int size) {
 	if (theVector != NULL)
-		throw KII_exception("Attempt to allocate storage for non-cleared Vector.");
+		throw MatrixException("Attempt to allocate storage for non-cleared Vector.");
 
 	if ((theVector = new BGFLOAT[size]) == NULL) {
 		throw KII_bad_alloc("Failed allocating storage of Vector copy.");

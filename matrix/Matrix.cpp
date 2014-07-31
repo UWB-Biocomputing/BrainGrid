@@ -1,4 +1,4 @@
-/*!
+/**
  @file Matrix.cpp
  @brief Abstract base class for Matrices
  @author Michael Stiber

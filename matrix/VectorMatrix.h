@@ -1,4 +1,4 @@
-/*!
+/**
   @file VectorMatrix.h
   @brief  An efficient implementation of a dynamically-allocated 1D array
   @author Michael Stiber
@@ -59,7 +59,7 @@ const VectorMatrix exp(const VectorMatrix& v);
 class csimInterface;
 
 
-/*!
+/**
   @class VectorMatrix
   @brief An efficient implementation of a dynamically-allocated 1D
   array
@@ -84,7 +84,7 @@ public:
 
 friend class csimInterface;
 
-  /*!
+  /**
     Allocate storage and initialize attributes. Either
     "rows" or "columns" must be equal to 1. If "v" is not empty, it
     will be used as a source of data for initializing the vector (and
@@ -102,60 +102,60 @@ friend class csimInterface;
   VectorMatrix(string t = "complete", string i = "const", int r = 1,
 	       int c = 1, BGFLOAT m = 0.0, string v = "");
 
-  /*!
+  /**
     @brief Copy constructor. Performs a deep copy.
     @param oldV The source VectorMatrix
   */
   VectorMatrix(const VectorMatrix& oldV);
 
-  /*!
+  /**
     @brief De-allocate storage
   */
   virtual ~VectorMatrix();
 
 
-  /*!
+  /**
     @brief Set elements of vector to a constant. Doesn't change its size.
     @param c the constant
   */
   const VectorMatrix& operator=(BGFLOAT c);
 
-  /*!
+  /**
     @brief Assignment operator
     @param rhs right-hand side of assignment
     @return returns reference to this VectorMatrix (after assignment)
   */
   const VectorMatrix& operator=(const VectorMatrix& rhs);
 
-  /*!
+  /**
     @brief Polymorphic output. Produces text output on stream "os"
     @param os stream to output to
   */
   virtual void Print(ostream& os) const;
 
-  /*!
+  /**
     @brief Produce XML representation of vector in string return value.
   */
   virtual string toXML(string name="") const;
 
-  /*! @name Accessors
+  /** @name Accessors
    */
   //@{
-  /*!
+  /**
     @brief Access element of a VectorMatrix. Zero-based index; constant-time.
     @param i index
     @return item within this VectorMatrix
   */
   inline const BGFLOAT& operator[](int i) const { return theVector[i]; }
 
-  /*!
+  /**
     @brief access element of a VectorMatrix. Zero-based index; constant-time.
     @param i index
     @return item within this VectorMatrix
   */
   inline const BGFLOAT& at(int i) const { return theVector[i]; }
 
-  /*!
+  /**
     @brief The length of a VectorMatrix elements.
     @return The number of elements in the VectorMatrix
   */
@@ -163,18 +163,18 @@ friend class csimInterface;
   //@}
 
 
-  /*! @name Mutators
+  /** @name Mutators
    */
   //@{
 
-  /*!
+  /**
     @brief mutate element of a VectorMatrix. Zero-based index; constant time.
     @param i index
     @return Reference to item within this VectorMatrix
   */
   inline BGFLOAT& operator[](int i) { return theVector[i]; }
 
-  /*!
+  /**
     @brief mutate element of a VectorMatrix. Zero-based index.
     @param i index
     @return reference to item within this VectorMatrix
@@ -182,11 +182,11 @@ friend class csimInterface;
   inline BGFLOAT& at(int i) { return theVector[i]; }
   //@}
 
-  /*! @name Math Operations
+  /** @name Math Operations
    */
   //@{
 
-  /*!
+  /**
     @brief Compute the sum of two VectorMatrices of the same length.
     @throws KII_domain_error
     @param rhs right-hand argument to the addition. Must be same
@@ -196,7 +196,7 @@ friend class csimInterface;
    */
   virtual const VectorMatrix operator+(const VectorMatrix& rhs) const;
 
-  /*!
+  /**
     @brief vector plus a constant. Adds each element of the vector
     plus a constant. Method version (vector on LHS).
     @param c The constant
@@ -204,7 +204,7 @@ friend class csimInterface;
   */
   virtual const VectorMatrix operator+(BGFLOAT c) const;
 
-  /*!
+  /**
     @brief There are two possible vector products. This is an inner product.
     @throws KII_domain_error
     @param rhs right-hand argument to the inner product.
@@ -212,7 +212,7 @@ friend class csimInterface;
    */
   virtual const BGFLOAT operator*(const VectorMatrix& rhs) const;
 
-  /*!
+  /**
     @brief Vector times a Complete Matrix.
 
     Treats this vector as a row
@@ -225,7 +225,7 @@ friend class csimInterface;
    */
   virtual const VectorMatrix operator*(const CompleteMatrix& rhs) const;
 
-  /*!
+  /**
     @brief Element-by-element multiplication of two vectors.
     @throws KII_domain_error
     @param rhs right-hand argument to the vector/matrix product. Must
@@ -234,7 +234,7 @@ friend class csimInterface;
   */
   virtual const VectorMatrix ArrayMultiply(const VectorMatrix& rhs) const;
 
-  /*!
+  /**
     @brief Constant times a vector.
     Multiplies each element of the vector by a constant. Method
     version (vector on LHS)
@@ -243,14 +243,14 @@ friend class csimInterface;
   */
   virtual const VectorMatrix operator*(BGFLOAT c) const;
 
-  /*!
+  /**
     @brief Vector divided by a constant. Divides each element of the vector by a constant.
     @param c The constant
     @return A vector the same size as the current one
   */
   virtual const VectorMatrix operator/(BGFLOAT c) const;
 
-  /*!
+  /**
     @brief Limit values of a vector. Clip values to lie within range.
     @param low lower limit
     @param high upper limit
@@ -258,19 +258,19 @@ friend class csimInterface;
   */
   virtual const VectorMatrix Limit(BGFLOAT low, BGFLOAT high) const;
 
-  /*!
+  /**
     @brief Find minimum value of vector
     @return A scalar
   */
   virtual const BGFLOAT Min(void) const;
 
-  /*!
+  /**
     @brief Find maximum value of vector
     @return A scalar
   */
   virtual const BGFLOAT Max(void) const;
 
-  /*!
+  /**
     @brief Compute and assign the sum of two VectorMatrices of the same length.
     @throws KII_domain_error
     @param rhs right-hand argument to the addition. Must be same
@@ -279,7 +279,7 @@ friend class csimInterface;
    */
   virtual const VectorMatrix& operator+=(const VectorMatrix& rhs);
 
-  /*!
+  /**
     @brief Constant times a vector.
 
     Multiplies each element of the vector by a constant. Function
@@ -294,7 +294,7 @@ friend class csimInterface;
     return rhs * c;
   }
 
-  /*!
+  /**
     @brief Vector times sparse matrix.
 
     Size of v must equal to number of rows of m. Size of resultant
@@ -304,7 +304,7 @@ friend class csimInterface;
   */
   friend const VectorMatrix operator*(const VectorMatrix& v, const SparseMatrix& m);
 
-  /*!
+  /**
     @brief Constant minus a vector. Subtracts each element of the vector from a constant.
     @param c The constant
     @param v The vector
@@ -313,7 +313,7 @@ friend class csimInterface;
   friend
   const VectorMatrix operator-(BGFLOAT c, const VectorMatrix& v);
 
-  /*!
+  /**
     @brief Constant divided by a vector. Divides the constant by each element of a vector
     @param c The constant
     @param v The vector
@@ -322,7 +322,7 @@ friend class csimInterface;
   friend
   const VectorMatrix operator/(BGFLOAT c, const VectorMatrix& v);
 
-  /*!
+  /**
     @brief Constant plus a vector. Adds each element of the vector and a constant
     @param c The constant
     @param rhs The vector
@@ -334,7 +334,7 @@ friend class csimInterface;
     return rhs + c;
   }
 
-  /*!
+  /**
     @brief Element-wise square root of vector. Computes square root of each element of vector.
     @param v The vector
     @return A vector the same size as the v
@@ -342,7 +342,7 @@ friend class csimInterface;
   friend
   const VectorMatrix sqrt(const VectorMatrix& v);
 
-  /*!
+  /**
     @brief Element-wise e^x for vector. Computes exp(v[i]) of each element of vector.
     @param v The vector
     @return A vector the same size as the v
@@ -353,25 +353,25 @@ friend class csimInterface;
 
 protected:
 
-  /*! @name Internal Utilities
+  /** @name Internal Utilities
    */
   //@{
 
-  /*!
+  /**
     @brief Frees up all dynamically allocated storage
    */
   void clear(void);
 
-  /*!
+  /**
     @brief Performs a deep copy
     @param source VectorMatrix to copy from
    */
   void copy(const VectorMatrix& source);
 
-  /*!
+  /**
     @brief Allocates storage for internal Vector storage
     @throws KII_bad_alloc
-    @throws KII_exception
+    @throws MatrixException
     @param size number of Vector elements
    */
   void alloc(int size);
@@ -385,13 +385,13 @@ protected:
 
 private:
 
-  /*! Pointer to dynamically allocated 1D array */
+  /** Pointer to dynamically allocated 1D array */
   BGFLOAT *theVector;
 
-  /*! The number of elements in "theVector" */
+  /** The number of elements in "theVector" */
   int size;
 
-  /*! A normal RNG for the whole class */
+  /** A normal RNG for the whole class */
   static Norm nRng;
 
 };
