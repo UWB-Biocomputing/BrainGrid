@@ -61,16 +61,16 @@ class CompleteMatrix : public Matrix
 public:
 
   /**
-    Allocate storage and initialize attributes. If "v" is
+    Allocate storage and initialize attributes. If "v" (values) is
     not empty, it will be used as a source of data for initializing
     the matrix (and must be a list of whitespace separated textual
-    numeric data with rows * columns elements, if "t" is
+    numeric data with rows * columns elements, if "t" (type) is
     "complete", or number of elements in diagonal, if "t" is "diag").
     
-    If "i" is "const", then "m" will be used to initialize either all
+    If "i" (initialization) is "const", then "m" will be used to initialize either all
     elements (for a "complete" matrix) or diagonal elements (for "diag").
    
-    "random" for "i" is not yet implemented.
+    "random" initialization is not yet implemented.
    
     @throws Matrix_bad_alloc
     @throws Matrix_invalid_argument
@@ -112,7 +112,7 @@ public:
   { return theMatrix[row][column]; }
 
   /**
-    @brief Polymorphic output. Produces text output on stream os
+    @brief Polymorphic output. Produces text output on stream os. Used by operator<<()
     @param os stream to output to
   */
   virtual void Print(ostream& os) const;
@@ -133,7 +133,7 @@ public:
 
   /**
     @brief Compute the sum of two CompleteMatrices of the same rows and columns.
-    @throws KII_domain_error
+    @throws Matrix_domain_error
     @param rhs right-hand argument to the addition. Must have same
     dimensions as this.
     @return A new CompleteMatrix, with value equal to the sum of this
@@ -144,7 +144,7 @@ public:
   /**
     Matrix product. Number of rows of "rhs" must equal to
     number of columns of this.
-    @throws KII_domain_error
+    @throws Matrix_domain_error
     @param rhs right-hand argument to the product.
     @return A CompleteMatrix with number of rows equal to this and
     number of columns equal to "rhs".

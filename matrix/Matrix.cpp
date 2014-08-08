@@ -2,8 +2,8 @@
  @file Matrix.cpp
  @brief Abstract base class for Matrices
  @author Michael Stiber
- @date $Date: 2006/11/18 04:42:31 $
- @version $Revision: 1.1.1.1 $
+ @date August 2014
+ @version 2
 */
 
 // Matrix.h Abstract base class for Matrices
