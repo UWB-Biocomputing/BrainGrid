@@ -112,13 +112,18 @@ void LIFGPUModel::allocDeviceStruct(const SimulationInfo *sim_info, const AllNeu
  *  @param  synapses    List of all Synapses.
  *  @param  simRecorder Pointer to the simulation recordig object.
  */
-void LIFGPUModel::setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses, IRecorder* simRecorder)
+void LIFGPUModel::setupSim(SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses, IRecorder* simRecorder)
 {
     // Set device ID
     HANDLE_ERROR( cudaSetDevice( g_deviceId ) );
 
     LIFModel::setupSim(sim_info, neurons, synapses, simRecorder);
     allocDeviceStruct(sim_info, neurons, synapses);
+
+    // get device summation point address and set it to sim info
+    AllNeurons allNeurons;
+    HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllNeurons ), cudaMemcpyDeviceToHost ) );
+    sim_info->pSummationMap = allNeurons.summation_map;
 
     //initialize Mersenne Twister
     //assuming neuron_count >= 100 and is a multiple of 100. Note rng_mt_rng_count must be <= MT_RNG_COUNT

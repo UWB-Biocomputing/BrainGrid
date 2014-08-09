@@ -16,6 +16,7 @@
 #include "Model.h"
 #include "XmlRecorder.h"
 #include "Hdf5Recorder.h"
+#include "FSInput.h"
 
 
 // Uncomment to use visual leak detector (Visual Studios Plugin)
@@ -45,6 +46,8 @@ bool fReadMemImage = false;  // True if dumped memory image is read before
 bool fWriteMemImage = false;  // True if dumped memory image is written after
                               // simulation
 
+// stimulus input file name
+string stimulusInputFileName;
 
 Model *model = NULL;
 SimulationInfo *simInfo = NULL;
@@ -139,7 +142,20 @@ int main(int argc, char* argv[]) {
         memory_in.close();
     }
 
-    simulator->simulate();
+    // Create a stimulus input object
+    ISInput* pInput = NULL;     // pointer to a stimulus input object
+    FSInput fsi;
+    pInput = fsi.CreateInstance(simInfo, stimulusInputFileName);
+
+    // Run simulation
+    simulator->simulate(pInput);
+
+    // Terminate the stimulus input 
+    if (pInput != NULL)
+    {
+        pInput->term();
+        delete pInput;
+    }
 
     // writes simulation results to an output destination
     simulator->saveState();
@@ -394,6 +410,7 @@ bool parseCommandLine(int argc, char* argv[])
     if ((cl.addParam("stateoutfile", 'o', ParamContainer::filename, "simulation state output filename") != ParamContainer::errOk)
             || (cl.addParam("stateinfile", 't', ParamContainer::filename | ParamContainer::required, "simulation state input filename") != ParamContainer::errOk)
             || (cl.addParam("deviceid", 'd', ParamContainer::regular, "CUDA device id") != ParamContainer::errOk)
+            || (cl.addParam( "stiminfile", 's', ParamContainer::filename, "stimulus input file" ) != ParamContainer::errOk)
             || (cl.addParam("meminfile", 'r', ParamContainer::filename, "simulation memory image input filename") != ParamContainer::errOk)
             || (cl.addParam("memoutfile", 'w', ParamContainer::filename, "simulation memory image output filename") != ParamContainer::errOk)) {
         cerr << "Internal error creating command line parser" << endl;
@@ -402,6 +419,7 @@ bool parseCommandLine(int argc, char* argv[])
 #else    // !USE_GPU
     if ((cl.addParam("stateoutfile", 'o', ParamContainer::filename, "simulation state output filename") != ParamContainer::errOk)
             || (cl.addParam("stateinfile", 't', ParamContainer::filename | ParamContainer::required, "simulation state input filename") != ParamContainer::errOk)
+            || (cl.addParam( "stiminfile", 's', ParamContainer::filename, "stimulus input file" ) != ParamContainer::errOk)
             || (cl.addParam("meminfile", 'r', ParamContainer::filename, "simulation memory image filename") != ParamContainer::errOk)
             || (cl.addParam("memoutfile", 'w', ParamContainer::filename, "simulation memory image output filename") != ParamContainer::errOk)) {
         cerr << "Internal error creating command line parser" << endl;
@@ -420,6 +438,8 @@ bool parseCommandLine(int argc, char* argv[])
     stateInputFileName = cl["stateinfile"];
     memInputFileName = cl["meminfile"];
     memOutputFileName = cl["memoutfile"];
+    stimulusInputFileName = cl["stiminfile"];
+
     if (!memInputFileName.empty())
         fReadMemImage = true;
     if (!memOutputFileName.empty())

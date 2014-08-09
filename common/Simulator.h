@@ -12,6 +12,7 @@
 #include "Global.h"
 #include "SimulationInfo.h"
 #include "Network.h"
+#include "ISInput.h"
 
 #include "Timer.h"
 
@@ -33,12 +34,12 @@ class Simulator
         /**
          * Performs the simulation.
          */
-        void simulate();
+        void simulate(ISInput* pInput);
 
         /**
          * Advance simulation to next growth cycle. Helper for #simulate().
          */
-        void advanceUntilGrowth(const int currentStep);
+        void advanceUntilGrowth(const int currentStep, ISInput* pInput);
 
         /**
          * Write the result of the simulation.

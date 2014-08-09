@@ -973,7 +973,7 @@ void LIFModel::setNeuronDefaults(AllNeurons &neurons, const int index)
  *  @param  synapses    List of all Synapses.
  *  @param  simRecorder Pointer to the simulation recordig object.
  */
-void LIFModel::setupSim(const SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses, IRecorder* simRecorder)
+void LIFModel::setupSim(SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses, IRecorder* simRecorder)
 {
     if (m_conns != NULL) {
         delete m_conns;

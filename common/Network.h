@@ -90,9 +90,9 @@ class Network
         // TODO comment
         Model *m_model;
         // TODO comment
-        AllNeurons neurons;
+        AllNeurons *neurons;
         // TODO comment
-        AllSynapses synapses;
+        AllSynapses *synapses;
         // TODO comment
         IRecorder* m_simRecorder;
 

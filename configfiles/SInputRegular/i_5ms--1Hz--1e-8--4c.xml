@@ -1,0 +1,27 @@
+<?xml version="1.0" standalone=no?>
+<!-- Parameter file for the timulus input -->
+<!-- The stimulus input is a seaqunce of pulses, which are defined by duration, interval, and values -->
+<InputParams>
+   <!-- Input Method -->
+   <IMethod name="SInputRegular"/>
+
+   <!-- duration and interval in second -->
+   <IntParams duration="0.005" interval="0.995" sync="yes"/>
+   <!-- values in ampere -->
+   <!-- The 10x10 values are used to fill NxN neurons matrix -->
+    <!-- 0   1   2   3   4   5   6   7   8   9 -->
+   <Values>
+    <I> 
+        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
+        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+        0.0 0.0 1e-8 0.0 0.0 0.0 0.0 1e-8 0.0 0.0
+        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+        0.0 0.0 0.0 1e-8 0.0 0.0 0.0 1e-8 0.0 0.0
+        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+    </I>
+    </Values>
+</InputParams>

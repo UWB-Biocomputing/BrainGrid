@@ -96,11 +96,11 @@ void XmlRecorder::compileHistories(const AllNeurons &neurons, BGFLOAT minRadius)
         for (int i = 0; i < spike_count; i++)
         {
             // compile network wide burstiness index data in 1s bins
-            int idx1 = static_cast<int>( pSpikes[i] * m_sim_info->deltaT );
+            int idx1 = static_cast<int>( static_cast<double>( pSpikes[i] ) * m_sim_info->deltaT );
             burstinessHist[idx1] = burstinessHist[idx1] + 1.0;
 
             // compile network wide spike count in 10ms bins
-            int idx2 = static_cast<int>( pSpikes[i] * m_sim_info->deltaT * 100 );
+            int idx2 = static_cast<int>( static_cast<double>( pSpikes[i] ) * m_sim_info->deltaT * 100 );
             spikesHistory[idx2] = spikesHistory[idx2] + 1.0;
         }
 

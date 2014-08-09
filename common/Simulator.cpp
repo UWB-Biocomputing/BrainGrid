@@ -29,10 +29,11 @@ Simulator::~Simulator()
 
 /**
 * Run simulation
+* @param[in] pInput    Pointer to the stimulus input object.
 * @param growthEpochDuration
 * @param maxGrowthSteps
 */
-void Simulator::simulate()
+void Simulator::simulate(ISInput* pInput)
 {
     // Main simulation loop - execute maxGrowthSteps
     // Shouldn't currentStep be an unsigned long?
@@ -46,7 +47,7 @@ void Simulator::simulate()
         m_sim_info->currentStep = currentStep;
 
         // Advance simulation to next growth cycle
-        advanceUntilGrowth(currentStep);
+        advanceUntilGrowth(currentStep, pInput);
 
         DEBUG(cout << endl << endl;)
         DEBUG(
@@ -84,8 +85,9 @@ void Simulator::simulate()
 * Advance simulation until it's ready for the next growth cycle. This should simulate all neuron and
 * synapse activity for one epoch.
 * @param currentStep the current epoch in which the network is being simulated.
+* @param[in] pInput    Pointer to the stimulus input object.
 */
-void Simulator::advanceUntilGrowth(const int currentStep)
+void Simulator::advanceUntilGrowth(const int currentStep, ISInput* pInput)
 {
     uint64_t count = 0;
     // Compute step number at end of this simulation epoch
@@ -106,6 +108,10 @@ void Simulator::advanceUntilGrowth(const int currentStep)
             }
             count++;
         )
+
+        // input stimulus
+        if (pInput != NULL)
+            pInput->inputStimulus(m_sim_info, m_sim_info->pSummationMap);
 
 	  // Advance the Network one time step
         network->advance();

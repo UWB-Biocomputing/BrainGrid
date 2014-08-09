@@ -17,10 +17,10 @@
 // For floats, uncomment the following two lines and comment DOUBLEPRECISION and
 // the other #define BGFLOAT; vice-versa for doubles.
 
-//#define SINGLEPRECISION
-//#define BGFLOAT float
-#define DOUBLEPRECISION
-#define BGFLOAT double
+#define SINGLEPRECISION
+#define BGFLOAT float
+//#define DOUBLEPRECISION
+//#define BGFLOAT double
 
 typedef BGFLOAT* PBGFLOAT;
 

@@ -13,16 +13,20 @@
  */
 Network::Network(Model *model, SimulationInfo *simInfo, IRecorder* simRecorder) :
     m_model(model),
-    neurons(simInfo->totalNeurons),
-    synapses(simInfo->totalNeurons, simInfo->maxSynapsesPerNeuron),
     m_summationMap(NULL),
     m_sim_info(simInfo),
     m_simRecorder(simRecorder)
 {
     cout << "Neuron count: " << simInfo->totalNeurons << endl;
     g_simulationStep = 0;
+
+    neurons = new AllNeurons(simInfo->totalNeurons);
+    synapses = new AllSynapses(simInfo->totalNeurons, simInfo->maxSynapsesPerNeuron),
+
+    m_sim_info->pSummationMap = neurons->summation_map;
+
     cout << "Initializing neurons in network." << endl;
-    m_model->createAllNeurons(neurons, m_sim_info);
+    m_model->createAllNeurons(*neurons, m_sim_info);
 }
 
 /**
@@ -40,7 +44,10 @@ Network::~Network()
  */
 void Network::setup(BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps)
 {
-    m_model->setupSim(m_sim_info, neurons, synapses, m_simRecorder);
+    m_model->setupSim(m_sim_info, *neurons, *synapses, m_simRecorder);
+
+    // m_sim_info->pSummationMap may be modfied in setupSim (CUDA)
+    m_summationMap = m_sim_info->pSummationMap;
 }
 
 /**
@@ -51,7 +58,7 @@ void Network::setup(BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps)
 void Network::finish(BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps)
 {
     // Terminate the simulator
-    m_model->cleanupSim(neurons, synapses, m_sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
+    m_model->cleanupSim(*neurons, *synapses, m_sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
 }
 
 /**
@@ -61,7 +68,7 @@ void Network::finish(BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps)
  */
 void Network::advance()
 {
-    m_model->advance(neurons, synapses, m_sim_info);
+    m_model->advance(*neurons, *synapses, m_sim_info);
 }
 
 /**
@@ -70,7 +77,7 @@ void Network::advance()
  */
 void Network::updateConnections(const int currentStep)
 {
-    m_model->updateConnections(currentStep, neurons, synapses, m_sim_info, m_simRecorder);
+    m_model->updateConnections(currentStep, *neurons, *synapses, m_sim_info, m_simRecorder);
 }
 
 /**
@@ -78,16 +85,18 @@ void Network::updateConnections(const int currentStep)
  */
 void Network::logSimStep() const
 {
-    m_model->logSimStep(neurons, synapses, m_sim_info);
+    m_model->logSimStep(*neurons, *synapses, m_sim_info);
 }
 
 /**
- *  Clean up heap objects.
+ *  Clean up objects.
  */
 void Network::freeResources()
 {
-    if (m_summationMap != NULL) 
-		delete[] m_summationMap;
+    delete neurons;
+    neurons = NULL;
+    delete synapses;
+    synapses = NULL;
 }
 
 /**
@@ -96,27 +105,28 @@ void Network::freeResources()
  */
 void Network::reset()
 {
-    DEBUG(cout << "\nEntering Network::reset()";)
+    DEBUG(cout << "\nEntering Network::reset()" << endl;)
 
+    // Terminate the simulator
+    m_model->cleanupSim(*neurons, *synapses, m_sim_info);
+
+    // Clean up objects
     freeResources();
 
-    neurons = AllNeurons(m_sim_info->totalNeurons);
-    synapses = AllSynapses(m_sim_info->totalNeurons, m_sim_info->maxSynapsesPerNeuron);
+    // Creates neurons and synapses
+    neurons = new AllNeurons(m_sim_info->totalNeurons);
+    synapses = new AllSynapses(m_sim_info->totalNeurons, m_sim_info->maxSynapsesPerNeuron),
+
+    // Creates all the Neurons and generates data for them
+    m_model->createAllNeurons(*neurons, m_sim_info);
 
     // Reset global simulation Step to 0
     g_simulationStep = 0;
 
-    m_summationMap = new BGFLOAT[m_sim_info->totalNeurons];
+    // Initialize and prepare network for simulation 
+    m_model->setupSim(m_sim_info, *neurons, *synapses, m_simRecorder);
 
-    // initialize maps
-    for (int i = 0; i < m_sim_info->totalNeurons; i++)
-    {
-        m_summationMap[i] = 0;
-    }
-
-    m_sim_info->pSummationMap = m_summationMap;
-
-    DEBUG(cout << "\nExiting Network::reset()";)
+    DEBUG(cout << "\nExiting Network::reset()" << endl;)
 }
 
 /**
@@ -124,7 +134,7 @@ void Network::reset()
  */
 void Network::saveState()
 {
-    m_model->saveState(neurons, m_simRecorder);
+    m_model->saveState(*neurons, m_simRecorder);
 }
 
 /**
@@ -139,7 +149,7 @@ void Network::writeSimMemory(ostream& os)
     // get history matrices with current values
     m_simRecorder->getValues();
 
-    m_model->saveMemory(os, neurons, synapses, m_sim_info);
+    m_model->saveMemory(os, *neurons, *synapses, m_sim_info);
 }
 
 /**
@@ -150,7 +160,7 @@ void Network::readSimMemory(istream& is)
 {
     // read the neuron data
     is >> m_sim_info->totalNeurons; is.ignore();
-    m_model->loadMemory(is, neurons, synapses, m_sim_info);
+    m_model->loadMemory(is, *neurons, *synapses, m_sim_info);
 
     // Init history matrices with current values
     m_simRecorder->initValues();

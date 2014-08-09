@@ -25,7 +25,7 @@
    <!-- Growth parameters -->
    <GrowthParams epsilon="0.60" beta="0.10" rho="0.0001" targetRate="0.1" minRadius="0.1" startRadius="0.4"/>
    <!-- Simulation Parameters -->
-   <SimParams Tsim="100.0" numSims="600"/>
+   <SimParams Tsim="100.0" numSims="600" maxFiringRate="350" maxSynapsesPerNeuron="150"/>
 
   <OutputParams stateOutputFileName="results/tR_0.1--fE_0.98_historyDump.xml"/>
 
