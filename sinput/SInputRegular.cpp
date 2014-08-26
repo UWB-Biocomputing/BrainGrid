@@ -30,10 +30,11 @@ SInputRegular::~SInputRegular()
 
 /**
  * Initialize data.
+ * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information.
  * @param[in] parms     Pointer to xml parms element
  */
-void SInputRegular::init(SimulationInfo* psi, TiXmlElement* parms)
+void SInputRegular::init(Model* model, SimulationInfo* psi, TiXmlElement* parms)
 {
     fSInput = false;
 
@@ -127,8 +128,10 @@ void SInputRegular::init(SimulationInfo* psi, TiXmlElement* parms)
 
 /**
  * Terminate process.
+ * @param[in] model              Pointer to the Neural Network Model object.
+ * @param[in] psi                Pointer to the simulation information.
  */
-void SInputRegular::term()
+void SInputRegular::term(Model* model, SimulationInfo* psi)
 {
 }
 

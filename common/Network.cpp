@@ -21,7 +21,7 @@ Network::Network(Model *model, SimulationInfo *simInfo, IRecorder* simRecorder) 
     g_simulationStep = 0;
 
     neurons = new AllNeurons(simInfo->totalNeurons);
-    synapses = new AllSynapses(simInfo->totalNeurons, simInfo->maxSynapsesPerNeuron),
+    synapses = new AllSynapses(simInfo->totalNeurons, simInfo->maxSynapsesPerNeuron);
 
     m_sim_info->pSummationMap = neurons->summation_map;
 
@@ -66,8 +66,12 @@ void Network::finish(BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps)
  *  everything that needs to be done within the model to move
  *  everything forward one time step.
  */
-void Network::advance()
+void Network::advance(ISInput* pInput)
 {
+    // input stimulus
+    if (pInput != NULL)
+        pInput->inputStimulus(m_model, m_sim_info, m_sim_info->pSummationMap);
+
     m_model->advance(*neurons, *synapses, m_sim_info);
 }
 

@@ -40,10 +40,10 @@ public:
     ~SInputRegular();
 
     //! Initialize data.
-    virtual void init(SimulationInfo* psi, TiXmlElement* parms);
+    virtual void init(Model* model, SimulationInfo* psi, TiXmlElement* parms);
 
     //! Terminate process.
-    virtual void term();
+    virtual void term(Model* model, SimulationInfo* psi);
 
 protected:
     //! True if stimuls input is on.

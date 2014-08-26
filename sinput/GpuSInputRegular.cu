@@ -36,12 +36,13 @@ GpuSInputRegular::~GpuSInputRegular()
 
 /**
  * Initialize data.
+ * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information.
  * @param[in] parms     Pointer to xml parms element
  */
-void GpuSInputRegular::init(SimulationInfo* psi, TiXmlElement* parms)
+void GpuSInputRegular::init(Model* model, SimulationInfo* psi, TiXmlElement* parms)
 {
-    SInputRegular::init(psi, parms);
+    SInputRegular::init(model, psi, parms);
 
     if (fSInput == false)
         return;
@@ -55,8 +56,10 @@ void GpuSInputRegular::init(SimulationInfo* psi, TiXmlElement* parms)
 
 /**
  * Terminate process.
+ * @param[in] model     Pointer to the Neural Network Model object.
+ * @param[in] psi       Pointer to the simulation information.
  */
-void GpuSInputRegular::term()
+void GpuSInputRegular::term(Model* model, SimulationInfo* psi)
 {
     if (fSInput)
         deleteDeviceValues( );
@@ -64,10 +67,11 @@ void GpuSInputRegular::term()
 
 /**
  * Process input stimulus for each time step on GPU.
+ * @param[in] model     	Pointer to the Neural Network Model object.
  * @param[in] psi               Pointer to the simulation information.
  * @param[in] summationPoint_d  Pointer to the summation map.
  */
-void GpuSInputRegular::inputStimulus( SimulationInfo* psi, BGFLOAT* summationPoint_d )
+void GpuSInputRegular::inputStimulus( Model* model, SimulationInfo* psi, BGFLOAT* summationPoint_d )
 {
     if (fSInput == false)
         return;

@@ -32,6 +32,8 @@
 #define _GPUSINPUTPOISSON_H_
 
 #include "SInputPoisson.h"
+#include "AllSynapsesDevice.h"
+#include "LIFGPUModel.h"
 
 class GpuSInputPoisson : public SInputPoisson
 {
@@ -41,20 +43,29 @@ public:
     ~GpuSInputPoisson();
 
     //! Initialize data.
-    virtual void init(SimulationInfo* psi, TiXmlElement* parms);
+    virtual void init(Model* model, SimulationInfo* psi, TiXmlElement* parms);
 
     //! Terminate process.
-    virtual void term();
+    virtual void term(Model* model, SimulationInfo* psi);
 
     //! Process input stimulus for each time step.
-    virtual void inputStimulus(SimulationInfo* psi, BGFLOAT* summationPoint);
+    virtual void inputStimulus(Model* model, SimulationInfo* psi, BGFLOAT* summationPoint);
 
 private:
     //! Allocate GPU device memory and copy values
-    void allocDeviceValues( SimulationInfo* psi, int *nISIs );
+    void allocDeviceValues( Model* model, SimulationInfo* psi, int *nISIs );
 
     //! Dellocate GPU device memory
-    void deleteDeviceValues( );
+    void deleteDeviceValues( Model* model, SimulationInfo* psi );
+
+    //! Synapse structures in device memory.
+    AllSynapsesDevice* allSynapsesDevice;
+ 
+    //! Pointer to synapse index map in device memory.
+    LIFGPUModel::SynapseIndexMap* synapseIndexMapDevice;
+
+    //! Pointer to device interval counter.
+    int* nISIs_d;
 };
 
 #endif // _GPUSINPUTPOISSON_H_

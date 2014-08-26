@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
     // Create a stimulus input object
     ISInput* pInput = NULL;     // pointer to a stimulus input object
     FSInput fsi;
-    pInput = fsi.CreateInstance(simInfo, stimulusInputFileName);
+    pInput = fsi.CreateInstance(model, simInfo, stimulusInputFileName);
 
     // Run simulation
     simulator->simulate(pInput);
@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
     // Terminate the stimulus input 
     if (pInput != NULL)
     {
-        pInput->term();
+        pInput->term(model, simInfo);
         delete pInput;
     }
 

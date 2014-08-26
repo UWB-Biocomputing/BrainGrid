@@ -25,18 +25,21 @@ HostSInputRegular::~HostSInputRegular()
 
 /**
  * Initialize data.
+ * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information.
  * @param[in] parms     Pointer to xml parms element.
  */
-void HostSInputRegular::init(SimulationInfo* psi, TiXmlElement* parms)
+void HostSInputRegular::init(Model* model, SimulationInfo* psi, TiXmlElement* parms)
 {
-    SInputRegular::init(psi, parms);
+    SInputRegular::init(model, psi, parms);
 }
 
 /**
  * Terminate process.
+ * @param[in] model     Pointer to the Neural Network Model object.
+ * @param[in] psi       Pointer to the simulation information.
  */
-void HostSInputRegular::term()
+void HostSInputRegular::term(Model* model, SimulationInfo* psi)
 {
     if (values != NULL)
         delete[] values;
@@ -48,9 +51,11 @@ void HostSInputRegular::term()
 /**
  * Process input stimulus for each time step.
  * Apply inputs on summationPoint.
+ * @param[in] model     Pointer to the Neural Network Model object.
+ * @param[in] psi       Pointer to the simulation information.
  * @param[in] summationPoint
  */
-void HostSInputRegular::inputStimulus(SimulationInfo* psi, BGFLOAT* summationPoint)
+void HostSInputRegular::inputStimulus(Model* model, SimulationInfo* psi, BGFLOAT* summationPoint)
 {
     if (fSInput == false)
         return;

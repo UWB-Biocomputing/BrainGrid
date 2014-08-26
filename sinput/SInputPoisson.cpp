@@ -7,7 +7,7 @@
  */
 
 #include "SInputPoisson.h"
-#include "tinyxml/tinyxml.h"
+#include "tinyxml.h"
 
 /**
  * constructor
@@ -26,10 +26,11 @@ SInputPoisson::~SInputPoisson()
 
 /**
  * Initialize data.
+ * @param[in] model	Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information.
  * @param[in] parms     Pointer to xml parms element
  */
-void SInputPoisson::init(SimulationInfo* psi, TiXmlElement* parms)
+void SInputPoisson::init(Model* model, SimulationInfo* psi, TiXmlElement* parms)
 {
     fSInput = false;
 
@@ -37,7 +38,6 @@ void SInputPoisson::init(SimulationInfo* psi, TiXmlElement* parms)
     TiXmlElement* temp = NULL;
     string sync;
     BGFLOAT fr_mean;	// firing rate (per sec)
-    BGFLOAT weight;	// synapse weight
 
     if (( temp = parms->FirstChildElement( "IntParams" ) ) != NULL) 
     { 
@@ -61,30 +61,20 @@ void SInputPoisson::init(SimulationInfo* psi, TiXmlElement* parms)
     lambda = 1 / fr_mean;	// inverse firing rate
 
     // allocate memory for interval counter
-    nISIs = new int[psi->cNeurons];
-    memset(nISIs, 0, sizeof(int) * psi->cNeurons);
+    nISIs = new int[psi->totalNeurons];
+    memset(nISIs, 0, sizeof(int) * psi->totalNeurons);
     
-    // create an input synapse layer
-    synapseList.clear();
-    synapseList.reserve(psi->cNeurons);
-    for (int i = 0; i < psi->cNeurons; i++)
-    {
-        // create a synapse
-        int dest_x = i % psi->width;
-        int dest_y = i / psi->width;
-        BGFLOAT* sp = &(psi->pSummationMap[dest_x + dest_y * psi->width]);
-        synapseType type = (psi->rgNeuronTypeMap[i] == INH ? EI : EE);
-        DynamicSpikingSynapse syn(0, 0, dest_x, dest_y, *sp, DEFAULT_delay_weight, psi->deltaT, type);
-        syn.W = weight * g_synapseStrengthAdjustmentConstant;
-        synapseList.push_back(syn);
-    }
-
     fSInput = true;
 }
 
 /**
  * Terminate process.
+ * @param[in] model     Pointer to the Neural Network Model object.
+ * @param[in] psi       Pointer to the simulation information.
  */
-void SInputPoisson::term()
+void SInputPoisson::term(Model* model, SimulationInfo* psi)
 {
+    // clear memory for interval counter
+    if (nISIs != NULL)
+        delete[] nISIs;
 }

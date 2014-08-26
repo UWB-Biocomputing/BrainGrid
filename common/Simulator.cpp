@@ -109,12 +109,8 @@ void Simulator::advanceUntilGrowth(const int currentStep, ISInput* pInput)
             count++;
         )
 
-        // input stimulus
-        if (pInput != NULL)
-            pInput->inputStimulus(m_sim_info, m_sim_info->pSummationMap);
-
 	  // Advance the Network one time step
-        network->advance();
+        network->advance(pInput);
         g_simulationStep++;
     }
 }

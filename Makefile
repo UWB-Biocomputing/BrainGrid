@@ -49,6 +49,7 @@ CUDAOBJS =   \
             $(CUDADIR)/MersenneTwister_kernel.o \
             $(CUDADIR)/BGDriver_cuda.o \
             $(SINPUTDIR)/GpuSInputRegular.o \
+            $(SINPUTDIR)/GpuSInputPoisson.o \
             $(SINPUTDIR)/FSInput_cuda.o \
             $(CUDADIR)/Global_cuda.o
 
@@ -86,10 +87,8 @@ XMLOBJS = $(XMLDIR)/tinyxml.o \
 
 SINPUTOBJS = $(SINPUTDIR)/HostSInputRegular.o \
 			$(SINPUTDIR)/SInputRegular.o \
-
-	#		$(SINPUTDIR)/SInputPoisson.o \
-	#		$(SINPUTDIR)/HostSInputPoisson.o \
-	#		$(SINPUTDIR)/GpuSInputPoisson.o
+			$(SINPUTDIR)/HostSInputPoisson.o \
+			$(SINPUTDIR)/SInputPoisson.o 
 
 ################################################################################
 # Targets
@@ -98,7 +97,7 @@ growth: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS
 	$(LD) -o growth -g $(LDFLAGS) $(LH5FLAGS) $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(SINPUTOBJS)
 
 growth_cuda:$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS) $(SINPUTOBJS)
-	nvcc -o growth_cuda -g $(LDFLAGS) $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(SINPUTOBJS)
+	nvcc -o growth_cuda -g -arch=sm_20 -rdc=true $(LDFLAGS) $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(SINPUTOBJS)
 #	nvcc -o growth_cuda -g -G $(LDFLAGS) $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS)
 
 clean:
@@ -112,19 +111,18 @@ clean:
 # CUDA
 # ------------------------------------------------------------------------------
 $(CUDADIR)/MersenneTwister_kernel.o: $(CUDADIR)/MersenneTwister_kernel.cu $(COMMDIR)/Global.h $(CUDADIR)/MersenneTwister.h
-
-	nvcc -c -g -arch=sm_20 $(CUDADIR)/MersenneTwister_kernel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/MersenneTwister_kernel.o
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/MersenneTwister_kernel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/MersenneTwister_kernel.o
 
 
 $(COMMDIR)/LIFGPUModel.o: $(COMMDIR)/LIFGPUModel.cu $(COMMDIR)/Global.h $(COMMDIR)/LIFGPUModel.h $(COMMDIR)/AllNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Model.h $(CUDADIR)/AllSynapsesDevice.h 
-	nvcc -c -g -arch=sm_20 $(COMMDIR)/LIFGPUModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(COMMDIR)/LIFGPUModel.o
+	nvcc -c -g -arch=sm_20 -rdc=true $(COMMDIR)/LIFGPUModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(COMMDIR)/LIFGPUModel.o
 #	nvcc -c -g -G -arch=sm_20 $(COMMDIR)/LIFGPUModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(COMMDIR)/LIFGPUModel.o
 
 $(CUDADIR)/LifNeuron_struct_d.o: $(CUDADIR)/LifNeuron_struct_d.cu $(COMMDIR)/Global.h $(COMMDIR)/LIFGPUModel.h
-	nvcc -c -g -arch=sm_20 $(CUDADIR)/LifNeuron_struct_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/LifNeuron_struct_d.o
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/LifNeuron_struct_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/LifNeuron_struct_d.o
 
 $(CUDADIR)/DynamicSpikingSynapse_struct_d.o: $(CUDADIR)/DynamicSpikingSynapse_struct_d.cu $(COMMDIR)/Global.h $(COMMDIR)/LIFGPUModel.h
-	nvcc -c -g -arch=sm_20 $(CUDADIR)/DynamicSpikingSynapse_struct_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/DynamicSpikingSynapse_struct_d.o
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/DynamicSpikingSynapse_struct_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/DynamicSpikingSynapse_struct_d.o
 
 $(CUDADIR)/AllSynapsesDevice.o: $(CUDADIR)/AllSynapsesDevice.cpp $(CUDADIR)/AllSynapsesDevice.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CUDADIR)/AllSynapsesDevice.cpp -o $(CUDADIR)/AllSynapsesDevice.o
@@ -233,7 +231,7 @@ $(SINPUTDIR)/FSInput.o: $(SINPUTDIR)/FSInput.cpp $(SINPUTDIR)/ISInput.h $(SINPUT
 	$(CXX) $(CXXFLAGS) $(SINPUTDIR)/FSInput.cpp -o $(SINPUTDIR)/FSInput.o
 
 $(SINPUTDIR)/FSInput_cuda.o: $(SINPUTDIR)/FSInput.cpp $(SINPUTDIR)/ISInput.h $(SINPUTDIR)/FSInput.h $(SINPUTDIR)/HostSInputRegular.h $(SINPUTDIR)/GpuSInputRegular.h $(SINPUTDIR)/HostSInputPoisson.h $(SINPUTDIR)/GpuSInputPoisson.h $(XMLDIR)/tinyxml.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(SINPUTDIR)/FSInput.cpp -o $(SINPUTDIR)/FSInput_cuda.o
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -I$(CUDADIR) $(SINPUTDIR)/FSInput.cpp -o $(SINPUTDIR)/FSInput_cuda.o
 
 $(SINPUTDIR)/SInputRegular.o: $(SINPUTDIR)/SInputRegular.cpp $(SINPUTDIR)/ISInput.h $(SINPUTDIR)/SInputRegular.h $(XMLDIR)/tinyxml.h
 	$(CXX) $(CXXFLAGS) $(SINPUTDIR)/SInputRegular.cpp -o $(SINPUTDIR)/SInputRegular.o
@@ -248,10 +246,10 @@ $(SINPUTDIR)/HostSInputPoisson.o: $(SINPUTDIR)/HostSInputPoisson.cpp $(SINPUTDIR
 	$(CXX) $(CXXFLAGS) $(SINPUTDIR)/HostSInputPoisson.cpp -o $(SINPUTDIR)/HostSInputPoisson.o
 
 $(SINPUTDIR)/GpuSInputRegular.o: $(SINPUTDIR)/GpuSInputRegular.cu $(SINPUTDIR)/ISInput.h $(SINPUTDIR)/GpuSInputRegular.h
-	nvcc -c -g -arch=sm_20 $(SINPUTDIR)/GpuSInputRegular.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(XMLDIR) -I$(SINPUTDIR) -o $(SINPUTDIR)/GpuSInputRegular.o
+	nvcc -c -g -arch=sm_20 -rdc=true $(SINPUTDIR)/GpuSInputRegular.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(XMLDIR) -I$(SINPUTDIR) -o $(SINPUTDIR)/GpuSInputRegular.o
 
 $(SINPUTDIR)/GpuSInputPoisson.o: $(SINPUTDIR)/GpuSInputPoisson.cu $(SINPUTDIR)/ISInput.h $(SINPUTDIR)/GpuSInputPoisson.h
-	nvcc -c -g -arch=sm_20 $(SINPUTDIR)/GpuSInputPoisson.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(XMLDIR) -I$(SINPUTDIR) -o $(SINPUTDIR)/GpuSInputPoisson.o
+	nvcc -c -g -arch=sm_20 -rdc=true $(SINPUTDIR)/GpuSInputPoisson.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(XMLDIR) -I$(SINPUTDIR) -o $(SINPUTDIR)/GpuSInputPoisson.o
 
 # Single Threaded
 # ------------------------------------------------------------------------------

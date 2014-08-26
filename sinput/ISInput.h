@@ -29,6 +29,7 @@
 
 #include "Global.h"
 #include "SimulationInfo.h"
+#include "Model.h"
 #include "tinyxml.h"
 
 class ISInput
@@ -38,21 +39,24 @@ public:
 
     /**
      * Initialize data
-     * @param[in] psi 
+     * @param[in] model     Pointer to the Neural Network Model object.
+     * @param[in] psi       Pointer to the simulation information.
+     * @param[in] parms     Pointer to xml parms element
      */
-    virtual void init(SimulationInfo* psi, TiXmlElement* parms) = 0;
+    virtual void init(Model* model, SimulationInfo* psi, TiXmlElement* parms) = 0;
 
     /**
      * Terminate process
      */
-    virtual void term() = 0;
+    virtual void term(Model* model, SimulationInfo* psi) = 0;
 
     /**
      * Process input stimulus for each time step
-     * @param[in] psi 
+     * @param[in] model     Pointer to the Neural Network Model object.
+     * @param[in] psi       Pointer to the simulation information.
      * @param[in] summationPoint
      */
-    virtual void inputStimulus(SimulationInfo* psi, BGFLOAT* summationPoint) = 0;
+    virtual void inputStimulus(Model* model, SimulationInfo* psi, BGFLOAT* summationPoint) = 0;
 };
 
 #endif // _ISINPUT_H_

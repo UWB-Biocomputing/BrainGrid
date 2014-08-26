@@ -5,9 +5,7 @@
 
 #include "LIFGPUModel.h"
 
-__global__ void setSynapseSummationPointDevice(int num_neurons, AllNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice, int max_synapses, int width);
-
-void LIFGPUModel::allocSynapseDeviceStruct( int num_neurons, int max_synapses ) {
+void LIFGPUModel::allocSynapseDeviceStruct( AllSynapsesDevice*& allSynapsesDevice, int num_neurons, int max_synapses ) {
 	AllSynapsesDevice allSynapses;
 	uint32_t max_total_synapses = max_synapses * num_neurons;
 
@@ -36,7 +34,7 @@ void LIFGPUModel::allocSynapseDeviceStruct( int num_neurons, int max_synapses ) 
 	HANDLE_ERROR( cudaMemcpy ( allSynapsesDevice, &allSynapses, sizeof( AllSynapsesDevice ), cudaMemcpyHostToDevice ) );
 }
 
-void LIFGPUModel::deleteSynapseDeviceStruct( int num_neurons, int max_synapses ) {
+void LIFGPUModel::deleteSynapseDeviceStruct( AllSynapsesDevice* allSynapsesDevice, int num_neurons, int max_synapses ) {
 	AllSynapsesDevice allSynapses;
 
 	HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSynapsesDevice ), cudaMemcpyDeviceToHost ) );
@@ -65,9 +63,7 @@ void LIFGPUModel::deleteSynapseDeviceStruct( int num_neurons, int max_synapses )
 	HANDLE_ERROR( cudaFree( allSynapsesDevice ) );
 }
 
-void LIFGPUModel::copySynapseHostToDevice( const AllSynapses& allSynapsesHost, const SimulationInfo *sim_info ) { // copy everything necessary
-	int num_neurons = sim_info->totalNeurons;
-	int max_synapses = sim_info->maxSynapsesPerNeuron;
+void LIFGPUModel::copySynapseHostToDevice( AllSynapsesDevice* allSynapsesDevice, const AllSynapses& allSynapsesHost, int num_neurons, int max_synapses ) { // copy everything necessary
 	uint32_t max_total_synapses = max_synapses * num_neurons;
 	AllSynapsesDevice allSynapses_0;
 	AllSynapsesDevice allSynapses_1(num_neurons, max_synapses);
@@ -159,40 +155,9 @@ void LIFGPUModel::copySynapseHostToDevice( const AllSynapses& allSynapsesHost, c
                 max_total_synapses * sizeof( uint64_t ), cudaMemcpyHostToDevice ) );
         HANDLE_ERROR( cudaMemcpy ( allSynapses_0.in_use, allSynapses_1.in_use,
                 max_total_synapses * sizeof( bool ), cudaMemcpyHostToDevice ) );
-
-        // set summation points
-        const int threadsPerBlock = 256;
-        int blocksPerGrid = ( sim_info->totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;       
-        setSynapseSummationPointDevice <<< blocksPerGrid, threadsPerBlock >>> (sim_info->totalNeurons, allNeuronsDevice, allSynapsesDevice, max_synapses, sim_info->width);
 }
 
-/**
- * Set the summation points in device memory
- * @param[in] num_neurons        Number of neurons.
- * @param[in] allNeuronsDevice   Pointer to the Neuron structures in device memory.
- * @param[in] allSynapsesDevice  Pointer to the Synapse structures in device memory.
- * @param[in] max_synapses       Maximum number of synapses per neuron.
- * @param[in] width              Width of neuron map (assumes square).
- */
-__global__ void setSynapseSummationPointDevice(int num_neurons, AllNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice, int max_synapses, int width)
-{
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if ( idx >= num_neurons )
-        return;
-
-    int src_neuron = idx; 
-    int n_inUse = 0;
-    for (int syn_index = 0; n_inUse < allSynapsesDevice->synapse_counts[src_neuron]; syn_index++) {
-        if (allSynapsesDevice->in_use[max_synapses * src_neuron + syn_index] == true) {
-            int dest_neuron = allSynapsesDevice->summationCoord[max_synapses * src_neuron + syn_index].x 
-                + allSynapsesDevice->summationCoord[max_synapses * src_neuron + syn_index].y * width;
-            allSynapsesDevice->summationPoint[max_synapses * src_neuron + syn_index] = &( allNeuronsDevice->summation_map[dest_neuron] );
-            n_inUse++;
-        }
-    }
-}
-
-void LIFGPUModel::copySynapseDeviceToHost( AllSynapses& allSynapsesHost, int num_neurons, int max_synapses ) {
+void LIFGPUModel::copySynapseDeviceToHost( AllSynapsesDevice* allSynapsesDevice, AllSynapses& allSynapsesHost, int num_neurons, int max_synapses ) {
 	// copy everything necessary
 	AllSynapsesDevice allSynapses_0;
 	AllSynapsesDevice allSynapses_1(num_neurons, max_synapses);

@@ -41,15 +41,17 @@ public:
     ~HostSInputPoisson();
 
     //! Initialize data.
-    virtual void init(SimulationInfo* psi, TiXmlElement* parms);
+    virtual void init(Model* model, SimulationInfo* psi, TiXmlElement* parms);
 
     //! Terminate process.
-    virtual void term();
+    virtual void term(Model* model, SimulationInfo* psi);
 
     //! Process input stimulus for each time step.
-    virtual void inputStimulus(SimulationInfo* psi, BGFLOAT* summationPoint);
+    virtual void inputStimulus(Model* model, SimulationInfo* psi, BGFLOAT* summationPoint);
 
 private:
+    //! List of synapses
+    AllSynapses *synapses;
 };
 
 #endif // _HOSTSINPUTPOISSON_H_

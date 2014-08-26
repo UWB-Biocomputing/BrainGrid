@@ -39,8 +39,10 @@ inline void lapTime(float& t_event) {
 };
 #endif // PERFORMANCE_METRICS
 
+class GpuSInputPoisson;
 
 class LIFGPUModel : public LIFModel  {
+	friend GpuSInputPoisson;
 
 public:
 	LIFGPUModel();
@@ -110,10 +112,10 @@ private:
 	void copyNeuronHostToDevice( const AllNeurons& allNeuronsHost, int count );
 	void copyNeuronDeviceToHost( AllNeurons& allNeuronsHost, int count );
 
-	void allocSynapseDeviceStruct( int num_neurons, int max_synapses );
-	void deleteSynapseDeviceStruct( int num_neurons, int max_synapses );
-	void copySynapseHostToDevice( const AllSynapses& allSynapsesHost, const SimulationInfo *sim_info );
-	void copySynapseDeviceToHost( AllSynapses& allSynapsesHost, int num_neurons, int max_synapses );
+	void allocSynapseDeviceStruct( AllSynapsesDevice*& allSynapsesDevice, int num_neurons, int max_synapses );
+	void deleteSynapseDeviceStruct( AllSynapsesDevice* allSynapsesDevice, int num_neurons, int max_synapses );
+	void copySynapseHostToDevice( AllSynapsesDevice* allSynapsesDevice, const AllSynapses& allSynapsesHost, int num_neurons, int max_synapses );
+	void copySynapseDeviceToHost( AllSynapsesDevice* allSynapsesDevice, AllSynapses& allSynapsesHost, int num_neurons, int max_synapses );
 
 	void allocSynapseImap( int count );
 	void deleteSynapseImap( );
@@ -170,6 +172,6 @@ private:
 	//! Pointer to device random noise array.
 	float* randNoise_d;
 
-	//! Pointer to device inverse map.
+	//! Pointer to synapse index map in device memory.
 	SynapseIndexMap* synapseIndexMapDevice;
 };

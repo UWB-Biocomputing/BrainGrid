@@ -45,6 +45,7 @@
 #include "Timer.h"
 
 #include "Model.h"
+#include "ISInput.h"
 
 class Network
 {
@@ -77,7 +78,7 @@ class Network
         /**
          * Advance the network one step in an epoch.
          */
-        void advance();
+        void advance(ISInput* pInput);
 
         /**
          * Performs growth in the network: updating connections between neurons for the current epoch.

@@ -32,7 +32,7 @@
 #define _SINPUTPOISSON_H_
 
 #include "ISInput.h"
-#include "DynamicSpikingSynapse.h"
+#include "AllSynapses.h"
 
 class SInputPoisson : public ISInput
 {
@@ -42,17 +42,17 @@ public:
     ~SInputPoisson();
 
     //! Initialize data.
-    virtual void init(SimulationInfo* psi, TiXmlElement* parms);
+    virtual void init(Model* model, SimulationInfo* psi, TiXmlElement* parms);
 
     //! Terminate process.
-    virtual void term();
+    virtual void term(Model* model, SimulationInfo* psi);
 
 protected:
     //! True if stimuls input is on.
     bool fSInput;
 
-    //! List of synapses
-    vector<DynamicSpikingSynapse> synapseList;
+    //! synapse weight
+    BGFLOAT weight;
 
     //! inverse firing rate
     BGFLOAT lambda;

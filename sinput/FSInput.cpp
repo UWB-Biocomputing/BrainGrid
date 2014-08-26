@@ -8,9 +8,11 @@
 
 #include "FSInput.h"
 #include "HostSInputRegular.h"
+#include "HostSInputPoisson.h"
+#if defined(USE_GPU)
 #include "GpuSInputRegular.h"
-//#include "HostSInputPoisson.h"
-//#include "GpuSInputPoisson.h"
+#include "GpuSInputPoisson.h"
+#endif
 #include "tinyxml.h"
 
 /**
@@ -30,11 +32,12 @@ FSInput::~FSInput()
 
 /**
  * Create an instance
+ * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information
  * @param[in] stimulusInputFileName Stimulus input file name
  * @return a pointer to a SInput object
  */
-ISInput* FSInput::CreateInstance(SimulationInfo* psi, string stimulusInputFileName)
+ISInput* FSInput::CreateInstance(Model* model, SimulationInfo* psi, string stimulusInputFileName)
 {
     if (stimulusInputFileName.empty())
     {
@@ -84,9 +87,8 @@ ISInput* FSInput::CreateInstance(SimulationInfo* psi, string stimulusInputFileNa
 #else
         pInput = new HostSInputRegular();
 #endif
-        pInput->init(psi, parms);
+        pInput->init(model, psi, parms);
     }
-#if 0
     else if (name == "SInputPoisson")
     {
 #if defined(USE_GPU)
@@ -94,9 +96,8 @@ ISInput* FSInput::CreateInstance(SimulationInfo* psi, string stimulusInputFileNa
 #else
         pInput = new HostSInputPoisson();
 #endif
-        pInput->init(psi, parms);
+        pInput->init(model, psi, parms);
     }
-#endif
     else
     {
         cerr << "unsupported stimulus input method" << endl;
