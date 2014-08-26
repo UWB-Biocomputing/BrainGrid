@@ -1,0 +1,10 @@
+<?xml version="1.0" standalone=no?>
+<!-- Parameter file for the timulus input -->
+<!-- The stimulus input is a seaqunce of pulses, which are defined by duration, interval, and values -->
+<InputParams>
+   <!-- Input Method -->
+   <IMethod name="SInputPoisson"/>
+
+   <!-- mean firing rate and synapse weight -->
+   <IntParams fr_mean="5" weight="35"/>
+</InputParams>
