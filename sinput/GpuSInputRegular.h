@@ -36,11 +36,11 @@ class GpuSInputRegular : public SInputRegular
 {
 public:
     //! The constructor for SInputRegular.
-    GpuSInputRegular();
+    GpuSInputRegular(SimulationInfo* psi, TiXmlElement* parms);
     ~GpuSInputRegular();
 
     //! Initialize data.
-    virtual void init(Model* model, SimulationInfo* psi, TiXmlElement* parms);
+    virtual void init(Model* model, AllNeurons &neurons, SimulationInfo* psi);
 
     //! Terminate process.
     virtual void term(Model* model, SimulationInfo* psi);

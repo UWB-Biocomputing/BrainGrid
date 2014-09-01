@@ -36,11 +36,11 @@ class HostSInputRegular : public SInputRegular
 {
 public:
     //! The constructor for HostSInputRegular.
-    HostSInputRegular();
+    HostSInputRegular(SimulationInfo* psi, TiXmlElement* parms);
     ~HostSInputRegular();
 
     //! Initialize data.
-    virtual void init(Model* model, SimulationInfo* psi, TiXmlElement* parms);
+    virtual void init(Model* model, AllNeurons &neurons, SimulationInfo* psi);
 
     //! Terminate process.
     virtual void term(Model* model, SimulationInfo* psi);

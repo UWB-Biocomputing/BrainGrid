@@ -39,11 +39,11 @@ class GpuSInputPoisson : public SInputPoisson
 {
 public:
     //! The constructor for GpuSInputPoisson.
-    GpuSInputPoisson();
+    GpuSInputPoisson(SimulationInfo* psi, TiXmlElement* parms);
     ~GpuSInputPoisson();
 
     //! Initialize data.
-    virtual void init(Model* model, SimulationInfo* psi, TiXmlElement* parms);
+    virtual void init(Model* model, AllNeurons &neurons, SimulationInfo* psi);
 
     //! Terminate process.
     virtual void term(Model* model, SimulationInfo* psi);

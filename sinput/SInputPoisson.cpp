@@ -8,29 +8,13 @@
 
 #include "SInputPoisson.h"
 #include "tinyxml.h"
+#include "LIFSingleThreadedModel.h"
 
 /**
  * constructor
- */
-SInputPoisson::SInputPoisson()
-{
-    
-}
-
-/**
- * destructor
- */
-SInputPoisson::~SInputPoisson()
-{
-}
-
-/**
- * Initialize data.
- * @param[in] model	Pointer to the Neural Network Model object.
- * @param[in] psi       Pointer to the simulation information.
  * @param[in] parms     Pointer to xml parms element
  */
-void SInputPoisson::init(Model* model, SimulationInfo* psi, TiXmlElement* parms)
+SInputPoisson::SInputPoisson(SimulationInfo* psi, TiXmlElement* parms)
 {
     fSInput = false;
 
@@ -68,6 +52,42 @@ void SInputPoisson::init(Model* model, SimulationInfo* psi, TiXmlElement* parms)
 }
 
 /**
+ * destructor
+ */
+SInputPoisson::~SInputPoisson()
+{
+}
+
+/**
+ * Initialize data.
+ * @param[in] model	Pointer to the Neural Network Model object.
+ * @param[in] neurons  	The Neuron list to search from.
+ * @param[in] psi       Pointer to the simulation information.
+ */
+void SInputPoisson::init(Model* model, AllNeurons &neurons, SimulationInfo* psi)
+{
+    if (fSInput == false)
+        return;
+
+    // create an input synapse layer
+    synapses = new AllSynapses(psi->totalNeurons, 1);
+    for (int neuron_index = 0; neuron_index < psi->totalNeurons; neuron_index++)
+    {
+        int x = neuron_index % psi->width;
+        int y = neuron_index / psi->width;
+        Coordinate dest(x, y);
+        synapseType type;
+        if (neurons.neuron_type_map[neuron_index] == INH)
+            type = EI;
+        else
+            type = EE;
+        BGFLOAT* sum_point = &( psi->pSummationMap[neuron_index] );
+        static_cast<LIFSingleThreadedModel*>(model)->createSynapse(*synapses, neuron_index, 0, NULL, dest, sum_point, psi->deltaT, type);
+        synapses->W[neuron_index][0] = weight * LIFModel::SYNAPSE_STRENGTH_ADJUSTMENT;
+    }
+}
+
+/**
  * Terminate process.
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information.
@@ -77,4 +97,8 @@ void SInputPoisson::term(Model* model, SimulationInfo* psi)
     // clear memory for interval counter
     if (nISIs != NULL)
         delete[] nISIs;
+
+    // clear the synapse layer, which destroy all synase objects
+    if (synapses != NULL)
+        delete synapses;
 }

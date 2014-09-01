@@ -37,11 +37,11 @@ class HostSInputPoisson : public SInputPoisson
 {
 public:
     //! The constructor for HostSInputPoisson.
-    HostSInputPoisson();
+    HostSInputPoisson(SimulationInfo* psi, TiXmlElement* parms);
     ~HostSInputPoisson();
 
     //! Initialize data.
-    virtual void init(Model* model, SimulationInfo* psi, TiXmlElement* parms);
+    virtual void init(Model* model, AllNeurons &neurons, SimulationInfo* psi);
 
     //! Terminate process.
     virtual void term(Model* model, SimulationInfo* psi);
@@ -50,8 +50,6 @@ public:
     virtual void inputStimulus(Model* model, SimulationInfo* psi, BGFLOAT* summationPoint);
 
 private:
-    //! List of synapses
-    AllSynapses *synapses;
 };
 
 #endif // _HOSTSINPUTPOISSON_H_

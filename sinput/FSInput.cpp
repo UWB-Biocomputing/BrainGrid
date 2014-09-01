@@ -83,20 +83,18 @@ ISInput* FSInput::CreateInstance(Model* model, SimulationInfo* psi, string stimu
     if (name == "SInputRegular")
     {
 #if defined(USE_GPU)
-        pInput = new GpuSInputRegular();
+        pInput = new GpuSInputRegular(psi, parms);
 #else
-        pInput = new HostSInputRegular();
+        pInput = new HostSInputRegular(psi, parms);
 #endif
-        pInput->init(model, psi, parms);
     }
     else if (name == "SInputPoisson")
     {
 #if defined(USE_GPU)
-        pInput = new GpuSInputPoisson();
+        pInput = new GpuSInputPoisson(psi, parms);
 #else
-        pInput = new HostSInputPoisson();
+        pInput = new HostSInputPoisson(psi, parms);
 #endif
-        pInput->init(model, psi, parms);
     }
     else
     {

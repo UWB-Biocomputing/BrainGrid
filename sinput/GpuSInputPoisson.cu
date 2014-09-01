@@ -11,7 +11,7 @@
 #include "Book.h"
 
 //! Device function that processes input stimulus for each time step.
-__global__ void initSynapsesDevice( int n, AllSynapsesDevice* allSynapsesDevice, synapseType type, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight );
+__global__ void initSynapsesDevice( int n, AllSynapsesDevice* allSynapsesDevice, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight );
 __global__ void inputStimulusDevice( int n, int* nISIs_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllSynapsesDevice* allSynapsesDevice );
 __global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllSynapsesDevice* allSynapsesDevice );
 __global__ void setupSeeds( int n, curandState* devStates_d, unsigned long seed );
@@ -24,8 +24,9 @@ curandState* devStates_d;
 
 /**
  * constructor
+ * @param[in] psi       Pointer to the simulation information
  */
-GpuSInputPoisson::GpuSInputPoisson() : SInputPoisson()
+GpuSInputPoisson::GpuSInputPoisson(SimulationInfo* psi, TiXmlElement* parms) : SInputPoisson(psi, parms)
 {
 }
 
@@ -39,12 +40,12 @@ GpuSInputPoisson::~GpuSInputPoisson()
 /**
  * Initialize data.
  * @param[in] model     Pointer to the Neural Network Model object.
+ * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
- * @param[in] parms     Pointer to xml parms element
  */
-void GpuSInputPoisson::init(Model* model, SimulationInfo* psi, TiXmlElement* parms)
+void GpuSInputPoisson::init(Model* model, AllNeurons &neurons, SimulationInfo* psi)
 {
-    SInputPoisson::init(model, psi, parms);
+    SInputPoisson::init(model, neurons, psi);
 
     if (fSInput == false)
         return;
@@ -121,16 +122,13 @@ void GpuSInputPoisson::allocDeviceValues( Model* model, SimulationInfo* psi, int
     HANDLE_ERROR( cudaMemcpy ( nISIs_d, nISIs, nISIs_d_size, cudaMemcpyHostToDevice ) );
 
     // create an input synapse layer
-    AllSynapses* synapses = new AllSynapses(neuron_count, 1);
     static_cast<LIFGPUModel*>(model)->allocSynapseDeviceStruct( allSynapsesDevice, neuron_count, 1 ); 
     static_cast<LIFGPUModel*>(model)->copySynapseHostToDevice( allSynapsesDevice, *synapses, neuron_count, 1 );
-    delete synapses;
 
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
-    synapseType type = EE;
-    initSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, allSynapsesDevice, type, psi->pSummationMap, psi->width, psi->deltaT, weight );
+    initSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, allSynapsesDevice, psi->pSummationMap, psi->width, psi->deltaT, weight );
 
     // allocate memory for curand global state
     HANDLE_ERROR( cudaMalloc ( &devStates_d, neuron_count*sizeof( curandState ) ) );
@@ -179,13 +177,12 @@ void GpuSInputPoisson::deleteDeviceValues( Model* model, SimulationInfo* psi )
  * Adds a synapse to the network.  Requires the locations of the source and
  * destination neurons.
  * @param allSynapsesDevice      Pointer to the Synapse structures in device memory.
- * @param type                   Type of the Synapse to create.
  * @param pSummationMap          Pointer to the summation point.
  * @param width                  Width of neuron map (assumes square).
  * @param deltaT                 The time step size.
- * @param weight			Synapse weight.
+ * @param weight                 Synapse weight.
  */
-__global__ void initSynapsesDevice( int n, AllSynapsesDevice* allSynapsesDevice, synapseType type, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight )
+__global__ void initSynapsesDevice( int n, AllSynapsesDevice* allSynapsesDevice, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= n )
@@ -196,6 +193,7 @@ __global__ void initSynapsesDevice( int n, AllSynapsesDevice* allSynapsesDevice,
     int dest_x = neuron_index % width;;
     int dest_y = neuron_index / width;;
     BGFLOAT* sum_point = &( pSummationMap[neuron_index] );
+    synapseType type = allSynapsesDevice->type[neuron_index];
     createSynapse(allSynapsesDevice, neuron_index, 0, 0, 0, dest_x, dest_y, sum_point, deltaT, type );
     allSynapsesDevice->W[neuron_index] = weight * SYNAPSE_STRENGTH_ADJUSTMENT;
 }

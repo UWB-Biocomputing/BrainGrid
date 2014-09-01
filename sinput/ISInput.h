@@ -40,10 +40,10 @@ public:
     /**
      * Initialize data
      * @param[in] model     Pointer to the Neural Network Model object.
+     * @param[in] neurons   The Neuron list to search from.
      * @param[in] psi       Pointer to the simulation information.
-     * @param[in] parms     Pointer to xml parms element
      */
-    virtual void init(Model* model, SimulationInfo* psi, TiXmlElement* parms) = 0;
+    virtual void init(Model* model, AllNeurons &neurons, SimulationInfo* psi) = 0;
 
     /**
      * Terminate process

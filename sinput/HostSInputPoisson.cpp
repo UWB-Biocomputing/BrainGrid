@@ -13,7 +13,7 @@
 /**
  * constructor
  */
-HostSInputPoisson::HostSInputPoisson() : SInputPoisson()
+HostSInputPoisson::HostSInputPoisson(SimulationInfo* psi, TiXmlElement* parms) : SInputPoisson(psi, parms)
 {
     
 }
@@ -28,28 +28,15 @@ HostSInputPoisson::~HostSInputPoisson()
 /**
  * Initialize data.
  * @param[in] model     Pointer to the Neural Network Model object.
+ * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
- * @param[in] parms     Pointer to xml parms element
  */
-void HostSInputPoisson::init(Model* model, SimulationInfo* psi, TiXmlElement* parms)
+void HostSInputPoisson::init(Model* model, AllNeurons &neurons, SimulationInfo* psi)
 {
-    SInputPoisson::init(model, psi, parms);
+    SInputPoisson::init(model, neurons, psi);
 
     if (fSInput == false)
         return;
-
-    // create an input synapse layer
-    synapses = new AllSynapses(psi->totalNeurons, 1);
-    for (int neuron_index = 0; neuron_index < psi->totalNeurons; neuron_index++)
-    {
-        int x = neuron_index % psi->width;
-        int y = neuron_index / psi->width;
-        Coordinate dest(x, y);
-        synapseType type = EE;
-        BGFLOAT* sum_point = &( psi->pSummationMap[neuron_index] );
-        static_cast<LIFSingleThreadedModel*>(model)->createSynapse(*synapses, neuron_index, 0, NULL, dest, sum_point, psi->deltaT, type);
-        synapses->W[neuron_index][0] = weight * LIFModel::SYNAPSE_STRENGTH_ADJUSTMENT;
-    }
 }
 
 /**
@@ -60,9 +47,6 @@ void HostSInputPoisson::init(Model* model, SimulationInfo* psi, TiXmlElement* pa
 void HostSInputPoisson::term(Model* model, SimulationInfo* psi)
 {
     SInputPoisson::term(model, psi);
-
-    // clear the synapse layer, which destroy all synase objects
-    delete synapses;
 }
 
 /**

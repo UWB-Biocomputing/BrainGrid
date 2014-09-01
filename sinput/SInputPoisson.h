@@ -38,11 +38,11 @@ class SInputPoisson : public ISInput
 {
 public:
     //! The constructor for SInputPoisson.
-    SInputPoisson();
+    SInputPoisson(SimulationInfo* psi, TiXmlElement* parms);
     ~SInputPoisson();
 
     //! Initialize data.
-    virtual void init(Model* model, SimulationInfo* psi, TiXmlElement* parms);
+    virtual void init(Model* model, AllNeurons &neurons, SimulationInfo* psi);
 
     //! Terminate process.
     virtual void term(Model* model, SimulationInfo* psi);
@@ -59,6 +59,9 @@ protected:
 
     //! interval counter
     int* nISIs;
+
+    //! List of synapses
+    AllSynapses *synapses;
 };
 
 #endif // _SINPUTPOISSON_H_

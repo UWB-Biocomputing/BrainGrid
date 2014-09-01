@@ -110,8 +110,13 @@ int main(int argc, char* argv[]) {
     }
     simRecorder->init(stateOutputFileName);
 
+    // Create a stimulus input object
+    ISInput* pInput = NULL;     // pointer to a stimulus input object
+    FSInput fsi;
+    pInput = fsi.CreateInstance(model, simInfo, stimulusInputFileName);
+
     // create the network
-    Network network(model, simInfo, simRecorder);
+    Network network(model, simInfo, simRecorder, pInput);
 
     time_t start_time, end_time;
     time(&start_time);
@@ -141,11 +146,6 @@ int main(int argc, char* argv[]) {
         simulator->readMemory(memory_in);
         memory_in.close();
     }
-
-    // Create a stimulus input object
-    ISInput* pInput = NULL;     // pointer to a stimulus input object
-    FSInput fsi;
-    pInput = fsi.CreateInstance(model, simInfo, stimulusInputFileName);
 
     // Run simulation
     simulator->simulate(pInput);

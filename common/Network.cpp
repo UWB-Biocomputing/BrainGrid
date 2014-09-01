@@ -11,7 +11,7 @@
 /** 
  *  The constructor for Network.
  */
-Network::Network(Model *model, SimulationInfo *simInfo, IRecorder* simRecorder) :
+Network::Network(Model *model, SimulationInfo *simInfo, IRecorder* simRecorder, ISInput* pInput) :
     m_model(model),
     m_summationMap(NULL),
     m_sim_info(simInfo),
@@ -27,6 +27,9 @@ Network::Network(Model *model, SimulationInfo *simInfo, IRecorder* simRecorder) 
 
     cout << "Initializing neurons in network." << endl;
     m_model->createAllNeurons(*neurons, m_sim_info);
+
+    if (pInput != NULL)
+        pInput->init(model, *neurons, simInfo);
 }
 
 /**

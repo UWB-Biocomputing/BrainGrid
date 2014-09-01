@@ -38,7 +38,7 @@ public:
     ~FSInput();
 
     //! Create an instance.
-    ISInput* CreateInstance(Model* model, SimulationInfo* psi,string stimulusInputFileName);
+    ISInput* CreateInstance(Model* model, SimulationInfo* psi, string stimulusInputFileName);
 
 protected:
 };

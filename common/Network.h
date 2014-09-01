@@ -51,7 +51,7 @@ class Network
 {
     public:
         //! The constructor for Network.
-        Network(Model *model, SimulationInfo *sim_info, IRecorder* simRecorder);
+        Network(Model *model, SimulationInfo *sim_info, IRecorder* simRecorder, ISInput* pInput);
         ~Network();
 
         //! Frees dynamically allocated memory associated with the maps.

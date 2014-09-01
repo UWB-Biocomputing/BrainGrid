@@ -11,7 +11,7 @@
 /**
  * constructor
  */
-HostSInputRegular::HostSInputRegular() : SInputRegular()
+HostSInputRegular::HostSInputRegular(SimulationInfo* psi, TiXmlElement* parms) : SInputRegular(psi, parms)
 {
     
 }
@@ -26,12 +26,12 @@ HostSInputRegular::~HostSInputRegular()
 /**
  * Initialize data.
  * @param[in] model     Pointer to the Neural Network Model object.
+ * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
- * @param[in] parms     Pointer to xml parms element.
  */
-void HostSInputRegular::init(Model* model, SimulationInfo* psi, TiXmlElement* parms)
+void HostSInputRegular::init(Model* model, AllNeurons &neurons, SimulationInfo* psi)
 {
-    SInputRegular::init(model, psi, parms);
+    SInputRegular::init(model, neurons, psi);
 }
 
 /**

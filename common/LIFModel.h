@@ -45,7 +45,7 @@ using namespace std;
 
 class XmlRecorder;
 class Hdf5Recorder;
-class HostSInputPoisson;
+class SInputPoisson;
 
 /**
  * Implementation of Model for the Leaky-Integrate-and-Fire model.
@@ -54,7 +54,7 @@ class LIFModel : public Model, TiXmlVisitor
 {
         friend XmlRecorder;
         friend Hdf5Recorder;
-	friend HostSInputPoisson;
+	friend SInputPoisson;
 
     public:
         LIFModel();

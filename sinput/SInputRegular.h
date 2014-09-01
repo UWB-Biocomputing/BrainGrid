@@ -36,11 +36,11 @@ class SInputRegular : public ISInput
 {
 public:
     //! The constructor for SInputRegular.
-    SInputRegular();
+    SInputRegular(SimulationInfo* psi, TiXmlElement* parms);
     ~SInputRegular();
 
     //! Initialize data.
-    virtual void init(Model* model, SimulationInfo* psi, TiXmlElement* parms);
+    virtual void init(Model* model, AllNeurons &neurons, SimulationInfo* psi);
 
     //! Terminate process.
     virtual void term(Model* model, SimulationInfo* psi);
