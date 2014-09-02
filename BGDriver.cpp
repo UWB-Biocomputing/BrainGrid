@@ -367,7 +367,8 @@ void LoadSimulationParameters(TiXmlElement* parms)
     }
 
     if ((temp = parms->FirstChildElement("OutputParams")) != NULL) {
-        if (temp->QueryValueAttribute("stateOutputFileName", &stateOutputFileName) != TIXML_SUCCESS) {
+        if (stateOutputFileName.empty() 
+            && (temp->QueryValueAttribute("stateOutputFileName", &stateOutputFileName) != TIXML_SUCCESS)) {
             fSet = false;
             cerr << "error stateOutputFileName" << endl;
         }
