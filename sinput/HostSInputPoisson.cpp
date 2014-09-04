@@ -70,6 +70,9 @@ int chunk_size = psi->totalNeurons / omp_get_max_threads();
 #endif
     for (int neuron_index = 0; neuron_index < psi->totalNeurons; neuron_index++)
     {
+        if (masks[neuron_index] == false)
+            continue;
+
         if (--nISIs[neuron_index] <= 0)
         {
             // add a spike

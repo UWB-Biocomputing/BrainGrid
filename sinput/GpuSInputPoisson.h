@@ -66,6 +66,9 @@ private:
 
     //! Pointer to device interval counter.
     int* nISIs_d;
+
+    //! Pointer to device masks for stimulus input
+    bool* masks_d;
 };
 
 #endif // _GPUSINPUTPOISSON_H_

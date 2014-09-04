@@ -7,4 +7,7 @@
 
    <!-- mean firing rate and synapse weight -->
    <IntParams fr_mean="100" weight="50"/>
+   <Masks>
+    <LayoutFiles maskNListFileName="SInputPoisson/maskNList.xml" />
+   </Masks>
 </InputParams>

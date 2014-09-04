@@ -10,11 +10,16 @@
 #include "tinyxml.h"
 #include "LIFSingleThreadedModel.h"
 
+extern void getValueList(const string& valString, vector<BGFLOAT>* pList);
+
 /**
  * constructor
  * @param[in] parms     Pointer to xml parms element
  */
-SInputPoisson::SInputPoisson(SimulationInfo* psi, TiXmlElement* parms)
+SInputPoisson::SInputPoisson(SimulationInfo* psi, TiXmlElement* parms) :
+    nISIs(NULL),
+    synapses(NULL),
+    masks(NULL)
 {
     fSInput = false;
 
@@ -48,6 +53,59 @@ SInputPoisson::SInputPoisson(SimulationInfo* psi, TiXmlElement* parms)
     nISIs = new int[psi->totalNeurons];
     memset(nISIs, 0, sizeof(int) * psi->totalNeurons);
     
+    // allocate memory for input masks
+    masks = new bool[psi->totalNeurons];
+
+    // read mask values and set it to masks
+    vector<BGFLOAT> maskIndex;
+    if ((temp = parms->FirstChildElement( "Masks")) != NULL)
+    {
+       TiXmlNode* pNode = NULL;
+        while ((pNode = temp->IterateChildren(pNode)) != NULL)
+        {
+            if (strcmp(pNode->Value(), "M") == 0)
+            {
+                getValueList(pNode->ToElement()->GetText(), &maskIndex);
+
+                memset(masks, false, sizeof(bool) * psi->totalNeurons);
+                for (int i = 0; i < maskIndex.size(); i++)
+                    masks[static_cast<int> ( maskIndex[i] )] = true;
+            }
+            else if (strcmp(pNode->Value(), "LayoutFiles") == 0)
+            {
+                string maskNListFileName;
+
+                if (pNode->ToElement()->QueryValueAttribute( "maskNListFileName", &maskNListFileName ) == TIXML_SUCCESS)
+                {
+                    TiXmlDocument simDoc( maskNListFileName.c_str( ) );
+                    if (!simDoc.LoadFile( ))
+                    {
+                        cerr << "Failed loading positions of stimulus input mask neurons list file " << maskNListFileName << ":" << "\n\t"
+                             << simDoc.ErrorDesc( ) << endl;
+                        cerr << " error: " << simDoc.ErrorRow( ) << ", " << simDoc.ErrorCol( ) << endl;
+                        break;
+                    }
+                    TiXmlNode* temp2 = NULL;
+                    if (( temp2 = simDoc.FirstChildElement( "M" ) ) == NULL)
+                    {
+                        cerr << "Could not find <M> in positons of stimulus input mask neurons list file " << maskNListFileName << endl;
+                        break;
+                    }
+                    getValueList(temp2->ToElement()->GetText(), &maskIndex);
+
+                    memset(masks, false, sizeof(bool) * psi->totalNeurons);
+                    for (int i = 0; i < maskIndex.size(); i++)
+                        masks[static_cast<int> ( maskIndex[i] )] = true;
+                }
+            }
+        }
+    }
+    else
+    {
+        // when no mask is specified, set it all true
+        memset(masks, true, sizeof(bool) * psi->totalNeurons);
+    }
+
     fSInput = true;
 }
 
@@ -101,4 +159,8 @@ void SInputPoisson::term(Model* model, SimulationInfo* psi)
     // clear the synapse layer, which destroy all synase objects
     if (synapses != NULL)
         delete synapses;
+
+    // clear memory for input masks
+    if (masks != NULL)
+        delete[] masks;
 }

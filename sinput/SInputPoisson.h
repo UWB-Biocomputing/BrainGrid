@@ -62,6 +62,9 @@ protected:
 
     //! List of synapses
     AllSynapses *synapses;
+
+    //! Masks for stimulus input
+    bool* masks;
 };
 
 #endif // _SINPUTPOISSON_H_
