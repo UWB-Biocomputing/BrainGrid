@@ -368,6 +368,7 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
             transferProgressBar.setVisible(false);
             enableInitialButtons();
             projectTitleTextLabel.setText(workbenchMgr.getProjectName());
+            viewProvenanceMenuItem.setEnabled(workbenchMgr.isProvEnabled());
         }
         setMsg();
         pack();
@@ -429,6 +430,7 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
                 enableInitialButtons();
                 runScriptButton.setEnabled(!workbenchMgr.scriptRan());
                 analyzeOutputButton.setEnabled(workbenchMgr.scriptRan());
+                viewProvenanceMenuItem.setEnabled(workbenchMgr.isProvEnabled());
                 break;
             case JFileChooser.CANCEL_OPTION:
                 break;
@@ -528,6 +530,8 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
     private void viewProvenanceMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewProvenanceMenuItemActionPerformed
         pack();
         setMsg();
+        
+        workbenchMgr.viewProvenance();
     }//GEN-LAST:event_viewProvenanceMenuItemActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

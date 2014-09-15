@@ -2,14 +2,15 @@ package edu.uwb.braingrid.workbench;
 
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import edu.uwb.braingrid.provenance.ProvMgr;
 import edu.uwb.braingrid.data.script.Script;
 import edu.uwb.braingrid.data.script.ScriptManager;
+import edu.uwb.braingrid.provenance.ProvMgr;
 import edu.uwb.braingrid.tools.nledit.ControlFrame;
 import edu.uwb.braingrid.workbench.data.InputAnalyzer;
 import edu.uwb.braingrid.workbench.data.project.ProjectMgr;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
 import edu.uwb.braingrid.workbench.ui.NewProjectDialog;
+import edu.uwb.braingrid.workbench.ui.ProvenanceQueryDialog;
 import edu.uwb.braingrid.workbench.ui.SimulatorSpecificationDialog;
 import edu.uwb.braingrid.workbench.ui.WorkbenchControlFrame;
 import edu.uwb.braingrid.workbench.utils.DateTime;
@@ -826,4 +827,17 @@ public class WorkbenchManager {
         return messageAccumulator;
     }
     // </editor-fold>
+    
+    public void viewProvenance() {
+        ProvenanceQueryDialog pqd = new ProvenanceQueryDialog(true, prov);
+    }
+    
+    public boolean isProvEnabled() {
+        boolean isEnabled = false;
+        
+        if (project != null)
+            isEnabled = project.isProvenanceEnabled();
+        
+        return isEnabled;
+    }
 }

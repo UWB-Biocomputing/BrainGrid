@@ -1,6 +1,5 @@
 package edu.uwb.braingrid.provenance;
 
-import edu.uwb.braingrid.provenance.model.ProvOntology;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -9,6 +8,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import edu.uwb.braingrid.provenance.model.ProvOntology;
 import edu.uwb.braingrid.workbench.data.project.ProjectMgr;
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,6 +22,8 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RiotNotFoundException;
 
@@ -387,4 +389,35 @@ public class ProvMgr {
         }
     }
     // </editor-fold>    
+    
+    public List<String> getSubjects() {
+        List<String> subjectList = new ArrayList<String>();
+        subjectList.add("subject1");
+        subjectList.add("subject2");
+        subjectList.add("subject3");
+        
+        return subjectList;
+    }
+    
+    public List<String> getPredicates() {
+        List<String> predicateList = new ArrayList<String>();
+        predicateList.add("predicate1");
+        predicateList.add("predicate2");
+        predicateList.add("predicate3");
+        
+        return predicateList;
+    }
+        
+    public List<String> getObjects() {
+        List<String> objectList = new ArrayList<String>();
+        objectList.add("object1");
+        objectList.add("object2");
+        objectList.add("object3");
+        
+        return objectList;
+    }
+
+    public String queryProvenance(String subject, String prdicate, String object) {
+        return "ToDo";
+    }
 }
