@@ -7,7 +7,7 @@ import edu.uwb.braingrid.data.script.ScriptManager;
 import edu.uwb.braingrid.provenance.ProvMgr;
 import edu.uwb.braingrid.tools.nledit.ControlFrame;
 import edu.uwb.braingrid.workbench.data.InputAnalyzer;
-import edu.uwb.braingrid.workbench.data.project.ProjectMgr;
+import edu.uwb.braingrid.workbench.project.ProjectMgr;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
 import edu.uwb.braingrid.workbench.ui.NewProjectDialog;
 import edu.uwb.braingrid.workbench.ui.ProvenanceQueryDialog;

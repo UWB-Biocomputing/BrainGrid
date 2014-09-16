@@ -9,7 +9,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import edu.uwb.braingrid.provenance.model.ProvOntology;
-import edu.uwb.braingrid.workbench.data.project.ProjectMgr;
+import edu.uwb.braingrid.workbench.project.ProjectMgr;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
