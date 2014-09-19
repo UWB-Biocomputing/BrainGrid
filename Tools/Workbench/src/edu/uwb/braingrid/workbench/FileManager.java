@@ -54,6 +54,7 @@ public final class FileManager {
     }
     private final boolean isWindowsSystem;
     private final String folderDelimiter;
+    private String projectsFolderName = "projects";
 
     /**
      * This is here to make sure that classes from other packages cannot
@@ -140,6 +141,11 @@ public final class FileManager {
         return Paths.get("").toFile().getCanonicalPath();
     }
 
+    public String getCanonicalProjectsDirectory() throws IOException {
+        return getCanonicalWorkingDirectory() + folderDelimiter
+                + projectsFolderName;
+    }
+
     /**
      * Indicates whether or not the operating system is some version of
      * Microsoft Windows
@@ -150,5 +156,10 @@ public final class FileManager {
      */
     public boolean isWindowsSystem() {
         return isWindowsSystem;
+    }
+
+    public String getInputConfigurationFilePath(String projectName, String filename) throws IOException {
+        return getCanonicalProjectsDirectory() + folderDelimiter + projectName
+                + folderDelimiter + filename;
     }
 }

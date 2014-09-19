@@ -257,10 +257,12 @@ class InputConfigurationBuilder {
     public String persist(String filename)
             throws TransformerConfigurationException, TransformerException,
             IOException {
-        // create any necessary non-existent directories
-        new File(filename).mkdirs();
+        System.err.println(filename);
         // create the file we want to save
         File file = new File(filename);
+        // create any necessary non-existent directories
+        new File(file.getParent()).mkdirs();
+        file.createNewFile();
         // write the content into xml file
         Transformer t = TransformerFactory.newInstance().newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");

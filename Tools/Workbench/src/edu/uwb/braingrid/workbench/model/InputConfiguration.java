@@ -62,6 +62,7 @@ public class InputConfiguration {
     public InputConfiguration() {
         inputConfig = new HashMap<>();
         defaultValues = new HashMap<>();
+        fillDefaultParams();
     }
 
     private void fillDefaultParams() {
@@ -116,7 +117,11 @@ public class InputConfiguration {
     }
 
     public String getDefaultValue(String parameter) {
-        return defaultValues.get(parameter);
+        String value;
+        if ((value = defaultValues.get(parameter)) == null) {
+            value = "";
+        }
+        return value;
     }
 
     public boolean allValuesSet() {
@@ -127,14 +132,22 @@ public class InputConfiguration {
             if (!inputConfig.containsKey(key)) {
                 set = false;
                 break;
-            }
-            else {
-                if (inputConfig.get(key) == null || inputConfig.get(key).equals("")) {
+            } else {
+                if (inputConfig.get(key) == null
+                        || inputConfig.get(key).equals("")) {
                     set = false;
                     break;
                 }
             }
         }
         return set;
+    }
+
+    public HashMap<String, String> getMap() {
+        return inputConfig;
+    }
+
+    public void setAllToDefault() {
+        inputConfig = new HashMap<>(defaultValues);
     }
 }

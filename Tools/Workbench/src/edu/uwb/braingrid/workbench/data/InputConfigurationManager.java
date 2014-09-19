@@ -1,7 +1,11 @@
 package edu.uwb.braingrid.workbench.data;
 
+import edu.uwb.braingrid.workbench.FileManager;
 import edu.uwb.braingrid.workbench.model.InputConfiguration;
+import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 
 /**
  * Manages the construction of input configuration files.
@@ -30,11 +34,19 @@ public class InputConfigurationManager {
         return inputConfig.getDefaultValue(parameter);
     }
 
-    public boolean buildAndPersist() {
+    public String buildAndPersist(String projectName, String filename) throws TransformerException, TransformerConfigurationException, IOException {
+        String fullPath = null;
         boolean success = inputConfig.allValuesSet();
         if (success) {
-
+            inputConfigBuilder.build(inputConfig.getMap());
+            FileManager fm = FileManager.getFileManager();
+            fullPath = fm.getInputConfigurationFilePath(projectName, filename);
+            inputConfigBuilder.persist(fullPath);
         }
-        return success;
+        return fullPath;
+    }
+
+    public void setAllToDefault() {
+        inputConfig.setAllToDefault();
     }
 }

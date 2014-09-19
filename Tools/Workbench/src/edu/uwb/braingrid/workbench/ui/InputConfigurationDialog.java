@@ -9,7 +9,9 @@ import edu.uwb.braingrid.workbench.data.InputConfigurationManager;
 import edu.uwb.braingrid.workbench.model.InputConfiguration;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 /**
  *
@@ -594,10 +596,28 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void buildButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buildButtonActionPerformed
-        okButton.setEnabled(icm.buildAndPersist());
+        icm.setAllToDefault();
+        try {
+            String fileName;
+            if (!(fileName = configFilename_textField.getText()).isEmpty()) {
+                fileName = icm.buildAndPersist(projectName, fileName);
+                if (fileName != null) {
+                    okButton.setEnabled(true);
+                    lastBuiltFile = fileName;
+                } else {
+                    messageLabelText.setText("<html><span style=\"color:red\">*All fields must be filled</span></html>");
+                }
+            }
+        } catch (TransformerException | IOException e) {
+            messageLabelText.setText("<html><span style=\"color:red\">"
+                    + e.getClass()
+                    + " prevented successful build...</span></html>");
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_buildButtonActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+        okClicked = true;
         setVisible(false);
     }//GEN-LAST:event_okButtonActionPerformed
 
@@ -690,13 +710,15 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Custom Members"> 
     private InputConfigurationManager icm;
     private boolean okClicked = false;
+    private String lastBuiltFile = null;
+    private String projectName = null;
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction"> 
-    public InputConfigurationDialog(boolean modal) {
+    public InputConfigurationDialog(String projectName, boolean modal) {
         setModal(modal);
         initComponents();
-        
+        this.projectName = projectName;
         try {
             icm = new InputConfigurationManager();
         } catch (ParserConfigurationException e) {
@@ -712,9 +734,17 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
             setVisible(true);
         }
     }
-    
-    public boolean getSuccess(){
+
+    public boolean getSuccess() {
         return okClicked;
+    }
+
+    public String getBuiltFile() {
+        String builtFile = null;
+        if (okClicked) {
+            builtFile = lastBuiltFile;
+        }
+        return lastBuiltFile;
     }
 
     // set up each of the text fields with default values

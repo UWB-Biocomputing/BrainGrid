@@ -525,14 +525,21 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
         //displayInputs();
         //setMsg();
         //pack();
-        
-        InputConfigurationDialog icd = new InputConfigurationDialog(true);
+        String projectName = workbenchMgr.getProjectName();
+        if (!projectName.equals("None")) {
+            InputConfigurationDialog icd
+                    = new InputConfigurationDialog(projectName, true);
+            if (icd.getSuccess()) {
+                inputFilenamesLabel.setText(icd.getBuiltFile());
+            }
+        }
+        pack();
     }//GEN-LAST:event_inputBrowseButtonActionPerformed
 
     private void viewProvenanceMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewProvenanceMenuItemActionPerformed
         pack();
         setMsg();
-        
+
         workbenchMgr.viewProvenance();
     }//GEN-LAST:event_viewProvenanceMenuItemActionPerformed
 
