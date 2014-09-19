@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package edu.uwb.braingrid.workbench.ui;
 
 import edu.uwb.braingrid.workbench.data.InputConfigurationManager;
@@ -306,7 +305,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                 .addGroup(neuronParameters_starterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(starterVReset_label)
                     .addComponent(starterVReset_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(114, Short.MAX_VALUE))
+                .addContainerGap(176, Short.MAX_VALUE))
         );
 
         tabs.addTab("Neuron (Starter)", neuronParameters_starterPanel);
@@ -440,7 +439,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                 .addGroup(simulationParametersPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(MaxSynapsesPerNeuron_label)
                     .addComponent(maxSynapsesPerNeuron_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(62, Short.MAX_VALUE))
+                .addContainerGap(124, Short.MAX_VALUE))
         );
 
         tabs.addTab("Simulation", simulationParametersPanel);
@@ -512,7 +511,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                     .addComponent(probedNListFilename_label)
                     .addComponent(probedNListFilename_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(PBLBrowseButton))
-                .addContainerGap(53, Short.MAX_VALUE))
+                .addContainerGap(115, Short.MAX_VALUE))
         );
 
         tabs.addTab("Files", externalFilesPanel);
@@ -572,15 +571,16 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(tabs, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(tabs, javax.swing.GroupLayout.PREFERRED_SIZE, 261, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(messageLabel)
                     .addComponent(messageLabelText))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cancelButton)
                     .addComponent(okButton)
@@ -686,37 +686,46 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
     private javax.swing.JTextField targetRate_textField;
     // End of variables declaration//GEN-END:variables
     // </editor-fold>
-    
+
     // <editor-fold defaultstate="collapsed" desc="Custom Members"> 
     private InputConfigurationManager icm;
+    private boolean okClicked = false;
     // </editor-fold>
-    
+
     // <editor-fold defaultstate="collapsed" desc="Construction"> 
     public InputConfigurationDialog(boolean modal) {
         setModal(modal);
+        initComponents();
         
         try {
             icm = new InputConfigurationManager();
-        } catch (ParserConfigurationException e) {}
-        
-        setDefaultValues();
-        okButton.setEnabled(false);
-        
-        // show window center-screen
-        pack();
-        center();
-        setVisible(true);
+        } catch (ParserConfigurationException e) {
+            System.err.println(e.toString());
+        }
+        if (icm != null) {
+            setDefaultValues();
+            okButton.setEnabled(false);
+
+            // show window center-screen
+            pack();
+            center();
+            setVisible(true);
+        }
     }
     
+    public boolean getSuccess(){
+        return okClicked;
+    }
+
     // set up each of the text fields with default values
-    private void setDefaultValues() {        
+    private void setDefaultValues() {
         // simulator configuration tab
         fracEXC_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
         starterNeurons_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_START_NEURONS));
         poolSizeX_textField.setText(icm.getDefaultValue(InputConfiguration.POOL_SIZE_X));
         poolSizeY_textField.setText(icm.getDefaultValue(InputConfiguration.POOL_SIZE_Y));
         poolSizeZ_textField.setText(icm.getDefaultValue(InputConfiguration.POOL_SIZE_Z));
-        
+
         // neuron/synapse tab
         I_InjectMin_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
         I_NoiseMin_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
@@ -724,11 +733,11 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         V_Resting_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
         V_Reset_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
         V_Init_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        
+
         // neuron (starter) tab
         starterVThresh_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
         starterVReset_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        
+
         // growth tab
         epsilon_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
         beta_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
@@ -736,20 +745,20 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         targetRate_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
         minRadius_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
         startRadius_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        
+
         // simulation tab
         T_Sim_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
         numSims_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
         maxFiringRate_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
         maxSynapsesPerNeuron_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        
+
         // files tab
         stateOutputFilename_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
         activeNListFilename_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
         inhNListFilename_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
         probedNListFilename_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
     }
-    
+
     private void center() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension frameSize = getSize();
