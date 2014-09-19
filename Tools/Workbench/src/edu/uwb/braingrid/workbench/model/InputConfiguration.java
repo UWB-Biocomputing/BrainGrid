@@ -58,6 +58,8 @@ public class InputConfiguration {
             = "layoutFilesActiveNListFileName";
     public static final String LAYOUT_FILES_INH_N_LIST_FILE_NAME
             = "layoutFilesInhNListFileName";
+    public static final String LAYOUT_FILES_PROBED_N_LIST_FILE_NAME
+            = "probedNListFileName";
 
     public InputConfiguration() {
         inputConfig = new HashMap<>();
@@ -102,6 +104,7 @@ public class InputConfiguration {
         defaultValues.put(LAYOUT_TYPE, "FixedLayout");
         defaultValues.put(LAYOUT_FILES_ACTIVE_N_LIST_FILE_NAME, "Unknown");
         defaultValues.put(LAYOUT_FILES_INH_N_LIST_FILE_NAME, "Unknown");
+        defaultValues.put(LAYOUT_FILES_PROBED_N_LIST_FILE_NAME, "Unknown");
     }
 
     public String setValue(String key, String value) {

@@ -40,6 +40,8 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         poolSizeY_textField = new javax.swing.JTextField();
         poolSizeZ_label = new javax.swing.JLabel();
         poolSizeZ_textField = new javax.swing.JTextField();
+        seedValue_label = new javax.swing.JLabel();
+        seedValue_textField = new javax.swing.JTextField();
         neuron_synapseParametersPanel = new javax.swing.JPanel();
         I_InjectMin_label = new javax.swing.JLabel();
         I_InjectMin_textField = new javax.swing.JTextField();
@@ -47,23 +49,33 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         I_NoiseMin_textField = new javax.swing.JTextField();
         V_ThreshMin_label = new javax.swing.JLabel();
         V_ThreshMin_textField = new javax.swing.JTextField();
-        V_Resting_label = new javax.swing.JLabel();
-        V_Resting_textField = new javax.swing.JTextField();
-        V_Reset_label = new javax.swing.JLabel();
-        V_Reset_textField = new javax.swing.JTextField();
-        V_Init_label = new javax.swing.JLabel();
-        V_Init_textField = new javax.swing.JTextField();
+        V_RestingMin_label = new javax.swing.JLabel();
+        V_RestingMin_textField = new javax.swing.JTextField();
+        V_ResetMin_label = new javax.swing.JLabel();
+        V_ResetMin_textField = new javax.swing.JTextField();
+        V_InitMin_label = new javax.swing.JLabel();
+        V_InitMin_textField = new javax.swing.JTextField();
         I_InjectMax_label = new javax.swing.JLabel();
         I_InjectMax_textField = new javax.swing.JTextField();
         I_NoiseMax_label = new javax.swing.JLabel();
         I_NoiseMax_textField = new javax.swing.JTextField();
         V_ThreshMax_label = new javax.swing.JLabel();
         V_ThreshMax_textField = new javax.swing.JTextField();
+        V_RestingMax_label = new javax.swing.JLabel();
+        V_RestingMax_textField = new javax.swing.JTextField();
+        V_ResetMax_label = new javax.swing.JLabel();
+        V_ResetMax_textField = new javax.swing.JTextField();
+        V_InitMax_label = new javax.swing.JLabel();
+        V_InitMax_textField = new javax.swing.JTextField();
         neuronParameters_starterPanel = new javax.swing.JPanel();
-        starterVThresh_label = new javax.swing.JLabel();
-        starterVThresh_textField = new javax.swing.JTextField();
-        starterVReset_label = new javax.swing.JLabel();
-        starterVReset_textField = new javax.swing.JTextField();
+        starterVThreshMin_label = new javax.swing.JLabel();
+        starterVThreshMin_textField = new javax.swing.JTextField();
+        starterVResetMin_label = new javax.swing.JLabel();
+        starterVResetMin_textField = new javax.swing.JTextField();
+        starterVThreshMax_label = new javax.swing.JLabel();
+        starterVThreshMax_textField = new javax.swing.JTextField();
+        starterVResetMax_label = new javax.swing.JLabel();
+        starterVResetMax_textField = new javax.swing.JTextField();
         growthParametersPanel = new javax.swing.JPanel();
         epsilon_label = new javax.swing.JLabel();
         epsilon_textField = new javax.swing.JTextField();
@@ -108,6 +120,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         messageLabelText = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Input Configuration");
 
         fracEXC_label.setText("Fraction of excitatory neurons:");
 
@@ -118,6 +131,8 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         poolSizeY_label.setText("y:");
 
         poolSizeZ_label.setText("z:");
+
+        seedValue_label.setText("Seed value:");
 
         javax.swing.GroupLayout simulatorConfigurationPanelLayout = new javax.swing.GroupLayout(simulatorConfigurationPanel);
         simulatorConfigurationPanel.setLayout(simulatorConfigurationPanelLayout);
@@ -131,21 +146,25 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(fracEXC_textField))
                     .addGroup(simulatorConfigurationPanelLayout.createSequentialGroup()
+                        .addComponent(starterNeurons_label)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(starterNeurons_textField))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, simulatorConfigurationPanelLayout.createSequentialGroup()
                         .addComponent(poolSizeX_label)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(poolSizeX_textField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(poolSizeX_textField, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(poolSizeY_label)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(poolSizeY_textField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(poolSizeY_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(poolSizeZ_label)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(poolSizeZ_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE))
+                        .addComponent(poolSizeZ_textField, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(simulatorConfigurationPanelLayout.createSequentialGroup()
-                        .addComponent(starterNeurons_label)
+                        .addComponent(seedValue_label)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(starterNeurons_textField)))
+                        .addComponent(seedValue_textField)))
                 .addContainerGap())
         );
         simulatorConfigurationPanelLayout.setVerticalGroup(
@@ -160,16 +179,18 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                     .addComponent(starterNeurons_label)
                     .addComponent(starterNeurons_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(simulatorConfigurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(simulatorConfigurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(poolSizeZ_label)
-                        .addComponent(poolSizeZ_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(simulatorConfigurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(poolSizeX_label)
-                        .addComponent(poolSizeX_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(poolSizeY_label)
-                        .addComponent(poolSizeY_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(88, 88, 88))
+                .addGroup(simulatorConfigurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(poolSizeX_label)
+                    .addComponent(poolSizeX_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(poolSizeY_label)
+                    .addComponent(poolSizeY_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(poolSizeZ_label)
+                    .addComponent(poolSizeZ_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(simulatorConfigurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(seedValue_label)
+                    .addComponent(seedValue_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
 
         tabs.addTab("Simulator Configuration", simulatorConfigurationPanel);
@@ -180,17 +201,23 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
 
         V_ThreshMin_label.setText("Threshold voltage, min:");
 
-        V_Resting_label.setText("Resting membrane voltage:");
+        V_RestingMin_label.setText("Resting membrane voltage, min:");
 
-        V_Reset_label.setText("Voltage to reset Vm to after a spike:");
+        V_ResetMin_label.setText("Voltage to reset Vm to after a spike, min:");
 
-        V_Init_label.setText("Initial condition for Vm at time t = 0:");
+        V_InitMin_label.setText("Initial condition for Vm at time t = 0, min:");
 
         I_InjectMax_label.setText("max:");
 
         I_NoiseMax_label.setText("max:");
 
         V_ThreshMax_label.setText("max:");
+
+        V_RestingMax_label.setText("max:");
+
+        V_ResetMax_label.setText("max:");
+
+        V_InitMax_label.setText("max:");
 
         javax.swing.GroupLayout neuron_synapseParametersPanelLayout = new javax.swing.GroupLayout(neuron_synapseParametersPanel);
         neuron_synapseParametersPanel.setLayout(neuron_synapseParametersPanelLayout);
@@ -199,42 +226,62 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
             .addGroup(neuron_synapseParametersPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(neuron_synapseParametersPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(neuron_synapseParametersPanelLayout.createSequentialGroup()
-                        .addComponent(V_Init_label)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(V_Init_textField))
-                    .addGroup(neuron_synapseParametersPanelLayout.createSequentialGroup()
-                        .addComponent(I_InjectMin_label)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(I_InjectMin_textField, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, neuron_synapseParametersPanelLayout.createSequentialGroup()
+                        .addGroup(neuron_synapseParametersPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, neuron_synapseParametersPanelLayout.createSequentialGroup()
+                                .addComponent(I_InjectMin_label)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(I_InjectMin_textField))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, neuron_synapseParametersPanelLayout.createSequentialGroup()
+                                .addComponent(I_NoiseMin_label)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(I_NoiseMin_textField, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(I_InjectMax_label)
+                        .addGroup(neuron_synapseParametersPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(I_InjectMax_label)
+                            .addComponent(I_NoiseMax_label))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(I_InjectMax_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 78, Short.MAX_VALUE))
-                    .addGroup(neuron_synapseParametersPanelLayout.createSequentialGroup()
-                        .addComponent(V_Resting_label)
+                        .addGroup(neuron_synapseParametersPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(I_NoiseMax_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
+                            .addComponent(I_InjectMax_textField)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, neuron_synapseParametersPanelLayout.createSequentialGroup()
+                        .addGroup(neuron_synapseParametersPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(neuron_synapseParametersPanelLayout.createSequentialGroup()
+                                .addComponent(V_RestingMin_label)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(V_RestingMin_textField)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(V_RestingMax_label))
+                            .addGroup(neuron_synapseParametersPanelLayout.createSequentialGroup()
+                                .addComponent(V_ThreshMin_label)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(V_ThreshMin_textField)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(V_ThreshMax_label)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(V_Resting_textField))
-                    .addGroup(neuron_synapseParametersPanelLayout.createSequentialGroup()
-                        .addComponent(V_Reset_label)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(V_Reset_textField))
-                    .addGroup(neuron_synapseParametersPanelLayout.createSequentialGroup()
-                        .addComponent(I_NoiseMin_label)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(I_NoiseMin_textField, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(neuron_synapseParametersPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(V_ThreshMax_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
+                            .addComponent(V_ResetMax_textField)
+                            .addComponent(V_RestingMax_textField)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, neuron_synapseParametersPanelLayout.createSequentialGroup()
+                        .addGroup(neuron_synapseParametersPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(neuron_synapseParametersPanelLayout.createSequentialGroup()
+                                .addComponent(V_InitMin_label)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(V_InitMin_textField))
+                            .addGroup(neuron_synapseParametersPanelLayout.createSequentialGroup()
+                                .addComponent(V_ResetMin_label)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(V_ResetMin_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(I_NoiseMax_label)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(I_NoiseMax_textField))
-                    .addGroup(neuron_synapseParametersPanelLayout.createSequentialGroup()
-                        .addComponent(V_ThreshMin_label)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(V_ThreshMin_textField, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(V_ThreshMax_label)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(V_ThreshMax_textField)))
+                        .addGroup(neuron_synapseParametersPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(neuron_synapseParametersPanelLayout.createSequentialGroup()
+                                .addComponent(V_ResetMax_label)
+                                .addGap(160, 160, 160))
+                            .addGroup(neuron_synapseParametersPanelLayout.createSequentialGroup()
+                                .addComponent(V_InitMax_label)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(V_InitMax_textField)))))
                 .addContainerGap())
         );
         neuron_synapseParametersPanelLayout.setVerticalGroup(
@@ -260,24 +307,34 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                     .addComponent(V_ThreshMax_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(neuron_synapseParametersPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(V_Resting_label)
-                    .addComponent(V_Resting_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(V_RestingMin_label)
+                    .addComponent(V_RestingMin_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(V_RestingMax_label)
+                    .addComponent(V_RestingMax_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(neuron_synapseParametersPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(V_Reset_label)
-                    .addComponent(V_Reset_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(V_ResetMin_label)
+                    .addComponent(V_ResetMin_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(V_ResetMax_label)
+                    .addComponent(V_ResetMax_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(neuron_synapseParametersPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(V_Init_label)
-                    .addComponent(V_Init_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(V_InitMin_label)
+                    .addComponent(V_InitMin_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(V_InitMax_label)
+                    .addComponent(V_InitMax_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         tabs.addTab("Neuron/Synapse", neuron_synapseParametersPanel);
 
-        starterVThresh_label.setText("Threshold voltage:");
+        starterVThreshMin_label.setText("Threshold voltage, min:");
 
-        starterVReset_label.setText("Voltage to reset Vm to after a spike:");
+        starterVResetMin_label.setText("Voltage to reset Vm to after a spike, min:");
+
+        starterVThreshMax_label.setText("max:");
+
+        starterVResetMax_label.setText("max:");
 
         javax.swing.GroupLayout neuronParameters_starterPanelLayout = new javax.swing.GroupLayout(neuronParameters_starterPanel);
         neuronParameters_starterPanel.setLayout(neuronParameters_starterPanelLayout);
@@ -287,13 +344,21 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(neuronParameters_starterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(neuronParameters_starterPanelLayout.createSequentialGroup()
-                        .addComponent(starterVThresh_label)
+                        .addComponent(starterVThreshMin_label)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(starterVThresh_textField))
+                        .addComponent(starterVThreshMin_textField)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(starterVThreshMax_label))
                     .addGroup(neuronParameters_starterPanelLayout.createSequentialGroup()
-                        .addComponent(starterVReset_label)
+                        .addComponent(starterVResetMin_label)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(starterVReset_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)))
+                        .addComponent(starterVResetMin_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(starterVResetMax_label)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(neuronParameters_starterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(starterVResetMax_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
+                    .addComponent(starterVThreshMax_textField))
                 .addContainerGap())
         );
         neuronParameters_starterPanelLayout.setVerticalGroup(
@@ -301,13 +366,18 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
             .addGroup(neuronParameters_starterPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(neuronParameters_starterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(starterVThresh_label)
-                    .addComponent(starterVThresh_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(starterVThreshMin_label)
+                    .addComponent(starterVThreshMin_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(starterVThreshMax_label)
+                    .addComponent(starterVThreshMax_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(neuronParameters_starterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(starterVReset_label)
-                    .addComponent(starterVReset_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(176, Short.MAX_VALUE))
+                    .addComponent(starterVResetMin_label)
+                    .addComponent(starterVResetMin_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(neuronParameters_starterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(starterVResetMax_label)
+                        .addComponent(starterVResetMax_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(163, Short.MAX_VALUE))
         );
 
         tabs.addTab("Neuron (Starter)", neuronParameters_starterPanel);
@@ -354,7 +424,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                     .addGroup(growthParametersPanelLayout.createSequentialGroup()
                         .addComponent(minRadius_label)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(minRadius_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)))
+                        .addComponent(minRadius_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         growthParametersPanelLayout.setVerticalGroup(
@@ -411,7 +481,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                     .addGroup(simulationParametersPanelLayout.createSequentialGroup()
                         .addComponent(MaxSynapsesPerNeuron_label)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(maxSynapsesPerNeuron_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE))
+                        .addComponent(maxSynapsesPerNeuron_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 298, Short.MAX_VALUE))
                     .addGroup(simulationParametersPanelLayout.createSequentialGroup()
                         .addComponent(numSims_label)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -441,7 +511,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                 .addGroup(simulationParametersPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(MaxSynapsesPerNeuron_label)
                     .addComponent(maxSynapsesPerNeuron_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(124, Short.MAX_VALUE))
+                .addContainerGap(95, Short.MAX_VALUE))
         );
 
         tabs.addTab("Simulation", simulationParametersPanel);
@@ -476,7 +546,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                     .addGroup(externalFilesPanelLayout.createSequentialGroup()
                         .addComponent(inhNListFilename_label)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(inhNListFilename_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
+                        .addComponent(inhNListFilename_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(INLBrowseButton))
                     .addGroup(externalFilesPanelLayout.createSequentialGroup()
@@ -513,7 +583,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                     .addComponent(probedNListFilename_label)
                     .addComponent(probedNListFilename_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(PBLBrowseButton))
-                .addContainerGap(115, Short.MAX_VALUE))
+                .addContainerGap(95, Short.MAX_VALUE))
         );
 
         tabs.addTab("Files", externalFilesPanel);
@@ -549,7 +619,6 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabs)
             .addComponent(jSeparator1)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
@@ -570,6 +639,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                         .addComponent(messageLabelText)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addComponent(tabs)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -596,7 +666,56 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void buildButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buildButtonActionPerformed
-        icm.setAllToDefault();
+        //icm.setAllToDefault();
+        
+        // simulator configuration tab
+        icm.addParameterValue(InputConfiguration.LSM_FRAC_EXC, fracEXC_textField.getText());
+        icm.addParameterValue(InputConfiguration.LSM_START_NEURONS, starterNeurons_textField.getText());
+        icm.addParameterValue(InputConfiguration.POOL_SIZE_X, poolSizeX_textField.getText());
+        icm.addParameterValue(InputConfiguration.POOL_SIZE_Y, poolSizeY_textField.getText());
+        icm.addParameterValue(InputConfiguration.POOL_SIZE_Z, poolSizeZ_textField.getText());
+        icm.addParameterValue(InputConfiguration.SEED_VALUE, seedValue_textField.getText());
+
+        // neuron/synapse tab
+        icm.addParameterValue(InputConfiguration.I_INJECT_MIN, I_InjectMin_textField.getText());
+        icm.addParameterValue(InputConfiguration.I_INJECT_MAX, I_InjectMax_textField.getText());
+        icm.addParameterValue(InputConfiguration.I_NOISE_MIN, I_NoiseMin_textField.getText());
+        icm.addParameterValue(InputConfiguration.I_NOISE_MAX, I_NoiseMax_textField.getText());
+        icm.addParameterValue(InputConfiguration.V_THRESH_MIN, V_ThreshMin_textField.getText());
+        icm.addParameterValue(InputConfiguration.V_THRESH_MAX, V_ThreshMax_textField.getText());
+        icm.addParameterValue(InputConfiguration.V_RESTING_MIN, V_RestingMin_textField.getText());
+        icm.addParameterValue(InputConfiguration.V_RESTING_MAX, V_RestingMax_textField.getText());
+        icm.addParameterValue(InputConfiguration.V_RESET_MIN, V_ResetMin_textField.getText());
+        icm.addParameterValue(InputConfiguration.V_RESET_MAX, V_ResetMax_textField.getText());
+        icm.addParameterValue(InputConfiguration.V_INIT_MIN, V_InitMin_textField.getText());
+        icm.addParameterValue(InputConfiguration.V_INIT_MAX, V_InitMax_textField.getText());
+
+        // neuron (starter) tab
+        icm.addParameterValue(InputConfiguration.STARTER_V_THRESH_MIN, starterVThreshMin_textField.getText());
+        icm.addParameterValue(InputConfiguration.STARTER_V_THRESH_MAX, starterVThreshMax_textField.getText());
+        icm.addParameterValue(InputConfiguration.STARTER_V_RESET_MIN, starterVResetMin_textField.getText());
+        icm.addParameterValue(InputConfiguration.STARTER_V_RESET_MAX, starterVResetMax_textField.getText());
+
+        // growth tab
+        icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_EPSILON, epsilon_textField.getText());
+        icm.addParameterValue(InputConfiguration.GROWTH_BETA, beta_textField.getText());
+        icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_RHO, rho_textField.getText());
+        icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_TARGET_RATE, targetRate_textField.getText());
+        icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_MIN_RADIUS, minRadius_textField.getText());
+        icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_START_RADIUS, startRadius_textField.getText());
+
+        // simulation tab
+        icm.addParameterValue(InputConfiguration.SIM_PARAMS_T_SIM, T_Sim_textField.getText());
+        icm.addParameterValue(InputConfiguration.SIM_PARAMS_NUM_SIMS, numSims_textField.getText());
+        icm.addParameterValue(InputConfiguration.SIM_PARAMS_MAX_FIRING_RATE, maxFiringRate_textField.getText());
+        icm.addParameterValue(InputConfiguration.SIM_PARAMS_MAX_SYNAPSES_PER_NEURON, maxSynapsesPerNeuron_textField.getText());
+
+        // files tab
+        icm.addParameterValue(InputConfiguration.OUTPUT_PARAMS_STATE_OUTPUT_FILENAME, stateOutputFilename_textField.getText());
+        icm.addParameterValue(InputConfiguration.LAYOUT_FILES_ACTIVE_N_LIST_FILE_NAME, activeNListFilename_textField.getText());
+        icm.addParameterValue(InputConfiguration.LAYOUT_FILES_INH_N_LIST_FILE_NAME, inhNListFilename_textField.getText());
+        icm.addParameterValue(InputConfiguration.LAYOUT_FILES_PROBED_N_LIST_FILE_NAME, probedNListFilename_textField.getText());
+        
         try {
             String fileName;
             if (!(fileName = configFilename_textField.getText()).isEmpty()) {
@@ -640,12 +759,18 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
     private javax.swing.JButton PBLBrowseButton;
     private javax.swing.JLabel T_Sim_label;
     private javax.swing.JTextField T_Sim_textField;
-    private javax.swing.JLabel V_Init_label;
-    private javax.swing.JTextField V_Init_textField;
-    private javax.swing.JLabel V_Reset_label;
-    private javax.swing.JTextField V_Reset_textField;
-    private javax.swing.JLabel V_Resting_label;
-    private javax.swing.JTextField V_Resting_textField;
+    private javax.swing.JLabel V_InitMax_label;
+    private javax.swing.JTextField V_InitMax_textField;
+    private javax.swing.JLabel V_InitMin_label;
+    private javax.swing.JTextField V_InitMin_textField;
+    private javax.swing.JLabel V_ResetMax_label;
+    private javax.swing.JTextField V_ResetMax_textField;
+    private javax.swing.JLabel V_ResetMin_label;
+    private javax.swing.JTextField V_ResetMin_textField;
+    private javax.swing.JLabel V_RestingMax_label;
+    private javax.swing.JTextField V_RestingMax_textField;
+    private javax.swing.JLabel V_RestingMin_label;
+    private javax.swing.JTextField V_RestingMin_textField;
     private javax.swing.JLabel V_ThreshMax_label;
     private javax.swing.JTextField V_ThreshMax_textField;
     private javax.swing.JLabel V_ThreshMin_label;
@@ -689,16 +814,22 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
     private javax.swing.JTextField probedNListFilename_textField;
     private javax.swing.JLabel rho_label;
     private javax.swing.JTextField rho_textField;
+    private javax.swing.JLabel seedValue_label;
+    private javax.swing.JTextField seedValue_textField;
     private javax.swing.JPanel simulationParametersPanel;
     private javax.swing.JPanel simulatorConfigurationPanel;
     private javax.swing.JLabel startRadius_label;
     private javax.swing.JTextField startRadius_textField;
     private javax.swing.JLabel starterNeurons_label;
     private javax.swing.JTextField starterNeurons_textField;
-    private javax.swing.JLabel starterVReset_label;
-    private javax.swing.JTextField starterVReset_textField;
-    private javax.swing.JLabel starterVThresh_label;
-    private javax.swing.JTextField starterVThresh_textField;
+    private javax.swing.JLabel starterVResetMax_label;
+    private javax.swing.JTextField starterVResetMax_textField;
+    private javax.swing.JLabel starterVResetMin_label;
+    private javax.swing.JTextField starterVResetMin_textField;
+    private javax.swing.JLabel starterVThreshMax_label;
+    private javax.swing.JTextField starterVThreshMax_textField;
+    private javax.swing.JLabel starterVThreshMin_label;
+    private javax.swing.JTextField starterVThreshMin_textField;
     private javax.swing.JLabel stateOutputFilename_label;
     private javax.swing.JTextField stateOutputFilename_textField;
     private javax.swing.JTabbedPane tabs;
@@ -744,7 +875,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         if (okClicked) {
             builtFile = lastBuiltFile;
         }
-        return lastBuiltFile;
+        return builtFile;
     }
 
     // set up each of the text fields with default values
@@ -755,38 +886,44 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         poolSizeX_textField.setText(icm.getDefaultValue(InputConfiguration.POOL_SIZE_X));
         poolSizeY_textField.setText(icm.getDefaultValue(InputConfiguration.POOL_SIZE_Y));
         poolSizeZ_textField.setText(icm.getDefaultValue(InputConfiguration.POOL_SIZE_Z));
+        seedValue_textField.setText(icm.getDefaultValue(InputConfiguration.SEED_VALUE));
 
         // neuron/synapse tab
-        I_InjectMin_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        I_NoiseMin_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        V_ThreshMin_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        V_Resting_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        V_Reset_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        V_Init_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
+        I_InjectMin_textField.setText(icm.getDefaultValue(InputConfiguration.I_INJECT_MIN));
+        I_InjectMax_textField.setText(icm.getDefaultValue(InputConfiguration.I_INJECT_MAX));
+        I_NoiseMin_textField.setText(icm.getDefaultValue(InputConfiguration.I_NOISE_MIN));
+        I_NoiseMax_textField.setText(icm.getDefaultValue(InputConfiguration.I_NOISE_MAX));
+        V_ThreshMin_textField.setText(icm.getDefaultValue(InputConfiguration.V_THRESH_MIN));
+        V_ThreshMax_textField.setText(icm.getDefaultValue(InputConfiguration.V_THRESH_MAX));
+        V_RestingMin_textField.setText(icm.getDefaultValue(InputConfiguration.V_RESTING_MIN));
+        V_RestingMax_textField.setText(icm.getDefaultValue(InputConfiguration.V_RESTING_MAX));
+        V_ResetMin_textField.setText(icm.getDefaultValue(InputConfiguration.V_RESET_MIN));
+        V_ResetMax_textField.setText(icm.getDefaultValue(InputConfiguration.V_RESET_MAX));
+        V_InitMin_textField.setText(icm.getDefaultValue(InputConfiguration.V_INIT_MIN));
+        V_InitMax_textField.setText(icm.getDefaultValue(InputConfiguration.V_INIT_MAX));
 
         // neuron (starter) tab
-        starterVThresh_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        starterVReset_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
+        starterVThreshMin_textField.setText(icm.getDefaultValue(InputConfiguration.STARTER_V_THRESH_MIN));
+        starterVThreshMax_textField.setText(icm.getDefaultValue(InputConfiguration.STARTER_V_THRESH_MAX));
+        starterVResetMin_textField.setText(icm.getDefaultValue(InputConfiguration.STARTER_V_RESET_MIN));
+        starterVResetMax_textField.setText(icm.getDefaultValue(InputConfiguration.STARTER_V_RESET_MAX));
 
         // growth tab
-        epsilon_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        beta_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        rho_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        targetRate_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        minRadius_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        startRadius_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
+        epsilon_textField.setText(icm.getDefaultValue(InputConfiguration.GROWTH_PARAMS_EPSILON));
+        beta_textField.setText(icm.getDefaultValue(InputConfiguration.GROWTH_BETA));
+        rho_textField.setText(icm.getDefaultValue(InputConfiguration.GROWTH_PARAMS_RHO));
+        targetRate_textField.setText(icm.getDefaultValue(InputConfiguration.GROWTH_PARAMS_TARGET_RATE));
+        minRadius_textField.setText(icm.getDefaultValue(InputConfiguration.GROWTH_PARAMS_MIN_RADIUS));
+        startRadius_textField.setText(icm.getDefaultValue(InputConfiguration.GROWTH_PARAMS_START_RADIUS));
 
         // simulation tab
-        T_Sim_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        numSims_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        maxFiringRate_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        maxSynapsesPerNeuron_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
+        T_Sim_textField.setText(icm.getDefaultValue(InputConfiguration.SIM_PARAMS_T_SIM));
+        numSims_textField.setText(icm.getDefaultValue(InputConfiguration.SIM_PARAMS_NUM_SIMS));
+        maxFiringRate_textField.setText(icm.getDefaultValue(InputConfiguration.SIM_PARAMS_MAX_FIRING_RATE));
+        maxSynapsesPerNeuron_textField.setText(icm.getDefaultValue(InputConfiguration.SIM_PARAMS_MAX_SYNAPSES_PER_NEURON));
 
         // files tab
-        stateOutputFilename_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        activeNListFilename_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        inhNListFilename_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        probedNListFilename_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
+        stateOutputFilename_textField.setText(icm.getDefaultValue(InputConfiguration.OUTPUT_PARAMS_STATE_OUTPUT_FILENAME));
     }
 
     private void center() {
