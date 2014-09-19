@@ -128,6 +128,12 @@ public class InputConfiguration {
                 set = false;
                 break;
             }
+            else {
+                if (inputConfig.get(key) == null || inputConfig.get(key).equals("")) {
+                    set = false;
+                    break;
+                }
+            }
         }
         return set;
     }
