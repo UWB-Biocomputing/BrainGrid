@@ -1,0 +1,832 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.3" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
+  <Properties>
+    <Property name="defaultCloseOperation" type="int" value="2"/>
+  </Properties>
+  <SyntheticProperties>
+    <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
+  </SyntheticProperties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Component id="tabs" alignment="0" max="32767" attributes="0"/>
+          <Component id="jSeparator1" alignment="0" max="32767" attributes="0"/>
+          <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
+                      <Component id="buildButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Component id="configFilename_label" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="configFilename_textField" max="32767" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Component id="okButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="cancelButton" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="messageLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="messageLabelText" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <Component id="tabs" min="-2" pref="199" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="messageLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="messageLabelText" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jSeparator1" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="cancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="okButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="buildButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="configFilename_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="configFilename_label" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Container class="javax.swing.JTabbedPane" name="tabs">
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
+      <SubComponents>
+        <Container class="javax.swing.JPanel" name="simulatorConfigurationPanel">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Simulator Configuration">
+                <Property name="tabTitle" type="java.lang.String" value="Simulator Configuration"/>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+
+          <Layout>
+            <DimensionLayout dim="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="fracEXC_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="fracEXC_textField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="poolSizeX_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="poolSizeX_textField" min="-2" pref="85" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="poolSizeY_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="poolSizeY_textField" min="-2" pref="85" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="poolSizeZ_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="poolSizeZ_textField" pref="88" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="starterNeurons_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="starterNeurons_textField" max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+            <DimensionLayout dim="1">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="fracEXC_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="fracEXC_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="starterNeurons_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="starterNeurons_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                              <Component id="poolSizeZ_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="poolSizeZ_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="poolSizeX_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="poolSizeX_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="poolSizeY_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="poolSizeY_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace min="-2" pref="88" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JLabel" name="fracEXC_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Fraction of excitatory neurons:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="fracEXC_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="starterNeurons_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Fraction of starter neurons:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="starterNeurons_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="poolSizeX_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Size of neurons grid, x:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="poolSizeX_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="poolSizeY_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="y:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="poolSizeY_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="poolSizeZ_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="z:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="poolSizeZ_textField">
+            </Component>
+          </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="neuron_synapseParametersPanel">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Neuron/Synapse">
+                <Property name="tabTitle" type="java.lang.String" value="Neuron/Synapse"/>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+
+          <Layout>
+            <DimensionLayout dim="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Component id="V_Init_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="V_Init_textField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="I_InjectMin_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="I_InjectMin_textField" min="-2" pref="73" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="I_InjectMax_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="I_InjectMax_textField" pref="78" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="V_Resting_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="V_Resting_textField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="V_Reset_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="V_Reset_textField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="I_NoiseMin_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="I_NoiseMin_textField" min="-2" pref="108" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="I_NoiseMax_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="I_NoiseMax_textField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="V_ThreshMin_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="V_ThreshMin_textField" min="-2" pref="135" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="V_ThreshMax_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="V_ThreshMax_textField" max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+            <DimensionLayout dim="1">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="I_InjectMin_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="I_InjectMin_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="I_InjectMax_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="I_InjectMax_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="I_NoiseMin_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="I_NoiseMin_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="I_NoiseMax_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="I_NoiseMax_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="V_ThreshMin_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="V_ThreshMin_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="V_ThreshMax_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="V_ThreshMax_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="V_Resting_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="V_Resting_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="V_Reset_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="V_Reset_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="V_Init_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="V_Init_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="32767" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JLabel" name="I_InjectMin_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Current to be injected into the LIF neuron, min:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="I_InjectMin_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="I_NoiseMin_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Standard deviation of noise, min:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="I_NoiseMin_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="V_ThreshMin_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Threshold voltage, min:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="V_ThreshMin_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="V_Resting_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Resting membrane voltage:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="V_Resting_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="V_Reset_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Voltage to reset Vm to after a spike:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="V_Reset_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="V_Init_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Initial condition for Vm at time t = 0:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="V_Init_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="I_InjectMax_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="max:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="I_InjectMax_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="I_NoiseMax_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="max:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="I_NoiseMax_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="V_ThreshMax_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="max:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="V_ThreshMax_textField">
+            </Component>
+          </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="neuronParameters_starterPanel">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Neuron (Starter)">
+                <Property name="tabTitle" type="java.lang.String" value="Neuron (Starter)"/>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+
+          <Layout>
+            <DimensionLayout dim="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="starterVThresh_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="starterVThresh_textField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="starterVReset_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="starterVReset_textField" pref="243" max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+            <DimensionLayout dim="1">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="starterVThresh_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="starterVThresh_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="starterVReset_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="starterVReset_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace pref="114" max="32767" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JLabel" name="starterVThresh_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Threshold voltage:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="starterVThresh_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="starterVReset_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Voltage to reset Vm to after a spike:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="starterVReset_textField">
+            </Component>
+          </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="growthParametersPanel">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Growth">
+                <Property name="tabTitle" type="java.lang.String" value="Growth"/>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+
+          <Layout>
+            <DimensionLayout dim="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="epsilon_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="epsilon_textField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="startRadius_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="startRadius_textField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="beta_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="beta_textField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="rho_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="rho_textField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="targetRate_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="targetRate_textField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="minRadius_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="minRadius_textField" pref="341" max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+            <DimensionLayout dim="1">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="epsilon_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="epsilon_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="beta_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="beta_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="rho_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="rho_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="targetRate_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="targetRate_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="minRadius_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="minRadius_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="startRadius_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="startRadius_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="32767" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JLabel" name="epsilon_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Epsilon:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="epsilon_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="beta_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Beta:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="beta_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="rho_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Rho:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="rho_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="targetRate_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Target rate:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="targetRate_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="minRadius_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Minimum radius:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="minRadius_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="startRadius_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Starting radius:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="startRadius_textField">
+            </Component>
+          </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="simulationParametersPanel">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Simulation">
+                <Property name="tabTitle" type="java.lang.String" value="Simulation"/>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+
+          <Layout>
+            <DimensionLayout dim="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="T_Sim_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="T_Sim_textField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="MaxSynapsesPerNeuron_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="maxSynapsesPerNeuron_textField" pref="213" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="numSims_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="numSims_textField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="maxFiringRate_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="maxFiringRate_textField" max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+            <DimensionLayout dim="1">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="T_Sim_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="T_Sim_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="numSims_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="numSims_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="maxFiringRate_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="maxFiringRate_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="MaxSynapsesPerNeuron_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="maxSynapsesPerNeuron_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace pref="62" max="32767" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JLabel" name="T_Sim_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Length (seconds) of each epoch:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="T_Sim_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="numSims_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Total number of epochs:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="numSims_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="maxFiringRate_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Maximum firing rate:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="maxFiringRate_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="MaxSynapsesPerNeuron_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Maximum number of synapses per neuron:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="maxSynapsesPerNeuron_textField">
+            </Component>
+          </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="externalFilesPanel">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Files">
+                <Property name="tabTitle" type="java.lang.String" value="Files"/>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+
+          <Layout>
+            <DimensionLayout dim="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="activeNListFilename_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="activeNListFilename_textField" max="32767" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="ANLBrowseButton" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="inhNListFilename_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="inhNListFilename_textField" pref="191" max="32767" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="INLBrowseButton" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="probedNListFilename_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="probedNListFilename_textField" max="32767" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="PBLBrowseButton" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="stateOutputFilename_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="stateOutputFilename_textField" max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+            <DimensionLayout dim="1">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="stateOutputFilename_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="stateOutputFilename_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="activeNListFilename_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="activeNListFilename_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="ANLBrowseButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="inhNListFilename_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="inhNListFilename_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="INLBrowseButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="probedNListFilename_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="probedNListFilename_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="PBLBrowseButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace pref="53" max="32767" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JLabel" name="stateOutputFilename_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="State output file name:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="stateOutputFilename_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="activeNListFilename_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Active neuron list file name:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="activeNListFilename_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="inhNListFilename_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Inhibitory neuron list file name:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="inhNListFilename_textField">
+            </Component>
+            <Component class="javax.swing.JLabel" name="probedNListFilename_label">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Probed neuron list file name:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="probedNListFilename_textField">
+            </Component>
+            <Component class="javax.swing.JButton" name="ANLBrowseButton">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Browse"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JButton" name="INLBrowseButton">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Browse"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JButton" name="PBLBrowseButton">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Browse"/>
+              </Properties>
+            </Component>
+          </SubComponents>
+        </Container>
+      </SubComponents>
+    </Container>
+    <Component class="javax.swing.JButton" name="cancelButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Cancel"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cancelButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="okButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="OK"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="okButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="buildButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Build"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buildButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JTextField" name="configFilename_textField">
+    </Component>
+    <Component class="javax.swing.JLabel" name="configFilename_label">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Config Filename:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JSeparator" name="jSeparator1">
+    </Component>
+    <Component class="javax.swing.JLabel" name="messageLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Message:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="messageLabelText">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="None"/>
+      </Properties>
+    </Component>
+  </SubComponents>
+</Form>

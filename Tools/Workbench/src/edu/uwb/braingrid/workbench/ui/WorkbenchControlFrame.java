@@ -519,12 +519,14 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
      * @param evt - The event that triggered this action
      */
     private void inputBrowseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputBrowseButtonActionPerformed
-        boolean added = workbenchMgr.addInputs();
-        runScriptButton.setEnabled(!added);
-        analyzeOutputButton.setEnabled(!added);
-        displayInputs();
-        setMsg();
-        pack();
+        //boolean added = workbenchMgr.addInputs();
+        //runScriptButton.setEnabled(!added);
+        //analyzeOutputButton.setEnabled(!added);
+        //displayInputs();
+        //setMsg();
+        //pack();
+        
+        InputConfigurationDialog icd = new InputConfigurationDialog(true);
     }//GEN-LAST:event_inputBrowseButtonActionPerformed
 
     private void viewProvenanceMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewProvenanceMenuItemActionPerformed
