@@ -34,13 +34,15 @@ public class InputConfigurationManager {
         return inputConfig.getDefaultValue(parameter);
     }
 
-    public String buildAndPersist(String projectName, String filename) throws TransformerException, TransformerConfigurationException, IOException {
+    public String buildAndPersist(String projectName, String filename)
+            throws TransformerException, TransformerConfigurationException,
+            IOException {
         String fullPath = null;
         boolean success = inputConfig.allValuesSet();
         if (success) {
             inputConfigBuilder.build(inputConfig.getMap());
             FileManager fm = FileManager.getFileManager();
-            fullPath = fm.getInputConfigurationFilePath(projectName, filename);
+            fullPath = fm.getSimConfigFilePath(projectName, filename, true);
             inputConfigBuilder.persist(fullPath);
         }
         return fullPath;
@@ -48,5 +50,10 @@ public class InputConfigurationManager {
 
     public void setAllToDefault() {
         inputConfig.setAllToDefault();
+    }
+
+    public void purgeStoredValues() throws ParserConfigurationException {
+        inputConfig.purgeStoredValues();
+        inputConfigBuilder = new InputConfigurationBuilder();
     }
 }

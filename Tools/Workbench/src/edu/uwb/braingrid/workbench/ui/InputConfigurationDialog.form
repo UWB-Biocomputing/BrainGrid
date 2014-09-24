@@ -168,6 +168,9 @@
               </Properties>
             </Component>
             <Component class="javax.swing.JTextField" name="fracEXC_textField">
+              <Events>
+                <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="fracEXC_textFieldFocusLost"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="starterNeurons_label">
               <Properties>
@@ -487,12 +490,14 @@
                           <Component id="starterVThreshMax_textField" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="starterVResetMin_label" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="starterVResetMin_textField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Group type="103" alignment="3" groupAlignment="3" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
                               <Component id="starterVResetMax_label" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="starterVResetMax_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="starterVResetMin_label" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="starterVResetMin_textField" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace pref="163" max="32767" attributes="0"/>
@@ -647,6 +652,9 @@
               </Properties>
             </Component>
             <Component class="javax.swing.JTextField" name="targetRate_textField">
+              <Events>
+                <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="targetRate_textFieldFocusLost"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="minRadius_label">
               <Properties>
@@ -779,31 +787,32 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
+                              <Component id="stateOutputFilename_label" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="stateOutputFilename_textField" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
                               <Component id="activeNListFilename_label" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="activeNListFilename_textField" max="32767" attributes="0"/>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="ANLBrowseButton" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
                               <Component id="inhNListFilename_label" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="inhNListFilename_textField" pref="284" max="32767" attributes="0"/>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="INLBrowseButton" min="-2" max="-2" attributes="0"/>
+                              <Component id="inhNListFilename_textField" pref="285" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="probedNListFilename_label" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="probedNListFilename_textField" max="32767" attributes="0"/>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="PBLBrowseButton" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="stateOutputFilename_label" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="stateOutputFilename_textField" max="32767" attributes="0"/>
-                          </Group>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="PBLImportButton" max="32767" attributes="0"/>
+                          <Component id="calcStateOutputFileNameButton" max="32767" attributes="0"/>
+                          <Component id="ANLImportButton" max="32767" attributes="0"/>
+                          <Component id="INLImportButton" alignment="1" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -816,26 +825,27 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="stateOutputFilename_label" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="stateOutputFilename_textField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="calcStateOutputFileNameButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="activeNListFilename_label" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="activeNListFilename_textField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="ANLBrowseButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="ANLImportButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="inhNListFilename_label" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="inhNListFilename_textField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="INLBrowseButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="INLImportButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="probedNListFilename_label" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="probedNListFilename_textField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="PBLBrowseButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="PBLImportButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="95" max="32767" attributes="0"/>
+                      <EmptySpace pref="112" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -854,6 +864,9 @@
               </Properties>
             </Component>
             <Component class="javax.swing.JTextField" name="activeNListFilename_textField">
+              <Properties>
+                <Property name="enabled" type="boolean" value="false"/>
+              </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="inhNListFilename_label">
               <Properties>
@@ -861,6 +874,9 @@
               </Properties>
             </Component>
             <Component class="javax.swing.JTextField" name="inhNListFilename_textField">
+              <Properties>
+                <Property name="enabled" type="boolean" value="false"/>
+              </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="probedNListFilename_label">
               <Properties>
@@ -868,21 +884,41 @@
               </Properties>
             </Component>
             <Component class="javax.swing.JTextField" name="probedNListFilename_textField">
-            </Component>
-            <Component class="javax.swing.JButton" name="ANLBrowseButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Browse"/>
+                <Property name="enabled" type="boolean" value="false"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JButton" name="INLBrowseButton">
+            <Component class="javax.swing.JButton" name="ANLImportButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Browse"/>
+                <Property name="text" type="java.lang.String" value="Import"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ANLImportButtonActionPerformed"/>
+              </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="PBLBrowseButton">
+            <Component class="javax.swing.JButton" name="INLImportButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Browse"/>
+                <Property name="text" type="java.lang.String" value="Import"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="INLImportButtonActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="PBLImportButton">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Import"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="PBLImportButtonActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="calcStateOutputFileNameButton">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Calculate"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="calcStateOutputFileNameButtonActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
@@ -913,6 +949,9 @@
       </Events>
     </Component>
     <Component class="javax.swing.JTextField" name="configFilename_textField">
+      <Properties>
+        <Property name="enabled" type="boolean" value="false"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="configFilename_label">
       <Properties>

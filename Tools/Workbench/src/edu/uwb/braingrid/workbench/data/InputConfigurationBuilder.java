@@ -31,16 +31,16 @@ class InputConfigurationBuilder {
     // <!-- Parameters for LSM -->
     private static final String lsmParamsTagName = "LsmParams";
     private static final String lsmFracExcAttributeName = "frac_EXC";
-    private static final String lsmStartNeuronsAttributeName = "lsmStartNeurons";
+    private static final String lsmStartNeuronsAttributeName = "starter_neurons";
     // <!-- size of pool of neurons [x y z] -->
     private static final String poolSizeTagName = "PoolSize";
-    private static final String poolSizeXAttributeName = "poolSizeX";
-    private static final String poolSizeYAttributeName = "poolSizeY";
-    private static final String poolSizeZAttributeName = "poolSizeZ";
+    private static final String poolSizeXAttributeName = "x";
+    private static final String poolSizeYAttributeName = "y";
+    private static final String poolSizeZAttributeName = "z";
     // <!-- Interval of constant injected current -->
     private static final String IinjectTagName = "Iinject";
-    private static final String iInjectMinAttributeName = "iInjectMin";
-    private static final String iInjectMaxAttributeName = "iInjectMax";
+    private static final String iInjectMinAttributeName = "min";
+    private static final String iInjectMaxAttributeName = "max";
     // <!-- Interval of STD of (gaussian) noise current -->
     private static final String iNoiseTagName = "Inoise";
     private static final String iNoiseMinAttributeName = "min";
@@ -237,11 +237,11 @@ class InputConfigurationBuilder {
             elem = doc.createElement(layoutFilesTagName);
             parent.appendChild(elem);
             elem.setAttribute(layoutFilesActiveNListFileNameAttributeName,
-                    paramMap.get(InputConfiguration.SIM_PARAMS_T_SIM));
+                    paramMap.get(InputConfiguration.LAYOUT_FILES_ACTIVE_N_LIST_FILE_NAME));
             elem.setAttribute(layoutFilesInhNListFileNameAttributeName,
-                    paramMap.get(InputConfiguration.SIM_PARAMS_NUM_SIMS));
+                    paramMap.get(InputConfiguration.LAYOUT_FILES_INH_N_LIST_FILE_NAME));
             elem.setAttribute(layoutFilesPrbNListFileNameAttributeName,
-                    paramMap.get(InputConfiguration.SIM_PARAMS_MAX_FIRING_RATE));
+                    paramMap.get(InputConfiguration.LAYOUT_FILES_PROBED_N_LIST_FILE_NAME));
             root.appendChild(parent);
         }
     }
@@ -257,7 +257,6 @@ class InputConfigurationBuilder {
     public String persist(String filename)
             throws TransformerConfigurationException, TransformerException,
             IOException {
-        System.err.println(filename);
         // create the file we want to save
         File file = new File(filename);
         // create any necessary non-existent directories
@@ -266,7 +265,7 @@ class InputConfigurationBuilder {
         // write the content into xml file
         Transformer t = TransformerFactory.newInstance().newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");
-        t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+        t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
         t.transform(new DOMSource(doc), new StreamResult(file));
         return filename;
     }

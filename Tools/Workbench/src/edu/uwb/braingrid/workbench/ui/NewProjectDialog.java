@@ -130,6 +130,7 @@ public class NewProjectDialog extends javax.swing.JDialog {
         /* Redirect to OK button action if enter key */
         if (validateNewProjectName()) {
             if (evt.getKeyCode() == evt.VK_ENTER) {
+                System.err.println("got here!");
                 newProjectOKButtonActionPerformed(null);
             }
         }
@@ -217,6 +218,7 @@ public class NewProjectDialog extends javax.swing.JDialog {
         boolean valid = true;
         /* Validate the currently specified project name */
         if (!isValidFileName(newProjectNameTextField.getText())) {
+            valid = false;
             // disable the ok button
             newProjectOKButton.setEnabled(false);
             // set error msg
@@ -225,7 +227,6 @@ public class NewProjectDialog extends javax.swing.JDialog {
                     + "Project name specified must be valid filename"
                     + "</b></p></html>");
         } else {
-            valid = false;
             // enable the ok button
             newProjectOKButton.setEnabled(true);
             newProjectValidationMessageLabel.setText(null);

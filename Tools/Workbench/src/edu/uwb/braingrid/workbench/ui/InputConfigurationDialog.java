@@ -1,21 +1,27 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.uwb.braingrid.workbench.ui;
 
+import edu.uwb.braingrid.workbench.FileManager;
+import edu.uwb.braingrid.workbench.data.InputAnalyzer;
+import edu.uwb.braingrid.workbench.data.InputAnalyzer.InputType;
 import edu.uwb.braingrid.workbench.data.InputConfigurationManager;
 import edu.uwb.braingrid.workbench.model.InputConfiguration;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
+import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import org.xml.sax.SAXException;
 
 /**
  *
- * @author Nathan
+ * @author Nathan Duncan
  */
 public class InputConfigurationDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Auto-Generated Code">    
@@ -107,9 +113,10 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         inhNListFilename_textField = new javax.swing.JTextField();
         probedNListFilename_label = new javax.swing.JLabel();
         probedNListFilename_textField = new javax.swing.JTextField();
-        ANLBrowseButton = new javax.swing.JButton();
-        INLBrowseButton = new javax.swing.JButton();
-        PBLBrowseButton = new javax.swing.JButton();
+        ANLImportButton = new javax.swing.JButton();
+        INLImportButton = new javax.swing.JButton();
+        PBLImportButton = new javax.swing.JButton();
+        calcStateOutputFileNameButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
         buildButton = new javax.swing.JButton();
@@ -123,6 +130,12 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         setTitle("Input Configuration");
 
         fracEXC_label.setText("Fraction of excitatory neurons:");
+
+        fracEXC_textField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                fracEXC_textFieldFocusLost(evt);
+            }
+        });
 
         starterNeurons_label.setText("Fraction of starter neurons:");
 
@@ -371,12 +384,13 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                     .addComponent(starterVThreshMax_label)
                     .addComponent(starterVThreshMax_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(neuronParameters_starterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(starterVResetMin_label)
-                    .addComponent(starterVResetMin_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(neuronParameters_starterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(neuronParameters_starterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(starterVResetMax_label)
-                        .addComponent(starterVResetMax_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(starterVResetMax_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(neuronParameters_starterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(starterVResetMin_label)
+                        .addComponent(starterVResetMin_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(163, Short.MAX_VALUE))
         );
 
@@ -389,6 +403,12 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         rho_label.setText("Rho:");
 
         targetRate_label.setText("Target rate:");
+
+        targetRate_textField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                targetRate_textFieldFocusLost(evt);
+            }
+        });
 
         minRadius_label.setText("Minimum radius:");
 
@@ -520,15 +540,43 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
 
         activeNListFilename_label.setText("Active neuron list file name:");
 
+        activeNListFilename_textField.setEnabled(false);
+
         inhNListFilename_label.setText("Inhibitory neuron list file name:");
+
+        inhNListFilename_textField.setEnabled(false);
 
         probedNListFilename_label.setText("Probed neuron list file name:");
 
-        ANLBrowseButton.setText("Browse");
+        probedNListFilename_textField.setEnabled(false);
 
-        INLBrowseButton.setText("Browse");
+        ANLImportButton.setText("Import");
+        ANLImportButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ANLImportButtonActionPerformed(evt);
+            }
+        });
 
-        PBLBrowseButton.setText("Browse");
+        INLImportButton.setText("Import");
+        INLImportButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                INLImportButtonActionPerformed(evt);
+            }
+        });
+
+        PBLImportButton.setText("Import");
+        PBLImportButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PBLImportButtonActionPerformed(evt);
+            }
+        });
+
+        calcStateOutputFileNameButton.setText("Calculate");
+        calcStateOutputFileNameButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                calcStateOutputFileNameButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout externalFilesPanelLayout = new javax.swing.GroupLayout(externalFilesPanel);
         externalFilesPanel.setLayout(externalFilesPanelLayout);
@@ -538,27 +586,27 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(externalFilesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(externalFilesPanelLayout.createSequentialGroup()
+                        .addComponent(stateOutputFilename_label)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(stateOutputFilename_textField))
+                    .addGroup(externalFilesPanelLayout.createSequentialGroup()
                         .addComponent(activeNListFilename_label)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(activeNListFilename_textField)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(ANLBrowseButton))
+                        .addComponent(activeNListFilename_textField))
                     .addGroup(externalFilesPanelLayout.createSequentialGroup()
                         .addComponent(inhNListFilename_label)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(inhNListFilename_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(INLBrowseButton))
+                        .addComponent(inhNListFilename_textField, javax.swing.GroupLayout.DEFAULT_SIZE, 285, Short.MAX_VALUE))
                     .addGroup(externalFilesPanelLayout.createSequentialGroup()
                         .addComponent(probedNListFilename_label)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(probedNListFilename_textField)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(PBLBrowseButton))
-                    .addGroup(externalFilesPanelLayout.createSequentialGroup()
-                        .addComponent(stateOutputFilename_label)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(stateOutputFilename_textField)))
+                        .addComponent(probedNListFilename_textField)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(externalFilesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(PBLImportButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(calcStateOutputFileNameButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(ANLImportButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(INLImportButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         externalFilesPanelLayout.setVerticalGroup(
@@ -567,23 +615,24 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(externalFilesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(stateOutputFilename_label)
-                    .addComponent(stateOutputFilename_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(stateOutputFilename_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(calcStateOutputFileNameButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(externalFilesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(activeNListFilename_label)
                     .addComponent(activeNListFilename_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ANLBrowseButton))
+                    .addComponent(ANLImportButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(externalFilesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(inhNListFilename_label)
                     .addComponent(inhNListFilename_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(INLBrowseButton))
+                    .addComponent(INLImportButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(externalFilesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(probedNListFilename_label)
                     .addComponent(probedNListFilename_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(PBLBrowseButton))
-                .addContainerGap(95, Short.MAX_VALUE))
+                    .addComponent(PBLImportButton))
+                .addContainerGap(112, Short.MAX_VALUE))
         );
 
         tabs.addTab("Files", externalFilesPanel);
@@ -608,6 +657,8 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                 buildButtonActionPerformed(evt);
             }
         });
+
+        configFilename_textField.setEnabled(false);
 
         configFilename_label.setText("Config Filename:");
 
@@ -666,72 +717,82 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void buildButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buildButtonActionPerformed
-        //icm.setAllToDefault();
-        
-        // simulator configuration tab
-        icm.addParameterValue(InputConfiguration.LSM_FRAC_EXC, fracEXC_textField.getText());
-        icm.addParameterValue(InputConfiguration.LSM_START_NEURONS, starterNeurons_textField.getText());
-        icm.addParameterValue(InputConfiguration.POOL_SIZE_X, poolSizeX_textField.getText());
-        icm.addParameterValue(InputConfiguration.POOL_SIZE_Y, poolSizeY_textField.getText());
-        icm.addParameterValue(InputConfiguration.POOL_SIZE_Z, poolSizeZ_textField.getText());
-        icm.addParameterValue(InputConfiguration.SEED_VALUE, seedValue_textField.getText());
-
-        // neuron/synapse tab
-        icm.addParameterValue(InputConfiguration.I_INJECT_MIN, I_InjectMin_textField.getText());
-        icm.addParameterValue(InputConfiguration.I_INJECT_MAX, I_InjectMax_textField.getText());
-        icm.addParameterValue(InputConfiguration.I_NOISE_MIN, I_NoiseMin_textField.getText());
-        icm.addParameterValue(InputConfiguration.I_NOISE_MAX, I_NoiseMax_textField.getText());
-        icm.addParameterValue(InputConfiguration.V_THRESH_MIN, V_ThreshMin_textField.getText());
-        icm.addParameterValue(InputConfiguration.V_THRESH_MAX, V_ThreshMax_textField.getText());
-        icm.addParameterValue(InputConfiguration.V_RESTING_MIN, V_RestingMin_textField.getText());
-        icm.addParameterValue(InputConfiguration.V_RESTING_MAX, V_RestingMax_textField.getText());
-        icm.addParameterValue(InputConfiguration.V_RESET_MIN, V_ResetMin_textField.getText());
-        icm.addParameterValue(InputConfiguration.V_RESET_MAX, V_ResetMax_textField.getText());
-        icm.addParameterValue(InputConfiguration.V_INIT_MIN, V_InitMin_textField.getText());
-        icm.addParameterValue(InputConfiguration.V_INIT_MAX, V_InitMax_textField.getText());
-
-        // neuron (starter) tab
-        icm.addParameterValue(InputConfiguration.STARTER_V_THRESH_MIN, starterVThreshMin_textField.getText());
-        icm.addParameterValue(InputConfiguration.STARTER_V_THRESH_MAX, starterVThreshMax_textField.getText());
-        icm.addParameterValue(InputConfiguration.STARTER_V_RESET_MIN, starterVResetMin_textField.getText());
-        icm.addParameterValue(InputConfiguration.STARTER_V_RESET_MAX, starterVResetMax_textField.getText());
-
-        // growth tab
-        icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_EPSILON, epsilon_textField.getText());
-        icm.addParameterValue(InputConfiguration.GROWTH_BETA, beta_textField.getText());
-        icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_RHO, rho_textField.getText());
-        icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_TARGET_RATE, targetRate_textField.getText());
-        icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_MIN_RADIUS, minRadius_textField.getText());
-        icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_START_RADIUS, startRadius_textField.getText());
-
-        // simulation tab
-        icm.addParameterValue(InputConfiguration.SIM_PARAMS_T_SIM, T_Sim_textField.getText());
-        icm.addParameterValue(InputConfiguration.SIM_PARAMS_NUM_SIMS, numSims_textField.getText());
-        icm.addParameterValue(InputConfiguration.SIM_PARAMS_MAX_FIRING_RATE, maxFiringRate_textField.getText());
-        icm.addParameterValue(InputConfiguration.SIM_PARAMS_MAX_SYNAPSES_PER_NEURON, maxSynapsesPerNeuron_textField.getText());
-
-        // files tab
-        icm.addParameterValue(InputConfiguration.OUTPUT_PARAMS_STATE_OUTPUT_FILENAME, stateOutputFilename_textField.getText());
-        icm.addParameterValue(InputConfiguration.LAYOUT_FILES_ACTIVE_N_LIST_FILE_NAME, activeNListFilename_textField.getText());
-        icm.addParameterValue(InputConfiguration.LAYOUT_FILES_INH_N_LIST_FILE_NAME, inhNListFilename_textField.getText());
-        icm.addParameterValue(InputConfiguration.LAYOUT_FILES_PROBED_N_LIST_FILE_NAME, probedNListFilename_textField.getText());
-        
         try {
-            String fileName;
-            if (!(fileName = configFilename_textField.getText()).isEmpty()) {
-                fileName = icm.buildAndPersist(projectName, fileName);
-                if (fileName != null) {
-                    okButton.setEnabled(true);
-                    lastBuiltFile = fileName;
-                } else {
-                    messageLabelText.setText("<html><span style=\"color:red\">*All fields must be filled</span></html>");
+            icm.purgeStoredValues();
+            // simulator configuration tab
+            icm.addParameterValue(InputConfiguration.LSM_FRAC_EXC, fracEXC_textField.getText());
+            icm.addParameterValue(InputConfiguration.LSM_START_NEURONS, starterNeurons_textField.getText());
+            icm.addParameterValue(InputConfiguration.POOL_SIZE_X, poolSizeX_textField.getText());
+            icm.addParameterValue(InputConfiguration.POOL_SIZE_Y, poolSizeY_textField.getText());
+            icm.addParameterValue(InputConfiguration.POOL_SIZE_Z, poolSizeZ_textField.getText());
+            icm.addParameterValue(InputConfiguration.SEED_VALUE, seedValue_textField.getText());
+
+            // neuron/synapse tab
+            icm.addParameterValue(InputConfiguration.I_INJECT_MIN, I_InjectMin_textField.getText());
+            icm.addParameterValue(InputConfiguration.I_INJECT_MAX, I_InjectMax_textField.getText());
+            icm.addParameterValue(InputConfiguration.I_NOISE_MIN, I_NoiseMin_textField.getText());
+            icm.addParameterValue(InputConfiguration.I_NOISE_MAX, I_NoiseMax_textField.getText());
+            icm.addParameterValue(InputConfiguration.V_THRESH_MIN, V_ThreshMin_textField.getText());
+            icm.addParameterValue(InputConfiguration.V_THRESH_MAX, V_ThreshMax_textField.getText());
+            icm.addParameterValue(InputConfiguration.V_RESTING_MIN, V_RestingMin_textField.getText());
+            icm.addParameterValue(InputConfiguration.V_RESTING_MAX, V_RestingMax_textField.getText());
+            icm.addParameterValue(InputConfiguration.V_RESET_MIN, V_ResetMin_textField.getText());
+            icm.addParameterValue(InputConfiguration.V_RESET_MAX, V_ResetMax_textField.getText());
+            icm.addParameterValue(InputConfiguration.V_INIT_MIN, V_InitMin_textField.getText());
+            icm.addParameterValue(InputConfiguration.V_INIT_MAX, V_InitMax_textField.getText());
+
+            // neuron (starter) tab
+            icm.addParameterValue(InputConfiguration.STARTER_V_THRESH_MIN, starterVThreshMin_textField.getText());
+            icm.addParameterValue(InputConfiguration.STARTER_V_THRESH_MAX, starterVThreshMax_textField.getText());
+            icm.addParameterValue(InputConfiguration.STARTER_V_RESET_MIN, starterVResetMin_textField.getText());
+            icm.addParameterValue(InputConfiguration.STARTER_V_RESET_MAX, starterVResetMax_textField.getText());
+
+            // growth tab
+            icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_EPSILON, epsilon_textField.getText());
+            icm.addParameterValue(InputConfiguration.GROWTH_BETA, beta_textField.getText());
+            icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_RHO, rho_textField.getText());
+            icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_TARGET_RATE, targetRate_textField.getText());
+            icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_MIN_RADIUS, minRadius_textField.getText());
+            icm.addParameterValue(InputConfiguration.GROWTH_PARAMS_START_RADIUS, startRadius_textField.getText());
+
+            // simulation tab
+            icm.addParameterValue(InputConfiguration.SIM_PARAMS_T_SIM, T_Sim_textField.getText());
+            icm.addParameterValue(InputConfiguration.SIM_PARAMS_NUM_SIMS, numSims_textField.getText());
+            icm.addParameterValue(InputConfiguration.SIM_PARAMS_MAX_FIRING_RATE, maxFiringRate_textField.getText());
+            icm.addParameterValue(InputConfiguration.SIM_PARAMS_MAX_SYNAPSES_PER_NEURON, maxSynapsesPerNeuron_textField.getText());
+
+            // files tab
+            icm.addParameterValue(InputConfiguration.OUTPUT_PARAMS_STATE_OUTPUT_FILENAME, stateOutputFilename_textField.getText());
+            icm.addParameterValue(InputConfiguration.LAYOUT_FILES_ACTIVE_N_LIST_FILE_NAME, activeNListFilename_textField.getText());
+            icm.addParameterValue(InputConfiguration.LAYOUT_FILES_INH_N_LIST_FILE_NAME, inhNListFilename_textField.getText());
+            icm.addParameterValue(InputConfiguration.LAYOUT_FILES_PROBED_N_LIST_FILE_NAME, probedNListFilename_textField.getText());
+
+            try {
+                String fileName = configFilename_textField.getText();
+                if (fileName != null && !fileName.isEmpty()) {
+                    fileName = icm.buildAndPersist(projectName, fileName);
+                    if (fileName != null) {
+                        okButton.setEnabled(true);
+                        lastBuiltFile = fileName;
+                        messageLabelText.setText("<html><span style=\"color:green\">"
+                                + FileManager.getSimpleFilename(fileName)
+                                + " successfully persisted..."
+                                + "</span></html>");
+                    } else {
+                        messageLabelText.setText("<html><span style=\"color:red\">*All fields must be filled</span></html>");
+                    }
                 }
+            } catch (TransformerException | IOException e) {
+                messageLabelText.setText("<html><span style=\"color:red\">"
+                        + e.getClass()
+                        + " prevented successful build...</span></html>");
+                e.printStackTrace();
             }
-        } catch (TransformerException | IOException e) {
+        } catch (ParserConfigurationException ex) {
             messageLabelText.setText("<html><span style=\"color:red\">"
-                    + e.getClass()
+                    + ex.getClass()
                     + " prevented successful build...</span></html>");
-            e.printStackTrace();
+            ex.printStackTrace();
         }
     }//GEN-LAST:event_buildButtonActionPerformed
 
@@ -744,9 +805,40 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         setVisible(false);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
+    private void ANLImportButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ANLImportButtonActionPerformed
+        importNeuronList(InputType.ACTIVE, activeNListFilename_textField);
+    }//GEN-LAST:event_ANLImportButtonActionPerformed
+
+    private void INLImportButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_INLImportButtonActionPerformed
+        importNeuronList(InputType.INHIBITORY, inhNListFilename_textField);
+    }//GEN-LAST:event_INLImportButtonActionPerformed
+
+    private void PBLImportButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PBLImportButtonActionPerformed
+        importNeuronList(InputType.PROBED, probedNListFilename_textField);
+    }//GEN-LAST:event_PBLImportButtonActionPerformed
+
+    private void calcStateOutputFileNameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_calcStateOutputFileNameButtonActionPerformed
+        String calculatedFilename = "";
+        String fE = fracEXC_textField.getText();
+        String tR = targetRate_textField.getText();
+        if (!fE.isEmpty() && !tR.isEmpty()) {
+            calculatedFilename = "results/tR_" + tR + "--fE_" + fE
+                    + "_historyDump.xml";
+        }
+        stateOutputFilename_textField.setText(calculatedFilename);
+    }//GEN-LAST:event_calcStateOutputFileNameButtonActionPerformed
+
+    private void fracEXC_textFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_fracEXC_textFieldFocusLost
+        autoFillConfigFilename();
+    }//GEN-LAST:event_fracEXC_textFieldFocusLost
+
+    private void targetRate_textFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_targetRate_textFieldFocusLost
+        autoFillConfigFilename();
+    }//GEN-LAST:event_targetRate_textFieldFocusLost
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton ANLBrowseButton;
-    private javax.swing.JButton INLBrowseButton;
+    private javax.swing.JButton ANLImportButton;
+    private javax.swing.JButton INLImportButton;
     private javax.swing.JLabel I_InjectMax_label;
     private javax.swing.JTextField I_InjectMax_textField;
     private javax.swing.JLabel I_InjectMin_label;
@@ -756,7 +848,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
     private javax.swing.JLabel I_NoiseMin_label;
     private javax.swing.JTextField I_NoiseMin_textField;
     private javax.swing.JLabel MaxSynapsesPerNeuron_label;
-    private javax.swing.JButton PBLBrowseButton;
+    private javax.swing.JButton PBLImportButton;
     private javax.swing.JLabel T_Sim_label;
     private javax.swing.JTextField T_Sim_textField;
     private javax.swing.JLabel V_InitMax_label;
@@ -780,6 +872,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
     private javax.swing.JLabel beta_label;
     private javax.swing.JTextField beta_textField;
     private javax.swing.JButton buildButton;
+    private javax.swing.JButton calcStateOutputFileNameButton;
     private javax.swing.JButton cancelButton;
     private javax.swing.JLabel configFilename_label;
     private javax.swing.JTextField configFilename_textField;
@@ -924,6 +1017,9 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
 
         // files tab
         stateOutputFilename_textField.setText(icm.getDefaultValue(InputConfiguration.OUTPUT_PARAMS_STATE_OUTPUT_FILENAME));
+
+        // autofill config filename
+        autoFillConfigFilename();
     }
 
     private void center() {
@@ -937,6 +1033,72 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         }
         setLocation((screenSize.width - frameSize.width) / 2,
                 (screenSize.height - frameSize.height) / 2);
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Utils">
+    private void importNeuronList(InputType type, JTextField field) {
+        FileManager fm = FileManager.getFileManager();
+        // get starting folder
+        String simConfFilesDir;
+        try {
+            simConfFilesDir = fm.getSimConfigDirectoryPath(projectName, true);
+        } catch (IOException e) {
+            messageLabelText.setText(
+                    "<html><span style=\"color:red\">"
+                    + e.getClass()
+                    + "occurred, import failed...</span></html>");
+            return;
+        }
+        JFileChooser dlg = new JFileChooser(simConfFilesDir);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                "XML file (*.xml)", "xml");
+        dlg.addChoosableFileFilter(filter);
+        dlg.setFileFilter(filter);
+        dlg.setMultiSelectionEnabled(true);
+        String dialogTitle = "Select Input Files for a Simulation";
+        dlg.setDialogTitle(dialogTitle);
+        if (dlg.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            try {
+                File file = dlg.getSelectedFile();
+                // if type is correct
+                if (InputAnalyzer.getInputType(file) == type) {
+                    Path sourceFilePath = file.toPath();
+                    String destPathText = fm.getNeuronListFilePath(projectName,
+                            file.getName(), true);
+                    Path destFilePath = new File(destPathText).toPath();
+                    if (FileManager.copyFile(sourceFilePath, destFilePath)) {
+                        field.setText("configfiles/NList/"
+                                + fm.getSimpleFilename(destFilePath.toString()));
+                    }
+                } else {
+                    messageLabelText.setText("<html><span style=\"color:orange\">"
+                            + "The selected file did not match the type: "
+                            + type.toString() + "</span></html>");
+                }
+            } catch (ParserConfigurationException | SAXException |
+                    IOException ex) {
+                messageLabelText.setText(
+                        "<html><span style=\"color:red\">"
+                        + ex.getClass()
+                        + "occurred, import failed...</span></html>");
+            }
+        } else {
+            messageLabelText.setText(
+                    "<html><span style=\"color:red\">"
+                    + "Import Cancelled...</span></html>");
+        }
+    }
+
+    private void autoFillConfigFilename() {
+        String calculatedFilename = "";
+        String fE = fracEXC_textField.getText();
+        String tR = targetRate_textField.getText();
+        if (!fE.isEmpty() && !tR.isEmpty()) {
+            calculatedFilename = "tR_" + tR + "--fE_" + fE
+                    + ".xml";
+        }
+        configFilename_textField.setText(calculatedFilename);
     }
     // </editor-fold>
 }

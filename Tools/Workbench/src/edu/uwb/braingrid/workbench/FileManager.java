@@ -36,7 +36,7 @@ public final class FileManager {
      * extension, but no parent folders
      */
     public static String getSimpleFilename(String longFilename) {
-        String filename = "error";
+        String filename = longFilename;
         if (longFilename.contains("\\")) {
             int lastBackslash = longFilename.lastIndexOf('\\');
             if (lastBackslash != longFilename.length() - 1) {
@@ -55,6 +55,8 @@ public final class FileManager {
     private final boolean isWindowsSystem;
     private final String folderDelimiter;
     private String projectsFolderName = "projects";
+    private String configFilesFolderName = "configfiles";
+    private String neuronListFolderName = "NList";
 
     /**
      * This is here to make sure that classes from other packages cannot
@@ -84,7 +86,7 @@ public final class FileManager {
 
     /**
      * Provides the operating system dependent folder delimiter, not to be
-     * confuses with the poorly named File.pathseperator
+     * confused with the poorly named File.pathseperator
      *
      * @return The string that delimits folders from parent folders on the
      * operating system where the workbench was invoked
@@ -103,30 +105,26 @@ public final class FileManager {
      *
      * @param source - The path to the file to be copied
      * @param target - The path to the copy of the source
-     * @return True if the file was copied successfully, false if any exceptions
-     * occur or if the file located at the source path does not exists
+     * @return True if the file was copied successfully, false if the file
+     * represented by the source path does not existing
+     * @throws java.io.IOException
      */
-    public static boolean copyFile(Path source, Path target) {
+    public static boolean copyFile(Path source, Path target) throws IOException {
         boolean success = true;
-        try {
-            File fromFile = source.toFile();
-            if (fromFile.exists()) {
-                fromFile.mkdirs();
-                File toFile = target.toFile();
-                if (!toFile.exists()) {
-                    toFile.mkdirs();
-                    toFile.createNewFile();
-                    Files.copy(source, target,
-                            StandardCopyOption.REPLACE_EXISTING,
-                            StandardCopyOption.COPY_ATTRIBUTES,
-                            LinkOption.NOFOLLOW_LINKS);
-                }
-            } else {
-                success = false;
+        File fromFile = source.toFile();
+        if (fromFile.exists()) {
+            File toFile = target.toFile();
+            if (!toFile.exists()) {
+                target.getParent().toFile().mkdirs();
+                toFile.createNewFile();
             }
-        } catch (Exception e) {
+        } else {
             success = false;
         }
+        Files.copy(source, target,
+                StandardCopyOption.REPLACE_EXISTING,
+                StandardCopyOption.COPY_ATTRIBUTES,
+                LinkOption.NOFOLLOW_LINKS);
         return success;
     }
 
@@ -158,8 +156,34 @@ public final class FileManager {
         return isWindowsSystem;
     }
 
-    public String getInputConfigurationFilePath(String projectName, String filename) throws IOException {
-        return getCanonicalProjectsDirectory() + folderDelimiter + projectName
-                + folderDelimiter + filename;
+    public String getSimConfigFilePath(String projectName, String filename, boolean mkdirs) throws IOException {
+        return getSimConfigDirectoryPath(projectName, mkdirs) + filename;
+    }
+
+    public String getNeuronListFilePath(String projectName, String filename, boolean mkdirs) throws IOException {
+        String folder = getSimConfigDirectoryPath(projectName, mkdirs)
+                + neuronListFolderName + folderDelimiter;
+        if (mkdirs) {
+            new File(folder).mkdirs();
+        }
+        return folder + filename;
+    }
+
+    public String getSimConfigDirectoryPath(String projectName, boolean mkdirs) throws IOException {
+        String folder = getProjectDirectory(projectName, mkdirs)
+                + configFilesFolderName + folderDelimiter;
+        if (mkdirs) {
+            new File(folder).mkdirs();
+        }
+        return folder;
+    }
+
+    public String getProjectDirectory(String projectName, boolean mkdirs) throws IOException {
+        String directory = getCanonicalProjectsDirectory() + folderDelimiter
+                + projectName + folderDelimiter;
+        if (mkdirs) {
+            new File(directory).mkdirs();
+        }
+        return directory;
     }
 }

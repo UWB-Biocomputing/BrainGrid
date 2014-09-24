@@ -50,7 +50,7 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         messageContentLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Simulator Specifiaction");
+        setTitle("Script Specifiaction");
 
         codeRepositoryLocationLabel.setText("BrainGrid Code Repository:");
         codeRepositoryLocationLabel.setToolTipText("<html>Repository to pull from.<br>This URI must go to a local folder,<br>or to a valid network address</html>");

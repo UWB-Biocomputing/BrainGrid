@@ -9,6 +9,7 @@ import edu.uwb.braingrid.tools.nledit.ControlFrame;
 import edu.uwb.braingrid.workbench.data.InputAnalyzer;
 import edu.uwb.braingrid.workbench.project.ProjectMgr;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
+import edu.uwb.braingrid.workbench.ui.InputConfigurationDialog;
 import edu.uwb.braingrid.workbench.ui.NewProjectDialog;
 import edu.uwb.braingrid.workbench.ui.ProvenanceQueryDialog;
 import edu.uwb.braingrid.workbench.ui.SimulatorSpecificationDialog;
@@ -52,6 +53,7 @@ public class WorkbenchManager {
     private final String rootDir;
     private final String projectsDir;
     private SimulationSpecification simSpec;
+    private String simulationConfigurationFile;
 
     /**
      * Value indicating that an exception occurred during an operation
@@ -278,7 +280,7 @@ public class WorkbenchManager {
      * SimulationSpecificationDialog (which validates required input in order
      * for the action to be performed)
      */
-    public boolean specifySimulator() {
+    public boolean specifyScript() {
         String hostAddr;
         SimulatorSpecificationDialog simulator;
         simulator = new SimulatorSpecificationDialog(true);
@@ -396,9 +398,8 @@ public class WorkbenchManager {
         boolean success = false;
         ScriptManager sm = new ScriptManager();
         try {
-            success = sm.runScript(simSpec,
-                    project.getScriptCanonicalFilePath(),
-                    project.getInputFiles());
+            String scriptPath = project.getScriptCanonicalFilePath();
+            success = sm.runScript(simSpec, scriptPath, project.getInputFiles());
             project.setScriptRan(success);
             project.setScriptRanAt();
             messageAccumulator += sm.getOutstandingMessages();
@@ -649,18 +650,13 @@ public class WorkbenchManager {
      *
      * @return An overview of the input files for the project
      */
-    public String getInputFilesOverview() {
+    public String getSimConfigFileOverview() {
         String labelText = "None";
         if (project != null) {
-            String[] inputs = project.getInputFiles();
-            labelText = "<html>";
-            for (int i = 0, im = inputs.length; i < im; i++) {
-                labelText += inputs[i];
-                if (i < im - 1) {
-                    labelText += ";<br>";
-                }
+            String input = project.getSimConfigFilename();
+            if (input != null) {
+                labelText = input;
             }
-            labelText += "</html>";
         }
         return labelText;
     }
@@ -813,6 +809,10 @@ public class WorkbenchManager {
         }
         return overview;
     }
+
+    public String getSimConfigFilename() {
+        return simulationConfigurationFile;
+    }
     // </editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="User Communication">
@@ -827,17 +827,34 @@ public class WorkbenchManager {
         return messageAccumulator;
     }
     // </editor-fold>
-    
+
     public void viewProvenance() {
         ProvenanceQueryDialog pqd = new ProvenanceQueryDialog(true, prov);
     }
-    
+
     public boolean isProvEnabled() {
         boolean isEnabled = false;
-        
-        if (project != null)
+
+        if (project != null) {
             isEnabled = project.isProvenanceEnabled();
-        
+        }
+
         return isEnabled;
+    }
+
+    public boolean configureSimulation() {
+        boolean success = true;
+        String projectName = getProjectName();
+        if (!projectName.equals("None")) {
+            InputConfigurationDialog icd
+                    = new InputConfigurationDialog(projectName, true);
+            if (success = icd.getSuccess()) {
+                simulationConfigurationFile = icd.getBuiltFile();
+                project.addSimConfigFile(simulationConfigurationFile);
+            } else {
+                simulationConfigurationFile = "None";
+            }
+        }
+        return success;
     }
 }

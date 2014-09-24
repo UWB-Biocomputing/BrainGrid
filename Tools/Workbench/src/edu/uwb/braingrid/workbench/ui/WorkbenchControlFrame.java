@@ -26,22 +26,22 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         ProjectTitleLabel = new javax.swing.JLabel();
-        inputsLabel = new javax.swing.JLabel();
+        simulationLabel = new javax.swing.JLabel();
         analyzeOutputSatusLabel = new javax.swing.JLabel();
-        simulatorLabel = new javax.swing.JLabel();
-        inputBrowseButton = new javax.swing.JButton();
-        simulatorSpecifyButton = new javax.swing.JButton();
+        scriptSpecifiedLabel = new javax.swing.JLabel();
+        configureSimulationButton = new javax.swing.JButton();
+        specifyScriptButton = new javax.swing.JButton();
         analyzeOutputButton = new javax.swing.JButton();
         projectTitleTextLabel = new javax.swing.JLabel();
-        inputFilenamesLabel = new javax.swing.JLabel();
-        simulatorSpecificationLabel = new javax.swing.JLabel();
+        simulationConfigurationLabel = new javax.swing.JLabel();
+        scriptSpecificationLabel = new javax.swing.JLabel();
         outputFilenameLabel = new javax.swing.JLabel();
         projectOverviewLabel = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         msgLabel = new javax.swing.JLabel();
         scriptGenerateButton = new javax.swing.JButton();
         generatedScriptFilenameLabel = new javax.swing.JLabel();
-        scriptLabel = new javax.swing.JLabel();
+        scriptGeneratedLabel = new javax.swing.JLabel();
         jSeparator2 = new javax.swing.JSeparator();
         runScriptButton = new javax.swing.JButton();
         runScriptStatusLabel = new javax.swing.JLabel();
@@ -69,27 +69,25 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
         ProjectTitleLabel.setText("Current Project: ");
         ProjectTitleLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
-        inputsLabel.setText("Inputs: ");
-        inputsLabel.setPreferredSize(null);
+        simulationLabel.setText("Simulation:");
 
         analyzeOutputSatusLabel.setText("Execution:");
 
-        simulatorLabel.setText("Simulator: ");
-        simulatorLabel.setPreferredSize(null);
+        scriptSpecifiedLabel.setText("Script:");
 
-        inputBrowseButton.setText("Browse");
-        inputBrowseButton.setEnabled(false);
-        inputBrowseButton.addActionListener(new java.awt.event.ActionListener() {
+        configureSimulationButton.setText("Configure");
+        configureSimulationButton.setEnabled(false);
+        configureSimulationButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inputBrowseButtonActionPerformed(evt);
+                configureSimulationButtonActionPerformed(evt);
             }
         });
 
-        simulatorSpecifyButton.setText("Specify");
-        simulatorSpecifyButton.setEnabled(false);
-        simulatorSpecifyButton.addActionListener(new java.awt.event.ActionListener() {
+        specifyScriptButton.setText("Specify");
+        specifyScriptButton.setEnabled(false);
+        specifyScriptButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                simulatorSpecifyButtonActionPerformed(evt);
+                specifyScriptButtonActionPerformed(evt);
             }
         });
 
@@ -103,11 +101,11 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
 
         projectTitleTextLabel.setText("None");
 
-        inputFilenamesLabel.setText("None");
-        inputFilenamesLabel.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        simulationConfigurationLabel.setText("None");
+        simulationConfigurationLabel.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
 
-        simulatorSpecificationLabel.setText("None");
-        simulatorSpecificationLabel.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        scriptSpecificationLabel.setText("None");
+        scriptSpecificationLabel.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
 
         outputFilenameLabel.setText("None");
         outputFilenameLabel.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
@@ -128,8 +126,8 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
         generatedScriptFilenameLabel.setText("None");
         generatedScriptFilenameLabel.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
 
-        scriptLabel.setText("Script:");
-        scriptLabel.setPreferredSize(null);
+        scriptGeneratedLabel.setText("Script:");
+        scriptGeneratedLabel.setPreferredSize(null);
 
         runScriptButton.setText("Run Script");
         runScriptButton.setEnabled(false);
@@ -251,16 +249,16 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
                                 .addGroup(layout.createSequentialGroup()
                                     .addComponent(scriptGenerateButton)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(scriptLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(scriptGeneratedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addComponent(runScriptStatusLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(inputBrowseButton, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
-                                    .addComponent(simulatorSpecifyButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addComponent(configureSimulationButton, javax.swing.GroupLayout.PREFERRED_SIZE, 77, Short.MAX_VALUE)
+                                    .addComponent(specifyScriptButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(simulatorLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(inputsLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                    .addComponent(scriptSpecifiedLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(simulationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                     .addComponent(runScriptButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -269,11 +267,11 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
                                 .addComponent(analyzeOutputSatusLabel)))
                         .addGap(10, 10, 10)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(scriptStatusMsgLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
+                            .addComponent(scriptStatusMsgLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)
                             .addComponent(generatedScriptFilenameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(simulatorSpecificationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(scriptSpecificationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(outputFilenameLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(inputFilenamesLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(simulationConfigurationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(msgLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -282,9 +280,9 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {analyzeOutputButton, inputBrowseButton, runScriptButton, scriptGenerateButton, simulatorSpecifyButton});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {analyzeOutputButton, configureSimulationButton, runScriptButton, scriptGenerateButton, specifyScriptButton});
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {analyzeOutputSatusLabel, inputsLabel, runScriptStatusLabel, scriptLabel, simulatorLabel});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {analyzeOutputSatusLabel, runScriptStatusLabel, scriptGeneratedLabel, scriptSpecifiedLabel, simulationLabel});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -298,19 +296,19 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(inputFilenamesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(simulationConfigurationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(inputsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(inputBrowseButton)))
+                        .addComponent(simulationLabel)
+                        .addComponent(configureSimulationButton)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(simulatorSpecificationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(scriptSpecificationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(simulatorLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(simulatorSpecifyButton)))
+                        .addComponent(scriptSpecifiedLabel)
+                        .addComponent(specifyScriptButton)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(scriptLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(scriptGeneratedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(scriptGenerateButton)
                     .addComponent(generatedScriptFilenameLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -336,7 +334,7 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
 
         layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {ProjectTitleLabel, projectTitleTextLabel});
 
-        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {analyzeOutputButton, analyzeOutputSatusLabel, generatedScriptFilenameLabel, inputBrowseButton, inputFilenamesLabel, inputsLabel, outputFilenameLabel, runScriptButton, runScriptStatusLabel, scriptGenerateButton, scriptLabel, scriptStatusMsgLabel, simulatorLabel, simulatorSpecificationLabel, simulatorSpecifyButton});
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {analyzeOutputButton, analyzeOutputSatusLabel, configureSimulationButton, generatedScriptFilenameLabel, outputFilenameLabel, runScriptButton, runScriptStatusLabel, scriptGenerateButton, scriptGeneratedLabel, scriptSpecificationLabel, scriptSpecifiedLabel, scriptStatusMsgLabel, simulationConfigurationLabel, simulationLabel, specifyScriptButton});
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -384,7 +382,7 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
      */
     private void NLEditMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NLEditMenuItemActionPerformed
         workbenchMgr.launchNLEdit(this);
-        displayInputs();
+        displaySimConfigFile();
         setMsg();
         pack();
     }//GEN-LAST:event_NLEditMenuItemActionPerformed
@@ -396,8 +394,8 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
      *
      * @param evt - The event that triggered this action
      */
-    private void simulatorSpecifyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_simulatorSpecifyButtonActionPerformed
-        if (workbenchMgr.specifySimulator()) {
+    private void specifyScriptButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_specifyScriptButtonActionPerformed
+        if (workbenchMgr.specifyScript()) {
             updateSimOverview();
             runScriptButton.setEnabled(false);
             analyzeOutputButton.setEnabled(false);
@@ -406,7 +404,7 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
         }
         setMsg();
         pack();
-    }//GEN-LAST:event_simulatorSpecifyButtonActionPerformed
+    }//GEN-LAST:event_specifyScriptButtonActionPerformed
 
     /**
      * Allows the user to open a previously defined BrainGrid project from an
@@ -421,7 +419,7 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
             case JFileChooser.APPROVE_OPTION:
                 resetUILabelText();
                 projectTitleTextLabel.setText(workbenchMgr.getProjectName());
-                displayInputs();
+                displaySimConfigFile();
                 updateSimOverview();
                 //transferProgressBar.setVisible(workbenchMgr.isSimExecutionRemote());
                 displayScriptGenerationOverview();
@@ -518,23 +516,17 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
      *
      * @param evt - The event that triggered this action
      */
-    private void inputBrowseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputBrowseButtonActionPerformed
-        //boolean added = workbenchMgr.addInputs();
-        //runScriptButton.setEnabled(!added);
-        //analyzeOutputButton.setEnabled(!added);
-        //displayInputs();
-        //setMsg();
-        //pack();
-        String projectName = workbenchMgr.getProjectName();
-        if (!projectName.equals("None")) {
-            InputConfigurationDialog icd
-                    = new InputConfigurationDialog(projectName, true);
-            if (icd.getSuccess()) {
-                inputFilenamesLabel.setText(icd.getBuiltFile());
-            }
+    private void configureSimulationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_configureSimulationButtonActionPerformed
+        if (workbenchMgr.configureSimulation()) {
+            simulationConfigurationLabel.setText(workbenchMgr.getSimConfigFilename());
+            runScriptButton.setEnabled(false);
+            analyzeOutputButton.setEnabled(false);
+            scriptGenerateButton.setEnabled(
+                    workbenchMgr.scriptGenerationAvailable());
         }
+        setMsg();
         pack();
-    }//GEN-LAST:event_inputBrowseButtonActionPerformed
+    }//GEN-LAST:event_configureSimulationButtonActionPerformed
 
     private void viewProvenanceMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewProvenanceMenuItemActionPerformed
         pack();
@@ -549,12 +541,10 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
     private javax.swing.JLabel ProjectTitleLabel;
     private javax.swing.JButton analyzeOutputButton;
     private javax.swing.JLabel analyzeOutputSatusLabel;
+    private javax.swing.JButton configureSimulationButton;
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JLabel generatedScriptFilenameLabel;
-    private javax.swing.JButton inputBrowseButton;
-    private javax.swing.JLabel inputFilenamesLabel;
-    private javax.swing.JLabel inputsLabel;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
@@ -569,11 +559,13 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
     private javax.swing.JLabel runScriptStatusLabel;
     private javax.swing.JMenuItem saveProjectMenuItem;
     private javax.swing.JButton scriptGenerateButton;
-    private javax.swing.JLabel scriptLabel;
+    private javax.swing.JLabel scriptGeneratedLabel;
+    private javax.swing.JLabel scriptSpecificationLabel;
+    private javax.swing.JLabel scriptSpecifiedLabel;
     private javax.swing.JLabel scriptStatusMsgLabel;
-    private javax.swing.JLabel simulatorLabel;
-    private javax.swing.JLabel simulatorSpecificationLabel;
-    private javax.swing.JButton simulatorSpecifyButton;
+    private javax.swing.JLabel simulationConfigurationLabel;
+    private javax.swing.JLabel simulationLabel;
+    private javax.swing.JButton specifyScriptButton;
     private javax.swing.JMenu toolsMenu;
     private javax.swing.JProgressBar transferProgressBar;
     private javax.swing.JMenu viewMenu;
@@ -637,8 +629,8 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
      * project being loaded or initialized.
      */
     private void enableInitialButtons() {
-        inputBrowseButton.setEnabled(true);
-        simulatorSpecifyButton.setEnabled(true);
+        configureSimulationButton.setEnabled(true);
+        specifyScriptButton.setEnabled(true);
         saveProjectMenuItem.setEnabled(true);
     }
 
@@ -649,8 +641,8 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
      * resulting in a null value for the open project.
      */
     private void disableProjectAttributeRelatedButtons() {
-        inputBrowseButton.setEnabled(false);
-        simulatorSpecifyButton.setEnabled(false);
+        configureSimulationButton.setEnabled(false);
+        specifyScriptButton.setEnabled(false);
         runScriptButton.setEnabled(false);
         scriptGenerateButton.setEnabled(false);
         analyzeOutputButton.setEnabled(false);
@@ -662,8 +654,8 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
      */
     private void resetUILabelText() {
         projectTitleTextLabel.setText("None");
-        inputFilenamesLabel.setText("None");
-        simulatorSpecificationLabel.setText("None");
+        simulationConfigurationLabel.setText("None");
+        scriptSpecificationLabel.setText("None");
         generatedScriptFilenameLabel.setText("None");
         scriptStatusMsgLabel.setText("None");
         outputFilenameLabel.setText("None");
@@ -672,14 +664,14 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
 
     private void updateSimOverview() {
         String overview = workbenchMgr.getSimulationOverview();
-        simulatorSpecificationLabel.setText(overview);
+        scriptSpecificationLabel.setText(overview);
         scriptGenerateButton.setEnabled(
                 workbenchMgr.scriptGenerationAvailable());
     }
 
-    private void displayInputs() {
-        String labelText = workbenchMgr.getInputFilesOverview();
-        inputFilenamesLabel.setText(labelText);
+    private void displaySimConfigFile() {
+        String labelText = workbenchMgr.getSimConfigFileOverview();
+        simulationConfigurationLabel.setText(labelText);
     }
 
     private void displayScriptGenerationOverview() {

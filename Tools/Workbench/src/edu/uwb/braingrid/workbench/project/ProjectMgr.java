@@ -45,6 +45,7 @@ public class ProjectMgr {
     private Element scriptVersion;
     private List<Element> inputs;
     private Element simulator;
+    private Element simulationConfigurationFile;
     private Element script;
     private boolean provEnabled;
     private static final String projectTagName = "project";
@@ -73,6 +74,8 @@ public class ProjectMgr {
     private static final String scriptRanAtAttributeName = "atMillis";
     private static final String scriptHostnameTagName = "hostname";
     private static final String scriptCompletedAtAttributeName = "completedAt";
+
+    private static final String simConfigFileTagName = "simConfigFile";
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction">
@@ -102,6 +105,7 @@ public class ProjectMgr {
         name = "None";
         inputs = new ArrayList<>();
         simulator = null;
+        simulationConfigurationFile = null;
         script = null;
         doc = null;
         root = null;
@@ -182,6 +186,8 @@ public class ProjectMgr {
         for (int i = 0, im = inputList.getLength(); i < im; i++) {
             inputs.add((Element) inputList.item(i));
         }
+
+        simulationConfigurationFile = getElementFromDom(simConfigFileTagName);
 
         // load simulator data
         simulator = getElementFromDom(simulatorTagName);
@@ -336,7 +342,7 @@ public class ProjectMgr {
      * script, false if not
      */
     public boolean scriptGenerationAvailable() {
-        return inputs.size() >= InputAnalyzer.inputsRequiredForSim
+        return simulationConfigurationFile != null
                 && simulator != null;
     }
     // </editor-fold>
@@ -843,6 +849,13 @@ public class ProjectMgr {
         }
     }
 
+    private void removeSimulationConfigurationFile() {
+        if (null != simulationConfigurationFile) {
+            simulationConfigurationFile.getParentNode().removeChild(simulationConfigurationFile);
+            simulationConfigurationFile = null;
+        }
+    }
+
     private void removeScript() {
         if (script != null) {
             script.getParentNode().removeChild(script);
@@ -883,7 +896,6 @@ public class ProjectMgr {
         // remove previously defined simulator
         removeSimulator();
         try {
-
             /* Create Elements */
             simulator = doc.createElement(simulatorTagName);
             Element simExecLocation
@@ -935,7 +947,22 @@ public class ProjectMgr {
             simulator = null;
             success = false;
         }
+        return success;
+    }
 
+    public boolean addSimConfigFile(String filename) {
+        boolean success = true;
+        try {
+            removeSimulationConfigurationFile();
+            simulationConfigurationFile
+                    = doc.createElement(simConfigFileTagName);
+            Text configFileText = doc.createTextNode(filename);
+            simulationConfigurationFile.appendChild(configFileText);
+            root.appendChild(simulationConfigurationFile);
+        } catch (DOMException e) {
+            simulationConfigurationFile = null;
+            success = false;
+        }
         return success;
     }
 
@@ -983,4 +1010,9 @@ public class ProjectMgr {
         return success;
     }
     // </editor-fold>
+
+    public String getSimConfigFilename() {
+        return getFirstChildTextContent(root,
+                simConfigFileTagName);
+    }
 }

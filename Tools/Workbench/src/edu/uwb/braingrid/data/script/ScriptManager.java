@@ -12,6 +12,7 @@ import edu.uwb.braingrid.workbench.model.SimulationSpecification;
 import edu.uwb.braingrid.workbench.ui.LoginCredentialsDialog;
 import edu.uwb.braingrid.workbench.utils.DateTime;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -191,9 +192,10 @@ public class ScriptManager {
      * indicating that the script has not completed
      * @throws com.jcraft.jsch.JSchException
      * @throws com.jcraft.jsch.SftpException
+     * @throws java.io.IOException
      */
     public long analyzeScriptOutput(SimulationSpecification simSpec, ProvMgr prov,
-            String outputTargetFolder) throws JSchException, SftpException {
+            String outputTargetFolder) throws JSchException, SftpException, IOException {
         long timeCompleted = DateTime.ERROR_TIME;
         String localOutputFilename
                 = fetchScriptOutputFile(simSpec, outputTargetFolder);
@@ -368,7 +370,7 @@ public class ScriptManager {
     }
 
     private String fetchScriptOutputFile(SimulationSpecification simSpec,
-            String outputStorageFolder) throws JSchException, SftpException {
+            String outputStorageFolder) throws JSchException, SftpException, IOException {
         String filename = null;
         char[] password = null;
         String copyToFilepath = outputStorageFolder

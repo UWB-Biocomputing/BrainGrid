@@ -101,7 +101,7 @@ public class InputConfiguration {
         defaultValues.put(SIM_PARAMS_MAX_SYNAPSES_PER_NEURON, "200");
         defaultValues.put(OUTPUT_PARAMS_STATE_OUTPUT_FILENAME, "results/tR_1.9--fE_0.98_historyDump.xml");
         defaultValues.put(SEED_VALUE, "1");
-        defaultValues.put(LAYOUT_TYPE, "FixedLayout");
+        //defaultValues.put(LAYOUT_TYPE, "FixedLayout");
         defaultValues.put(LAYOUT_FILES_ACTIVE_N_LIST_FILE_NAME, "Unknown");
         defaultValues.put(LAYOUT_FILES_INH_N_LIST_FILE_NAME, "Unknown");
         defaultValues.put(LAYOUT_FILES_PROBED_N_LIST_FILE_NAME, "Unknown");
@@ -133,11 +133,14 @@ public class InputConfiguration {
         while (keyIter.hasNext()) {
             String key = keyIter.next();
             if (!inputConfig.containsKey(key)) {
+                System.err.println(key + " not found");
                 set = false;
                 break;
             } else {
                 if (inputConfig.get(key) == null
                         || inputConfig.get(key).equals("")) {
+                    System.err.println("The value for " + key
+                            + " was null or empty!");
                     set = false;
                     break;
                 }
@@ -152,5 +155,11 @@ public class InputConfiguration {
 
     public void setAllToDefault() {
         inputConfig = new HashMap<>(defaultValues);
+    }
+
+    public void purgeStoredValues() {
+        inputConfig = new HashMap<>();
+        defaultValues = new HashMap<>();
+        fillDefaultParams();
     }
 }
