@@ -997,4 +997,22 @@ public class ProvOntology {
     public static String getHadRoleQualifiedPropertyFullURI() {
         return PROV_NS + HAD_ROLE;
     }
+
+    public static String translatePredicate(String uri, boolean nextIsVowel) {
+        String translation = uri;
+        //System.err.println(uri);
+        //System.err.println(ProvOntology.getRDFTypeFullURI());
+        if (uri.equals(ProvOntology.getRDFTypeFullURI())) {
+            if (!nextIsVowel) {
+                translation = "is a";
+            } else {
+                translation = "is an";
+            }
+        } else if (uri.equals(ProvOntology.getAtTimeQualifiedPropertyFullURI())) {
+            translation = "happened on";
+        } else if (uri.equals(ProvOntology.getAssociationQualifiedClassFullURI())) {
+            translation = "was associated with";
+        }
+        return translation;
+    }
 }

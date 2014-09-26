@@ -9,6 +9,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import edu.uwb.braingrid.provenance.model.ProvOntology;
+import edu.uwb.braingrid.workbench.FileManager;
 import edu.uwb.braingrid.workbench.project.ProjectMgr;
 import java.io.BufferedReader;
 import java.io.File;
@@ -52,6 +53,7 @@ public class ProvMgr {
     private static final String localURIPrefix = "local";
     private static final String remoteURIPrefix = "remote";
     private static String localNS;
+    private static String remoteNS;
     /* flags called prior to an operation through respective query functions */
     /* RDF in-memory representation of the provenance */
     private Model model;
@@ -116,9 +118,9 @@ public class ProvMgr {
         model.setNsPrefix("local", localNS);
         String oldRemote = model.getNsPrefixURI(remoteURIPrefix);
         if (oldRemote != null) {
-            String hostAddr
+            remoteNS
                     = oldRemote.substring(oldRemote.lastIndexOf('/') + 1);
-            model.setNsPrefix(remoteURIPrefix, hostAddr);
+            model.setNsPrefix(remoteURIPrefix, remoteNS);
         }
     }
 
@@ -389,35 +391,87 @@ public class ProvMgr {
         }
     }
     // </editor-fold>    
-    
-    public List<String> getSubjects() {
-        List<String> subjectList = new ArrayList<String>();
-        subjectList.add("subject1");
-        subjectList.add("subject2");
-        subjectList.add("subject3");
-        
-        return subjectList;
-    }
-    
-    public List<String> getPredicates() {
-        List<String> predicateList = new ArrayList<String>();
-        predicateList.add("predicate1");
-        predicateList.add("predicate2");
-        predicateList.add("predicate3");
-        
-        return predicateList;
-    }
-        
-    public List<String> getObjects() {
-        List<String> objectList = new ArrayList<String>();
-        objectList.add("object1");
-        objectList.add("object2");
-        objectList.add("object3");
-        
-        return objectList;
+
+    public List<String> getSubjects(List<String> fullURIs) {
+        List<String> abbreviatedURI = new ArrayList<>();
+        StmtIterator si = model.listStatements();
+        Statement s;
+        while (si.hasNext()) {
+            s = si.nextStatement();
+            fullURIs.add(s.getSubject().toString());
+            abbreviatedURI.add(FileManager.getSimpleFilename(s.getSubject().toString()));
+        }
+        return abbreviatedURI;
     }
 
-    public String queryProvenance(String subject, String prdicate, String object) {
-        return "ToDo";
+    public List<String> getPredicates(List<String> fullURIs) {
+        List<String> abbreviatedURI = new ArrayList<>();
+        StmtIterator si = model.listStatements();
+        Statement s;
+        while (si.hasNext()) {
+            s = si.nextStatement();
+            fullURIs.add(s.getPredicate().toString());
+            abbreviatedURI.add(FileManager.getSimpleFilename(s.getPredicate().toString()));
+        }
+        return abbreviatedURI;
+    }
+
+    public List<String> getObjects(List<String> fullURIs) {
+        List<String> abbreviatedURI = new ArrayList<>();
+        StmtIterator si = model.listStatements();
+        Statement s;
+        while (si.hasNext()) {
+            s = si.nextStatement();
+            fullURIs.add(s.getObject().toString());
+            abbreviatedURI.add(FileManager.getSimpleFilename(s.getObject().toString()));
+        }
+        return abbreviatedURI;
+    }
+
+    public String queryProvenance(String subject, String predicate, String object, String lineDelimiter) {
+        String statements = "";
+
+        String foundS, foundP, foundO, nsPrefix, subjURI, predURI, objURI;
+        Resource subj;
+        Property pred;
+        Object obj;
+        boolean isVowel = false;
+        char letter;
+        Statement nextStatement;
+        System.err.println(subject + ", " + predicate + ", " + object);
+        if (subject != null || predicate != null || object != null) {
+            StmtIterator si = model.listStatements(
+                    model.getResource(subject),
+                    model.getProperty(predicate),
+                    model.getResource(object));
+            while (si.hasNext()) {
+                nextStatement = si.nextStatement();
+                subj = nextStatement.getSubject();
+                subjURI = subj.getURI();
+                nsPrefix = subjURI.contains("local") ? localNS + ":"
+                        : remoteNS + ":";
+                if (!subjURI.contains("\\")
+                        && !subjURI.contains("/")) {
+                    nsPrefix = "";
+                }
+                foundS = nsPrefix + FileManager.getSimpleFilename(subjURI);
+                System.err.println(FileManager.getSimpleFilename(subjURI));
+                obj = nextStatement.getObject();
+                foundO = obj.toString().substring(obj.toString().indexOf('#')
+                        + 1);
+                letter = foundO.toLowerCase().charAt(0);
+                isVowel = letter == 'a' || letter == 'e' || letter == 'i'
+                        || letter == 'o' || letter == 'u' || letter == 'h';
+                pred = nextStatement.getPredicate();
+                foundP
+                        = ProvOntology.translatePredicate(pred.getURI(), isVowel);
+
+                statements += foundS + " " + foundP + " " + foundO;
+                if (si.hasNext()) {
+                    statements += lineDelimiter;
+                }
+            }
+        }
+        return statements;
     }
 }

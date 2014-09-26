@@ -10,8 +10,6 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -127,7 +125,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         messageLabelText = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Input Configuration");
+        setTitle("Simulator Configuration");
 
         fracEXC_label.setText("Fraction of excitatory neurons:");
 

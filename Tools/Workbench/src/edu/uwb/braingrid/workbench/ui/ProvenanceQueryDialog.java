@@ -3,17 +3,18 @@ package edu.uwb.braingrid.workbench.ui;
 import edu.uwb.braingrid.provenance.ProvMgr;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComboBox;
 
 /**
  * ToDo
- * 
+ *
  * @author Nathan
  */
 public class ProvenanceQueryDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Auto-Generated Code">
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -81,10 +82,16 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
-        String subject = (String) subjectComboBox.getSelectedItem();
-        String prdicate = (String) predicateComboBox.getSelectedItem();
-        String object = (String) objectComboBox.getSelectedItem();
-        String result = provMgr.queryProvenance(subject, prdicate, object);
+        String sbjct = subjectFullURIs.get(
+                subjectComboBox.getSelectedIndex());
+        String prdct = predicateFullURIs.get(
+                predicateComboBox.getSelectedIndex());
+        String objct = objectFullURIs.get(
+                objectComboBox.getSelectedIndex());
+        //System.err.println(sbjct + ", " + prdct + ", " + objct);
+        String result = "<html>";
+        result += provMgr.queryProvenance(sbjct, prdct, objct, lineDelimiter);
+        result += "</html>";
         outputTextArea.setText(result);
     }//GEN-LAST:event_searchButtonActionPerformed
 
@@ -99,39 +106,45 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
     // End of variables declaration//GEN-END:variables
 
     // </editor-fold>
-    
     // <editor-fold defaultstate="collapsed" desc="Custom Members">
-    private ProvMgr provMgr;
+    private final ProvMgr provMgr;
+    private final String lineDelimiter = "\n";
+    List<String> subjectFullURIs = new ArrayList<>();
+    List<String> predicateFullURIs = new ArrayList<>();
+    List<String> objectFullURIs = new ArrayList<>();
     // </editor-fold>
-    
+
     // <editor-fold defaultstate="collapsed" desc="Construction"> 
     /**
      * Constructs and initializes this provenance query dialog
+     *
      * @param modal - True if the parent should be disabled while this dialog is
      * open, otherwise false
+     * @param provManager - The provenance manager for the workbench
      */
-    public ProvenanceQueryDialog(boolean modal, ProvMgr newProvMgr) {
-        provMgr = newProvMgr;
-        
+    public ProvenanceQueryDialog(boolean modal, ProvMgr provManager) {
+        provMgr = provManager;
+
         setModal(modal);
         initComponents();
-        
+
         // add in the drop down items
-        addItemsToComboBox(subjectComboBox, provMgr.getSubjects());
-        addItemsToComboBox(predicateComboBox, provMgr.getPredicates());
-        addItemsToComboBox(objectComboBox, provMgr.getObjects());
-        
+        addItemsToComboBox(subjectComboBox, provMgr.getSubjects(subjectFullURIs));
+        addItemsToComboBox(predicateComboBox, provMgr.getPredicates(predicateFullURIs));
+        addItemsToComboBox(objectComboBox, provMgr.getObjects(objectFullURIs));
+
         // show window center-screen
         pack();
         center();
         setVisible(true);
     }
-    
+
     private void addItemsToComboBox(JComboBox comboBox, List<String> theList) {
-        for (String item : theList)
+        for (String item : theList) {
             comboBox.addItem(item);
+        }
     }
-    
+
     /**
      * Centers this dialog
      */

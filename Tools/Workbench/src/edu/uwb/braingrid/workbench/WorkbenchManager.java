@@ -851,6 +851,11 @@ public class WorkbenchManager {
             if (success = icd.getSuccess()) {
                 simulationConfigurationFile = icd.getBuiltFile();
                 project.addSimConfigFile(simulationConfigurationFile);
+                if (project.isProvenanceEnabled()) {
+                    // add the config file, but it should be remote
+                    // this means that there will need to be a trace when copied
+                    prov.addEntity(simulationConfigurationFile, null, false);
+                }
             } else {
                 simulationConfigurationFile = "None";
             }
