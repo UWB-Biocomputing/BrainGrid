@@ -19,16 +19,26 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        subjectComboBox = new javax.swing.JComboBox();
         predicateComboBox = new javax.swing.JComboBox();
-        objectComboBox = new javax.swing.JComboBox();
         jSeparator1 = new javax.swing.JSeparator();
         jScrollPane1 = new javax.swing.JScrollPane();
         outputTextArea = new javax.swing.JTextArea();
         searchButton = new javax.swing.JButton();
+        subjectTextField = new javax.swing.JTextField();
+        objectTextField = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Provenance Query");
+
+        predicateComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None" }));
+        predicateComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                predicateComboBoxActionPerformed(evt);
+            }
+        });
 
         outputTextArea.setEditable(false);
         outputTextArea.setColumns(20);
@@ -42,6 +52,24 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
             }
         });
 
+        subjectTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                subjectTextFieldKeyReleased(evt);
+            }
+        });
+
+        objectTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                objectTextFieldKeyReleased(evt);
+            }
+        });
+
+        jLabel1.setText("Subject:");
+
+        jLabel2.setText("Predicate:");
+
+        jLabel3.setText("Object:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -52,14 +80,20 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(subjectComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(predicateComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(subjectTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(objectComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(predicateComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(objectTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(searchButton)
-                        .addGap(0, 8, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -67,14 +101,17 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addGap(9, 9, 9)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(subjectComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(objectComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(predicateComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(searchButton))
+                    .addComponent(searchButton)
+                    .addComponent(subjectTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(objectTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -82,27 +119,42 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
-        String sbjct = subjectFullURIs.get(
-                subjectComboBox.getSelectedIndex());
-        String prdct = predicateFullURIs.get(
-                predicateComboBox.getSelectedIndex());
-        String objct = objectFullURIs.get(
-                objectComboBox.getSelectedIndex());
+        //String sbjct = subjectFullURIs.get(
+        //        subjectComboBox.getSelectedIndex());
+        //String prdct = predicateFullURIs.get(
+        //        predicateComboBox.getSelectedIndex());
+        //String objct = objectFullURIs.get(
+        //        objectComboBox.getSelectedIndex());
         //System.err.println(sbjct + ", " + prdct + ", " + objct);
-        String result = "<html>";
-        result += provMgr.queryProvenance(sbjct, prdct, objct, lineDelimiter);
-        result += "</html>";
-        outputTextArea.setText(result);
+        //String result = "<html>";
+        //result += provMgr.queryProvenance(sbjct, prdct, objct, lineDelimiter);
+        //result += "</html>";
+        //outputTextArea.setText(result);
     }//GEN-LAST:event_searchButtonActionPerformed
 
+    private void subjectTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_subjectTextFieldKeyReleased
+        enableSearchButton();
+    }//GEN-LAST:event_subjectTextFieldKeyReleased
+
+    private void objectTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_objectTextFieldKeyReleased
+        enableSearchButton();
+    }//GEN-LAST:event_objectTextFieldKeyReleased
+
+    private void predicateComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_predicateComboBoxActionPerformed
+        enableSearchButton();
+    }//GEN-LAST:event_predicateComboBoxActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JComboBox objectComboBox;
+    private javax.swing.JTextField objectTextField;
     private javax.swing.JTextArea outputTextArea;
     private javax.swing.JComboBox predicateComboBox;
     private javax.swing.JButton searchButton;
-    private javax.swing.JComboBox subjectComboBox;
+    private javax.swing.JTextField subjectTextField;
     // End of variables declaration//GEN-END:variables
 
     // </editor-fold>
@@ -127,11 +179,10 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
 
         setModal(modal);
         initComponents();
+        searchButton.setEnabled(false);
 
         // add in the drop down items
-        addItemsToComboBox(subjectComboBox, provMgr.getSubjects(subjectFullURIs));
-        addItemsToComboBox(predicateComboBox, provMgr.getPredicates(predicateFullURIs));
-        addItemsToComboBox(objectComboBox, provMgr.getObjects(objectFullURIs));
+        addItemsToPredicateComboBox();
 
         // show window center-screen
         pack();
@@ -139,10 +190,9 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         setVisible(true);
     }
 
-    private void addItemsToComboBox(JComboBox comboBox, List<String> theList) {
-        for (String item : theList) {
-            comboBox.addItem(item);
-        }
+    private void addItemsToPredicateComboBox() {
+        for (String item : provMgr.getPredicates(predicateFullURIs))
+            predicateComboBox.addItem(item);
     }
 
     /**
@@ -159,6 +209,36 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         }
         setLocation((screenSize.width - frameSize.width) / 2,
                 (screenSize.height - frameSize.height) / 2);
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Utility">
+    private void enableSearchButton() {
+        if (isSubjectValid() || isPredicateValid() || isObjectValid())
+            searchButton.setEnabled(true);
+        else
+            searchButton.setEnabled(false);
+    }
+    
+    private boolean isSubjectValid() {
+        if (!subjectTextField.getText().equals(""))
+            return true;
+        else
+            return false;
+    }
+    
+    private boolean isPredicateValid() {
+        if (!((String) predicateComboBox.getSelectedItem()).equals("None"))
+            return true;
+        else
+            return false;
+    }
+    
+    private boolean isObjectValid() {
+        if (!objectTextField.getText().equals(""))
+            return true;
+        else
+            return false;
     }
     // </editor-fold>
 }
