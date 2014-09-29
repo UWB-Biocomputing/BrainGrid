@@ -862,4 +862,12 @@ public class WorkbenchManager {
         }
         return success;
     }
+
+    public boolean scriptGenerated() {
+        boolean generated = false;
+        if(project != null){
+            generated = project.scriptGenerated();
+        }
+        return generated;
+    }
 }

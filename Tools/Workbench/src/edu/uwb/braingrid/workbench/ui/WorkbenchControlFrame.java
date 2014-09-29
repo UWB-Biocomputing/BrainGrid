@@ -426,7 +426,7 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
                 displayScriptRunOverview();
                 displayScriptAnalysisOverview();
                 enableInitialButtons();
-                runScriptButton.setEnabled(!workbenchMgr.scriptRan());
+                runScriptButton.setEnabled(!workbenchMgr.scriptRan() && workbenchMgr.scriptGenerated());
                 analyzeOutputButton.setEnabled(workbenchMgr.scriptRan());
                 viewProvenanceMenuItem.setEnabled(workbenchMgr.isProvEnabled());
                 break;

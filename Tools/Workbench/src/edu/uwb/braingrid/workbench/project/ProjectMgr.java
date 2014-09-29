@@ -1,7 +1,6 @@
 package edu.uwb.braingrid.workbench.project;
 
 import edu.uwb.braingrid.workbench.FileManager;
-import edu.uwb.braingrid.workbench.data.InputAnalyzer;
 import edu.uwb.braingrid.workbench.data.InputAnalyzer.InputType;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
 import edu.uwb.braingrid.workbench.utils.DateTime;
@@ -664,8 +663,12 @@ public class ProjectMgr {
      */
     public boolean getScriptRan() {
         String ranAttributeValue;
-        ranAttributeValue = script.getAttribute(scriptRanRunAttributeName);
-        return Boolean.valueOf(ranAttributeValue);
+        boolean ran = false;
+        if (script != null) {
+            ranAttributeValue = script.getAttribute(scriptRanRunAttributeName);
+            ran = Boolean.valueOf(ranAttributeValue);
+        }
+        return ran;
     }
 
     /**
@@ -700,12 +703,14 @@ public class ProjectMgr {
      */
     public long getScriptRanAt() {
         String millisText;
-        millisText = script.getAttribute(scriptRanAtAttributeName);
         long millis = DateTime.ERROR_TIME;
-        if (!millisText.isEmpty()) {
-            try {
-                millis = Long.parseLong(millisText);
-            } catch (NumberFormatException e) {
+        if (script != null) {
+            millisText = script.getAttribute(scriptRanAtAttributeName);
+            if (!millisText.isEmpty()) {
+                try {
+                    millis = Long.parseLong(millisText);
+                } catch (NumberFormatException e) {
+                }
             }
         }
         return millis;
@@ -721,11 +726,13 @@ public class ProjectMgr {
     public long getScriptCompletedAt() {
         long timeCompleted = DateTime.ERROR_TIME;
         String millisText;
-        millisText = script.getAttribute(scriptCompletedAtAttributeName);
-        if (!millisText.isEmpty()) {
-            try {
-                timeCompleted = Long.parseLong(millisText);
-            } catch (NumberFormatException e) {
+        if (script != null) {
+            millisText = script.getAttribute(scriptCompletedAtAttributeName);
+            if (!millisText.isEmpty()) {
+                try {
+                    timeCompleted = Long.parseLong(millisText);
+                } catch (NumberFormatException e) {
+                }
             }
         }
         return timeCompleted;
@@ -1014,5 +1021,9 @@ public class ProjectMgr {
     public String getSimConfigFilename() {
         return getFirstChildTextContent(root,
                 simConfigFileTagName);
+    }
+
+    public boolean scriptGenerated() {
+        return script != null;
     }
 }

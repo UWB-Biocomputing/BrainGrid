@@ -428,50 +428,87 @@ public class ProvMgr {
         return abbreviatedURI;
     }
 
-    public String queryProvenance(String subject, String predicate, String object, String lineDelimiter) {
+    public String queryProvenance(String subjectText, String predicateText, String objectText, String lineDelimiter) {
         String statements = "";
-
-        String foundS, foundP, foundO, nsPrefix, subjURI, predURI, objURI;
-        Resource subj;
-        Property pred;
-        Object obj;
-        boolean isVowel = false;
+        Statement stmt;
+        String subject, predicate, object;
+        RDFNode objectNode;
+        boolean isVowel;
         char letter;
-        Statement nextStatement;
-        System.err.println(subject + ", " + predicate + ", " + object);
-        if (subject != null || predicate != null || object != null) {
-            StmtIterator si = model.listStatements(
-                    model.getResource(subject),
-                    model.getProperty(predicate),
-                    model.getResource(object));
-            while (si.hasNext()) {
-                nextStatement = si.nextStatement();
-                subj = nextStatement.getSubject();
-                subjURI = subj.getURI();
-                nsPrefix = subjURI.contains("local") ? localNS + ":"
-                        : remoteNS + ":";
-                if (!subjURI.contains("\\")
-                        && !subjURI.contains("/")) {
-                    nsPrefix = "";
-                }
-                foundS = nsPrefix + FileManager.getSimpleFilename(subjURI);
-                System.err.println(FileManager.getSimpleFilename(subjURI));
-                obj = nextStatement.getObject();
-                foundO = obj.toString().substring(obj.toString().indexOf('#')
-                        + 1);
-                letter = foundO.toLowerCase().charAt(0);
+        
+        StmtIterator iter = model.listStatements();
+        while (iter.hasNext()) {
+            stmt = iter.nextStatement();
+            subject = stmt.getSubject().getURI();
+            predicate = stmt.getPredicate().getURI();
+            objectNode = stmt.getObject();
+            if (objectNode.isURIResource()) {
+                object = objectNode.asResource().getURI();
+            } else if (objectNode.isAnon()) {
+                object = objectNode.asNode().getURI();
+            } else if (objectNode.isLiteral()) {
+                object = objectNode.asLiteral().getString();
+            } else {
+                object = objectNode.asResource().toString();
+            }
+            if (object.length() > 0) {
+                letter = object.charAt(0);
                 isVowel = letter == 'a' || letter == 'e' || letter == 'i'
                         || letter == 'o' || letter == 'u' || letter == 'h';
-                pred = nextStatement.getPredicate();
-                foundP
-                        = ProvOntology.translatePredicate(pred.getURI(), isVowel);
-
-                statements += foundS + " " + foundP + " " + foundO;
-                if (si.hasNext()) {
-                    statements += lineDelimiter;
+                if (subject.contains(subjectText)
+                        && predicate.contains(predicateText)
+                        && object.contains(objectText)) {
+                    predicate
+                            = ProvOntology.translatePredicate(predicate, isVowel);
+                    statements += subject + " " + predicate + " " + object;
+                    if (iter.hasNext()) {
+                        statements += lineDelimiter;
+                    }
                 }
             }
         }
+//        String foundS, foundP, foundO, nsPrefix, subjURI, predURI, objURI;
+//        Resource subj;
+//        Property pred;
+//        Object obj;
+//        boolean isVowel = false;
+//        char letter;
+//        Statement nextStatement;
+//        //System.err.println(subject + ", " + predicate + ", " + object);
+//        if (subject != null || predicate != null || object != null) {
+//            subj = model.getResource(subject);
+//            StmtIterator si = model.listStatements(
+//                    model.getResource(subject),
+//                    model.getProperty(predicate),
+//                    model.getResource(object));
+//            while (si.hasNext()) {
+//                nextStatement = si.nextStatement();
+//                subj = nextStatement.getSubject();
+//                subjURI = subj.getURI();
+//                nsPrefix = subjURI.contains("local") ? localNS + ":"
+//                        : remoteNS + ":";
+//                if (!subjURI.contains("\\")
+//                        && !subjURI.contains("/")) {
+//                    nsPrefix = "";
+//                }
+//                foundS = nsPrefix + FileManager.getSimpleFilename(subjURI);
+//                System.err.println(FileManager.getSimpleFilename(subjURI));
+//                obj = nextStatement.getObject();
+//                foundO = obj.toString().substring(obj.toString().indexOf('#')
+//                        + 1);
+//                letter = foundO.toLowerCase().charAt(0);
+//                isVowel = letter == 'a' || letter == 'e' || letter == 'i'
+//                        || letter == 'o' || letter == 'u' || letter == 'h';
+//                pred = nextStatement.getPredicate();
+//                foundP
+//                        = ProvOntology.translatePredicate(pred.getURI(), isVowel);
+//
+//                statements += foundS + " " + foundP + " " + foundO;
+//                if (si.hasNext()) {
+//                    statements += lineDelimiter;
+//                }
+//            }
+//        }
         return statements;
     }
 }

@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JComboBox;
 
 /**
  * ToDo
@@ -119,17 +118,13 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
-        //String sbjct = subjectFullURIs.get(
-        //        subjectComboBox.getSelectedIndex());
-        //String prdct = predicateFullURIs.get(
-        //        predicateComboBox.getSelectedIndex());
-        //String objct = objectFullURIs.get(
-        //        objectComboBox.getSelectedIndex());
-        //System.err.println(sbjct + ", " + prdct + ", " + objct);
-        //String result = "<html>";
-        //result += provMgr.queryProvenance(sbjct, prdct, objct, lineDelimiter);
-        //result += "</html>";
-        //outputTextArea.setText(result);
+        String sbjct = subjectTextField.getText();
+        String prdct = predicateFullURIs.get(
+                predicateComboBox.getSelectedIndex());
+        String objct = objectTextField.getText();
+        String result
+                = provMgr.queryProvenance(sbjct, prdct, objct, lineDelimiter);
+        outputTextArea.setText(result);
     }//GEN-LAST:event_searchButtonActionPerformed
 
     private void subjectTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_subjectTextFieldKeyReleased
@@ -176,14 +171,11 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
      */
     public ProvenanceQueryDialog(boolean modal, ProvMgr provManager) {
         provMgr = provManager;
-
         setModal(modal);
         initComponents();
         searchButton.setEnabled(false);
-
         // add in the drop down items
         addItemsToPredicateComboBox();
-
         // show window center-screen
         pack();
         center();
@@ -191,8 +183,9 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
     }
 
     private void addItemsToPredicateComboBox() {
-        for (String item : provMgr.getPredicates(predicateFullURIs))
+        for (String item : provMgr.getPredicates(predicateFullURIs)) {
             predicateComboBox.addItem(item);
+        }
     }
 
     /**
@@ -211,34 +204,35 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
                 (screenSize.height - frameSize.height) / 2);
     }
     // </editor-fold>
-    
+
     // <editor-fold defaultstate="collapsed" desc="Utility">
     private void enableSearchButton() {
-        if (isSubjectValid() || isPredicateValid() || isObjectValid())
-            searchButton.setEnabled(true);
-        else
-            searchButton.setEnabled(false);
+        searchButton.setEnabled(isSubjectValid() || isPredicateValid()
+                || isObjectValid());
     }
-    
+
     private boolean isSubjectValid() {
-        if (!subjectTextField.getText().equals(""))
+        if (!subjectTextField.getText().equals("")) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
-    
+
     private boolean isPredicateValid() {
-        if (!((String) predicateComboBox.getSelectedItem()).equals("None"))
+        if (!((String) predicateComboBox.getSelectedItem()).equals("None")) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
-    
+
     private boolean isObjectValid() {
-        if (!objectTextField.getText().equals(""))
+        if (!objectTextField.getText().equals("")) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
     // </editor-fold>
 }
