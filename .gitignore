@@ -110,6 +110,8 @@ DocProject/Help/*.hhp
 DocProject/Help/Html2
 DocProject/Help/html
 
+doc/Doxygen
+
 # Click-Once directory
 publish
 

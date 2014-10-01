@@ -1,6 +1,8 @@
 /** 
  * @authors Aaron Oziel, Sean Blackbourn
  * 
+ * @class AllSynapses AllSynapses.h "AllSynapses.h"
+ *
  *  In this file you will find usage statistics for every variable inthe BrainGrid 
  *  project as we find them. These statistics can be used to help 
  *  determine if a variable is being used, where it is being used, and how it
@@ -32,24 +34,24 @@ struct AllSynapses
         /*! The coordinates of the summation point.
          *  
          *  Usage: LOCAL CONSTANT
-         *  LIFSingleThreadedModel::updateWeights()     Accessed
-         *  LIFSingleThreadedModel::createSynapse()     Initialized
-         *  GpuSim_Struct::createSynapseImap()          Accessed
-         *  GpuSim_Struct::updateNetworkDevice()        Accessed
-         *  GpuSim_Struct::createSynapse()              Initialized
+         *  - LIFSingleThreadedModel::updateWeights()     Accessed
+         *  - LIFSingleThreadedModel::createSynapse()     Initialized
+         *  - GpuSim_Struct::createSynapseImap()          Accessed
+         *  - GpuSim_Struct::updateNetworkDevice()        Accessed
+         *  - GpuSim_Struct::createSynapse()              Initialized
          */
         Coordinate **summationCoord;
 
         /*! The weight (scaling factor, strength, maximal amplitude) of the synapse.
          *  
          *  Usage: LOCAL VARIABLE
-         *  LIFSingleThreadedModel::updateWeights()     Modified 
-         *  LIFSingleThreadedModel::addSynapse()        Initialized
-         *  LIFSingleThreadedModel::createSynapse()     Initialized
-         *  GpuSim_Struct::advanceSynapsesDevice()      Accessed
-         *  GpuSim_Struct::updateNetworkDevice()        Modified
-         *  GpuSim_Struct::addSynapse()                 Initialized
-         *  GpuSim_Struct::createSynapse()              Initialized
+         *  - LIFSingleThreadedModel::updateWeights()     Modified 
+         *  - LIFSingleThreadedModel::addSynapse()        Initialized
+         *  - LIFSingleThreadedModel::createSynapse()     Initialized
+         *  - GpuSim_Struct::advanceSynapsesDevice()      Accessed
+         *  - GpuSim_Struct::updateNetworkDevice()        Modified
+         *  - GpuSim_Struct::addSynapse()                 Initialized
+         *  - GpuSim_Struct::createSynapse()              Initialized
          *
          *  Note: When searching the GpuSim_struct.cu file for usage statistics
          *  I only searched the document for occurences of "W[". Searching
@@ -61,18 +63,18 @@ struct AllSynapses
         /*! This synapse's summation point's address.
          *  
          *  Usage: LOCAL CONSTANT
-         *  LIFSingleThreadedModel::createSynapse()	Initialized
-	 *  LIFSingleThreadedModel::advanceSynapse()	Accessed
-	 *  LIFSingleThreadedModel::eraseSynapse()	Modified (= NULL)
-	 *  GpuSim_Struct::createSynapse()              Initialized
+         *  - LIFSingleThreadedModel::createSynapse()	Initialized
+	 *  - LIFSingleThreadedModel::advanceSynapse()	Accessed
+	 *  - LIFSingleThreadedModel::eraseSynapse()	Modified (= NULL)
+	 *  - GpuSim_Struct::createSynapse()              Initialized
 	 */
         BGFLOAT ***summationPoint;
 
         /*! The location of the synapse.
          *  
          *  Usage: NOT USED ANYWHERE
-         *  LIFSingleThreadedModel::createSynapse()	Initialized
-   	 *  GpuSim_Struct::createSynapse()              Initialized
+         *  - LIFSingleThreadedModel::createSynapse()	Initialized
+   	 *  - GpuSim_Struct::createSynapse()              Initialized
          */
         Coordinate **synapseCoord;
 
@@ -80,32 +82,32 @@ struct AllSynapses
          *  is going on in the synapse.
          *  
          *  Usage: LOCAL VARIABLE
-         *  LIFSingleThreadedModel::advanceSynapse()	Modified
-         *  LIFSingleThreadedModel::createSynapse()	Initialized
-         *  GpuSim_Struct::createSynapse()              Initialized
-         *  GpuSim_Struct::advanceSynapsesDevice()      Accessed
-         *  GpuSim_Struct::calcSummationMap()           Accessed
+         *  - LIFSingleThreadedModel::advanceSynapse()	Modified
+         *  - LIFSingleThreadedModel::createSynapse()	Initialized
+         *  - GpuSim_Struct::createSynapse()              Initialized
+         *  - GpuSim_Struct::advanceSynapsesDevice()      Accessed
+         *  - GpuSim_Struct::calcSummationMap()           Accessed
          */
         BGFLOAT **psr;
         
         /*! The decay for the psr.
          *  
          *  Usage: LOCAL CONSTANT depending on synapse type
-         *  LIFSingleThreadedModel::updateDecay()	Initialized
-    	 *  LIFSingleThreadedModel::advanceSynapse()	Accessed
-	 *  LIFSingleThreadedModel::createSynapse()	Initialized
-         *  GpuSim_Struct::createSynapse()              Initialized
-   	 *  GpuSim_Struct::advanceSynapsesDevice()      Accessed
+         *  - LIFSingleThreadedModel::updateDecay()	Initialized
+    	 *  - LIFSingleThreadedModel::advanceSynapse()	Accessed
+	 *  - LIFSingleThreadedModel::createSynapse()	Initialized
+         *  - GpuSim_Struct::createSynapse()              Initialized
+   	 *  - GpuSim_Struct::advanceSynapsesDevice()      Accessed
          */
         BGFLOAT **decay;
         
         /*! The synaptic transmission delay, descretized into time steps.
          *  
          *  Usage: LOCAL CONSTANT depending on synapse type
-         *  LIFSingleThreadedModel::preSpikeHit()       Accessed
-    	 *  LIFSingleThreadedModel::createSynapse()     Initialized
-         *  GpuSim_Struct::createSynapse()              Initialized
-    	 *  GpuSim_Struct::advanceNeuronsDevice()       Accessed
+         *  - LIFSingleThreadedModel::preSpikeHit()       Accessed
+    	 *  - LIFSingleThreadedModel::createSynapse()     Initialized
+         *  - GpuSim_Struct::createSynapse()              Initialized
+    	 *  - GpuSim_Struct::advanceNeuronsDevice()       Accessed
          */
         int **total_delay;
         
@@ -114,20 +116,20 @@ struct AllSynapses
         /*! The delayed queue
          *  
          *  Usage: LOCAL CONSTANT
-         *  LIFSingleThreadedModel::preSpikeHit()	Accessed
-         *  LIFSingleThreadedModel::isSpikeQueue()	Accessed
-    	 *  LIFSingleThreadedModel::createSynapse()	Accessed
-         *  GpuSim_Struct::createSynapse()              Modified  
-    	 *  GpuSim_Struct::advanceNeuronsDevice()       Modified
-    	 *  GpuSim_Struct::advanceSynapseDevice()       Modified
+         *  - LIFSingleThreadedModel::preSpikeHit()	Accessed
+         *  - LIFSingleThreadedModel::isSpikeQueue()	Accessed
+    	 *  - LIFSingleThreadedModel::createSynapse()	Accessed
+         *  - GpuSim_Struct::createSynapse()              Modified  
+    	 *  - GpuSim_Struct::advanceNeuronsDevice()       Modified
+    	 *  - GpuSim_Struct::advanceSynapseDevice()       Modified
          */
         uint32_t ***delayQueue;
         
 	/*! The index indicating the current time slot in the delayed queue
          *  
          *  Usage: LOCAL VARIABLE
-         *  LIFSingleThreadedModel::preSpikeHit()	    Accessed
-         *  LIFSingleThreadedModel::isSpikeQueue()	    Modified
+         *  - LIFSingleThreadedModel::preSpikeHit()	    Accessed
+         *  - LIFSingleThreadedModel::isSpikeQueue()	    Modified
          *  
          *  Note: This variable is used in GpuSim_struct.cu but I am not sure 
          *  if it is actually from a synapse. Will need a little help here. -Aaron
@@ -138,28 +140,28 @@ struct AllSynapses
 	/*! Length of the delayed queue
          *  
          *  Usage: GLOBAL CONSTANT
-         *  LIFSingleThreadedModel::preSpikeHit()       Accessed
-         *  LIFSingleThreadedModel::isSpikeQueue()      Accessed
-    	 *  LIFSingleThreadedModel::createSynapse()     Initialized
-         *  GpuSim_Struct::createSynapse()              Initialized
+         *  - LIFSingleThreadedModel::preSpikeHit()       Accessed
+         *  - LIFSingleThreadedModel::isSpikeQueue()      Accessed
+    	 *  - LIFSingleThreadedModel::createSynapse()     Initialized
+         *  - GpuSim_Struct::createSynapse()              Initialized
          */
         int **ldelayQueue;
         
     	/*! Synapse type
          *  
          *  Usage: LOCAL CONSTANT
-         *  LIFSingleThreadedModel::createSynapse() 	Initialized
-         *  GpuSim_Struct::createSynapse()              Initialized
-    	 *  GpuSim_Struct::advanceSynapseDevice()       Accessed
+         *  - LIFSingleThreadedModel::createSynapse() 	Initialized
+         *  - GpuSim_Struct::createSynapse()              Initialized
+    	 *  - GpuSim_Struct::advanceSynapseDevice()       Accessed
          */
         synapseType **type;
 
         /*! The synaptic time constant \f$\tau\f$ [units=sec; range=(0,100)].
          *  
          *  Usage: LOCAL CONSTANT depending on synapse type
-         *  LIFSingleThreadedModel::updateDecay() 	    Accessed
-	     *  LIFSingleThreadedModel::createSynapse()	    Initialized
-	     *  GpuSim_Struct::createSynapse()              Initialized
+         *  - LIFSingleThreadedModel::updateDecay() 	    Accessed
+         *  - LIFSingleThreadedModel::createSynapse()	    Initialized
+         *  - GpuSim_Struct::createSynapse()              Initialized
          */
         BGFLOAT **tau;
 
@@ -167,10 +169,10 @@ struct AllSynapses
         /*! The time varying state variable \f$r\f$ for depression.
          *  
          *  Usage: LOCAL VARIABLE
-         *  LIFSingleThreadedModel::advanceSynapse()	Modified 
-    	 *  LIFSingleThreadedModel::createSynapse()	Initialized
- 	 *  GpuSim_Struct::createSynapse()              Initialized
-    	 *  GpuSim_Struct::advanceSynapseDevice()       Modified
+         *  - LIFSingleThreadedModel::advanceSynapse()	Modified 
+    	 *  - LIFSingleThreadedModel::createSynapse()	Initialized
+ 	 *  - GpuSim_Struct::createSynapse()              Initialized
+    	 *  - GpuSim_Struct::advanceSynapseDevice()       Modified
     	 *  
     	 *  Note: When searching the GpuSim_struct.cu file for usage statistics
          *  I only searched the document for occurences of "r[". Searching
@@ -182,10 +184,10 @@ struct AllSynapses
         /*! The time varying state variable \f$u\f$ for facilitation.
          *  
          *  Usage: LOCAL VARIABL
-         *  LIFSingleThreadedModel::advanceSynapse()	Modified 
-	 *  LIFSingleThreadedModel::createSynapse()	Initialized
-	 *  GpuSim_Struct::createSynapse()              Initialized
-    	 *  GpuSim_Struct::advanceSynapseDevice()       Modified
+         *  - LIFSingleThreadedModel::advanceSynapse()	Modified 
+	 *  - LIFSingleThreadedModel::createSynapse()	Initialized
+	 *  - GpuSim_Struct::createSynapse()              Initialized
+    	 *  - GpuSim_Struct::advanceSynapseDevice()       Modified
 	 *
 	 *  Note: When searching the GpuSim_struct.cu file for usage statistics
          *  I only searched the document for occurences of "u[". Searching
@@ -197,9 +199,9 @@ struct AllSynapses
         /*! The time constant of the depression of the dynamic synapse [range=(0,10); units=sec].
          *  
          *  Usage: LOCAL CONSTANT depending on synapse type
-	 *  LIFSingleThreadedModel::createSynapse()	Initialized
-	 *  LIFSingleThreadedModel::advanceSynapse()	Accessed
-	 *  GpuSim_Struct::NOT USED
+	 *  - LIFSingleThreadedModel::createSynapse()	Initialized
+	 *  - LIFSingleThreadedModel::advanceSynapse()	Accessed
+	 *  - GpuSim_Struct::NOT USED
 	 *  Note: Likely under a different name in GpuSim_struct, see synapse_D_d. -Aaron
          */
         BGFLOAT **D;
@@ -207,8 +209,8 @@ struct AllSynapses
         /*! The use parameter of the dynamic synapse [range=(1e-5,1)].
          *  
          *  Usage: LOCAL CONSTANT depending on synapse type
-         *  LIFSingleThreadedModel::advanceSynapse()	Accessed
-	 *  LIFSingleThreadedModel::createSynapse()     Initialized
+         *  - LIFSingleThreadedModel::advanceSynapse()	Accessed
+	 *  - LIFSingleThreadedModel::createSynapse()     Initialized
 	 *  
 	 *  Note: In GpuSim_struct.cu I cannot differentiate between the
 	 *  variables "u" and "U". Likely under a different name in GpuSim_struct, see synapse_U_d.-Aaron
@@ -218,9 +220,9 @@ struct AllSynapses
         /*! The time constant of the facilitation of the dynamic synapse [range=(0,10); units=sec].
          *  
          *  Usage: LOCAL CONSTANT depending on synapse type
-         *  LIFSingleThreadedModel::advanceSynapse()   Accessed
-	 *  LIFSingleThreadedModel::createSynapse()    Initialized
-	 *  GpuSim_Struct::NOT USED
+         *  - LIFSingleThreadedModel::advanceSynapse()   Accessed
+	 *  - LIFSingleThreadedModel::createSynapse()    Initialized
+	 *  - GpuSim_Struct::NOT USED
 	 *
 	 *  Note: Likely under a different name in GpuSim_struct, see synapse_F_d. -Aaron
          */
@@ -229,32 +231,32 @@ struct AllSynapses
         /*! The time of the last spike.
          *  
          *  Usage: LOCAL VARIABLE
-         *  LIFSingleThreadedModel::advanceSynapse()	Modified 
-    	 *  LIFSingleThreadedModel::createSynapse()     Initialized
- 	 *  GpuSim_Struct::createSynapse()              Initialized
-     	 *  GpuSim_Struct::advanceSynapseDevice()       Modified  
+         *  - LIFSingleThreadedModel::advanceSynapse()	Modified 
+    	 *  - LIFSingleThreadedModel::createSynapse()     Initialized
+ 	 *  - GpuSim_Struct::createSynapse()              Initialized
+     	 *  - GpuSim_Struct::advanceSynapseDevice()       Modified  
          */
         uint64_t **lastSpike;
 
     	/*! The boolean value indicating the entry in the array is in use.
          *  
          *  Usage: LOCAL VARIABLE
-         *  LIFSingleThreadedModel::eraseSynapse()	    Modified
-    	 *  LIFSingleThreadedModel::addSynapse()	    Accessed
-    	 *  LIFSingleThreadedModel::createSynapse()	    Modified
-	 *  GpuSim_Struct::NOT USED  
+         *  - LIFSingleThreadedModel::eraseSynapse()	    Modified
+    	 *  - LIFSingleThreadedModel::addSynapse()	    Accessed
+    	 *  - LIFSingleThreadedModel::createSynapse()	    Modified
+	 *  - GpuSim_Struct::NOT USED  
          */
         bool **in_use;
 
         /*! The number of synapses for each neuron.
          *  
          *  Usage: LOCAL VARIABLE
-         *  LIFSingleThreadedModel::advanceNeurons()	Accessed
-    	 *  LIFSingleThreadedModel::advanceSynapses()	Accessed
-         *  LIFSingleThreadedModel::updateWeights()	Accessed
-    	 *  LIFSingleThreadedModel::eraseSynapse()	Modified
-    	 *  LIFSingleThreadedModel::addSynapse()	Modified
-         *  GpuSim_Struct::NOT USED  
+         *  - LIFSingleThreadedModel::advanceNeurons()	Accessed
+    	 *  - LIFSingleThreadedModel::advanceSynapses()	Accessed
+         *  - LIFSingleThreadedModel::updateWeights()	Accessed
+    	 *  - LIFSingleThreadedModel::eraseSynapse()	Modified
+    	 *  - LIFSingleThreadedModel::addSynapse()	Modified
+         *  - GpuSim_Struct::NOT USED  
          * 	     
          *  Note: Likely under a different name in GpuSim_struct, see synapse_count. -Aaron
          */
@@ -263,16 +265,16 @@ struct AllSynapses
         /*! The total number of active synapses.
          *
          *  Usage: LOCAL VARIABLE
-         *  LIFGPUModel::createSynapseImap()           Modified
-         *  LIFGPUModel::advance()                     Accessed
+         *  - LIFGPUModel::createSynapseImap()           Modified
+         *  - LIFGPUModel::advance()                     Accessed
          */
         size_t total_synapse_counts;
 
     	/*! The maximum number of synapses for each neurons.
          *  
          *  Usage: GLOBAL CONSTANT
-         *  LIFSingleThreadedModel::addSynapse()	Accessed
- 	 *  GpuSim_Struct::NOT USED  
+         *  - LIFSingleThreadedModel::addSynapse()	Accessed
+ 	 *  - GpuSim_Struct::NOT USED  
          */
         size_t max_synapses;
 
