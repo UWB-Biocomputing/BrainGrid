@@ -15,7 +15,9 @@
 #include "Network.h"
 #include "Model.h"
 #include "XmlRecorder.h"
+#ifdef USE_HDF5
 #include "Hdf5Recorder.h"
+#endif // USE_HDF5
 #include "FSInput.h"
 
 
@@ -101,6 +103,7 @@ int main(int argc, char* argv[]) {
     if (stateOutputFileName.find(".xml") != string::npos) {
         simRecorder = new XmlRecorder(model, simInfo);
     }
+#ifdef USE_HDF5
     else if (stateOutputFileName.find(".h5") != string::npos) {
         simRecorder = new Hdf5Recorder(model, simInfo); 
     }
@@ -108,6 +111,7 @@ int main(int argc, char* argv[]) {
         cerr << "! ERROR: invalid state output file name extension." << endl;
         return -1;
     }
+#endif // USE_HDF5
     simRecorder->init(stateOutputFileName);
 
     // Create a stimulus input object

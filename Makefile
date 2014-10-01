@@ -4,6 +4,12 @@
 all: growth growth_cuda
 
 ################################################################################
+# Conditional Flags
+################################################################################
+CUSEHDF5 = yes
+CPMETRICS = no
+
+################################################################################
 # Source Directories
 ################################################################################
 MAIN = .
@@ -14,7 +20,11 @@ PARAMDIR = $(MAIN)/paramcontainer
 RNGDIR = $(MAIN)/rng
 XMLDIR = $(MAIN)/tinyxml
 SINPUTDIR = $(MAIN)/sinput
-H5INCDIR = /opt/hdf5/latest/include
+ifeq ($(CUSEHDF5), yes)
+	H5INCDIR = /opt/hdf5/latest/include
+else
+	H5INCDIR =
+endif
 
 ################################################################################
 # Build tools
@@ -26,19 +36,26 @@ OPT = g++
 ################################################################################
 # Flags
 ################################################################################
-#CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -I$(H5INCDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT -DPERFORMANCE_METRICS
-CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -I$(H5INCDIR) -I$(SINPUTDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT 
-#CGPUFLAGS = -DUSE_GPU -DPERFORMANCE_METRICS
-CGPUFLAGS = -DUSE_GPU
+ifeq ($(CPMETRICS), yes)
+	PMFLAGS = -DPERFORMANCE_METRICS
+else
+	PMFLAGS = 
+endif
+ifeq ($(CUSEHDF5), yes)
+	LH5FLAGS =  -L/opt/hdf5/latest/lib -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5
+	H5FLAGS = -DUSE_HDF5
+else
+	LH5FLAGS =
+	H5FLAGS = 
+endif
+CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(H5INCDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -I$(SINPUTDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(PMFLAGS) $(H5FLAGS)
+CGPUFLAGS = -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
-LH5FLAGS =  -L/opt/hdf5/latest/lib -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5
 
 ################################################################################
 # Objects
 ################################################################################
-
-#CUDAOBJS =  $(CUDADIR)/CUDA_LIFModel.o \
 
 CUDAOBJS =   \
 	    $(COMMDIR)/LIFGPUModel.o \
@@ -53,6 +70,7 @@ CUDAOBJS =   \
             $(SINPUTDIR)/FSInput_cuda.o \
             $(CUDADIR)/Global_cuda.o
 
+ifeq ($(CUSEHDF5), yes)
 LIBOBJS = $(COMMDIR)/AllNeurons.o \
 			$(COMMDIR)/AllSynapses.o \
 			$(COMMDIR)/Simulator.o \
@@ -65,6 +83,19 @@ LIBOBJS = $(COMMDIR)/AllNeurons.o \
 			$(COMMDIR)/Util.o \
 			$(COMMDIR)/XmlRecorder.o \
 			$(COMMDIR)/Hdf5Recorder.o 
+else
+LIBOBJS = $(COMMDIR)/AllNeurons.o \
+			$(COMMDIR)/AllSynapses.o \
+			$(COMMDIR)/Simulator.o \
+			$(COMMDIR)/SingleThreadedSim.o \
+			$(COMMDIR)/LIFModel.o \
+			$(COMMDIR)/LIFSingleThreadedModel.o \
+			$(COMMDIR)/Network.o \
+			$(COMMDIR)/ParseParamError.o \
+			$(COMMDIR)/Timer.o \
+			$(COMMDIR)/Util.o \
+			$(COMMDIR)/XmlRecorder.o 
+endif
  
 		
 MATRIXOBJS = $(MATRIXDIR)/CompleteMatrix.o \
@@ -98,7 +129,6 @@ growth: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS
 
 growth_cuda:$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS) $(SINPUTOBJS)
 	nvcc -o growth_cuda -g -arch=sm_20 -rdc=true $(LDFLAGS) $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(SINPUTOBJS)
-#	nvcc -o growth_cuda -g -G $(LDFLAGS) $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS)
 
 clean:
 	rm -f $(MAIN)/*.o $(COMMDIR)/*.o $(MATRIXDIR)/*.o $(PARAMDIR)/*.o $(RNGDIR)/*.o $(XMLDIR)/*.o $(CUDADIR)/*.o $(SINPUTDIR)/*.o ./growth
@@ -116,7 +146,6 @@ $(CUDADIR)/MersenneTwister_kernel.o: $(CUDADIR)/MersenneTwister_kernel.cu $(COMM
 
 $(COMMDIR)/LIFGPUModel.o: $(COMMDIR)/LIFGPUModel.cu $(COMMDIR)/Global.h $(COMMDIR)/LIFGPUModel.h $(COMMDIR)/AllNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Model.h $(CUDADIR)/AllSynapsesDevice.h 
 	nvcc -c -g -arch=sm_20 -rdc=true $(COMMDIR)/LIFGPUModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(COMMDIR)/LIFGPUModel.o
-#	nvcc -c -g -G -arch=sm_20 $(COMMDIR)/LIFGPUModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(COMMDIR)/LIFGPUModel.o
 
 $(CUDADIR)/LifNeuron_struct_d.o: $(CUDADIR)/LifNeuron_struct_d.cu $(COMMDIR)/Global.h $(COMMDIR)/LIFGPUModel.h
 	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/LifNeuron_struct_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/LifNeuron_struct_d.o
@@ -177,8 +206,10 @@ $(COMMDIR)/Util.o: $(COMMDIR)/Util.cpp $(COMMDIR)/Util.h
 $(COMMDIR)/XmlRecorder.o: $(COMMDIR)/XmlRecorder.cpp $(COMMDIR)/XmlRecorder.h $(COMMDIR)/IRecorder.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/XmlRecorder.cpp -o $(COMMDIR)/XmlRecorder.o
 
+ifeq ($(CUSEHDF5), yes)
 $(COMMDIR)/Hdf5Recorder.o: $(COMMDIR)/Hdf5Recorder.cpp $(COMMDIR)/Hdf5Recorder.h $(COMMDIR)/IRecorder.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Hdf5Recorder.cpp -o $(COMMDIR)/Hdf5Recorder.o
+endif
 
 
 # Matrix

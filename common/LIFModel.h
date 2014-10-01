@@ -44,7 +44,9 @@ using namespace std;
 #define LENGTH_OF_DELAYQUEUE        ( BYTES_OF_DELAYQUEUE * 8 )
 
 class XmlRecorder;
+#ifdef USE_HDF5
 class Hdf5Recorder;
+#endif // USE_HDF5
 class SInputPoisson;
 
 /**
@@ -53,7 +55,9 @@ class SInputPoisson;
 class LIFModel : public Model, TiXmlVisitor
 {
         friend XmlRecorder;
+#ifdef USE_HDF5
         friend Hdf5Recorder;
+#endif // USE_HDF5
 	friend SInputPoisson;
 
     public:
