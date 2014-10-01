@@ -52,6 +52,22 @@ public final class FileManager {
         }
         return filename;
     }
+
+    public String[] getNeuronListFilenames(String projectName) throws IOException {
+        String[] filenames = null;
+        File[] files;
+        String folder = getSimConfigDirectoryPath(projectName, false)
+                + neuronListFolderName + folderDelimiter;
+        File folderFile = Paths.get(folder).toFile();
+        if (folderFile.isDirectory()) {            
+            files = folderFile.listFiles();
+            filenames = new String[files.length];
+            for (int i = 0, im = files.length; i < im; i++) {
+                filenames[i] = files[i].getCanonicalPath();
+            }
+        }
+        return filenames;
+    }
     private final boolean isWindowsSystem;
     private final String folderDelimiter;
     private String projectsFolderName = "projects";

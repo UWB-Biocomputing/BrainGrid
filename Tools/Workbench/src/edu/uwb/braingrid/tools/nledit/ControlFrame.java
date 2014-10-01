@@ -898,31 +898,31 @@ public class ControlFrame extends JFrame implements ActionListener {
                     myPanel.tfields[ExportPanel.idxInhList].getText(),
                     layoutPanel.inhNList, LayoutPanel.INH);
             // add to workbench project
-            if (null != workbenchMgr) {
-                workbenchMgr.addInputFile(
-                        myPanel.tfields[ExportPanel.idxInhList].getText(),
-                        InputType.INHIBITORY);
-            }
+//            if (null != workbenchMgr) {
+//                workbenchMgr.addInputFile(
+//                        myPanel.tfields[ExportPanel.idxInhList].getText(),
+//                        InputType.INHIBITORY);
+//            }
 
             writeNeuronListToFile(
                     myPanel.tfields[ExportPanel.idxActList].getText(),
                     layoutPanel.activeNList, LayoutPanel.ACT);
             // add to workbench project
-            if (null != workbenchMgr) {
-                workbenchMgr.addInputFile(
-                        myPanel.tfields[ExportPanel.idxActList].getText(),
-                        InputType.ACTIVE);
-            }
+//            if (null != workbenchMgr) {
+//                workbenchMgr.addInputFile(
+//                        myPanel.tfields[ExportPanel.idxActList].getText(),
+//                        InputType.ACTIVE);
+//            }
 
             writeNeuronListToFile(
                     myPanel.tfields[ExportPanel.idxPrbList].getText(),
                     layoutPanel.probedNList, LayoutPanel.PRB);
             // add to workbench project
-            if (null != workbenchMgr) {
-                workbenchMgr.addInputFile(
-                        myPanel.tfields[ExportPanel.idxPrbList].getText(),
-                        InputType.PROBED);
-            }
+//            if (null != workbenchMgr) {
+//                workbenchMgr.addInputFile(
+//                        myPanel.tfields[ExportPanel.idxPrbList].getText(),
+//                        InputType.PROBED);
+//            }
         }
     }
 

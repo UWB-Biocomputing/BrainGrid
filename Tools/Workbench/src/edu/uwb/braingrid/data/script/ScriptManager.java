@@ -43,8 +43,9 @@ public class ScriptManager {
      * @return A constructed script or null in the case that the script could
      * not be constructed properly
      */
-    public static Script generateScript(String version, SimulationSpecification simSpec) {
+    public static Script generateScript(String projectname, String version, SimulationSpecification simSpec, String simConfigFilename) {
         boolean success;
+        simConfigFilename = FileManager.getSimpleFilename(simConfigFilename);
         // create a new script
         Script script = new Script();
 
@@ -56,8 +57,7 @@ public class ScriptManager {
         String simExecutableToInvoke;
         simExecutableToInvoke = SimulationSpecification.getSimFilename(type);
         success = simExecutableToInvoke != null;
-        ////////TODO: Modify the code in this function to use real inputs///////
-        printfSimSpecToScript(script, simExecutableToInvoke, true);
+        printfSimSpecToScript(script, simExecutableToInvoke, simConfigFilename, true);
 
         /* Prep From ProjectMgr Data */
         // folder to make/cd to, assumption is that containing folder
@@ -103,28 +103,45 @@ public class ScriptManager {
         script.executeProgram("make", cleanMakeArgs);
         script.executeProgram("make", makeArgs);
 
+        /* Checkout Master */
+        String[] gitCheckoutRefactorArgs = {"checkout", "refactor-stable-cuda"};
+        script.executeProgram("git", gitCheckoutRefactorArgs);
+
+        /* Make Results Folder */
+        String[] mkResultsDirArgs = {"results"};
+        script.executeProgram("mkdir", makeArgs);
+
+        /* Move Sim Config File */
+        String[] simConfMvArgs
+                = {"-f", "~/" + simConfigFilename, "configfiles/"};
+        script.executeProgram("mv", simConfMvArgs);
+
+        /* Move Neuron Lists */
+        FileManager fm = FileManager.getFileManager();
+        try {
+            String[] nListFilenames = fm.getNeuronListFilenames(projectname);
+            if (nListFilenames != null) {
+                for (int i = 0, im = nListFilenames.length; i < im; i++) {
+                    String[] moveArgs = {"-f", "~/"
+                        + FileManager.getSimpleFilename(nListFilenames[i]), "configfiles/NList/"};
+                    script.executeProgram("mv", moveArgs);
+                }
+            }
+        } catch (IOException e) {
+            success = false;
+        }
+
         /* Run the Simulator */
-        // TODO: change to commented code below when integrated
-        //------->//String[] inputFiles = project.getInputFiles();
-        //------->//String[] simArgs = new String[inputFiles.length + 3];
-        //------->//simArgs[0] = "-t";
-        //------->//for (int i = 0, im = inputFiles.length; i < im; i++) {
-        //--->//simArgs[i + 1] = InputAnalyzer.getSimpleFilename(inputFiles[i]);
-        //------->//}
-        //------->//simArgs[inputFiles.length + 1] = "-o";
-        //------->//simArgs[inputFiles.length + 2] = "output.xml";
-        //------->//script.executeProgram(simExecutableToInvoke, simArgs, true);
-        // Hard Coded to short growth Test for now!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // TODO: replace the code below with the commented code above after
-        // new simulator input format has been implemented in the simulator
-        // code
-        String[] hardCodedTestArgs = {"-t", "test.xml", "-o", "output.xml"};
+        String[] hardCodedTestArgs = {"-t", "configfiles/"
+            + simConfigFilename, ">", "~/simOutput" + version + ".out"
+        };
         script.executeProgram(simExecutableToInvoke, hardCodedTestArgs, true);
 
         /* Put Script Together and Save */
         if (!success || !script.construct()) {
             script = null; // or indicate unsuccessful operation
         }
+
         return script;
     }
 
@@ -151,7 +168,11 @@ public class ScriptManager {
      * @param simSpec - Holds information about the simulation
      * @param scriptPath - indicates where the constructed script to execute
      * resides on the file system.
-     * @param inputFilenames - A list of inputs to run the script with
+     * @param nListFilenames - Neuron lists indicated in simulation
+     * configuration file.
+     * @param simConfigFilename - Name of file containing simulation constants
+     * and filenames. File, itself, is used to specify all input for a
+     * simulation.
      * @return True if all operations associated with running the script were
      * successful, otherwise false. This does not indicate whether the
      * simulation ran successfully
@@ -159,17 +180,20 @@ public class ScriptManager {
      * @throws java.io.FileNotFoundException
      * @throws com.jcraft.jsch.SftpException
      */
-    public boolean runScript(SimulationSpecification simSpec, String scriptPath, String[] inputFilenames) throws JSchException, FileNotFoundException, SftpException {
+    public boolean runScript(SimulationSpecification simSpec, String scriptPath,
+            String[] nListFilenames, String simConfigFilename)
+            throws JSchException, FileNotFoundException, SftpException {
         boolean success = false;
         String executionMachine = simSpec.getSimulationLocale();
         String remoteExecution
                 = SimulationSpecification.REMOTE_EXECUTION;
         // run script remotely?
         if (executionMachine.equals(remoteExecution)) {
-            success = runRemoteScript(simSpec, scriptPath, inputFilenames);
+            success
+                    = runRemoteScript(simSpec, scriptPath, nListFilenames, simConfigFilename);
         } else { // or run it locally
             if (!FileManager.getFileManager().isWindowsSystem()) {
-                success = runLocalScript(simSpec, scriptPath, inputFilenames);
+                success = runLocalScript(simSpec, scriptPath, nListFilenames);
             }
         }
         return success;
@@ -198,7 +222,7 @@ public class ScriptManager {
             String outputTargetFolder) throws JSchException, SftpException, IOException {
         long timeCompleted = DateTime.ERROR_TIME;
         String localOutputFilename
-                = fetchScriptOutputFile(simSpec, outputTargetFolder);
+                = fetchScriptOutputFiles(simSpec, outputTargetFolder);
         if (localOutputFilename != null) {
             OutputAnalyzer analyzer = new OutputAnalyzer();
             analyzer.analyzeOutput(localOutputFilename);
@@ -265,7 +289,7 @@ public class ScriptManager {
         return msg;
     }
 
-    private static void printfSimSpecToScript(Script script, String simFile, boolean append) {
+    private static void printfSimSpecToScript(Script script, String simFile, String simInputFilename, boolean append) {
 
         script.printf(SimulationSpecification.simExecText, simFile,
                 append);
@@ -284,7 +308,7 @@ public class ScriptManager {
 //                }
 //            }
 //        }
-        String joinedInputs = "test.xml";
+        String joinedInputs = simInputFilename;
         script.printf(SimulationSpecification.simInputsText, joinedInputs, true);
         // printf the outputs
         script.printf(SimulationSpecification.simOutputsText, "output.xml", true);
@@ -292,9 +316,12 @@ public class ScriptManager {
         script.printf(SimulationSpecification.endSimSpecText, "", true);
     }
 
-    private boolean runRemoteScript(SimulationSpecification simSpec, String scriptPath, String[] inputFilenames) throws JSchException, FileNotFoundException, SftpException {
+    private boolean runRemoteScript(SimulationSpecification simSpec,
+            String scriptPath, String[] nListFilenames,
+            String simConfigFilename) throws JSchException,
+            FileNotFoundException, SftpException {
         char[] password = null;
-        boolean success = false;
+        boolean success = true;
         String hostname = simSpec.getHostAddr();
         // get username and password
         LoginCredentialsDialog lcd = new LoginCredentialsDialog(
@@ -303,34 +330,56 @@ public class ScriptManager {
             SecureFileTransfer sft = new SecureFileTransfer();
             password = lcd.getPassword();
             lcd.clearPassword();
+            /* Upload Script */
             if (sft.uploadFile(scriptPath, "", hostname, lcd.getUsername(),
                     password, null)) {
                 outstandingMessages += "\n" + scriptPath + " uploaded to "
                         + hostname + "\n";
                 String filename;
-                boolean loopSuccess = true;
-                for (int i = 0, im = inputFilenames.length; i < im;
-                        i++) {
-                    filename = FileManager.
-                            getSimpleFilename(inputFilenames[i]);
-                    outstandingMessages += "\n" + "Uploading "
-                            + inputFilenames[i] + " to " + hostname
-                            + "\n";
-                    loopSuccess = sft.uploadFile(inputFilenames[i], "",
-                            hostname, lcd.getUsername(), password,
-                            null);
-                    if (!loopSuccess) {
-                        success = false;
-                        outstandingMessages += "\n" + "Problem uploading "
-                                + filename + " to " + hostname + "\n";
-                        break;
-                    } else {
-                        outstandingMessages += "\n" + filename
-                                + " uploaded to "
-                                + hostname + "\n";
+                boolean loopSuccess;
+                /* Upload Neuron List Files */
+                if (nListFilenames != null) {
+                    for (int i = 0, im = nListFilenames.length; i < im;
+                            i++) {
+                        filename
+                                = FileManager.getSimpleFilename(nListFilenames[i]);
+                        outstandingMessages += "\n" + "Uploading "
+                                + nListFilenames[i] + " to " + hostname
+                                + "\n";
+                        loopSuccess = sft.uploadFile(nListFilenames[i], "",
+                                hostname, lcd.getUsername(), password,
+                                null);
+                        if (!loopSuccess) {
+                            success = false;
+                            outstandingMessages += "\n" + "Problem uploading "
+                                    + nListFilenames[i] + " to " + hostname
+                                    + "\n";
+                            break;
+                        } else {
+                            outstandingMessages += "\n" + filename
+                                    + " uploaded to "
+                                    + hostname + "\n";
+                        }
                     }
                 }
-                if (loopSuccess) {
+                /* Upload Simulation Configuration File */
+                if (success) {
+                    success = sft.uploadFile(simConfigFilename, "", hostname,
+                            lcd.getUsername(), password, null);
+                    if (success) {
+                        outstandingMessages += "\n"
+                                + FileManager.getSimpleFilename(simConfigFilename)
+                                + " uploaded to "
+                                + hostname + "\n";
+                    } else {
+                        outstandingMessages += "\n" + "Problem uploading "
+                                + FileManager.getSimpleFilename(simConfigFilename)
+                                + " to " + hostname
+                                + "\n";
+                    }
+                }
+                /* Execute Script */
+                if (success) {
                     String cmd = "nohup sh ./"
                             + FileManager.getSimpleFilename(scriptPath)
                             + " &";
@@ -347,7 +396,7 @@ public class ScriptManager {
             }
         } else {
             outstandingMessages += "\n"
-                    + "\nRemote Credentials Specification Canceled\n";
+                    + "\nRemote Credentials Specification Cancelled\n";
         }
         outstandingMessages += "\n" + "Remote Operations Completed: "
                 + new Date()
@@ -362,14 +411,15 @@ public class ScriptManager {
 
     // TODO: IMPLEMENT
     // THIS IS A STUB
-    private boolean runLocalScript(SimulationSpecification simSpec, String scriptPath, String[] inputFilenames) {
+    private boolean runLocalScript(SimulationSpecification simSpec,
+            String scriptPath, String[] inputFilenames) {
         boolean success = false;
         //success = java.nio.file.Files.copy(, null);
         outstandingMessages += "\n" + "Local script execution disabled" + "\n";
         return success;
     }
 
-    private String fetchScriptOutputFile(SimulationSpecification simSpec,
+    private String fetchScriptOutputFiles(SimulationSpecification simSpec,
             String outputStorageFolder) throws JSchException, SftpException, IOException {
         String filename = null;
         char[] password = null;

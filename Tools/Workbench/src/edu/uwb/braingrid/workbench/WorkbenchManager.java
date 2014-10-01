@@ -356,7 +356,7 @@ public class WorkbenchManager {
         boolean success;
         success = false;
         Script script = ScriptManager.
-                generateScript(project.getNextScriptVersion(), simSpec);
+                generateScript(project.getName(), project.getNextScriptVersion(), simSpec, project.getSimConfigFilename());
         if (script != null) {
             try {
                 String projectFolder = project.determineProjectOutputLocation();
@@ -399,11 +399,15 @@ public class WorkbenchManager {
         ScriptManager sm = new ScriptManager();
         try {
             String scriptPath = project.getScriptCanonicalFilePath();
-            success = sm.runScript(simSpec, scriptPath, project.getInputFiles());
+            String[] neuronLists
+                    = FileManager.getFileManager().getNeuronListFilenames(project.getName());
+            success = sm.runScript(simSpec, scriptPath, neuronLists,
+                    project.getSimConfigFilename());
             project.setScriptRan(success);
             project.setScriptRanAt();
             messageAccumulator += sm.getOutstandingMessages();
-        } catch (JSchException | FileNotFoundException | SftpException e) {
+        } catch (JSchException | SftpException |
+                IOException e) {
             messageAccumulator += "\n" + "Script did not run do to "
                     + e.getClass() + "...\n";
             messageAccumulator += "Exception message: " + e.getMessage();
@@ -865,7 +869,7 @@ public class WorkbenchManager {
 
     public boolean scriptGenerated() {
         boolean generated = false;
-        if(project != null){
+        if (project != null) {
             generated = project.scriptGenerated();
         }
         return generated;

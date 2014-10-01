@@ -96,7 +96,7 @@ public class InputConfiguration {
         defaultValues.put(GROWTH_PARAMS_MIN_RADIUS, "0.1");
         defaultValues.put(GROWTH_PARAMS_START_RADIUS, "0.4");
         defaultValues.put(SIM_PARAMS_T_SIM, "100.0");
-        defaultValues.put(SIM_PARAMS_NUM_SIMS, "600");
+        defaultValues.put(SIM_PARAMS_NUM_SIMS, "1");
         defaultValues.put(SIM_PARAMS_MAX_FIRING_RATE, "200");
         defaultValues.put(SIM_PARAMS_MAX_SYNAPSES_PER_NEURON, "200");
         defaultValues.put(OUTPUT_PARAMS_STATE_OUTPUT_FILENAME, "results/tR_1.9--fE_0.98_historyDump.xml");
