@@ -937,17 +937,18 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction"> 
-    public InputConfigurationDialog(String projectName, boolean modal) {
+    public InputConfigurationDialog(String projectName, boolean modal,
+            String configFilename) {
         setModal(modal);
         initComponents();
         this.projectName = projectName;
         try {
-            icm = new InputConfigurationManager();
-        } catch (ParserConfigurationException e) {
+            icm = new InputConfigurationManager(configFilename);
+        } catch (Exception e) {
             System.err.println(e.toString());
         }
         if (icm != null) {
-            setDefaultValues();
+            setInitValues();            
             okButton.setEnabled(false);
 
             // show window center-screen
@@ -968,53 +969,53 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         }
         return builtFile;
     }
-
+    
     // set up each of the text fields with default values
-    private void setDefaultValues() {
+    private void setInitValues() {
         // simulator configuration tab
-        fracEXC_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_FRAC_EXC));
-        starterNeurons_textField.setText(icm.getDefaultValue(InputConfiguration.LSM_START_NEURONS));
-        poolSizeX_textField.setText(icm.getDefaultValue(InputConfiguration.POOL_SIZE_X));
-        poolSizeY_textField.setText(icm.getDefaultValue(InputConfiguration.POOL_SIZE_Y));
-        poolSizeZ_textField.setText(icm.getDefaultValue(InputConfiguration.POOL_SIZE_Z));
-        seedValue_textField.setText(icm.getDefaultValue(InputConfiguration.SEED_VALUE));
+        fracEXC_textField.setText(icm.getInitValue(InputConfiguration.LSM_FRAC_EXC));
+        starterNeurons_textField.setText(icm.getInitValue(InputConfiguration.LSM_START_NEURONS));
+        poolSizeX_textField.setText(icm.getInitValue(InputConfiguration.POOL_SIZE_X));
+        poolSizeY_textField.setText(icm.getInitValue(InputConfiguration.POOL_SIZE_Y));
+        poolSizeZ_textField.setText(icm.getInitValue(InputConfiguration.POOL_SIZE_Z));
+        seedValue_textField.setText(icm.getInitValue(InputConfiguration.SEED_VALUE));
 
         // neuron/synapse tab
-        I_InjectMin_textField.setText(icm.getDefaultValue(InputConfiguration.I_INJECT_MIN));
-        I_InjectMax_textField.setText(icm.getDefaultValue(InputConfiguration.I_INJECT_MAX));
-        I_NoiseMin_textField.setText(icm.getDefaultValue(InputConfiguration.I_NOISE_MIN));
-        I_NoiseMax_textField.setText(icm.getDefaultValue(InputConfiguration.I_NOISE_MAX));
-        V_ThreshMin_textField.setText(icm.getDefaultValue(InputConfiguration.V_THRESH_MIN));
-        V_ThreshMax_textField.setText(icm.getDefaultValue(InputConfiguration.V_THRESH_MAX));
-        V_RestingMin_textField.setText(icm.getDefaultValue(InputConfiguration.V_RESTING_MIN));
-        V_RestingMax_textField.setText(icm.getDefaultValue(InputConfiguration.V_RESTING_MAX));
-        V_ResetMin_textField.setText(icm.getDefaultValue(InputConfiguration.V_RESET_MIN));
-        V_ResetMax_textField.setText(icm.getDefaultValue(InputConfiguration.V_RESET_MAX));
-        V_InitMin_textField.setText(icm.getDefaultValue(InputConfiguration.V_INIT_MIN));
-        V_InitMax_textField.setText(icm.getDefaultValue(InputConfiguration.V_INIT_MAX));
+        I_InjectMin_textField.setText(icm.getInitValue(InputConfiguration.I_INJECT_MIN));
+        I_InjectMax_textField.setText(icm.getInitValue(InputConfiguration.I_INJECT_MAX));
+        I_NoiseMin_textField.setText(icm.getInitValue(InputConfiguration.I_NOISE_MIN));
+        I_NoiseMax_textField.setText(icm.getInitValue(InputConfiguration.I_NOISE_MAX));
+        V_ThreshMin_textField.setText(icm.getInitValue(InputConfiguration.V_THRESH_MIN));
+        V_ThreshMax_textField.setText(icm.getInitValue(InputConfiguration.V_THRESH_MAX));
+        V_RestingMin_textField.setText(icm.getInitValue(InputConfiguration.V_RESTING_MIN));
+        V_RestingMax_textField.setText(icm.getInitValue(InputConfiguration.V_RESTING_MAX));
+        V_ResetMin_textField.setText(icm.getInitValue(InputConfiguration.V_RESET_MIN));
+        V_ResetMax_textField.setText(icm.getInitValue(InputConfiguration.V_RESET_MAX));
+        V_InitMin_textField.setText(icm.getInitValue(InputConfiguration.V_INIT_MIN));
+        V_InitMax_textField.setText(icm.getInitValue(InputConfiguration.V_INIT_MAX));
 
         // neuron (starter) tab
-        starterVThreshMin_textField.setText(icm.getDefaultValue(InputConfiguration.STARTER_V_THRESH_MIN));
-        starterVThreshMax_textField.setText(icm.getDefaultValue(InputConfiguration.STARTER_V_THRESH_MAX));
-        starterVResetMin_textField.setText(icm.getDefaultValue(InputConfiguration.STARTER_V_RESET_MIN));
-        starterVResetMax_textField.setText(icm.getDefaultValue(InputConfiguration.STARTER_V_RESET_MAX));
+        starterVThreshMin_textField.setText(icm.getInitValue(InputConfiguration.STARTER_V_THRESH_MIN));
+        starterVThreshMax_textField.setText(icm.getInitValue(InputConfiguration.STARTER_V_THRESH_MAX));
+        starterVResetMin_textField.setText(icm.getInitValue(InputConfiguration.STARTER_V_RESET_MIN));
+        starterVResetMax_textField.setText(icm.getInitValue(InputConfiguration.STARTER_V_RESET_MAX));
 
         // growth tab
-        epsilon_textField.setText(icm.getDefaultValue(InputConfiguration.GROWTH_PARAMS_EPSILON));
-        beta_textField.setText(icm.getDefaultValue(InputConfiguration.GROWTH_BETA));
-        rho_textField.setText(icm.getDefaultValue(InputConfiguration.GROWTH_PARAMS_RHO));
-        targetRate_textField.setText(icm.getDefaultValue(InputConfiguration.GROWTH_PARAMS_TARGET_RATE));
-        minRadius_textField.setText(icm.getDefaultValue(InputConfiguration.GROWTH_PARAMS_MIN_RADIUS));
-        startRadius_textField.setText(icm.getDefaultValue(InputConfiguration.GROWTH_PARAMS_START_RADIUS));
+        epsilon_textField.setText(icm.getInitValue(InputConfiguration.GROWTH_PARAMS_EPSILON));
+        beta_textField.setText(icm.getInitValue(InputConfiguration.GROWTH_BETA));
+        rho_textField.setText(icm.getInitValue(InputConfiguration.GROWTH_PARAMS_RHO));
+        targetRate_textField.setText(icm.getInitValue(InputConfiguration.GROWTH_PARAMS_TARGET_RATE));
+        minRadius_textField.setText(icm.getInitValue(InputConfiguration.GROWTH_PARAMS_MIN_RADIUS));
+        startRadius_textField.setText(icm.getInitValue(InputConfiguration.GROWTH_PARAMS_START_RADIUS));
 
         // simulation tab
-        T_Sim_textField.setText(icm.getDefaultValue(InputConfiguration.SIM_PARAMS_T_SIM));
-        numSims_textField.setText(icm.getDefaultValue(InputConfiguration.SIM_PARAMS_NUM_SIMS));
-        maxFiringRate_textField.setText(icm.getDefaultValue(InputConfiguration.SIM_PARAMS_MAX_FIRING_RATE));
-        maxSynapsesPerNeuron_textField.setText(icm.getDefaultValue(InputConfiguration.SIM_PARAMS_MAX_SYNAPSES_PER_NEURON));
+        T_Sim_textField.setText(icm.getInitValue(InputConfiguration.SIM_PARAMS_T_SIM));
+        numSims_textField.setText(icm.getInitValue(InputConfiguration.SIM_PARAMS_NUM_SIMS));
+        maxFiringRate_textField.setText(icm.getInitValue(InputConfiguration.SIM_PARAMS_MAX_FIRING_RATE));
+        maxSynapsesPerNeuron_textField.setText(icm.getInitValue(InputConfiguration.SIM_PARAMS_MAX_SYNAPSES_PER_NEURON));
 
         // files tab
-        stateOutputFilename_textField.setText(icm.getDefaultValue(InputConfiguration.OUTPUT_PARAMS_STATE_OUTPUT_FILENAME));
+        stateOutputFilename_textField.setText(icm.getInitValue(InputConfiguration.OUTPUT_PARAMS_STATE_OUTPUT_FILENAME));
 
         // autofill config filename
         autoFillConfigFilename();

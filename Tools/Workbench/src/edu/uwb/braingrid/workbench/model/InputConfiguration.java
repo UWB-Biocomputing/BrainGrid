@@ -118,7 +118,7 @@ public class InputConfiguration {
     public boolean isLegalParameter(String parameter) {
         return defaultValues.containsKey(parameter);
     }
-
+    
     public String getDefaultValue(String parameter) {
         String value;
         if ((value = defaultValues.get(parameter)) == null) {

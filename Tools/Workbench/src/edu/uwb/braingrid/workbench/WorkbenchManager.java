@@ -850,8 +850,10 @@ public class WorkbenchManager {
         boolean success = true;
         String projectName = getProjectName();
         if (!projectName.equals("None")) {
-            InputConfigurationDialog icd
-                    = new InputConfigurationDialog(projectName, true);
+            String configFilename = project.getSimConfigFilename();
+            InputConfigurationDialog icd = new
+                InputConfigurationDialog(projectName, true, configFilename);
+                
             if (success = icd.getSuccess()) {
                 simulationConfigurationFile = icd.getBuiltFile();
                 project.addSimConfigFile(simulationConfigurationFile);

@@ -6,6 +6,7 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
+import org.xml.sax.SAXException;
 
 /**
  * Manages the construction of input configuration files.
@@ -16,10 +17,20 @@ public class InputConfigurationManager {
 
     InputConfiguration inputConfig;
     InputConfigurationBuilder inputConfigBuilder;
-
-    public InputConfigurationManager() throws ParserConfigurationException {
-        inputConfig = new InputConfiguration();
+    
+    private boolean load;
+    
+    public InputConfigurationManager(String configFilename) throws SAXException,
+            IOException, ParserConfigurationException {
         inputConfigBuilder = new InputConfigurationBuilder();
+        
+        if (configFilename != null) {
+            load = true;            
+            inputConfig = inputConfigBuilder.load(configFilename);
+        } else {
+            load = false;
+            inputConfig = new InputConfiguration();
+        }
     }
 
     public boolean addParameterValue(String parameter, String value) {
@@ -30,8 +41,11 @@ public class InputConfigurationManager {
         return success;
     }
 
-    public String getDefaultValue(String parameter) {
-        return inputConfig.getDefaultValue(parameter);
+    public String getInitValue(String parameter) {
+        if (load)
+            return inputConfig.getValue(parameter);
+        else
+            return inputConfig.getDefaultValue(parameter);
     }
 
     public String buildAndPersist(String projectName, String filename)

@@ -15,6 +15,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+import org.xml.sax.SAXException;
 
 /**
  * Builds the XML document used as input to a simulation
@@ -57,7 +60,7 @@ class InputConfigurationBuilder {
     private static final String vResetTagName = "Vreset";
     private static final String vResetMinAttributeName = "min";
     private static final String vResetMaxAttributeName = "max";
-    // <!-- Interval of initial membrance voltage -->
+    // <!-- Interval of initial membrane voltage -->
     private static final String vInitTagName = "Vinit";
     private static final String vInitMinAttributeName = "min";
     private static final String vInitMaxAttributeName = "max";
@@ -268,5 +271,142 @@ class InputConfigurationBuilder {
         t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
         t.transform(new DOMSource(doc), new StreamResult(file));
         return filename;
+    }
+    
+    public InputConfiguration load(String filename) throws SAXException, IOException,
+            ParserConfigurationException {
+        InputConfiguration ic = new InputConfiguration();
+        
+        File file = new File(filename);
+        
+        doc = DocumentBuilderFactory.newInstance().
+                newDocumentBuilder().parse(file);
+        doc.getDocumentElement().normalize();
+        NodeList nl = doc.getElementsByTagName(rootTagName);
+        if (nl.getLength() > 0) {
+            root = (Element) nl.item(0);
+        }
+        
+        Element elem;
+        String str;
+        
+        // <!-- Parameters for LSM -->
+        elem = getElementFromDom(lsmParamsTagName);
+        str = elem.getAttribute(lsmFracExcAttributeName);
+        ic.setValue(InputConfiguration.LSM_FRAC_EXC, str);
+        str = elem.getAttribute(lsmStartNeuronsAttributeName);
+        ic.setValue(InputConfiguration.LSM_START_NEURONS, str);
+        // <!-- size of pool of neurons [x y z] -->
+        elem = getElementFromDom(poolSizeTagName);
+        str = elem.getAttribute(poolSizeXAttributeName);
+        ic.setValue(InputConfiguration.POOL_SIZE_X, str);
+        str = elem.getAttribute(poolSizeYAttributeName);
+        ic.setValue(InputConfiguration.POOL_SIZE_Y, str);
+        str = elem.getAttribute(poolSizeZAttributeName);
+        ic.setValue(InputConfiguration.POOL_SIZE_Z, str);
+        // <!-- Interval of constant injected current -->
+        elem = getElementFromDom(IinjectTagName);
+        str = elem.getAttribute(iInjectMinAttributeName);
+        ic.setValue(InputConfiguration.I_INJECT_MIN, str);
+        str = elem.getAttribute(iInjectMaxAttributeName);
+        ic.setValue(InputConfiguration.I_INJECT_MAX, str);
+        // <!-- Interval of STD of (gaussian) noise current -->
+        elem = getElementFromDom(iNoiseTagName);
+        str = elem.getAttribute(iNoiseMinAttributeName);
+        ic.setValue(InputConfiguration.I_NOISE_MIN, str);
+        str = elem.getAttribute(iNoiseMaxAttributeName);
+        ic.setValue(InputConfiguration.I_NOISE_MAX, str);
+        // <!-- Interval of firing threshold -->
+        elem = getElementFromDom(vThreshTagName);
+        str = elem.getAttribute(vThreshMinAttributeName);
+        ic.setValue(InputConfiguration.V_THRESH_MIN, str);
+        str = elem.getAttribute(vThreshMaxAttributeName);
+        ic.setValue(InputConfiguration.V_THRESH_MAX, str);
+        // <!-- Interval of asymptotic voltage -->
+        elem = getElementFromDom(vRestingTagName);
+        str = elem.getAttribute(vRestingMinAttributeName);
+        ic.setValue(InputConfiguration.V_RESTING_MIN, str);
+        str = elem.getAttribute(vRestingMaxAttributeName);
+        ic.setValue(InputConfiguration.V_RESTING_MAX, str);
+        // <!-- Interval of reset voltage -->
+        elem = getElementFromDom(vResetTagName);
+        str = elem.getAttribute(vResetMinAttributeName);
+        ic.setValue(InputConfiguration.V_RESET_MIN, str);
+        str = elem.getAttribute(vResetMaxAttributeName);
+        ic.setValue(InputConfiguration.V_RESET_MAX, str);
+        // <!-- Interval of initial membrane voltage -->
+        elem = getElementFromDom(vInitTagName);
+        str = elem.getAttribute(vInitMinAttributeName);
+        ic.setValue(InputConfiguration.V_INIT_MIN, str);
+        str = elem.getAttribute(vInitMaxAttributeName);
+        ic.setValue(InputConfiguration.V_INIT_MAX, str);
+        // <!-- Starter firing threshold -->
+        elem = getElementFromDom(starterVThreshTagName);
+        str = elem.getAttribute(starterVThreshMinAttributeName);
+        ic.setValue(InputConfiguration.STARTER_V_THRESH_MIN, str);
+        str = elem.getAttribute(starterVThreshMaxAttributeName);
+        ic.setValue(InputConfiguration.STARTER_V_THRESH_MAX, str);
+        // <!-- Starter reset voltage -->
+        elem = getElementFromDom(starterVResetTagName);
+        str = elem.getAttribute(starterVResetMinAttributeName);
+        ic.setValue(InputConfiguration.STARTER_V_RESET_MIN, str);
+        str = elem.getAttribute(starterVResetMaxAttributeName);
+        ic.setValue(InputConfiguration.STARTER_V_RESET_MAX, str);
+        // <!-- Growth parameters -->
+        elem = getElementFromDom(growthParamsTagName);
+        str = elem.getAttribute(growthParamsEpsilonAttributeName);
+        ic.setValue(InputConfiguration.GROWTH_PARAMS_EPSILON, str);
+        str = elem.getAttribute(growthBetaAttributeName);
+        ic.setValue(InputConfiguration.GROWTH_BETA, str);        
+        str = elem.getAttribute(growthParamsRhoAttributeName);
+        ic.setValue(InputConfiguration.GROWTH_PARAMS_RHO, str);        
+        str = elem.getAttribute(growthParamsTargetRateAttributeName);
+        ic.setValue(InputConfiguration.GROWTH_PARAMS_TARGET_RATE, str);        
+        str = elem.getAttribute(growthParamsMinRadiusAttributeName);
+        ic.setValue(InputConfiguration.GROWTH_PARAMS_MIN_RADIUS, str);
+        str = elem.getAttribute(growthParamsStartRadiusAttributeName);
+        ic.setValue(InputConfiguration.GROWTH_PARAMS_START_RADIUS, str);
+        // <!-- Simulation Parameters -->
+        elem = getElementFromDom(simParamsTagName);
+        str = elem.getAttribute(simParamsTSimAttributeName);
+        ic.setValue(InputConfiguration.SIM_PARAMS_T_SIM, str);
+        str = elem.getAttribute(simParamsNumSimsAttributeName);
+        ic.setValue(InputConfiguration.SIM_PARAMS_NUM_SIMS, str);        
+        str = elem.getAttribute(simParamsMaxFiringRateAttributeName);
+        ic.setValue(InputConfiguration.SIM_PARAMS_MAX_FIRING_RATE, str);        
+        str = elem.getAttribute(simParamsMaxSynapsesPerNeuronAttributeName);
+        ic.setValue(InputConfiguration.SIM_PARAMS_MAX_SYNAPSES_PER_NEURON, str);        
+        // <!-- Simulation State Ouptut File -->
+        elem = getElementFromDom(outputParamsTagName);
+        str = elem.getAttribute(outputParamsStateOutputFileNameAttributeName);
+        ic.setValue(InputConfiguration.OUTPUT_PARAMS_STATE_OUTPUT_FILENAME, str);
+        // <!-- Random seed - set to zero to use /dev/random -->
+        elem = getElementFromDom(seedTagName);
+        str = elem.getAttribute(seedValueAttributeName);
+        ic.setValue(InputConfiguration.SEED_VALUE, str);
+        // <!-- If FixedLayout is present, the grid will be laid out according to 
+        // the positions below, rather than randomly based on LsmParams -->
+        elem = getElementFromDom(layoutTypeTagName);
+        elem = getElementFromDom(layoutFilesTagName);
+        ic.setValue(InputConfiguration.LAYOUT_TYPE, str);
+        str = elem.getAttribute(layoutFilesActiveNListFileNameAttributeName);
+        ic.setValue(InputConfiguration.LAYOUT_FILES_ACTIVE_N_LIST_FILE_NAME, str);
+        str = elem.getAttribute(layoutFilesInhNListFileNameAttributeName);
+        ic.setValue(InputConfiguration.LAYOUT_FILES_INH_N_LIST_FILE_NAME, str);
+        str = elem.getAttribute(layoutFilesPrbNListFileNameAttributeName);
+        ic.setValue(InputConfiguration.LAYOUT_FILES_PROBED_N_LIST_FILE_NAME, str);
+        
+        return ic;
+    }
+    
+    private Element getElementFromDom(String tagName) {
+        Element elem = null;
+        if (root != null) {
+            NodeList nl = root.getElementsByTagName(tagName);
+            if (nl.getLength() != 0) {
+                elem = (Element) nl.item(0);
+            }
+        }
+        return elem;
     }
 }
