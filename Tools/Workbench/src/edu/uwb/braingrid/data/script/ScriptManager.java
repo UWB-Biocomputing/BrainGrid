@@ -36,6 +36,7 @@ public class ScriptManager {
     /**
      * Generates a constructed (but not persisted) Script
      *
+     * @param projectname
      * @param version The version of the script (used in tracing output back to
      * the script that printed the output)
      * @param simSpec - The specification for the simulator to execute in the
@@ -98,23 +99,25 @@ public class ScriptManager {
         // else { do other things for local that wouldn't be done for remote? }
 
         /* Make the Simulator */
-        String[] cleanMakeArgs = {"-p", "clean"};
-        String[] makeArgs = {"-p", simExecutableToInvoke};
+        String[] cleanMakeArgs = {"-s", "clean"};
         script.executeProgram("make", cleanMakeArgs);
+        String[] makeArgs = {"-s", simExecutableToInvoke};
         script.executeProgram("make", makeArgs);
 
-        /* Checkout Master */
+        /* Checkout Refactor */
         String[] gitCheckoutRefactorArgs = {"checkout", "refactor-stable-cuda"};
         script.executeProgram("git", gitCheckoutRefactorArgs);
 
         /* Make Results Folder */
         String[] mkResultsDirArgs = {"results"};
-        script.executeProgram("mkdir", makeArgs);
+        script.executeProgram("mkdir", mkResultsDirArgs);
+
+        script.addVerbatimStatement("mkdir -p workbenchconfigfiles/NList");
 
         /* Move Sim Config File */
-        String[] simConfMvArgs
-                = {"-f", "~/" + simConfigFilename, "configfiles/"};
-        script.executeProgram("mv", simConfMvArgs);
+        script.addVerbatimStatement("cp ~/" + simConfigFilename + " ~/"
+                + simSpec.getSimulatorFolder()
+                + "/workbenchconfigfiles/" + simConfigFilename);
 
         /* Move Neuron Lists */
         FileManager fm = FileManager.getFileManager();
@@ -122,9 +125,13 @@ public class ScriptManager {
             String[] nListFilenames = fm.getNeuronListFilenames(projectname);
             if (nListFilenames != null) {
                 for (int i = 0, im = nListFilenames.length; i < im; i++) {
-                    String[] moveArgs = {"-f", "~/"
-                        + FileManager.getSimpleFilename(nListFilenames[i]), "configfiles/NList/"};
-                    script.executeProgram("mv", moveArgs);
+
+                    script.addVerbatimStatement("cp ~/"
+                            + FileManager.getSimpleFilename(nListFilenames[i])
+                            + " ~/"
+                            + simSpec.getSimulatorFolder()
+                            + " /workbenchconfigfiles/NList/"
+                            + FileManager.getSimpleFilename(nListFilenames[i]));
                 }
             }
         } catch (IOException e) {
@@ -132,7 +139,7 @@ public class ScriptManager {
         }
 
         /* Run the Simulator */
-        String[] hardCodedTestArgs = {"-t", "configfiles/"
+        String[] hardCodedTestArgs = {"-t", "wokbenchconfigfiles/"
             + simConfigFilename, ">", "~/simOutput" + version + ".out"
         };
         script.executeProgram(simExecutableToInvoke, hardCodedTestArgs, true);

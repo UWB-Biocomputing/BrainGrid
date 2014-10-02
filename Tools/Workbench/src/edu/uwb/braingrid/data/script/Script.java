@@ -159,7 +159,7 @@ public class Script {
             }
             sb.append(" ~/output.txt");
             bashStatements.add(sb.toString());
-            postCommandOuput(!bashStatements.isEmpty());
+            postCommandOutput(!bashStatements.isEmpty());
         } else {
             success = false;
         }
@@ -184,6 +184,12 @@ public class Script {
                 append(outToken).append(" ~/prov.txt").append(" 2").
                 append(outToken).append(" ~/prov.txt");
         bashStatements.add(s.toString());
+    }
+
+    public void addVerbatimStatement(String stmt) {
+        preCommandOutput(stmt, !bashStatements.isEmpty());
+        bashStatements.add(stmt);
+        postCommandOutput(!bashStatements.isEmpty());
     }
 
     public static String printfEscape(String s) {
@@ -213,7 +219,7 @@ public class Script {
         bashStatements.add(s.toString());
     }
 
-    private void postCommandOuput(boolean append) {
+    private void postCommandOutput(boolean append) {
         StringBuilder s = new StringBuilder();
         String outToken;
         outToken = append ? ">>" : ">";
@@ -226,7 +232,7 @@ public class Script {
     /**
      * Constructs both the bash and batch scripts
      *
-     * @return true if the script was constructed succesfully, otherwise false
+     * @return true if the script was constructed successfully, otherwise false
      */
     public boolean construct() {
         bashScriptConstructed = constructBashScript();
