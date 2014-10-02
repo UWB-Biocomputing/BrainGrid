@@ -112,12 +112,12 @@ public class ScriptManager {
         String[] mkResultsDirArgs = {"results"};
         script.executeProgram("mkdir", mkResultsDirArgs);
 
-        script.addVerbatimStatement("mkdir -p workbenchconfigfiles/NList");
+        script.addVerbatimStatement("mkdir -p workbenchconfigfiles/NList", false);
 
         /* Move Sim Config File */
         script.addVerbatimStatement("cp ~/" + simConfigFilename + " ~/"
                 + simSpec.getSimulatorFolder()
-                + "/workbenchconfigfiles/" + simConfigFilename);
+                + "/workbenchconfigfiles/" + simConfigFilename, true);
 
         /* Move Neuron Lists */
         FileManager fm = FileManager.getFileManager();
@@ -131,7 +131,8 @@ public class ScriptManager {
                             + " ~/"
                             + simSpec.getSimulatorFolder()
                             + " /workbenchconfigfiles/NList/"
-                            + FileManager.getSimpleFilename(nListFilenames[i]));
+                            + FileManager.getSimpleFilename(nListFilenames[i]),
+                            true);
                 }
             }
         } catch (IOException e) {

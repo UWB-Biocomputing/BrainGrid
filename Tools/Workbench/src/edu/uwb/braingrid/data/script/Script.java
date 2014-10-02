@@ -186,9 +186,10 @@ public class Script {
         bashStatements.add(s.toString());
     }
 
-    public void addVerbatimStatement(String stmt) {
+    public void addVerbatimStatement(String stmt, boolean append) {
         preCommandOutput(stmt, !bashStatements.isEmpty());
-        bashStatements.add(stmt);
+        String redirectString = (append ? ">>" : ">") + "~/output.txt 2>> ~/output.txt";
+        bashStatements.add(stmt + redirectString);
         postCommandOutput(!bashStatements.isEmpty());
     }
 
