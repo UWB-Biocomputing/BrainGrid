@@ -1067,7 +1067,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                             file.getName(), true);
                     Path destFilePath = new File(destPathText).toPath();
                     if (FileManager.copyFile(sourceFilePath, destFilePath)) {
-                        field.setText("configfiles/NList/"
+                        field.setText("NList/"
                                 + fm.getSimpleFilename(destFilePath.toString()));
                     }
                 } else {

@@ -151,8 +151,8 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
     private javax.swing.JButton searchButton;
     private javax.swing.JTextField subjectTextField;
     // End of variables declaration//GEN-END:variables
-
     // </editor-fold>
+
     // <editor-fold defaultstate="collapsed" desc="Custom Members">
     private final ProvMgr provMgr;
     private final String lineDelimiter = "\n";
@@ -212,7 +212,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
     }
 
     private boolean isSubjectValid() {
-        if (!subjectTextField.getText().equals("")) {
+        if (subjectTextField.getText() != null && !subjectTextField.getText().equals("")) {
             return true;
         } else {
             return false;

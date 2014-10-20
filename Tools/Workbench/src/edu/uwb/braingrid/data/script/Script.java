@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 /**
- * Supports running the simulation and collecting associated provenance.
+ * Provides support for building simple bash scripts in java where it is
+ * anticipated that the script will automatically record provenance and
+ * execution output to files. Provenance support includes the time that commands
+ * began execution, ended execution, and their state when execution completed.
  *
  * Created by Nathan on 7/16/2014; Updated by Del on 7/23/2014
  *
@@ -186,9 +189,13 @@ public class Script {
         bashStatements.add(s.toString());
     }
 
-    public void addVerbatimStatement(String stmt, boolean append) {
+    public void addVerbatimStatement(String stmt, String outputFile, boolean append) {
+        if (outputFile == null) {
+            outputFile = "~/output.txt";
+        }
         preCommandOutput(stmt, !bashStatements.isEmpty());
-        String redirectString = (append ? ">>" : ">") + "~/output.txt 2>> ~/output.txt";
+        String redirectString = (append ? " >>" : " >") + " " + outputFile
+                + " 2>> " + outputFile;
         bashStatements.add(stmt + redirectString);
         postCommandOutput(!bashStatements.isEmpty());
     }

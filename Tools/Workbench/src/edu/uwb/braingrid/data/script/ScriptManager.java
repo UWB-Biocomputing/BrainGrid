@@ -11,8 +11,10 @@ import edu.uwb.braingrid.workbench.model.ExecutedCommand;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
 import edu.uwb.braingrid.workbench.ui.LoginCredentialsDialog;
 import edu.uwb.braingrid.workbench.utils.DateTime;
+import java.awt.Desktop;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +43,7 @@ public class ScriptManager {
      * the script that printed the output)
      * @param simSpec - The specification for the simulator to execute in the
      * script
+     * @param simConfigFilename
      * @return A constructed script or null in the case that the script could
      * not be constructed properly
      */
@@ -49,7 +52,6 @@ public class ScriptManager {
         simConfigFilename = FileManager.getSimpleFilename(simConfigFilename);
         // create a new script
         Script script = new Script();
-
         /* Print Header Data */
         script.printf(Script.versionText, version,
                 false);
@@ -59,7 +61,6 @@ public class ScriptManager {
         simExecutableToInvoke = SimulationSpecification.getSimFilename(type);
         success = simExecutableToInvoke != null;
         printfSimSpecToScript(script, simExecutableToInvoke, simConfigFilename, true);
-
         /* Prep From ProjectMgr Data */
         // folder to make/cd to, assumption is that containing folder
         // note use mkdir -p to create any intermediate directories
@@ -74,7 +75,6 @@ public class ScriptManager {
             updateRepo = simulatorSourceCodeUpdatingType.
                     equals(SimulationSpecification.GIT_PULL_AND_CLONE);
         }
-
         /* Create Script */
         // add a mkdir that will create intermediate directories
         String[] argsForMkdir = {"-p", simSpec.getSimulatorFolder()};
@@ -92,64 +92,54 @@ public class ScriptManager {
             // then do a pull and maybe fail (one of the two will work)
             String[] gitPullArgs = {"pull"};
             script.executeProgram("git", gitPullArgs);
-            /* checkout master */
-            String[] gitCheckoutMasterArgs = {"checkout", "master"};
-            script.executeProgram("git", gitCheckoutMasterArgs);
+//            /* checkout master */
+//            String[] gitCheckoutMasterArgs = {"checkout", "master"};
+//            script.executeProgram("git", gitCheckoutMasterArgs);
         }
-        // else { do other things for local that wouldn't be done for remote? }
-
+//        /* Checkout Refactor */
+//        String[] gitCheckoutRefactorArgs = {"checkout", "refactor-stable-cuda"};
+//        script.executeProgram("git", gitCheckoutRefactorArgs);
         /* Make the Simulator */
         String[] cleanMakeArgs = {"-s", "clean"};
         script.executeProgram("make", cleanMakeArgs);
-        String[] makeArgs = {"-s", simExecutableToInvoke};
+        String[] makeArgs = {"-s", simExecutableToInvoke, "CUSEHDF5='no'"};
         script.executeProgram("make", makeArgs);
-
-        /* Checkout Refactor */
-        String[] gitCheckoutRefactorArgs = {"checkout", "refactor-stable-cuda"};
-        script.executeProgram("git", gitCheckoutRefactorArgs);
-
+        
         /* Make Results Folder */
         String[] mkResultsDirArgs = {"results"};
         script.executeProgram("mkdir", mkResultsDirArgs);
-
-        script.addVerbatimStatement("mkdir -p workbenchconfigfiles/NList", false);
-
+        script.addVerbatimStatement("mkdir -p workbenchconfigfiles/NList", null, true);
         /* Move Sim Config File */
         script.addVerbatimStatement("cp ~/" + simConfigFilename + " ~/"
                 + simSpec.getSimulatorFolder()
-                + "/workbenchconfigfiles/" + simConfigFilename, true);
-
+                + "/workbenchconfigfiles/" + simConfigFilename, null, true);
         /* Move Neuron Lists */
         FileManager fm = FileManager.getFileManager();
         try {
             String[] nListFilenames = fm.getNeuronListFilenames(projectname);
             if (nListFilenames != null) {
                 for (int i = 0, im = nListFilenames.length; i < im; i++) {
-
                     script.addVerbatimStatement("cp ~/"
                             + FileManager.getSimpleFilename(nListFilenames[i])
                             + " ~/"
                             + simSpec.getSimulatorFolder()
-                            + " /workbenchconfigfiles/NList/"
-                            + FileManager.getSimpleFilename(nListFilenames[i]),
+                            + "/workbenchconfigfiles"
+                            + "/NList/"
+                            + FileManager.getSimpleFilename(nListFilenames[i]), null,
                             true);
                 }
             }
         } catch (IOException e) {
             success = false;
         }
-
         /* Run the Simulator */
-        String[] hardCodedTestArgs = {"-t", "wokbenchconfigfiles/"
-            + simConfigFilename, ">", "~/simOutput" + version + ".out"
-        };
-        script.executeProgram(simExecutableToInvoke, hardCodedTestArgs, true);
-
+        script.addVerbatimStatement("./" + simExecutableToInvoke
+                + " -t workbenchconfigfiles/" + simConfigFilename, "~/simOutput"
+                + version + ".out", true);
         /* Put Script Together and Save */
         if (!success || !script.construct()) {
             script = null; // or indicate unsuccessful operation
         }
-
         return script;
     }
 
@@ -182,7 +172,7 @@ public class ScriptManager {
      * and filenames. File, itself, is used to specify all input for a
      * simulation.
      * @return True if all operations associated with running the script were
-     * successful, otherwise false. This does not indicate whether the
+     * successful, otherwise false. Note: This does not indicate whether the
      * simulation ran successfully
      * @throws com.jcraft.jsch.JSchException
      * @throws java.io.FileNotFoundException
@@ -200,9 +190,10 @@ public class ScriptManager {
             success
                     = runRemoteScript(simSpec, scriptPath, nListFilenames, simConfigFilename);
         } else { // or run it locally
-            if (!FileManager.getFileManager().isWindowsSystem()) {
-                success = runLocalScript(simSpec, scriptPath, nListFilenames);
-            }
+            //if (!FileManager.getFileManager().isWindowsSystem()) {
+            success
+                    = runLocalScript(simSpec, scriptPath, nListFilenames, simConfigFilename);
+            //}
         }
         return success;
     }
@@ -246,7 +237,6 @@ public class ScriptManager {
                 }
                 /* Simulation */
                 ExecutedCommand sim = analyzer.getFirstCommand("./" + simExec);
-
                 if (sim != null) {
                     // get agent resource
                     String uri = simSpec.getSimulatorFolder() + "/" + simExec;
@@ -279,6 +269,8 @@ public class ScriptManager {
                         System.err.println(ec);
                     }
                 }
+                // collect output file and standard output redirect file
+                
             }
         }
         return timeCompleted;
@@ -298,24 +290,8 @@ public class ScriptManager {
     }
 
     private static void printfSimSpecToScript(Script script, String simFile, String simInputFilename, boolean append) {
-
         script.printf(SimulationSpecification.simExecText, simFile,
                 append);
-        ///////////////////////TODO change test args to commented code/////////
-        /* Hard Coded Test Input - Change this for Production */
-        // printf the inputs
-//        String[] inputs = project.getInputFiles();
-//        String joinedInputs = "";
-//        if (inputs.length > 0) {
-//            for (int i = 0, im = inputs.length; i < im; i++) {
-//                // first \\t is regex second is string. 
-//                // So \t is replaced with \\t
-//                joinedInputs += Script.printfEscape(inputs[i]);
-//                if (i < im - 1) {
-//                    joinedInputs += " ";
-//                }
-//            }
-//        }
         String joinedInputs = simInputFilename;
         script.printf(SimulationSpecification.simInputsText, joinedInputs, true);
         // printf the outputs
@@ -420,10 +396,108 @@ public class ScriptManager {
     // TODO: IMPLEMENT
     // THIS IS A STUB
     private boolean runLocalScript(SimulationSpecification simSpec,
-            String scriptPath, String[] inputFilenames) {
-        boolean success = false;
-        //success = java.nio.file.Files.copy(, null);
-        outstandingMessages += "\n" + "Local script execution disabled" + "\n";
+            String scriptLocation, String[] inputFilenames,
+            String simConfigFilename) {
+        boolean success = true;
+        FileManager fm = FileManager.getFileManager();
+        Path scriptSourcePath = Paths.get(scriptLocation);
+        // get the location where the script will execute  
+        Path scriptTargetPath = Paths.get(fm.getUserDir()
+                + FileManager.getSimpleFilename(scriptLocation));
+        Path simConfigSourcePath = Paths.get(simConfigFilename);
+        Path simConfigTargetPath = Paths.get(fm.getUserDir()
+                + FileManager.getSimpleFilename(simConfigFilename));
+        Path[] nListSourcePaths = null;
+        Path[] nListTargetPaths = null;
+        if (inputFilenames != null && inputFilenames.length > 0) {
+            nListSourcePaths = new Path[inputFilenames.length];
+            nListTargetPaths = new Path[inputFilenames.length];
+            for (int i = 0, im = inputFilenames.length; i < im; i++) {
+                nListSourcePaths[i] = Paths.get(inputFilenames[i]);
+            }
+            for (int i = 0, im = inputFilenames.length; i < im; i++) {
+                nListTargetPaths[i] = Paths.get(fm.getUserDir()
+                        + FileManager.getSimpleFilename(inputFilenames[i]));
+            }
+        }
+        try {
+            // copy the script
+            FileManager.copyFile(scriptSourcePath, scriptTargetPath);
+            // copy the input configuration file
+        } catch (IOException e) {
+            outstandingMessages += "\n"
+                    + "An IOException prevented the script from being copied..."
+                    + "\nFrom: " + scriptSourcePath
+                    + "\nTo: " + scriptTargetPath
+                    + "\n";
+        }
+        try {
+            if (simConfigSourcePath != null && simConfigTargetPath != null) {
+                FileManager.copyFile(simConfigSourcePath, simConfigTargetPath);
+            }
+        } catch (IOException e) {
+            outstandingMessages += "\n"
+                    + "An IOException prevented the simulation configuration "
+                    + "file from being copied"
+                    + "\nFrom: " + simConfigSourcePath
+                    + "\nTo :" + simConfigTargetPath
+                    + "\n";
+        }
+        try {
+            // copy the neuron list files specified in the config file
+            if (nListSourcePaths != null && nListTargetPaths
+                    != null) {
+                for (int i = 0, im = nListSourcePaths.length, in
+                        = nListSourcePaths.length; i < im && i < in; i++) {
+                    FileManager.copyFile(nListSourcePaths[i], nListTargetPaths[i]);
+                }
+            }
+        } catch (IOException e) {
+            outstandingMessages += "\n"
+                    + "An IOException prevented the following files: ";
+            for (int i = 0, im = inputFilenames.length; i < im; i++) {
+                if (i == im - 1 && i > 0) {
+                    outstandingMessages += " and " + inputFilenames[i];
+                } else {
+                    outstandingMessages += inputFilenames[i] + ", ";
+                }
+            }
+            outstandingMessages += " from being copied to: " + fm.getUserDir();
+        }
+        String oldWrkDir = System.getProperty("user.dir");
+        String fs = fm.getFolderDelimiter();
+
+        String cmd = fm.isWindowsSystem() ? System.getenv("sh") + fs + "bin"
+                + fs + "sh " + scriptTargetPath.toString()
+                : "sh" + scriptTargetPath;
+        // run the script
+        try {
+            System.setProperty("user.dir", System.getProperty("user.home"));
+            //Runtime.getRuntime().exec(cmd);
+            if (Desktop.isDesktopSupported()) {
+                Desktop dt = Desktop.getDesktop();
+                dt.open(scriptTargetPath.toFile());
+            }
+        } catch (SecurityException e) {
+            success = false;
+            outstandingMessages += "\n"
+                    + "A SecurityException prevented the script from execution"
+                    + "\nAt: " + scriptTargetPath
+                    + "\n";
+        } catch (IOException e) {
+            success = false;
+            outstandingMessages += "\n"
+                    + "An input/output error occured while executing: "
+                    + "\n" + scriptTargetPath
+                    + "\n";
+            e.printStackTrace();
+        } finally {
+            System.setProperty("user.dir", oldWrkDir);
+        }
+
+        // run the script
+        // copy the simulation configuration file
+        //outstandingMessages += "\n" + "Local script execution disabled" + "\n";
         return success;
     }
 
@@ -431,7 +505,7 @@ public class ScriptManager {
             String outputStorageFolder) throws JSchException, SftpException, IOException {
         String filename = null;
         char[] password = null;
-        String copyToFilepath = outputStorageFolder
+        String provFileTargetLocation = outputStorageFolder
                 + Script.printfOutputFilename;
         // run simulation here or on another machine?
         boolean remote = simSpec.isRemote();
@@ -443,18 +517,24 @@ public class ScriptManager {
                     = new LoginCredentialsDialog(hostname, true);
             password = lcd.getPassword();
             lcd.clearPassword();
-            if (sft.downloadFile(Script.printfOutputFilename, copyToFilepath,
+            if (sft.downloadFile(Script.printfOutputFilename, provFileTargetLocation,
                     hostname, lcd.getUsername(), password)) {
-                filename = copyToFilepath;
+                filename = provFileTargetLocation;
+                sft.downloadFile(Script.printfOutputFilename, provFileTargetLocation,
+                    hostname, lcd.getUsername(), password);
             }
         } else {
             FileManager fm = FileManager.getFileManager();
             String simFolder = simSpec.getSimulatorFolder();
-            if (FileManager.copyFile(Paths.get(simFolder
+            Path provSourcePath = Paths.get(fm.getUserDir()
                     + fm.getFolderDelimiter()
-                    + Script.printfOutputFilename),
-                    Paths.get(copyToFilepath))) {
-                filename = copyToFilepath;
+                    + Script.printfOutputFilename);
+            Path provTargetPath = Paths.get(provFileTargetLocation);
+            System.err.println(provSourcePath);
+            System.err.println(provTargetPath);
+            if (FileManager.copyFile(provSourcePath,
+                    Paths.get(provFileTargetLocation))) {
+                filename = provFileTargetLocation;
             }
         }
         if (password != null) {

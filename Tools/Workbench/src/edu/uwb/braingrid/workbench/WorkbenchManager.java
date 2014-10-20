@@ -337,6 +337,7 @@ public class WorkbenchManager {
                         + "Simulation provenance could not be gathered due to "
                         + e.getClass() + "...\n";
                 messageAccumulator += "Exception message: " + e.getMessage();
+                //e.printStackTrace();
             }
         } else {
             messageAccumulator += "\n"
@@ -851,9 +852,9 @@ public class WorkbenchManager {
         String projectName = getProjectName();
         if (!projectName.equals("None")) {
             String configFilename = project.getSimConfigFilename();
-            InputConfigurationDialog icd = new
-                InputConfigurationDialog(projectName, true, configFilename);
-                
+            InputConfigurationDialog icd
+                    = new InputConfigurationDialog(projectName, true, configFilename);
+
             if (success = icd.getSuccess()) {
                 simulationConfigurationFile = icd.getBuiltFile();
                 project.addSimConfigFile(simulationConfigurationFile);

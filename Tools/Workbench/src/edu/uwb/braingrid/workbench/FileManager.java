@@ -59,7 +59,7 @@ public final class FileManager {
         String folder = getSimConfigDirectoryPath(projectName, false)
                 + neuronListFolderName + folderDelimiter;
         File folderFile = Paths.get(folder).toFile();
-        if (folderFile.isDirectory()) {            
+        if (folderFile.isDirectory()) {
             files = folderFile.listFiles();
             filenames = new String[files.length];
             for (int i = 0, im = files.length; i < im; i++) {
@@ -201,5 +201,9 @@ public final class FileManager {
             new File(directory).mkdirs();
         }
         return directory;
+    }
+
+    public String getUserDir() {
+        return System.getProperty("user.home") + folderDelimiter;
     }
 }
