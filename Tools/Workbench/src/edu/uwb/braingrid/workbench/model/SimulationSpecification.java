@@ -14,16 +14,21 @@ import java.util.List;
 public class SimulationSpecification {
 
     public static final String GIT_PULL_AND_CLONE = "Pull";
+    public static final int GIT_PULL_AND_CLONE_INDEX = 1;
     public static final String GIT_NONE = "None";
+    public static final int GIT_NONE_INDEX = 0;
     public static final String REMOTE_EXECUTION = "Remote";
     public static final String LOCAL_EXECUTION = "Local";
     public static final String SEQUENTIAL_SIMULATION = "Sequential";
+    public static final int SEQUENTIAL_SIMULATION_INDEX = 0;
     public static final String PARALLEL_SIMULATION = "Parallel";
+    public static final int PARALLEL_SIMULATION_INDEX = 1;
     public static final String endSimSpecText = "endSimSpec";
     public static final String simExecText = "simExecutable";
     public static final String simInputsText = "simInputs";
     public static final String simOutputsText = "simOutputs";
-    public static final int REMOTE = 1;
+    public static final int REMOTE_EXECUTION_INDEX = 1;
+    public static final int LOCAL_EXECUTION_INDEX = 0;
 
     /**
      * Provides the executable file name for a simulation based on the execution
@@ -36,13 +41,11 @@ public class SimulationSpecification {
     public static String getSimFilename(String simulationType) {
         String simExecutableToInvoke = null;
         if (simulationType != null) {
-            simExecutableToInvoke
-                    = simulationType.equals(SimulationSpecification.SEQUENTIAL_SIMULATION)
+            simExecutableToInvoke = simulationType.equals(SimulationSpecification.SEQUENTIAL_SIMULATION)
                     ? "growth" : "growth_gpu";
         }
         return simExecutableToInvoke;
     }
-
     private String username;
     private String hostAddress;
     private String sourceCodeUpdating;

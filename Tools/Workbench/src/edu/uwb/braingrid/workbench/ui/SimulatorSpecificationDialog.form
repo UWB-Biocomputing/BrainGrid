@@ -26,59 +26,54 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="1" attributes="0">
-                      <Component id="messageContentLabel" min="-2" pref="190" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Component id="messageContentLabel" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="okButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="cancelButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="jSeparator2" alignment="1" max="32767" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="simulatorLocationLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="simulatorLocationComboBox" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="simulationTypeLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="simulationTypeComboBox" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="sourceCodeUpdatingLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="sourceCodeUpdatingComboBox" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="codeRepositoryLocationLabel" alignment="0" max="32767" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="hostAddressLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                                  <Component id="usernameLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="passwordLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="hostAddressTextField" max="32767" attributes="0"/>
-                                  <Component id="passwordField" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="usernameTextField" alignment="0" min="-2" pref="239" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
-                          <Component id="simulatorLocationTextField" alignment="0" max="32767" attributes="0"/>
-                          <Component id="codeRepositoryLocationTextField" alignment="0" max="32767" attributes="0"/>
-                          <Component id="versionAnnotationLabel" min="-2" pref="301" max="-2" attributes="0"/>
-                          <Component id="simulatorFolderLocationLabel" alignment="0" min="-2" pref="183" max="-2" attributes="0"/>
-                          <Component id="versionAnnotationTextField" alignment="0" max="32767" attributes="0"/>
-                          <Group type="102" alignment="1" attributes="0">
-                              <Component id="remoteSpecMessageContentLabel" min="-2" pref="197" max="-2" attributes="0"/>
-                              <EmptySpace max="32767" attributes="0"/>
-                              <Component id="testConnectionButton" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  <Component id="jSeparator2" alignment="1" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="simulatorLocationLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="simulatorLocationComboBox" min="-2" pref="117" max="-2" attributes="0"/>
                   </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="simulationTypeLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="simulationTypeComboBox" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="sourceCodeUpdatingLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="sourceCodeUpdatingComboBox" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="codeRepositoryLocationLabel" alignment="0" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="hostAddressLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="usernameLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="passwordLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="hostAddressTextField" max="32767" attributes="0"/>
+                          <Component id="passwordField" alignment="0" pref="388" max="32767" attributes="0"/>
+                          <Component id="usernameTextField" alignment="0" max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <Component id="simulatorLocationTextField" alignment="0" max="32767" attributes="0"/>
+                  <Component id="codeRepositoryLocationTextField" alignment="0" pref="506" max="32767" attributes="0"/>
+                  <Component id="versionAnnotationLabel" min="-2" pref="301" max="-2" attributes="0"/>
+                  <Component id="versionAnnotationTextField" alignment="0" max="32767" attributes="0"/>
+                  <Group type="102" alignment="1" attributes="0">
+                      <Component id="remoteSpecMessageContentLabel" max="32767" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Component id="testConnectionButton" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="simulatorFolderLocationLabel" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -162,6 +157,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="https://github.com/UWB-Biocomputing/BrainGrid.git"/>
       </Properties>
+      <Events>
+        <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="codeRepositoryLocationTextFieldKeyReleased"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="okButton">
       <Properties>
@@ -217,6 +215,9 @@
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value=""/>
       </Properties>
+      <Events>
+        <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="versionAnnotationTextFieldKeyReleased"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JComboBox" name="simulatorLocationComboBox">
       <Properties>
@@ -270,7 +271,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="hostAddressLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Host Address:"/>
+        <Property name="text" type="java.lang.String" value="* Host Address:"/>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
     </Component>

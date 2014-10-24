@@ -112,8 +112,7 @@ public class SecureFileTransfer {
             session.connect();
             // upload file
             ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
-            channelSftp.connect();
-            System.err.println(fileToUpload);
+            channelSftp.connect();           
             if (fileToUpload != null) {
                 File f = new File(fileToUpload);
                 if (f.exists()) {

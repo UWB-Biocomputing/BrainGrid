@@ -4,6 +4,7 @@ import edu.uwb.braingrid.workbench.comm.SecureFileTransfer;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,6 +57,11 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         codeRepositoryLocationLabel.setToolTipText("<html>Repository to pull from.<br>This URI must go to a local folder,<br>or to a valid network address</html>");
 
         codeRepositoryLocationTextField.setText("https://github.com/UWB-Biocomputing/BrainGrid.git");
+        codeRepositoryLocationTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                codeRepositoryLocationTextFieldKeyReleased(evt);
+            }
+        });
 
         okButton.setText("OK");
         okButton.setEnabled(false);
@@ -90,6 +96,11 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         versionAnnotationLabel.setToolTipText("<html>A meaningful annotation to pair with<br>your source code version information</html>");
 
         versionAnnotationTextField.setToolTipText("");
+        versionAnnotationTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                versionAnnotationTextFieldKeyReleased(evt);
+            }
+        });
 
         simulatorLocationComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Local", "Remote" }));
         simulatorLocationComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -117,7 +128,7 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         remoteSpecMessageContentLabel.setText("<html><i>Message:</i><text></text></html>");
         remoteSpecMessageContentLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        hostAddressLabel.setText("Host Address:");
+        hostAddressLabel.setText("* Host Address:");
         hostAddressLabel.setEnabled(false);
 
         usernameLabel.setText("Username:");
@@ -156,49 +167,46 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(messageContentLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(messageContentLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(okButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cancelButton))
+                    .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(simulatorLocationLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(simulatorLocationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(simulationTypeLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(simulationTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(sourceCodeUpdatingLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(sourceCodeUpdatingComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(codeRepositoryLocationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(hostAddressLabel)
-                                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.LEADING))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(hostAddressTextField)
-                                    .addComponent(passwordField, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(usernameTextField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(simulatorLocationTextField)
-                            .addComponent(codeRepositoryLocationTextField)
-                            .addComponent(versionAnnotationLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(simulatorFolderLocationLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(versionAnnotationTextField)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(remoteSpecMessageContentLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(testConnectionButton)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(simulatorLocationLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(simulatorLocationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(simulationTypeLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(simulationTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(sourceCodeUpdatingLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(sourceCodeUpdatingComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(codeRepositoryLocationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(hostAddressLabel)
+                            .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.LEADING))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(hostAddressTextField)
+                            .addComponent(passwordField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
+                            .addComponent(usernameTextField, javax.swing.GroupLayout.Alignment.LEADING)))
+                    .addComponent(simulatorLocationTextField)
+                    .addComponent(codeRepositoryLocationTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
+                    .addComponent(versionAnnotationLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(versionAnnotationTextField)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(remoteSpecMessageContentLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(testConnectionButton))
+                    .addComponent(simulatorFolderLocationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -277,20 +285,54 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
 
     private void hostAddressTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_hostAddressTextFieldKeyReleased
         validateHostAddress();
+        if (testConnectionButton.isEnabled()) {
+            if (evt.getKeyCode() == evt.VK_ENTER) {
+                testConnection();
+            }
+        }
     }//GEN-LAST:event_hostAddressTextFieldKeyReleased
 
     private void usernameTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_usernameTextFieldKeyReleased
         validateUsername();
+        if (testConnectionButton.isEnabled()) {
+            if (evt.getKeyCode() == evt.VK_ENTER) {
+                testConnection();
+            }
+        }
     }//GEN-LAST:event_usernameTextFieldKeyReleased
 
     private void passwordFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passwordFieldKeyReleased
-        validatePassword();
+        if (testConnectionButton.isEnabled()) {
+            if (evt.getKeyCode() == evt.VK_ENTER) {
+                testConnection();
+            }
+        }
     }//GEN-LAST:event_passwordFieldKeyReleased
 
     private void simulatorLocationTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_simulatorLocationTextFieldKeyReleased
         simulatorLocationChanged();
+        if (okButton.isEnabled()) {
+            if (evt.getKeyCode() == evt.VK_ENTER) {
+                specifySimulator();
+            }
+        }
     }//GEN-LAST:event_simulatorLocationTextFieldKeyReleased
 
+    private void codeRepositoryLocationTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_codeRepositoryLocationTextFieldKeyReleased
+        if (okButton.isEnabled()) {
+            if (evt.getKeyCode() == evt.VK_ENTER) {
+                specifySimulator();
+            }
+        }
+    }//GEN-LAST:event_codeRepositoryLocationTextFieldKeyReleased
+
+    private void versionAnnotationTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_versionAnnotationTextFieldKeyReleased
+        if (okButton.isEnabled()) {
+            if (evt.getKeyCode() == evt.VK_ENTER) {
+                specifySimulator();
+            }
+        }
+    }//GEN-LAST:event_versionAnnotationTextFieldKeyReleased
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JLabel codeRepositoryLocationLabel;
@@ -318,7 +360,6 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
     private javax.swing.JTextField versionAnnotationTextField;
     // End of variables declaration//GEN-END:variables
 //</editor-fold>
-
     // <editor-fold defaultstate="collapsed" desc="Custom Members"> 
     /* Custom Members */
     public static final String LINUX_USERNAME_PATTERN = "^[a-z][a-z0-9\\-]*$";
@@ -338,6 +379,58 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
     public SimulatorSpecificationDialog(boolean modal) {
         setModal(modal);
         initComponents();
+        center();
+        pack();
+        setVisible(true);
+    }
+
+    public SimulatorSpecificationDialog(boolean modal, SimulationSpecification simSpec) {
+        setModal(modal);
+        initComponents();
+
+        boolean remote = simSpec.isRemote();
+        String simType = simSpec.getSimulationType();
+        String gitPull = simSpec.getSourceCodeUpdating();
+
+        String hostAddr = simSpec.getHostAddr();
+        String userName = simSpec.getUsername();
+        String folder = simSpec.getSimulatorFolder();
+        String codeLocation = simSpec.getCodeLocation();
+        String version = simSpec.getVersionAnnotation();
+
+        if (remote) {
+            simulatorLocationComboBox.setSelectedItem(SimulationSpecification.REMOTE_EXECUTION_INDEX);
+            if (hostAddr != null) {
+                hostAddressTextField.setText(hostAddr);
+            }
+            if (userName != null) {
+                usernameTextField.setText(userName);
+            }
+        } else {
+            simulatorLocationComboBox.setSelectedIndex(SimulationSpecification.LOCAL_EXECUTION_INDEX);
+        }
+
+        if (simType != null) {
+            if (simType.equals(SimulationSpecification.SEQUENTIAL_SIMULATION)) {
+                simulatorLocationComboBox.setSelectedItem(SimulationSpecification.PARALLEL_SIMULATION_INDEX);
+            } else {
+                simulatorLocationComboBox.setSelectedItem(SimulationSpecification.SEQUENTIAL_SIMULATION_INDEX);
+            }
+        }
+
+        if (gitPull != null) {
+            if (gitPull.equals(SimulationSpecification.GIT_PULL_AND_CLONE)) {
+                sourceCodeUpdatingComboBox.setSelectedIndex(SimulationSpecification.GIT_PULL_AND_CLONE_INDEX);
+            } else {
+                sourceCodeUpdatingComboBox.setSelectedIndex(SimulationSpecification.GIT_NONE_INDEX);
+            }
+        }
+        simulatorLocationTextField.setText(folder);
+        codeRepositoryLocationTextField.setText(codeLocation);
+        versionAnnotationTextField.setText(version);
+
+        enableOkButton();
+
         center();
         pack();
         setVisible(true);
@@ -363,8 +456,8 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         if (simFilePath.endsWith("/") || simFilePath.endsWith("\\")) {
             simFilePath = simFilePath.substring(0, simFilePath.length() - 1);
             simulatorLocationTextField.setText(simFilePath);
-        }        
-        
+        }
+
         okButtonClicked = true;
         passwordField.setText(null);
         setVisible(false);
@@ -377,7 +470,7 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
 
     private void remoteOrLocalSet() {
         setRemoteRelatedComponentsEnabled(simulatorLocationComboBox.getSelectedIndex()
-                == SimulationSpecification.REMOTE);
+                == SimulationSpecification.REMOTE_EXECUTION_INDEX);
     }
 
     private void validateHostAddress() {
@@ -398,26 +491,23 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         }
     }
 
-    private void validatePassword() {
-        enableTestConnectionButton();
-    }
-
     private void testConnection() {
+        testConnectionButton.setEnabled(false);
+        String hostname = hostAddressTextField.getText();
+        String username = usernameTextField.getText();
+        char[] password = passwordField.getPassword();
         // try to connect
-        SecureFileTransfer sft
-                = new SecureFileTransfer();
-        boolean success
-                = sft.testConnection(1000, hostAddressTextField.getText(),
-                        usernameTextField.getText(),
-                        passwordField.getPassword());
+        SecureFileTransfer sft = new SecureFileTransfer();
+        boolean success = sft.testConnection(3000, hostname, username, password);
         String msg = success ? "Connection Successful" : "Connection Failed";
         String color = success ? "green" : "red";
         // report status
         setRemoteConnectionMsg(msg, color);
         // mark operation success
         connectionTestSuccessful = success;
+        Arrays.fill(password, '0');
         // reset button
-        testConnectionButton.setEnabled(false);
+        testConnectionButton.setEnabled(true);
     }
 
     private void simulatorLocationChanged() {
@@ -429,7 +519,6 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
     }
 
     private void validateCodeRepositoryLocation() {
-
     }
     // </editor-fold>
 
@@ -652,7 +741,7 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
                 getText().equals("");
         boolean remoteExecution = this.simulatorLocationComboBox.
                 getSelectedItem().toString().equals(
-                        SimulationSpecification.REMOTE_EXECUTION);
+                SimulationSpecification.REMOTE_EXECUTION);
         boolean nullHostAddr = hostAddressTextField.getText() == null;
         boolean emptyHostAddr = hostAddressTextField.getText().equals("");
         // set ok enabled based on required fields filled

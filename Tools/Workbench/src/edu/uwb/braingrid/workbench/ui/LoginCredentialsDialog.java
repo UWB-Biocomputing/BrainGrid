@@ -130,6 +130,8 @@ public class LoginCredentialsDialog extends javax.swing.JDialog {
 
     private void usernameTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_usernameTextFieldKeyReleased
         validateUsername();
+        if (evt.getKeyCode() == evt.VK_ENTER)
+            specifyCredentials(true);
     }//GEN-LAST:event_usernameTextFieldKeyReleased
 
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Form version="1.8" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
+<Form version="1.8" maxVersion="1.8" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <NonVisualComponents>
     <Menu class="javax.swing.JMenuBar" name="MainMenuBar">
       <SubComponents>
@@ -176,7 +176,7 @@
                       </Group>
                       <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="scriptStatusMsgLabel" alignment="0" pref="296" max="32767" attributes="0"/>
+                          <Component id="scriptStatusMsgLabel" alignment="0" pref="432" max="32767" attributes="0"/>
                           <Component id="generatedScriptFilenameLabel" alignment="0" max="32767" attributes="0"/>
                           <Component id="scriptSpecificationLabel" alignment="0" max="32767" attributes="0"/>
                           <Component id="outputFilenameLabel" alignment="1" max="32767" attributes="0"/>
@@ -247,7 +247,7 @@
                   <Component id="transferProgressBar" min="-2" pref="19" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
-              <Component id="jScrollPane1" max="32767" attributes="0"/>
+              <Component id="jScrollPane1" pref="285" max="32767" attributes="0"/>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>

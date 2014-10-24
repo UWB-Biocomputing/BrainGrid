@@ -54,7 +54,6 @@ public class WorkbenchManager {
     private final String projectsDir;
     private SimulationSpecification simSpec;
     private String simulationConfigurationFile;
-
     /**
      * Value indicating that an exception occurred during an operation
      */
@@ -283,7 +282,11 @@ public class WorkbenchManager {
     public boolean specifyScript() {
         String hostAddr;
         SimulatorSpecificationDialog simulator;
-        simulator = new SimulatorSpecificationDialog(true);
+        if (simSpec != null) {
+            simulator = new SimulatorSpecificationDialog(true, simSpec);
+        } else {
+            simulator = new SimulatorSpecificationDialog(true);
+        }
         boolean success = simulator.getSuccess();
         if (success) {
             simSpec = simulator.toSimulatorSpecification();
@@ -326,8 +329,7 @@ public class WorkbenchManager {
                 String targetFolder = ScriptManager.getScriptFolder(
                         project.determineProjectOutputLocation());
                 ScriptManager scriptMgr = new ScriptManager();
-                timeCompleted
-                        = scriptMgr.analyzeScriptOutput(simSpec, prov, targetFolder);
+                timeCompleted = scriptMgr.analyzeScriptOutput(simSpec, prov, targetFolder);
                 if (timeCompleted != DateTime.ERROR_TIME) {
                     project.setScriptCompletedAt(timeCompleted);
                 }
@@ -400,8 +402,7 @@ public class WorkbenchManager {
         ScriptManager sm = new ScriptManager();
         try {
             String scriptPath = project.getScriptCanonicalFilePath();
-            String[] neuronLists
-                    = FileManager.getFileManager().getNeuronListFilenames(project.getName());
+            String[] neuronLists = FileManager.getFileManager().getNeuronListFilenames(project.getName());
             success = sm.runScript(simSpec, scriptPath, neuronLists,
                     project.getSimConfigFilename());
             project.setScriptRan(success);
@@ -627,8 +628,7 @@ public class WorkbenchManager {
     public boolean isSimExecutionRemote() {
         boolean remote = false;
         if (project != null) {
-            String simulatorExecutionMachine
-                    = project.getSimulatorLocale();
+            String simulatorExecutionMachine = project.getSimulatorLocale();
             if (simulatorExecutionMachine != null) {
                 remote = simulatorExecutionMachine.
                         equals(SimulationSpecification.REMOTE_EXECUTION);
@@ -732,12 +732,9 @@ public class WorkbenchManager {
     public String getSimulationOverview() {
         String overview = "None";
         if (simSpec != null) {
-            String simFoldername
-                    = simSpec.getSimulatorFolder();
-            String simVersionAnnotation
-                    = simSpec.getVersionAnnotation();
-            String simCodeLocation
-                    = simSpec.getCodeLocation();
+            String simFoldername = simSpec.getSimulatorFolder();
+            String simVersionAnnotation = simSpec.getVersionAnnotation();
+            String simCodeLocation = simSpec.getCodeLocation();
             overview = "<html>";
             boolean simAttributeAddedToText = false;
             if (simFoldername != null) {
@@ -853,8 +850,7 @@ public class WorkbenchManager {
         String projectName = getProjectName();
         if (!projectName.equals("None")) {
             String configFilename = project.getSimConfigFilename();
-            InputConfigurationDialog icd
-                    = new InputConfigurationDialog(projectName, true, configFilename);
+            InputConfigurationDialog icd = new InputConfigurationDialog(projectName, true, configFilename);
 
             if (success = icd.getSuccess()) {
                 simulationConfigurationFile = icd.getBuiltFile();
