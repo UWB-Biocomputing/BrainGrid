@@ -130,7 +130,6 @@ public class NewProjectDialog extends javax.swing.JDialog {
         /* Redirect to OK button action if enter key */
         if (validateNewProjectName()) {
             if (evt.getKeyCode() == evt.VK_ENTER) {
-                System.err.println("got here!");
                 newProjectOKButtonActionPerformed(null);
             }
         }

@@ -741,8 +741,9 @@ public class WorkbenchManager {
             overview = "<html>";
             boolean simAttributeAddedToText = false;
             if (simFoldername != null) {
-                overview += "location: "
-                        + simFoldername + "/";
+                FileManager fm = FileManager.getFileManager();
+                String home = fm.getUserDir();
+                overview += "location: " + home + simFoldername;
                 simAttributeAddedToText = true;
             }
             if (simVersionAnnotation != null) {

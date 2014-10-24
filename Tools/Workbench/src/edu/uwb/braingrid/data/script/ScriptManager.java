@@ -466,17 +466,21 @@ public class ScriptManager {
         }
         String oldWrkDir = System.getProperty("user.dir");
         String fs = fm.getFolderDelimiter();
-
-        String cmd = fm.isWindowsSystem() ? System.getenv("sh") + fs + "bin"
-                + fs + "sh " + scriptTargetPath.toString()
-                : "sh" + scriptTargetPath;
+        String cmd = "sh " + System.getProperty("user.home") +
+                FileManager.getSimpleFilename(scriptTargetPath.toString());
+        
         // run the script
         try {
-            System.setProperty("user.dir", System.getProperty("user.home"));
-            //Runtime.getRuntime().exec(cmd);
-            if (Desktop.isDesktopSupported()) {
-                Desktop dt = Desktop.getDesktop();
-                dt.open(scriptTargetPath.toFile());
+            if (fm.isWindowsSystem()) {
+                System.setProperty("user.dir", System.getProperty("user.home"));
+                
+                if (Desktop.isDesktopSupported()) {
+                    Desktop dt = Desktop.getDesktop();
+                    dt.open(scriptTargetPath.toFile());
+                }
+            }
+            else {
+                Runtime.getRuntime().exec(cmd);
             }
         } catch (SecurityException e) {
             success = false;

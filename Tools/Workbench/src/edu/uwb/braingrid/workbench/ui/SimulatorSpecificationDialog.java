@@ -50,7 +50,7 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         messageContentLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Script Specifiaction");
+        setTitle("Script Specification");
 
         codeRepositoryLocationLabel.setText("BrainGrid Code Repository:");
         codeRepositoryLocationLabel.setToolTipText("<html>Repository to pull from.<br>This URI must go to a local folder,<br>or to a valid network address</html>");
@@ -160,9 +160,9 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(messageContentLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(cancelButton)
-                        .addGap(7, 7, 7)
-                        .addComponent(okButton))
+                        .addComponent(okButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cancelButton))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.TRAILING)
@@ -359,6 +359,12 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
 
     // <editor-fold defaultstate="collapsed" desc="Action Helpers"> 
     private void specifySimulator() {
+        String simFilePath = simulatorLocationTextField.getText();
+        if (simFilePath.endsWith("/") || simFilePath.endsWith("\\")) {
+            simFilePath = simFilePath.substring(0, simFilePath.length() - 1);
+            simulatorLocationTextField.setText(simFilePath);
+        }        
+        
         okButtonClicked = true;
         passwordField.setText(null);
         setVisible(false);

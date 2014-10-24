@@ -60,6 +60,12 @@ public class LoginCredentialsDialog extends javax.swing.JDialog {
             }
         });
 
+        passwordField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                passwordFieldKeyReleased(evt);
+            }
+        });
+
         hostnameTextField.setEnabled(false);
 
         msgLabel.setText("<html>Message: <span style=\"color:green\">None</span></html>");
@@ -133,6 +139,11 @@ public class LoginCredentialsDialog extends javax.swing.JDialog {
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         specifyCredentials(false);
     }//GEN-LAST:event_cancelButtonActionPerformed
+
+    private void passwordFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passwordFieldKeyReleased
+        if (evt.getKeyCode() == evt.VK_ENTER)
+            specifyCredentials(true);
+    }//GEN-LAST:event_passwordFieldKeyReleased
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;

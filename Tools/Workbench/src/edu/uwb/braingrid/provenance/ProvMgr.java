@@ -180,6 +180,7 @@ public class ProvMgr {
     }
 
     public Resource addActivity(String uri, String label, boolean remote) {
+        uri = uri.replaceAll("\\\\", "/");
         String fullUri = remote ? getProjectFullRemoteURI(uri)
                 : getProjectFullLocalURI(uri);
         removeResource(uri);
@@ -196,6 +197,7 @@ public class ProvMgr {
     }
 
     public Resource addSoftwareAgent(String uri, String label, boolean remote) {
+        uri = uri.replaceAll("\\\\", "/");
         String fullUri = remote ? getProjectFullRemoteURI(uri)
                 : getProjectFullLocalURI(uri);
         removeResource(uri);
