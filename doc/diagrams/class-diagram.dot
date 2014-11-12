@@ -185,7 +185,8 @@ digraph {
 	Simulator [
 		label = "{" + "Simulator\n\<\<interface\>\>" +
 				"|" +
-				"" +
+				"network : Network* \l" +
+				"m_sim_info : SimulationInfo* \l" +
 				"|" +
 				"void simulate() \l" +
 				"void advanceUntilGrowth(...) \l" +
@@ -239,6 +240,7 @@ digraph {
 	
 	Model -> Network [arrowhead=ediamond];
 	Network -> Simulator [arrowhead=ediamond];
+	SimulationInfo -> Simulator [arrowhead=ediamond];
 
 	// Set invisible edges to force the layout of the "floating" classes.
 	AllSynapses -> AllNeurons -> SimulationInfo [style=invis];
