@@ -101,7 +101,7 @@ digraph {
 				"maxRate :  BGFLOAT \l" +
 				"pSummationMap : BGFLOAT* \l" +
 				"seed : long \l" +
-				"|" + "}"
+				"}"
 	];
 
 
@@ -110,8 +110,6 @@ digraph {
 //##############################################################################
 	Model [
 		label = "{" + "Model\n\<\<interface\>\>" +
-				"|" +
-				"" +
 				"|" +
 				"bool readParameters(...) \l" +
 				"void printParameters(...) \l" +
@@ -235,6 +233,8 @@ digraph {
 	CUDASimulator -> Simulator [arrowhead=empty];
 	
 	Model -> Network [arrowhead=ediamond];
+	AllSynapses -> Network [arrowhead=ediamond];
+	AllNeurons -> Network [arrowhead=ediamond];
 	Network -> Simulator [arrowhead=ediamond];
 	SimulationInfo -> Simulator [arrowhead=ediamond];
 
