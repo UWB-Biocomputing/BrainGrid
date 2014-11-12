@@ -89,7 +89,7 @@ digraph {
 				"|" +
 				"width : int \l" +
 				"height : int \l" +
-				"cNeurons : int \l" +
+				"totalNeurons : int \l" +
 				"currentStep : int \l" +
 				"maxSteps : int \l" +
 				"epochDuration : BGFLOAT \l" +
@@ -98,12 +98,7 @@ digraph {
 				"deltaT : BGFLOAT \l" +
 				"rgNeuronTypeMap : neuronType* \l" +
 				"rgEndogeneouslyActiveNeuronMap : bool* \l" +
-				"epsilon : BGFLOAT \l" +
-				"beta : BGFLOAT \l" +
-				"rho : BGFLOAT \l" +
 				"maxRate :  BGFLOAT \l" +
-				"minRadius : BGFLOAT \l" +
-				"startRadius : BGFLOAT \l" +
 				"pSummationMap : BGFLOAT* \l" +
 				"seed : long \l" +
 				"|" + "}"
