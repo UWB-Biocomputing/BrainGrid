@@ -127,7 +127,27 @@ digraph {
 	LIFModel [
 		label = "{" + "LIFModel" +
 				"|" +
-				"|" + "}"
+				"bool VisitEnter(...) \l" +
+				"string neuronToString(...) \l" +
+				"bool updateDecay(...) \l" +
+				"void readNeuron(...) \l" +
+				"void readSynapse(...) \l" +
+				"void initSpikeQueue(...) \l" +
+				"void resetSynapse(...) \l" +
+				"void writeNeuron(...) \l" +
+				"void writeSynapse(...) \l" +
+				"void logSimStep(...) \l" +
+				"void getStarterNeuronMatrix(...) \l" +
+				"void generateNeuronTypeMap(...) \l" +
+				"void initStarterMap(...) \l" +
+				"void setNeuronDefaults(...) \l" +
+				"void initNeuronConstsFromParamValues(...) \l" +
+				"void updateHistory(...) \l" +
+				"void clearSpikeCounts(...) \l" +
+				"void updateFrontiers(...) \l" +
+				"void updateOverlap(...) \l" +
+				"synapseType synapseOrdinalToType(...) \l" +
+				"}"
 	];
 	
 	LIFModelST [
