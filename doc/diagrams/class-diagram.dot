@@ -161,10 +161,11 @@ digraph {
 	Network [
 		label = "{" + "Network" +
 				"|" +
-				"m_model : *Model \l" +
-				"neurons : AllNeurons \l" +
-				"synapses : AllSynapses \l" +
-				"m_sin_info : SimulationInfo \l" +
+				"m_model : Model* \l" +
+				"neurons : AllNeurons* \l" +
+				"synapses : AllSynapses* \l" +
+				"m_simRecorder : IRecorder* \l" +
+				"m_sin_info : SimulationInfo* \l" +
 				"|" +
 				"void freeResources() \l" + 
 				"void reset() \l" +
