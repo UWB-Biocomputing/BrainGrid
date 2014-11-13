@@ -42,7 +42,7 @@ else
 	PMFLAGS = 
 endif
 ifeq ($(CUSEHDF5), yes)
-	LH5FLAGS =  -L/opt/hdf5/latest/lib -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5
+	LH5FLAGS =  -L/opt/hdf5/latest/lib -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5 -lsz
 	H5FLAGS = -DUSE_HDF5
 else
 	LH5FLAGS =
@@ -125,7 +125,7 @@ SINPUTOBJS = $(SINPUTDIR)/HostSInputRegular.o \
 # Targets
 ################################################################################
 growth: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(SINPUTOBJS)
-	$(LD) -o growth -g $(LDFLAGS) $(LH5FLAGS) $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(SINPUTOBJS)
+	$(LD) -o growth -g $(LDFLAGS) $(LIBOBJS) $(LH5FLAGS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(SINPUTOBJS)
 
 growth_cuda:$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS) $(SINPUTOBJS)
 	nvcc -o growth_cuda -g -arch=sm_20 -rdc=true $(LDFLAGS) $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(SINPUTOBJS)
