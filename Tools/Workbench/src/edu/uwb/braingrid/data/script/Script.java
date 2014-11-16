@@ -33,16 +33,37 @@ public class Script {
     private boolean bashScriptConstructed;
     /* temporary variables */
     private StringBuilder sb;
+    /* version information */
+    private String version;
 
-    /* prov tags */
+    /**
+     * Prefix text for the echo of a command
+     */
     public static final String commandText = "command";
+    /**
+     * Prefix text for milliseconds since epoch when a command was executed
+     */
     public static final String startTimeText = "time started";
+    /**
+     * Prefix text for milliseconds since epoch when an executed command
+     * completed
+     */
     public static final String completedTimeText = "time completed";
+    /**
+     * Prefix text for the exit status of an executed command
+     */
     public static final String exitStatusText = "exit status";
+    /**
+     * Prefix text for the version of the executed script
+     */
     public static final String versionText = "version";
-
-    /* redirect filenames */
+    /**
+     * redirect file for script-related provenance information
+     */
     public static final String printfOutputFilename = "prov.txt";
+    /**
+     * redirect file for std-err and std-out of executed commands
+     */
     public static final String commandOutputFilename = "output.txt";
     // </editor-fold>
 
@@ -57,6 +78,20 @@ public class Script {
         bashArgDeclarations = new ArrayList<>();
         usageStatements = new ArrayList<>();
         bashScriptConstructed = false;
+        version = null;
+    }
+
+    /**
+     * Constructs Script object and initializes members. In addition to the
+     * default constructor, the version of the script is set. The version is
+     * generally incremental and should follow the previous version of the
+     * script where the first script version is "1".
+     *
+     * @param ver - the iteration of persisted scripts for the project
+     */
+    public Script(String ver) {
+        this();
+        version = ver;
     }
     // </editor-fold>
 
@@ -113,8 +148,10 @@ public class Script {
      * @param addToUsage - explanation of each argument. (The usage explanation
      * for non-variable args will not be used, but must be specified or null as
      * the length of addToUsage must match the args and variable parameters)
-     * @param fromWrkDir
-     * @return
+     * @param fromWrkDir - Indicates whether or not the command execution should
+     * be prefaced with a symbolic link to the current working directory.
+     * @return True if the command was successfully added to the script,
+     * otherwise false
      */
     public boolean executeProgram(String filename, String[] args,
             boolean[] variable, String[] addToUsage, boolean fromWrkDir) {
@@ -125,6 +162,27 @@ public class Script {
         return success1;// && success2;
     }
 
+    /**
+     * Executes a given program with the provided arguments. Some of the
+     * arguments may be variable. Whether or not they are variable is determined
+     * by the boolean value at the corresponding position in variable parameter.
+     * A description of each variable should be provided.
+     *
+     * Note: The length of args, variable, and addToUsage must be the same.
+     *
+     * @param filename name of the file to execute
+     * @param args - arguments to provide for execution. Even for variable
+     * arguments this is necessary because the names are used in the usage for
+     * the script.
+     * @param variable - whether or not each argument should be script variable
+     * @param addToUsage - explanation of each argument. (The usage explanation
+     * for non-variable args will not be used, but must be specified or null as
+     * the length of addToUsage must match the args and variable parameters)
+     * @param fromWrkDir - Indicates whether or not the command execution should
+     * be prefaced with a symbolic link to the current working directory.
+     * @return True if the command was successfully added to the script,
+     * otherwise false
+     */
     private boolean executeProgramForBash(String filename, String[] args,
             boolean[] variable, String[] addToUsage, boolean fromWrkDir) {
         String dotSlash = fromWrkDir ? "./" : "";
@@ -176,20 +234,40 @@ public class Script {
      * @param prefix - the prefix used to identify the statement during analysis
      * @param statement - the statement indicating the value associated with the
      * prefix
+     * @param provFile
      * @param append - True if the redirected standard out descriptor and
      * standard error descriptor should be appended to, False if they should be
      * overwritten by the output of this printf statement
      */
-    public void printf(String prefix, String statement, boolean append) {
+    public void printf(String prefix, String statement, String provFile, boolean append) {
+        statement = printfEscape(statement);
+        if (provFile == null) {
+            provFile = Script.printfOutputFilename;
+        }
         StringBuilder s = new StringBuilder();
         String outToken = append ? ">>" : ">";
         s.append("printf \"").append(prefix).append(": ").append(statement).append("\\n\" ").
-                append(outToken).append(" ~/prov.txt").append(" 2").
-                append(outToken).append(" ~/prov.txt");
+                append(outToken).append(" ~/").append(provFile).append(" 2").
+                append(outToken).append(" ~/").append(provFile);
         bashStatements.add(s.toString());
     }
 
+    /**
+     * Adds a command statement to the script irrespective of script variables
+     *
+     * @param stmt
+     * @param outputFile - File to redirect standard error/out to
+     * @param append - Whether or not the output file should be appended to.
+     * Note: Since any file name, previously used or not, can be specified as
+     * the output file, this function has no safe-guards against overwriting
+     * previous redirected output. If the file has been previously used in the
+     * script, but isn't appended to in future uses, it will be overwritten. On
+     * the other hand, if the file is used as a redirect for the first time in
+     * the script and it is appended to, the file may contain output from
+     * previous execution of the script.
+     */
     public void addVerbatimStatement(String stmt, String outputFile, boolean append) {
+        stmt = printfEscape(stmt);
         if (outputFile == null) {
             outputFile = "~/output.txt";
         }
@@ -217,6 +295,7 @@ public class Script {
     }
 
     private void preCommandOutput(String whatStarted, boolean append) {
+        whatStarted = printfEscape(whatStarted);
         StringBuilder s = new StringBuilder();
         String outToken;
         outToken = append ? ">>" : ">";

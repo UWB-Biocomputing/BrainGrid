@@ -24,7 +24,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RiotNotFoundException;
 
@@ -50,15 +54,15 @@ public class ProvMgr {
     // <editor-fold defaultstate="collapsed" desc="Members">
     /* URI's and labels used to describe the provenance */
     private String provOutputFileURI;
-    private static final String localURIPrefix = "local";
-    private static final String remoteURIPrefix = "remote";
-    private static String localNS;
-    private static String remoteNS;
+    private static String localNameSpaceURI;
+    private static String remoteNameSpaceURI;
     /* flags called prior to an operation through respective query functions */
     /* RDF in-memory representation of the provenance */
     private Model model;
 
     public static final String ipServiceURL = "http://checkip.amazonaws.com/";
+    public static String REMOTE_NS_PREFIX = "remote";
+    public static String LOCAL_NS_PREFIX = "local";
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction">
@@ -98,9 +102,9 @@ public class ProvMgr {
         model.setNsPrefix("prov", ProvOntology.getPROVNameSpaceURI());
         // XML schema
         model.setNsPrefix("xsd", ProvOntology.getXSDNameSpaceURI());
-        localNS = getLocalNameSpace();
+        localNameSpaceURI = getLocalNameSpaceURI();
         // BrainGrid Prov
-        model.setNsPrefix("local", localNS);
+        model.setNsPrefix(LOCAL_NS_PREFIX, localNameSpaceURI);
     }
 
     /**
@@ -114,13 +118,24 @@ public class ProvMgr {
         provOutputFileURI = project.determineProvOutputLocation()
                 + name + ".ttl";
         model = RDFDataMgr.loadModel(provOutputFileURI);
-        localNS = getLocalNameSpace();
-        model.setNsPrefix("local", localNS);
-        String oldRemote = model.getNsPrefixURI(remoteURIPrefix);
-        if (oldRemote != null) {
-            remoteNS
-                    = oldRemote.substring(oldRemote.lastIndexOf('/') + 1);
-            model.setNsPrefix(remoteURIPrefix, remoteNS);
+        localNameSpaceURI = getLocalNameSpaceURI();
+        model.setNsPrefix(LOCAL_NS_PREFIX, localNameSpaceURI);
+        trimRemoteNS();
+    }
+
+    /**
+     * Removes the provenance filename from which the model was loaded from all
+     * name spaces associated with remote machines.
+     */
+    private void trimRemoteNS() {
+        Map<String, String> nsMap = model.getNsPrefixMap();
+        for (Entry entry : nsMap.entrySet()) {
+            String nameSpace = (String) entry.getKey();
+            String uri = (String) entry.getValue();
+            if (nameSpace.startsWith(REMOTE_NS_PREFIX)) {
+                remoteNameSpaceURI = uri.substring(uri.lastIndexOf('/') + 1);
+                model.setNsPrefix(nameSpace, remoteNameSpaceURI);
+            }
         }
     }
 
@@ -135,7 +150,10 @@ public class ProvMgr {
      * @param uri - The URI of the name space
      */
     public void setNsPrefix(String prefix, String uri) {
-        model.setNsPrefix(prefix, uri + "#");
+        // if the model doesn't have a prefix for the uri
+        if (model.getNsURIPrefix(uri + "#") == null) {
+            model.setNsPrefix(prefix, uri + "#");
+        }
     }
     // </editor-fold>
 
@@ -219,9 +237,50 @@ public class ProvMgr {
                 agent.getURI());
     }
 
-    public Resource atTime(Resource associatedWith, String time) {
-        return createDefinition(associatedWith.getURI(),
+    /**
+     * Describes when an activity occurred
+     *
+     * @param activity - The activity that occurred
+     * @param time - The time at which the activity occurred
+     * @return No uses of the resulting statement are known to be any better
+     * than using the activity resource, consider using the activity resource if
+     * it is available (you can look up its URI by calling getSubject)
+     */
+    public Resource atTime(Resource activity, String time) {
+        return createDefinition(activity.getURI(),
                 ProvOntology.getAtTimeQualifiedPropertyFullURI(), time);
+    }
+
+    /**
+     * Describes when an activity started (use this for activities, use atTime
+     * for instantaneous events)
+     *
+     * @param activity - The activity that occurred
+     * @param time - The time at which the activity started
+     * @return No uses of the resulting statement are known to be any better
+     * than using the activity resource, consider using the activity resource it
+     * is available (you can look up its URI by calling getSubject)
+     */
+    public Resource startedAtTime(Resource activity, String time) {
+        return createDefinition(activity.getURI(),
+                ProvOntology.getStartedAtTimeStartingPointPropertyFullURI(),
+                time);
+    }
+
+    /**
+     * Describes when an activity ended (use this for activities, use atTime for
+     * instantaneous events)
+     *
+     * @param activity - The activity that occurred
+     * @param time - The time at which the activity ended
+     * @return No uses of the resulting statement are known to be any better
+     * than using the activity resource, consider using the activity resource it
+     * is available (you can look up its URI by calling getSubject)
+     */
+    public Resource endedAtTime(Resource activity, String time) {
+        return createDefinition(activity.getURI(),
+                ProvOntology.getEndedAtTimeStartingPointPropertyFullURI(),
+                time);
     }
 
     /**
@@ -314,14 +373,114 @@ public class ProvMgr {
     }
     // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="Query Support">
+    /**
+     * Gets a list of subject URIs from the provenance model. Subjects
+     *
+     * @param fullURIs
+     * @return
+     */
+    public List<String> getSubjects(List<String> fullURIs) {
+        List<String> abbreviatedURI = new ArrayList<>();
+        StmtIterator si = model.listStatements();
+        Resource r;
+        String uri;
+        Statement s;
+        while (si.hasNext()) {
+            s = si.nextStatement();
+            r = s.getSubject();
+            uri = r.getURI();
+            fullURIs.add(uri);
+            abbreviatedURI.add(FileManager.getSimpleFilename(uri));
+        }
+        return abbreviatedURI;
+    }
+
+    public Collection<String> getPredicates() {
+        HashSet<String> fullURISet = new HashSet<>();
+        StmtIterator si = model.listStatements();
+        while (si.hasNext()) {
+            fullURISet.add(si.nextStatement().getPredicate().toString());
+        }
+        return fullURISet;
+    }
+
+    public List<String> getObjects(List<String> fullURIs) {
+        List<String> abbreviatedURI = new ArrayList<>();
+        StmtIterator si = model.listStatements();
+        Statement s;
+        while (si.hasNext()) {
+            s = si.nextStatement();
+            fullURIs.add(s.getObject().toString());
+            abbreviatedURI.add(FileManager.getSimpleFilename(s.getObject().toString()));
+        }
+        return abbreviatedURI;
+    }
+
+    /**
+     * Provides a semi-human-readable textual representation of provenance
+     * statements where subjectURI contains subjectText, predicateURI contains
+     * predicateText, and objectURI contains objectText. Any and all of the
+     * fields may be used as wildcards by passing a null value for the
+     * respective field.
+     *
+     * @param subjectText - 
+     * @param predicateText
+     * @param objectText
+     * @param lineDelimiter
+     * @return
+     */
+    public String queryProvenance(String subjectText, String predicateText, String objectText, String lineDelimiter) {
+        String statements = "";
+        Statement stmt;
+        String subject, predicate, object;
+        RDFNode objectNode;
+        boolean isVowel;
+        char letter;
+
+        StmtIterator iter = model.listStatements();
+        while (iter.hasNext()) {
+            stmt = iter.nextStatement();
+            subject = stmt.getSubject().getURI();
+            predicate = stmt.getPredicate().getURI();
+            objectNode = stmt.getObject();
+            if (objectNode.isURIResource()) {
+                object = objectNode.asResource().getURI();
+            } else if (objectNode.isAnon()) {
+                object = objectNode.asNode().getURI();
+            } else if (objectNode.isLiteral()) {
+                object = objectNode.asLiteral().getString();
+            } else {
+                object = objectNode.asResource().toString();
+            }
+            if (object.length() > 0) {
+                letter = object.charAt(0);
+                isVowel = letter == 'a' || letter == 'e' || letter == 'i'
+                        || letter == 'o' || letter == 'u' || letter == 'h';
+                if (subject.contains(subjectText)
+                        && predicate.contains(predicateText)
+                        && object.contains(objectText)) {
+                    predicate
+                            = ProvOntology.translatePredicate(predicate, isVowel);
+                    statements += subject + " " + predicate + " " + object;
+                    if (iter.hasNext()) {
+                        statements += lineDelimiter;
+                    }
+                }
+            }
+        }
+        return statements;
+    }
+    // </editor-fold>
+
     // <editor-fold defaultstate="collapsed" desc="Utility Functions">
     private String getProjectFullLocalURI(String uri) {
         //return localNS + uri;
-        return localURIPrefix + ":" + uri;
+        return LOCAL_NS_PREFIX + ":" + uri;
     }
 
     private String getProjectFullRemoteURI(String uri) {
-        return remoteURIPrefix + ":" + uri;
+        return REMOTE_NS_PREFIX + ":" + uri;
     }
 
     /**
@@ -333,7 +492,7 @@ public class ProvMgr {
      * @return A description of the host name along with the most uniquely
      * describing IP available (may or may not come from the InetAddress)
      */
-    private String getLocalNameSpace() {
+    private String getLocalNameSpaceURI() {
         String localNameSpace = "";
 
         try {
@@ -393,124 +552,4 @@ public class ProvMgr {
         }
     }
     // </editor-fold>    
-
-    public List<String> getSubjects(List<String> fullURIs) {
-        List<String> abbreviatedURI = new ArrayList<>();
-        StmtIterator si = model.listStatements();
-        Statement s;
-        while (si.hasNext()) {
-            s = si.nextStatement();
-            fullURIs.add(s.getSubject().toString());
-            abbreviatedURI.add(FileManager.getSimpleFilename(s.getSubject().toString()));
-        }
-        return abbreviatedURI;
-    }
-
-    public List<String> getPredicates(List<String> fullURIs) {
-        List<String> abbreviatedURI = new ArrayList<>();
-        StmtIterator si = model.listStatements();
-        Statement s;
-        while (si.hasNext()) {
-            s = si.nextStatement();
-            fullURIs.add(s.getPredicate().toString());
-            abbreviatedURI.add(FileManager.getSimpleFilename(s.getPredicate().toString()));
-        }
-        return abbreviatedURI;
-    }
-
-    public List<String> getObjects(List<String> fullURIs) {
-        List<String> abbreviatedURI = new ArrayList<>();
-        StmtIterator si = model.listStatements();
-        Statement s;
-        while (si.hasNext()) {
-            s = si.nextStatement();
-            fullURIs.add(s.getObject().toString());
-            abbreviatedURI.add(FileManager.getSimpleFilename(s.getObject().toString()));
-        }
-        return abbreviatedURI;
-    }
-
-    public String queryProvenance(String subjectText, String predicateText, String objectText, String lineDelimiter) {
-        String statements = "";
-        Statement stmt;
-        String subject, predicate, object;
-        RDFNode objectNode;
-        boolean isVowel;
-        char letter;
-        
-        StmtIterator iter = model.listStatements();
-        while (iter.hasNext()) {
-            stmt = iter.nextStatement();
-            subject = stmt.getSubject().getURI();
-            predicate = stmt.getPredicate().getURI();
-            objectNode = stmt.getObject();
-            if (objectNode.isURIResource()) {
-                object = objectNode.asResource().getURI();
-            } else if (objectNode.isAnon()) {
-                object = objectNode.asNode().getURI();
-            } else if (objectNode.isLiteral()) {
-                object = objectNode.asLiteral().getString();
-            } else {
-                object = objectNode.asResource().toString();
-            }
-            if (object.length() > 0) {
-                letter = object.charAt(0);
-                isVowel = letter == 'a' || letter == 'e' || letter == 'i'
-                        || letter == 'o' || letter == 'u' || letter == 'h';
-                if (subject.contains(subjectText)
-                        && predicate.contains(predicateText)
-                        && object.contains(objectText)) {
-                    predicate
-                            = ProvOntology.translatePredicate(predicate, isVowel);
-                    statements += subject + " " + predicate + " " + object;
-                    if (iter.hasNext()) {
-                        statements += lineDelimiter;
-                    }
-                }
-            }
-        }
-//        String foundS, foundP, foundO, nsPrefix, subjURI, predURI, objURI;
-//        Resource subj;
-//        Property pred;
-//        Object obj;
-//        boolean isVowel = false;
-//        char letter;
-//        Statement nextStatement;
-//        //System.err.println(subject + ", " + predicate + ", " + object);
-//        if (subject != null || predicate != null || object != null) {
-//            subj = model.getResource(subject);
-//            StmtIterator si = model.listStatements(
-//                    model.getResource(subject),
-//                    model.getProperty(predicate),
-//                    model.getResource(object));
-//            while (si.hasNext()) {
-//                nextStatement = si.nextStatement();
-//                subj = nextStatement.getSubject();
-//                subjURI = subj.getURI();
-//                nsPrefix = subjURI.contains("local") ? localNS + ":"
-//                        : remoteNS + ":";
-//                if (!subjURI.contains("\\")
-//                        && !subjURI.contains("/")) {
-//                    nsPrefix = "";
-//                }
-//                foundS = nsPrefix + FileManager.getSimpleFilename(subjURI);
-//                System.err.println(FileManager.getSimpleFilename(subjURI));
-//                obj = nextStatement.getObject();
-//                foundO = obj.toString().substring(obj.toString().indexOf('#')
-//                        + 1);
-//                letter = foundO.toLowerCase().charAt(0);
-//                isVowel = letter == 'a' || letter == 'e' || letter == 'i'
-//                        || letter == 'o' || letter == 'u' || letter == 'h';
-//                pred = nextStatement.getPredicate();
-//                foundP
-//                        = ProvOntology.translatePredicate(pred.getURI(), isVowel);
-//
-//                statements += foundS + " " + foundP + " " + foundO;
-//                if (si.hasNext()) {
-//                    statements += lineDelimiter;
-//                }
-//            }
-//        }
-        return statements;
-    }
 }

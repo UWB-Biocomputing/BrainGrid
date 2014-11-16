@@ -56,7 +56,7 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         codeRepositoryLocationLabel.setText("BrainGrid Code Repository:");
         codeRepositoryLocationLabel.setToolTipText("<html>Repository to pull from.<br>This URI must go to a local folder,<br>or to a valid network address</html>");
 
-        codeRepositoryLocationTextField.setText("https://github.com/UWB-Biocomputing/BrainGrid.git");
+        codeRepositoryLocationTextField.setText(getDefaultCodeLocation());
         codeRepositoryLocationTextField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 codeRepositoryLocationTextFieldKeyReleased(evt);
@@ -333,6 +333,7 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
             }
         }
     }//GEN-LAST:event_versionAnnotationTextFieldKeyReleased
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JLabel codeRepositoryLocationLabel;
@@ -360,9 +361,12 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
     private javax.swing.JTextField versionAnnotationTextField;
     // End of variables declaration//GEN-END:variables
 //</editor-fold>
+
     // <editor-fold defaultstate="collapsed" desc="Custom Members"> 
     /* Custom Members */
     public static final String LINUX_USERNAME_PATTERN = "^[a-z][a-z0-9\\-]*$";
+    private String DEFAULT_REPO_URI
+            = "https://github.com/UWB-Biocomputing/BrainGrid.git";
     private boolean okButtonClicked = false;
     private boolean connectionTestSuccessful = false;
     // </editor-fold>
@@ -384,6 +388,10 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         setVisible(true);
     }
 
+    private String getDefaultCodeLocation() {
+        return DEFAULT_REPO_URI;
+    }
+
     public SimulatorSpecificationDialog(boolean modal, SimulationSpecification simSpec) {
         setModal(modal);
         initComponents();
@@ -396,6 +404,8 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         String userName = simSpec.getUsername();
         String folder = simSpec.getSimulatorFolder();
         String codeLocation = simSpec.getCodeLocation();
+        codeLocation = codeLocation == null || codeLocation.isEmpty()
+                ? getDefaultCodeLocation() : codeLocation;
         String version = simSpec.getVersionAnnotation();
 
         if (remote) {
@@ -741,7 +751,7 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
                 getText().equals("");
         boolean remoteExecution = this.simulatorLocationComboBox.
                 getSelectedItem().toString().equals(
-                SimulationSpecification.REMOTE_EXECUTION);
+                        SimulationSpecification.REMOTE_EXECUTION);
         boolean nullHostAddr = hostAddressTextField.getText() == null;
         boolean emptyHostAddr = hostAddressTextField.getText().equals("");
         // set ok enabled based on required fields filled

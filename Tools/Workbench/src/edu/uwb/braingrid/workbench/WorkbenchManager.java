@@ -16,7 +16,6 @@ import edu.uwb.braingrid.workbench.ui.SimulatorSpecificationDialog;
 import edu.uwb.braingrid.workbench.ui.WorkbenchControlFrame;
 import edu.uwb.braingrid.workbench.utils.DateTime;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,7 +39,7 @@ public class WorkbenchManager {
     private String msgFromOtherThread;
 
     /* in-memory file model managers */
-    private ProjectMgr project;
+    private ProjectMgr projectMgr;
     // the provenance manager
     private ProvMgr prov;
 
@@ -73,7 +72,7 @@ public class WorkbenchManager {
         msgFromOtherThread = "";
         projectsDir = folderDelimiter + "projects" + folderDelimiter;
         prov = null;
-        project = null;
+        projectMgr = null;
         simSpec = null;
         try {
             String currDir = Paths.get((new java.io.File("."))
@@ -111,6 +110,45 @@ public class WorkbenchManager {
     }
 
     /**
+     * Allows the user to configure the input for the simulation.
+     *
+     * @return True if the user followed through on the specification, False if
+     * the user canceled the specification.
+     */
+    public boolean configureSimulation() {
+        boolean success = true;
+        String projectName = getProjectName();
+        if (!projectName.equals("None")) {
+            String configFilename = projectMgr.getSimConfigFilename();
+            InputConfigurationDialog icd
+                    = new InputConfigurationDialog(projectName, true, configFilename);
+
+            if (success = icd.getSuccess()) {
+                simulationConfigurationFile = icd.getBuiltFile();
+                projectMgr.addSimConfigFile(simulationConfigurationFile);
+                if (projectMgr.isProvenanceEnabled()) {
+                    // add the config file, but it should be remote
+                    // this means that there will need to be a trace when copied
+                    prov.addEntity(simulationConfigurationFile, null, false);
+                }
+            } else {
+                simulationConfigurationFile = "None";
+            }
+        }
+        return success;
+    }
+
+    /**
+     * Allows the user to query the provenance for the currently open project.
+     * Note: In order for this action helper to be invoked, there must be a
+     * provenance file associated with a project. Implicitly, a project must be
+     * loaded, otherwise this code should not be reachable.
+     */
+    public void viewProvenance() {
+        ProvenanceQueryDialog pqd = new ProvenanceQueryDialog(true, prov);
+    }
+
+    /**
      * Opens a project from an XML file
      *
      * @return Option from the JFileChooser or EXCEPTION_OPTION from this class
@@ -131,19 +169,20 @@ public class WorkbenchManager {
             case JFileChooser.APPROVE_OPTION:
                 try {
                     File selectedFile = chooser.getSelectedFile();
-                    project = new ProjectMgr(selectedFile.getName(), true);
+                    projectMgr = new ProjectMgr(selectedFile.getName(), true);
                     updateSimSpec();
-                    if (project.isProvenanceEnabled()) {
-                        prov = new ProvMgr(project, true);
+                    if (projectMgr.isProvenanceEnabled()) {
+                        prov = new ProvMgr(projectMgr, true);
                     } else {
                         prov = null;
                     }
-                    messageAccumulator += "\n" + "Project: " + project.getName()
+                    messageAccumulator += "\n" + "Project: "
+                            + projectMgr.getName()
                             + " loaded...\n";
                 } catch (ParserConfigurationException | IOException |
                         SAXException ex1) {
                     choice = EXCEPTION_OPTION;
-                    project = null;
+                    projectMgr = null;
                     prov = null;
                     simSpec = null;
                     messageAccumulator += "\n"
@@ -176,14 +215,14 @@ public class WorkbenchManager {
      */
     public void saveProject() {
         String msg = "Unknown";
-        if (project != null) {
+        if (projectMgr != null) {
             try {
                 /* Persist ProjectMgr XML */
-                String projectFileName = project.persist();
+                String projectFileName = projectMgr.persist();
                 // part of error-handling message
-                msg = projectFileName + project.getName()
+                msg = projectFileName + projectMgr.getName()
                         + ".xml";
-                if (project.isProvenanceEnabled()) {
+                if (projectMgr.isProvenanceEnabled()) {
                     persistProvenance();
                 }
                 messageAccumulator += "\n" + "Project saved to "
@@ -208,7 +247,7 @@ public class WorkbenchManager {
      */
     public void launchNLEdit(WorkbenchControlFrame parent) {
         /* RunNLEdit */
-        if (project != null && project.isProvenanceEnabled()) {
+        if (projectMgr != null && projectMgr.isProvenanceEnabled()) {
             runInternalNLEdit(parent);
         } else {
             // reset message for runExternalEdit
@@ -297,7 +336,7 @@ public class WorkbenchManager {
             } else {
                 hostAddr = "";
             }
-            project.addSimulator(locale,
+            projectMgr.addSimulator(locale,
                     hostAddr, simSpec.getSimulatorFolder(),
                     simSpec.getSimulationType(),
                     simSpec.getCodeLocation(),
@@ -322,16 +361,17 @@ public class WorkbenchManager {
      */
     public long analyzeScriptOutput() {
         long timeCompleted = DateTime.ERROR_TIME;
-        if (project != null && project.isProvenanceEnabled()) {
+        if (projectMgr != null && projectMgr.isProvenanceEnabled()) {
             try {
                 messageAccumulator += "\n"
                         + "Gathering simulation provenance...\n";
                 String targetFolder = ScriptManager.getScriptFolder(
-                        project.determineProjectOutputLocation());
+                        projectMgr.determineProjectOutputLocation());
                 ScriptManager scriptMgr = new ScriptManager();
-                timeCompleted = scriptMgr.analyzeScriptOutput(simSpec, prov, targetFolder);
+                timeCompleted
+                        = scriptMgr.analyzeScriptOutput(simSpec, prov, targetFolder);
                 if (timeCompleted != DateTime.ERROR_TIME) {
-                    project.setScriptCompletedAt(timeCompleted);
+                    projectMgr.setScriptCompletedAt(timeCompleted);
                 }
                 messageAccumulator += "\n" + "Simulation provenance gathered\n";
             } catch (IOException | JSchException | SftpException e) {
@@ -359,17 +399,18 @@ public class WorkbenchManager {
         boolean success;
         success = false;
         Script script = ScriptManager.
-                generateScript(project.getName(), project.getNextScriptVersion(), simSpec, project.getSimConfigFilename());
+                generateScript(projectMgr.getName(), projectMgr.getNextScriptVersion(), simSpec, projectMgr.getSimConfigFilename());
         if (script != null) {
             try {
-                String projectFolder = project.determineProjectOutputLocation();
+                String projectFolder
+                        = projectMgr.determineProjectOutputLocation();
                 String scriptsFolder = projectFolder + "scripts"
                         + folderDelimiter;
                 new File(scriptsFolder).mkdirs();
                 String scriptName = getNextScriptName();
                 String scriptFilename = scriptsFolder + scriptName;
                 script.persist(scriptFilename);
-                success = project.addScript(scriptFilename, "sh");
+                success = projectMgr.addScript(scriptFilename, "sh");
                 if (success) {
                     messageAccumulator += "\n" + "Script generated at: "
                             + scriptFilename + ".sh\n";
@@ -384,7 +425,7 @@ public class WorkbenchManager {
             }
         }
         // if script was constructed
-        project.setScriptRan(!success);
+        projectMgr.setScriptRan(!success);
         return success;
     }
 
@@ -401,12 +442,13 @@ public class WorkbenchManager {
         boolean success = false;
         ScriptManager sm = new ScriptManager();
         try {
-            String scriptPath = project.getScriptCanonicalFilePath();
-            String[] neuronLists = FileManager.getFileManager().getNeuronListFilenames(project.getName());
-            success = sm.runScript(simSpec, scriptPath, neuronLists,
-                    project.getSimConfigFilename());
-            project.setScriptRan(success);
-            project.setScriptRanAt();
+            String scriptPath = projectMgr.getScriptCanonicalFilePath();
+            String[] neuronLists
+                    = FileManager.getFileManager().getNeuronListFilenames(projectMgr.getName());
+            success = sm.runScript(prov, simSpec, scriptPath, neuronLists,
+                    projectMgr.getSimConfigFilename());
+            projectMgr.setScriptRan(success);
+            projectMgr.setScriptRanAt();
             messageAccumulator += sm.getOutstandingMessages();
         } catch (JSchException | SftpException |
                 IOException e) {
@@ -437,14 +479,14 @@ public class WorkbenchManager {
         /* Create a new project */
         try {
             // make a new project (with new XML doc model)
-            project = new ProjectMgr(name, false);
+            projectMgr = new ProjectMgr(name, false);
             messageAccumulator += "\n" + "New project specified\n";
 
             /* Set Provenance */
-            project.setProvenanceEnabled(provEnabled);
+            projectMgr.setProvenanceEnabled(provEnabled);
             if (provEnabled) {
                 try {
-                    prov = new ProvMgr(project, false);
+                    prov = new ProvMgr(projectMgr, false);
                 } catch (IOException ex) {
                     messageAccumulator += "\n"
                             + ">Error initializing provenance"
@@ -460,7 +502,7 @@ public class WorkbenchManager {
             messageAccumulator += "\n"
                     + "Exception occurred while constructing project XML"
                     + "\n" + e.toString();
-            project = null;
+            projectMgr = null;
             prov = null;
         }
         return success;
@@ -476,11 +518,11 @@ public class WorkbenchManager {
      */
     public void addInputFile(String uri, InputAnalyzer.InputType type) {
         /* add prov */
-        if (project.isProvenanceEnabled()) {
+        if (projectMgr.isProvenanceEnabled()) {
             prov.addEntity(uri, type.toString(), false);
         }
         /* add to project */
-        String toRemove = project.addInputFile(uri, type);
+        String toRemove = projectMgr.addInputFile(uri, type);
         messageAccumulator += "\n" + "Adding input: " + uri
                 + " to the project...\n";
         if (toRemove != null) {
@@ -496,9 +538,9 @@ public class WorkbenchManager {
 
     // <editor-fold defaultstate="collapsed" desc="Data Manipulation">
     private void persistProvenance() {
-        if (project != null) {
+        if (projectMgr != null) {
             try {
-                prov.persist(project);
+                prov.persist(projectMgr);
                 messageAccumulator += "\n" + "Provenance persisted to: "
                         + prov.getProvFileURI() + "\n";
             } catch (IOException e) {
@@ -610,12 +652,27 @@ public class WorkbenchManager {
      */
     public String getProjectName() {
         String name;
-        if (project != null) {
-            name = project.getName();
+        if (projectMgr != null) {
+            name = projectMgr.getName();
         } else {
             name = "None";
         }
         return name;
+    }
+
+    /**
+     * Provides the status of whether or not the script has been generated.
+     *
+     * @return True if the script has been generated, otherwise false (not
+     * including the script not being generated after changes were made to the
+     * simulation configuration or the script execution directives.
+     */
+    public boolean scriptGenerated() {
+        boolean generated = false;
+        if (projectMgr != null) {
+            generated = projectMgr.scriptGenerated();
+        }
+        return generated;
     }
 
     /**
@@ -627,8 +684,8 @@ public class WorkbenchManager {
      */
     public boolean isSimExecutionRemote() {
         boolean remote = false;
-        if (project != null) {
-            String simulatorExecutionMachine = project.getSimulatorLocale();
+        if (projectMgr != null) {
+            String simulatorExecutionMachine = projectMgr.getSimulatorLocale();
             if (simulatorExecutionMachine != null) {
                 remote = simulatorExecutionMachine.
                         equals(SimulationSpecification.REMOTE_EXECUTION);
@@ -637,11 +694,29 @@ public class WorkbenchManager {
         return remote;
     }
 
+    /**
+     * Answers a query regarding whether or not provenance is enabled for the
+     * currently open project. Note: This implicitly means that a project must
+     * be loaded for this code to be reachable.
+     *
+     * @return True if provenance is enabled for the currently open project,
+     * otherwise false.
+     */
+    public boolean isProvEnabled() {
+        boolean isEnabled = false;
+
+        if (projectMgr != null) {
+            isEnabled = projectMgr.isProvenanceEnabled();
+        }
+
+        return isEnabled;
+    }
+
     private String getNextScriptName() {
         String name;
         name = null;
-        if (project != null) {
-            String version = project.getNextScriptVersion();
+        if (projectMgr != null) {
+            String version = projectMgr.getNextScriptVersion();
             if (version != null) {
                 name = "run_v" + version;
             }
@@ -657,8 +732,8 @@ public class WorkbenchManager {
      */
     public String getSimConfigFileOverview() {
         String labelText = "None";
-        if (project != null) {
-            String input = project.getSimConfigFilename();
+        if (projectMgr != null) {
+            String input = projectMgr.getSimConfigFilename();
             if (input != null) {
                 labelText = input;
             }
@@ -677,7 +752,7 @@ public class WorkbenchManager {
     }
 
     private void updateSimSpec() {
-        simSpec = project.getSimulationSpecification();
+        simSpec = projectMgr.getSimulationSpecification();
     }
 
     /**
@@ -689,8 +764,8 @@ public class WorkbenchManager {
      */
     public String getScriptPath() {
         String path = null;
-        if (project != null) {
-            path = project.getScriptCanonicalFilePath();
+        if (projectMgr != null) {
+            path = projectMgr.getScriptCanonicalFilePath();
         }
         return path;
     }
@@ -704,8 +779,8 @@ public class WorkbenchManager {
      */
     public boolean scriptGenerationAvailable() {
         boolean available = false;
-        if (project != null) {
-            available = project.scriptGenerationAvailable();
+        if (projectMgr != null) {
+            available = projectMgr.scriptGenerationAvailable();
         }
         return available;
     }
@@ -718,8 +793,8 @@ public class WorkbenchManager {
      */
     public boolean scriptRan() {
         boolean ran = false;
-        if (project != null) {
-            ran = project.getScriptRan();
+        if (projectMgr != null) {
+            ran = projectMgr.getScriptRan();
         }
         return ran;
     }
@@ -730,12 +805,12 @@ public class WorkbenchManager {
      * @return Overview text describing the last simulation specified
      */
     public String getSimulationOverview() {
-        String overview = "None";
+        String overview = "<html>None";
         if (simSpec != null) {
+            overview = "<html>";
             String simFoldername = simSpec.getSimulatorFolder();
             String simVersionAnnotation = simSpec.getVersionAnnotation();
             String simCodeLocation = simSpec.getCodeLocation();
-            overview = "<html>";
             boolean simAttributeAddedToText = false;
             if (simFoldername != null) {
                 FileManager fm = FileManager.getFileManager();
@@ -774,8 +849,8 @@ public class WorkbenchManager {
     public String getScriptRunOverview() {
         String scriptRunMsg = "None";
         long runAt;
-        if (project != null) {
-            runAt = project.getScriptRanAt();
+        if (projectMgr != null) {
+            runAt = projectMgr.getScriptRanAt();
             if (runAt != DateTime.ERROR_TIME) {
                 String time = DateTime.getTime(runAt);
                 scriptRunMsg = "Script execution started at: " + time;
@@ -799,13 +874,13 @@ public class WorkbenchManager {
     public String getScriptAnalysisOverview() {
         String overview = "None";
         long completedAt;
-        if (project != null) {
-            completedAt = project.getScriptCompletedAt();
+        if (projectMgr != null) {
+            completedAt = projectMgr.getScriptCompletedAt();
             if (completedAt != DateTime.ERROR_TIME) {
                 overview = "Completed at: "
                         + DateTime.getTime(completedAt);
             } else {
-                if (project.getScriptRan()) {
+                if (projectMgr.getScriptRan()) {
                     overview = "Script execution incomplete, try again later.";
                 }
             }
@@ -830,48 +905,4 @@ public class WorkbenchManager {
         return messageAccumulator;
     }
     // </editor-fold>
-
-    public void viewProvenance() {
-        ProvenanceQueryDialog pqd = new ProvenanceQueryDialog(true, prov);
-    }
-
-    public boolean isProvEnabled() {
-        boolean isEnabled = false;
-
-        if (project != null) {
-            isEnabled = project.isProvenanceEnabled();
-        }
-
-        return isEnabled;
-    }
-
-    public boolean configureSimulation() {
-        boolean success = true;
-        String projectName = getProjectName();
-        if (!projectName.equals("None")) {
-            String configFilename = project.getSimConfigFilename();
-            InputConfigurationDialog icd = new InputConfigurationDialog(projectName, true, configFilename);
-
-            if (success = icd.getSuccess()) {
-                simulationConfigurationFile = icd.getBuiltFile();
-                project.addSimConfigFile(simulationConfigurationFile);
-                if (project.isProvenanceEnabled()) {
-                    // add the config file, but it should be remote
-                    // this means that there will need to be a trace when copied
-                    prov.addEntity(simulationConfigurationFile, null, false);
-                }
-            } else {
-                simulationConfigurationFile = "None";
-            }
-        }
-        return success;
-    }
-
-    public boolean scriptGenerated() {
-        boolean generated = false;
-        if (project != null) {
-            generated = project.scriptGenerated();
-        }
-        return generated;
-    }
 }

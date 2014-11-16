@@ -155,7 +155,9 @@
     </Component>
     <Component class="javax.swing.JTextField" name="codeRepositoryLocationTextField">
       <Properties>
-        <Property name="text" type="java.lang.String" value="https://github.com/UWB-Biocomputing/BrainGrid.git"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="getDefaultCodeLocation()" type="code"/>
+        </Property>
       </Properties>
       <Events>
         <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="codeRepositoryLocationTextFieldKeyReleased"/>

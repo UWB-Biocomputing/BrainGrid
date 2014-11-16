@@ -1,10 +1,13 @@
 package edu.uwb.braingrid.workbench.ui;
 
 import edu.uwb.braingrid.provenance.ProvMgr;
+import edu.uwb.braingrid.workbench.FileManager;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 
 /**
  * ToDo
@@ -85,8 +88,8 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(predicateComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(predicateComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(objectTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -124,6 +127,9 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         String objct = objectTextField.getText();
         String result
                 = provMgr.queryProvenance(sbjct, prdct, objct, lineDelimiter);
+        System.err.println("  Subject: |" + sbjct + "|");
+        System.err.println("Predicate: |" + prdct + "|");
+        System.err.println("   Object: |" + objct + "|");
         outputTextArea.setText(result);
     }//GEN-LAST:event_searchButtonActionPerformed
 
@@ -173,7 +179,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         provMgr = provManager;
         setModal(modal);
         initComponents();
-        searchButton.setEnabled(false);
+        //searchButton.setEnabled(false);
         // add in the drop down items
         addItemsToPredicateComboBox();
         // show window center-screen
@@ -183,8 +189,10 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
     }
 
     private void addItemsToPredicateComboBox() {
-        for (String item : provMgr.getPredicates(predicateFullURIs)) {
-            predicateComboBox.addItem(item);
+        predicateFullURIs.add("");
+        for(String predicate : provMgr.getPredicates()){
+            predicateFullURIs.add(FileManager.getSimpleFilename(predicate));
+            predicateComboBox.addItem(predicate);
         }
     }
 

@@ -426,7 +426,8 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
                 displayScriptRunOverview();
                 displayScriptAnalysisOverview();
                 enableInitialButtons();
-                runScriptButton.setEnabled(!workbenchMgr.scriptRan() && workbenchMgr.scriptGenerated());
+                runScriptButton.setEnabled(!workbenchMgr.scriptRan()
+                        && workbenchMgr.scriptGenerated());
                 analyzeOutputButton.setEnabled(workbenchMgr.scriptRan());
                 viewProvenanceMenuItem.setEnabled(workbenchMgr.isProvEnabled());
                 break;
@@ -501,7 +502,7 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
             runScriptButton.setEnabled(false);
             analyzeOutputButton.setEnabled(true);
         } else {
-            runScriptButton.setEnabled(false);
+            runScriptButton.setEnabled(true);
             analyzeOutputButton.setEnabled(false);
         }
         setMsg();
