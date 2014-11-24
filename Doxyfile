@@ -58,7 +58,7 @@ PROJECT_LOGO           =
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = /Users/fumik/Documents/workspace_cpp/BrainGrid/doc/Doxygen
+OUTPUT_DIRECTORY       = ./doc/Doxygen
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -839,13 +839,13 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = /Users/fumik/Documents/workspace_cpp/BrainGrid/configfiles \
-                         /Users/fumik/Documents/workspace_cpp/BrainGrid/doc \
-                         /Users/fumik/Documents/workspace_cpp/BrainGrid/Tools \
-                         /Users/fumik/Documents/workspace_cpp/BrainGrid/matlab \
-                         /Users/fumik/Documents/workspace_cpp/BrainGrid/old \
-                         /Users/fumik/Documents/workspace_cpp/BrainGrid/output \
-                         /Users/fumik/Documents/workspace_cpp/BrainGrid/validation
+EXCLUDE                = ./configfiles \
+                         ./doc \
+                         ./Tools \
+                         ./matlab \
+                         ./old \
+                         ./output \
+                         ./validation
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
