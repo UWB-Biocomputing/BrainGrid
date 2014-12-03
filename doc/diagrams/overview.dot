@@ -1,0 +1,72 @@
+digraph {
+
+	node [
+		shape = "record"
+	]
+
+	AllSynapses [
+		label = "AllSynapses"
+				
+	];
+	
+	AllNeurons [
+		label = "AllNeurons"
+	];
+
+
+//##############################################################################
+// Model Classes
+//##############################################################################
+	Model [
+		label = "Model"
+	];
+	
+	LIFModel [
+		label = "LIFModel"
+	];
+	
+	LIFModelST [
+		label = "LIFModelST" 
+			
+	];
+
+	LIFModelCUDA [
+		label =  "LIFModelCUDA" 
+				
+	];
+
+	LIFModelMT [
+		label = "LIFModelMT"	
+	];
+
+#######################################
+// Network Classes
+//#############################################################################
+	Network [
+		label =  "Network" 
+			
+	];
+
+
+//#############################################################################
+// Set the Layout of the Classes Above 
+//#############################################################################
+	rankdir = BT;		// Rank Direction Bottom to Top
+	nodesep = 0.75;		// Node Separation 0.75 inches
+	{rank = same;		Network;				Model;}
+	{rank = same;	LIFModelST;		LIFModelMT;		LIFModelCUDA;}
+	{rank = same;	AllNeurons;		AllSynapses;}
+
+	LIFModel -> Model [arrowhead=empty];
+	LIFModelST -> LIFModel [arrowhead=empty];
+	LIFModelMT -> LIFModel [arrowhead=empty];
+	LIFModelCUDA -> LIFModel [arrowhead=empty];
+	
+	Model -> Network [arrowhead=ediamond];
+	AllSynapses -> Network [arrowhead=ediamond];
+	AllNeurons -> Network [arrowhead=ediamond];
+
+	// Set invisible edges to force the layout of the "floating" classes.
+	AllSynapses -> AllNeurons [style=invis];
+
+}

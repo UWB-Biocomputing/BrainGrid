@@ -1,0 +1,60 @@
+digraph {
+
+	node [
+		shape = "record"
+	]
+
+	
+	SimulationInfo [
+		label = "SimulationInfo"
+	];
+
+#######################################
+// Network Classes
+//#############################################################################
+	Network [
+		label =  "Network" 
+	];
+
+
+//#############################################################################
+// Simulator Classes
+//#############################################################################
+	Simulator [
+		label = "Simulator"
+	];
+
+	STSimulator [
+		label = "STSimulator"
+	];
+	
+	CUDASimulator [
+		label = "CUDASimulator" 
+		
+	];
+
+	MTSimulator [
+		label =  "MTSimulator" 
+				
+	];
+
+//#############################################################################
+// Set the Layout of the Classes Above 
+//#############################################################################
+	rankdir = BT;		// Rank Direction Bottom to Top
+	nodesep = 0.75;		// Node Separation 0.75 inches
+	{rank = same;	SimulationInfo	Network;		Simulator;		Model;}
+	{rank = same;	
+					MTSimulator;	CUDASimulator;	STSimulator;}
+
+	STSimulator -> Simulator [arrowhead=empty];
+	MTSimulator -> Simulator [arrowhead=empty];
+	CUDASimulator -> Simulator [arrowhead=empty];
+	
+	Model -> Network [arrowhead=ediamond];
+
+
+	Network -> Simulator [arrowhead=ediamond];
+	SimulationInfo -> Simulator [arrowhead=ediamond];
+
+}
