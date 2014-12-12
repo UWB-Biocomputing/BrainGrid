@@ -1000,8 +1000,6 @@ public class ProvOntology {
 
     public static String translatePredicate(String uri, boolean nextIsVowel) {
         String translation = uri;
-        //System.err.println(uri);
-        //System.err.println(ProvOntology.getRDFTypeFullURI());
         if (uri.equals(ProvOntology.getRDFTypeFullURI())) {
             if (!nextIsVowel) {
                 translation = "is a";
@@ -1011,8 +1009,14 @@ public class ProvOntology {
         } else if (uri.equals(ProvOntology.getAtTimeQualifiedPropertyFullURI())) {
             translation = "happened on";
         } else if (uri.equals(ProvOntology.getAssociationQualifiedClassFullURI())) {
+            translation = "was responsible for";
+        } else if (uri.equals(ProvOntology.getWasAssociatedWithStartingPointPropertyFullURI())) {
             translation = "was associated with";
-        }
+        } else if (uri.equals(ProvOntology.getStartedAtTimeStartingPointPropertyFullURI())) {
+            translation = "started on";
+        } else if (uri.equals(ProvOntology.getRDFSLabelFullURI())){
+            translation = "is labeled as";
+        } 
         return translation;
     }
 }

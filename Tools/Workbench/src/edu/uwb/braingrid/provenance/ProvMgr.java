@@ -166,6 +166,16 @@ public class ProvMgr {
     public String getProvFileURI() {
         return provOutputFileURI;
     }
+
+    /**
+     * Gets the RDF model maintained by the manager
+     *
+     * @return the resource description framework model maintained by the
+     * manager
+     */
+    public Model getModel() {
+        return model;
+    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Model Manipulation">
@@ -233,7 +243,7 @@ public class ProvMgr {
 
     public Resource associateWith(Resource activity, Resource agent) {
         return createDefinition(activity.getURI(),
-                ProvOntology.getAssociationQualifiedClassFullURI(),
+                ProvOntology.getWasAssociatedWithStartingPointPropertyFullURI(),
                 agent.getURI());
     }
 
@@ -374,12 +384,6 @@ public class ProvMgr {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Query Support">
-    /**
-     * Gets a list of subject URIs from the provenance model. Subjects
-     *
-     * @param fullURIs
-     * @return
-     */
     public List<String> getSubjects(List<String> fullURIs) {
         List<String> abbreviatedURI = new ArrayList<>();
         StmtIterator si = model.listStatements();
@@ -418,17 +422,19 @@ public class ProvMgr {
     }
 
     /**
-     * Provides a semi-human-readable textual representation of provenance
-     * statements where subjectURI contains subjectText, predicateURI contains
-     * predicateText, and objectURI contains objectText. Any and all of the
-     * fields may be used as wildcards by passing a null value for the
-     * respective field.
+     * Provides a readable textual representation of provenance statements where
+     * subjectURI contains subjectText, predicateURI contains predicateText, and
+     * objectURI contains objectText. Any and all of the fields may be used as
+     * wildcards by passing a null value for the respective field.
      *
-     * @param subjectText - 
-     * @param predicateText
-     * @param objectText
-     * @param lineDelimiter
-     * @return
+     * @param subjectText - text that should be contained within the subject of
+     * a statement if the statement matches
+     * @param predicateText - text that should be contained within the predicate
+     * of a statement if the statement matches
+     * @param objectText - text that should be contained within the object of a
+     * statement if the statement matches
+     * @param lineDelimiter - separates statements from each other
+     * @return statements that match the query
      */
     public String queryProvenance(String subjectText, String predicateText, String objectText, String lineDelimiter) {
         String statements = "";
@@ -457,11 +463,11 @@ public class ProvMgr {
                 letter = object.charAt(0);
                 isVowel = letter == 'a' || letter == 'e' || letter == 'i'
                         || letter == 'o' || letter == 'u' || letter == 'h';
-                if (subject.contains(subjectText)
-                        && predicate.contains(predicateText)
-                        && object.contains(objectText)) {
-                    predicate
-                            = ProvOntology.translatePredicate(predicate, isVowel);
+                if (subject.toLowerCase().contains(subjectText.toLowerCase())
+                        && predicate.toLowerCase().contains(predicateText.toLowerCase())
+                        && object.toLowerCase().contains(objectText.toLowerCase())) {
+                    predicate = ProvOntology.translatePredicate(predicate,
+                            isVowel);
                     statements += subject + " " + predicate + " " + object;
                     if (iter.hasNext()) {
                         statements += lineDelimiter;

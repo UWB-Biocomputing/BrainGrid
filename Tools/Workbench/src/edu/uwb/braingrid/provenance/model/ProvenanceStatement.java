@@ -71,6 +71,36 @@ public class ProvenanceStatement {
     }
 
     /**
+     * Constructs this provenance statement based on URIs of a subject,
+     * predicate, and object
+     *
+     * @param subjURI - Identifier for a RDF Resource that represents the
+     * subject of this provenance statement
+     * @param predURI - Identifier for a RDF Resource that represents the
+     * predicate of this provenance statement
+     * @param objURI - Identifier for a Resource, anonymous node, or literal
+     * RDFNode that represents the object of this provenance statement
+     */
+    public ProvenanceStatement(String subjURI, String predURI, String objURI) {
+        if (subjURI == null || subjURI.isEmpty()) {
+            subject = null;
+        } else {
+            setSubject(subjURI);
+        }
+        if (predURI == null || predURI.isEmpty()) {
+            predicate = null;
+        } else {
+            setPredicate(predURI);
+        }
+        if (objURI == null || objURI.isEmpty()) {
+            objectNode = null;
+        } else {
+            setObject(objURI, false);
+        }
+
+    }
+
+    /**
      * Determines whether or not this provenance statement was constructed based
      * on a statement from an RDF model.
      *
@@ -178,6 +208,36 @@ public class ProvenanceStatement {
     }
 
     /**
+     * Provides the unique resource identifier of the subject for this
+     * provenance statement
+     *
+     * @return The unique resource identifier for the subject of this provenance
+     * statement or the empty string if the subject was not set
+     */
+    public String getSubjectURI() {
+        String subj = "";
+        if (subject != null) {
+            subj = subject.getURI();
+        }
+        return subj;
+    }
+    
+        /**
+     * Provides the unique resource identifier of the subject for this
+     * provenance statement
+     *
+     * @return The unique resource identifier for the subject of this provenance
+     * statement or the empty string if the subject was not set
+     */
+    public String getSimpleSubjectURI() {
+        String subj = "";
+        if (subject != null) {
+            subj = subject.getURI();
+        }
+        return subj;
+    }
+
+    /**
      * Sets the predicate of this provenance statement to the predicate of an
      * existing statement
      *
@@ -192,9 +252,24 @@ public class ProvenanceStatement {
     }
 
     /**
+     * Provides the unique resource identifier for the predicate of this
+     * provenance statement or the empty string.
+     *
+     * @return The unique resource identifier for the predicate of this
+     * provenance statement or the empty string if the predicate was not set
+     */
+    public String getPredicate() {
+        String pred = "";
+        if (predicate != null) {
+            pred = predicate.getURI();
+        }
+        return pred;
+    }
+
+    /**
      * Sets the object of this provenance statement to the object of an existing
      * statement
-     * 
+     *
      * Warning: The statement of this provenance statement will be invalidated
      * (resulting in a null reference)
      *
@@ -242,10 +317,12 @@ public class ProvenanceStatement {
             subjectURI = stmt.getSubject().getURI();
             predicateURI = stmt.getPredicate().getURI();
             objectURI = getObjectURI(stmt.getObject());
-            if (subject == null || subjectURI.contains(subject.getURI())
+            if (subject == null
+                    || subjectURI.toLowerCase().contains(subject.getURI().toLowerCase())
                     && predicate == null
-                    || predicateURI.contains(predicate.getURI())
-                    && objectNode == null || objectURI.contains(getObjectURI())) {
+                    || predicateURI.toLowerCase().contains(predicate.getURI().toLowerCase())
+                    && objectNode == null
+                    || objectURI.toLowerCase().contains(getObjectURI().toLowerCase())) {
                 if (unique) {
                     uniqueCollection.add(new ProvenanceStatement(stmt));
                 } else {
@@ -306,15 +383,17 @@ public class ProvenanceStatement {
      * @return The unique resource identifier of the object specified
      */
     public static String getObjectURI(RDFNode obj) {
-        String objectURI;
-        if (obj.isURIResource()) {
-            objectURI = obj.asResource().getURI();
-        } else if (obj.isAnon()) {
-            objectURI = obj.asNode().getURI();
-        } else if (obj.isLiteral()) {
-            objectURI = obj.asLiteral().getString();
-        } else {
-            objectURI = obj.asResource().toString();
+        String objectURI = "";
+        if (obj != null) {
+            if (obj.isURIResource()) {
+                objectURI = obj.asResource().getURI();
+            } else if (obj.isAnon()) {
+                objectURI = obj.asNode().getURI();
+            } else if (obj.isLiteral()) {
+                objectURI = obj.asLiteral().getString();
+            } else {
+                objectURI = obj.asResource().toString();
+            }
         }
         return objectURI;
     }

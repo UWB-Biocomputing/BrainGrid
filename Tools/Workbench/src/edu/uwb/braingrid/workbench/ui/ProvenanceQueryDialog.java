@@ -1,13 +1,12 @@
 package edu.uwb.braingrid.workbench.ui;
 
 import edu.uwb.braingrid.provenance.ProvMgr;
-import edu.uwb.braingrid.workbench.FileManager;
+import edu.uwb.braingrid.provenance.model.ProvOntology;
+import edu.uwb.braingrid.provenance.model.ProvenanceStatement;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 
 /**
  * ToDo
@@ -88,14 +87,13 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(predicateComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(predicateComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(objectTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(searchButton)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(searchButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -122,14 +120,36 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
 
     private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
         String sbjct = subjectTextField.getText();
+        if (sbjct.isEmpty()) {
+            sbjct = null;
+        }
         String prdct = predicateFullURIs.get(
                 predicateComboBox.getSelectedIndex());
+        if (prdct.isEmpty()) {
+            prdct = null;
+        }
         String objct = objectTextField.getText();
-        String result
-                = provMgr.queryProvenance(sbjct, prdct, objct, lineDelimiter);
-        System.err.println("  Subject: |" + sbjct + "|");
-        System.err.println("Predicate: |" + prdct + "|");
-        System.err.println("   Object: |" + objct + "|");
+        if (objct.isEmpty()) {
+            objct = null;
+        }
+        ProvenanceStatement queryStatement
+                = new ProvenanceStatement(sbjct, prdct, objct);
+        List<ProvenanceStatement> results
+                = new ArrayList<>(queryStatement.relaxedQuery(provMgr.getModel(), true));
+        String result = "";
+        ProvenanceStatement resultStatement;
+        for (int i = 0, im = results.size(); i < im; i++) {
+            resultStatement = results.get(i);
+            result += resultStatement.getSubjectURI() + ' '
+                    + resultStatement.getPredicate() + ' '
+                    + resultStatement.getObjectURI();
+            if (i < im - 1) {
+                result += "\n";
+            }
+        }
+
+        //String result
+        //      = provMgr.queryProvenance(sbjct, prdct, objct, lineDelimiter);
         outputTextArea.setText(result);
     }//GEN-LAST:event_searchButtonActionPerformed
 
@@ -162,9 +182,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Custom Members">
     private final ProvMgr provMgr;
     private final String lineDelimiter = "\n";
-    List<String> subjectFullURIs = new ArrayList<>();
     List<String> predicateFullURIs = new ArrayList<>();
-    List<String> objectFullURIs = new ArrayList<>();
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction"> 
@@ -179,10 +197,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         provMgr = provManager;
         setModal(modal);
         initComponents();
-        //searchButton.setEnabled(false);
-        // add in the drop down items
         addItemsToPredicateComboBox();
-        // show window center-screen
         pack();
         center();
         setVisible(true);
@@ -190,9 +205,10 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
 
     private void addItemsToPredicateComboBox() {
         predicateFullURIs.add("");
-        for(String predicate : provMgr.getPredicates()){
-            predicateFullURIs.add(FileManager.getSimpleFilename(predicate));
-            predicateComboBox.addItem(predicate);
+        for (String predicate : provMgr.getPredicates()) {
+            predicateFullURIs.add(predicate);
+            predicateComboBox.addItem(ProvOntology.translatePredicate(predicate,
+                    false));
         }
     }
 
@@ -220,7 +236,8 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
     }
 
     private boolean isSubjectValid() {
-        if (subjectTextField.getText() != null && !subjectTextField.getText().equals("")) {
+        if (subjectTextField.getText() != null
+                && !subjectTextField.getText().equals("")) {
             return true;
         } else {
             return false;

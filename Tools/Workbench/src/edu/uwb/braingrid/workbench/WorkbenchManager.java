@@ -414,6 +414,8 @@ public class WorkbenchManager {
                 if (success) {
                     messageAccumulator += "\n" + "Script generated at: "
                             + scriptFilename + ".sh\n";
+                    // this is where prov would be if we didn't want to wait till
+                    // script execution to record the script's existence
                 } else {
                     throw new Exception();
                 }
