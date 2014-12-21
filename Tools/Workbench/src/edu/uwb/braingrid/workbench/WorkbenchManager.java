@@ -447,7 +447,8 @@ public class WorkbenchManager {
             String scriptPath = projectMgr.getScriptCanonicalFilePath();
             String[] neuronLists
                     = FileManager.getFileManager().getNeuronListFilenames(projectMgr.getName());
-            success = sm.runScript(prov, simSpec, scriptPath, neuronLists,
+            success = sm.runScript(prov, simSpec, scriptPath,
+                    projectMgr.getScriptVersion(), neuronLists,
                     projectMgr.getSimConfigFilename());
             projectMgr.setScriptRan(success);
             projectMgr.setScriptRanAt();
