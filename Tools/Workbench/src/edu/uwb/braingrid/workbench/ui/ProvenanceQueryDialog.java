@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * ToDo
  *
- * @author Nathan
+ * @author Nathan Duncan
  */
 public class ProvenanceQueryDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Auto-Generated Code">
@@ -202,7 +202,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         center();
         setVisible(true);
     }
-
+    
     private void addItemsToPredicateComboBox() {
         predicateFullURIs.add("");
         for (String predicate : provMgr.getPredicates()) {
@@ -234,7 +234,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         searchButton.setEnabled(isSubjectValid() || isPredicateValid()
                 || isObjectValid());
     }
-
+    
     private boolean isSubjectValid() {
         if (subjectTextField.getText() != null
                 && !subjectTextField.getText().equals("")) {
@@ -243,7 +243,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
             return false;
         }
     }
-
+    
     private boolean isPredicateValid() {
         if (!((String) predicateComboBox.getSelectedItem()).equals("None")) {
             return true;
@@ -251,7 +251,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
             return false;
         }
     }
-
+    
     private boolean isObjectValid() {
         if (!objectTextField.getText().equals("")) {
             return true;

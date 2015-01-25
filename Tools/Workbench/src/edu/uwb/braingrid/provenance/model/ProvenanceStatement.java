@@ -82,6 +82,7 @@ public class ProvenanceStatement {
      * RDFNode that represents the object of this provenance statement
      */
     public ProvenanceStatement(String subjURI, String predURI, String objURI) {
+        defaultModel = ModelFactory.createDefaultModel();
         if (subjURI == null || subjURI.isEmpty()) {
             subject = null;
         } else {
@@ -97,7 +98,6 @@ public class ProvenanceStatement {
         } else {
             setObject(objURI, false);
         }
-
     }
 
     /**
@@ -204,7 +204,9 @@ public class ProvenanceStatement {
      * resource representing the subject of this provenance statement
      */
     public void setSubject(String uri) {
-        subject = defaultModel.createResource(uri);
+        if (uri != null) {
+            subject = defaultModel.createResource(uri);
+        }
     }
 
     /**
@@ -221,8 +223,8 @@ public class ProvenanceStatement {
         }
         return subj;
     }
-    
-        /**
+
+    /**
      * Provides the unique resource identifier of the subject for this
      * provenance statement
      *
@@ -248,7 +250,9 @@ public class ProvenanceStatement {
      * resource representing the predicate of this provenance statement
      */
     public void setPredicate(String uri) {
-        predicate = defaultModel.createProperty(uri);
+        if (uri != null) {
+            predicate = defaultModel.createProperty(uri);
+        }
     }
 
     /**
@@ -280,10 +284,12 @@ public class ProvenanceStatement {
      * Resource
      */
     public void setObject(String uri, boolean literal) {
-        if (literal) {
-            objectNode = defaultModel.createLiteral(uri);
-        } else {
-            objectNode = defaultModel.createResource(uri);
+        if (uri != null) {
+            if (literal) {
+                objectNode = defaultModel.createLiteral(uri);
+            } else {
+                objectNode = defaultModel.createResource(uri);
+            }
         }
     }
 
@@ -317,12 +323,13 @@ public class ProvenanceStatement {
             subjectURI = stmt.getSubject().getURI();
             predicateURI = stmt.getPredicate().getURI();
             objectURI = getObjectURI(stmt.getObject());
-            if (subject == null
-                    || subjectURI.toLowerCase().contains(subject.getURI().toLowerCase())
-                    && predicate == null
-                    || predicateURI.toLowerCase().contains(predicate.getURI().toLowerCase())
-                    && objectNode == null
-                    || objectURI.toLowerCase().contains(getObjectURI().toLowerCase())) {
+            boolean subjectMatch = subject == null
+                    || subjectURI.toLowerCase().contains(subject.getURI().toLowerCase());
+            boolean predicateMatch = predicate == null
+                    || predicateURI.toLowerCase().contains(predicate.getURI().toLowerCase());
+            boolean objectMatch = objectNode == null
+                    || objectURI.toLowerCase().contains(getObjectURI().toLowerCase());
+            if (subjectMatch && predicateMatch && objectMatch) {
                 if (unique) {
                     uniqueCollection.add(new ProvenanceStatement(stmt));
                 } else {

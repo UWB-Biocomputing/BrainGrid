@@ -1016,7 +1016,15 @@ public class ProvOntology {
             translation = "started on";
         } else if (uri.equals(ProvOntology.getRDFSLabelFullURI())){
             translation = "is labeled as";
-        } 
+        } else if (uri.equals(ProvOntology.getWasDerivedFromStartingPointPropertyFullURI())){
+            translation = "was derived from";
+        } else if (uri.equals(ProvOntology.getEndedAtTimeStartingPointPropertyFullURI())){
+            translation = "ended at";
+        } else if (uri.equals(ProvOntology.getStartedAtTimeStartingPointPropertyFullURI())){
+            translation = "started at";
+        } else if (uri.equals(ProvOntology.getUsedStartingPointPropertyFullURI())){
+            translation = "used";
+        }
         return translation;
     }
 }
