@@ -73,6 +73,7 @@ public class ProjectMgr {
     private static final String scriptRanAtAttributeName = "atMillis";
     private static final String scriptHostnameTagName = "hostname";
     private static final String scriptCompletedAtAttributeName = "completedAt";
+    private static final String scriptAnalyzedAttributeName = "outputAnalyzed";
 
     private static final String simConfigFileTagName = "simConfigFile";
     // </editor-fold>
@@ -341,7 +342,7 @@ public class ProjectMgr {
      * script, false if not
      */
     public boolean scriptGenerationAvailable() {
-        return simulationConfigurationFile != null
+        return script == null && simulationConfigurationFile != null
                 && simulator != null;
     }
     // </editor-fold>
@@ -650,7 +651,9 @@ public class ProjectMgr {
      * @param hasRun Whether or not the script has been executed
      */
     public void setScriptRan(boolean hasRun) {
-        script.setAttribute(scriptRanRunAttributeName, String.valueOf(hasRun));
+        if (script != null) {
+            script.setAttribute(scriptRanRunAttributeName, String.valueOf(hasRun));
+        }
     }
 
     /**
@@ -690,8 +693,10 @@ public class ProjectMgr {
      * project
      */
     public void setScriptCompletedAt(long timeCompleted) {
-        script.setAttribute(scriptCompletedAtAttributeName,
-                String.valueOf(timeCompleted));
+        if (script != null) {
+            script.setAttribute(scriptCompletedAtAttributeName,
+                    String.valueOf(timeCompleted));
+        }
     }
 
     /**
@@ -863,7 +868,7 @@ public class ProjectMgr {
         }
     }
 
-    private void removeScript() {
+    public void removeScript() {
         if (script != null) {
             script.getParentNode().removeChild(script);
             script = null;
@@ -997,6 +1002,7 @@ public class ProjectMgr {
             Text scriptFileLocation = doc.createTextNode(scriptBasename + "."
                     + extension);
 
+            // 
             /* Attach Elements */
             scriptFile.appendChild(scriptFileLocation);
             script.appendChild(scriptFile);
@@ -1016,9 +1022,8 @@ public class ProjectMgr {
         }
         return success;
     }
-    // </editor-fold>
-
-    public String getSimConfigFilename() {
+    
+        public String getSimConfigFilename() {
         return getFirstChildTextContent(root,
                 simConfigFileTagName);
     }
@@ -1026,4 +1031,22 @@ public class ProjectMgr {
     public boolean scriptGenerated() {
         return script != null;
     }
+
+    public boolean scriptOutputAnalyzed() {
+        String analyzedAttributeValue;
+        boolean analyzed = false;
+        if (script != null) {
+            analyzedAttributeValue = script.getAttribute(scriptAnalyzedAttributeName);
+            analyzed = Boolean.valueOf(analyzedAttributeValue);
+        }
+        return analyzed;
+    }
+
+    public void setScriptAnalyzed(boolean analyzed) {
+        if (script != null) {
+            script.setAttribute(scriptAnalyzedAttributeName,
+                    String.valueOf(analyzed));
+        }
+    }
+    // </editor-fold>
 }

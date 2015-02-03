@@ -129,7 +129,7 @@ public class WorkbenchManager {
                 if (projectMgr.isProvenanceEnabled()) {
                     // add the config file, but it should be remote
                     // this means that there will need to be a trace when copied
-                    prov.addEntity(simulationConfigurationFile, null, false);
+                    prov.addEntity(simulationConfigurationFile, null, false, false);
                 }
             } else {
                 simulationConfigurationFile = "None";
@@ -246,21 +246,7 @@ public class WorkbenchManager {
      * disposed
      */
     public void launchNLEdit(WorkbenchControlFrame parent) {
-        /* RunNLEdit */
-        if (projectMgr != null && projectMgr.isProvenanceEnabled()) {
-            runInternalNLEdit(parent);
-        } else {
-            // reset message for runExternalEdit
-            msgFromOtherThread = "";
-            runExternalNLEdit();
-            /* Display status of operation */
-            if (msgFromOtherThread.equals("")) {
-                messageAccumulator += "\n"
-                        + "External NLEdit tool launched successfully\n";
-            } else {
-                messageAccumulator += "\n" + msgFromOtherThread + "\n";
-            }
-        }
+        runInternalNLEdit(parent);
     }
 
     /**
@@ -361,7 +347,7 @@ public class WorkbenchManager {
      */
     public long analyzeScriptOutput() {
         long timeCompleted = DateTime.ERROR_TIME;
-        if (projectMgr != null && projectMgr.isProvenanceEnabled()) {
+        if (projectMgr != null && !projectMgr.scriptOutputAnalyzed()) {
             try {
                 messageAccumulator += "\n"
                         + "Gathering simulation provenance...\n";
@@ -372,6 +358,7 @@ public class WorkbenchManager {
                         = scriptMgr.analyzeScriptOutput(simSpec, prov, targetFolder);
                 if (timeCompleted != DateTime.ERROR_TIME) {
                     projectMgr.setScriptCompletedAt(timeCompleted);
+                    projectMgr.setScriptAnalyzed(true);
                 }
                 messageAccumulator += "\n" + "Simulation provenance gathered\n";
             } catch (IOException | JSchException | SftpException e) {
@@ -383,7 +370,7 @@ public class WorkbenchManager {
             }
         } else {
             messageAccumulator += "\n"
-                    + "Provenance is not enabled... nothing to analyze.\n";
+                    + "No project loaded... nothing to analyze.\n";
         }
         return timeCompleted;
     }
@@ -522,7 +509,7 @@ public class WorkbenchManager {
     public void addInputFile(String uri, InputAnalyzer.InputType type) {
         /* add prov */
         if (projectMgr.isProvenanceEnabled()) {
-            prov.addEntity(uri, type.toString(), false);
+            prov.addEntity(uri, type.toString(), false, false);
         }
         /* add to project */
         String toRemove = projectMgr.addInputFile(uri, type);
@@ -643,6 +630,18 @@ public class WorkbenchManager {
             }
         }
         return projectsDirectory;
+    }
+
+    public void invalidateScriptRan() {
+        projectMgr.setScriptRan(false);
+    }
+
+    public void invalidateScriptGenerated() {
+        projectMgr.removeScript();
+    }
+
+    public void invalidateScriptAnalyzed() {
+        projectMgr.setScriptCompletedAt(DateTime.ERROR_TIME);
     }
     // </editor-fold>
 
@@ -792,7 +791,8 @@ public class WorkbenchManager {
      * Indicates whether or not the last script generated has been moved and
      * executed
      *
-     * @return True if the last script generated has been moved and executed
+     * @return True if the last script generated has been moved and executed,
+     * otherwise false
      */
     public boolean scriptRan() {
         boolean ran = false;
@@ -800,6 +800,23 @@ public class WorkbenchManager {
             ran = projectMgr.getScriptRan();
         }
         return ran;
+    }
+
+    /**
+     * Indicates whether or not the output of script execution has been
+     * analyzed.
+     *
+     * Note: An incomplete analysis results in a false return value.
+     *
+     * @return True if the output of script execution has been analyzed (and the
+     * script execution has completed), otherwise false
+     */
+    public boolean scriptAnalyzed() {
+        boolean analyzed = false;
+        if (projectMgr != null) {
+            analyzed = projectMgr.scriptOutputAnalyzed();
+        }
+        return analyzed;
     }
 
     /**
@@ -893,6 +910,10 @@ public class WorkbenchManager {
 
     public String getSimConfigFilename() {
         return simulationConfigurationFile;
+    }
+
+    public ProvMgr getProvMgr() {
+        return prov;
     }
     // </editor-fold>
 

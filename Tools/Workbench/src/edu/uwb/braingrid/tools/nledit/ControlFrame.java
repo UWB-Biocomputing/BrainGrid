@@ -2,7 +2,6 @@ package edu.uwb.braingrid.tools.nledit;
 
 import edu.uwb.braingrid.workbench.WorkbenchManager;
 import edu.uwb.braingrid.workbench.ui.WorkbenchControlFrame;
-import edu.uwb.braingrid.workbench.data.InputAnalyzer.InputType;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -126,14 +125,14 @@ public class ControlFrame extends JFrame implements ActionListener {
     public ControlFrame(String string, WorkbenchControlFrame parent, WorkbenchManager mgr) {
         super(string);
         /* Set Parent Reference for Action Handlers */
-        try{
-            this.parent = (WorkbenchControlFrame)parent;
-        } catch(ClassCastException e){
+        try {
+            this.parent = (WorkbenchControlFrame) parent;
+        } catch (ClassCastException e) {
             this.parent = null;
         }
-        
+
         workbenchMgr = mgr;
-        
+
         parent.setEnabled(false);
     }
 
@@ -898,31 +897,37 @@ public class ControlFrame extends JFrame implements ActionListener {
                     myPanel.tfields[ExportPanel.idxInhList].getText(),
                     layoutPanel.inhNList, LayoutPanel.INH);
             // add to workbench project
-//            if (null != workbenchMgr) {
-//                workbenchMgr.addInputFile(
-//                        myPanel.tfields[ExportPanel.idxInhList].getText(),
-//                        InputType.INHIBITORY);
-//            }
+            if (null != workbenchMgr && workbenchMgr.isProvEnabled()) {
+                workbenchMgr.getProvMgr().addFileGeneration(
+                        "InhibitoryNeuronListExport" + java.util.UUID.randomUUID(),
+                        "neuronListExport", "NLEdit", null, false,
+                        myPanel.tfields[ExportPanel.idxInhList].getText(), null,
+                        false);
+            }
 
             writeNeuronListToFile(
                     myPanel.tfields[ExportPanel.idxActList].getText(),
                     layoutPanel.activeNList, LayoutPanel.ACT);
             // add to workbench project
-//            if (null != workbenchMgr) {
-//                workbenchMgr.addInputFile(
-//                        myPanel.tfields[ExportPanel.idxActList].getText(),
-//                        InputType.ACTIVE);
-//            }
+            if (null != workbenchMgr && workbenchMgr.isProvEnabled()) {
+                workbenchMgr.getProvMgr().addFileGeneration(
+                        "ActiveNeuronListExport" + java.util.UUID.randomUUID(),
+                        "neuronListExport", "NLEdit", null, false,
+                        myPanel.tfields[ExportPanel.idxActList].getText(), null,
+                        false);
+            }
 
             writeNeuronListToFile(
                     myPanel.tfields[ExportPanel.idxPrbList].getText(),
                     layoutPanel.probedNList, LayoutPanel.PRB);
             // add to workbench project
-//            if (null != workbenchMgr) {
-//                workbenchMgr.addInputFile(
-//                        myPanel.tfields[ExportPanel.idxPrbList].getText(),
-//                        InputType.PROBED);
-//            }
+            if (null != workbenchMgr && workbenchMgr.isProvEnabled()) {
+                workbenchMgr.getProvMgr().addFileGeneration(
+                        "ProbedNeuronListExport" + java.util.UUID.randomUUID(),
+                        "neuronListExport", "NLEdit", null, false,
+                        myPanel.tfields[ExportPanel.idxPrbList].getText(), null,
+                        false);
+            }
         }
     }
 

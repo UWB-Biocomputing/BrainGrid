@@ -15,6 +15,7 @@ import javax.swing.JFileChooser;
  * @version 0.1
  */
 public class WorkbenchControlFrame extends javax.swing.JFrame {
+
     // <editor-fold defaultstate="collapsed" desc="Auto-Generated">
     /**
      * This method is called from within the constructor to initialize the form.
@@ -382,9 +383,6 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
      */
     private void NLEditMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NLEditMenuItemActionPerformed
         workbenchMgr.launchNLEdit(this);
-        displaySimConfigFile();
-        setMsg();
-        pack();
     }//GEN-LAST:event_NLEditMenuItemActionPerformed
 
     /**
@@ -396,11 +394,10 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
      */
     private void specifyScriptButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_specifyScriptButtonActionPerformed
         if (workbenchMgr.specifyScript()) {
-            updateSimOverview();
-            runScriptButton.setEnabled(false);
-            analyzeOutputButton.setEnabled(false);
-            scriptGenerateButton.setEnabled(
-                    workbenchMgr.scriptGenerationAvailable());
+            workbenchMgr.invalidateScriptGenerated();
+            workbenchMgr.invalidateScriptRan();
+            workbenchMgr.invalidateScriptAnalyzed();
+            updateProjectOverview();
         }
         setMsg();
         pack();
@@ -417,19 +414,7 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
         int code = workbenchMgr.openProject();
         switch (code) {
             case JFileChooser.APPROVE_OPTION:
-                resetUILabelText();
-                projectTitleTextLabel.setText(workbenchMgr.getProjectName());
-                displaySimConfigFile();
-                updateSimOverview();
-                //transferProgressBar.setVisible(workbenchMgr.isSimExecutionRemote());
-                displayScriptGenerationOverview();
-                displayScriptRunOverview();
-                displayScriptAnalysisOverview();
-                enableInitialButtons();
-                runScriptButton.setEnabled(!workbenchMgr.scriptRan()
-                        && workbenchMgr.scriptGenerated());
-                analyzeOutputButton.setEnabled(workbenchMgr.scriptRan());
-                viewProvenanceMenuItem.setEnabled(workbenchMgr.isProvEnabled());
+                updateProjectOverview();
                 break;
             case JFileChooser.CANCEL_OPTION:
                 break;
@@ -464,6 +449,7 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
     private void analyzeOutputButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analyzeOutputButtonActionPerformed
         long timeCompleted = workbenchMgr.analyzeScriptOutput();
         if (timeCompleted != DateTime.ERROR_TIME) {
+            analyzeOutputButton.setEnabled(false);
             outputFilenameLabel.setText("Completed at: "
                     + DateTime.getTime(timeCompleted));
         } else {
@@ -475,12 +461,15 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
 
     private void scriptGenerateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scriptGenerateButtonActionPerformed
         if (workbenchMgr.generateScript()) {
-            // do not let the user extract output for a script that hasn't run
-            analyzeOutputButton.setEnabled(false);
-            /* Update the UI */
-            generatedScriptFilenameLabel.setText(workbenchMgr.getScriptPath());
-            // enable button to upload/run the script
-            runScriptButton.setEnabled(true);
+//            // keep user from pushing generate again without changing project
+//            scriptGenerateButton.setEnabled(false);
+//            // do not let the user extract output for a script that hasn't run
+//            analyzeOutputButton.setEnabled(false);
+//            /* Update the UI */
+//            generatedScriptFilenameLabel.setText(workbenchMgr.getScriptPath());
+//            // enable button to upload/run the script
+//            runScriptButton.setEnabled(true);
+            updateProjectOverview();
         }
         setMsg();
         pack();
@@ -519,11 +508,18 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
      */
     private void configureSimulationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_configureSimulationButtonActionPerformed
         if (workbenchMgr.configureSimulation()) {
-            simulationConfigurationLabel.setText(workbenchMgr.getSimConfigFilename());
-            runScriptButton.setEnabled(false);
-            analyzeOutputButton.setEnabled(false);
-            scriptGenerateButton.setEnabled(
-                    workbenchMgr.scriptGenerationAvailable());
+//            simulationConfigurationLabel.setText(workbenchMgr.getSimConfigFilename());
+//            displayScriptGenerationOverview();
+//            displayScriptRunOverview();
+//            displayScriptAnalysisOverview();
+//            runScriptButton.setEnabled(false);
+//            analyzeOutputButton.setEnabled(false);
+//            scriptGenerateButton.setEnabled(
+//                    workbenchMgr.scriptGenerationAvailable());.
+            workbenchMgr.invalidateScriptGenerated();
+            workbenchMgr.invalidateScriptRan();
+            workbenchMgr.invalidateScriptAnalyzed();
+            updateProjectOverview();
         }
         setMsg();
         pack();
@@ -694,6 +690,24 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
         if (overview != null) {
             outputFilenameLabel.setText(overview);
         }
+    }
+
+    private void updateProjectOverview() {
+        resetUILabelText();
+        projectTitleTextLabel.setText(workbenchMgr.getProjectName());
+        displaySimConfigFile();
+        updateSimOverview();
+        //transferProgressBar.setVisible(workbenchMgr.isSimExecutionRemote());
+        displayScriptGenerationOverview();
+        displayScriptRunOverview();
+        displayScriptAnalysisOverview();
+        enableInitialButtons();
+        scriptGenerateButton.setEnabled(
+                workbenchMgr.scriptGenerationAvailable());
+        runScriptButton.setEnabled(!workbenchMgr.scriptRan()
+                && workbenchMgr.scriptGenerated());
+        analyzeOutputButton.setEnabled(workbenchMgr.scriptRan() && !workbenchMgr.scriptAnalyzed());
+        viewProvenanceMenuItem.setEnabled(workbenchMgr.isProvEnabled());
     }
     //</editor-fold>
 

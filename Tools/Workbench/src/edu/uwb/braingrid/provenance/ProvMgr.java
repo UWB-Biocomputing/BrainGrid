@@ -25,6 +25,9 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -180,21 +183,33 @@ public class ProvMgr {
 
     // <editor-fold defaultstate="collapsed" desc="Model Manipulation">
     /**
-     * Add an entity to the provenance model. This method will remove all
-     * previous traces of the entity with the specified URI.
+     * Adds an entity to the provenance model. An entity is a physical, digital,
+     * conceptual, or other kind of thing with some fixed aspects; entities may
+     * be real or imaginary.
      *
-     * @param uri - the identifier that points to the entity resource
+     * Note: This method may return an existing Resource with the correct URI
+     * and model, or it may construct a fresh one, as the
+     * com.hp.hpl.jena.rdf.model.Model.createResource sees fit. However, you may
+     * specify replacement of an existing entity, by providing the replace
+     * parameter with a true value.
+     *
+     * @param uri - the URI of the entity to be created
      * @param label - optional text used in applying a label to the entity
-     * resource (used for ease of future query)
+     * resource (used for group queries)
      * @param remote - True if the remote name space prefix should be used
+     * @param replace - True if all instances of existing resources with the
+     * specified URI should be removed from the model prior to adding this
+     * entity resource
      * @return The resource representing the entity (used for method chaining or
      * complex construction)
      */
-    public Resource addEntity(String uri, String label, boolean remote) {
+    public Resource addEntity(String uri, String label, boolean remote, boolean replace) {
         uri = uri.replaceAll("\\\\", "/");
         String fullUri = remote ? getProjectFullRemoteURI(uri)
                 : getProjectFullLocalURI(uri);
-        // removeResource(uri);
+        if (replace) {
+            removeResource(uri);
+        }
         // make parts necessary for defining this particular entity in the model
         Resource entityToAdd = createStatement(fullUri,
                 ProvOntology.getRDFTypeFullURI(),
@@ -208,11 +223,35 @@ public class ProvMgr {
         return entityToAdd;
     }
 
-    public Resource addActivity(String uri, String label, boolean remote) {
+    /**
+     * Adds an activity to the provenance model. An activity is something that
+     * occurs over a period of time and acts upon or with entities; it may
+     * include consuming, processing, transforming, modifying, relocating,
+     * using, or generating entities.
+     *
+     * Note: This method may return an existing Resource with the correct URI
+     * and model, or it may construct a fresh one, as the
+     * com.hp.hpl.jena.rdf.model.Model.createResource sees fit. However, you may
+     * specify replacement of an existing entity, by providing the replace
+     * parameter with a true value.
+     *
+     * @param uri - the URI of the activity to be created
+     * @param label - optional text used in applying a label to the entity
+     * resource (used for group queries)
+     * @param remote - True if the remote name space prefix should be used
+     * @param replace - True if all instances of existing resources with the
+     * specified URI should be removed from the model prior to adding this
+     * activity resource
+     * @return The resource representing the entity (used for method chaining or
+     * complex construction)
+     */
+    public Resource addActivity(String uri, String label, boolean remote, boolean replace) {
         uri = uri.replaceAll("\\\\", "/");
         String fullUri = remote ? getProjectFullRemoteURI(uri)
                 : getProjectFullLocalURI(uri);
-        //removeResource(uri);
+        if (replace) {
+            removeResource(uri);
+        }
         // make parts necessary for defining this activity in the model
         Resource activityToAdd = createStatement(fullUri,
                 ProvOntology.getRDFTypeFullURI(),
@@ -225,7 +264,27 @@ public class ProvMgr {
         return activityToAdd;
     }
 
-    public Resource addSoftwareAgent(String uri, String label, boolean remote) {
+    /**
+     * Adds a software agent to the provenance model. A software agent is
+     * running software.
+     *
+     * Note: This method may return an existing Resource with the correct URI
+     * and model, or it may construct a fresh one, as the
+     * com.hp.hpl.jena.rdf.model.Model.createResource sees fit. However, you may
+     * specify replacement of an existing entity, by providing the replace
+     * parameter with a true value.
+     *
+     * @param uri - the URI of the software agent to be created
+     * @param label - optional text used in applying a label to the entity
+     * resource (used for group queries)
+     * @param remote - True if the remote name space prefix should be used
+     * @param replace - True if all instances of existing resources with the
+     * specified URI should be removed from the model prior to adding this agent
+     * resource
+     * @return The resource representing the software agent (used for method
+     * chaining or complex construction)
+     */
+    public Resource addSoftwareAgent(String uri, String label, boolean remote, boolean replace) {
         uri = uri.replaceAll("\\\\", "/");
         String fullUri = remote ? getProjectFullRemoteURI(uri)
                 : getProjectFullLocalURI(uri);
@@ -242,13 +301,45 @@ public class ProvMgr {
         return agentToAdd;
     }
 
-    public Resource associateWith(Resource activity, Resource agent) {
+    /**
+     * Describes the association of an activity to an agent. An activity
+     * association is an assignment of responsibility to an agent for an
+     * activity, indicating that the agent had a role in the activity. It
+     * further allows for a plan to be specified, which is the plan intended by
+     * the agent to achieve some goals in the context of this activity.
+     *
+     * Note: Activity and agent resources must first be described in the model
+     * before calling this method.
+     *
+     * @param activity - A resource description of the activity for which the
+     * agent is responsible
+     * @param agent - A resource description of the agent that is responsible
+     * for activity
+     * @return - The statement resource describing this association (used for
+     * method chaining or complex construction)
+     */
+    public Resource wasAssociatedWith(Resource activity, Resource agent) {
         return createStatement(activity.getURI(),
                 ProvOntology.getWasAssociatedWithStartingPointPropertyFullURI(),
                 agent.getURI());
     }
 
-    public Resource specifyUse(Resource activity, Resource entity) {
+    /**
+     * Describes usage of an entity for an activity. Usage is the beginning of
+     * utilizing an entity by an activity. Before usage, the activity had not
+     * begun to utilize this entity and could not have been affected by the
+     * entity.
+     *
+     * Note: Activity and entity resources must first be described in the model
+     * before calling this method.
+     *
+     * @param activity - A resource description of the activity for which agent
+     * is responsible
+     * @param entity
+     * @return - The statement resource describing this usage (used for method
+     * chaining or complex construction)
+     */
+    public Resource used(Resource activity, Resource entity) {
         return createStatement(activity.getURI(),
                 ProvOntology.getUsedStartingPointPropertyFullURI(),
                 entity.getURI());
@@ -272,38 +363,70 @@ public class ProvMgr {
     }
 
     /**
-     * Specifies the generation of an entity. Generation is the completion of
+     * Qualifies a "generated" statement (see ProvMgr.generated), which
+     * specifies the generation of an entity. Generation is the completion of
      * production of a new entity by an activity. This entity did not exist
      * before generation and becomes available for usage after this generation.
      * Note: In terms of the provenance record, a statement of the entity's
      * existence must first be added to the provenance record in order to show
      * generation. However, for the purposes of inference-based queries, the
-     * entity does not exist until it has been generated (by calling this
-     * function).
+     * entity does not exist until it has been generated (by this function).
      *
-     * @param entity - The entity that was generated by the specified activity
      * @param activity - The activity that generated the specified entity
+     * @param entity - The entity that was generated by the specified activity
      * @return The statement that has been added to the provenance record
      * through the invocation of this function.
      */
-    public Resource wasGeneratedBy(Resource entity, Resource activity) {
+    private Resource wasGeneratedBy(Resource entity, Resource activity) {
         return createStatement(entity.getURI(),
                 ProvOntology.getWasGeneratedByStartingPointPropertyFullURI(),
                 activity.getURI());
     }
 
     /**
-     * Describes when an activity occurred
+     * Specifies the generation of an entity. Generation is the completion of
+     * production of a new entity by an activity. This entity did not exist
+     * before generation and becomes available for usage after this generation.
+     *
+     * Note: In terms of the provenance record, a statement of the entity's
+     * existence must first be added to the provenance record in order to show
+     * generation. However, for the purposes of inference-based queries, the
+     * entity does not exist until it has been generated (by calling this
+     * function).
+     *
+     * Note: This function will also add its inverse (ProvMgr.wasGeneratedBy) to
+     * the model.
+     *
+     * @param entity - The entity that was generated by the specified activity
+     * @param activity - The activity that generated the specified entity
+     * @return The statement that has been added to the provenance record
+     * through the invocation of this function.
+     */
+    public Resource generated(Resource activity, Resource entity) {
+        wasGeneratedBy(entity, activity);
+        return createStatement(activity.getURI(),
+                ProvOntology.getGeneratedExpandedPropertyFullURI(),
+                entity.getURI());
+    }
+
+    /**
+     * Describes when an instantaneous event occurred. The PROV data model is
+     * implicitly based on a notion of instantaneous events (or just events),
+     * that mark transitions in the world. Events include generation, usage, or
+     * invalidation of entities, as well as starting or ending of activities.
+     * This notion of event is not first-class in the data model, but it is
+     * useful for explaining its other concepts and its semantics.
      *
      * @param activity - The activity that occurred
-     * @param time - The time at which the activity occurred
+     * @param instantaneousEvent -
      * @return No uses of the resulting statement are known to be any better
      * than using the activity resource, consider using the activity resource if
      * it is available (you can look up its URI by calling getSubject)
      */
-    public Resource atTime(Resource activity, String time) {
+    public Resource atTime(Resource activity, Resource instantaneousEvent) {
         return createStatement(activity.getURI(),
-                ProvOntology.getAtTimeQualifiedPropertyFullURI(), time);
+                ProvOntology.getAtTimeQualifiedPropertyFullURI(),
+                instantaneousEvent.getURI());
     }
 
     /**
@@ -311,15 +434,18 @@ public class ProvMgr {
      * for instantaneous events)
      *
      * @param activity - The activity that occurred
-     * @param time - The time at which the activity started
+     * @param date - A date representing the time at which the activity started
      * @return No uses of the resulting statement are known to be any better
      * than using the activity resource, consider using the activity resource it
      * is available (you can look up its URI by calling getSubject)
      */
-    public Resource startedAtTime(Resource activity, String time) {
-        return createStatement(activity.getURI(),
-                ProvOntology.getStartedAtTimeStartingPointPropertyFullURI(),
-                time);
+    public Resource startedAtTime(Resource activity, Date date) {
+        Statement atTime = model.createStatement(activity,
+                model.createProperty(ProvOntology.
+                        getStartedAtTimeStartingPointPropertyFullURI()),
+                getDateLiteral(date));
+        model.add(atTime);
+        return activity;
     }
 
     /**
@@ -327,15 +453,18 @@ public class ProvMgr {
      * instantaneous events)
      *
      * @param activity - The activity that occurred
-     * @param time - The time at which the activity ended
+     * @param date - A date representing the time at which the activity ended
      * @return No uses of the resulting statement are known to be any better
      * than using the activity resource, consider using the activity resource it
      * is available (you can look up its URI by calling getSubject)
      */
-    public Resource endedAtTime(Resource activity, String time) {
-        return createStatement(activity.getURI(),
-                ProvOntology.getEndedAtTimeStartingPointPropertyFullURI(),
-                time);
+    public Resource endedAtTime(Resource activity, Date date) {
+        Statement atTime = model.createStatement(activity,
+                model.createProperty(ProvOntology.
+                        getEndedAtTimeStartingPointPropertyFullURI()),
+                getDateLiteral(date));
+        model.add(atTime);
+        return activity;
     }
 
     /**
@@ -412,9 +541,10 @@ public class ProvMgr {
      * resides)
      *
      * @param uri - The identifier that points to the collection resource
+     * @param label - Optional label, for group queries
      * @return The resource that was defined for the collection
      */
-    private Resource createCollection(String uri, String label) {
+    public Resource createCollection(String uri, String label) {
         Resource collection = createStatement(uri,
                 ProvOntology.getRDFTypeFullURI(),
                 ProvOntology.getCollectionExpandedClassFullURI());
@@ -428,15 +558,47 @@ public class ProvMgr {
      * addEntity to accomplish this, prior to adding the member to the
      * collection.
      *
-     * @param resource - The resource to add to the collection
+     * @param collection - The collection to add the entity to
+     * @param entity - The resource to add to the collection
      * @return - A reference to resource which describes the collection (used
      * for method chaining)
      */
-    private Resource addToCollection(Resource collection, Resource resource) {
+    public Resource addToCollection(Resource collection, Resource entity) {
         Property hadMember = model.createProperty(ProvOntology.
                 getHadMemberExpandedPropertyFullURI());
-        Statement s = model.createStatement(collection, hadMember, resource);
+        Statement s = model.createStatement(collection, hadMember, entity);
         return collection;
+    }
+
+    /**
+     * Adds a series of statements indicating that an agent created a file at a
+     * given location. If the agent does not yet exist, it is first added to the
+     * model.
+     *
+     * @param activityURI
+     * @param activityLabel
+     * @param agentURI - Identifies the agent responsible for generating the
+     * file
+     * @param agentLabel - Optional label for the agent created with agentURI
+     * @param remoteAgent - Indicates the locale of the agent with respect to
+     * the locale where this function was invoked
+     * @param fileURI - Identifies the file that was generated
+     * @param fileLabel - Optional label for the generated file created with
+     * fileURI
+     * @param remoteFile - Indicates the locale of the file with respect to the
+     * locale where this activity occurred
+     * @return The resource object associated with the file that was generated
+     */
+    public Resource addFileGeneration(String activityURI, String activityLabel,
+            String agentURI, String agentLabel, boolean remoteAgent,
+            String fileURI, String fileLabel, boolean remoteFile) {
+        Resource activity = addActivity(activityURI, activityLabel, remoteAgent, false);
+        Resource program = addSoftwareAgent(agentURI, agentLabel, remoteAgent, false);
+        Resource file = addEntity(fileURI, fileLabel, remoteFile, false);
+        wasGeneratedBy(file, activity);
+        generated(activity, file);
+        wasAssociatedWith(activity, program);
+        return file;
     }
     // </editor-fold>
 
@@ -537,11 +699,27 @@ public class ProvMgr {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Utility Functions">
+    /**
+     * Converts the specified URI to its full form, which includes the
+     * associated namespace URI.
+     *
+     * @param uri - The URI to be converted
+     * @return The full form of the URI, which includes the associated namespace
+     * URI
+     */
     private String getProjectFullLocalURI(String uri) {
         //return localNS + uri;
         return LOCAL_NS_PREFIX + ":" + uri;
     }
 
+    /**
+     * Converts the specified URI to its full form, which includes the
+     * associated namespace URI.
+     *
+     * @param uri - The URI to be converted
+     * @return The full form of the URI, which includes the associated namespace
+     * URI
+     */
     private String getProjectFullRemoteURI(String uri) {
         return REMOTE_NS_PREFIX + ":" + uri;
     }
@@ -614,5 +792,17 @@ public class ProvMgr {
             model.write(out);
         }
     }
-    // </editor-fold>    
+
+    /**
+     * Converts a java date to the format required by Jena's Riot package.
+     *
+     * @param date - The java date object to convert
+     * @return - An xsd formatted date time string
+     */
+    private Literal getDateLiteral(Date date) {
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(date);
+        return model.createTypedLiteral(cal);
+    }
+    // </editor-fold>
 }

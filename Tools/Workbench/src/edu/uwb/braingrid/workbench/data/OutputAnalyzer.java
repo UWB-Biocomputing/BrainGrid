@@ -48,14 +48,14 @@ public class OutputAnalyzer {
         try { // try to start reading from the given file path
             fileReader = new Scanner(new FileReader(new File(filepath)));
         } catch (FileNotFoundException e) {
-            System.err.println(filepath);
+            System.err.println("Script Output Analyzer could not find " + filepath);
         }
         // given file path does not exist
         if (fileReader == null) {
             return;
         }
         if (!analyzeVersionNumber(fileReader)) {
-            System.err.println(filepath);
+            System.err.println("Script version information not found in " + filepath);
             return;
         }
         // analyze simulation information, if simspec ending prefix not detected
@@ -319,7 +319,6 @@ public class OutputAnalyzer {
      * downloaded to the project script directory
      */
     public long completedAt(String executableName) {
-        System.err.println("command requested: " + executableName);
         Date date;
         long time = DateTime.ERROR_TIME;
         Collection<ExecutedCommand> commands
