@@ -33,6 +33,8 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Provenance Query");
+        setMinimumSize(new java.awt.Dimension(500, 200));
+        setPreferredSize(new java.awt.Dimension(700, 300));
 
         predicateComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None" }));
         predicateComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -43,6 +45,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
 
         outputTextArea.setEditable(false);
         outputTextArea.setColumns(20);
+        outputTextArea.setFont(new java.awt.Font("Courier New", 0, 13)); // NOI18N
         outputTextArea.setRows(5);
         jScrollPane1.setViewportView(outputTextArea);
 
@@ -87,7 +90,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(predicateComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(predicateComboBox, 0, 252, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -111,7 +114,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -140,11 +143,24 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         ProvenanceStatement resultStatement;
         for (int i = 0, im = results.size(); i < im; i++) {
             resultStatement = results.get(i);
-            result += resultStatement.getSubjectURI() + ' '
-                    + resultStatement.getPredicate() + ' '
-                    + resultStatement.getObjectURI();
+            String objectURI = resultStatement.getObjectURI();
+            String fullObjectWord = resultStatement.getObjectURI();
+            int ssIdx = fullObjectWord.lastIndexOf("#");
+            String objectWord = fullObjectWord;
+            if (ssIdx != -1 && ssIdx != fullObjectWord.length() - 1) {
+                objectWord = fullObjectWord.substring(ssIdx + 1);
+            }
+
+            boolean vowel = objectWord.toLowerCase().startsWith("a")
+                    || objectWord.toLowerCase().startsWith("e")
+                    || objectWord.toLowerCase().startsWith("i")
+                    || objectWord.toLowerCase().startsWith("o")
+                    || objectWord.toLowerCase().startsWith("u");
+            result += resultStatement.getSubjectURI() + "  "
+                    + ProvOntology.translatePredicate(resultStatement.getPredicate(), vowel) + "  "
+                    + objectWord;
             if (i < im - 1) {
-                result += "\n";
+                result += "\n\n";
             }
         }
 
@@ -202,7 +218,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         center();
         setVisible(true);
     }
-    
+
     private void addItemsToPredicateComboBox() {
         predicateFullURIs.add("");
         for (String predicate : provMgr.getPredicates()) {
@@ -234,7 +250,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         searchButton.setEnabled(isSubjectValid() || isPredicateValid()
                 || isObjectValid());
     }
-    
+
     private boolean isSubjectValid() {
         if (subjectTextField.getText() != null
                 && !subjectTextField.getText().equals("")) {
@@ -243,7 +259,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
             return false;
         }
     }
-    
+
     private boolean isPredicateValid() {
         if (!((String) predicateComboBox.getSelectedItem()).equals("None")) {
             return true;
@@ -251,7 +267,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
             return false;
         }
     }
-    
+
     private boolean isObjectValid() {
         if (!objectTextField.getText().equals("")) {
             return true;

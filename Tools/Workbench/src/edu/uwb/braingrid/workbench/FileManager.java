@@ -7,6 +7,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import org.apache.commons.io.FileUtils;
 
 /**
  * Handles all file operations for the workbench. The purpose behind this
@@ -51,6 +52,10 @@ public final class FileManager {
             filename = longFilename;
         }
         return filename;
+    }
+
+    static void copyFolder(String src, String dst) throws IOException {
+        FileUtils.copyDirectory(new File(src), new File(dst));
     }
 
     public String[] getNeuronListFilenames(String projectName) throws IOException {

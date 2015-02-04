@@ -625,7 +625,7 @@ public class ScriptManager {
                     + Script.printfOutputFilename);
             Path provTargetPath = Paths.get(provFileTargetLocation);
             if (FileManager.copyFile(provSourcePath,
-                    Paths.get(provFileTargetLocation))) {
+                    provTargetPath)) {
                 filename = provFileTargetLocation;
             }
         }

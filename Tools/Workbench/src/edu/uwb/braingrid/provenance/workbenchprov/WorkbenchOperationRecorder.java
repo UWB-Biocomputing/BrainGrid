@@ -105,11 +105,11 @@ public class WorkbenchOperationRecorder {
         // specify time the upload activity ended
         provMgr.endedAtTime(copyActivity, new Date());
         // add new file created by upload (this is a local entity)
-        Resource destinationEntity
-                = provMgr.addEntity(destinationEntityURI, entityLabel, false, false);
+        Resource destinationEntity = provMgr.addEntity(destinationEntityURI,
+                entityLabel, false, false);
         // add workbench as an agent
-        Resource workbenchAgent
-                = provMgr.addSoftwareAgent(workbenchSoftwareAgentURI, null, false, false);
+        Resource workbenchAgent = provMgr.addSoftwareAgent(
+                workbenchSoftwareAgentURI, null, false, false);
         // associate the copy activity with the workbench software
         provMgr.wasAssociatedWith(copyActivity, workbenchAgent);
         // original script was used in the copy operation

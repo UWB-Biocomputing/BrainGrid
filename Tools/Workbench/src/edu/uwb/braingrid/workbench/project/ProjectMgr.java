@@ -274,6 +274,21 @@ public class ProjectMgr {
                 + name + ps;
         return projectDirectory;
     }
+    
+    /**
+     * Determines the assumed folder location for a project of a given name
+     *
+     * @return The path to the project folder for the specified project
+     * @throws IOException
+     */
+    public static final String determineProjectOutputLocation(String name)
+            throws IOException {
+        String workingDirectory = FileManager.getCanonicalWorkingDirectory();
+        String ps = FileManager.getFileManager().getFolderDelimiter();
+        String projectDirectory = workingDirectory + ps + "projects" + ps
+                + name + ps;
+        return projectDirectory;
+    }
 
     /**
      * Provides the full path, including the filename, containing the XML for

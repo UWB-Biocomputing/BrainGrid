@@ -127,6 +127,8 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Simulator Configuration");
 
+        tabs.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+
         fracEXC_label.setText("Fraction of excitatory neurons:");
 
         fracEXC_textField.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -549,6 +551,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         probedNListFilename_textField.setEnabled(false);
 
         ANLImportButton.setText("Import");
+        ANLImportButton.setToolTipText("<html>Import neuron list<br>exported from NLEdit<br>(found in the Tools menu)</html>");
         ANLImportButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ANLImportButtonActionPerformed(evt);
@@ -556,6 +559,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         });
 
         INLImportButton.setText("Import");
+        INLImportButton.setToolTipText("<html>Import neuron list<br>exported from NLEdit<br>(found in the Tools menu)</html>");
         INLImportButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 INLImportButtonActionPerformed(evt);
@@ -563,6 +567,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         });
 
         PBLImportButton.setText("Import");
+        PBLImportButton.setToolTipText("<html>Import neuron list<br>exported from NLEdit<br>(found in the Tools menu)</html>");
         PBLImportButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 PBLImportButtonActionPerformed(evt);
@@ -570,6 +575,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         });
 
         calcStateOutputFileNameButton.setText("Calculate");
+        calcStateOutputFileNameButton.setToolTipText("<html>Automatically generate the filename<br>based on simulation constants</html>");
         calcStateOutputFileNameButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 calcStateOutputFileNameButtonActionPerformed(evt);
@@ -634,6 +640,8 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         );
 
         tabs.addTab("Files", externalFilesPanel);
+
+        tabs.setSelectedIndex(5);
 
         cancelButton.setText("Cancel");
         cancelButton.addActionListener(new java.awt.event.ActionListener() {

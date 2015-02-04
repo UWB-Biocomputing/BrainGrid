@@ -57,6 +57,7 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         codeRepositoryLocationLabel.setToolTipText("<html>Repository to pull from.<br>This URI must go to a local folder,<br>or to a valid network address</html>");
 
         codeRepositoryLocationTextField.setText(getDefaultCodeLocation());
+        codeRepositoryLocationTextField.setToolTipText("<html>Repository to pull from.<br>This URI must go to a local folder,<br>or to a valid network address</html>");
         codeRepositoryLocationTextField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 codeRepositoryLocationTextFieldKeyReleased(evt);
@@ -87,15 +88,15 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         simulatorFolderLocationLabel.setText("* Simulator Folder Location:");
         simulatorFolderLocationLabel.setToolTipText("<html>The top folder for your local code-base<br>(not a repository address)</html>");
 
-        simulationTypeLabel.setText("Simulation Type:");
+        simulationTypeLabel.setText("Simulator Execution Type: ");
         simulationTypeLabel.setToolTipText("<html>If you wish to run growth, choose sequential<br>If you wish to run growth_gpu, choose parallel</html>");
 
         simulationTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Sequential", "Parallel" }));
 
         versionAnnotationLabel.setText("Version Annotation:");
-        versionAnnotationLabel.setToolTipText("<html>A meaningful annotation to pair with<br>your source code version information</html>");
+        versionAnnotationLabel.setToolTipText("<html>A meaningful annotation to pair with<br>your source code version information<br>such as the repository branch</html>");
 
-        versionAnnotationTextField.setToolTipText("");
+        versionAnnotationTextField.setToolTipText("<html>A meaningful annotation to pair with<br>your source code version information<br>such as the repository branch</html>");
         versionAnnotationTextField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 versionAnnotationTextFieldKeyReleased(evt);
@@ -112,10 +113,11 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         sourceCodeUpdatingLabel.setText("Source Code Updating:");
         sourceCodeUpdatingLabel.setToolTipText("<html>Directions for updating source code<br>prior to running the simulation</html>");
 
-        simulatorLocationLabel.setText("Simulator Location:");
+        simulatorLocationLabel.setText("Simulator Location: ");
         simulatorLocationLabel.setToolTipText("<html>Will you run BrainGrid on a remote<br>machine or on this machine?</html>");
 
         sourceCodeUpdatingComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None", "Pull" }));
+        sourceCodeUpdatingComboBox.setSelectedIndex(1);
 
         testConnectionButton.setText("Test Connection");
         testConnectionButton.setEnabled(false);

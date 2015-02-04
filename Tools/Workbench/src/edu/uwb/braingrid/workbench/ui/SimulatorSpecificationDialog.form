@@ -158,6 +158,7 @@
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection code="getDefaultCodeLocation()" type="code"/>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Repository to pull from.&lt;br&gt;This URI must go to a local folder,&lt;br&gt;or to a valid network address&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="codeRepositoryLocationTextFieldKeyReleased"/>
@@ -193,7 +194,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="simulationTypeLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Simulation Type:"/>
+        <Property name="text" type="java.lang.String" value="Simulator Execution Type: "/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If you wish to run growth, choose sequential&lt;br&gt;If you wish to run growth_gpu, choose parallel&lt;/html&gt;"/>
       </Properties>
     </Component>
@@ -210,12 +211,12 @@
     <Component class="javax.swing.JLabel" name="versionAnnotationLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Version Annotation:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;A meaningful annotation to pair with&lt;br&gt;your source code version information&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;A meaningful annotation to pair with&lt;br&gt;your source code version information&lt;br&gt;such as the repository branch&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="versionAnnotationTextField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value=""/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;A meaningful annotation to pair with&lt;br&gt;your source code version information&lt;br&gt;such as the repository branch&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="versionAnnotationTextFieldKeyReleased"/>
@@ -242,7 +243,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="simulatorLocationLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Simulator Location:"/>
+        <Property name="text" type="java.lang.String" value="Simulator Location: "/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Will you run BrainGrid on a remote&lt;br&gt;machine or on this machine?&lt;/html&gt;"/>
       </Properties>
     </Component>
@@ -254,6 +255,7 @@
             <StringItem index="1" value="Pull"/>
           </StringArray>
         </Property>
+        <Property name="selectedIndex" type="int" value="1"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="testConnectionButton">

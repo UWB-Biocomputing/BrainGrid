@@ -78,6 +78,12 @@
   </Layout>
   <SubComponents>
     <Container class="javax.swing.JTabbedPane" name="tabs">
+      <Properties>
+        <Property name="selectedIndex" type="int" value="5"/>
+        <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+          <Color id="Default Cursor"/>
+        </Property>
+      </Properties>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
       <SubComponents>
@@ -891,6 +897,7 @@
             <Component class="javax.swing.JButton" name="ANLImportButton">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Import"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Import neuron list&lt;br&gt;exported from NLEdit&lt;br&gt;(found in the Tools menu)&lt;/html&gt;"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ANLImportButtonActionPerformed"/>
@@ -899,6 +906,7 @@
             <Component class="javax.swing.JButton" name="INLImportButton">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Import"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Import neuron list&lt;br&gt;exported from NLEdit&lt;br&gt;(found in the Tools menu)&lt;/html&gt;"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="INLImportButtonActionPerformed"/>
@@ -907,6 +915,7 @@
             <Component class="javax.swing.JButton" name="PBLImportButton">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Import"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Import neuron list&lt;br&gt;exported from NLEdit&lt;br&gt;(found in the Tools menu)&lt;/html&gt;"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="PBLImportButtonActionPerformed"/>
@@ -915,6 +924,7 @@
             <Component class="javax.swing.JButton" name="calcStateOutputFileNameButton">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Calculate"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Automatically generate the filename&lt;br&gt;based on simulation constants&lt;/html&gt;"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="calcStateOutputFileNameButtonActionPerformed"/>

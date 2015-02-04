@@ -169,7 +169,23 @@ public class WorkbenchManager {
             case JFileChooser.APPROVE_OPTION:
                 try {
                     File selectedFile = chooser.getSelectedFile();
-                    projectMgr = new ProjectMgr(selectedFile.getName(), true);
+                    try {
+                        projectMgr = new ProjectMgr(selectedFile.getName(), true);
+                    } catch (IOException ex1) {
+                        messageAccumulator += "\n"
+                                + "Unmanaged project selected.\n"
+                                + "Attempting to import project...\n";
+                        String destFolder = ProjectMgr.determineProjectOutputLocation(
+                                selectedFile.getName().split("\\.")[0]);
+                        FileManager.copyFolder(selectedFile.getParent(),
+                                destFolder);
+                        messageAccumulator += "\n" + "Folder contents copied..."
+                                + "\nFrom: " + selectedFile.getParent()
+                                + "\nTo:   "
+                                + destFolder + "\n";
+                        projectMgr = new ProjectMgr(selectedFile.getName(), true);
+
+                    }
                     updateSimSpec();
                     if (projectMgr.isProvenanceEnabled()) {
                         prov = new ProvMgr(projectMgr, true);
@@ -834,7 +850,12 @@ public class WorkbenchManager {
             boolean simAttributeAddedToText = false;
             if (simFoldername != null) {
                 FileManager fm = FileManager.getFileManager();
-                String home = fm.getUserDir();
+                String home;
+                if (simSpec.isRemote()) {
+                    home = "~/";
+                } else {
+                    home = fm.getUserDir();
+                }
                 overview += "location: " + home + simFoldername;
                 simAttributeAddedToText = true;
             }
