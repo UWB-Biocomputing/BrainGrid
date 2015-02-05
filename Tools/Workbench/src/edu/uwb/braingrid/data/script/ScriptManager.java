@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
@@ -116,7 +117,7 @@ public class ScriptManager {
         script.addVerbatimStatement("mkdir -p workbenchconfigfiles/NList", null,
                 true);
         /* Move Sim Config File */
-        script.addVerbatimStatement("cp ~/" + simConfigFilename + " ~/"
+        script.addVerbatimStatement("mv ~/" + simConfigFilename + " ~/"
                 + simSpec.getSimulatorFolder()
                 + "/workbenchconfigfiles/" + simConfigFilename, null, true);
         /* Move Neuron Lists */
@@ -125,7 +126,7 @@ public class ScriptManager {
             String[] nListFilenames = fm.getNeuronListFilenames(projectname);
             if (nListFilenames != null) {
                 for (int i = 0, im = nListFilenames.length; i < im; i++) {
-                    script.addVerbatimStatement("cp ~/"
+                    script.addVerbatimStatement("mv ~/"
                             + FileManager.getSimpleFilename(nListFilenames[i])
                             + " ~/"
                             + simSpec.getSimulatorFolder()
@@ -252,15 +253,16 @@ public class ScriptManager {
                 ExecutedCommand sim = analyzer.getFirstCommand("./" + simExec);
                 if (sim != null) {
                     // get agent resource
-                    String uri = simSpec.getSimulatorFolder() + "/" + simExec;
+                    String uri = "~/" + simSpec.getSimulatorFolder() + "/"
+                            + simExec;
                     Resource simAgent = prov.addSoftwareAgent(uri, "simulator",
                             simSpec.isRemote(), false);
                     // get activity resource
-                    Resource simActivity = prov.addActivity("simulation", null,
+                    Resource simActivity = prov.addActivity("simulation_"
+                            + UUID.randomUUID(), "simulation",
                             simSpec.isRemote(), false);
                     // connect the two
-                    Resource associatedWith = prov.wasAssociatedWith(
-                            simActivity, simAgent);
+                    prov.wasAssociatedWith(simActivity, simAgent);
                     prov.startedAtTime(simActivity, new Date(atTime));
                 }
                 String scriptName = Script.getFilename(

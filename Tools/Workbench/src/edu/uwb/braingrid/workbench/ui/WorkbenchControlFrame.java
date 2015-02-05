@@ -461,14 +461,6 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
 
     private void scriptGenerateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scriptGenerateButtonActionPerformed
         if (workbenchMgr.generateScript()) {
-//            // keep user from pushing generate again without changing project
-//            scriptGenerateButton.setEnabled(false);
-//            // do not let the user extract output for a script that hasn't run
-//            analyzeOutputButton.setEnabled(false);
-//            /* Update the UI */
-//            generatedScriptFilenameLabel.setText(workbenchMgr.getScriptPath());
-//            // enable button to upload/run the script
-//            runScriptButton.setEnabled(true);
             updateProjectOverview();
         }
         setMsg();
@@ -508,14 +500,6 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
      */
     private void configureSimulationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_configureSimulationButtonActionPerformed
         if (workbenchMgr.configureSimulation()) {
-//            simulationConfigurationLabel.setText(workbenchMgr.getSimConfigFilename());
-//            displayScriptGenerationOverview();
-//            displayScriptRunOverview();
-//            displayScriptAnalysisOverview();
-//            runScriptButton.setEnabled(false);
-//            analyzeOutputButton.setEnabled(false);
-//            scriptGenerateButton.setEnabled(
-//                    workbenchMgr.scriptGenerationAvailable());.
             workbenchMgr.invalidateScriptGenerated();
             workbenchMgr.invalidateScriptRan();
             workbenchMgr.invalidateScriptAnalyzed();

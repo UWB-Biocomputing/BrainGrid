@@ -9,11 +9,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Specifies the context for a simulation
+ * Specifies the context for a simulation execution script. For example, should
+ * the sequential version of the simulator be used to perform the simulation, or
+ * should the parallel version be used? Will the source code be updated first?
+ * Will the simulator be executed remotely? Answers to these questions determine
+ * the content of the execution script to be generated; they also determine how
+ * and where the script will be executed.
  *
  * @author Del Davis
  */
-public class SimulatorSpecificationDialog extends javax.swing.JDialog {
+public class ScriptSpecificationDialog extends javax.swing.JDialog {
 
     // <editor-fold defaultstate="collapsed" desc="Auto-Generated Code">  
     /**
@@ -382,7 +387,7 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
      * it's parent, False if the focus can shift to the parent while this dialog
      * is visible
      */
-    public SimulatorSpecificationDialog(boolean modal) {
+    public ScriptSpecificationDialog(boolean modal) {
         setModal(modal);
         initComponents();
         center();
@@ -394,7 +399,7 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         return DEFAULT_REPO_URI;
     }
 
-    public SimulatorSpecificationDialog(boolean modal, SimulationSpecification simSpec) {
+    public ScriptSpecificationDialog(boolean modal, SimulationSpecification simSpec) {
         setModal(modal);
         initComponents();
 
@@ -411,7 +416,7 @@ public class SimulatorSpecificationDialog extends javax.swing.JDialog {
         String version = simSpec.getVersionAnnotation();
 
         if (remote) {
-            simulatorLocationComboBox.setSelectedItem(SimulationSpecification.REMOTE_EXECUTION_INDEX);
+            simulatorLocationComboBox.setSelectedIndex(SimulationSpecification.REMOTE_EXECUTION_INDEX);
             if (hostAddr != null) {
                 hostAddressTextField.setText(hostAddr);
             }

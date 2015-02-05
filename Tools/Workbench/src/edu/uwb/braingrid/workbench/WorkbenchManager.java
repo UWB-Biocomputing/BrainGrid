@@ -12,7 +12,7 @@ import edu.uwb.braingrid.workbench.model.SimulationSpecification;
 import edu.uwb.braingrid.workbench.ui.InputConfigurationDialog;
 import edu.uwb.braingrid.workbench.ui.NewProjectDialog;
 import edu.uwb.braingrid.workbench.ui.ProvenanceQueryDialog;
-import edu.uwb.braingrid.workbench.ui.SimulatorSpecificationDialog;
+import edu.uwb.braingrid.workbench.ui.ScriptSpecificationDialog;
 import edu.uwb.braingrid.workbench.ui.WorkbenchControlFrame;
 import edu.uwb.braingrid.workbench.utils.DateTime;
 import java.io.File;
@@ -246,7 +246,7 @@ public class WorkbenchManager {
                         + "\n";
             } catch (IOException | TransformerException e) {
                 messageAccumulator += "\n" + "The project file: " + msg
-                        + " could not be created do to: " + "\n"
+                        + " could not be created due to: " + "\n"
                         + e.getClass().toString() + "\n";
             }
         }
@@ -322,15 +322,15 @@ public class WorkbenchManager {
      */
     public boolean specifyScript() {
         String hostAddr;
-        SimulatorSpecificationDialog simulator;
+        ScriptSpecificationDialog spd;
         if (simSpec != null) {
-            simulator = new SimulatorSpecificationDialog(true, simSpec);
+            spd = new ScriptSpecificationDialog(true, simSpec);
         } else {
-            simulator = new SimulatorSpecificationDialog(true);
+            spd = new ScriptSpecificationDialog(true);
         }
-        boolean success = simulator.getSuccess();
+        boolean success = spd.getSuccess();
         if (success) {
-            simSpec = simulator.toSimulatorSpecification();
+            simSpec = spd.toSimulatorSpecification();
             String locale = simSpec.getSimulationLocale();
             String remote = SimulationSpecification.REMOTE_EXECUTION;
             if (locale.equals(remote)) {

@@ -42,7 +42,7 @@ public class SimulationSpecification {
         String simExecutableToInvoke = null;
         if (simulationType != null) {
             simExecutableToInvoke = simulationType.equals(SimulationSpecification.SEQUENTIAL_SIMULATION)
-                    ? "growth" : "growth_gpu";
+                    ? "growth" : "growth_cuda";
         }
         return simExecutableToInvoke;
     }

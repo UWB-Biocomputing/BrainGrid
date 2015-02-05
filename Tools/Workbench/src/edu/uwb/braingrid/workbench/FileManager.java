@@ -27,7 +27,23 @@ import org.apache.commons.io.FileUtils;
 public final class FileManager {
 
     private static FileManager instance = null;
+    private final boolean isWindowsSystem;
+    private final String folderDelimiter;
+    private final String projectsFolderName = "projects";
+    private final String configFilesFolderName = "configfiles";
+    private final String neuronListFolderName = "NList";
 
+    /**
+     * This is here to make sure that classes from other packages cannot
+     * instantiate the file manager. This is to ensure that only one file
+     * manager is present in the workbench for the life of the workbench control
+     * thread.
+     */
+    private FileManager() {
+        String osName = System.getProperty("os.name").toLowerCase();
+        isWindowsSystem = osName.startsWith("windows");
+        folderDelimiter = isWindowsSystem ? "\\" : "/";
+    }
     /**
      * Utility function that returns the last name of a specified path string
      * containing parent folders
@@ -73,23 +89,6 @@ public final class FileManager {
         }
         return filenames;
     }
-    private final boolean isWindowsSystem;
-    private final String folderDelimiter;
-    private String projectsFolderName = "projects";
-    private String configFilesFolderName = "configfiles";
-    private String neuronListFolderName = "NList";
-
-    /**
-     * This is here to make sure that classes from other packages cannot
-     * instantiate the file manager. This is to ensure that only one file
-     * manager is present in the workbench for the life of the workbench control
-     * thread.
-     */
-    private FileManager() {
-        String osName = System.getProperty("os.name").toLowerCase();
-        isWindowsSystem = osName.startsWith("windows");
-        folderDelimiter = isWindowsSystem ? "\\" : "/";
-    }
 
     /**
      * Gets or instantiates this file manager.
@@ -107,7 +106,7 @@ public final class FileManager {
 
     /**
      * Provides the operating system dependent folder delimiter, not to be
-     * confused with the poorly named File.pathseperator
+     * confused with the poorly named File.PathSeperator
      *
      * @return The string that delimits folders from parent folders on the
      * operating system where the workbench was invoked
