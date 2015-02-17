@@ -63,7 +63,7 @@ void LIFGPUModel::deleteSynapseDeviceStruct( AllSynapsesDevice* allSynapsesDevic
 	HANDLE_ERROR( cudaFree( allSynapsesDevice ) );
 }
 
-void LIFGPUModel::copySynapseHostToDevice( AllSynapsesDevice* allSynapsesDevice, const AllSynapses& allSynapsesHost, int num_neurons, int max_synapses ) { // copy everything necessary
+void LIFGPUModel::copySynapseHostToDevice( AllSynapsesDevice* allSynapsesDevice, const AllDSSynapses& allSynapsesHost, int num_neurons, int max_synapses ) { // copy everything necessary
 	uint32_t max_total_synapses = max_synapses * num_neurons;
 	AllSynapsesDevice allSynapses_0;
 	AllSynapsesDevice allSynapses_1(num_neurons, max_synapses);
@@ -157,7 +157,7 @@ void LIFGPUModel::copySynapseHostToDevice( AllSynapsesDevice* allSynapsesDevice,
                 max_total_synapses * sizeof( bool ), cudaMemcpyHostToDevice ) );
 }
 
-void LIFGPUModel::copySynapseDeviceToHost( AllSynapsesDevice* allSynapsesDevice, AllSynapses& allSynapsesHost, int num_neurons, int max_synapses ) {
+void LIFGPUModel::copySynapseDeviceToHost( AllSynapsesDevice* allSynapsesDevice, AllDSSynapses& allSynapsesHost, int num_neurons, int max_synapses ) {
 	// copy everything necessary
 	AllSynapsesDevice allSynapses_0;
 	AllSynapsesDevice allSynapses_1(num_neurons, max_synapses);

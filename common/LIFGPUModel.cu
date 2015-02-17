@@ -15,7 +15,7 @@
  *				variable continuity and proper arguments. 
  *   REMOVED =	Deleted, likely due to it becoming unnecessary or not necessary 
  *				for GPU implementation. These functions will likely have to be 
- *				removed from the LIFModel super class.
+ *				removed from the Model super class.
  *    COPIED = 	These functions were in the original GpuSim_struct.cu file 
  *				and were directly copy-pasted across to this file. 
  *
@@ -34,18 +34,18 @@ cudaEvent_t start, stop;
 #endif // PERFORMANCE_METRICS
 
 //! Perform updating neurons for one time step.
-__global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice );
+__global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllLIFNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice );
 
 //! Perform updating synapses for one time step.
 __global__ void advanceSynapsesDevice ( int total_synapse_counts, LIFGPUModel::SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSynapsesDevice* allSynapsesDevice );
 
-__global__ void setSynapseSummationPointDevice(int num_neurons, AllNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice, int max_synapses, int width);
+__global__ void setSynapseSummationPointDevice(int num_neurons, AllLIFNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice, int max_synapses, int width);
 
 //! Calculate summation point.
 __global__ void calcSummationMap( int totalNeurons, LIFGPUModel::SynapseIndexMap* synapseIndexMapDevice, AllSynapsesDevice* allSynapsesDevice );
 
 //! Update the network.
-__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice );
+__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllLIFNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice );
 
 //! Add a synapse to the network.
 __device__ void addSynapse( AllSynapsesDevice* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons );
@@ -57,14 +57,15 @@ __device__ void createSynapse( AllSynapsesDevice* allSynapsesDevice, const int n
 __device__ void eraseSynapse( AllSynapsesDevice* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses );
 
 //! Get the type of synapse.
-__device__ synapseType synType( AllNeurons* allNeuronsDevice, const int src_neuron, const int dest_neuron );
+__device__ synapseType synType( AllLIFNeurons* allNeuronsDevice, const int src_neuron, const int dest_neuron );
 
 //! Get the type of synapse (excitatory or inhibitory)
 __device__ int synSign( synapseType t );
 
 // ----------------------------------------------------------------------------
 
-LIFGPUModel::LIFGPUModel() : 	
+LIFGPUModel::LIFGPUModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout) : 	
+	Model::Model(conns, neurons, synapses, layout),
 	allNeuronsDevice(NULL),
 	allSynapsesDevice(NULL),
 	synapseIndexMapDevice(NULL),
@@ -74,7 +75,7 @@ LIFGPUModel::LIFGPUModel() :
 
 LIFGPUModel::~LIFGPUModel() 
 {
-	//Let LIFModel base class handle de-allocation
+	//Let Model base class handle de-allocation
 }
 
 /**
@@ -83,7 +84,7 @@ LIFGPUModel::~LIFGPUModel()
 * @param[in] allNeuronsHost		List of all Neurons.
 * @param[in] synapses			List of all Synapses.
 */
-void LIFGPUModel::allocDeviceStruct(const SimulationInfo *sim_info, const AllNeurons &allNeuronsHost, AllSynapses &allSynapsesHost)
+void LIFGPUModel::allocDeviceStruct(const SimulationInfo *sim_info, const AllLIFNeurons &allNeuronsHost, AllDSSynapses &allSynapsesHost)
 {
 	// Allocate Neurons and Synapses strucs on GPU device memory
 	int neuron_count = sim_info->totalNeurons;
@@ -115,21 +116,22 @@ void LIFGPUModel::allocDeviceStruct(const SimulationInfo *sim_info, const AllNeu
 /**
  *  Sets up the Simulation.
  *  @param  sim_info    SimulationInfo class to read information from.
- *  @param  neurons     List of all Neurons.
- *  @param  synapses    List of all Synapses.
  *  @param  simRecorder Pointer to the simulation recordig object.
  */
-void LIFGPUModel::setupSim(SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses, IRecorder* simRecorder)
+void LIFGPUModel::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
 {
     // Set device ID
     HANDLE_ERROR( cudaSetDevice( g_deviceId ) );
 
-    LIFModel::setupSim(sim_info, neurons, synapses, simRecorder);
-    allocDeviceStruct(sim_info, neurons, synapses);
+    Model::setupSim(sim_info, simRecorder);
+
+    const AllLIFNeurons &LifNeurons = dynamic_cast<const AllLIFNeurons &>(*m_neurons);
+    AllDSSynapses &DsSynapses = dynamic_cast<AllDSSynapses &>(*m_synapses);
+    allocDeviceStruct(sim_info, LifNeurons, DsSynapses);
 
     // get device summation point address and set it to sim info
-    AllNeurons allNeurons;
-    HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllNeurons ), cudaMemcpyDeviceToHost ) );
+    AllLIFNeurons allNeurons;
+    HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllLIFNeurons ), cudaMemcpyDeviceToHost ) );
     sim_info->pSummationMap = allNeurons.summation_map;
 
     //initialize Mersenne Twister
@@ -154,19 +156,19 @@ void LIFGPUModel::setupSim(SimulationInfo *sim_info, const AllNeurons &neurons, 
 /**
  *  Loads the simulation based on istream input.
  *  @param  input   istream to read from.
- *  @param  neurons list of neurons to set.
- *  @param  synapses    list of synapses to set.
  *  @param  sim_info    used as a reference to set info for neurons and synapses.
  */
-void LIFGPUModel::loadMemory(istream& input, AllNeurons &allNeuronsHost, AllSynapses &allSynapsesHost, const SimulationInfo *sim_info)
+void LIFGPUModel::loadMemory(istream& input, const SimulationInfo *sim_info)
 {
-    LIFModel::loadMemory(input, allNeuronsHost, allSynapsesHost, sim_info);
+    Model::loadMemory(input, sim_info);
    
     // Reinitialize device struct - Copy host neuron and synapse arrays into GPU device
     int neuron_count = sim_info->totalNeurons;
     int max_synapses = sim_info->maxSynapsesPerNeuron;
-    copyNeuronHostToDevice( allNeuronsHost, neuron_count );
-    copySynapseHostToDevice( allSynapsesDevice, allSynapsesHost, neuron_count, max_synapses );
+    AllLIFNeurons &allLIFNeuronsHost = dynamic_cast<AllLIFNeurons &>(*m_neurons);
+    copyNeuronHostToDevice( allLIFNeuronsHost, neuron_count );
+    AllDSSynapses &allDSSynapsesHost = dynamic_cast<AllDSSynapses &>(*m_synapses);
+    copySynapseHostToDevice( allSynapsesDevice, allDSSynapsesHost, neuron_count, max_synapses );
 
     // set summation points
     const int threadsPerBlock = 256;
@@ -174,21 +176,19 @@ void LIFGPUModel::loadMemory(istream& input, AllNeurons &allNeuronsHost, AllSyna
     setSynapseSummationPointDevice <<< blocksPerGrid, threadsPerBlock >>> (neuron_count, allNeuronsDevice, allSynapsesDevice, max_synapses, sim_info->width);
 
     // create a synapse index map on device memory
-    createSynapseImap(allSynapsesHost, sim_info);
+    createSynapseImap(*m_synapses, sim_info);
 }
 
 /** 
 *  Advance everything in the model one time step. In this case, that
 *  means calling all of the kernels that do the "micro step" updating
 *  (i.e., NOT the stuff associated with growth).
-*  @param  neurons the Neuron list to search from.
-*  @param  synapses    the Synapse list to search from.
 *  @param  sim_info    SimulationInfo class to read information from.
 */
-void LIFGPUModel::advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info)
+void LIFGPUModel::advance(const SimulationInfo *sim_info)
 {
 	int neuron_count = sim_info->totalNeurons;
-	size_t total_synapse_counts = synapses.total_synapse_counts;
+	size_t total_synapse_counts = m_synapses->total_synapse_counts;
 
 	// CUDA parameters
 	const int threadsPerBlock = 256;
@@ -248,30 +248,31 @@ void LIFGPUModel::advance(AllNeurons &neurons, AllSynapses &synapses, const Simu
 /** 
 *  Update the connection of all the Neurons and Synapses of the simulation.
 *  @param  currentStep the current step of the simulation.
-*  @param  neurons     the Neuron list to search from.
-*  @param  synapses    the Synapse list to search from.
 *  @param  sim_info    SimulationInfo class to read information from.
 *  @param  simRecorder Pointer to the simulation recordig object.
 */
-void LIFGPUModel::updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, IRecorder* simRecorder)
+void LIFGPUModel::updateConnections(const int currentStep, const SimulationInfo *sim_info, IRecorder* simRecorder)
 {
-	updateHistory(currentStep, sim_info->epochDuration, neurons, sim_info, simRecorder);
-	updateFrontiers(sim_info->totalNeurons);
-	updateOverlap(sim_info->totalNeurons);
-	updateWeights(sim_info->totalNeurons, neurons, synapses, sim_info);
+	const int num_neurons = sim_info->totalNeurons;
+	updateHistory(currentStep, sim_info->epochDuration, *m_neurons, sim_info, simRecorder);
+	// Update the distance between frontiers of Neurons
+	m_conns->updateFrontiers(num_neurons);
+	// Update the areas of overlap in between Neurons
+	m_conns->updateOverlap(num_neurons);
+	updateWeights(sim_info->totalNeurons, *m_neurons, *m_synapses, sim_info);
 }
 
 /** 
 *  Begin terminating the simulator.
-*  @param  neurons     list of all Neurons.
-*  @param  synapses    the Synapse list to search from.
 *  @param  sim_info    SimulationInfo to refer.
 */
-void LIFGPUModel::cleanupSim(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info)
+void LIFGPUModel::cleanupSim(SimulationInfo *sim_info)
 {
     // copy device synapse and neuron structs to host memory
-    copyNeuronDeviceToHost( neurons, sim_info->totalNeurons );
-    copySynapseDeviceToHost( allSynapsesDevice, synapses, sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron );
+    AllLIFNeurons &LifNeurons = dynamic_cast<AllLIFNeurons &>(*m_neurons);
+    copyNeuronDeviceToHost( LifNeurons, sim_info->totalNeurons );
+    AllDSSynapses &DsSynapses = dynamic_cast<AllDSSynapses &>(*m_synapses);
+    copySynapseDeviceToHost( allSynapsesDevice, DsSynapses, sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron );
 
     // Deallocate device memory
     deleteNeuronDeviceStruct(sim_info->totalNeurons);
@@ -279,7 +280,6 @@ void LIFGPUModel::cleanupSim(AllNeurons &neurons, AllSynapses &synapses, Simulat
     deleteSynapseImap();
 
     HANDLE_ERROR( cudaFree( randNoise_d ) );
-
 #ifdef PERFORMANCE_METRICS
     cudaEventDestroy( start );
     cudaEventDestroy( stop );
@@ -461,14 +461,14 @@ void LIFGPUModel::createSynapseImap(AllSynapses &synapses, const SimulationInfo*
 }
 
 /**
- *  Get spike history in AllNeurons struct on device memory.
+ *  Get spike history in AllLIFNeurons struct on device memory.
  *  @param  allNeuronsHost      Reference to the allNeurons struct on host memory.
  *  @param  sim_info    SimulationInfo to refer from.
  */
-void LIFGPUModel::copyDeviceSpikeHistoryToHost(AllNeurons &allNeuronsHost, const SimulationInfo *sim_info)
+void LIFGPUModel::copyDeviceSpikeHistoryToHost(AllLIFNeurons &allNeuronsHost, const SimulationInfo *sim_info)
 {
-	AllNeurons allNeurons;
-	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllNeurons ), cudaMemcpyDeviceToHost ) );
+	AllLIFNeurons allNeurons;
+	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllLIFNeurons ), cudaMemcpyDeviceToHost ) );
 
 	int numNeurons = sim_info->totalNeurons;
 	uint64_t* pSpikeHistory[numNeurons];
@@ -482,14 +482,14 @@ void LIFGPUModel::copyDeviceSpikeHistoryToHost(AllNeurons &allNeuronsHost, const
 }
 
 /**
- *  Get spikeCount in AllNeurons struct on device memory.
+ *  Get spikeCount in AllLIFNeurons struct on device memory.
  *  @param  allNeuronsHost      Reference to the allNeurons struct on host memory.
  *  @param  numNeurons          The number of neurons.
  */
-void LIFGPUModel::copyDeviceSpikeCountsToHost(AllNeurons &allNeuronsHost, int numNeurons)
+void LIFGPUModel::copyDeviceSpikeCountsToHost(AllLIFNeurons &allNeuronsHost, int numNeurons)
 {
-	AllNeurons allNeurons;
-	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllNeurons ), cudaMemcpyDeviceToHost ) );
+	AllLIFNeurons allNeurons;
+	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllLIFNeurons ), cudaMemcpyDeviceToHost ) );
 	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.spikeCount, allNeurons.spikeCount, numNeurons * sizeof( int ), cudaMemcpyDeviceToHost ) );
 }
 
@@ -499,8 +499,8 @@ void LIFGPUModel::copyDeviceSpikeCountsToHost(AllNeurons &allNeuronsHost, int nu
 */
 void LIFGPUModel::clearSpikeCounts(int numNeurons)
 {
-	AllNeurons allNeurons;
-	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllNeurons ), cudaMemcpyDeviceToHost ) );
+	AllLIFNeurons allNeurons;
+	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllLIFNeurons ), cudaMemcpyDeviceToHost ) );
 	HANDLE_ERROR( cudaMemset( allNeurons.spikeCount, 0, numNeurons * sizeof( int ) ) );
 }
 
@@ -515,10 +515,11 @@ void LIFGPUModel::clearSpikeCounts(int numNeurons)
 void LIFGPUModel::updateHistory(const int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info, IRecorder* simRecorder)
 {
     // Calculate growth cycle firing rate for previous period
-    copyDeviceSpikeCountsToHost(neurons, sim_info->totalNeurons);
-    copyDeviceSpikeHistoryToHost(neurons, sim_info);
+    AllLIFNeurons &LifNeurons = dynamic_cast<AllLIFNeurons &>(neurons);
+    copyDeviceSpikeCountsToHost(LifNeurons, sim_info->totalNeurons);
+    copyDeviceSpikeHistoryToHost(LifNeurons, sim_info);
 
-    LIFModel::updateHistory(currentStep, epochDuration, neurons, sim_info, simRecorder);
+    Model::updateHistory(currentStep, epochDuration, sim_info, simRecorder);
 
     // clear spike count
     clearSpikeCounts(sim_info->totalNeurons);
@@ -536,7 +537,7 @@ void LIFGPUModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllS
 {
 	// For now, we just set the weights to equal the areas. We will later
 	// scale it and set its sign (when we index and get its sign).
-	m_conns->W = m_conns->area;
+	(*m_conns->W) = (*m_conns->area);
 
 	int width = sim_info->width;
 	BGFLOAT deltaT = sim_info->deltaT;
@@ -554,7 +555,7 @@ void LIFGPUModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllS
 	// copy weight data to the device memory
 	for ( int i = 0 ; i < sim_info->totalNeurons; i++ )
 		for ( int j = 0; j < sim_info->totalNeurons; j++ )
-			W_h[i * sim_info->totalNeurons + j] = m_conns->W(i, j);
+			W_h[i * sim_info->totalNeurons + j] = (*m_conns->W)(i, j);
 
 	HANDLE_ERROR( cudaMemcpy ( W_d, W_h, W_d_size, cudaMemcpyHostToDevice ) );
 
@@ -587,7 +588,7 @@ void LIFGPUModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllS
 * @param[in] allNeuronsDevice	Pointer to Neuron structures in device memory.
 * @param[in] allSynapsesDevice	Pointer to Synapse structures in device memory.
 */
-__global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice ) {
+__global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllLIFNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice ) {
 	// determine which neuron this thread is processing
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	if ( idx >= totalNeurons )
@@ -716,7 +717,7 @@ __global__ void advanceSynapsesDevice ( int total_synapse_counts, LIFGPUModel::S
  * @param[in] max_synapses       Maximum number of synapses per neuron.
  * @param[in] width              Width of neuron map (assumes square).
  */
-__global__ void setSynapseSummationPointDevice(int num_neurons, AllNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice, int max_synapses, int width)
+__global__ void setSynapseSummationPointDevice(int num_neurons, AllLIFNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice, int max_synapses, int width)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= num_neurons )
@@ -770,7 +771,7 @@ __global__ void calcSummationMap( int totalNeurons, LIFGPUModel::SynapseIndexMap
 * @param[in] allNeuronsDevice          Pointer to the Neuron structures in device memory.
 * @param[in] allSynapsesDevice         Pointer to the Synapse structures in device memory.
 */
-__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice )
+__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllLIFNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= num_neurons )
@@ -990,7 +991,7 @@ __device__ void createSynapse(AllSynapsesDevice* allSynapsesDevice, const int ne
 * @param src_neuron		Index of the source neuron.
 * @param dest_neuron		Index of the destination neuron.
 */
-__device__ synapseType synType( AllNeurons* allNeuronsDevice, const int src_neuron, const int dest_neuron )
+__device__ synapseType synType( AllLIFNeurons* allNeuronsDevice, const int src_neuron, const int dest_neuron )
 {
     if ( allNeuronsDevice->neuron_type_map[src_neuron] == INH && allNeuronsDevice->neuron_type_map[dest_neuron] == INH )
         return II;

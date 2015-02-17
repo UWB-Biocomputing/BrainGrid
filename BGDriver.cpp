@@ -13,7 +13,9 @@
 #include "paramcontainer/ParamContainer.h"
 
 #include "Network.h"
-#include "Model.h"
+#include "IModel.h"
+#include "AllLIFNeurons.h"
+#include "AllDSSynapses.h"
 #include "XmlRecorder.h"
 #ifdef USE_HDF5
 #include "Hdf5Recorder.h"
@@ -51,7 +53,7 @@ bool fWriteMemImage = false;  // True if dumped memory image is written after
 // stimulus input file name
 string stimulusInputFileName;
 
-Model *model = NULL;
+IModel *model = NULL;
 SimulationInfo *simInfo = NULL;
 
 
@@ -77,11 +79,11 @@ bool parseCommandLine(int argc, char* argv[]);
 int main(int argc, char* argv[]) {
     // create the model
     #if defined(USE_GPU)
-	 model = new LIFGPUModel();
+	 model = new LIFGPUModel(new Connections(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
     #elif defined(USE_OMP)
-	 model = new LIFSingleThreadedModel();
+	 model = new LIFSingleThreadedModel(new Connections(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
     #else
-	 model = new LIFSingleThreadedModel();
+	 model = new LIFSingleThreadedModel(new Connections(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
     #endif
     
     DEBUG(cout << "reading parameters from xml file" << endl;)
@@ -120,7 +122,7 @@ int main(int argc, char* argv[]) {
     pInput = fsi.CreateInstance(model, simInfo, stimulusInputFileName);
 
     // create the network
-    Network network(model, simInfo, simRecorder, pInput);
+    Network network(model, simInfo, simRecorder);
 
     time_t start_time, end_time;
     time(&start_time);
@@ -142,7 +144,7 @@ int main(int argc, char* argv[]) {
 	
     // setup simulation
     DEBUG(cout << "Setup simulation." << endl;);
-    network.setup(simInfo->epochDuration, simInfo->maxSteps);
+    network.setup(pInput);
 
     if (fReadMemImage) {
         ifstream memory_in;
@@ -171,6 +173,9 @@ int main(int argc, char* argv[]) {
         simulator->saveMemory(memory_out);
         memory_out.close();
     }
+
+    // Tell network to clean-up and run any post-simulation logic.
+    network.finish();
 
     // terminates the simulation recorder
     simRecorder->term();
@@ -289,14 +294,13 @@ bool LoadAllParameters(const string &sim_param_filename)
 
     try {
         LoadSimulationParameters(parms);
-        model->readParameters(parms);
     } catch (KII_exception &e) {
         cerr << "Failure loading simulation parameters from file "
              << sim_param_filename << ":\n\t" << e.what()
              << endl;
         return false;
     }
-    return true;
+    return model->readParameters(parms);
 }
 
 /**

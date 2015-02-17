@@ -43,7 +43,7 @@ GpuSInputPoisson::~GpuSInputPoisson()
  * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
  */
-void GpuSInputPoisson::init(Model* model, AllNeurons &neurons, SimulationInfo* psi)
+void GpuSInputPoisson::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi)
 {
     SInputPoisson::init(model, neurons, psi);
 
@@ -67,7 +67,7 @@ void GpuSInputPoisson::init(Model* model, AllNeurons &neurons, SimulationInfo* p
  * @param[in] model              Pointer to the Neural Network Model object.
  * @param[in] psi                Pointer to the simulation information.
  */
-void GpuSInputPoisson::term(Model* model, SimulationInfo* psi)
+void GpuSInputPoisson::term(IModel* model, SimulationInfo* psi)
 {
     SInputPoisson::term(model, psi);
 
@@ -82,7 +82,7 @@ void GpuSInputPoisson::term(Model* model, SimulationInfo* psi)
  * @param[in] psi                Pointer to the simulation information.
  * @param[in] summationPoint_d   summationPoint
  */
-void GpuSInputPoisson::inputStimulus(Model* model, SimulationInfo* psi, BGFLOAT* summationPoint_d)
+void GpuSInputPoisson::inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint_d)
 {
     if (fSInput == false)
         return;
@@ -110,7 +110,7 @@ void GpuSInputPoisson::inputStimulus(Model* model, SimulationInfo* psi, BGFLOAT*
  * @param[in] psi        Pointer to the simulation information.
  * @param[in] nISIs      Pointer to the interval counter.
  */
-void GpuSInputPoisson::allocDeviceValues( Model* model, SimulationInfo* psi, int *nISIs )
+void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int *nISIs )
 {
     int neuron_count = psi->totalNeurons;
     size_t nISIs_d_size = neuron_count * sizeof (int);   // size of shift values
@@ -159,7 +159,7 @@ void GpuSInputPoisson::allocDeviceValues( Model* model, SimulationInfo* psi, int
  * @param[in] model      Pointer to the Neural Network Model object.
  * @param[in] psi        Pointer to the simulation information.
  */
-void GpuSInputPoisson::deleteDeviceValues( Model* model, SimulationInfo* psi )
+void GpuSInputPoisson::deleteDeviceValues(IModel* model, SimulationInfo* psi )
 {
     int neuron_count = psi->totalNeurons;
 

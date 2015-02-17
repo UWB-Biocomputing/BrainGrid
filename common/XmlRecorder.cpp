@@ -6,14 +6,15 @@
 //! An implementation for recording spikes history on xml file
 
 #include "XmlRecorder.h"
+#include "AllLIFNeurons.h"      // TODO: remove LIF model specific code
 
 //! THe constructor and destructor
-XmlRecorder::XmlRecorder(Model *model, SimulationInfo* sim_info) :
+XmlRecorder::XmlRecorder(IModel *model, SimulationInfo* sim_info) :
         burstinessHist("complete", "const", 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps), 0),
         spikesHistory("complete", "const", 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps * 100), 0),
         ratesHistory("complete", "const", static_cast<int>(sim_info->maxSteps + 1), sim_info->totalNeurons),
         radiiHistory("complete", "const", static_cast<int>(sim_info->maxSteps + 1), sim_info->totalNeurons),
-        m_model(dynamic_cast<LIFModel*> (model)),
+        m_model(dynamic_cast<Model*> (model)),
         m_sim_info(sim_info)
 {
 }
@@ -52,8 +53,8 @@ void XmlRecorder::initValues()
 {
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
-        radiiHistory(0, i) = m_model->m_conns->radii[i];
-        ratesHistory(0, i) = m_model->m_conns->rates[i];
+        radiiHistory(0, i) = (*m_model->getConnections()->radii)[i];
+        ratesHistory(0, i) = (*m_model->getConnections()->rates)[i];
     }
 }
 
@@ -64,8 +65,8 @@ void XmlRecorder::getValues()
 {
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
-        m_model->m_conns->radii[i] = radiiHistory(m_sim_info->currentStep, i);
-        m_model->m_conns->rates[i] = ratesHistory(m_sim_info->currentStep, i);
+        (*m_model->getConnections()->radii)[i] = radiiHistory(m_sim_info->currentStep, i);
+        (*m_model->getConnections()->rates)[i] = ratesHistory(m_sim_info->currentStep, i);
     }
 }
 
@@ -84,8 +85,8 @@ void XmlRecorder::term()
  */
 void XmlRecorder::compileHistories(const AllNeurons &neurons, BGFLOAT minRadius)
 {
-    VectorMatrix& rates = m_model->m_conns->rates;
-    VectorMatrix& radii = m_model->m_conns->radii;
+    VectorMatrix& rates = (*m_model->getConnections()->rates);
+    VectorMatrix& radii = (*m_model->getConnections()->radii);
 
     // output spikes
     for (int iNeuron = 0; iNeuron < m_sim_info->totalNeurons; iNeuron++)
@@ -134,7 +135,7 @@ void XmlRecorder::saveSimState(const AllNeurons &neurons)
     // create neuron threshold matrix
     VectorMatrix neuronThresh("complete", "const", 1, m_sim_info->totalNeurons, 0);
     for (int i = 0; i < m_sim_info->totalNeurons; i++) {
-        neuronThresh[i] = neurons.Vthresh[i];
+        neuronThresh[i] = dynamic_cast<const AllLIFNeurons&>(neurons).Vthresh[i];
     }
 
     // neuron locations matrices
@@ -163,11 +164,11 @@ void XmlRecorder::saveSimState(const AllNeurons &neurons)
     stateOut << "   " << neuronTypes.toXML("neuronTypes") << endl;
 
     // create starter nuerons matrix
-    int num_starter_neurons = static_cast<int>(m_model->m_frac_starter_neurons * m_sim_info->totalNeurons);
+    int num_starter_neurons = static_cast<int>(m_model->getLayout()->m_frac_starter_neurons * m_sim_info->totalNeurons);
     if (num_starter_neurons > 0)
     {
         VectorMatrix starterNeurons("complete", "const", 1, num_starter_neurons);
-        m_model->getStarterNeuronMatrix(starterNeurons, neurons.starter_map, m_sim_info);
+        getStarterNeuronMatrix(starterNeurons, neurons.starter_map, m_sim_info);
         stateOut << "   " << starterNeurons.toXML("starterNeurons") << endl;
     }
 
@@ -186,3 +187,21 @@ void XmlRecorder::saveSimState(const AllNeurons &neurons)
     stateOut << "</SimState>" << endl;
 }
 
+/**
+ *  Get starter Neuron matrix.
+ *  @param  matrix   Starter Neuron matrix.
+ *  @param  starter_map bool map to reference neuron matrix location from.
+ *  @param  sim_info    SimulationInfo class to read information from.
+ */
+void XmlRecorder::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info)
+{
+    int cur = 0;
+    for (int x = 0; x < sim_info->width; x++) {
+        for (int y = 0; y < sim_info->height; y++) {
+            if (starter_map[x + y * sim_info->width]) {
+                matrix[cur] = x + y * sim_info->height;
+                cur++;
+            }
+        }
+    }
+}

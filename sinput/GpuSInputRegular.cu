@@ -41,7 +41,7 @@ GpuSInputRegular::~GpuSInputRegular()
  * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
  */
-void GpuSInputRegular::init(Model* model, AllNeurons &neurons, SimulationInfo* psi)
+void GpuSInputRegular::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi)
 {
     SInputRegular::init(model, neurons, psi);
 
@@ -60,7 +60,7 @@ void GpuSInputRegular::init(Model* model, AllNeurons &neurons, SimulationInfo* p
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information.
  */
-void GpuSInputRegular::term(Model* model, SimulationInfo* psi)
+void GpuSInputRegular::term(IModel* model, SimulationInfo* psi)
 {
     if (fSInput)
         deleteDeviceValues( );
@@ -72,7 +72,7 @@ void GpuSInputRegular::term(Model* model, SimulationInfo* psi)
  * @param[in] psi               Pointer to the simulation information.
  * @param[in] summationPoint_d  Pointer to the summation map.
  */
-void GpuSInputRegular::inputStimulus( Model* model, SimulationInfo* psi, BGFLOAT* summationPoint_d )
+void GpuSInputRegular::inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint_d )
 {
     if (fSInput == false)
         return;

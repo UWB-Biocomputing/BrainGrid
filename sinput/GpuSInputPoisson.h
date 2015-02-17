@@ -43,20 +43,20 @@ public:
     ~GpuSInputPoisson();
 
     //! Initialize data.
-    virtual void init(Model* model, AllNeurons &neurons, SimulationInfo* psi);
+    virtual void init(IModel* model, AllNeurons &neurons, SimulationInfo* psi);
 
     //! Terminate process.
-    virtual void term(Model* model, SimulationInfo* psi);
+    virtual void term(IModel* model, SimulationInfo* psi);
 
     //! Process input stimulus for each time step.
-    virtual void inputStimulus(Model* model, SimulationInfo* psi, BGFLOAT* summationPoint);
+    virtual void inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint);
 
 private:
     //! Allocate GPU device memory and copy values
-    void allocDeviceValues( Model* model, SimulationInfo* psi, int *nISIs );
+    void allocDeviceValues( IModel* model, SimulationInfo* psi, int *nISIs );
 
     //! Dellocate GPU device memory
-    void deleteDeviceValues( Model* model, SimulationInfo* psi );
+    void deleteDeviceValues( IModel* model, SimulationInfo* psi );
 
     //! Synapse structures in device memory.
     AllSynapsesDevice* allSynapsesDevice;

@@ -32,14 +32,14 @@
 #define _XMLRECORDER_H_
 
 #include "IRecorder.h"
-#include "LIFModel.h"
+#include "Model.h"
 #include <fstream>
 
 class XmlRecorder : public IRecorder
 {
 public:
     //! THe constructor and destructor
-    XmlRecorder(Model *model, SimulationInfo* sim_info);
+    XmlRecorder(IModel *model, SimulationInfo* sim_info);
     ~XmlRecorder();
 
     /**
@@ -83,6 +83,8 @@ public:
     virtual void saveSimState(const AllNeurons &neurons);
 
 private:
+    void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info);
+
     // a file stream for xml output
     ofstream stateOut;
 
@@ -102,7 +104,7 @@ private:
     SimulationInfo *m_sim_info;
 
     // TODO comment
-    LIFModel *m_model;
+    Model *m_model;
 };
 
 #endif // _XMLRECORDER_H_

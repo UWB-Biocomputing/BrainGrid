@@ -1,14 +1,14 @@
 /**
  * @brief An interface for Neural Network Models.
  *
- * @class Model Model.h "Model.h"
+ * @class IModel IModel.h "IModel.h"
  *
  * @author Derek L. Mclean
  */
 
 #pragma once
-#ifndef _MODEL_H_
-#define _MODEL_H_
+#ifndef _IMODEL_H_
+#define _IMODEL_H_
 
 #include <iostream>
 
@@ -21,6 +21,8 @@ using namespace std;
 #include "AllSynapses.h"
 #include "SimulationInfo.h"
 #include "IRecorder.h"
+#include "Connections.h"
+#include "Layout.h"
 
 /**
  * Neural Network Model interface.
@@ -37,9 +39,9 @@ using namespace std;
  *
  * This is a pure interface and, thus, not meant to be directly instanced.
  */
-class Model {
+class IModel {
     public:
-        virtual ~Model() { }
+        virtual ~IModel() { }
 
         /* --------------------
          * # Network IO Methods
@@ -66,30 +68,22 @@ class Model {
         /**
          * TODO(derek) comment.
          */
-        virtual void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info) =0;
+        virtual void loadMemory(istream& input, const SimulationInfo *sim_info) =0;
 
         /**
          * TODO(derek) comment.
          */
-        virtual void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info) =0;
+        virtual void saveMemory(ostream& output, const SimulationInfo *sim_info) =0;
 
         /**
          * TODO(derek) comment.
          */
-        virtual void saveState(const AllNeurons &neurons, IRecorder* simRecorder) =0;
+        virtual void saveState(IRecorder* simRecorder) =0;
 
         /* ----------------
          * Network Creation
          * ----------------
          */
-
-        /**
-         * Populate an instance of AllNeurons with an initial state for each neuron.
-         *
-         * @param neurons - collection of neurons to populate.
-         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
-         */
-        virtual void createAllNeurons(AllNeurons &neurons, const SimulationInfo *sim_info) =0;
 
         /* --------------------------
          * Network Simulation Methods
@@ -100,47 +94,43 @@ class Model {
          * Set up model state, if anym for a specific simulation run.
          *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
-         * @param neurons  - list of all Neurons.
-         * @param synapses - list of all Synapses.
          */
-        virtual void setupSim(SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses, IRecorder* simRecorder) =0;
+        virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder) =0;
 
         /**
          * Advances network state one simulation step.
          *
-         * @param neurons - collection of neurons in network
-         * @param synapses - collection of connections between neurons in network.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info) =0;
+        virtual void advance(const SimulationInfo *sim_info) =0;
 
         /**
          * Modifies connections between neurons based on current state of the network and behavior
          * over the past epoch. Should be called once every epoch.
          *
          * @param currentStep - The epoch step in which the connections are being updated.
-         * @param neurons - collection of neurons in network
-         * @param synapses - collection of connections between neurons in network.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, IRecorder* simRecorder) =0;
+        virtual void updateConnections(const int currentStep, const SimulationInfo *sim_info, IRecorder* simRecorder) =0;
 
         /**
          * Performs any finalization tasks on network following a simulation.
-         * @param neurons - collection of neurons in network
-         * @param synapses - collection of synapses in network
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void cleanupSim(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info) =0;
+        virtual void cleanupSim(SimulationInfo *sim_info) =0;
 
         /**
          * Prints debug information about the current state of the network.
          *
-         * @param neurons - collection of neurons in network
-         * @param synapses - collection of connections between neurons in network.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo *sim_info) const =0;
+        virtual void logSimStep(const SimulationInfo *sim_info) const =0;
+
+        virtual AllNeurons* getNeurons() = 0;
+
+        virtual Connections* getConnections() = 0;
+
+        virtual Layout* getLayout() = 0;
 };
 
 #endif

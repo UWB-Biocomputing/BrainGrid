@@ -32,7 +32,7 @@
 #define _HD5RECORDER_H_
 
 #include "IRecorder.h"
-#include "LIFModel.h"
+#include "Model.h"
 #include "H5Cpp.h"
 
 #ifndef H5_NO_NAMESPACE
@@ -49,7 +49,7 @@ class Hdf5Recorder : public IRecorder
 {
 public:
     //! THe constructor and destructor
-    Hdf5Recorder(Model *model, SimulationInfo* sim_info);
+    Hdf5Recorder(IModel *model, SimulationInfo* sim_info);
     ~Hdf5Recorder();
 
     /**
@@ -98,6 +98,8 @@ private:
      */
     void writeRadiiRates();
 
+    void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info);
+
     // hdf5 file identifier
     H5File* stateOut;
 
@@ -137,7 +139,7 @@ private:
     SimulationInfo *m_sim_info;
 
     // TODO comment
-    LIFModel *m_model;
+    Model *m_model;
 };
 
 #endif // _HD5RECORDER_H_

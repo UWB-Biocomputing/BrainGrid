@@ -31,7 +31,7 @@ HostSInputPoisson::~HostSInputPoisson()
  * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
  */
-void HostSInputPoisson::init(Model* model, AllNeurons &neurons, SimulationInfo* psi)
+void HostSInputPoisson::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi)
 {
     SInputPoisson::init(model, neurons, psi);
 
@@ -44,7 +44,7 @@ void HostSInputPoisson::init(Model* model, AllNeurons &neurons, SimulationInfo* 
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information.
  */
-void HostSInputPoisson::term(Model* model, SimulationInfo* psi)
+void HostSInputPoisson::term(IModel* model, SimulationInfo* psi)
 {
     SInputPoisson::term(model, psi);
 }
@@ -56,7 +56,7 @@ void HostSInputPoisson::term(Model* model, SimulationInfo* psi)
  * @param[in] psi       Pointer to the simulation information.
  * @param[in] summationPoint
  */
-void HostSInputPoisson::inputStimulus(Model* model, SimulationInfo* psi, BGFLOAT* summationPoint)
+void HostSInputPoisson::inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint)
 {
     if (fSInput == false)
         return;

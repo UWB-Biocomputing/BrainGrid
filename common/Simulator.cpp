@@ -36,7 +36,6 @@ Simulator::~Simulator()
 void Simulator::simulate(ISInput* pInput)
 {
     // Main simulation loop - execute maxGrowthSteps
-    // Shouldn't currentStep be an unsigned long?
     for (int currentStep = 1; currentStep <= m_sim_info->maxSteps; currentStep++) {
 
         DEBUG(cout << endl << endl;)
@@ -75,9 +74,6 @@ void Simulator::simulate(ISInput* pInput)
         cout << endl;
 #endif
     }
-
-    // Tell network to clean-up and run any post-simulation logic.
-    network->finish(m_sim_info->epochDuration, m_sim_info->maxSteps);
 }
 
 /**

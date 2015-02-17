@@ -1,8 +1,8 @@
 /** 
  * @authors Aaron Oziel, Sean Blackbourn
  * 
- * @class AllNeurons AllNeurons.h "AllNeurons.h"
- * @brief A container of all neuron data
+ * @class AllLIFNeurons AllLIFNeurons.h "AllLIFNeurons.h"
+ * @brief A container of all LIF neuron data
  *
  *  The container holds neuron parameters of all neurons. 
  *  Each kind of neuron parameter is stored in a 1D array, of which length
@@ -31,27 +31,13 @@
  */
 #pragma once
 
-#ifndef _ALLNEURONS_H_
-#define _ALLNEURONS_H_
-
 #include "Global.h"
+#include "AllNeurons.h"
 
-// Struct to hold all data necessary for all the Neurons.
-struct AllNeurons
+// Class to hold all data necessary for all the Neurons.
+class AllLIFNeurons : public AllNeurons
 {
     public:
-
-        /*! A boolean which tracks whether the neuron has fired
-         *  
-         *  Usage: LOCAL VARIABLE
-         *  - AllNeurons::AllNeurons() --- Initialized
-         *  - LIFModel::readNeuron() --- Modified
-         *  - LIFModel::writeNeuron() --- Accessed
-         *  - LIFSingleThreadedModel::advanceNeurons() --- Accessed & Modified
-         *  - LIFSingleThreadedModel::fire() --- Modified
-         *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Modified
-         */
-        bool *hasFired;
 
         /*! The length of the absolute refractory period. [units=sec; range=(0,1);]
          *  
@@ -169,7 +155,7 @@ struct AllNeurons
         /*! The remaining number of time steps for the absolute refractory period.
          *  
          *  Usage: LOCAL VARIABLE
-         *  - AllNeurons::AllNeurons() --- Initialized
+         *  - AllLIFNeurons::AllLIFNeurons() --- Initialized
          *  - LIFModel::readNeuron() --- Modified
          *  - LIFModel::writeNeuron() --- Accessed
          *  - LIFSingleThreadedModel::advanceNeuron() --- Accessed & Modified
@@ -233,77 +219,37 @@ struct AllNeurons
          */
         BGFLOAT *Tau;
 
-        /*! The number of spikes since the last growth cycle
-         *  
-         *  Usage: LOCAL VARIABLE
-         *  - AllNeurons::AllNeurons() --- Initialized
-         *  - LIFModel::updateHistory() --- Accessed
-         *  - LIFModel::clearSpikeCounts() --- Modified
-         *  - LIFSingleThreadedModel::fire() --- Modified
-         *  - GpuSim_struct.cu::clearSpikeCounts() --- Modified
-         *  - LIFGPUModel::copyDeviceSpikeCountsToHost() --- Accessed
-         *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Modified
-         *  - Hdf5Recorder::compileHistories() --- Accessed
-         *  - XmlRecorder::compileHistories() --- Accessed
-         */
-        int *spikeCount;
+        AllLIFNeurons();
+        virtual ~AllLIFNeurons();
 
-        /*! Step count for each spike fired by each neuron
-         *
-         *  Usage: LOCAL VARIABLE
-         *  - LIFModel::createAllNeurons() --- Initialized
-         *  - LIFSingleThreadedModel::fire() --- Modified
-         *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Modified
-         *  - LIFGPUModel::copyDeviceSpikeHistoryToHost() --- Accessed
-         *  - Hdf5Recorder::compileHistories() --- Accessed
-         *  - XmlRecorder::compileHistories() --- Accessed
-         */
-        uint64_t **spike_history;
+        virtual void setupNeurons(SimulationInfo *sim_info);
+        virtual void cleanupNeurons();  
+        virtual int numParameters();
+        virtual int readParameters(const TiXmlElement& element);
+        virtual void printParameters(ostream &output) const;
+        virtual void createAllNeurons(SimulationInfo *sim_info);
+        virtual string toString(const int i) const;
+        virtual void readNeurons(istream &input, const SimulationInfo *sim_info);
+        virtual void writeNeurons(ostream& output, const SimulationInfo *sim_info) const;
 
-        /*! The neuron type map (INH, EXC).
-         *  
-         *  Usage: LOCAL CONSTANT
-         *  - LIFModel::generateNeuronTypeMap --- Initialized
-         *  - LIFModel::logSimStep() --- Accessed
-         *  - LIFSingleThreadedModel::synType() --- Accessed
-         *  - GpuSim_struct.cu::synType() --- Accessed
-         *  - Hdf5Recorder::saveSimState() --- Accessed
-         */
-        neuronType *neuron_type_map;
-
-        /*! List of summation points for each neuron
-         *  
-         *  Usage: LOCAL CONSTANT
-         *  - AllNeurons::AllNeurons() --- Initialized
-         *  - LIFModel::loadMemory() --- Accessed
-         *  - LIFSingleThreadedModel::advanceNeuron() --- Accessed
-         *  - LIFGPUModel::setupSim() --- Accessed
-         *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Accessed
-         *  - GpuSim_struct.cu::setSynapseSummationPointDevice() --- Accessed
-         *  - GpuSim_struct.cu::updateNetworkDevice() --- Accessed
-         *  - Network::Network() --- Accessed
-         */
-        BGFLOAT *summation_map;
-
-        /*! The starter existence map (T/F).
-         *  
-         *  Usage: LOCAL CONSTANT
-         *  - LIFModel::initStarterMap() --- Initialized
-         *  - LIFModel::createAllNeurons() --- Accessed
-         *  - LIFModel::logSimStep() --- Accessed
-         *  - LIFModel::getStarterNeuronMatrix() --- Accessed
-         *  - Hdf5Recorder::saveSimState() --- Accessed
-         *  - XmlRecorder::saveSimState() --- Accessed
-         */
-        bool *starter_map;
-
-        AllNeurons();
-        AllNeurons(const int size);
-        ~AllNeurons();
+        // TODO
+        BGFLOAT m_Iinject[2];
+        // TODO
+        BGFLOAT m_Inoise[2];
+        // TODO
+        BGFLOAT m_Vthresh[2];
+        // TODO
+        BGFLOAT m_Vresting[2];
+        // TODO
+        BGFLOAT m_Vreset[2];
+        // TODO
+        BGFLOAT m_Vinit[2];
+        // TODO
+        BGFLOAT m_starter_Vthresh[2];
+        // TODO
+        BGFLOAT m_starter_Vreset[2];
 
     private:
-
-        int size;
+        void setNeuronDefaults(const int index);
+        void initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT);
 };
-
-#endif
