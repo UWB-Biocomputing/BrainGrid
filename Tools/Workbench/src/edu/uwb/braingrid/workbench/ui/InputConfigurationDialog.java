@@ -780,6 +780,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
                     if (fileName != null) {
                         okButton.setEnabled(true);
                         lastBuiltFile = fileName;
+                        lastStateOutputFileName = stateOutputFilename_textField.getText();
                         messageLabelText.setText("<html><span style=\"color:green\">"
                                 + FileManager.getSimpleFilename(fileName)
                                 + " successfully persisted..."
@@ -941,6 +942,7 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
     private InputConfigurationManager icm;
     private boolean okClicked = false;
     private String lastBuiltFile = null;
+    private String lastStateOutputFileName = null;
     private String projectName = null;
     // </editor-fold>
 
@@ -976,6 +978,14 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
             builtFile = lastBuiltFile;
         }
         return builtFile;
+    }
+    
+    public String getStateOutputFilename() {
+        String fileName = null;
+        if(okClicked){
+            fileName = lastStateOutputFileName;
+        }
+        return fileName;
     }
     
     // set up each of the text fields with default values

@@ -11,6 +11,7 @@ import edu.uwb.braingrid.workbench.data.InputAnalyzer;
 import edu.uwb.braingrid.workbench.data.OutputAnalyzer;
 import edu.uwb.braingrid.workbench.model.ExecutedCommand;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
+import edu.uwb.braingrid.workbench.project.ProjectMgr;
 import edu.uwb.braingrid.workbench.ui.LoginCredentialsDialog;
 import edu.uwb.braingrid.workbench.utils.DateTime;
 import java.awt.Desktop;
@@ -117,7 +118,7 @@ public class ScriptManager {
         script.addVerbatimStatement("mkdir -p workbenchconfigfiles/NList", null,
                 true);
         /* Move Sim Config File */
-        script.addVerbatimStatement("mv ~/" + simConfigFilename + " ~/"
+        script.addVerbatimStatement("mv -f ~/" + simConfigFilename + " ~/"
                 + simSpec.getSimulatorFolder()
                 + "/workbenchconfigfiles/" + simConfigFilename, null, true);
         /* Move Neuron Lists */
@@ -126,7 +127,7 @@ public class ScriptManager {
             String[] nListFilenames = fm.getNeuronListFilenames(projectname);
             if (nListFilenames != null) {
                 for (int i = 0, im = nListFilenames.length; i < im; i++) {
-                    script.addVerbatimStatement("mv ~/"
+                    script.addVerbatimStatement("mv -f ~/"
                             + FileManager.getSimpleFilename(nListFilenames[i])
                             + " ~/"
                             + simSpec.getSimulatorFolder()
@@ -208,109 +209,6 @@ public class ScriptManager {
             //}
         }
         return success;
-    }
-
-    /**
-     * Analyzes script output for provenance data. Relays that data to the
-     * provenance manager. Note: This class defines the context between
-     * provenance data. The provenance manager is used to connect such data as
-     * determined by this function. This means that if script generation changes
-     * this function may need to change, in turn, and vice-versa.
-     *
-     * @param simSpec - Specification used to indicate the context in which the
-     * simulation was specified when the script was generated
-     * @param prov - Provenance manager used to create provenance based on
-     * analysis of the printf output
-     * @param outputTargetFolder - location to store the redirected printf
-     * output.
-     * @return time completed in seconds since the epoch, or an error code
-     * indicating that the script has not completed
-     * @throws com.jcraft.jsch.JSchException
-     * @throws com.jcraft.jsch.SftpException
-     * @throws java.io.IOException
-     */
-    public long analyzeScriptOutput(SimulationSpecification simSpec,
-            ProvMgr prov, String outputTargetFolder) throws JSchException,
-            SftpException, IOException {
-        long timeCompleted = DateTime.ERROR_TIME;
-        // get all the files produced by the script
-        String localOutputFilename
-                = fetchScriptOutputFiles(prov, simSpec, outputTargetFolder);
-        if (localOutputFilename != null) {
-            OutputAnalyzer analyzer = new OutputAnalyzer();
-            analyzer.analyzeOutput(localOutputFilename);
-            /* Completed */
-            long atTime;
-            String simExec = simSpec.getSimExecutable();
-            atTime = analyzer.completedAt("./" + simExec);
-            timeCompleted = atTime;
-            if (timeCompleted != DateTime.ERROR_TIME && prov != null) {
-                /* Set Remote Namespace Prefix */
-                if (simSpec.isRemote()) {
-                    prov.setNsPrefix("remote", simSpec.getHostAddr());
-                }
-                /* Simulation */
-                ExecutedCommand sim = analyzer.getFirstCommand("./" + simExec);
-                if (sim != null) {
-                    // get agent resource
-                    String uri = "~/" + simSpec.getSimulatorFolder() + "/"
-                            + simExec;
-                    Resource simAgent = prov.addSoftwareAgent(uri, "simulator",
-                            simSpec.isRemote(), false);
-                    // get activity resource
-                    Resource simActivity = prov.addActivity("simulation_"
-                            + UUID.randomUUID(), "simulation",
-                            simSpec.isRemote(), false);
-                    // connect the two
-                    prov.wasAssociatedWith(simActivity, simAgent);
-                    prov.startedAtTime(simActivity, new Date(atTime));
-                }
-                String scriptName = Script.getFilename(
-                        analyzer.getScriptVersion());
-                //git log --pretty=format:'%h' -n 1
-                SimulationSpecification spec = analyzer.getSimSpec();
-                List<ExecutedCommand> allCommandsList = null;
-                Collection<ExecutedCommand> allCommands
-                        = analyzer.getAllCommands();
-                if (allCommands != null) {
-                    allCommandsList = new ArrayList(allCommands);
-                }
-                if (allCommandsList != null) {
-                    for (ExecutedCommand ec : allCommandsList) {
-                        //System.err.println(ec);
-                    }
-                }
-                // collect output file and standard output redirect file
-            }
-        }
-        return timeCompleted;
-    }
-
-    /**
-     * Gets the messages that have accumulated within a public function call.
-     * The accumulated messages are discarded during this call.
-     *
-     * @return The messages that have accumulated since the last call to this
-     * function in the form of a single String.
-     */
-    public String getOutstandingMessages() {
-        String msg = outstandingMessages;
-        outstandingMessages = "";
-        return msg;
-    }
-
-    private static void printfSimSpecToScript(Script script, String simFile,
-            String simInputFilename, boolean append) {
-        script.printf(SimulationSpecification.simExecText, simFile, null,
-                append);
-        String joinedInputs = simInputFilename;
-        script.printf(SimulationSpecification.simInputsText, joinedInputs, null,
-                true);
-        // printf the outputs
-        script.printf(SimulationSpecification.simOutputsText, "output.xml",
-                null, true);
-        // printf the end tag for the sim spec data
-        script.printf(SimulationSpecification.endSimSpecText, "", null, true);
     }
 
     private boolean runRemoteScript(ProvMgr provMgr,
@@ -594,13 +492,120 @@ public class ScriptManager {
         return success;
     }
 
-    private String fetchScriptOutputFiles(ProvMgr prov,
+    /**
+     * Analyzes script output for provenance data. Relays that data to the
+     * provenance manager. Note: This class defines the context between
+     * provenance data. The provenance manager is used to connect such data as
+     * determined by this function. This means that if script generation changes
+     * this function may need to change, in turn, and vice-versa.
+     *
+     * @param simSpec - Specification used to indicate the context in which the
+     * simulation was specified when the script was generated
+     * @param projectMgr
+     * @param prov - Provenance manager used to create provenance based on
+     * analysis of the printf output
+     * @param outputTargetFolder - location to store the redirected printf
+     * output.
+     * @return time completed in seconds since the epoch, or an error code
+     * indicating that the script has not completed
+     * @throws com.jcraft.jsch.JSchException
+     * @throws com.jcraft.jsch.SftpException
+     * @throws java.io.IOException
+     */
+    public long analyzeScriptOutput(SimulationSpecification simSpec,
+            ProjectMgr projectMgr, ProvMgr prov, String outputTargetFolder)
+            throws JSchException,
+            SftpException, IOException {
+        long timeCompleted = DateTime.ERROR_TIME;
+        // get all the files produced by the script
+        String localOutputFilename = fetchScriptOutputFiles(prov, projectMgr,
+                simSpec, outputTargetFolder);
+        if (localOutputFilename != null) {
+            OutputAnalyzer analyzer = new OutputAnalyzer();
+            analyzer.analyzeOutput(localOutputFilename);
+            /* Completed */
+            long atTime;
+            String simExec = simSpec.getSimExecutable();
+            atTime = analyzer.completedAt("./" + simExec);
+            timeCompleted = atTime;
+            if (timeCompleted != DateTime.ERROR_TIME && prov != null) {
+                /* Set Remote Namespace Prefix */
+                if (simSpec.isRemote()) {
+                    prov.setNsPrefix("remote", simSpec.getHostAddr());
+                }
+                /* Simulation */
+                ExecutedCommand sim = analyzer.getFirstCommand("./" + simExec);
+                if (sim != null) {
+                    // get agent resource
+                    String uri = "~/" + simSpec.getSimulatorFolder() + "/"
+                            + simExec;
+                    Resource simAgent = prov.addSoftwareAgent(uri, "simulator",
+                            simSpec.isRemote(), false);
+                    // get activity resource
+                    Resource simActivity = prov.addActivity("simulation_"
+                            + UUID.randomUUID(), "simulation",
+                            simSpec.isRemote(), false);
+                    // connect the two
+                    prov.wasAssociatedWith(simActivity, simAgent);
+                    prov.startedAtTime(simActivity, new Date(analyzer.startedAt("./" + simExec)));
+                    prov.endedAtTime(simActivity, new Date(atTime));
+                    String remoteOutputFilename = simSpec.getSimulatorFolder()
+                            + "/" + projectMgr.getSimStateOutputFile();
+                    // add entity for remote output file, don't replace if exists
+                    Resource simOutputFile = prov.addEntity(remoteOutputFilename,
+                            "simOutput", simSpec.isRemote(), false);
+                    // show that the output was generated by the simulation
+                    prov.addFileGeneration(simActivity, simAgent, simOutputFile);
+                    // show that the inputs were used in the simulation
+                    Resource simConfigFile = prov.addEntity("", "", simSpec.isRemote(), false);
+                    String[] neuronLists = FileManager.getFileManager()
+                            .getNeuronListFilenames(projectMgr.getName());
+                    //f
+                    // sim config file uri on remote host
+                   // "~/" + FileManager.getSimpleFilename(projectMgr.getSimConfigFilename())
+                }
+                String scriptName = Script.getFilename(
+                        analyzer.getScriptVersion());
+                //git log --pretty=format:'%H' -n 1
+                SimulationSpecification spec = analyzer.getSimSpec();
+                List<ExecutedCommand> allCommandsList = null;
+                Collection<ExecutedCommand> allCommands
+                        = analyzer.getAllCommands();
+                if (allCommands != null) {
+                    allCommandsList = new ArrayList(allCommands);
+                }
+                if (allCommandsList != null) {
+                    for (ExecutedCommand ec : allCommandsList) {
+                        //System.err.println(ec);
+                    }
+                }
+                // collect output file and standard output redirect file
+
+            }
+        }
+        return timeCompleted;
+    }
+
+    private String fetchScriptOutputFiles(ProvMgr prov, ProjectMgr projectMgr,
             SimulationSpecification simSpec, String outputStorageFolder) throws
             JSchException, SftpException, IOException {
         String filename = null;
         char[] password = null;
         String provFileTargetLocation = outputStorageFolder
                 + Script.printfOutputFilename;
+
+        // prep folder for sim output
+        String localSimOutputFolder = projectMgr
+                .determineProjectOutputLocation()
+                + "results"
+                + FileManager.getFileManager().getFolderDelimiter();
+        new File(localSimOutputFolder).mkdirs();
+
+        // calculate simulation output filename to write
+        String destOutputFilename = projectMgr
+                .determineProjectOutputLocation()
+                + projectMgr.getSimStateOutputFile();
+
         // run simulation here or on another machine?
         boolean remote = simSpec.isRemote();
         if (remote) {
@@ -612,23 +617,35 @@ public class ScriptManager {
             password = lcd.getPassword();
             lcd.clearPassword();
             if (sft.downloadFile(Script.printfOutputFilename,
-                    provFileTargetLocation,
-                    hostname, lcd.getUsername(), password)) {
+                    provFileTargetLocation, hostname, lcd.getUsername(),
+                    password) && scriptComplete(provFileTargetLocation,
+                            simSpec)) {
+                // set filename of script output file
                 filename = provFileTargetLocation;
-                sft.downloadFile(Script.printfOutputFilename,
-                        provFileTargetLocation,
+                // calculate simulation output filename to read
+                String remoteOutputFilename = simSpec.getSimulatorFolder()
+                        + "/" + projectMgr.getSimStateOutputFile();
+
+                // download sim state output file
+                sft.downloadFile(remoteOutputFilename, destOutputFilename,
                         hostname, lcd.getUsername(), password);
             }
         } else {
             FileManager fm = FileManager.getFileManager();
-            String simFolder = simSpec.getSimulatorFolder();
             Path provSourcePath = Paths.get(fm.getUserDir()
                     + fm.getFolderDelimiter()
                     + Script.printfOutputFilename);
             Path provTargetPath = Paths.get(provFileTargetLocation);
-            if (FileManager.copyFile(provSourcePath,
-                    provTargetPath)) {
+            if (FileManager.copyFile(provSourcePath, provTargetPath)
+                    && scriptComplete(provFileTargetLocation, simSpec)) {
                 filename = provFileTargetLocation;
+                Path simOutputSourcePath = Paths.get(fm.getUserDir()
+                        + fm.getFolderDelimiter()
+                        + simSpec.getSimulatorFolder()
+                        + FileManager.getFileManager().getFolderDelimiter()
+                        + projectMgr.getSimStateOutputFile());
+                Path simOutputTargetPath = Paths.get(destOutputFilename);
+                FileManager.copyFile(simOutputSourcePath, simOutputTargetPath);
             }
         }
         if (password != null) {
@@ -636,4 +653,42 @@ public class ScriptManager {
         }
         return filename;
     }
+
+    private boolean scriptComplete(String localScriptOutputFilename,
+            SimulationSpecification simSpec) {
+        long timeCompleted;
+        OutputAnalyzer analyzer = new OutputAnalyzer();
+        analyzer.analyzeOutput(localScriptOutputFilename);
+        String simExec = simSpec.getSimExecutable();
+        timeCompleted = analyzer.completedAt("./" + simExec);
+        return timeCompleted != DateTime.ERROR_TIME;
+    }
+
+    /**
+     * Gets the messages that have accumulated within a public function call.
+     * The accumulated messages are discarded during this call.
+     *
+     * @return The messages that have accumulated since the last call to this
+     * function in the form of a single String.
+     */
+    public String getOutstandingMessages() {
+        String msg = outstandingMessages;
+        outstandingMessages = "";
+        return msg;
+    }
+
+    private static void printfSimSpecToScript(Script script, String simFile,
+            String simInputFilename, boolean append) {
+        script.printf(SimulationSpecification.simExecText, simFile, null,
+                append);
+        String joinedInputs = simInputFilename;
+        script.printf(SimulationSpecification.simInputsText, joinedInputs, null,
+                true);
+        // printf the outputs
+        script.printf(SimulationSpecification.simOutputsText, "output.xml",
+                null, true);
+        // printf the end tag for the sim spec data
+        script.printf(SimulationSpecification.endSimSpecText, "", null, true);
+    }
+
 }

@@ -112,7 +112,7 @@ public class SecureFileTransfer {
             session.connect();
             // upload file
             ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
-            channelSftp.connect();           
+            channelSftp.connect();
             if (fileToUpload != null) {
                 File f = new File(fileToUpload);
                 if (f.exists()) {
@@ -146,8 +146,8 @@ public class SecureFileTransfer {
      * @param remoteFilePath - The full path to the file on the remote machine.
      * This is a path (including the file name) relative to the root connection
      * directory for the user.
-     * @param localFilePath - The on the local machine where the file should be
-     * written to
+     * @param localFilePath - The location on the local machine where the file
+     * should be written to
      * @param hostname - The name of the host machine to connect to
      * @param username - The user's login username
      * @param password - The user's login password

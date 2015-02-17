@@ -600,6 +600,25 @@ public class ProvMgr {
         wasAssociatedWith(activity, program);
         return file;
     }
+
+    /**
+     * Adds a series of statements indicating that an agent created a file at a
+     * given location.
+     *
+     * @param activity - An existing resource defining the file generation
+     * activity
+     * @param agent - An existing agent resource (possibly a software agent)
+     * defining the agent that is responsible for generating the file
+     * @param file - An existing entity resource for the file
+     * @return The resource associated with the file that was generated
+     */
+    public Resource addFileGeneration(Resource activity, Resource agent,
+            Resource file) {
+        wasGeneratedBy(file, activity);
+        generated(activity, file);
+        wasAssociatedWith(activity, agent);
+        return file;
+    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Query Support">

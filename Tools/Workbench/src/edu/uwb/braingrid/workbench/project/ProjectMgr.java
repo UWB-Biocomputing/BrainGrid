@@ -74,8 +74,9 @@ public class ProjectMgr {
     private static final String scriptHostnameTagName = "hostname";
     private static final String scriptCompletedAtAttributeName = "completedAt";
     private static final String scriptAnalyzedAttributeName = "outputAnalyzed";
-
     private static final String simConfigFileTagName = "simConfigFile";
+    private static final String simulationConfigurationFileAttributeName
+            = "simulationConfigurationFile";
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction">
@@ -173,7 +174,8 @@ public class ProjectMgr {
         // load prov element
         provElement = getElementFromDom(provTagName);
         // determine if provenance is enabled
-        String enabledValue = provElement.getAttribute(provEnabledAttributeName);
+        String enabledValue = provElement.getAttribute(
+                provEnabledAttributeName);
         if (enabledValue == null) {
             provEnabled = false;
         } else {
@@ -274,7 +276,7 @@ public class ProjectMgr {
                 + name + ps;
         return projectDirectory;
     }
-    
+
     /**
      * Determines the assumed folder location for a project of a given name
      *
@@ -478,8 +480,8 @@ public class ProjectMgr {
                     // if there was a first child
                     if (testTypeText != null) {
                         // if the text content matches the type in question
-                        if (testTypeText.getTextContent().equals(type.toString())) // the first matching input element was found
-                        {
+                        if (testTypeText.getTextContent().equals(
+                                type.toString())) {
                             foundInputElem = testInputElem;
                         }
                     }
@@ -627,7 +629,8 @@ public class ProjectMgr {
      * @return The version of the script currently associated with the project
      */
     public String getScriptVersion() {
-        return getFirstChildTextContent(scriptVersion, scriptVersionVersionTagName);
+        return getFirstChildTextContent(scriptVersion,
+                scriptVersionVersionTagName);
     }
 
     /**
@@ -781,8 +784,10 @@ public class ProjectMgr {
      */
     public boolean setScriptHostname(String hostname) {
         boolean success = true;
-        if (!setFirstChildTextContent(script, scriptHostnameTagName, hostname)) {
-            if (!createChildWithTextContent(script, scriptHostnameTagName, hostname)) {
+        if (!setFirstChildTextContent(script, scriptHostnameTagName,
+                hostname)) {
+            if (!createChildWithTextContent(script, scriptHostnameTagName,
+                    hostname)) {
                 success = false;
             }
         } else {
@@ -791,7 +796,8 @@ public class ProjectMgr {
         return success;
     }
 
-    private boolean createChildWithTextContent(Element parent, String childTagName, String textContent) {
+    private boolean createChildWithTextContent(Element parent,
+            String childTagName, String textContent) {
         boolean success = true;
         if (parent != null) {
             try {
@@ -807,7 +813,8 @@ public class ProjectMgr {
         return success;
     }
 
-    private boolean setFirstChildTextContent(Element parent, String childTagName, String textContent) {
+    private boolean setFirstChildTextContent(Element parent,
+            String childTagName, String textContent) {
         boolean success = true;
         if (parent != null) {
             NodeList nl = parent.getElementsByTagName(childTagName);
@@ -823,7 +830,8 @@ public class ProjectMgr {
         return success;
     }
 
-    private String getFirstChildTextContent(Element parent, String textElementTagName) {
+    private String getFirstChildTextContent(Element parent,
+            String textElementTagName) {
         String textContent = null;
         if (parent != null) {
             NodeList nl = parent.getElementsByTagName(textElementTagName);
@@ -878,7 +886,8 @@ public class ProjectMgr {
 
     private void removeSimulationConfigurationFile() {
         if (null != simulationConfigurationFile) {
-            simulationConfigurationFile.getParentNode().removeChild(simulationConfigurationFile);
+            simulationConfigurationFile.getParentNode().removeChild(
+                    simulationConfigurationFile);
             simulationConfigurationFile = null;
         }
     }
@@ -1037,8 +1046,8 @@ public class ProjectMgr {
         }
         return success;
     }
-    
-        public String getSimConfigFilename() {
+
+    public String getSimConfigFilename() {
         return getFirstChildTextContent(root,
                 simConfigFileTagName);
     }
@@ -1051,7 +1060,8 @@ public class ProjectMgr {
         String analyzedAttributeValue;
         boolean analyzed = false;
         if (script != null) {
-            analyzedAttributeValue = script.getAttribute(scriptAnalyzedAttributeName);
+            analyzedAttributeValue = script.getAttribute(
+                    scriptAnalyzedAttributeName);
             analyzed = Boolean.valueOf(analyzedAttributeValue);
         }
         return analyzed;
@@ -1062,6 +1072,23 @@ public class ProjectMgr {
             script.setAttribute(scriptAnalyzedAttributeName,
                     String.valueOf(analyzed));
         }
+    }
+
+    public void setSimStateOutputFile(String stateOutputFilename) {
+        if (simulationConfigurationFile != null) {
+            simulationConfigurationFile.setAttribute(
+                    simulationConfigurationFileAttributeName,
+                    stateOutputFilename);
+        }
+    }
+
+    public String getSimStateOutputFile() {
+        String filename = null;
+        if (simulationConfigurationFile != null) {
+            filename = simulationConfigurationFile.getAttribute(
+                    simulationConfigurationFileAttributeName);
+        }
+        return filename;
     }
     // </editor-fold>
 }

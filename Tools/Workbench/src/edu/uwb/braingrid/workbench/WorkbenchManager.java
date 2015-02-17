@@ -52,7 +52,7 @@ public class WorkbenchManager {
     private final String rootDir;
     private final String projectsDir;
     private SimulationSpecification simSpec;
-    private String simulationConfigurationFile;
+
     /**
      * Value indicating that an exception occurred during an operation
      */
@@ -122,17 +122,22 @@ public class WorkbenchManager {
             String configFilename = projectMgr.getSimConfigFilename();
             InputConfigurationDialog icd
                     = new InputConfigurationDialog(projectName, true, configFilename);
-
+            String simulationConfigurationFile = null;
+            String stateOutputFilename = null;
             if (success = icd.getSuccess()) {
                 simulationConfigurationFile = icd.getBuiltFile();
-                projectMgr.addSimConfigFile(simulationConfigurationFile);
-                if (projectMgr.isProvenanceEnabled()) {
-                    // add the config file, but it should be remote
-                    // this means that there will need to be a trace when copied
-                    prov.addEntity(simulationConfigurationFile, null, false, false);
+                stateOutputFilename = icd.getStateOutputFilename();
+                if (simulationConfigurationFile != null && stateOutputFilename != null) {
+                    projectMgr.addSimConfigFile(simulationConfigurationFile);
+                    projectMgr.setSimStateOutputFile(stateOutputFilename);
+                    if (projectMgr.isProvenanceEnabled()) {
+                        prov.addFileGeneration("simulation_input_file_generation",
+                                null, "workbench", null, false,
+                                simulationConfigurationFile, null, false);
+                    }
+                } else {
+                    success = false;
                 }
-            } else {
-                simulationConfigurationFile = "None";
             }
         }
         return success;
@@ -371,7 +376,7 @@ public class WorkbenchManager {
                         projectMgr.determineProjectOutputLocation());
                 ScriptManager scriptMgr = new ScriptManager();
                 timeCompleted
-                        = scriptMgr.analyzeScriptOutput(simSpec, prov, targetFolder);
+                        = scriptMgr.analyzeScriptOutput(simSpec, projectMgr, prov, targetFolder);
                 if (timeCompleted != DateTime.ERROR_TIME) {
                     projectMgr.setScriptCompletedAt(timeCompleted);
                     projectMgr.setScriptAnalyzed(true);
@@ -927,10 +932,6 @@ public class WorkbenchManager {
             }
         }
         return overview;
-    }
-
-    public String getSimConfigFilename() {
-        return simulationConfigurationFile;
     }
 
     public ProvMgr getProvMgr() {

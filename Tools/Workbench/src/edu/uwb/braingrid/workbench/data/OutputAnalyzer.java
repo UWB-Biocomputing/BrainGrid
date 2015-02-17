@@ -336,6 +336,36 @@ public class OutputAnalyzer {
         }
         return time;
     }
+    
+    /**
+     * Provides the time, in milliseconds since January 1, 1970, 00:00:00 GMT,
+     * that the first executed command with the specified type started
+     * execution.
+     *
+     * @param executableName - executable filename (such as make, ./growth, git,
+     * etc.)
+     * @return - The time that the command completed or an error code indicating
+     * that the script had not completed at the time when was copied or
+     * downloaded to the project script directory
+     */
+    public long startedAt(String executableName) {
+        Date date;
+        long time = DateTime.ERROR_TIME;
+        Collection<ExecutedCommand> commands
+                = getCollectionByExecName(executableName);
+        if (commands != null) {
+            for (ExecutedCommand ec : commands) {
+                if (ec.hasCompleted()) {
+                    date = ec.getTimeCompleted();
+                    if (date != null) {
+                        time = ec.getTimeStarted().getTime();
+                    }
+                    break;
+                }
+            }
+        }
+        return time;
+    }
 
     /**
      * Provides the first executed command with the specified executable
