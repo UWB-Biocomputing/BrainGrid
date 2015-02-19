@@ -63,6 +63,7 @@ public class ProjectMgr {
     private static final String simulationTypeTagName = "ProcessingType";
     private static final String simulatorSourceCodeUpdatingTagName
             = "sourceCodeUpdating";
+    private static final String SHA1KeyTagName = "SHA1Key";
     private static final String scriptVersionTagName = "scriptVersion";
     private static final String scriptVersionVersionTagName = "version";
     private static final String simulatorVersionAnnotationTagName = "version";
@@ -508,6 +509,7 @@ public class ProjectMgr {
         String locale = getSimulatorLocale();
         String folder = getSimulatorFolderLocation();
         String hostname = getSimulatorHostname();
+        String sha1 = getSHA1Key();
         String updating = getSimulatorSourceCodeUpdatingType();
         String version = getSimulatorVersionAnnotation();
         String executable = null;
@@ -519,6 +521,7 @@ public class ProjectMgr {
         simSpec.setSimulatorLocale(locale);
         simSpec.setSimulatorFolder(folder);
         simSpec.setHostAddr(hostname);
+        simSpec.setSHA1CheckoutKey(sha1);
         simSpec.setSourceCodeUpdating(updating);
         simSpec.setVersionAnnotation(version);
         simSpec.setSimExecutable(executable);
@@ -589,6 +592,10 @@ public class ProjectMgr {
      */
     public String getSimulatorHostname() {
         return getFirstChildTextContent(simulator, hostnameTagName);
+    }
+
+    public String getSHA1Key() {
+        return getFirstChildTextContent(simulator, SHA1KeyTagName);
     }
 
     /**
@@ -796,6 +803,22 @@ public class ProjectMgr {
         return success;
     }
 
+    public boolean setSHA1Key(String sha1) {
+        boolean success = true;
+        if (simulator != null) {
+            if (!setFirstChildTextContent(simulator, SHA1KeyTagName,
+                    sha1)) {
+                if (!createChildWithTextContent(simulator, SHA1KeyTagName,
+                        sha1)) {
+                    success = false;
+                }
+            } else {
+                success = false;
+            }
+        }
+        return success && simulator != null;
+    }
+
     private boolean createChildWithTextContent(Element parent,
             String childTagName, String textContent) {
         boolean success = true;
@@ -927,7 +950,7 @@ public class ProjectMgr {
     public boolean addSimulator(String simulatorExecutionLocation,
             String hostname, String simFolder, String simulationType,
             String codeLocation, String versionAnnotation,
-            String sourceCodeUpdating) {
+            String sourceCodeUpdating, String SHA1Key) {
         boolean success = true;
         // remove previously defined simulator
         removeSimulator();
@@ -946,6 +969,7 @@ public class ProjectMgr {
                     = doc.createElement(simulationTypeTagName);
             Element sourceCodeUpdatingElem
                     = doc.createElement(simulatorSourceCodeUpdatingTagName);
+            Element SHA1KeyElem = doc.createElement(SHA1KeyTagName);
 
             /* Add Values */
             // create text nodes to add to created elements
@@ -959,6 +983,8 @@ public class ProjectMgr {
                     = doc.createTextNode(simulationType);
             Text sourceCodeUpdatingText
                     = doc.createTextNode(sourceCodeUpdating);
+            Text sha1keyText = doc.createTextNode(SHA1Key);
+
             // attach the text to respective elements
             simExecLocation.appendChild(simulatorExecutionLocationText);
             versionAnnotationElem.appendChild(versionAnnotationText);
@@ -967,6 +993,7 @@ public class ProjectMgr {
             simFolderElem.appendChild(simFolderText);
             simulationTypeElem.appendChild(simulationTypeText);
             sourceCodeUpdatingElem.appendChild(sourceCodeUpdatingText);
+            SHA1KeyElem.appendChild(sha1keyText);
 
             /* Attach Elements */
             // attach the parameter elements to the input element
@@ -977,6 +1004,7 @@ public class ProjectMgr {
             simulator.appendChild(simFolderElem);
             simulator.appendChild(simulationTypeElem);
             simulator.appendChild(sourceCodeUpdatingElem);
+            simulator.appendChild(SHA1KeyElem);
             // attach the input element to the project element
             root.appendChild(simulator);
         } catch (DOMException e) {

@@ -66,14 +66,23 @@
                   </Group>
                   <Component id="simulatorLocationTextField" alignment="0" max="32767" attributes="0"/>
                   <Component id="codeRepositoryLocationTextField" alignment="0" pref="506" max="32767" attributes="0"/>
-                  <Component id="versionAnnotationLabel" min="-2" pref="301" max="-2" attributes="0"/>
-                  <Component id="versionAnnotationTextField" alignment="0" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="remoteSpecMessageContentLabel" max="32767" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="testConnectionButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="simulatorFolderLocationLabel" alignment="0" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="versionAnnotationLabel" alignment="0" pref="247" max="32767" attributes="0"/>
+                          <Component id="versionAnnotationTextField" alignment="0" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace pref="12" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="SHA1CheckoutKeyTextField" pref="247" max="32767" attributes="0"/>
+                          <Component id="SHA1CheckoutKeyLabel" max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -123,9 +132,15 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="codeRepositoryLocationTextField" min="-2" pref="29" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="versionAnnotationLabel" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="versionAnnotationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="SHA1CheckoutKeyLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="versionAnnotationTextField" min="-2" pref="28" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="versionAnnotationTextField" alignment="3" min="-2" pref="28" max="-2" attributes="0"/>
+                  <Component id="SHA1CheckoutKeyTextField" alignment="3" min="-2" pref="28" max="-2" attributes="0"/>
+              </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="sourceCodeUpdatingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -321,6 +336,20 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;i&gt;Message:&lt;/i&gt;&lt;text&gt;&lt;/text&gt;&lt;/html&gt;"/>
         <Property name="verticalAlignment" type="int" value="1"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="SHA1CheckoutKeyTextField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;A meaningful annotation to pair with&lt;br&gt;your source code version information&lt;br&gt;such as the repository branch&lt;/html&gt;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="SHA1CheckoutKeyTextFieldKeyReleased"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="SHA1CheckoutKeyLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="SHA1 Checkout Key (optional):"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;A meaningful annotation to pair with&lt;br&gt;your source code version information&lt;br&gt;such as the repository branch&lt;/html&gt;"/>
       </Properties>
     </Component>
   </SubComponents>

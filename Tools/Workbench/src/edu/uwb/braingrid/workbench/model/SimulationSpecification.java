@@ -48,6 +48,7 @@ public class SimulationSpecification {
     }
     private String username;
     private String hostAddress;
+    private String SHA1Key;
     private String sourceCodeUpdating;
     private String simulationType;
     private String simulationLocale;
@@ -86,6 +87,7 @@ public class SimulationSpecification {
         simOutputs = new ArrayList<>();
         username = null;
         hostAddress = null;
+        SHA1Key = null;
         sourceCodeUpdating = null;
         simulationType = null;
         simulationLocale = null;
@@ -211,6 +213,10 @@ public class SimulationSpecification {
         return hostAddress == null ? "" : hostAddress;
     }
 
+    public String getSHA1CheckoutKey() {
+        return SHA1Key == null ? "" : SHA1Key;
+    }
+
     /**
      * Provides the username provided during a specification. This is not
      * necessarily the login used to actually stage files and execute the script
@@ -308,6 +314,17 @@ public class SimulationSpecification {
     }
 
     /**
+     * Sets the git commit key used to checkout a specific version of the
+     * software after a pull
+     *
+     * @param sha1 - An SHA1 hex key associated with a particular commit in the
+     * repository history
+     */
+    public void setSHA1CheckoutKey(String sha1) {
+        SHA1Key = sha1;
+    }
+
+    /**
      * Sets the username specified for this simulation. This should only be used
      * to indicate the username, if any, that was provided during specification.
      * When a remote connection is requested, a new username is requested as
@@ -377,5 +394,16 @@ public class SimulationSpecification {
             remote = simulationLocale.equals(REMOTE_EXECUTION);
         }
         return remote;
+    }
+
+    /**
+     * Indicates whether or not the simulator for this simulation should be
+     * built from code that is checked out based a particular commit.
+     *
+     * @return True if the simulator for this simulation should be built from
+     * code that is checked out based a particular commit, otherwise false
+     */
+    public boolean hasCommitCheckout() {
+        return SHA1Key != null && !SHA1Key.isEmpty();
     }
 }

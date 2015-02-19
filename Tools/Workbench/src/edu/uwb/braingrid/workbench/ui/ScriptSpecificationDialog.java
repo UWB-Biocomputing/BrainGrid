@@ -54,6 +54,8 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
         jSeparator2 = new javax.swing.JSeparator();
         passwordField = new javax.swing.JPasswordField();
         messageContentLabel = new javax.swing.JLabel();
+        SHA1CheckoutKeyTextField = new javax.swing.JTextField();
+        SHA1CheckoutKeyLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Script Specification");
@@ -168,6 +170,16 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
         messageContentLabel.setText("<html><i>Message:</i><text></text></html>");
         messageContentLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
+        SHA1CheckoutKeyTextField.setToolTipText("<html>A meaningful annotation to pair with<br>your source code version information<br>such as the repository branch</html>");
+        SHA1CheckoutKeyTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                SHA1CheckoutKeyTextFieldKeyReleased(evt);
+            }
+        });
+
+        SHA1CheckoutKeyLabel.setText("SHA1 Checkout Key (optional):");
+        SHA1CheckoutKeyLabel.setToolTipText("<html>A meaningful annotation to pair with<br>your source code version information<br>such as the repository branch</html>");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -207,13 +219,19 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
                             .addComponent(usernameTextField, javax.swing.GroupLayout.Alignment.LEADING)))
                     .addComponent(simulatorLocationTextField)
                     .addComponent(codeRepositoryLocationTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
-                    .addComponent(versionAnnotationLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(versionAnnotationTextField)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(remoteSpecMessageContentLabel)
                         .addGap(18, 18, 18)
                         .addComponent(testConnectionButton))
-                    .addComponent(simulatorFolderLocationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(simulatorFolderLocationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(versionAnnotationLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE)
+                            .addComponent(versionAnnotationTextField, javax.swing.GroupLayout.Alignment.LEADING))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(SHA1CheckoutKeyTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE)
+                            .addComponent(SHA1CheckoutKeyLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -254,9 +272,13 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(codeRepositoryLocationTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(versionAnnotationLabel)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(versionAnnotationLabel)
+                    .addComponent(SHA1CheckoutKeyLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(versionAnnotationTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(versionAnnotationTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(SHA1CheckoutKeyTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(sourceCodeUpdatingLabel)
@@ -341,7 +363,13 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_versionAnnotationTextFieldKeyReleased
 
+    private void SHA1CheckoutKeyTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_SHA1CheckoutKeyTextFieldKeyReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_SHA1CheckoutKeyTextFieldKeyReleased
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel SHA1CheckoutKeyLabel;
+    private javax.swing.JTextField SHA1CheckoutKeyTextField;
     private javax.swing.JButton cancelButton;
     private javax.swing.JLabel codeRepositoryLocationLabel;
     private javax.swing.JTextField codeRepositoryLocationTextField;
@@ -411,6 +439,8 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
         String userName = simSpec.getUsername();
         String folder = simSpec.getSimulatorFolder();
         String codeLocation = simSpec.getCodeLocation();
+        String SHA1Key = simSpec.hasCommitCheckout()
+                ? simSpec.getSHA1CheckoutKey() : "";
         codeLocation = codeLocation == null || codeLocation.isEmpty()
                 ? getDefaultCodeLocation() : codeLocation;
         String version = simSpec.getVersionAnnotation();
@@ -445,6 +475,7 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
         simulatorLocationTextField.setText(folder);
         codeRepositoryLocationTextField.setText(codeLocation);
         versionAnnotationTextField.setText(version);
+        SHA1CheckoutKeyTextField.setText(SHA1Key);
 
         enableOkButton();
 
@@ -677,6 +708,9 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
         String username = usernameTextField.getText() == null ? ""
                 : usernameTextField.getText();
         simSpec.setUsername(username);
+        String sha1 = SHA1CheckoutKeyTextField.getText() == null ? ""
+                : SHA1CheckoutKeyTextField.getText();
+        simSpec.setSHA1CheckoutKey(sha1);
 
         return simSpec;
     }// </editor-fold>

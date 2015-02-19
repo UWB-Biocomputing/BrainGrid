@@ -65,6 +65,10 @@ public class Script {
      * redirect file for std-err and std-out of executed commands
      */
     public static final String commandOutputFilename = "output.txt";
+    /**
+     * redirect file for git commit key
+     */
+    public static final String SHA1KeyFilename = "SHA1Key.txt";
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction">
@@ -267,7 +271,7 @@ public class Script {
      * previous execution of the script.
      */
     public void addVerbatimStatement(String stmt, String outputFile, boolean append) {
-        stmt = printfEscape(stmt);
+        //stmt = printfEscape(stmt);
         if (outputFile == null) {
             outputFile = "~/output.txt";
         }

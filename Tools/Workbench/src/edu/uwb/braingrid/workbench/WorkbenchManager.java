@@ -348,7 +348,8 @@ public class WorkbenchManager {
                     simSpec.getSimulationType(),
                     simSpec.getCodeLocation(),
                     simSpec.getVersionAnnotation(),
-                    simSpec.getSourceCodeUpdating());
+                    simSpec.getSourceCodeUpdating(),
+                    simSpec.getSHA1CheckoutKey());
             updateSimSpec();
             messageAccumulator += "\n" + "New simulation specified\n";
         } else {
