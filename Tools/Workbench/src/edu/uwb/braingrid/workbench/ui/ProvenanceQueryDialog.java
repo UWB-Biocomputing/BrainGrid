@@ -35,7 +35,6 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Provenance Query");
         setMinimumSize(new java.awt.Dimension(500, 200));
-        setPreferredSize(new java.awt.Dimension(700, 300));
 
         predicateComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None" }));
         predicateComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -169,7 +168,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         //String result
         //      = provMgr.queryProvenance(sbjct, prdct, objct, lineDelimiter);
         outputTextArea.setText(result);
-        DateTime.recordProvTiming("ProvenanceQueryDialog 172", startTime);
+        DateTime.recordProvTiming("ProvenanceQueryDialog 171", startTime);
     }//GEN-LAST:event_searchButtonActionPerformed
 
     private void subjectTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_subjectTextFieldKeyReleased
