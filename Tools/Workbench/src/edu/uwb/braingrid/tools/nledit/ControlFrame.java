@@ -2,6 +2,7 @@ package edu.uwb.braingrid.tools.nledit;
 
 import edu.uwb.braingrid.workbench.WorkbenchManager;
 import edu.uwb.braingrid.workbench.ui.WorkbenchControlFrame;
+import edu.uwb.braingrid.workbench.utils.DateTime;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -898,11 +899,13 @@ public class ControlFrame extends JFrame implements ActionListener {
                     layoutPanel.inhNList, LayoutPanel.INH);
             // add to workbench project
             if (null != workbenchMgr && workbenchMgr.isProvEnabled()) {
+                Long startTime = System.currentTimeMillis();
                 workbenchMgr.getProvMgr().addFileGeneration(
                         "InhibitoryNeuronListExport" + java.util.UUID.randomUUID(),
                         "neuronListExport", "NLEdit", null, false,
                         myPanel.tfields[ExportPanel.idxInhList].getText(), null,
                         false);
+                DateTime.recordProvTiming("ControlFrame 908", startTime);
             }
 
             writeNeuronListToFile(
@@ -910,11 +913,13 @@ public class ControlFrame extends JFrame implements ActionListener {
                     layoutPanel.activeNList, LayoutPanel.ACT);
             // add to workbench project
             if (null != workbenchMgr && workbenchMgr.isProvEnabled()) {
+                Long startTime = System.currentTimeMillis();
                 workbenchMgr.getProvMgr().addFileGeneration(
                         "ActiveNeuronListExport" + java.util.UUID.randomUUID(),
                         "neuronListExport", "NLEdit", null, false,
                         myPanel.tfields[ExportPanel.idxActList].getText(), null,
                         false);
+                DateTime.recordProvTiming("ControlFrame 922", startTime);
             }
 
             writeNeuronListToFile(
@@ -922,11 +927,13 @@ public class ControlFrame extends JFrame implements ActionListener {
                     layoutPanel.probedNList, LayoutPanel.PRB);
             // add to workbench project
             if (null != workbenchMgr && workbenchMgr.isProvEnabled()) {
+                Long startTime = System.currentTimeMillis();
                 workbenchMgr.getProvMgr().addFileGeneration(
                         "ProbedNeuronListExport" + java.util.UUID.randomUUID(),
                         "neuronListExport", "NLEdit", null, false,
                         myPanel.tfields[ExportPanel.idxPrbList].getText(), null,
                         false);
+                DateTime.recordProvTiming("ControlFrame 936", startTime);
             }
         }
     }

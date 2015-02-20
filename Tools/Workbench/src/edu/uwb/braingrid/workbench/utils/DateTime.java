@@ -1,5 +1,10 @@
 package edu.uwb.braingrid.workbench.utils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -26,5 +31,18 @@ public class DateTime {
         DateFormat dateFormat = new SimpleDateFormat(TIME_PATTERN);
         String time = dateFormat.format(millisFromEpoch);
         return time;
+    }
+    
+    public static void recordProvTiming(String codeLocation, Long startingMillis) {
+        long time = (System.currentTimeMillis() - startingMillis);
+        try {
+            PrintWriter out = new PrintWriter(new BufferedWriter(
+                    new FileWriter("provPerformance.txt", true)));            
+            out.println(codeLocation + " " + time);
+            out.close();
+        } catch (IOException e) {
+            System.err.println("Problem in writing to the prov performance file.");
+            e.printStackTrace();
+        }
     }
 }

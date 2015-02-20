@@ -497,6 +497,7 @@ public class WorkbenchManager {
             /* Set Provenance */
             projectMgr.setProvenanceEnabled(provEnabled);
             if (provEnabled) {
+                Long startTime = System.currentTimeMillis();
                 try {
                     prov = new ProvMgr(projectMgr, false);
                 } catch (IOException ex) {
@@ -506,6 +507,7 @@ public class WorkbenchManager {
                             + "\n";
                     throw ex;
                 }
+                DateTime.recordProvTiming("WorkbenchManager 510", startTime);
             } else {
                 prov = null;
             }

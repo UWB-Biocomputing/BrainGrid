@@ -3,6 +3,7 @@ package edu.uwb.braingrid.workbench.ui;
 import edu.uwb.braingrid.provenance.ProvMgr;
 import edu.uwb.braingrid.provenance.model.ProvOntology;
 import edu.uwb.braingrid.provenance.model.ProvenanceStatement;
+import edu.uwb.braingrid.workbench.utils.DateTime;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.util.ArrayList;
@@ -122,6 +123,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
+        Long startTime = System.currentTimeMillis();
         String sbjct = subjectTextField.getText();
         if (sbjct.isEmpty()) {
             sbjct = null;
@@ -167,6 +169,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         //String result
         //      = provMgr.queryProvenance(sbjct, prdct, objct, lineDelimiter);
         outputTextArea.setText(result);
+        DateTime.recordProvTiming("ProvenanceQueryDialog 172", startTime);
     }//GEN-LAST:event_searchButtonActionPerformed
 
     private void subjectTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_subjectTextFieldKeyReleased
