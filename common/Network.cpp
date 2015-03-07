@@ -7,7 +7,6 @@
  *  @brief A grid of LIF Neurons and their interconnecting synapses.
  */
 #include "Network.h"
-#include "AllLIFNeurons.h"
 #include "AllDSSynapses.h"
 
 /** 

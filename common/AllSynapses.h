@@ -69,8 +69,8 @@ class AllSynapses
          *  - LIFModel::loadMemory() --- Accessed
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFSingleThreadedModel::updateWeights() --- Accessed
-         *  - LIFSingleThreadedModel::createSynapse() --- Initialized
+         *  - SingleThreadedSpikingModel::updateWeights() --- Accessed
+         *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
          *  - LIFGPUModel::copyDeviceSynapseSumCoordToHost() --- Accessed
          *  - GpuSim_Struct::createSynapseImap() --- Accessed
          *  - GpuSim_Struct::setSynapseSummationPointDevice() --- Accessed
@@ -84,10 +84,10 @@ class AllSynapses
          *  Usage: LOCAL VARIABLE
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFSingleThreadedModel::advanceSynapse() --- Accessed
-         *  - LIFSingleThreadedModel::updateWeights() --- Modified 
-         *  - LIFSingleThreadedModel::addSynapse() --- Modified
-         *  - LIFSingleThreadedModel::createSynapse() --- Initialized
+         *  - SingleThreadedSpikingModel::advanceSynapse() --- Accessed
+         *  - SingleThreadedSpikingModel::updateWeights() --- Modified 
+         *  - SingleThreadedSpikingModel::addSynapse() --- Modified
+         *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
          *  - GpuSim_Struct::advanceSynapsesDevice() --- Accessed
          *  - GpuSim_Struct::updateNetworkDevice() --- Modified
          *  - GpuSim_Struct::addSynapse() --- Modified
@@ -99,10 +99,10 @@ class AllSynapses
          *  
          *  Usage: LOCAL CONSTANT
          *  - LIFModel::loadMemory() --- Iniialized
-         *  - LIFSingleThreadedModel::createSynapse() --- Initialized
-         *  - LIFSingleThreadedModel::advanceSynapse() --- Accessed
-         *  - LIFSingleThreadedModel::eraseSynapse() --- Modified (= NULL)
-         *  - LIFSingleThreadedModel::advanceNeuron() --- Accessed
+         *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
+         *  - SingleThreadedSpikingModel::advanceSynapse() --- Accessed
+         *  - SingleThreadedSpikingModel::eraseSynapse() --- Modified (= NULL)
+         *  - SingleThreadedSpikingModel::advanceNeuron() --- Accessed
          *  - GpuSim_Struct::setSynapseSummationPointDevice() --- Initialized
          *  - GpuSim_Struct::calcSummationMap() --- Accessed
          *  - GpuSim_Struct::eraseSynapse() --- Modified (= NULL)
@@ -115,7 +115,7 @@ class AllSynapses
          *  Usage: NOT USED ANYWHERE
          *  - LIFModel::loadMemory() --- Iniialized
          *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFSingleThreadedModel::createSynapse() --- Initialized
+         *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
          *  - GpuSim_Struct::createSynapse() --- Initialized
          */
         Coordinate **synapseCoord;
@@ -125,7 +125,7 @@ class AllSynapses
          *  Usage: LOCAL CONSTANT
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFSingleThreadedModel::createSynapse() --- Initialized
+         *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
          *  - GpuSim_Struct::createSynapse() --- Initialized
          */
         synapseType **type;
@@ -136,7 +136,7 @@ class AllSynapses
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
          *  - LIFModel::resetSynapse() --- Initialized
-         *  - LIFSingleThreadedModel::advanceSynapse() --- Accessed & Modified 
+         *  - SingleThreadedSpikingModel::advanceSynapse() --- Accessed & Modified 
          *  - GpuSim_Struct::createSynapse() --- Initialized
      	 *  - GpuSim_Struct::advanceSynapseDevice() --- Accessed & Modified  
          */
@@ -149,7 +149,7 @@ class AllSynapses
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
          *  - LIFModel::resetSynapse() --- Initialized (= 0)
-         *  - LIFSingleThreadedModel::advanceSynapse() --- Modified
+         *  - SingleThreadedSpikingModel::advanceSynapse() --- Modified
          *  - GpuSim_Struct::createSynapse() --- Initialized
          *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          *  - GpuSim_Struct::calcSummationMap() --- Accessed
@@ -162,7 +162,7 @@ class AllSynapses
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
          *  - LIFModel::updateDecay() --- Modified
-         *  - LIFSingleThreadedModel::advanceSynapse() --- Accessed
+         *  - SingleThreadedSpikingModel::advanceSynapse() --- Accessed
          *  - GpuSim_Struct::createSynapse() --- Modified
          *  - GpuSim_Struct::advanceSynapsesDevice() --- Accessed
          */
@@ -174,7 +174,7 @@ class AllSynapses
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
          *  - LIFModel::updateDecay() --- Accessed
-         *  - LIFSingleThreadedModel::createSynapse() --- Initialized
+         *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
          *  - GpuSim_Struct::createSynapse() --- Initialized
          */
         BGFLOAT **tau;
@@ -185,8 +185,8 @@ class AllSynapses
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
          *  - LIFModel::initSpikeQueue() --- Accessed
-         *  - LIFSingleThreadedModel::preSpikeHit() --- Accessed
-         *  - LIFSingleThreadedModel::createSynapse() --- Initialized
+         *  - SingleThreadedSpikingModel::preSpikeHit() --- Accessed
+         *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
          *  - GpuSim_Struct::createSynapse() --- Initialized
          *  - GpuSim_Struct::advanceNeuronsDevice() --- Accessed
          */
@@ -200,8 +200,8 @@ class AllSynapses
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
          *  - LIFModel::initSpikeQueue() --- Initialized
-         *  - LIFSingleThreadedModel::preSpikeHit() --- Accessed
-         *  - LIFSingleThreadedModel::isSpikeQueue() --- Accessed
+         *  - SingleThreadedSpikingModel::preSpikeHit() --- Accessed
+         *  - SingleThreadedSpikingModel::isSpikeQueue() --- Accessed
          *  - GpuSim_Struct::createSynapse() --- Initialized  
          *  - GpuSim_Struct::advanceNeuronsDevice() --- Accessed
          *  - GpuSim_Struct::advanceSynapseDevice() --- Accessed
@@ -215,8 +215,8 @@ class AllSynapses
          *  - LIFModel::initSpikeQueue() --- Initialized
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFSingleThreadedModel::preSpikeHit() --- Accessed
-         *  - LIFSingleThreadedModel::isSpikeQueue() --- Accessed & Modified
+         *  - SingleThreadedSpikingModel::preSpikeHit() --- Accessed
+         *  - SingleThreadedSpikingModel::isSpikeQueue() --- Accessed & Modified
          *  - GpuSim_Struct::advanceNeuronsDevice() --- Accessed
          *  - GpuSim_Struct::advanceSynapseDevice() --- Accessed & Modified
          *  - GpuSim_Struct::createSynapse() --- Initialized
@@ -234,8 +234,8 @@ class AllSynapses
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
          *  - LIFModel::initSpikeQueue() --- Initialized
-         *  - LIFSingleThreadedModel::preSpikeHit() --- Accessed
-         *  - LIFSingleThreadedModel::isSpikeQueue() --- Accessed
+         *  - SingleThreadedSpikingModel::preSpikeHit() --- Accessed
+         *  - SingleThreadedSpikingModel::isSpikeQueue() --- Accessed
          *  - GpuSim_Struct::advanceNeuronsDevice() --- Accessed
          *  - GpuSim_Struct::advanceSynapsesDevice() --- Accessed
          *  - GpuSim_Struct::createSynapse() --- Initialzied
@@ -248,11 +248,11 @@ class AllSynapses
          *  - AllSynapses::AllSynapses() --- Initialized
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFSingleThreadedModel::advanceNeurons() --- Accessed
-         *  - LIFSingleThreadedModel::updateWeights() --- Accessed
-         *  - LIFSingleThreadedModel::eraseSynapse() --- Modified
-    	 *  - LIFSingleThreadedModel::addSynapse() --- Accessed
-    	 *  - LIFSingleThreadedModel::createSynapse() --- Modified
+         *  - SingleThreadedSpikingModel::advanceNeurons() --- Accessed
+         *  - SingleThreadedSpikingModel::updateWeights() --- Accessed
+         *  - SingleThreadedSpikingModel::eraseSynapse() --- Modified
+    	 *  - SingleThreadedSpikingModel::addSynapse() --- Accessed
+    	 *  - SingleThreadedSpikingModel::createSynapse() --- Modified
          *  - LIFGPUModel::copyDeviceSynapseSumCoordToHost() --- Accessed
          *  - LIFGPUModel::createSynapseImap() --- Accessed
          *  - GpuSim_Struct::advanceNeuronsDevice() --- Accessed
@@ -270,11 +270,11 @@ class AllSynapses
          *  - AllSynapses::AllSynapses() --- Initialized
          *  - LIFModel::loadMemory() --- Modified
          *  - LIFModel::saveMemory() --- Accessed
-         *  - LIFSingleThreadedModel::advanceNeurons() --- Accessed
-    	 *  - LIFSingleThreadedModel::advanceSynapses() --- Accessed
-         *  - LIFSingleThreadedModel::updateWeights() --- Accessed
-    	 *  - LIFSingleThreadedModel::eraseSynapse() --- Modified
-    	 *  - LIFSingleThreadedModel::addSynapse() --- Modified
+         *  - SingleThreadedSpikingModel::advanceNeurons() --- Accessed
+    	 *  - SingleThreadedSpikingModel::advanceSynapses() --- Accessed
+         *  - SingleThreadedSpikingModel::updateWeights() --- Accessed
+    	 *  - SingleThreadedSpikingModel::eraseSynapse() --- Modified
+    	 *  - SingleThreadedSpikingModel::addSynapse() --- Modified
          *  - LIFGPUModel::copyDeviceSynapseCountsToHost() --- Accessed
          *  - LIFGPUModel::createSynapseImap() --- Accessed
          *  - GpuSim_Struct::advanceNeuronsDevice() --- Accessed
@@ -300,7 +300,7 @@ class AllSynapses
          *  
          *  Usage: GLOBAL CONSTANT
          *  - AllSynapses::AllSynapses() --- Initialized
-         *  - LIFSingleThreadedModel::addSynapse() --- Accessed
+         *  - SingleThreadedSpikingModel::addSynapse() --- Accessed
          *  - LIFGPUModel::createSynapseImap() --- Accessed
          *  - GpuSim_Struct::addSynapse --- Accessed
          *  - GpuSim_Struct::createSynapse --- Accessed

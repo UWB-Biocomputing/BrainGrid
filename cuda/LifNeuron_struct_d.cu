@@ -6,7 +6,7 @@
 #include "LIFGPUModel.h"
 
 void LIFGPUModel::allocNeuronDeviceStruct( int count, int max_spikes ) {
-	AllLIFNeurons allNeurons;
+	AllIFNeurons allNeurons;
 
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeurons.C1, count * sizeof( BGFLOAT ) ) );
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeurons.C2, count * sizeof( BGFLOAT ) ) );
@@ -38,14 +38,14 @@ void LIFGPUModel::allocNeuronDeviceStruct( int count, int max_spikes ) {
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.spike_history, pSpikeHistory,
 		count * sizeof( uint64_t* ), cudaMemcpyHostToDevice ) );
 
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeuronsDevice, sizeof( AllLIFNeurons ) ) );
-	HANDLE_ERROR( cudaMemcpy ( allNeuronsDevice, &allNeurons, sizeof( AllLIFNeurons ), cudaMemcpyHostToDevice ) );
+	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeuronsDevice, sizeof( AllIFNeurons ) ) );
+	HANDLE_ERROR( cudaMemcpy ( allNeuronsDevice, &allNeurons, sizeof( AllIFNeurons ), cudaMemcpyHostToDevice ) );
 }
 
 void LIFGPUModel::deleteNeuronDeviceStruct( int count ) {
-	AllLIFNeurons allNeurons;
+	AllIFNeurons allNeurons;
 
-	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllLIFNeurons ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
 
 	uint64_t* pSpikeHistory[count];
 	HANDLE_ERROR( cudaMemcpy ( pSpikeHistory, allNeurons.spike_history,
@@ -80,9 +80,9 @@ void LIFGPUModel::deleteNeuronDeviceStruct( int count ) {
 	HANDLE_ERROR( cudaFree( allNeuronsDevice ) );
 }
 
-void LIFGPUModel::copyNeuronHostToDevice( const AllLIFNeurons& allNeuronsHost, int count ) { 
-	AllLIFNeurons allNeurons;
-	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllLIFNeurons ), cudaMemcpyDeviceToHost ) );
+void LIFGPUModel::copyNeuronHostToDevice( const AllIFNeurons& allNeuronsHost, int count ) { 
+	AllIFNeurons allNeurons;
+	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
 
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.C1, allNeuronsHost.C1, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.C2, allNeuronsHost.C2, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
@@ -107,9 +107,9 @@ void LIFGPUModel::copyNeuronHostToDevice( const AllLIFNeurons& allNeuronsHost, i
 	//HANDLE_ERROR( cudaMemcpy ( allNeurons.spike_history, allNeuronsHost.spike_history, count * sizeof( uint64_t* ), cudaMemcpyHostToDevice ) );
 }
 
-void LIFGPUModel::copyNeuronDeviceToHost( AllLIFNeurons& allNeuronsHost, int count ) {
-	AllLIFNeurons allNeurons;
-	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllLIFNeurons ), cudaMemcpyDeviceToHost ) );
+void LIFGPUModel::copyNeuronDeviceToHost( AllIFNeurons& allNeuronsHost, int count ) {
+	AllIFNeurons allNeurons;
+	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
 
 	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.C1, allNeurons.C1, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 	HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.C2, allNeurons.C2, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );

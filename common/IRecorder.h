@@ -29,7 +29,7 @@
 
 #include "Global.h"
 #include "SimulationInfo.h"
-#include "AllNeurons.h"
+#include "AllSpikingNeurons.h"
 
 class IRecorder
 {
@@ -66,7 +66,7 @@ public:
      * Compile history information in every epoch
      * @param[in] neurons   The entire list of neurons.
      */
-    virtual void compileHistories(const AllNeurons &neurons, BGFLOAT minRadius) = 0;
+    virtual void compileHistories(AllNeurons &neurons, BGFLOAT minRadius) = 0;
 
     /**
      * Save current simulation state to XML

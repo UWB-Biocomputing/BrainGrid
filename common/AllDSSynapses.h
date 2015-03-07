@@ -66,7 +66,7 @@ class AllDSSynapses : public AllSynapses
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
          *  - LIFModel::resetSynapse() --- Initialized
-         *  - LIFSingleThreadedModel::advanceSynapse() --- Modified 
+         *  - SingleThreadedSpikingModel::advanceSynapse() --- Modified 
          *  - GpuSim_Struct::createSynapse() --- Initialized
     	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
@@ -78,7 +78,7 @@ class AllDSSynapses : public AllSynapses
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
          *  - LIFModel::resetSynapse() --- Initialized
-         *  - LIFSingleThreadedModel::advanceSynapse() --- Modified 
+         *  - SingleThreadedSpikingModel::advanceSynapse() --- Modified 
          *  - GpuSim_Struct::createSynapse() --- Initialized
     	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
@@ -89,8 +89,8 @@ class AllDSSynapses : public AllSynapses
          *  Usage: LOCAL CONSTANT depending on synapse type
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFSingleThreadedModel::createSynapse() --- Initialized
-         *  - LIFSingleThreadedModel::advanceSynapse() --- Accessed
+         *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
+         *  - SingleThreadedSpikingModel::advanceSynapse() --- Accessed
          *  - GpuSim_Struct::createSynapse() --- Initialized
     	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
@@ -101,8 +101,8 @@ class AllDSSynapses : public AllSynapses
          *  Usage: LOCAL CONSTANT depending on synapse type
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFSingleThreadedModel::createSynapse() --- Initialized
-         *  - LIFSingleThreadedModel::advanceSynapse() --- Accessed
+         *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
+         *  - SingleThreadedSpikingModel::advanceSynapse() --- Accessed
          *  - GpuSim_Struct::createSynapse() --- Initialized
     	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
@@ -113,8 +113,8 @@ class AllDSSynapses : public AllSynapses
          *  Usage: LOCAL CONSTANT depending on synapse type
          *  - LIFModel::readSynapse() --- Modified
          *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFSingleThreadedModel::createSynapse() --- Initialized
-         *  - LIFSingleThreadedModel::advanceSynapse() --- Accessed
+         *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
+         *  - SingleThreadedSpikingModel::advanceSynapse() --- Accessed
          *  - GpuSim_Struct::createSynapse() --- Initialized
     	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */

@@ -7,7 +7,7 @@
  */
 
 #include "HostSInputPoisson.h"
-#include "LIFSingleThreadedModel.h"
+#include "SingleThreadedSpikingModel.h"
 #include "tinyxml.h"
 
 /**
@@ -76,7 +76,7 @@ int chunk_size = psi->totalNeurons / omp_get_max_threads();
         if (--nISIs[neuron_index] <= 0)
         {
             // add a spike
-            static_cast<LIFSingleThreadedModel*>(model)->preSpikeHit(*synapses, neuron_index, 0);
+            static_cast<SingleThreadedSpikingModel*>(model)->preSpikeHit(*synapses, neuron_index, 0);
 
             // update interval counter (exponectially distribution ISIs, Poisson)
             BGFLOAT isi = -lambda * log(rng.inRange(0, 1));
@@ -87,6 +87,6 @@ int chunk_size = psi->totalNeurons / omp_get_max_threads();
             nISIs[neuron_index] = static_cast<int>( (isi / 1000) / psi->deltaT + 0.5 );
         }
         // process synapse
-        static_cast<LIFSingleThreadedModel*>(model)->advanceSynapse(*synapses, neuron_index, 0, psi->deltaT);
+        static_cast<SingleThreadedSpikingModel*>(model)->advanceSynapse(*synapses, neuron_index, 0, psi->deltaT);
     }
 }

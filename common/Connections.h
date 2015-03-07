@@ -7,7 +7,7 @@
 
 #include "Global.h"
 #include "SimulationInfo.h"
-#include "AllNeurons.h"
+#include "AllSpikingNeurons.h"
 #include <vector>
 #include <iostream>
 

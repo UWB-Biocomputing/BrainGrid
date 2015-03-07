@@ -8,51 +8,12 @@ using namespace std;
 class AllNeurons
 {
     public:
-        /*! A boolean which tracks whether the neuron has fired
-         *  
-         *  Usage: LOCAL VARIABLE
-         *  - AllLIFNeurons::AllLIFNeurons() --- Initialized
-         *  - LIFModel::readNeuron() --- Modified
-         *  - LIFModel::writeNeuron() --- Accessed
-         *  - LIFSingleThreadedModel::advanceNeurons() --- Accessed & Modified
-         *  - LIFSingleThreadedModel::fire() --- Modified
-         *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Modified
-         */
-        bool *hasFired;
-
-        /*! The number of spikes since the last growth cycle
-         *  
-         *  Usage: LOCAL VARIABLE
-         *  - AllLIFNeurons::AllLIFNeurons() --- Initialized
-         *  - LIFModel::updateHistory() --- Accessed
-         *  - LIFModel::clearSpikeCounts() --- Modified
-         *  - LIFSingleThreadedModel::fire() --- Modified
-         *  - GpuSim_struct.cu::clearSpikeCounts() --- Modified
-         *  - LIFGPUModel::copyDeviceSpikeCountsToHost() --- Accessed
-         *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Modified
-         *  - Hdf5Recorder::compileHistories() --- Accessed
-         *  - XmlRecorder::compileHistories() --- Accessed
-         */
-        int *spikeCount;
-
-        /*! Step count for each spike fired by each neuron
-         *
-         *  Usage: LOCAL VARIABLE
-         *  - LIFModel::createAllNeurons() --- Initialized
-         *  - LIFSingleThreadedModel::fire() --- Modified
-         *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Modified
-         *  - LIFGPUModel::copyDeviceSpikeHistoryToHost() --- Accessed
-         *  - Hdf5Recorder::compileHistories() --- Accessed
-         *  - XmlRecorder::compileHistories() --- Accessed
-         */
-        uint64_t **spike_history;
-
         /*! The neuron type map (INH, EXC).
          *  
          *  Usage: LOCAL CONSTANT
          *  - LIFModel::generateNeuronTypeMap --- Initialized
          *  - LIFModel::logSimStep() --- Accessed
-         *  - LIFSingleThreadedModel::synType() --- Accessed
+         *  - SingleThreadedSpikingModel::synType() --- Accessed
          *  - GpuSim_struct.cu::synType() --- Accessed
          *  - Hdf5Recorder::saveSimState() --- Accessed
          */
@@ -61,9 +22,9 @@ class AllNeurons
         /*! List of summation points for each neuron
          *  
          *  Usage: LOCAL CONSTANT
-         *  - AllLIFNeurons::AllLIFNeurons() --- Initialized
+         *  - AllIFNeurons::AllIFNeurons() --- Initialized
          *  - LIFModel::loadMemory() --- Accessed
-         *  - LIFSingleThreadedModel::advanceNeuron() --- Accessed
+         *  - SingleThreadedSpikingModel::advanceNeuron() --- Accessed
          *  - LIFGPUModel::setupSim() --- Accessed
          *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Accessed
          *  - GpuSim_struct.cu::setSynapseSummationPointDevice() --- Accessed
@@ -88,7 +49,7 @@ class AllNeurons
         virtual ~AllNeurons();
 
         virtual void setupNeurons(SimulationInfo *sim_info);
-        virtual void cleanupNeurons(); 
+        virtual void cleanupNeurons();
         virtual int numParameters() = 0;
         virtual int readParameters(const TiXmlElement& element) = 0;
         virtual void printParameters(ostream &output) const = 0;
@@ -96,8 +57,10 @@ class AllNeurons
         virtual string toString(const int i) const = 0;
         virtual void readNeurons(istream &input, const SimulationInfo *sim_info) = 0;
         virtual void writeNeurons(ostream& output, const SimulationInfo *sim_info) const = 0;
-        void clearSpikeCounts(const SimulationInfo *sim_info);
 
     protected:
         int size;
+ 
+    private:
+        void freeResources();
 };

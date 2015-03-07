@@ -74,7 +74,7 @@ public:
      * @param[in] neurons   The entire list of neurons.
      * @param[in] minRadius The minimum possible radius.
      */
-    virtual void compileHistories(const AllNeurons &neurons, BGFLOAT minRadius);
+    virtual void compileHistories(AllNeurons &neurons, BGFLOAT minRadius);
 
     /**
      * Save current simulation state to XML

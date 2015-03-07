@@ -1,7 +1,7 @@
 /**
  * @brief A leaky-integrate-and-fire (I&F) neural network model.
  *
- * @class  LIFSingleThreadedModel.h "LIFSingleThreadedModel.h"
+ * @class  IZHSingleThreadedModel.h "LIFSingleThreadedModel.h"
  *
  * Implements both neuron and synapse behaviour.
  *
@@ -73,16 +73,16 @@
 
 #include "SingleThreadedSpikingModel.h"
 
-class LIFSingleThreadedModel : public SingleThreadedSpikingModel {
+class IZHSingleThreadedModel : public SingleThreadedSpikingModel {
 
 public:
 	//Constructor & Destructor
-	LIFSingleThreadedModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout);
-	virtual ~LIFSingleThreadedModel();
+	IZHSingleThreadedModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout);
+	virtual ~IZHSingleThreadedModel();
 
 protected:
 	// Initiates a firing of a neuron to connected neurons
-	virtual void fire(AllSpikingNeurons &neurons, const int index, const BGFLOAT deltaT) const;
+	virtual void fire(AllNeurons &neurons, const int index, const BGFLOAT deltaT) const;
 
 private:
 	/* -----------------
@@ -102,7 +102,4 @@ private:
 	// Helper for #advanceNeuron. Updates state of a single neuron.
 	void advanceNeuron(AllNeurons& neurons, const int index, const BGFLOAT deltaT);
 };
-
-
-
 

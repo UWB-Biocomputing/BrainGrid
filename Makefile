@@ -72,7 +72,9 @@ CUDAOBJS =   \
 
 ifeq ($(CUSEHDF5), yes)
 LIBOBJS = $(COMMDIR)/AllNeurons.o \
-			$(COMMDIR)/AllLIFNeurons.o \
+			$(COMMDIR)/AllSpikingNeurons.o \
+			$(COMMDIR)/AllIFNeurons.o \
+			$(COMMDIR)/AllIZHNeurons.o \
 			$(COMMDIR)/AllSynapses.o \
 			$(COMMDIR)/AllDSSynapses.o \
 			$(COMMDIR)/Simulator.o \
@@ -80,7 +82,9 @@ LIBOBJS = $(COMMDIR)/AllNeurons.o \
 			$(COMMDIR)/Model.o \
 			$(COMMDIR)/Connections.o \
 			$(COMMDIR)/Layout.o \
+			$(COMMDIR)/SingleThreadedSpikingModel.o \
 			$(COMMDIR)/LIFSingleThreadedModel.o \
+			$(COMMDIR)/IZHSingleThreadedModel.o \
 			$(COMMDIR)/Network.o \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
@@ -89,7 +93,9 @@ LIBOBJS = $(COMMDIR)/AllNeurons.o \
 			$(COMMDIR)/Hdf5Recorder.o 
 else
 LIBOBJS = $(COMMDIR)/AllNeurons.o \
-			$(COMMDIR)/AllLIFNeurons.o \
+			$(COMMDIR)/AllSpikingNeurons.o \
+			$(COMMDIR)/AllIFNeurons.o \
+			$(COMMDIR)/AllIZHNeurons.o \
 			$(COMMDIR)/AllSynapses.o \
 			$(COMMDIR)/AllDSSynapses.o \
 			$(COMMDIR)/Simulator.o \
@@ -97,7 +103,9 @@ LIBOBJS = $(COMMDIR)/AllNeurons.o \
 			$(COMMDIR)/Model.o \
 			$(COMMDIR)/Connections.o \
 			$(COMMDIR)/Layout.o \
+			$(COMMDIR)/SingleThreadedSpikingModel.o \
 			$(COMMDIR)/LIFSingleThreadedModel.o \
+			$(COMMDIR)/IZHSingleThreadedModel.o \
 			$(COMMDIR)/Network.o \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
@@ -152,7 +160,7 @@ $(CUDADIR)/MersenneTwister_kernel.o: $(CUDADIR)/MersenneTwister_kernel.cu $(COMM
 	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/MersenneTwister_kernel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/MersenneTwister_kernel.o
 
 
-$(COMMDIR)/LIFGPUModel.o: $(COMMDIR)/LIFGPUModel.cu $(COMMDIR)/Global.h $(COMMDIR)/LIFGPUModel.h $(COMMDIR)/AllLIFNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/IModel.h $(CUDADIR)/AllSynapsesDevice.h 
+$(COMMDIR)/LIFGPUModel.o: $(COMMDIR)/LIFGPUModel.cu $(COMMDIR)/Global.h $(COMMDIR)/LIFGPUModel.h $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/IModel.h $(CUDADIR)/AllSynapsesDevice.h 
 	nvcc -c -g -arch=sm_20 -rdc=true $(COMMDIR)/LIFGPUModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(COMMDIR)/LIFGPUModel.o
 
 $(CUDADIR)/LifNeuron_struct_d.o: $(CUDADIR)/LifNeuron_struct_d.cu $(COMMDIR)/Global.h $(COMMDIR)/LIFGPUModel.h
@@ -165,7 +173,7 @@ $(CUDADIR)/AllSynapsesDevice.o: $(CUDADIR)/AllSynapsesDevice.cpp $(CUDADIR)/AllS
 	$(CXX) $(CXXFLAGS) $(CUDADIR)/AllSynapsesDevice.cpp -o $(CUDADIR)/AllSynapsesDevice.o
 
 
-$(CUDADIR)/BGDriver_cuda.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/IModel.h $(COMMDIR)/AllLIFNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Network.h
+$(CUDADIR)/BGDriver_cuda.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/IModel.h $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Network.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -I$(CUDADIR) -c $(MAIN)/BGDriver.cpp -o $(CUDADIR)/BGDriver_cuda.o
 
 $(CUDADIR)/Global_cuda.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
@@ -181,8 +189,14 @@ $(CUDADIR)/GPUSimulator.o: $(COMMDIR)/GPUSimulator.cpp $(COMMDIR)/GPUSimulator.h
 $(COMMDIR)/AllNeurons.o: $(COMMDIR)/AllNeurons.cpp $(COMMDIR)/AllNeurons.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllNeurons.cpp -o $(COMMDIR)/AllNeurons.o
 	
-$(COMMDIR)/AllLIFNeurons.o: $(COMMDIR)/AllLIFNeurons.cpp $(COMMDIR)/AllLIFNeurons.h $(COMMDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllLIFNeurons.cpp -o $(COMMDIR)/AllLIFNeurons.o
+$(COMMDIR)/AllSpikingNeurons.o: $(COMMDIR)/AllSpikingNeurons.cpp $(COMMDIR)/AllSpikingNeurons.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllSpikingNeurons.cpp -o $(COMMDIR)/AllSpikingNeurons.o
+	
+$(COMMDIR)/AllIFNeurons.o: $(COMMDIR)/AllIFNeurons.cpp $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllIFNeurons.cpp -o $(COMMDIR)/AllIFNeurons.o
+	
+$(COMMDIR)/AllIZHNeurons.o: $(COMMDIR)/AllIZHNeurons.cpp $(COMMDIR)/AllIZHNeurons.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllIZHNeurons.cpp -o $(COMMDIR)/AllIZHNeurons.o
 	
 $(COMMDIR)/AllSynapses.o: $(COMMDIR)/AllSynapses.cpp $(COMMDIR)/AllSynapses.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllSynapses.cpp -o $(COMMDIR)/AllSynapses.o
@@ -208,8 +222,14 @@ $(COMMDIR)/Connections.o: $(COMMDIR)/Connections.cpp $(COMMDIR)/Connections.h
 $(COMMDIR)/Layout.o: $(COMMDIR)/Layout.cpp $(COMMDIR)/Layout.h 
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Layout.cpp -o $(COMMDIR)/Layout.o
 
-$(COMMDIR)/LIFSingleThreadedModel.o: $(COMMDIR)/LIFSingleThreadedModel.cpp $(COMMDIR)/LIFSingleThreadedModel.h $(COMMDIR)/Model.h 
+$(COMMDIR)/SingleThreadedSpikingModel.o: $(COMMDIR)/SingleThreadedSpikingModel.cpp $(COMMDIR)/SingleThreadedSpikingModel.h $(COMMDIR)/Model.h 
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/SingleThreadedSpikingModel.cpp -o $(COMMDIR)/SingleThreadedSpikingModel.o
+
+$(COMMDIR)/LIFSingleThreadedModel.o: $(COMMDIR)/LIFSingleThreadedModel.cpp $(COMMDIR)/LIFSingleThreadedModel.h $(COMMDIR)/SingleThreadedSpikingModel.h 
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/LIFSingleThreadedModel.cpp -o $(COMMDIR)/LIFSingleThreadedModel.o
+
+$(COMMDIR)/IZHSingleThreadedModel.o: $(COMMDIR)/IZHSingleThreadedModel.cpp $(COMMDIR)/IZHSingleThreadedModel.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/IZHSingleThreadedModel.cpp -o $(COMMDIR)/IZHSingleThreadedModel.o
 
 $(COMMDIR)/Network.o: $(COMMDIR)/Network.cpp $(COMMDIR)/Network.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Network.cpp -o $(COMMDIR)/Network.o

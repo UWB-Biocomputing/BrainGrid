@@ -6,7 +6,7 @@
 //! An implementation for recording spikes history on xml file
 
 #include "XmlRecorder.h"
-#include "AllLIFNeurons.h"      // TODO: remove LIF model specific code
+#include "AllIFNeurons.h"      // TODO: remove LIF model specific code
 
 //! THe constructor and destructor
 XmlRecorder::XmlRecorder(IModel *model, SimulationInfo* sim_info) :
@@ -83,17 +83,18 @@ void XmlRecorder::term()
  * @param[in] neurons 	The entire list of neurons.
  * @param[in] minRadius	The minimum possible radius.
  */
-void XmlRecorder::compileHistories(const AllNeurons &neurons, BGFLOAT minRadius)
+void XmlRecorder::compileHistories(AllNeurons &neurons, BGFLOAT minRadius)
 {
     VectorMatrix& rates = (*m_model->getConnections()->rates);
     VectorMatrix& radii = (*m_model->getConnections()->radii);
+    AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
 
     // output spikes
     for (int iNeuron = 0; iNeuron < m_sim_info->totalNeurons; iNeuron++)
     {
-        uint64_t* pSpikes = neurons.spike_history[iNeuron];
+        uint64_t* pSpikes = spNeurons.spike_history[iNeuron];
 
-        int& spike_count = neurons.spikeCount[iNeuron];
+        int& spike_count = spNeurons.spikeCount[iNeuron];
         for (int i = 0; i < spike_count; i++)
         {
             // compile network wide burstiness index data in 1s bins
@@ -118,6 +119,9 @@ void XmlRecorder::compileHistories(const AllNeurons &neurons, BGFLOAT minRadius)
 
         DEBUG_MID(cout << "radii[" << iNeuron << ":" << radii[iNeuron] << "]" << endl;)
     }
+
+    // clear spike count
+    spNeurons.clearSpikeCounts(m_sim_info);
 }
 
 /**
@@ -135,7 +139,7 @@ void XmlRecorder::saveSimState(const AllNeurons &neurons)
     // create neuron threshold matrix
     VectorMatrix neuronThresh("complete", "const", 1, m_sim_info->totalNeurons, 0);
     for (int i = 0; i < m_sim_info->totalNeurons; i++) {
-        neuronThresh[i] = dynamic_cast<const AllLIFNeurons&>(neurons).Vthresh[i];
+        neuronThresh[i] = dynamic_cast<const AllIFNeurons&>(neurons).Vthresh[i];
     }
 
     // neuron locations matrices

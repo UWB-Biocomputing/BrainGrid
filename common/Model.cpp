@@ -4,7 +4,6 @@
 
 #include "ParseParamError.h"
 #include "Util.h"
-#include "AllLIFNeurons.h"
 
 
 /**
@@ -261,9 +260,6 @@ void Model::updateHistory(const int currentStep, BGFLOAT epochDuration, const Si
 
     // Compile history information in every epoch
     simRecorder->compileHistories(*m_neurons, m_conns->m_growth.minRadius);
-
-    // clear spike count
-    m_neurons->clearSpikeCounts(sim_info);
 }
 
 AllNeurons* Model::getNeurons()

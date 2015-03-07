@@ -236,12 +236,14 @@ void Connections::writeConns(ostream& output, const SimulationInfo *sim_info)
 
 void Connections::updateConns(AllNeurons &neurons, const SimulationInfo *sim_info)
 {
+    AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
+
     // Calculate growth cycle firing rate for previous period
     int max_spikes = static_cast<int> (sim_info->epochDuration * sim_info->maxFiringRate);
     for (int i = 0; i < sim_info->totalNeurons; i++) {
         // Calculate firing rate
-        assert(neurons.spikeCount[i] < max_spikes);
-        (*rates)[i] = neurons.spikeCount[i] / sim_info->epochDuration;
+        assert(spNeurons.spikeCount[i] < max_spikes);
+        (*rates)[i] = spNeurons.spikeCount[i] / sim_info->epochDuration;
     }
 
     // compute neuron radii change and assign new values

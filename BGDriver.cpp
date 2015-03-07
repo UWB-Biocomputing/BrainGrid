@@ -14,7 +14,7 @@
 
 #include "Network.h"
 #include "IModel.h"
-#include "AllLIFNeurons.h"
+#include "AllIFNeurons.h"
 #include "AllDSSynapses.h"
 #include "XmlRecorder.h"
 #ifdef USE_HDF5
@@ -79,11 +79,11 @@ bool parseCommandLine(int argc, char* argv[]);
 int main(int argc, char* argv[]) {
     // create the model
     #if defined(USE_GPU)
-	 model = new LIFGPUModel(new Connections(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 model = new LIFGPUModel(new Connections(), new AllIFNeurons(), new AllDSSynapses(), new Layout());
     #elif defined(USE_OMP)
-	 model = new LIFSingleThreadedModel(new Connections(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 model = new LIFSingleThreadedModel(new Connections(), new AllIFNeurons(), new AllDSSynapses(), new Layout());
     #else
-	 model = new LIFSingleThreadedModel(new Connections(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 model = new LIFSingleThreadedModel(new Connections(), new AllIFNeurons(), new AllDSSynapses(), new Layout());
     #endif
     
     DEBUG(cout << "reading parameters from xml file" << endl;)

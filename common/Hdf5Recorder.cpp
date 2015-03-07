@@ -6,7 +6,7 @@
 //! An implementation for recording spikes history on hdf5 file
 
 #include "Hdf5Recorder.h"
-#include "AllLIFNeurons.h"      // TODO: remove LIF model specific code
+#include "AllIFNeurons.h"      // TODO: remove LIF model specific code
 
 // hdf5 dataset name
 const H5std_string  nameBurstHist("burstinessHist");
@@ -216,10 +216,11 @@ void Hdf5Recorder::term()
  * @param[in] neurons   The entire list of neurons.
  * @param[in] minRadius The minimum possible radius.
  */
-void Hdf5Recorder::compileHistories(const AllNeurons &neurons, BGFLOAT minRadius)
+void Hdf5Recorder::compileHistories(AllNeurons &neurons, BGFLOAT minRadius)
 {
     VectorMatrix& rates = (*m_model->getConnections()->rates);
     VectorMatrix& radii = (*m_model->getConnections()->radii);
+    AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
 
     unsigned int iProbe = 0;    // index of the probedNeuronsLayout vector
     bool fProbe = false;
@@ -230,9 +231,9 @@ void Hdf5Recorder::compileHistories(const AllNeurons &neurons, BGFLOAT minRadius
         // true if this is a probed neuron
         fProbe = ((iProbe < m_model->getLayout()->m_probed_neuron_list.size()) && (iNeuron == m_model->getLayout()->m_probed_neuron_list[iProbe]));
 
-        uint64_t* pSpikes = neurons.spike_history[iNeuron];
+        uint64_t* pSpikes = spNeurons.spike_history[iNeuron];
 
-        int& spike_count = neurons.spikeCount[iNeuron];
+        int& spike_count = spNeurons.spikeCount[iNeuron];
         for (int i = 0; i < spike_count; i++)
         {
             // compile network wide burstiness index data in 1s bins
@@ -330,6 +331,9 @@ void Hdf5Recorder::compileHistories(const AllNeurons &neurons, BGFLOAT minRadius
         error.printError();
         return;
     }
+
+    // clear spike count
+    spNeurons.clearSpikeCounts(m_sim_info);
 }
 
 /**
@@ -420,7 +424,7 @@ void Hdf5Recorder::saveSimState(const AllNeurons &neurons)
         // create neuron threshold matrix
         VectorMatrix neuronThresh("complete", "const", 1, m_sim_info->totalNeurons, 0);
         for (int i = 0; i < m_sim_info->totalNeurons; i++) {
-            neuronThresh[i] = dynamic_cast<const AllLIFNeurons&>(neurons).Vthresh[i];
+            neuronThresh[i] = dynamic_cast<const AllIFNeurons&>(neurons).Vthresh[i];
         }
 
         // neuron locations matrices

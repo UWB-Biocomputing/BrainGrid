@@ -10,23 +10,11 @@
 
 using namespace std;
 
-//class XmlRecorder;
-#ifdef USE_HDF5
-//class Hdf5Recorder;
-#endif // USE_HDF5
-//class SInputPoisson;
-
 /**
  * Implementation of Model for the Leaky-Integrate-and-Fire model.
  */
 class Model : public IModel, TiXmlVisitor
 {
-        //friend XmlRecorder;
-#ifdef USE_HDF5
-        //friend Hdf5Recorder;
-#endif // USE_HDF5
-	//friend SInputPoisson;
-
     public:
         Model(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout);
         virtual ~Model();

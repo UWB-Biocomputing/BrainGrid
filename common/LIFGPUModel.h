@@ -15,7 +15,7 @@
 /**
  * @brief A leaky-integrate-and-fire (I&F) neural network model.
  *
- * @class LIFSingleThreadedModel LIFSingleThreadedModel.h "LIFSingleThreadedModel.h"
+ * @class LIFGPUModel LIFGPUModel.h "LIFGPUModel.h"
  *
  * Implements both neuron and synapse behaviour.
  *
@@ -85,7 +85,7 @@
 
 #pragma once
 #include "Model.h"
-#include "AllLIFNeurons.h"
+#include "AllIFNeurons.h"
 #include "AllSynapsesDevice.h"
 #include "AllDSSynapses.h"
 #ifdef __CUDACC__
@@ -180,11 +180,11 @@ private:
 	|* # Helper Functions
 	\* ------------------*/
 
-	void allocDeviceStruct(const SimulationInfo *sim_info, const AllLIFNeurons &allNeuronsHost, AllDSSynapses &allSynapsesHost);
+	void allocDeviceStruct(const SimulationInfo *sim_info, const AllIFNeurons &allNeuronsHost, AllDSSynapses &allSynapsesHost);
 	void allocNeuronDeviceStruct( int count, int max_spikes );
 	void deleteNeuronDeviceStruct( int count );
-	void copyNeuronHostToDevice( const AllLIFNeurons& allNeuronsHost, int count );
-	void copyNeuronDeviceToHost( AllLIFNeurons& allNeuronsHost, int count );
+	void copyNeuronHostToDevice( const AllIFNeurons& allNeuronsHost, int count );
+	void copyNeuronDeviceToHost( AllIFNeurons& allNeuronsHost, int count );
 
 	void allocSynapseDeviceStruct( AllSynapsesDevice*& allSynapsesDevice, int num_neurons, int max_synapses );
 	void deleteSynapseDeviceStruct( AllSynapsesDevice* allSynapsesDevice, int num_neurons, int max_synapses );
@@ -215,9 +215,9 @@ private:
 	// TODO
 	void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 	// TODO
-	void copyDeviceSpikeHistoryToHost(AllLIFNeurons &allNeuronsHost, const SimulationInfo *sim_info);
+	void copyDeviceSpikeHistoryToHost(AllIFNeurons &allNeuronsHost, const SimulationInfo *sim_info);
 	//
-	void copyDeviceSpikeCountsToHost(AllLIFNeurons &allNeuronsHost, int numNeurons);
+	void copyDeviceSpikeCountsToHost(AllIFNeurons &allNeuronsHost, int numNeurons);
 	// TODO
 	void clearSpikeCounts(int numNeurons);
 
@@ -238,7 +238,7 @@ private:
 	\*----------------------------------------------*/
 
 	//! Neuron structure in device memory.
-	AllLIFNeurons* allNeuronsDevice;
+	AllIFNeurons* allNeuronsDevice;
 
 	//! Synapse structures in device memory.
 	AllSynapsesDevice* allSynapsesDevice;

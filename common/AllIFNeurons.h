@@ -1,7 +1,7 @@
 /** 
  * @authors Aaron Oziel, Sean Blackbourn
  * 
- * @class AllLIFNeurons AllLIFNeurons.h "AllLIFNeurons.h"
+ * @class AllIFNeurons AllIFNeurons.h "AllIFNeurons.h"
  * @brief A container of all LIF neuron data
  *
  *  The container holds neuron parameters of all neurons. 
@@ -32,10 +32,10 @@
 #pragma once
 
 #include "Global.h"
-#include "AllNeurons.h"
+#include "AllSpikingNeurons.h"
 
 // Class to hold all data necessary for all the Neurons.
-class AllLIFNeurons : public AllNeurons
+class AllIFNeurons : public AllSpikingNeurons
 {
     public:
 
@@ -46,7 +46,7 @@ class AllLIFNeurons : public AllNeurons
          *  - LIFModel::setNeuronDefaults() --- Initialized
          *  - LIFModel::readNeuron() --- Modified
          *  - LIFModel::writeNeuron() --- Accessed
-         *  - LIFSingleThreadedModel::fire() --- Accessed
+         *  - SingleThreadedSpikingModel::fire() --- Accessed
          *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Accessed
          */
         BGFLOAT *Trefract;
@@ -58,7 +58,7 @@ class AllLIFNeurons : public AllNeurons
          *  - LIFModel::setNeuronDefaults() --- Initialized
          *  - LIFModel::readNeuron() --- Modified
          *  - LIFModel::writeNeuron() --- Accessed
-         *  - LIFSingleThreadedModel::advanceNeuron() --- Accessed
+         *  - SingleThreadedSpikingModel::advanceNeuron() --- Accessed
          *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Accessed
          *  - Hdf5Recorder::saveSimState() --- Accessed
          *  - XmlRecorder::saveSimState() --- Accessed
@@ -83,7 +83,7 @@ class AllLIFNeurons : public AllNeurons
          *  - LIFModel::setNeuronDefaults() --- Initialized
          *  - LIFModel::readNeuron() --- Modified
          *  - LIFModel::writeNeuron() --- Accessed
-         *  - LIFSingleThreadedModel::fire() --- Accessed
+         *  - SingleThreadedSpikingModel::fire() --- Accessed
          *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Accessed
          */
         BGFLOAT *Vreset;
@@ -125,7 +125,7 @@ class AllLIFNeurons : public AllNeurons
          *  - LIFModel::setNeuronDefaults() --- Initialized
          *  - LIFModel::readNeuron() --- Modified
          *  - LIFModel::writeNeuron() --- Accessed
-         *  - LIFSingleThreadedModel::advanceNeuron() --- Accessed
+         *  - SingleThreadedSpikingModel::advanceNeuron() --- Accessed
          *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Accessed
          */
         BGFLOAT *Inoise;
@@ -155,11 +155,11 @@ class AllLIFNeurons : public AllNeurons
         /*! The remaining number of time steps for the absolute refractory period.
          *  
          *  Usage: LOCAL VARIABLE
-         *  - AllLIFNeurons::AllLIFNeurons() --- Initialized
+         *  - AllIFNeurons::AllIFNeurons() --- Initialized
          *  - LIFModel::readNeuron() --- Modified
          *  - LIFModel::writeNeuron() --- Accessed
-         *  - LIFSingleThreadedModel::advanceNeuron() --- Accessed & Modified
-         *  - LIFSingleThreadedModel::fire() --- Modified
+         *  - SingleThreadedSpikingModel::advanceNeuron() --- Accessed & Modified
+         *  - SingleThreadedSpikingModel::fire() --- Modified
          *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Accessed & Modified
          */
         int *nStepsInRefr;
@@ -170,7 +170,7 @@ class AllLIFNeurons : public AllNeurons
          *  - LIFModel::initNeuronConstsFromParamValues() --- Initialized
          *  - LIFModel::readNeuron() --- Modified
          *  - LIFModel::writeNeuron() --- Accessed
-         *  - LIFSingleThreadedModel::advanceNeuron() --- Accessed
+         *  - SingleThreadedSpikingModel::advanceNeuron() --- Accessed
          *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Accessed
          */
         BGFLOAT *C1;
@@ -181,7 +181,7 @@ class AllLIFNeurons : public AllNeurons
          *  - LIFModel::initNeuronConstsFromParamValues() --- Initialized
          *  - LIFModel::readNeuron() --- Modified
          *  - LIFModel::writeNeuron() --- Accessed
-         *  - LIFSingleThreadedModel::advanceNeuron() --- Accessed
+         *  - SingleThreadedSpikingModel::advanceNeuron() --- Accessed
          *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Accessed
          */
         BGFLOAT *C2;
@@ -192,7 +192,7 @@ class AllLIFNeurons : public AllNeurons
          *  - LIFModel::initNeuronConstsFromParamValues() --- Initialized
          *  - LIFModel::readNeuron() --- Modified
          *  - LIFModel::writeNeuron() --- Accessed
-         *  - LIFSingleThreadedModel::advanceNeuron() --- Accessed
+         *  - SingleThreadedSpikingModel::advanceNeuron() --- Accessed
          *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Accessed
          */
         BGFLOAT *I0;
@@ -203,8 +203,8 @@ class AllLIFNeurons : public AllNeurons
          *  - LIFModel::createAllNeurons() --- Initialized
          *  - LIFModel::readNeuron() --- Modified
          *  - LIFModel::writeNeuron() --- Accessed
-         *  - LIFSingleThreadedModel::advanceNeuron() --- Accessed & Modified
-         *  - LIFSingleThreadedModel::fire() --- Modified
+         *  - SingleThreadedSpikingModel::advanceNeuron() --- Accessed & Modified
+         *  - SingleThreadedSpikingModel::fire() --- Modified
          *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Accessed & Modified
          */
         BGFLOAT *Vm;
@@ -219,8 +219,8 @@ class AllLIFNeurons : public AllNeurons
          */
         BGFLOAT *Tau;
 
-        AllLIFNeurons();
-        virtual ~AllLIFNeurons();
+        AllIFNeurons();
+        virtual ~AllIFNeurons();
 
         virtual void setupNeurons(SimulationInfo *sim_info);
         virtual void cleanupNeurons();  
@@ -232,6 +232,14 @@ class AllLIFNeurons : public AllNeurons
         virtual void readNeurons(istream &input, const SimulationInfo *sim_info);
         virtual void writeNeurons(ostream& output, const SimulationInfo *sim_info) const;
 
+    protected:
+        void createNeuron(SimulationInfo *sim_info, int neuron_index);
+        void setNeuronDefaults(const int index);
+        void initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT);
+        void readNeuron(istream &input, const SimulationInfo *sim_info, int i);
+        void writeNeuron(ostream& output, const SimulationInfo *sim_info, int i) const;
+
+    private:
         // TODO
         BGFLOAT m_Iinject[2];
         // TODO
@@ -249,7 +257,5 @@ class AllLIFNeurons : public AllNeurons
         // TODO
         BGFLOAT m_starter_Vreset[2];
 
-    private:
-        void setNeuronDefaults(const int index);
-        void initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT);
+        void freeResources();  
 };
