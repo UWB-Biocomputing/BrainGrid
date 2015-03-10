@@ -100,7 +100,7 @@ private:
 	// -----------------------
 
 	// Helper for #advanceNeuron. Updates state of a single neuron.
-	void advanceNeuron(AllNeurons& neurons, const int index, const BGFLOAT deltaT);
+	virtual void advanceNeuron(AllNeurons& neurons, const int index, const BGFLOAT deltaT);
 };
 
 

@@ -62,9 +62,6 @@ class AllSpikingNeurons : public AllNeurons
         virtual void writeNeurons(ostream& output, const SimulationInfo *sim_info) const = 0;
         void clearSpikeCounts(const SimulationInfo *sim_info);
 
-    protected:
-        int size;
-
     private:
         void freeResources();
 };
