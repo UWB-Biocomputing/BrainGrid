@@ -235,7 +235,7 @@ class AllIFNeurons : public AllSpikingNeurons
     protected:
         void createNeuron(SimulationInfo *sim_info, int neuron_index);
         void setNeuronDefaults(const int index);
-        void initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT);
+        virtual void initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT);
         void readNeuron(istream &input, const SimulationInfo *sim_info, int i);
         void writeNeuron(ostream& output, const SimulationInfo *sim_info, int i) const;
 

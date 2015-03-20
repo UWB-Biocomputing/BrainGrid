@@ -9,6 +9,7 @@ AllIZHNeurons::AllIZHNeurons() : AllIFNeurons()
     Cconst = NULL;
     Dconst = NULL;
     u = NULL;
+    C3 = NULL;
 }
 
 AllIZHNeurons::~AllIZHNeurons()
@@ -25,6 +26,7 @@ void AllIZHNeurons::setupNeurons(SimulationInfo *sim_info)
     Cconst = new BGFLOAT[size];
     Dconst = new BGFLOAT[size];
     u = new BGFLOAT[size];
+    C3 = new BGFLOAT[size];
 }
 
 void AllIZHNeurons::cleanupNeurons()
@@ -41,6 +43,7 @@ void AllIZHNeurons::freeResources()
         delete[] Cconst;
         delete[] Dconst;
         delete[] u;
+        delete[] C3;
     }
 
     Aconst = NULL;
@@ -48,6 +51,7 @@ void AllIZHNeurons::freeResources()
     Cconst = NULL;
     Dconst = NULL;
     u = NULL;
+    C3 = NULL;
 }
 
 /**
@@ -89,9 +93,6 @@ int AllIZHNeurons::readParameters(const TiXmlElement& element)
         if (element.QueryFLOATAttribute("min", &m_Bconst[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Bconst min", "Bconst missing minimum value in XML.");
         }
-        if (m_Bconst[0] < 0) {
-            throw ParseParamError("Bconst min", "Invalid negative Bconst value.");
-        }
         if (element.QueryFLOATAttribute("max", &m_Bconst[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Bconst max", "Bconst missing maximum value in XML.");
         }
@@ -104,9 +105,6 @@ int AllIZHNeurons::readParameters(const TiXmlElement& element)
     if (element.ValueStr().compare("Cconst") == 0) {
         if (element.QueryFLOATAttribute("min", &m_Cconst[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Cconst min", "Cconst missing minimum value in XML.");
-        }
-        if (m_Cconst[0] < 0) {
-            throw ParseParamError("Cconst min", "Invalid negative Cconst value.");
         }
         if (element.QueryFLOATAttribute("max", &m_Cconst[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Cconst max", "Cconst missing maximum value in XML.");
@@ -182,12 +180,14 @@ void AllIZHNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index)
     Bconst[neuron_index] = rng.inRange(m_Bconst[0], m_Bconst[1]); 
     Cconst[neuron_index] = rng.inRange(m_Cconst[0], m_Cconst[1]); 
     Dconst[neuron_index] = rng.inRange(m_Dconst[0], m_Dconst[1]); 
+    u[neuron_index] = 0;
 
     DEBUG_HI(cout << "CREATE NEURON[" << neuron_index << "] {" << endl
             << "\tAconst = " << Aconst[neuron_index] << endl
             << "\tBconst = " << Bconst[neuron_index] << endl
             << "\tCconst = " << Cconst[neuron_index] << endl
             << "\tDconst = " << Dconst[neuron_index] << endl
+            << "\tC3 = " << C3[neuron_index] << endl
             << "}" << endl
     ;)
 
@@ -214,7 +214,10 @@ void AllIZHNeurons::setNeuronDefaults(const int index)
  */
 void AllIZHNeurons::initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT)
 {
-        AllIFNeurons::initNeuronConstsFromParamValues(neuron_index, deltaT);
+    AllIFNeurons::initNeuronConstsFromParamValues(neuron_index, deltaT);
+
+    BGFLOAT &C3 = this->C3[neuron_index];
+    C3 = deltaT * 1000; 
 }
 
 /**
@@ -232,6 +235,8 @@ string AllIZHNeurons::toString(const int i) const
     ss << "Bconst: " << Bconst[i] << " ";
     ss << "Cconst: " << Cconst[i] << " ";
     ss << "Dconst: " << Dconst[i] << " ";
+    ss << "u: " << u[i] << " ";
+    ss << "C3: " << C3[i] << " ";
     return ss.str( );
 }
 
@@ -256,6 +261,7 @@ void AllIZHNeurons::readNeuron(istream &input, const SimulationInfo *sim_info, i
     input >> Cconst[i]; input.ignore();
     input >> Dconst[i]; input.ignore();
     input >> u[i]; input.ignore();
+    input >> C3[i]; input.ignore();
 }
 
 /**
@@ -279,4 +285,5 @@ void AllIZHNeurons::writeNeuron(ostream& output, const SimulationInfo *sim_info,
     output << Cconst[i] << ends;
     output << Dconst[i] << ends;
     output << u[i] << ends;
+    output << C3[i] << ends;
 }

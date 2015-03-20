@@ -169,9 +169,6 @@ int AllIFNeurons::readParameters(const TiXmlElement& element)
         if (element.QueryFLOATAttribute("min", &m_Vresting[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vresting min", "Vresting missing minimum value in XML.");
         }
-        if (m_Vresting[0] < 0) {
-            throw ParseParamError("Vresting min", "Invalid negative Vresting value.");
-        }
         if (element.QueryFLOATAttribute("max", &m_Vresting[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Vresting max", "Vresting missing maximum value in XML.");
         }
@@ -185,9 +182,6 @@ int AllIFNeurons::readParameters(const TiXmlElement& element)
         if (element.QueryFLOATAttribute("min", &m_Vreset[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vreset min", "Vreset missing minimum value in XML.");
         }
-        if (m_Vreset[0] < 0) {
-            throw ParseParamError("Vreset min", "Invalid negative Vreset value.");
-        }
         if (element.QueryFLOATAttribute("max", &m_Vreset[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Vreset max", "Vreset missing maximum value in XML.");
         }
@@ -200,9 +194,6 @@ int AllIFNeurons::readParameters(const TiXmlElement& element)
     if (element.ValueStr().compare("Vinit") == 0) {
         if (element.QueryFLOATAttribute("min", &m_Vinit[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vinit min", "Vinit missing minimum value in XML.");
-        }
-        if (m_Vinit[0] < 0) {
-            throw ParseParamError("Vinit min", "Invalid negative Vinit value.");
         }
         if (element.QueryFLOATAttribute("max", &m_Vinit[1]) != TIXML_SUCCESS) {
             throw ParseParamError("Vinit max", "Vinit missing maximum value in XML.");

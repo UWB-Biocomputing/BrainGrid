@@ -41,6 +41,7 @@ void IZHSingleThreadedModel::advanceNeuron(AllNeurons &neurons, const int index,
     BGFLOAT &Inoise = izhNeurons.Inoise[index];
     BGFLOAT &C1 = izhNeurons.C1[index];
     BGFLOAT &C2 = izhNeurons.C2[index];
+    BGFLOAT &C3 = izhNeurons.C3[index];
     int &nStepsInRefr = izhNeurons.nStepsInRefr[index];
 
     BGFLOAT &a = izhNeurons.Aconst[index];
@@ -60,26 +61,35 @@ void IZHSingleThreadedModel::advanceNeuron(AllNeurons &neurons, const int index,
         DEBUG_MID(cout << "ADVANCE NEURON[" << index << "] :: noise = " << noise << endl;)
         summationPoint += noise * Inoise; // add noise
 
-        // do the Euler integration step
-        BGFLOAT Vb;
-        Vb = Vm + deltaT * (0.04 * Vm * Vm + 5 * Vm + 140 - u) + C2 * summationPoint;
-        u = u + deltaT * a * (b * Vm - u);
-        Vm = Vb;
+        BGFLOAT Vint = Vm * 1000;
+
+        // Izhikevich model integration step
+        BGFLOAT Vb = Vint + C3 * (0.04 * Vint * Vint + 5 * Vint + 140 - u);
+        u = u + C3 * a * (b * Vint - u);
+
+        Vm = Vb * 0.001 + C2 * summationPoint;	// add inputs
     }
-    // clear synaptic input for next time step
-    summationPoint = 0;
 
     DEBUG_MID(cout << index << " " << Vm << endl;)
-	DEBUG_MID(cout << "NEURON[" << index << "] {" << endl
+        DEBUG_MID(cout << "NEURON[" << index << "] {" << endl
             << "\tVm = " << Vm << endl
+            << "\ta = " << a << endl
+            << "\tb = " << b << endl
+            << "\tc = " << izhNeurons.Cconst[index] << endl
+            << "\td = " << izhNeurons.Dconst[index] << endl
+            << "\tu = " << u << endl
             << "\tVthresh = " << Vthresh << endl
             << "\tsummationPoint = " << summationPoint << endl
             << "\tI0 = " << I0 << endl
             << "\tInoise = " << Inoise << endl
             << "\tC1 = " << C1 << endl
             << "\tC2 = " << C2 << endl
+            << "\tC3 = " << C3 << endl
             << "}" << endl
     ;)
+
+    // clear synaptic input for next time step
+    summationPoint = 0;
 }
 
 /**
@@ -106,6 +116,6 @@ void IZHSingleThreadedModel::fire(AllNeurons &neurons, const int index, const BG
     nStepsInRefr = static_cast<int> ( Trefract / deltaT + 0.5 );
 
     // reset to 'Vreset'
-    Vm = c;
+    Vm = c * 0.001;
     u = u + d;
 }

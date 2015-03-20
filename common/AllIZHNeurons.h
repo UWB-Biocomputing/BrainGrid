@@ -54,6 +54,9 @@ class AllIZHNeurons : public AllIFNeurons
         //! internal variable
         BGFLOAT *u;
 
+        //!
+        BGFLOAT *C3;
+
         AllIZHNeurons();
         virtual ~AllIZHNeurons();
 
@@ -70,15 +73,15 @@ class AllIZHNeurons : public AllIFNeurons
     protected:
         void createNeuron(SimulationInfo *sim_info, int neuron_index);
         void setNeuronDefaults(const int index);
-        void initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT);
+        virtual void initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT);
         void readNeuron(istream &input, const SimulationInfo *sim_info, int i);
         void writeNeuron(ostream& output, const SimulationInfo *sim_info, int i) const;
 
     private:
         static const BGFLOAT DEFAULT_a = 0.0035;
         static const BGFLOAT DEFAULT_b = 0.2;
-        static const BGFLOAT DEFAULT_c = -0.05;
-        static const BGFLOAT DEFAULT_d = 0.002;
+        static const BGFLOAT DEFAULT_c = -50;
+        static const BGFLOAT DEFAULT_d = 2;
 
         // TODO
         BGFLOAT m_Aconst[2];

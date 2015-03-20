@@ -15,6 +15,8 @@
 #include "Network.h"
 #include "IModel.h"
 #include "AllIFNeurons.h"
+#include "AllIZHNeurons.h"
+#include "IZHSingleThreadedModel.h"
 #include "AllDSSynapses.h"
 #include "XmlRecorder.h"
 #ifdef USE_HDF5
@@ -83,7 +85,8 @@ int main(int argc, char* argv[]) {
     #elif defined(USE_OMP)
 	 model = new LIFSingleThreadedModel(new Connections(), new AllIFNeurons(), new AllDSSynapses(), new Layout());
     #else
-	 model = new LIFSingleThreadedModel(new Connections(), new AllIFNeurons(), new AllDSSynapses(), new Layout());
+	 model = new IZHSingleThreadedModel(new Connections(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new LIFSingleThreadedModel(new Connections(), new AllIFNeurons(), new AllDSSynapses(), new Layout());
     #endif
     
     DEBUG(cout << "reading parameters from xml file" << endl;)
