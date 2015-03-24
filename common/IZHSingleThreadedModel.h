@@ -1,69 +1,66 @@
 /**
- * @brief A leaky-integrate-and-fire (I&F) neural network model.
+ * @brief An Izhikevich neural network model.
  *
- * @class  IZHSingleThreadedModel.h "LIFSingleThreadedModel.h"
+ * @class  IZHSingleThreadedModel IZHSingleThreadedModel.h "LIFSingleThreadedModel.h"
  *
  * Implements both neuron and synapse behaviour.
  *
- * A standard leaky-integrate-and-fire neuron model is implemented
- * where the membrane potential \f$V_m\f$ of a neuron is given by
+ * The Izhikevich neuron model uses the quadratic integrate-and-fire model 
+ * for ordinary differential equations of the form:
  * \f[
- *   \tau_m \frac{d V_m}{dt} = -(V_m-V_{resting}) + R_m \cdot (I_{syn}(t)+I_{inject}+I_{noise})
+ *  \frac{d y}{dt} = 0.04v^2 + 5v + 140 - u + (I_{syn}(t) + I_{inject} + I_{noise})
  * \f]
- * where \f$\tau_m=C_m\cdot R_m\f$ is the membrane time constant,
- * \f$R_m\f$ is the membrane resistance, \f$I_{syn}(t)\f$ is the
- * current supplied by the synapses, \f$I_{inject}\f$ is a
- * non-specific background current and \f$I_{noise}\f$ is a
- * Gaussian random variable with zero mean and a given variance
- * noise.
+ * \f[
+ *  \frac{d u}{dt} = a \cdot (bv - u)
+ * \f]
+ * with the auxiliary after-spike resetting: if \f$v≥30\f$ mv, then \f$v=c,u=u+d\f$.
  *
- * At time \f$t=0\f$ \f$V_m\f$ is set to \f$V_{init}\f$. If
- * \f$V_m\f$ exceeds the threshold voltage \f$V_{thresh}\f$ it is
- * reset to \f$V_{reset}\f$ and hold there for the length
- * \f$T_{refract}\f$ of the absolute refractory period.
+ * where \f$v\f$ and \f$u\f$ are dimensionless variable, and \f$a,b,c\f$, and \f$d\f$ are dimensioless parameters. 
+ * The variable \f$v\f$ represents the membrane potential of the neuron and \f$u\f$ represents a membrane 
+ * recovery variable, which accounts for the activation of \f$K^+\f$ ionic currents and 
+ * inactivation of \f$Na^+\f$ ionic currents, and it provides negative feedback to \f$v\f$. 
+ * \f$I_{syn}(t)\f$ is the current supplied by the synapses, \f$I_{inject}\f$ is a non-specific 
+ * background current and Inoise is a Gaussian random variable with zero mean and 
+ * a given variance noise. (Izhikevich. 2003)
  *
- * The exponential Euler method is used for numerical integration.
- * The main idea behind the exponential Euler rule is that many biological 
- * processes are governed by an exponential decay function.
+ * The simple Euler method combined with the exponential Euler method is used for 
+ * numerical integration. The main idea behind the exponential Euler rule is 
+ * that many biological processes are governed by an exponential decay function. 
  * For an equation of the form:
  * \f[
  *  \frac{d y}{dt} = A - By
  * \f]
- *
  * its scheme is given by:
  * \f[
- *  y(t+\Delta t) = y(t) \cdot \mathrm{e}^{-B \Delta t} + \frac{A}{B} \cdot (1 - \mathrm{e}^{-B \Delta t})
+ *  y(t+\Delta t) = y(t) \cdot \mathrm{e}^{-B \Delta t} + \frac{A}{B} \cdot (1 - \mathrm{e}^{-B \Delta t}) 
  * \f]
- *
- * After appropriate substituting all variables, we obtain the exponential Euler step:
+ * After appropriate substituting all variables, we obtain the Euler step:
  * \f[
- *  V_m(t+\Delta t) = V_m(t) \cdot \mathrm{e}^{-\frac{\Delta t}{\tau_m}} + 
- *  R_m \cdot (I_{syn}(t)+I_{inject}+I_{noise}+\frac{V_{resting}}{R_m}) 
- *  \cdot (1 - \mathrm{e}^{-\frac{\Delta t}{\tau_m}})
+ *  v(t+\Delta t)=v(t)+\Delta t⋅(0.04v(t)^2+5v(t)+140−u(t))+R_{m}⋅(I_{syn}(t)+I_{inject}+I_{noise}+\frac{V_{resting}}{R_{m}})⋅(1−\mathrm{e}^{-\frac{\Delta t}{\tau_{m}}})
  * \f]
+ * \f[
+ *  u(t+ \Delta t)=u(t) + \Delta t⋅a⋅(bv(t)−u(t))
+ * \f]
+ * where \f$\tau_{m}=C_{m}⋅R_{m}\f$ is the membrane time constant, \f$R_{m}\f$ is the membrane resistance.
  *
- * Phenomenological model of frequency-dependent synapses exibit dynamics that include
+ * Phenomenological model of frequency-dependent synapses exibit dynamics that include 
  * activity-dependent facilitation and depression (Tsodyks and Markram 1997, Tsodyks et al. 1998). 
- * The model has two state variables: \f$r\f$ (the fraction of available synaptic efficacy), and
- * \f$u\f$ (the running value of utilization of synaptic efficacy).
- *
+ * The model has two state variables: \f$r\f$ (the fraction of available synaptic efficacy), 
+ * and \f$u\f$ (the running value of utilization of synaptic efficacy).
  * \f[
- *  r_{n+1} = r_n \cdot (1-u_{n+1}) \cdot \mathrm{e}^{-\frac{\Delta t}{\tau_{rec}}} +
- *  1 - \mathrm{e}^{-\frac{\Delta t}{\tau_{rec}}}
+ *  r_{n+1}=r_{n}⋅(1−u_{n+1})⋅\mathrm{e}^{−\frac{\Delta t}{\tau_{rec}}}+1−\mathrm{e}^{−\frac{\Delta t}{\tau_{rec}}}
  * \f]
- *
  * \f[
+ *  u_{n+1}=u_{n}⋅\mathrm{e}^{−\frac{\Delta t}{\tau_{facil}}}+U⋅(1−u_{n}⋅\mathrm{e}^{−\frac{\Delta t}{\tau_{facil}}})
  * \f]
- *
- * where \f$\Delta t\f$ is the time interval between nth and (n + 1)th AP,
- * the two time constants \f$\tau_{rec}\f$ and \f$\tau_{facil}\f$ govern recovery from depression,
- * and facilitation after a spike, and \f$U\f$ is utilization of synaptic efficacy (Markram et al. 1998).
+ * where \f$\Delta t\f$ is the time interval between nth and (n + 1)th AP, the two time constants 
+ * \f$\tau_{rec}\f$ and \f$\tau_{facil}\f$ govern recovery from depression, and facilitation after a spike, 
+ * and \f$U\f$ is utilization of synaptic efficacy (Markram et al. 1998).
  *
  * The synaptic response that is generated by any AP in a train is therefore given by:
  * \f[
- *  EPSP_n = A \cdot r_n \cdot u_n
+ *  EPSP_{n}=A⋅r_{n}⋅u_{n}
  * \f]
- *
  * This model is a rewrite of work by Stiber, Kawasaki, Allan Ortiz, and Cory Mayberry
  *
  * @authors Derek McLean

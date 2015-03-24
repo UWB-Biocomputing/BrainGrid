@@ -6,7 +6,7 @@
 //! An interface for recording spikes history
 
 /**
- ** \class IRecorder.h IRecorder.h "IRecorder.h"
+ ** \class IRecorder IRecorder.h "IRecorder.h"
  **
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly

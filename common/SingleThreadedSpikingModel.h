@@ -1,7 +1,7 @@
 /**
  * @brief A leaky-integrate-and-fire (I&F) neural network model.
  *
- * @class  SingleThreadedSpikingModel.h "SingleThreadedSpikingModel.h"
+ * @class  SingleThreadedSpikingModel SingleThreadedSpikingModel.h "SingleThreadedSpikingModel.h"
  *
  * Implements both neuron and synapse behaviour.
  *

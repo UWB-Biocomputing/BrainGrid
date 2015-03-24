@@ -6,7 +6,7 @@
 //! An implementation for recording spikes history on hdf5 file
 
 /**
- ** \class Hdf5Recorder.h Hdf5Recorder.h "Hdf5Recorder.h"
+ ** @class Hdf5Recorder Hdf5Recorder.h "Hdf5Recorder.h"
  **
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly

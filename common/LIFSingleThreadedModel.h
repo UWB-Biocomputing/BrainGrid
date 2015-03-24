@@ -1,7 +1,7 @@
 /**
  * @brief A leaky-integrate-and-fire (I&F) neural network model.
  *
- * @class  LIFSingleThreadedModel.h "LIFSingleThreadedModel.h"
+ * @class  LIFSingleThreadedModel LIFSingleThreadedModel.h "LIFSingleThreadedModel.h"
  *
  * Implements both neuron and synapse behaviour.
  *

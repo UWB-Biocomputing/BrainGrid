@@ -6,7 +6,7 @@
 //! An implementation for recording spikes history on xml file
 
 /**
- ** \class XmlRecorder.h XmlRecorder.h "XmlRecorder.h"
+ ** \class XmlRecorder XmlRecorder.h "XmlRecorder.h"
  **
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
