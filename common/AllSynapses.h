@@ -58,10 +58,10 @@ class AllSynapses
         virtual void setupSynapses(SimulationInfo *sim_info);
         virtual void cleanupSynapses();
         virtual void readSynapses(istream& input, AllNeurons &neurons, const SimulationInfo *sim_info) = 0;
-        virtual void resetSynapse(const int neuron_index, const int synapse_index, const BGFLOAT deltaT) = 0;
+        virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT) = 0;
         virtual void writeSynapses(ostream& output, const SimulationInfo *sim_info) = 0;
-        void initSpikeQueue(const int neuron_index, const int synapse_index);
-        virtual void createSynapse(const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
+        void initSpikeQueue(const uint32_t iSyn);
+        virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
  
         /*! The coordinates of the summation point.
          *  
@@ -77,7 +77,7 @@ class AllSynapses
          *  - GpuSim_Struct::updateNetworkDevice() --- Accessed
          *  - GpuSim_Struct::createSynapse() --- Initialized
          */
-        Coordinate **summationCoord;
+        Coordinate *summationCoord;
 
         /*! The weight (scaling factor, strength, maximal amplitude) of the synapse.
          *  
@@ -93,7 +93,7 @@ class AllSynapses
          *  - GpuSim_Struct::addSynapse() --- Modified
          *  - GpuSim_Struct::createSynapse() --- Initialized
          */
-         BGFLOAT **W;
+         BGFLOAT *W;
 
         /*! This synapse's summation point's address.
          *  
@@ -108,7 +108,7 @@ class AllSynapses
          *  - GpuSim_Struct::eraseSynapse() --- Modified (= NULL)
          *  - GpuSim_Struct::createSynapse() --- Initialized
          */
-        BGFLOAT ***summationPoint;
+        BGFLOAT **summationPoint;
 
         /*! The location of the synapse.
          *  
@@ -118,7 +118,7 @@ class AllSynapses
          *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
          *  - GpuSim_Struct::createSynapse() --- Initialized
          */
-        Coordinate **synapseCoord;
+        Coordinate *synapseCoord;
 
     	/*! Synapse type
          *  
@@ -128,7 +128,7 @@ class AllSynapses
          *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
          *  - GpuSim_Struct::createSynapse() --- Initialized
          */
-        synapseType **type;
+        synapseType *type;
 
         /*! The time of the last spike.
          *  
@@ -140,7 +140,7 @@ class AllSynapses
          *  - GpuSim_Struct::createSynapse() --- Initialized
      	 *  - GpuSim_Struct::advanceSynapseDevice() --- Accessed & Modified  
          */
-        uint64_t **lastSpike;
+        uint64_t *lastSpike;
 
         /*! The post-synaptic response is the result of whatever computation 
          *  is going on in the synapse.
@@ -154,7 +154,7 @@ class AllSynapses
          *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          *  - GpuSim_Struct::calcSummationMap() --- Accessed
          */
-        BGFLOAT **psr;
+        BGFLOAT *psr;
 
         /*! The decay for the psr.
          *  
@@ -166,7 +166,7 @@ class AllSynapses
          *  - GpuSim_Struct::createSynapse() --- Modified
          *  - GpuSim_Struct::advanceSynapsesDevice() --- Accessed
          */
-        BGFLOAT **decay;
+        BGFLOAT *decay;
 
         /*! The synaptic time constant \f$\tau\f$ [units=sec; range=(0,100)].
          *  
@@ -177,7 +177,7 @@ class AllSynapses
          *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
          *  - GpuSim_Struct::createSynapse() --- Initialized
          */
-        BGFLOAT **tau;
+        BGFLOAT *tau;
 
         /*! The synaptic transmission delay, descretized into time steps.
          *  
@@ -190,7 +190,7 @@ class AllSynapses
          *  - GpuSim_Struct::createSynapse() --- Initialized
          *  - GpuSim_Struct::advanceNeuronsDevice() --- Accessed
          */
-        int **total_delay;
+        int *total_delay;
 
 #define BYTES_OF_DELAYQUEUE         ( sizeof(uint32_t) / sizeof(uint8_t) )
 #define LENGTH_OF_DELAYQUEUE        ( BYTES_OF_DELAYQUEUE * 8 )
@@ -206,7 +206,7 @@ class AllSynapses
          *  - GpuSim_Struct::advanceNeuronsDevice() --- Accessed
          *  - GpuSim_Struct::advanceSynapseDevice() --- Accessed
          */
-        uint32_t ***delayQueue;
+        uint32_t *delayQueue;
 
         /*! The index indicating the current time slot in the delayed queue
          *  
@@ -225,7 +225,7 @@ class AllSynapses
          *  if it is actually from a synapse. Will need a little help here. -Aaron
          *  Note: This variable can be GLOBAL VARIABLE, but need to modify the code.
          */
-        int **delayIdx;
+        int *delayIdx;
 
         /*! Length of the delayed queue
          *  
@@ -240,7 +240,7 @@ class AllSynapses
          *  - GpuSim_Struct::advanceSynapsesDevice() --- Accessed
          *  - GpuSim_Struct::createSynapse() --- Initialzied
          */
-        int **ldelayQueue;
+        int *ldelayQueue;
 
     	/*! The boolean value indicating the entry in the array is in use.
          *  
@@ -262,7 +262,7 @@ class AllSynapses
          *  - GpuSim_Struct::addSynapse() --- Accessed
          *  - GpuSim_Struct::createSynapse() --- Modified
          */
-        bool **in_use;
+        bool *in_use;
 
         /*! The number of synapses for each neuron.
          *  
@@ -305,7 +305,7 @@ class AllSynapses
          *  - GpuSim_Struct::addSynapse --- Accessed
          *  - GpuSim_Struct::createSynapse --- Accessed
          */
-        size_t max_synapses;
+        size_t maxSynapsesPerNeuron;
 
     protected:
         /*! The number of neurons

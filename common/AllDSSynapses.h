@@ -52,9 +52,9 @@ class AllDSSynapses : public AllSynapses
         virtual void setupSynapses(const int num_neurons, const int max_synapses);
         virtual void cleanupSynapses();
         virtual void readSynapses(istream& input, AllNeurons &neurons, const SimulationInfo *sim_info);
-        virtual void resetSynapse(const int neuron_index, const int synapse_index, const BGFLOAT deltaT);
+        virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT);
         virtual void writeSynapses(ostream& output, const SimulationInfo *sim_info);
-        virtual void createSynapse(const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
+        virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
 
         // TODO
         static const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT;
@@ -70,7 +70,7 @@ class AllDSSynapses : public AllSynapses
          *  - GpuSim_Struct::createSynapse() --- Initialized
     	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
-        BGFLOAT **r;
+        BGFLOAT *r;
         
         /*! The time varying state variable \f$u\f$ for facilitation.
          *  
@@ -82,7 +82,7 @@ class AllDSSynapses : public AllSynapses
          *  - GpuSim_Struct::createSynapse() --- Initialized
     	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
-        BGFLOAT **u;
+        BGFLOAT *u;
         
         /*! The time constant of the depression of the dynamic synapse [range=(0,10); units=sec].
          *  
@@ -94,7 +94,7 @@ class AllDSSynapses : public AllSynapses
          *  - GpuSim_Struct::createSynapse() --- Initialized
     	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
-        BGFLOAT **D;
+        BGFLOAT *D;
         
         /*! The use parameter of the dynamic synapse [range=(1e-5,1)].
          *  
@@ -106,7 +106,7 @@ class AllDSSynapses : public AllSynapses
          *  - GpuSim_Struct::createSynapse() --- Initialized
     	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
-        BGFLOAT **U;
+        BGFLOAT *U;
         
         /*! The time constant of the facilitation of the dynamic synapse [range=(0,10); units=sec].
          *  
@@ -118,11 +118,11 @@ class AllDSSynapses : public AllSynapses
          *  - GpuSim_Struct::createSynapse() --- Initialized
     	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
-        BGFLOAT **F;
+        BGFLOAT *F;
 
     private:
-        void readSynapse(istream &input, const int neuron_index, const int synapse_index, const BGFLOAT deltaT);
+        void readSynapse(istream &input, const uint32_t iSyn, const BGFLOAT deltaT);
         synapseType synapseOrdinalToType(const int type_ordinal);
-        bool updateDecay(const int neuron_index, const int synapse_index, const BGFLOAT deltaT);
-        void writeSynapse(ostream& output, const int neuron_index, const int synapse_index) const;
+        bool updateDecay(const uint32_t iSyn, const BGFLOAT deltaT);
+        void writeSynapse(ostream& output, const uint32_t iSyn) const;
 };

@@ -31,36 +31,22 @@ void AllDSSynapses::setupSynapses(const int num_neurons, const int max_synapses)
 {
     AllSynapses::setupSynapses(num_neurons, max_synapses);
 
-    r = new BGFLOAT*[num_neurons];
-    u = new BGFLOAT*[num_neurons];
-    D = new BGFLOAT*[num_neurons];
-    U = new BGFLOAT*[num_neurons];
-    F = new BGFLOAT*[num_neurons];
+    uint32_t max_total_synapses = max_synapses * num_neurons;
 
-    if (max_synapses != 0) {
-        for (int i = 0; i < num_neurons; i++) {
-            r[i] = new BGFLOAT[max_synapses];
-            u[i] = new BGFLOAT[max_synapses];
-            D[i] = new BGFLOAT[max_synapses];
-            U[i] = new BGFLOAT[max_synapses];
-            F[i] = new BGFLOAT[max_synapses];
-        }
+    if (max_total_synapses != 0) {
+        r = new BGFLOAT[max_total_synapses];
+        u = new BGFLOAT[max_total_synapses];
+        D = new BGFLOAT[max_total_synapses];
+        U = new BGFLOAT[max_total_synapses];
+        F = new BGFLOAT[max_total_synapses];
     }
 }
 
 void AllDSSynapses::cleanupSynapses()
 {
-    if (count_neurons != 0) {
-        if (max_synapses != 0) {
-            for (int i = 0; i < count_neurons; i++) {
-                delete[] r[i];
-                delete[] u[i];
-                delete[] D[i];
-                delete[] U[i];
-                delete[] F[i];
-            }
-        }
+    uint32_t max_total_synapses = maxSynapsesPerNeuron * count_neurons;
 
+    if (max_total_synapses != 0) {
         delete[] r;
         delete[] u;
         delete[] D;
@@ -95,15 +81,16 @@ void AllDSSynapses::readSynapses(istream& input, AllNeurons &neurons, const Simu
                 input >> synapseCoord_coord.y; input.ignore();
 
                 int neuron_index = synapseCoord_coord.x + synapseCoord_coord.y * sim_info->width;
-                int synapses_index = read_synapses_counts[neuron_index];
+                int synapse_index = read_synapses_counts[neuron_index];
+                uint32_t iSyn = maxSynapsesPerNeuron * neuron_index + synapse_index;
 
-                synapseCoord[neuron_index][synapses_index] = synapseCoord_coord;
+                synapseCoord[iSyn] = synapseCoord_coord;
 
-                readSynapse(input, neuron_index, synapses_index, sim_info->deltaT);
+                readSynapse(input, iSyn, sim_info->deltaT);
 
-                summationPoint[neuron_index][synapses_index] =
-                                &(neurons.summation_map[summationCoord[neuron_index][synapses_index].x
-                                + summationCoord[neuron_index][synapses_index].y * sim_info->width]);
+                summationPoint[iSyn] =
+                                &(neurons.summation_map[summationCoord[iSyn].x
+                                + summationCoord[iSyn].y * sim_info->width]);
 
                 read_synapses_counts[neuron_index]++;
         }
@@ -117,35 +104,34 @@ void AllDSSynapses::readSynapses(istream& input, AllNeurons &neurons, const Simu
 /*
  *  Sets the data for Synapse #synapse_index from Neuron #neuron_index.
  *  @param  input   istream to read from.
- *  @param  neuron_index    index of the neuron that the synapse belongs to.
- *  @param  synapse_index   index of the synapse to set.
+ *  @param  iSyn   index of the synapse to set.
  *  @param  deltaT          inner simulation step duration.
  */
-void AllDSSynapses::readSynapse(istream &input, const int neuron_index, const int synapse_index, const BGFLOAT deltaT)
+void AllDSSynapses::readSynapse(istream &input, const uint32_t iSyn, const BGFLOAT deltaT)
 {
     int synapse_type(0);
 
     // input.ignore() so input skips over end-of-line characters.
-    input >> summationCoord[neuron_index][synapse_index].x; input.ignore();
-    input >> summationCoord[neuron_index][synapse_index].y; input.ignore();
-    input >> W[neuron_index][synapse_index]; input.ignore();
-    input >> psr[neuron_index][synapse_index]; input.ignore();
-    input >> decay[neuron_index][synapse_index]; input.ignore();
-    input >> total_delay[neuron_index][synapse_index]; input.ignore();
-    input >> delayQueue[neuron_index][synapse_index][0]; input.ignore();
-    input >> delayIdx[neuron_index][synapse_index]; input.ignore();
-    input >> ldelayQueue[neuron_index][synapse_index]; input.ignore();
+    input >> summationCoord[iSyn].x; input.ignore();
+    input >> summationCoord[iSyn].y; input.ignore();
+    input >> W[iSyn]; input.ignore();
+    input >> psr[iSyn]; input.ignore();
+    input >> decay[iSyn]; input.ignore();
+    input >> total_delay[iSyn]; input.ignore();
+    input >> delayQueue[iSyn]; input.ignore();
+    input >> delayIdx[iSyn]; input.ignore();
+    input >> ldelayQueue[iSyn]; input.ignore();
     input >> synapse_type; input.ignore();
-    input >> tau[neuron_index][synapse_index]; input.ignore();
-    input >> r[neuron_index][synapse_index]; input.ignore();
-    input >> u[neuron_index][synapse_index]; input.ignore();
-    input >> D[neuron_index][synapse_index]; input.ignore();
-    input >> U[neuron_index][synapse_index]; input.ignore();
-    input >> F[neuron_index][synapse_index]; input.ignore();
-    input >> lastSpike[neuron_index][synapse_index]; input.ignore();
-    input >> in_use[neuron_index][synapse_index]; input.ignore();
+    input >> tau[iSyn]; input.ignore();
+    input >> r[iSyn]; input.ignore();
+    input >> u[iSyn]; input.ignore();
+    input >> D[iSyn]; input.ignore();
+    input >> U[iSyn]; input.ignore();
+    input >> F[iSyn]; input.ignore();
+    input >> lastSpike[iSyn]; input.ignore();
+    input >> in_use[iSyn]; input.ignore();
 
-    type[neuron_index][synapse_index] = synapseOrdinalToType(synapse_type);
+    type[iSyn] = synapseOrdinalToType(synapse_type);
 }
 
 void AllDSSynapses::writeSynapses(ostream& output, const SimulationInfo *sim_info)
@@ -159,7 +145,8 @@ void AllDSSynapses::writeSynapses(ostream& output, const SimulationInfo *sim_inf
 
     for (int neuron_index = 0; neuron_index < sim_info->totalNeurons; neuron_index++) {
         for (size_t synapse_index = 0; synapse_index < synapse_counts[neuron_index]; synapse_index++) {
-            writeSynapse(output, neuron_index, synapse_index);
+            uint32_t iSyn = maxSynapsesPerNeuron * neuron_index + synapse_index;
+            writeSynapse(output, iSyn);
         }
     }
 }
@@ -167,31 +154,30 @@ void AllDSSynapses::writeSynapses(ostream& output, const SimulationInfo *sim_inf
 /**
  *  Write the synapse data to the stream.
  *  @param  output  stream to print out to.
- *  @param  neuron_index    index of the neuron that the synapse belongs to.
- *  @param  synapse_index   index of the synapse to print out.
+ *  @param  iSyn   index of the synapse to print out.
  */
-void AllDSSynapses::writeSynapse(ostream& output, const int neuron_index, const int synapse_index) const 
+void AllDSSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const 
 {
-    output << synapseCoord[neuron_index][synapse_index].x << ends;
-    output << synapseCoord[neuron_index][synapse_index].y << ends;
-    output << summationCoord[neuron_index][synapse_index].x << ends;
-    output << summationCoord[neuron_index][synapse_index].y << ends;
-    output << W[neuron_index][synapse_index] << ends;
-    output << psr[neuron_index][synapse_index] << ends;
-    output << decay[neuron_index][synapse_index] << ends;
-    output << total_delay[neuron_index][synapse_index] << ends;
-    output << delayQueue[neuron_index][synapse_index][0] << ends;
-    output << delayIdx[neuron_index][synapse_index] << ends;
-    output << ldelayQueue[neuron_index][synapse_index] << ends;
-    output << type[neuron_index][synapse_index] << ends;
-    output << tau[neuron_index][synapse_index] << ends;
-    output << r[neuron_index][synapse_index] << ends;
-    output << u[neuron_index][synapse_index] << ends;
-    output << D[neuron_index][synapse_index] << ends;
-    output << U[neuron_index][synapse_index] << ends;
-    output << F[neuron_index][synapse_index] << ends;
-    output << lastSpike[neuron_index][synapse_index] << ends;
-    output << in_use[neuron_index][synapse_index] << ends;
+    output << synapseCoord[iSyn].x << ends;
+    output << synapseCoord[iSyn].y << ends;
+    output << summationCoord[iSyn].x << ends;
+    output << summationCoord[iSyn].y << ends;
+    output << W[iSyn] << ends;
+    output << psr[iSyn] << ends;
+    output << decay[iSyn] << ends;
+    output << total_delay[iSyn] << ends;
+    output << delayQueue[iSyn] << ends;
+    output << delayIdx[iSyn] << ends;
+    output << ldelayQueue[iSyn] << ends;
+    output << type[iSyn] << ends;
+    output << tau[iSyn] << ends;
+    output << r[iSyn] << ends;
+    output << u[iSyn] << ends;
+    output << D[iSyn] << ends;
+    output << U[iSyn] << ends;
+    output << F[iSyn] << ends;
+    output << lastSpike[iSyn] << ends;
+    output << in_use[iSyn] << ends;
 }
 
 /**     
@@ -217,29 +203,27 @@ synapseType AllDSSynapses::synapseOrdinalToType(const int type_ordinal)
 
 /**
  *  Reset time varying state vars and recompute decay.
- *  @param  neuron_index    index of the neuron that the synapse belongs to.
- *  @param  synapse_index   index of the synapse to set.
+ *  @param  iSyn   index of the synapse to set.
  *  @param  deltaT          inner simulation step duration
  */
-void AllDSSynapses::resetSynapse(const int neuron_index, const int synapse_index, const BGFLOAT deltaT)
+void AllDSSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
 {
-        psr[neuron_index][synapse_index] = 0.0;
-        assert( updateDecay(neuron_index, synapse_index, deltaT) );
-        u[neuron_index][synapse_index] = DEFAULT_U;
-        r[neuron_index][synapse_index] = 1.0;
-        lastSpike[neuron_index][synapse_index] = ULONG_MAX;
+        psr[iSyn] = 0.0;
+        assert( updateDecay(iSyn, deltaT) );
+        u[iSyn] = DEFAULT_U;
+        r[iSyn] = 1.0;
+        lastSpike[iSyn] = ULONG_MAX;
 }
 
 /**
  *  Updates the decay if the synapse selected.
- *  @param  neuron_index    index of the neuron that the synapse belongs to.
- *  @param  synapse_index   index of the synapse to set.
+ *  @param  iSyn   index of the synapse to set.
  *  @param  deltaT  inner simulation step duration
  */
-bool AllDSSynapses::updateDecay(const int neuron_index, const int synapse_index, const BGFLOAT deltaT)
+bool AllDSSynapses::updateDecay(const uint32_t iSyn, const BGFLOAT deltaT)
 {
-        BGFLOAT &tau = this->tau[neuron_index][synapse_index];
-        BGFLOAT &decay = this->decay[neuron_index][synapse_index];
+        BGFLOAT &tau = this->tau[iSyn];
+        BGFLOAT &decay = this->decay[iSyn];
 
         if (tau > 0) {
                 decay = exp( -deltaT / tau );
@@ -251,26 +235,25 @@ bool AllDSSynapses::updateDecay(const int neuron_index, const int synapse_index,
 /**
  *  Create a Synapse and connect it to the model.
  *  @param  synapses    the Neuron list to reference.
- *  @param  neuron_index    TODO 
- *  @param  synapse_index   TODO
+ *  @param  iSyn   TODO
  *  @param  source  coordinates of the source Neuron.
  *  @param  dest    coordinates of the destination Neuron.
  *  @param  sum_point   TODO
  *  @param  deltaT  TODO
  *  @param  type    type of the Synapse to create.
  */
-void AllDSSynapses::createSynapse(const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+void AllDSSynapses::createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
 
-    in_use[neuron_index][synapse_index] = true;
-    summationPoint[neuron_index][synapse_index] = sum_point;
-    summationCoord[neuron_index][synapse_index] = dest;
-    synapseCoord[neuron_index][synapse_index] = source;
-    W[neuron_index][synapse_index] = 10.0e-9;
-    this->type[neuron_index][synapse_index] = type;
-    U[neuron_index][synapse_index] = DEFAULT_U;
-    tau[neuron_index][synapse_index] = DEFAULT_tau;
+    in_use[iSyn] = true;
+    summationPoint[iSyn] = sum_point;
+    summationCoord[iSyn] = dest;
+    synapseCoord[iSyn] = source;
+    W[iSyn] = 10.0e-9;
+    this->type[iSyn] = type;
+    U[iSyn] = DEFAULT_U;
+    tau[iSyn] = DEFAULT_tau;
 
     BGFLOAT U;
     BGFLOAT D;
@@ -310,16 +293,16 @@ void AllDSSynapses::createSynapse(const int neuron_index, const int synapse_inde
             break;
     }
 
-    this->U[neuron_index][synapse_index] = U;
-    this->D[neuron_index][synapse_index] = D;
-    this->F[neuron_index][synapse_index] = F;
+    this->U[iSyn] = U;
+    this->D[iSyn] = D;
+    this->F[iSyn] = F;
 
-    this->tau[neuron_index][synapse_index] = tau;
-    total_delay[neuron_index][synapse_index] = static_cast<int>( delay / deltaT ) + 1;
+    this->tau[iSyn] = tau;
+    total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
     // initializes the queues for the Synapses
-    initSpikeQueue(neuron_index, synapse_index);
+    initSpikeQueue(iSyn);
     // reset time varying state vars and recompute decay
-    resetSynapse(neuron_index, synapse_index, deltaT);
+    resetSynapse(iSyn, deltaT);
 }
 

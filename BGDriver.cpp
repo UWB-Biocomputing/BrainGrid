@@ -85,8 +85,8 @@ int main(int argc, char* argv[]) {
     #elif defined(USE_OMP)
 	 model = new LIFSingleThreadedModel(new Connections(), new AllIFNeurons(), new AllDSSynapses(), new Layout());
     #else
-	 model = new IZHSingleThreadedModel(new Connections(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
-	 //model = new LIFSingleThreadedModel(new Connections(), new AllIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new IZHSingleThreadedModel(new Connections(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
+	 model = new LIFSingleThreadedModel(new Connections(), new AllIFNeurons(), new AllDSSynapses(), new Layout());
     #endif
     
     DEBUG(cout << "reading parameters from xml file" << endl;)

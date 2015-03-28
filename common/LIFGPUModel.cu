@@ -34,27 +34,27 @@ cudaEvent_t start, stop;
 #endif // PERFORMANCE_METRICS
 
 //! Perform updating neurons for one time step.
-__global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice );
+__global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice );
 
 //! Perform updating synapses for one time step.
-__global__ void advanceSynapsesDevice ( int total_synapse_counts, LIFGPUModel::SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSynapsesDevice* allSynapsesDevice );
+__global__ void advanceSynapsesDevice ( int total_synapse_counts, LIFGPUModel::SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice );
 
-__global__ void setSynapseSummationPointDevice(int num_neurons, AllIFNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice, int max_synapses, int width);
+__global__ void setSynapseSummationPointDevice(int num_neurons, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, int max_synapses, int width);
 
 //! Calculate summation point.
-__global__ void calcSummationMap( int totalNeurons, LIFGPUModel::SynapseIndexMap* synapseIndexMapDevice, AllSynapsesDevice* allSynapsesDevice );
+__global__ void calcSummationMap( int totalNeurons, LIFGPUModel::SynapseIndexMap* synapseIndexMapDevice, AllDSSynapses* allSynapsesDevice );
 
 //! Update the network.
-__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllIFNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice );
+__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice );
 
 //! Add a synapse to the network.
-__device__ void addSynapse( AllSynapsesDevice* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons );
+__device__ void addSynapse( AllDSSynapses* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons );
 
 //! Create a synapse.
-__device__ void createSynapse( AllSynapsesDevice* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type );
+__device__ void createSynapse( AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type );
 
 //! Remove a synapse from the network.
-__device__ void eraseSynapse( AllSynapsesDevice* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses );
+__device__ void eraseSynapse( AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses );
 
 //! Get the type of synapse.
 __device__ synapseType synType( AllIFNeurons* allNeuronsDevice, const int src_neuron, const int dest_neuron );
@@ -358,9 +358,9 @@ void LIFGPUModel::copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIndexM
  */
 void LIFGPUModel::copyDeviceSynapseCountsToHost(AllSynapses &allSynapsesHost, int neuron_count)
 {
-	AllSynapsesDevice allSynapses;
+	AllDSSynapses allSynapses;
 
-	HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSynapsesDevice ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllDSSynapses ), cudaMemcpyDeviceToHost ) );
 	HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.synapse_counts, allSynapses.synapse_counts, neuron_count * sizeof( size_t ), cudaMemcpyDeviceToHost ) );
 }
 
@@ -372,21 +372,13 @@ void LIFGPUModel::copyDeviceSynapseCountsToHost(AllSynapses &allSynapsesHost, in
  */
 void LIFGPUModel::copyDeviceSynapseSumCoordToHost(AllSynapses &allSynapsesHost, int neuron_count, int max_synapses)
 {
-	AllSynapsesDevice allSynapses_0;
-	AllSynapsesDevice allSynapses_1(neuron_count, max_synapses);
+	AllDSSynapses allSynapses_0;
 
-        HANDLE_ERROR( cudaMemcpy ( &allSynapses_0, allSynapsesDevice, sizeof( AllSynapsesDevice ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( allSynapses_1.summationCoord, allSynapses_0.summationCoord,
+        HANDLE_ERROR( cudaMemcpy ( &allSynapses_0, allSynapsesDevice, sizeof( AllDSSynapses ), cudaMemcpyDeviceToHost ) );
+        HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.summationCoord, allSynapses_0.summationCoord,
                 max_synapses * neuron_count * sizeof( Coordinate ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( allSynapses_1.in_use, allSynapses_0.in_use,
+        HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.in_use, allSynapses_0.in_use,
                 max_synapses * neuron_count * sizeof( bool ), cudaMemcpyDeviceToHost ) );
-
-	for (int i = 0; i < neuron_count; i++) {
-		memcpy ( allSynapsesHost.summationCoord[i], &allSynapses_1.summationCoord[max_synapses * i],
-                        max_synapses * sizeof( Coordinate ) );
-		memcpy ( allSynapsesHost.in_use[i], &allSynapses_1.in_use[max_synapses * i],
-                        max_synapses * sizeof( bool ) );
-	}
 }
 
 /**
@@ -403,7 +395,7 @@ void LIFGPUModel::createSynapseImap(AllSynapses &synapses, const SimulationInfo*
 	// count the total synapses
         for ( int i = 0; i < neuron_count; i++ )
         {
-                assert( synapses.synapse_counts[i] < synapses.max_synapses );
+                assert( synapses.synapse_counts[i] < synapses.maxSynapsesPerNeuron );
                 total_synapse_counts += synapses.synapse_counts[i];
         }
 
@@ -424,12 +416,13 @@ void LIFGPUModel::createSynapseImap(AllSynapses &synapses, const SimulationInfo*
 	SynapseIndexMap synapseIndexMap(neuron_count, total_synapse_counts);
         for (int i = 0; i < neuron_count; i++)
         {
-                for ( int j = 0; j < synapses.max_synapses; j++, syn_i++ )
+                for ( int j = 0; j < synapses.maxSynapsesPerNeuron; j++, syn_i++ )
                 {
-                        if ( synapses.in_use[i][j] == true )
+                        uint32_t iSyn = synapses.maxSynapsesPerNeuron * i + j;
+                        if ( synapses.in_use[iSyn] == true )
                         {
-                                int idx = synapses.summationCoord[i][j].x
-                                        + synapses.summationCoord[i][j].y * width;
+                                int idx = synapses.summationCoord[iSyn].x
+                                        + synapses.summationCoord[iSyn].y * width;
                                 rgSynapseSynapseIndexMap[idx].push_back(syn_i);
 
 				synapseIndexMap.activeSynapseIndex[n_inUse] = syn_i;
@@ -588,7 +581,7 @@ void LIFGPUModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllS
 * @param[in] allNeuronsDevice	Pointer to Neuron structures in device memory.
 * @param[in] allSynapsesDevice	Pointer to Synapse structures in device memory.
 */
-__global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice ) {
+__global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice ) {
 	// determine which neuron this thread is processing
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	if ( idx >= totalNeurons )
@@ -663,7 +656,7 @@ __global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep,
 * @param[in] deltaT			Inner simulation step duration.
 * @param[in] allSynapsesDevice	Pointer to Synapse structures in device memory.
 */
-__global__ void advanceSynapsesDevice ( int total_synapse_counts, LIFGPUModel::SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSynapsesDevice* allSynapsesDevice ) {
+__global__ void advanceSynapsesDevice ( int total_synapse_counts, LIFGPUModel::SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice ) {
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	if ( idx >= total_synapse_counts )
 		return;
@@ -717,7 +710,7 @@ __global__ void advanceSynapsesDevice ( int total_synapse_counts, LIFGPUModel::S
  * @param[in] max_synapses       Maximum number of synapses per neuron.
  * @param[in] width              Width of neuron map (assumes square).
  */
-__global__ void setSynapseSummationPointDevice(int num_neurons, AllIFNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice, int max_synapses, int width)
+__global__ void setSynapseSummationPointDevice(int num_neurons, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, int max_synapses, int width)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= num_neurons )
@@ -740,7 +733,7 @@ __global__ void setSynapseSummationPointDevice(int num_neurons, AllIFNeurons* al
 * @param[in] synapseIndexMap	Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
 * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
 */
-__global__ void calcSummationMap( int totalNeurons, LIFGPUModel::SynapseIndexMap* synapseIndexMapDevice, AllSynapsesDevice* allSynapsesDevice ) {
+__global__ void calcSummationMap( int totalNeurons, LIFGPUModel::SynapseIndexMap* synapseIndexMapDevice, AllDSSynapses* allSynapsesDevice ) {
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	if ( idx >= totalNeurons )
 		return;
@@ -771,7 +764,7 @@ __global__ void calcSummationMap( int totalNeurons, LIFGPUModel::SynapseIndexMap
 * @param[in] allNeuronsDevice          Pointer to the Neuron structures in device memory.
 * @param[in] allSynapsesDevice         Pointer to the Synapse structures in device memory.
 */
-__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllIFNeurons* allNeuronsDevice, AllSynapsesDevice* allSynapsesDevice )
+__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= num_neurons )
@@ -849,7 +842,7 @@ __global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT,
 * @param synapse_index	Index of a synapse.
 * @param[in] maxSynapses	Maximum number of synapses per neuron.
 */
-__device__ void eraseSynapse( AllSynapsesDevice* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses )
+__device__ void eraseSynapse( AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses )
 {
     uint32_t iSync = maxSynapses * neuron_index + synapse_index;
     allSynapsesDevice->synapse_counts[neuron_index]--;
@@ -873,15 +866,15 @@ __device__ void eraseSynapse( AllSynapsesDevice* allSynapsesDevice, const int ne
 * @param W_d			Array of synapse weight.
 * @param num_neurons		The number of neurons.
 */
-__device__ void addSynapse(AllSynapsesDevice* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons)
+__device__ void addSynapse(AllDSSynapses* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons)
 {
-    if (allSynapsesDevice->synapse_counts[src_neuron] >= allSynapsesDevice->max_synapses) {
+    if (allSynapsesDevice->synapse_counts[src_neuron] >= allSynapsesDevice->maxSynapsesPerNeuron) {
         return; // TODO: ERROR!
     }
 
     // add it to the list
     size_t synapse_index;
-    size_t max_synapses = allSynapsesDevice->max_synapses;
+    size_t max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
     uint32_t iSync = max_synapses * src_neuron;
     for (synapse_index = 0; synapse_index < max_synapses; synapse_index++) {
         if (!allSynapsesDevice->in_use[iSync + synapse_index]) {
@@ -909,10 +902,10 @@ __device__ void addSynapse(AllSynapsesDevice* allSynapsesDevice, synapseType typ
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-__device__ void createSynapse(AllSynapsesDevice* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+__device__ void createSynapse(AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
-    size_t max_synapses = allSynapsesDevice->max_synapses;
+    size_t max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
     uint32_t iSyn = max_synapses * neuron_index + synapse_index;
 
     allSynapsesDevice->in_use[iSyn] = true;

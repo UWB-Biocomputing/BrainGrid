@@ -89,10 +89,10 @@ public:
 	*/
 
 	// TODO
-	void preSpikeHit(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+	void preSpikeHit(AllSynapses &synapses,  const uint32_t iSyn);
 
 	// Helper for #advanceSynapses. Updates state of a single synapse.
-	void advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT);
+	void advanceSynapse(AllSynapses &synapses, const uint32_t iSyn, const BGFLOAT deltaT);
 
 protected:
 	// Initiates a firing of a neuron to connected neurons
@@ -111,7 +111,7 @@ private:
 	void advanceSynapses(const int num_neurons, AllSynapses &synapses, const BGFLOAT deltaT);
 
 	// TODO
-	bool isSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+	bool isSpikeQueue(AllSynapses &synapses, const uint32_t iSyn);
 
 	// # Update Connections
 	// --------------------
@@ -120,7 +120,7 @@ private:
 	void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 
 	// TODO
-	void eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+	void eraseSynapse(AllSynapses &synapses, const int neuron_index, const uint32_t iSyn);
 	// TODO
 	void addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, const BGFLOAT deltaT);
 

@@ -77,8 +77,9 @@ void SingleThreadedSpikingModel::advanceNeurons(AllNeurons &neurons, AllSynapses
             size_t synapse_counts = synapses.synapse_counts[i];
             int synapse_notified = 0;
             for (int z = 0; synapse_notified < synapse_counts; z++) {
-                if (synapses.in_use[i][z] == true) {
-                    preSpikeHit(synapses, i, z);
+                uint32_t iSyn = sim_info->maxSynapsesPerNeuron * i + z;
+                if (synapses.in_use[iSyn] == true) {
+                    preSpikeHit(synapses, iSyn);
                     synapse_notified++;
                 }
             }
@@ -102,15 +103,14 @@ void SingleThreadedSpikingModel::advanceNeurons(AllNeurons &neurons, AllSynapses
 /**
  *  Prepares Synapse for a spike hit.
  *  @param  synapses    the Synapse list to search from.
- *  @param  neuron_index   index of the Neuron that the Synapse connects to.
- *  @param  synapse_index   index of the Synapse to update.
+ *  @param  iSyn   index of the Synapse to update.
  */
-void SingleThreadedSpikingModel::preSpikeHit(AllSynapses &synapses, const int neuron_index, const int synapse_index)
+void SingleThreadedSpikingModel::preSpikeHit(AllSynapses &synapses, const uint32_t iSyn)
 {
-    uint32_t *delay_queue = synapses.delayQueue[neuron_index][synapse_index];
-    int &delayIdx = synapses.delayIdx[neuron_index][synapse_index];
-    int &ldelayQueue = synapses.ldelayQueue[neuron_index][synapse_index];
-    int &total_delay = synapses.total_delay[neuron_index][synapse_index];
+    uint32_t &delay_queue = synapses.delayQueue[iSyn];
+    int &delayIdx = synapses.delayIdx[iSyn];
+    int &ldelayQueue = synapses.ldelayQueue[iSyn];
+    int &total_delay = synapses.total_delay[iSyn];
 
     // Add to spike queue
 
@@ -121,10 +121,8 @@ void SingleThreadedSpikingModel::preSpikeHit(AllSynapses &synapses, const int ne
     }
 
     // set a spike
-    assert( !(delay_queue[0] & (0x1 << idx)) );
-    delay_queue[0] |= (0x1 << idx);
-
-    delay_queue = NULL;
+    assert( !(delay_queue & (0x1 << idx)) );
+    delay_queue |= (0x1 << idx);
 }
 
 /**
@@ -160,7 +158,8 @@ void SingleThreadedSpikingModel::advanceSynapses(const int num_neurons, AllSynap
         int synapse_advanced = 0;
         for (int z = 0; z < synapse_counts; z++) {
             // Advance Synapse
-            advanceSynapse(synapses, i, z, deltaT);
+            uint32_t iSyn = synapses.maxSynapsesPerNeuron * i + z;
+            advanceSynapse(synapses, iSyn, deltaT);
             synapse_advanced++;
         }
     }
@@ -169,26 +168,25 @@ void SingleThreadedSpikingModel::advanceSynapses(const int num_neurons, AllSynap
 /**
  *  Advance one specific Synapse.
  *  @param  synapses    list of the Synapses to advance.
- *  @param  neuron_index    index of the Neuron that the Synapse connects to.
- *  @param  synapse_index   index of the Synapse to connect to.
+ *  @param  iSyn   index of the Synapse to connect to.
  *  @param  deltaT   inner simulation step duration
  */
-void SingleThreadedSpikingModel::advanceSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, const BGFLOAT deltaT)
+void SingleThreadedSpikingModel::advanceSynapse(AllSynapses &synapses, const uint32_t iSyn, const BGFLOAT deltaT)
 {
-    uint64_t &lastSpike = synapses.lastSpike[neuron_index][synapse_index];
+    uint64_t &lastSpike = synapses.lastSpike[iSyn];
     AllDSSynapses &DsSynapses = dynamic_cast<AllDSSynapses&>(synapses);
-    BGFLOAT &r = DsSynapses.r[neuron_index][synapse_index];
-    BGFLOAT &u = DsSynapses.u[neuron_index][synapse_index];
-    BGFLOAT &D = DsSynapses.D[neuron_index][synapse_index];
-    BGFLOAT &F = DsSynapses.F[neuron_index][synapse_index];
-    BGFLOAT &U = DsSynapses.U[neuron_index][synapse_index];
-    BGFLOAT &W = synapses.W[neuron_index][synapse_index];
-    BGFLOAT &decay = synapses.decay[neuron_index][synapse_index];
-    BGFLOAT &psr = synapses.psr[neuron_index][synapse_index];
-    BGFLOAT &summationPoint = *(synapses.summationPoint[neuron_index][synapse_index]);
+    BGFLOAT &r = DsSynapses.r[iSyn];
+    BGFLOAT &u = DsSynapses.u[iSyn];
+    BGFLOAT &D = DsSynapses.D[iSyn];
+    BGFLOAT &F = DsSynapses.F[iSyn];
+    BGFLOAT &U = DsSynapses.U[iSyn];
+    BGFLOAT &W = synapses.W[iSyn];
+    BGFLOAT &decay = synapses.decay[iSyn];
+    BGFLOAT &psr = synapses.psr[iSyn];
+    BGFLOAT &summationPoint = *(synapses.summationPoint[iSyn]);
 
     // is an input in the queue?
-    if (isSpikeQueue(synapses, neuron_index, synapse_index)) {
+    if (isSpikeQueue(synapses, iSyn)) {
         // adjust synapse parameters
         if (lastSpike != ULONG_MAX) {
             BGFLOAT isi = (g_simulationStep - lastSpike) * deltaT ;
@@ -227,22 +225,20 @@ void SingleThreadedSpikingModel::advanceSynapse(AllSynapses &synapses, const int
 /**
  *  Checks if there is an input spike in the queue.
  *  @param  synapses    list of the Synapses to advance.
- *  @param  neuron_index    index of the Neuron that the Synapse connects to.
- *  @param  synapse_index   index of the Synapse to connect to.
+ *  @param  iSyn   index of the Synapse to connect to.
  *  @return true if there is an input spike event.
  */
-bool SingleThreadedSpikingModel::isSpikeQueue(AllSynapses &synapses, const int neuron_index, const int synapse_index)
+bool SingleThreadedSpikingModel::isSpikeQueue(AllSynapses &synapses, const uint32_t iSyn)
 {
-    uint32_t *delay_queue = synapses.delayQueue[neuron_index][synapse_index];
-    int &delayIdx = synapses.delayIdx[neuron_index][synapse_index];
-    int &ldelayQueue = synapses.ldelayQueue[neuron_index][synapse_index];
+    uint32_t &delay_queue = synapses.delayQueue[iSyn];
+    int &delayIdx = synapses.delayIdx[iSyn];
+    int &ldelayQueue = synapses.ldelayQueue[iSyn];
 
-    bool r = delay_queue[0] & (0x1 << delayIdx);
-    delay_queue[0] &= ~(0x1 << delayIdx);
+    bool r = delay_queue & (0x1 << delayIdx);
+    delay_queue &= ~(0x1 << delayIdx);
     if ( ++delayIdx >= ldelayQueue ) {
         delayIdx = 0;
     }
-    delay_queue = NULL;
     return r;
 }
 
@@ -289,9 +285,10 @@ void SingleThreadedSpikingModel::updateWeights(const int num_neurons, AllNeurons
             size_t synapse_counts = synapses.synapse_counts[src_neuron];
             int synapse_adjusted = 0;
             for (size_t synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++) {
-                if (synapses.in_use[src_neuron][synapse_index] == true) {
+                uint32_t iSyn = synapses.maxSynapsesPerNeuron * src_neuron + synapse_index;
+                if (synapses.in_use[iSyn] == true) {
                     // if there is a synapse between a and b
-                    if (synapses.summationCoord[src_neuron][synapse_index] == dest_coord) {
+                    if (synapses.summationCoord[iSyn] == dest_coord) {
                         connected = true;
                         adjusted++;
 
@@ -300,16 +297,16 @@ void SingleThreadedSpikingModel::updateWeights(const int num_neurons, AllNeurons
                         // zero.
                         if ((*m_conns->W)(src_neuron, dest_neuron) < 0) {
                             removed++;
-                            eraseSynapse(synapses, src_neuron, synapse_index);
+                            eraseSynapse(synapses, src_neuron, iSyn);
                         } else {
                             // adjust
                             // g_synapseStrengthAdjustmentConstant is 1.0e-8;
-                            synapses.W[src_neuron][synapse_index] = (*m_conns->W)(src_neuron, dest_neuron) *
+                            synapses.W[iSyn] = (*m_conns->W)(src_neuron, dest_neuron) *
                                 synSign(type) * AllDSSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 
                             DEBUG_MID(cout << "weight of rgSynapseMap" <<
                                    coordToString(xa, ya)<<"[" <<synapse_index<<"]: " <<
-                                   synapses.W[src_neuron][synapse_index] << endl;);
+                                   synapses.W[iSyn] << endl;);
                         }
                     }
                     synapse_adjusted++;
@@ -339,13 +336,13 @@ void SingleThreadedSpikingModel::updateWeights(const int num_neurons, AllNeurons
  *  Remove a synapse from the network.
  *  @param  neurons the Neuron list to search from.
  *  @param  neuron_index   Index of a neuron.
- *  @param  synapse_index      Index of a synapse.
+ *  @param  iSyn      Index of a synapse.
  */
-void SingleThreadedSpikingModel::eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index)
+void SingleThreadedSpikingModel::eraseSynapse(AllSynapses &synapses, const int neuron_index, const uint32_t iSyn)
 {
     synapses.synapse_counts[neuron_index]--;
-    synapses.in_use[neuron_index][synapse_index] = false;
-    synapses.summationPoint[neuron_index][synapse_index] = NULL;
+    synapses.in_use[iSyn] = false;
+    synapses.summationPoint[iSyn] = NULL;
 }
 
 /**
@@ -361,14 +358,16 @@ void SingleThreadedSpikingModel::eraseSynapse(AllSynapses &synapses, const int n
  */
 void SingleThreadedSpikingModel::addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, const BGFLOAT deltaT)
 {
-    if (synapses.synapse_counts[src_neuron] >= synapses.max_synapses) {
+    if (synapses.synapse_counts[src_neuron] >= synapses.maxSynapsesPerNeuron) {
         return; // TODO: ERROR!
     }
 
     // add it to the list
     size_t synapse_index;
-    for (synapse_index = 0; synapse_index < synapses.max_synapses; synapse_index++) {
-        if (!synapses.in_use[src_neuron][synapse_index]) {
+    uint32_t iSyn;
+    for (synapse_index = 0; synapse_index < synapses.maxSynapsesPerNeuron; synapse_index++) {
+        iSyn = synapses.maxSynapsesPerNeuron * src_neuron + synapse_index;
+        if (!synapses.in_use[iSyn]) {
             break;
         }
     }
@@ -376,8 +375,8 @@ void SingleThreadedSpikingModel::addSynapse(AllSynapses &synapses, synapseType t
     synapses.synapse_counts[src_neuron]++;
 
     // create a synapse
-    synapses.createSynapse(src_neuron, synapse_index, source, dest, sum_point, deltaT, type );
-    synapses.W[src_neuron][synapse_index] = (*m_conns->W)(src_neuron, dest_neuron) 
+    synapses.createSynapse(iSyn, source, dest, sum_point, deltaT, type );
+    synapses.W[iSyn] = (*m_conns->W)(src_neuron, dest_neuron) 
             * synSign(type) * AllDSSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 }
 

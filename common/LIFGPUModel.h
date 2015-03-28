@@ -86,7 +86,6 @@
 #pragma once
 #include "Model.h"
 #include "AllIFNeurons.h"
-#include "AllSynapsesDevice.h"
 #include "AllDSSynapses.h"
 #ifdef __CUDACC__
 #include "Book.h"
@@ -186,10 +185,10 @@ private:
 	void copyNeuronHostToDevice( const AllIFNeurons& allNeuronsHost, int count );
 	void copyNeuronDeviceToHost( AllIFNeurons& allNeuronsHost, int count );
 
-	void allocSynapseDeviceStruct( AllSynapsesDevice*& allSynapsesDevice, int num_neurons, int max_synapses );
-	void deleteSynapseDeviceStruct( AllSynapsesDevice* allSynapsesDevice, int num_neurons, int max_synapses );
-	void copySynapseHostToDevice( AllSynapsesDevice* allSynapsesDevice, const AllDSSynapses& allSynapsesHost, int num_neurons, int max_synapses );
-	void copySynapseDeviceToHost( AllSynapsesDevice* allSynapsesDevice, AllDSSynapses& allSynapsesHost, int num_neurons, int max_synapses );
+	void allocSynapseDeviceStruct( AllDSSynapses*& allSynapsesDevice, int num_neurons, int max_synapses );
+	void deleteSynapseDeviceStruct( AllDSSynapses* allSynapsesDevice, int num_neurons, int max_synapses );
+	void copySynapseHostToDevice( AllDSSynapses* allSynapsesDevice, const AllDSSynapses& allSynapsesHost, int num_neurons, int max_synapses );
+	void copySynapseDeviceToHost( AllDSSynapses* allSynapsesDevice, AllDSSynapses& allSynapsesHost, int num_neurons, int max_synapses );
 
 	void allocSynapseImap( int count );
 	void deleteSynapseImap( );
@@ -241,7 +240,7 @@ private:
 	AllIFNeurons* allNeuronsDevice;
 
 	//! Synapse structures in device memory.
-	AllSynapsesDevice* allSynapsesDevice;
+	AllDSSynapses* allSynapsesDevice;
 
 	//! Pointer to device random noise array.
 	float* randNoise_d;

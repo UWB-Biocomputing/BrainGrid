@@ -32,7 +32,6 @@
 #define _GPUSINPUTPOISSON_H_
 
 #include "SInputPoisson.h"
-#include "AllSynapsesDevice.h"
 #include "LIFGPUModel.h"
 
 class GpuSInputPoisson : public SInputPoisson
@@ -59,7 +58,7 @@ private:
     void deleteDeviceValues( IModel* model, SimulationInfo* psi );
 
     //! Synapse structures in device memory.
-    AllSynapsesDevice* allSynapsesDevice;
+    AllDSSynapses* allSynapsesDevice;
  
     //! Pointer to synapse index map in device memory.
     LIFGPUModel::SynapseIndexMap* synapseIndexMapDevice;

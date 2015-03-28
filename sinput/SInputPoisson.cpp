@@ -139,9 +139,12 @@ void SInputPoisson::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi
             type = EI;
         else
             type = EE;
+
         BGFLOAT* sum_point = &( psi->pSummationMap[neuron_index] );
-        synapses->createSynapse(neuron_index, 0, NULL, dest, sum_point, psi->deltaT, type);
-        synapses->W[neuron_index][0] = weight * AllDSSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+        uint32_t iSyn = psi->maxSynapsesPerNeuron * neuron_index;
+
+        synapses->createSynapse(iSyn, NULL, dest, sum_point, psi->deltaT, type);
+        synapses->W[iSyn] = weight * AllDSSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
     }
 }
 
