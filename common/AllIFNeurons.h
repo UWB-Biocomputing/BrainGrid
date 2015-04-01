@@ -232,6 +232,13 @@ class AllIFNeurons : public AllSpikingNeurons
         virtual void readNeurons(istream &input, const SimulationInfo *sim_info);
         virtual void writeNeurons(ostream& output, const SimulationInfo *sim_info) const;
 
+#if defined(USE_GPU)
+        virtual void allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info );
+        virtual void deleteNeuronDeviceStruct( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info );
+#endif
+
     protected:
         void createNeuron(SimulationInfo *sim_info, int neuron_index);
         void setNeuronDefaults(const int index);

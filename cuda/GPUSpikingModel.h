@@ -15,7 +15,7 @@
 /**
  * @brief A leaky-integrate-and-fire (I&F) neural network model.
  *
- * @class LIFGPUModel LIFGPUModel.h "LIFGPUModel.h"
+ * @class GPUSpikingModel GPUSpikingModel.h "GPUSpikingModel.h"
  *
  * Implements both neuron and synapse behaviour.
  *
@@ -85,7 +85,7 @@
 
 #pragma once
 #include "Model.h"
-#include "AllIFNeurons.h"
+#include "AllSpikingNeurons.h"
 #include "AllDSSynapses.h"
 #ifdef __CUDACC__
 #include "Book.h"
@@ -114,12 +114,12 @@ inline void lapTime(float& t_event) {
 
 class GpuSInputPoisson;
 
-class LIFGPUModel : public Model  {
+class GPUSpikingModel : public Model  {
 	friend GpuSInputPoisson;
 
 public:
-	LIFGPUModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout);
-	virtual ~LIFGPUModel();
+	GPUSpikingModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout);
+	virtual ~GPUSpikingModel();
  
 	virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder);
         virtual void loadMemory(istream& input, const SimulationInfo *sim_info);
@@ -174,28 +174,31 @@ public:
 		int num_synapses;	
 	};
 
+protected:
+	void allocDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info);
+
+	virtual void advanceNeurons(const SimulationInfo *sim_info) = 0;
+	virtual void advanceSynapses(const SimulationInfo *sim_info) = 0;
+	virtual void calcSummationMap(const SimulationInfo *sim_info) = 0;
+
+	virtual void copyDeviceSpikeHistoryToHost(AllSpikingNeurons &allNeuronsHost, const SimulationInfo *sim_info) = 0;
+	virtual void copyDeviceSpikeCountsToHost(AllSpikingNeurons &allNeuronsHost, int numNeurons) = 0;
+	virtual void clearSpikeCounts(int numNeurons) = 0;
+	virtual void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info) = 0;
+	void createSynapseImap( AllSynapses &synapses, const SimulationInfo* sim_info );
+
+	//! Pointer to device random noise array.
+	float* randNoise_d;
+
+	//! Pointer to synapse index map in device memory.
+	SynapseIndexMap* synapseIndexMapDevice;
 private: 
 	/* ------------------*\
 	|* # Helper Functions
 	\* ------------------*/
-
-	void allocDeviceStruct(const SimulationInfo *sim_info, const AllIFNeurons &allNeuronsHost, AllDSSynapses &allSynapsesHost);
-	void allocNeuronDeviceStruct( int count, int max_spikes );
-	void deleteNeuronDeviceStruct( int count );
-	void copyNeuronHostToDevice( const AllIFNeurons& allNeuronsHost, int count );
-	void copyNeuronDeviceToHost( AllIFNeurons& allNeuronsHost, int count );
-
-	void allocSynapseDeviceStruct( AllDSSynapses*& allSynapsesDevice, int num_neurons, int max_synapses );
-	void deleteSynapseDeviceStruct( AllDSSynapses* allSynapsesDevice, int num_neurons, int max_synapses );
-	void copySynapseHostToDevice( AllDSSynapses* allSynapsesDevice, const AllDSSynapses& allSynapsesHost, int num_neurons, int max_synapses );
-	void copySynapseDeviceToHost( AllDSSynapses* allSynapsesDevice, AllDSSynapses& allSynapsesHost, int num_neurons, int max_synapses );
-
 	void allocSynapseImap( int count );
 	void deleteSynapseImap( );
 	void copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIndexMapHost, int neuron_count, int synapse_count);
-	void copyDeviceSynapseCountsToHost(AllSynapses &allSynapsesHost, int neuron_count);
-	void copyDeviceSynapseSumCoordToHost(AllSynapses &allSynapsesHost, int neuron_count, int max_synapses);
-	void createSynapseImap( AllSynapses &synapses, const SimulationInfo* sim_info );
 
 	// # Load Memory
 	// -------------
@@ -212,14 +215,6 @@ private:
 	// TODO
 	void updateHistory(const int currentStep, BGFLOAT epochDuration, AllNeurons &neuron, const SimulationInfo *sim_infos, IRecorder* simRecorder);
 	// TODO
-	void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
-	// TODO
-	void copyDeviceSpikeHistoryToHost(AllIFNeurons &allNeuronsHost, const SimulationInfo *sim_info);
-	//
-	void copyDeviceSpikeCountsToHost(AllIFNeurons &allNeuronsHost, int numNeurons);
-	// TODO
-	void clearSpikeCounts(int numNeurons);
-
 	// TODO
 	void eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
 	// TODO
@@ -236,15 +231,4 @@ private:
 	|  Member variables
 	\*----------------------------------------------*/
 
-	//! Neuron structure in device memory.
-	AllIFNeurons* allNeuronsDevice;
-
-	//! Synapse structures in device memory.
-	AllDSSynapses* allSynapsesDevice;
-
-	//! Pointer to device random noise array.
-	float* randNoise_d;
-
-	//! Pointer to synapse index map in device memory.
-	SynapseIndexMap* synapseIndexMapDevice;
 };

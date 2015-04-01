@@ -56,6 +56,16 @@ class AllDSSynapses : public AllSynapses
         virtual void writeSynapses(ostream& output, const SimulationInfo *sim_info);
         virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
 
+#if defined(USE_GPU)
+        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info );
+        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int max_synapses );
+        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice, const SimulationInfo *sim_info );
+        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice, int num_neurons, int max_synapses );
+        virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info );
+        virtual void copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int max_synapses );
+        virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info );
+#endif
+
         // TODO
         static const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT;
 

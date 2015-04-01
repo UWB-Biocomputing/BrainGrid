@@ -62,6 +62,16 @@ class AllSynapses
         virtual void writeSynapses(ostream& output, const SimulationInfo *sim_info) = 0;
         void initSpikeQueue(const uint32_t iSyn);
         virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
+
+#if defined(USE_GPU)
+        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
+        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int max_synapses ) = 0;
+        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
+        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice, int num_neurons, int max_synapses ) = 0;
+        virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
+        virtual void copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int max_synapses ) = 0;
+        virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
+#endif
  
         /*! The coordinates of the summation point.
          *  
@@ -71,7 +81,7 @@ class AllSynapses
          *  - LIFModel::writeSynapse() --- Accessed
          *  - SingleThreadedSpikingModel::updateWeights() --- Accessed
          *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
-         *  - LIFGPUModel::copyDeviceSynapseSumCoordToHost() --- Accessed
+         *  - GPUSpikingModel::copyDeviceSynapseSumCoordToHost() --- Accessed
          *  - GpuSim_Struct::createSynapseImap() --- Accessed
          *  - GpuSim_Struct::setSynapseSummationPointDevice() --- Accessed
          *  - GpuSim_Struct::updateNetworkDevice() --- Accessed
@@ -253,8 +263,8 @@ class AllSynapses
          *  - SingleThreadedSpikingModel::eraseSynapse() --- Modified
     	 *  - SingleThreadedSpikingModel::addSynapse() --- Accessed
     	 *  - SingleThreadedSpikingModel::createSynapse() --- Modified
-         *  - LIFGPUModel::copyDeviceSynapseSumCoordToHost() --- Accessed
-         *  - LIFGPUModel::createSynapseImap() --- Accessed
+         *  - GPUSpikingModel::copyDeviceSynapseSumCoordToHost() --- Accessed
+         *  - GPUSpikingModel::createSynapseImap() --- Accessed
          *  - GpuSim_Struct::advanceNeuronsDevice() --- Accessed
          *  - GpuSim_Struct::setSynapseSummationPointDevice() --- Accessed
          *  - GpuSim_Struct::updateNetworkDevice() --- Accessed
@@ -275,8 +285,8 @@ class AllSynapses
          *  - SingleThreadedSpikingModel::updateWeights() --- Accessed
     	 *  - SingleThreadedSpikingModel::eraseSynapse() --- Modified
     	 *  - SingleThreadedSpikingModel::addSynapse() --- Modified
-         *  - LIFGPUModel::copyDeviceSynapseCountsToHost() --- Accessed
-         *  - LIFGPUModel::createSynapseImap() --- Accessed
+         *  - GPUSpikingModel::copyDeviceSynapseCountsToHost() --- Accessed
+         *  - GPUSpikingModel::createSynapseImap() --- Accessed
          *  - GpuSim_Struct::advanceNeuronsDevice() --- Accessed
          *  - GpuSim_Struct::setSynapseSummationPointDevice() --- Accessed
          *  - GpuSim_Struct::updateNetworkDevice() --- Accessed
@@ -291,8 +301,8 @@ class AllSynapses
          *
          *  Usage: GLOBAL VARIABLE
          *  - AllSynapses::AllSynapses() --- Initialized
-         *  - LIFGPUModel::advance() --- Accessed
-         *  - LIFGPUModel::createSynapseImap() --- Modified
+         *  - GPUSpikingModel::advance() --- Accessed
+         *  - GPUSpikingModel::createSynapseImap() --- Modified
          */
         size_t total_synapse_counts;
 
@@ -301,7 +311,7 @@ class AllSynapses
          *  Usage: GLOBAL CONSTANT
          *  - AllSynapses::AllSynapses() --- Initialized
          *  - SingleThreadedSpikingModel::addSynapse() --- Accessed
-         *  - LIFGPUModel::createSynapseImap() --- Accessed
+         *  - GPUSpikingModel::createSynapseImap() --- Accessed
          *  - GpuSim_Struct::addSynapse --- Accessed
          *  - GpuSim_Struct::createSynapse --- Accessed
          */

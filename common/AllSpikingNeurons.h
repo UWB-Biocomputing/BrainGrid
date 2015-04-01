@@ -29,7 +29,7 @@ class AllSpikingNeurons : public AllNeurons
          *  - LIFModel::clearSpikeCounts() --- Modified
          *  - SingleThreadedSpikingModel::fire() --- Modified
          *  - GpuSim_struct.cu::clearSpikeCounts() --- Modified
-         *  - LIFGPUModel::copyDeviceSpikeCountsToHost() --- Accessed
+         *  - GPUSpikingModel::copyDeviceSpikeCountsToHost() --- Accessed
          *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Modified
          *  - Hdf5Recorder::compileHistories() --- Accessed
          *  - XmlRecorder::compileHistories() --- Accessed
@@ -42,7 +42,7 @@ class AllSpikingNeurons : public AllNeurons
          *  - LIFModel::createAllNeurons() --- Initialized
          *  - SingleThreadedSpikingModel::fire() --- Modified
          *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Modified
-         *  - LIFGPUModel::copyDeviceSpikeHistoryToHost() --- Accessed
+         *  - GPUSpikingModel::copyDeviceSpikeHistoryToHost() --- Accessed
          *  - Hdf5Recorder::compileHistories() --- Accessed
          *  - XmlRecorder::compileHistories() --- Accessed
          */
@@ -61,6 +61,13 @@ class AllSpikingNeurons : public AllNeurons
         virtual void readNeurons(istream &input, const SimulationInfo *sim_info) = 0;
         virtual void writeNeurons(ostream& output, const SimulationInfo *sim_info) const = 0;
         void clearSpikeCounts(const SimulationInfo *sim_info);
+
+#if defined(USE_GPU)
+        virtual void allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info ) = 0;
+        virtual void deleteNeuronDeviceStruct( void* allNeuronsDevice, const SimulationInfo *sim_info ) = 0;
+        virtual void copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info ) = 0;
+        virtual void copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info ) = 0;
+#endif
 
     private:
         void freeResources();

@@ -25,7 +25,7 @@ class AllNeurons
          *  - AllIFNeurons::AllIFNeurons() --- Initialized
          *  - LIFModel::loadMemory() --- Accessed
          *  - SingleThreadedSpikingModel::advanceNeuron() --- Accessed
-         *  - LIFGPUModel::setupSim() --- Accessed
+         *  - GPUSpikingModel::setupSim() --- Accessed
          *  - GpuSim_struct.cu::advanceNeuronsDevice() --- Accessed
          *  - GpuSim_struct.cu::setSynapseSummationPointDevice() --- Accessed
          *  - GpuSim_struct.cu::updateNetworkDevice() --- Accessed
@@ -57,6 +57,13 @@ class AllNeurons
         virtual string toString(const int i) const = 0;
         virtual void readNeurons(istream &input, const SimulationInfo *sim_info) = 0;
         virtual void writeNeurons(ostream& output, const SimulationInfo *sim_info) const = 0;
+
+#if defined(USE_GPU)
+        virtual void allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info ) = 0;
+        virtual void deleteNeuronDeviceStruct( void* allNeuronsDevice, const SimulationInfo *sim_info ) = 0;
+        virtual void copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info ) = 0;
+        virtual void copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info ) = 0;
+#endif
 
     protected:
         int size;

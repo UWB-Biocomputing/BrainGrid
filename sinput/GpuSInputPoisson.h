@@ -32,7 +32,7 @@
 #define _GPUSINPUTPOISSON_H_
 
 #include "SInputPoisson.h"
-#include "LIFGPUModel.h"
+#include "GPUSpikingModel.h"
 
 class GpuSInputPoisson : public SInputPoisson
 {
@@ -61,7 +61,7 @@ private:
     AllDSSynapses* allSynapsesDevice;
  
     //! Pointer to synapse index map in device memory.
-    LIFGPUModel::SynapseIndexMap* synapseIndexMapDevice;
+    GPUSpikingModel::SynapseIndexMap* synapseIndexMapDevice;
 
     //! Pointer to device interval counter.
     int* nISIs_d;

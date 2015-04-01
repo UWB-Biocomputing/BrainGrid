@@ -16,7 +16,7 @@ __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT
 __global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapses* allSynapsesDevice );
 __global__ void setupSeeds( int n, curandState* devStates_d, unsigned long seed );
 
-extern __global__ void advanceSynapsesDevice ( int total_synapse_counts, LIFGPUModel::SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice );
+extern __global__ void advanceSynapsesDevice ( int total_synapse_counts, GPUSpikingModel::SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice );
 extern __device__ void createSynapse(AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
 
 //! Memory to save global state for curand.
@@ -122,8 +122,8 @@ void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int
     HANDLE_ERROR( cudaMemcpy ( nISIs_d, nISIs, nISIs_d_size, cudaMemcpyHostToDevice ) );
 
     // create an input synapse layer
-    static_cast<LIFGPUModel*>(model)->allocSynapseDeviceStruct( allSynapsesDevice, neuron_count, 1 ); 
-    static_cast<LIFGPUModel*>(model)->copySynapseHostToDevice( allSynapsesDevice, *synapses, neuron_count, 1 );
+    synapses->allocSynapseDeviceStruct( (void **)&allSynapsesDevice, neuron_count, 1 ); 
+    synapses->copySynapseHostToDevice( allSynapsesDevice, neuron_count, 1 );
 
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
@@ -134,7 +134,7 @@ void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int
     HANDLE_ERROR( cudaMalloc ( &devStates_d, neuron_count * sizeof( curandState ) ) );
 
     // allocate memory for synapse index map and initialize it
-    LIFGPUModel::SynapseIndexMap synapseIndexMap;
+    GPUSpikingModel::SynapseIndexMap synapseIndexMap;
     uint32_t* activeSynapseIndex = new uint32_t[neuron_count];
 
     uint32_t syn_i = 0;
@@ -144,8 +144,8 @@ void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int
     }
     HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.activeSynapseIndex, neuron_count * sizeof( uint32_t ) ) );
     HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.activeSynapseIndex, activeSynapseIndex, neuron_count * sizeof( uint32_t ), cudaMemcpyHostToDevice ) ); 
-    HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMapDevice, sizeof( LIFGPUModel::SynapseIndexMap ) ) );
-    HANDLE_ERROR( cudaMemcpy ( synapseIndexMapDevice, &synapseIndexMap, sizeof( LIFGPUModel::SynapseIndexMap ), cudaMemcpyHostToDevice ) );
+    HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMapDevice, sizeof( GPUSpikingModel::SynapseIndexMap ) ) );
+    HANDLE_ERROR( cudaMemcpy ( synapseIndexMapDevice, &synapseIndexMap, sizeof( GPUSpikingModel::SynapseIndexMap ), cudaMemcpyHostToDevice ) );
 
     delete[] activeSynapseIndex;
 
@@ -167,11 +167,11 @@ void GpuSInputPoisson::deleteDeviceValues(IModel* model, SimulationInfo* psi )
     HANDLE_ERROR( cudaFree( devStates_d ) );
     HANDLE_ERROR( cudaFree( masks_d ) );
 
-    static_cast<LIFGPUModel*>(model)->deleteSynapseDeviceStruct( allSynapsesDevice, neuron_count, 1 );
+    synapses->deleteSynapseDeviceStruct( allSynapsesDevice, neuron_count, 1 );
 
     // deallocate memory for synapse index map
-    LIFGPUModel::SynapseIndexMap synapseIndexMap;
-    HANDLE_ERROR( cudaMemcpy ( &synapseIndexMap, synapseIndexMapDevice, sizeof( LIFGPUModel::SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
+    GPUSpikingModel::SynapseIndexMap synapseIndexMap;
+    HANDLE_ERROR( cudaMemcpy ( &synapseIndexMap, synapseIndexMapDevice, sizeof( GPUSpikingModel::SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
     HANDLE_ERROR( cudaFree( synapseIndexMap.activeSynapseIndex ) );
     HANDLE_ERROR( cudaFree( synapseIndexMapDevice ) );
 }
