@@ -122,7 +122,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
-        Long startTime = System.currentTimeMillis();
+        Long functionStartTime = System.currentTimeMillis();
         String sbjct = subjectTextField.getText();
         if (sbjct.isEmpty()) {
             sbjct = null;
@@ -168,7 +168,9 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         //String result
         //      = provMgr.queryProvenance(sbjct, prdct, objct, lineDelimiter);
         outputTextArea.setText(result);
-        DateTime.recordProvTiming("ProvenanceQueryDialog 171", startTime);
+        DateTime.recordFunctionExecutionTime("ProvenanceQueryDialog", "searchButtonActionPerformed",
+                System.currentTimeMillis() - functionStartTime,
+                true);
     }//GEN-LAST:event_searchButtonActionPerformed
 
     private void subjectTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_subjectTextFieldKeyReleased

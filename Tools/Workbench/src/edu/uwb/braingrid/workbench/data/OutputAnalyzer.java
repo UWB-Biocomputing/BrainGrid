@@ -65,6 +65,7 @@ public class OutputAnalyzer {
                 fileReader = null;
                 fileReader = new Scanner(new FileReader(new File(filepath)));
             } catch (FileNotFoundException e) {
+                e.printStackTrace();
             }
             // given file path does not exist
             if (fileReader == null) {
@@ -111,6 +112,7 @@ public class OutputAnalyzer {
                 addCommand(ec);
             }
         }
+        fileReader.close();
     }
 
     private boolean analyzeVersionNumber(Scanner fileReader) {
@@ -126,6 +128,7 @@ public class OutputAnalyzer {
                                     = Integer.parseInt(lineParts[1].trim());
                             versionFound = true;
                         } catch (NumberFormatException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -336,7 +339,7 @@ public class OutputAnalyzer {
         }
         return time;
     }
-    
+
     /**
      * Provides the time, in milliseconds since January 1, 1970, 00:00:00 GMT,
      * that the first executed command with the specified type started

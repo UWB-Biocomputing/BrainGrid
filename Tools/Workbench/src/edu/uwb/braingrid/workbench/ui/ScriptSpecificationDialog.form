@@ -41,16 +41,10 @@
                       <Component id="simulatorLocationComboBox" min="-2" pref="117" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="simulationTypeLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="simulationTypeComboBox" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
                       <Component id="sourceCodeUpdatingLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="sourceCodeUpdatingComboBox" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="codeRepositoryLocationLabel" alignment="0" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="1" attributes="0">
                           <Component id="hostAddressLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -59,9 +53,9 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="hostAddressTextField" max="32767" attributes="0"/>
-                          <Component id="passwordField" alignment="0" pref="388" max="32767" attributes="0"/>
+                          <Component id="hostAddressTextField" pref="425" max="32767" attributes="0"/>
                           <Component id="usernameTextField" alignment="0" max="32767" attributes="0"/>
+                          <Component id="passwordField" alignment="0" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Component id="simulatorLocationTextField" alignment="0" max="32767" attributes="0"/>
@@ -82,6 +76,20 @@
                           <Component id="SHA1CheckoutKeyTextField" pref="247" max="32767" attributes="0"/>
                           <Component id="SHA1CheckoutKeyLabel" max="32767" attributes="0"/>
                       </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="codeRepositoryLocationLabel" alignment="0" max="32767" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="simulationTypeLabel" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="simulationTypeComboBox" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace max="32767" attributes="0"/>
+                      <Component id="BuildOptionLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="buildOptionComboBox" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -126,6 +134,8 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="simulationTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="simulationTypeComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="buildOptionComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="BuildOptionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="codeRepositoryLocationLabel" min="-2" pref="14" max="-2" attributes="0"/>
@@ -270,7 +280,6 @@
             <StringItem index="1" value="Pull"/>
           </StringArray>
         </Property>
-        <Property name="selectedIndex" type="int" value="1"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="testConnectionButton">
@@ -342,14 +351,30 @@
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;A meaningful annotation to pair with&lt;br&gt;your source code version information&lt;br&gt;such as the repository branch&lt;/html&gt;"/>
       </Properties>
-      <Events>
-        <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="SHA1CheckoutKeyTextFieldKeyReleased"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="SHA1CheckoutKeyLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="SHA1 Checkout Key (optional):"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;A meaningful annotation to pair with&lt;br&gt;your source code version information&lt;br&gt;such as the repository branch&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JComboBox" name="buildOptionComboBox">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="2">
+            <StringItem index="0" value="Build"/>
+            <StringItem index="1" value="Pre-built"/>
+          </StringArray>
+        </Property>
+        <Property name="selectedItem" type="java.lang.Object" value="Build"/>
+      </Properties>
+      <Events>
+        <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="buildOptionComboBoxItemStateChanged"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="BuildOptionLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Build Option:"/>
       </Properties>
     </Component>
   </SubComponents>

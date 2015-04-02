@@ -35,6 +35,10 @@ public class Script {
     private StringBuilder sb;
     /* version information */
     private String version;
+    /* redirect stdout/stderr of commands to this file */
+    private String cmdOutputFilename;
+    /* redirect stdout/stderr of printf statements to this file */
+    private String scriptStatusOutputFilename;
 
     /**
      * Prefix text for the echo of a command
@@ -58,9 +62,9 @@ public class Script {
      */
     public static final String versionText = "version";
     /**
-     * redirect file for script-related provenance information
+     * redirect file for std-err/std-out on printf statements
      */
-    public static final String printfOutputFilename = "prov.txt";
+    public static final String defaultScriptStatusFilename = "scriptStatus.txt";
     /**
      * redirect file for std-err and std-out of executed commands
      */
@@ -69,6 +73,10 @@ public class Script {
      * redirect file for git commit key
      */
     public static final String SHA1KeyFilename = "SHA1Key.txt";
+    /**
+     * redirect file for simulation status
+     */
+    public static final String simStatusFilename = "simStatus.txt";
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction">
@@ -83,6 +91,8 @@ public class Script {
         usageStatements = new ArrayList<>();
         bashScriptConstructed = false;
         version = null;
+        cmdOutputFilename = commandOutputFilename;
+        scriptStatusOutputFilename = Script.defaultScriptStatusFilename;
     }
 
     /**
@@ -217,12 +227,12 @@ public class Script {
             if (!bashStatements.isEmpty()) {
                 sb.append('>');
             }
-            sb.append(" ~/output.txt");
+            sb.append(" ~/" + cmdOutputFilename);
             sb.append(" 2>");
             if (!bashStatements.isEmpty()) {
                 sb.append(">");
             }
-            sb.append(" ~/output.txt");
+            sb.append(" ~/" + cmdOutputFilename);
             bashStatements.add(sb.toString());
             postCommandOutput(!bashStatements.isEmpty());
         } else {
@@ -246,7 +256,7 @@ public class Script {
     public void printf(String prefix, String statement, String provFile, boolean append) {
         statement = printfEscape(statement);
         if (provFile == null) {
-            provFile = Script.printfOutputFilename;
+            provFile = scriptStatusOutputFilename;
         }
         StringBuilder s = new StringBuilder();
         String outToken = append ? ">>" : ">";
@@ -273,7 +283,7 @@ public class Script {
     public void addVerbatimStatement(String stmt, String outputFile, boolean append) {
         //stmt = printfEscape(stmt);
         if (outputFile == null) {
-            outputFile = "~/output.txt";
+            outputFile = "~/" + cmdOutputFilename;
         }
         preCommandOutput(stmt, !bashStatements.isEmpty());
         String redirectString = (append ? " >>" : " >") + " " + outputFile
@@ -305,8 +315,8 @@ public class Script {
         outToken = append ? ">>" : ">";
         s.append("printf \"command: ").append(whatStarted.replaceAll("\"", "")).
                 append("\\ntime started: `date +%s`\\n\" ").
-                append(outToken).append(" ~/prov.txt").append(" 2").
-                append(outToken).append(" ~/prov.txt");
+                append(outToken).append(" ~/" + scriptStatusOutputFilename).append(" 2").
+                append(outToken).append(" ~/" + scriptStatusOutputFilename);
         bashStatements.add(s.toString());
     }
 
@@ -315,9 +325,25 @@ public class Script {
         String outToken;
         outToken = append ? ">>" : ">";
         s.append("printf \"exit status: $?\\ntime completed: `date +%s`\\n\" ").
-                append(outToken).append(" ~/prov.txt").append(" 2").
-                append(outToken).append(" ~/prov.txt");
+                append(outToken).append(" ~/" + scriptStatusOutputFilename).append(" 2").
+                append(outToken).append(" ~/" + scriptStatusOutputFilename);
         bashStatements.add(s.toString());
+    }
+
+    public void setCmdOutputFilename(String filename) {
+        cmdOutputFilename = filename;
+    }
+
+    public String getCmdOutputFilename() {
+        return cmdOutputFilename;
+    }
+
+    public void setScriptStatusOutputFilename(String filename) {
+        scriptStatusOutputFilename = filename;
+    }
+
+    public String getScriptStatusOutputFilename() {
+        return scriptStatusOutputFilename;
     }
 
     /**

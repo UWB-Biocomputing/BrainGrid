@@ -27,7 +27,11 @@ public class ExecutedCommand {
      */
     public ExecutedCommand(String newCommand) {
         fullCommand = newCommand;
-        simpleCommand = fullCommand.substring(0, fullCommand.indexOf(" "));
+        int firstSpaceIndex = fullCommand.indexOf(" ");
+        if (firstSpaceIndex < 0) {
+            firstSpaceIndex = fullCommand.length();
+        }
+        simpleCommand = fullCommand.substring(0, firstSpaceIndex);
         timeStarted = null;
         timeCompleted = null;
     }

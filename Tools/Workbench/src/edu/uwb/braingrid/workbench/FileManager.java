@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import org.apache.commons.io.FileUtils;
+//import org.apache.commons.lang3.SystemUtils;
 
 /**
  * Handles all file operations for the workbench. The purpose behind this
@@ -28,6 +29,8 @@ public final class FileManager {
 
     private static FileManager instance = null;
     private final boolean isWindowsSystem;
+//    private final boolean isMacSystem;
+//    private final boolean isLinuxSystem;
     private final String folderDelimiter;
     private final String projectsFolderName = "projects";
     private final String configFilesFolderName = "configfiles";
@@ -42,6 +45,9 @@ public final class FileManager {
     private FileManager() {
         String osName = System.getProperty("os.name").toLowerCase();
         isWindowsSystem = osName.startsWith("windows");
+//        isWindowsSystem = SystemUtils.IS_OS_WINDOWS;
+//        isMacSystem =  SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_MAC_OSX;
+//        isLinuxSystem = SystemUtils.IS_OS_LINUX;
         folderDelimiter = isWindowsSystem ? "\\" : "/";
     }
     /**
@@ -210,4 +216,16 @@ public final class FileManager {
     public String getUserDir() {
         return System.getProperty("user.home") + folderDelimiter;
     }
+    
+    public String toBashValidNotation(String stmt){
+        return stmt.replaceAll("\\\\", "/");
+    }
+
+//    public boolean isMacSystem() {
+//        return isMacSystem;
+//    }
+//    
+//    public boolean isLinuxSystem(){
+//        return isLinuxSystem;
+//    }
 }

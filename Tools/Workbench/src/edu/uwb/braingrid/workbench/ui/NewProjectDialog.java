@@ -14,7 +14,9 @@ import java.util.regex.Pattern;
  * @version 0.1
  */
 public class NewProjectDialog extends javax.swing.JDialog {
+
     // <editor-fold defaultstate="collapsed" desc="Auto-Generated Code">    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -246,7 +248,7 @@ public class NewProjectDialog extends javax.swing.JDialog {
      * @return The name of the new project
      */
     public String getProjectName() {
-        return newProjectNameTextField.getText();
+        return newProjectNameTextField.getText().replaceAll("\\s+", "_");
     }
 
     /**

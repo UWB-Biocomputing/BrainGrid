@@ -161,6 +161,8 @@ public class WorkbenchManager {
      * @see javax.swing.JFileChooser
      */
     public int openProject() {
+        Long functionStartTime = System.currentTimeMillis();
+        Long accumulatedTime = 0L;
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Select a Project Specification...");
         File projectsDirectory = getProjectsDirectory();
@@ -189,11 +191,12 @@ public class WorkbenchManager {
                                 + "\nTo:   "
                                 + destFolder + "\n";
                         projectMgr = new ProjectMgr(selectedFile.getName(), true);
-
                     }
                     updateSimSpec();
                     if (projectMgr.isProvenanceEnabled()) {
+                        Long startTime = System.currentTimeMillis();
                         prov = new ProvMgr(projectMgr, true);
+                        accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
                     } else {
                         prov = null;
                     }
@@ -224,6 +227,15 @@ public class WorkbenchManager {
                         + "Error occurred within the open file dialog\n";
                 break;
         }
+        if (projectMgr != null) {
+            DateTime.recordFunctionExecutionTime("WorkbenchManager", "openProject",
+                    System.currentTimeMillis() - functionStartTime,
+                    projectMgr.isProvenanceEnabled());
+            if (projectMgr.isProvenanceEnabled()) {
+                DateTime.recordAccumulatedProvTiming("WorkbenchManager", "openProject",
+                        accumulatedTime);
+            }
+        }
         return choice;
     }
 
@@ -235,6 +247,8 @@ public class WorkbenchManager {
      * project or loading a project from disk</i>
      */
     public void saveProject() {
+        Long functionStartTime = System.currentTimeMillis();
+        Long accumulatedTime = 0L;
         String msg = "Unknown";
         if (projectMgr != null) {
             try {
@@ -244,7 +258,9 @@ public class WorkbenchManager {
                 msg = projectFileName + projectMgr.getName()
                         + ".xml";
                 if (projectMgr.isProvenanceEnabled()) {
+                    Long startTime = System.currentTimeMillis();
                     persistProvenance();
+                    accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
                 }
                 messageAccumulator += "\n" + "Project saved to "
                         + projectFileName
@@ -254,6 +270,13 @@ public class WorkbenchManager {
                         + " could not be created due to: " + "\n"
                         + e.getClass().toString() + "\n";
             }
+        }
+        DateTime.recordFunctionExecutionTime("WorkbenchManager", "saveProject",
+                System.currentTimeMillis() - functionStartTime,
+                projectMgr.isProvenanceEnabled());
+        if (projectMgr.isProvenanceEnabled()) {
+            DateTime.recordAccumulatedProvTiming("WorkbenchManager", "saveProject",
+                    accumulatedTime);
         }
     }
 
@@ -349,7 +372,8 @@ public class WorkbenchManager {
                     simSpec.getCodeLocation(),
                     simSpec.getVersionAnnotation(),
                     simSpec.getSourceCodeUpdating(),
-                    simSpec.getSHA1CheckoutKey());
+                    simSpec.getSHA1CheckoutKey(),
+                    simSpec.getBuildOption());
             updateSimSpec();
             messageAccumulator += "\n" + "New simulation specified\n";
         } else {
@@ -369,26 +393,35 @@ public class WorkbenchManager {
      */
     public long analyzeScriptOutput() {
         long timeCompleted = DateTime.ERROR_TIME;
-        if (projectMgr != null && !projectMgr.scriptOutputAnalyzed()) {
-            try {
-                messageAccumulator += "\n"
-                        + "Gathering simulation provenance...\n";
-                String targetFolder = ScriptManager.getScriptFolder(
-                        projectMgr.determineProjectOutputLocation());
+        if (projectMgr != null) {
+            if (!projectMgr.scriptOutputAnalyzed()) {
                 ScriptManager scriptMgr = new ScriptManager();
-                timeCompleted
-                        = scriptMgr.analyzeScriptOutput(simSpec, projectMgr, prov, targetFolder);
-                if (timeCompleted != DateTime.ERROR_TIME) {
-                    projectMgr.setScriptCompletedAt(timeCompleted);
-                    projectMgr.setScriptAnalyzed(true);
+                try {
+                    messageAccumulator += "\n"
+                            + "Gathering simulation provenance...\n";
+                    String targetFolder = ScriptManager.getScriptFolder(
+                            projectMgr.determineProjectOutputLocation());
+                    timeCompleted = scriptMgr.analyzeScriptOutput(simSpec,
+                            projectMgr, prov, targetFolder);
+                    if (timeCompleted != DateTime.ERROR_TIME) {
+                        projectMgr.setScriptCompletedAt(timeCompleted);
+                        projectMgr.setScriptAnalyzed(true);
+                    }
+                    messageAccumulator += scriptMgr.getOutstandingMessages();
+                    messageAccumulator += "\n" + "Simulation provenance gathered\n";
+                } catch (IOException | JSchException | SftpException e) {
+                    messageAccumulator += scriptMgr.getOutstandingMessages();
+                    messageAccumulator += "\n"
+                            + "Simulation provenance could not be gathered due to "
+                            + e.getClass() + "...\n";
+                    messageAccumulator += "Exception message: " + e.getMessage();
+                    e.printStackTrace();
                 }
-                messageAccumulator += "\n" + "Simulation provenance gathered\n";
-            } catch (IOException | JSchException | SftpException e) {
+            } else {
                 messageAccumulator += "\n"
-                        + "Simulation provenance could not be gathered due to "
-                        + e.getClass() + "...\n";
-                messageAccumulator += "Exception message: " + e.getMessage();
-                //e.printStackTrace();
+                        + "Script output has already been analyzed for this simulation run"
+                        + "\nTo analyze another run, please respecify script or input and run again"
+                        + "\n";
             }
         } else {
             messageAccumulator += "\n"
@@ -487,6 +520,8 @@ public class WorkbenchManager {
      * @return
      */
     public boolean initProject(String name, boolean provEnabled) {
+        Long functionStartTime = System.currentTimeMillis();
+        Long accumulatedTime = 0L;
         boolean success = true;
         /* Create a new project */
         try {
@@ -507,7 +542,7 @@ public class WorkbenchManager {
                             + "\n";
                     throw ex;
                 }
-                DateTime.recordProvTiming("WorkbenchManager 510", startTime);
+                accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
             } else {
                 prov = null;
             }
@@ -518,6 +553,13 @@ public class WorkbenchManager {
                     + "\n" + e.toString();
             projectMgr = null;
             prov = null;
+        }
+        DateTime.recordFunctionExecutionTime("WorkbenchManager", "initProject",
+                System.currentTimeMillis() - functionStartTime,
+                projectMgr.isProvenanceEnabled());
+        if (projectMgr.isProvenanceEnabled()) {
+            DateTime.recordAccumulatedProvTiming("WorkbenchManager", "initProject",
+                    accumulatedTime);
         }
         return success;
     }
@@ -744,7 +786,7 @@ public class WorkbenchManager {
         if (projectMgr != null) {
             String version = projectMgr.getNextScriptVersion();
             if (version != null) {
-                name = "run_v" + version;
+                name = ScriptManager.getScriptName(projectMgr.getName(), version);
             }
         }
         return name;
