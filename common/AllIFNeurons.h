@@ -240,6 +240,11 @@ class AllIFNeurons : public AllSpikingNeurons
 #endif
 
     protected:
+        void allocDeviceStruct( AllIFNeurons &allNeurons, SimulationInfo *sim_info );
+        void deleteDeviceStruct( AllIFNeurons& allNeurons, const SimulationInfo *sim_info );
+	void copyHostToDevice( AllIFNeurons& allNeurons, const SimulationInfo *sim_info );
+	void copyDeviceToHost( AllIFNeurons& allNeurons, const SimulationInfo *sim_info );
+
         void createNeuron(SimulationInfo *sim_info, int neuron_index);
         void setNeuronDefaults(const int index);
         virtual void initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT);

@@ -1,12 +1,12 @@
 #pragma once
 #include "GPUSpikingModel.h"
-#include "AllIFNeurons.h"
+#include "AllIZHNeurons.h"
 
-class LIFGPUModel : public GPUSpikingModel {
+class IZHGPUModel : public GPUSpikingModel {
 
 public:
-    LIFGPUModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout);
-    virtual ~LIFGPUModel();
+    IZHGPUModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout);
+    virtual ~IZHGPUModel();
 
     virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder);
     virtual void cleanupSim(SimulationInfo *sim_info);
@@ -27,5 +27,5 @@ private:
     \*----------------------------------------------*/
 
     //! Neuron structure in device memory.
-    AllIFNeurons* m_allNeuronsDevice;
+    AllIZHNeurons* m_allNeuronsDevice;
 };

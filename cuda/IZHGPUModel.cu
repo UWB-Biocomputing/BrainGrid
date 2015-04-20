@@ -1,12 +1,12 @@
-#include "LIFGPUModel.h"
+#include "IZHGPUModel.h"
 
-__global__ void setSynapseSummationPointDevice(int num_neurons, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, int max_synapses, int width);
+__global__ void setSynapseSummationPointDevice(int num_neurons, AllIZHNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, int max_synapses, int width);
 
 //! Perform updating neurons for one time step.
-__global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice );
+__global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllIZHNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice );
 
 //! Update the network.
-__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice );
+__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllIZHNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice );
 
 //! Add a synapse to the network.
 extern __device__ void addSynapse( AllDSSynapses* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons );
@@ -18,20 +18,20 @@ extern __device__ void createSynapse( AllDSSynapses* allSynapsesDevice, const in
 extern __device__ void eraseSynapse( AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses );
 
 //! Get the type of synapse.
-__device__ synapseType synType( AllIFNeurons* allNeuronsDevice, const int src_neuron, const int dest_neuron );
+__device__ synapseType synType( AllIZHNeurons* allNeuronsDevice, const int src_neuron, const int dest_neuron );
 
 //! Get the type of synapse (excitatory or inhibitory)
 extern __device__ int synSign( synapseType t );
 
 // ----------------------------------------------------------------------------
 
-LIFGPUModel::LIFGPUModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout) :
+IZHGPUModel::IZHGPUModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout) :
         GPUSpikingModel::GPUSpikingModel(conns, neurons, synapses, layout),
         m_allNeuronsDevice(NULL)
 {
 }
 
-LIFGPUModel::~LIFGPUModel()
+IZHGPUModel::~IZHGPUModel()
 {
         //Let Model base class handle de-allocation
 }
@@ -41,7 +41,7 @@ LIFGPUModel::~LIFGPUModel()
  *  @param  sim_info    SimulationInfo class to read information from.
  *  @param  simRecorder Pointer to the simulation recordig object.
  */
-void LIFGPUModel::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
+void IZHGPUModel::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
 {
     GPUSpikingModel::setupSim(sim_info, simRecorder);
 
@@ -59,7 +59,7 @@ void LIFGPUModel::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
 *  Begin terminating the simulator.
 *  @param  sim_info    SimulationInfo to refer.
 */
-void LIFGPUModel::cleanupSim(SimulationInfo *sim_info)
+void IZHGPUModel::cleanupSim(SimulationInfo *sim_info)
 {
     // deallocates memories on CUDA device
     deleteDeviceStruct((void**)&m_allNeuronsDevice, (void**)&m_allSynapsesDevice, sim_info);
@@ -72,7 +72,7 @@ void LIFGPUModel::cleanupSim(SimulationInfo *sim_info)
  *  @param  input   istream to read from.
  *  @param  sim_info    used as a reference to set info for neurons and synapses.
  */
-void LIFGPUModel::loadMemory(istream& input, const SimulationInfo *sim_info)
+void IZHGPUModel::loadMemory(istream& input, const SimulationInfo *sim_info)
 {
     GPUSpikingModel::loadMemory(input, sim_info);
 
@@ -91,7 +91,7 @@ void LIFGPUModel::loadMemory(istream& input, const SimulationInfo *sim_info)
  *  Notify outgoing synapses if neuron has fired.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void LIFGPUModel::advanceNeurons(const SimulationInfo *sim_info)
+void IZHGPUModel::advanceNeurons(const SimulationInfo *sim_info)
 {
     int neuron_count = sim_info->totalNeurons;
 
@@ -104,14 +104,14 @@ void LIFGPUModel::advanceNeurons(const SimulationInfo *sim_info)
 }
 
 /**
- *  Get spike history in AllIFNeurons struct on device memory.
+ *  Get spike history in AllIZHNeurons struct on device memory.
  *  @param  allNeuronsHost      Reference to the allNeurons struct on host memory.
  *  @param  sim_info    SimulationInfo to refer from.
  */
-void LIFGPUModel::copyDeviceSpikeHistoryToHost(AllSpikingNeurons &allNeuronsHost, const SimulationInfo *sim_info)
+void IZHGPUModel::copyDeviceSpikeHistoryToHost(AllSpikingNeurons &allNeuronsHost, const SimulationInfo *sim_info)
 {
-        AllIFNeurons allNeurons;
-        HANDLE_ERROR( cudaMemcpy ( &allNeurons, m_allNeuronsDevice, sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
+        AllIZHNeurons allNeurons;
+        HANDLE_ERROR( cudaMemcpy ( &allNeurons, m_allNeuronsDevice, sizeof( AllIZHNeurons ), cudaMemcpyDeviceToHost ) );
 
         int numNeurons = sim_info->totalNeurons;
         uint64_t* pSpikeHistory[numNeurons];
@@ -125,14 +125,14 @@ void LIFGPUModel::copyDeviceSpikeHistoryToHost(AllSpikingNeurons &allNeuronsHost
 }
 
 /**
- *  Get spikeCount in AllIFNeurons struct on device memory.
+ *  Get spikeCount in AllIZHNeurons struct on device memory.
  *  @param  allNeuronsHost      Reference to the allNeurons struct on host memory.
  *  @param  numNeurons          The number of neurons.
  */
-void LIFGPUModel::copyDeviceSpikeCountsToHost(AllSpikingNeurons &allNeuronsHost, int numNeurons)
+void IZHGPUModel::copyDeviceSpikeCountsToHost(AllSpikingNeurons &allNeuronsHost, int numNeurons)
 {
-        AllIFNeurons allNeurons;
-        HANDLE_ERROR( cudaMemcpy ( &allNeurons, m_allNeuronsDevice, sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
+        AllIZHNeurons allNeurons;
+        HANDLE_ERROR( cudaMemcpy ( &allNeurons, m_allNeuronsDevice, sizeof( AllIZHNeurons ), cudaMemcpyDeviceToHost ) );
         HANDLE_ERROR( cudaMemcpy ( allNeuronsHost.spikeCount, allNeurons.spikeCount, numNeurons * sizeof( int ), cudaMemcpyDeviceToHost ) );
 }
 
@@ -140,10 +140,10 @@ void LIFGPUModel::copyDeviceSpikeCountsToHost(AllSpikingNeurons &allNeuronsHost,
 *  Clear the spike counts out of all Neurons.
 *  @param  numNeurons The number of neurons.
 */
-void LIFGPUModel::clearSpikeCounts(int numNeurons)
+void IZHGPUModel::clearSpikeCounts(int numNeurons)
 {
-        AllIFNeurons allNeurons;
-        HANDLE_ERROR( cudaMemcpy ( &allNeurons, m_allNeuronsDevice, sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
+        AllIZHNeurons allNeurons;
+        HANDLE_ERROR( cudaMemcpy ( &allNeurons, m_allNeuronsDevice, sizeof( AllIZHNeurons ), cudaMemcpyDeviceToHost ) );
         HANDLE_ERROR( cudaMemset( allNeurons.spikeCount, 0, numNeurons * sizeof( int ) ) );
 }
 
@@ -155,7 +155,7 @@ void LIFGPUModel::clearSpikeCounts(int numNeurons)
 *  @param  synapses    the Synapse list to search from.
 *  @param  sim_info    SimulationInfo to refer from.
 */
-void LIFGPUModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info)
+void IZHGPUModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info)
 {
         // For now, we just set the weights to equal the areas. We will later
         // scale it and set its sign (when we index and get its sign).
@@ -208,7 +208,7 @@ void LIFGPUModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllS
  * @param[in] max_synapses       Maximum number of synapses per neuron.
  * @param[in] width              Width of neuron map (assumes square).
  */
-__global__ void setSynapseSummationPointDevice(int num_neurons, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, int max_synapses, int width)
+__global__ void setSynapseSummationPointDevice(int num_neurons, AllIZHNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, int max_synapses, int width)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= num_neurons )
@@ -236,7 +236,7 @@ __global__ void setSynapseSummationPointDevice(int num_neurons, AllIFNeurons* al
 * @param[in] allNeuronsDevice   Pointer to Neuron structures in device memory.
 * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
 */
-__global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice ) {
+__global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllIZHNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice ) {
         // determine which neuron this thread is processing
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )
@@ -245,8 +245,14 @@ __global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep,
         allNeuronsDevice->hasFired[idx] = false;
         BGFLOAT& sp = allNeuronsDevice->summation_map[idx];
         BGFLOAT& vm = allNeuronsDevice->Vm[idx];
+        BGFLOAT& a = allNeuronsDevice->Aconst[idx];
+        BGFLOAT& b = allNeuronsDevice->Bconst[idx];
+        BGFLOAT& u = allNeuronsDevice->u[idx];
         BGFLOAT r_sp = sp;
         BGFLOAT r_vm = vm;
+        BGFLOAT r_a = a;
+        BGFLOAT r_b = b;
+        BGFLOAT r_u = u;
 
         if ( allNeuronsDevice->nStepsInRefr[idx] > 0 ) { // is neuron refractory?
                 --allNeuronsDevice->nStepsInRefr[idx];
@@ -262,7 +268,8 @@ __global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep,
                 allNeuronsDevice->nStepsInRefr[idx] = static_cast<int> ( allNeuronsDevice->Trefract[idx] / deltaT + 0.5 );
 
                 // reset to 'Vreset'
-                vm = allNeuronsDevice->Vreset[idx];
+                vm = allNeuronsDevice->Cconst[idx] * 0.001;
+                u = r_u + allNeuronsDevice->Dconst[idx];
 
                 // notify synapses of spike
                 size_t synapse_counts = allSynapsesDevice->synapse_counts[idx];
@@ -295,7 +302,14 @@ __global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep,
 
                 // Random number alg. goes here
                 r_sp += (randNoise[idx] * allNeuronsDevice->Inoise[idx]); // add cheap noise
-                vm = allNeuronsDevice->C1[idx] * r_vm + allNeuronsDevice->C2[idx] * ( r_sp ); // decay Vm and add inputs
+
+                BGFLOAT Vint = r_vm * 1000;
+
+                // Izhikevich model integration step
+                BGFLOAT Vb = Vint + allNeuronsDevice->C3[idx] * (0.04 * Vint * Vint + 5 * Vint + 140 - u);
+                u = r_u + allNeuronsDevice->C3[idx] * r_a * (r_b * Vint - r_u);
+
+                vm = Vb * 0.001 + allNeuronsDevice->C2[idx] * r_sp;  // add inputs
         }
 
         // clear synaptic input for next time step
@@ -313,7 +327,7 @@ __global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep,
 * @param[in] allNeuronsDevice          Pointer to the Neuron structures in device memory.
 * @param[in] allSynapsesDevice         Pointer to the Synapse structures in device memory.
 */
-__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice )
+__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllIZHNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= num_neurons )
@@ -390,7 +404,7 @@ __global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT,
 * @param src_neuron             Index of the source neuron.
 * @param dest_neuron            Index of the destination neuron.
 */
-__device__ synapseType synType( AllIFNeurons* allNeuronsDevice, const int src_neuron, const int dest_neuron )
+__device__ synapseType synType( AllIZHNeurons* allNeuronsDevice, const int src_neuron, const int dest_neuron )
 {
     if ( allNeuronsDevice->neuron_type_map[src_neuron] == INH && allNeuronsDevice->neuron_type_map[dest_neuron] == INH )
         return II;

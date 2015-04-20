@@ -122,10 +122,10 @@ public:
 	virtual ~GPUSpikingModel();
  
 	virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder);
+	virtual void cleanupSim(SimulationInfo *sim_info);
         virtual void loadMemory(istream& input, const SimulationInfo *sim_info);
 	virtual void advance(const SimulationInfo *sim_info);
 	virtual void updateConnections(const int currentStep, const SimulationInfo *sim_info, IRecorder* simRecorder);
-	virtual void cleanupSim(SimulationInfo *sim_info);
 
 	struct SynapseIndexMap
 	{
@@ -177,9 +177,10 @@ public:
 protected:
 	void allocDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info);
 
+	virtual void deleteDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info);
 	virtual void advanceNeurons(const SimulationInfo *sim_info) = 0;
-	virtual void advanceSynapses(const SimulationInfo *sim_info) = 0;
-	virtual void calcSummationMap(const SimulationInfo *sim_info) = 0;
+	virtual void advanceSynapses(const SimulationInfo *sim_info);
+	virtual void calcSummationMap(const SimulationInfo *sim_info);
 
 	virtual void copyDeviceSpikeHistoryToHost(AllSpikingNeurons &allNeuronsHost, const SimulationInfo *sim_info) = 0;
 	virtual void copyDeviceSpikeCountsToHost(AllSpikingNeurons &allNeuronsHost, int numNeurons) = 0;
@@ -187,11 +188,25 @@ protected:
 	virtual void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info) = 0;
 	void createSynapseImap( AllSynapses &synapses, const SimulationInfo* sim_info );
 
+	/* ------------------*\
+	|* # Helper Functions
+	\* ------------------*/
+	void copyDeviceSynapseCountsToHost(AllSynapses &allSynapsesHost, int neuron_count);
+	void copyDeviceSynapseSumCoordToHost(AllSynapses &allSynapsesHost, int neuron_count, int max_synapses);
+
 	//! Pointer to device random noise array.
 	float* randNoise_d;
 
 	//! Pointer to synapse index map in device memory.
 	SynapseIndexMap* synapseIndexMapDevice;
+
+	/*----------------------------------------------*\
+	|  Member variables
+	\*----------------------------------------------*/
+
+	//! Synapse structures in device memory.
+	AllDSSynapses* m_allSynapsesDevice;
+
 private: 
 	/* ------------------*\
 	|* # Helper Functions
@@ -225,10 +240,4 @@ private:
 	/*----------------------------------------------*\
 	|  Generic Functions for handling synapse types
 	\*----------------------------------------------*/
-
-
-	/*----------------------------------------------*\
-	|  Member variables
-	\*----------------------------------------------*/
-
 };

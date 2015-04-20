@@ -60,11 +60,14 @@ LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
 CUDAOBJS =   \
 	    $(CUDADIR)/GPUSpikingModel.o \
 	    $(CUDADIR)/LIFGPUModel.o \
+	    $(CUDADIR)/IZHGPUModel.o \
 	    $(COMMDIR)/GPUSimulator.o \
             $(CUDADIR)/AllNeurons_cuda.o \
             $(CUDADIR)/AllSpikingNeurons_cuda.o \
             $(CUDADIR)/AllIFNeurons_cuda.o \
             $(CUDADIR)/AllIFNeurons_d.o \
+            $(CUDADIR)/AllIZHNeurons_cuda.o \
+            $(CUDADIR)/AllIZHNeurons_d.o \
             $(CUDADIR)/AllSynapses_cuda.o \
             $(CUDADIR)/AllDSSynapses_cuda.o \
             $(CUDADIR)/AllDSSynapses_d.o \
@@ -77,7 +80,6 @@ CUDAOBJS =   \
 
 ifeq ($(CUSEHDF5), yes)
 LIBOBJS =               \
-			$(COMMDIR)/AllIZHNeurons.o \
 			$(COMMDIR)/Simulator.o \
 			$(COMMDIR)/SingleThreadedSim.o \
 			$(COMMDIR)/Model.o \
@@ -94,7 +96,6 @@ LIBOBJS =               \
 			$(COMMDIR)/Hdf5Recorder.o 
 else
 LIBOBJS =               \
-			$(COMMDIR)/AllIZHNeurons.o \
 			$(COMMDIR)/Simulator.o \
 			$(COMMDIR)/SingleThreadedSim.o \
 			$(COMMDIR)/Model.o \
@@ -125,6 +126,7 @@ SINGLEOBJS = $(MAIN)/BGDriver.o  \
 			$(COMMDIR)/AllNeurons.o \
 			$(COMMDIR)/AllSpikingNeurons.o \
 			$(COMMDIR)/AllIFNeurons.o \
+			$(COMMDIR)/AllIZHNeurons.o \
 			$(COMMDIR)/AllSynapses.o \
 			$(COMMDIR)/AllDSSynapses.o \
 			$(COMMDIR)/Global.o 
@@ -168,8 +170,14 @@ $(CUDADIR)/GPUSpikingModel.o: $(CUDADIR)/GPUSpikingModel.cu $(COMMDIR)/Global.h 
 $(CUDADIR)/LIFGPUModel.o: $(CUDADIR)/LIFGPUModel.cu $(COMMDIR)/Global.h $(CUDADIR)/LIFGPUModel.h $(CUDADIR)/GPUSpikingModel.h $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/IModel.h  
 	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/LIFGPUModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/LIFGPUModel.o
 
+$(CUDADIR)/IZHGPUModel.o: $(CUDADIR)/IZHGPUModel.cu $(COMMDIR)/Global.h $(CUDADIR)/IZHGPUModel.h $(CUDADIR)/GPUSpikingModel.h $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/IModel.h  
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/IZHGPUModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/IZHGPUModel.o
+
 $(CUDADIR)/AllIFNeurons_d.o: $(CUDADIR)/AllIFNeurons_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllIFNeurons.h
 	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllIFNeurons_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllIFNeurons_d.o
+
+$(CUDADIR)/AllIZHNeurons_d.o: $(CUDADIR)/AllIZHNeurons_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllIZHNeurons.h
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllIZHNeurons_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllIZHNeurons_d.o
 
 $(CUDADIR)/AllDSSynapses_d.o: $(CUDADIR)/AllDSSynapses_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllDSSynapses.h
 	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllDSSynapses_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllDSSynapses_d.o
@@ -185,6 +193,9 @@ $(CUDADIR)/AllSpikingNeurons_cuda.o: $(COMMDIR)/AllSpikingNeurons.cpp $(COMMDIR)
         
 $(CUDADIR)/AllIFNeurons_cuda.o: $(COMMDIR)/AllIFNeurons.cpp $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllIFNeurons.cpp -o $(CUDADIR)/AllIFNeurons_cuda.o
+	
+$(CUDADIR)/AllIZHNeurons_cuda.o: $(COMMDIR)/AllIZHNeurons.cpp $(COMMDIR)/AllIZHNeurons.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllIZHNeurons.cpp -o $(CUDADIR)/AllIZHNeurons_cuda.o
 	
 $(CUDADIR)/AllSynapses_cuda.o: $(COMMDIR)/AllSynapses.cpp $(COMMDIR)/AllSynapses.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllSynapses.cpp -o $(CUDADIR)/AllSynapses_cuda.o

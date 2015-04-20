@@ -38,6 +38,8 @@
 class AllIZHNeurons : public AllIFNeurons
 {
     public:
+        AllIZHNeurons();
+        virtual ~AllIZHNeurons();
 
         //! A constant (0.02, 01) describing the coupling of variable u to Vm;
         BGFLOAT *Aconst;
@@ -57,9 +59,6 @@ class AllIZHNeurons : public AllIFNeurons
         //!
         BGFLOAT *C3;
 
-        AllIZHNeurons();
-        virtual ~AllIZHNeurons();
-
         virtual void setupNeurons(SimulationInfo *sim_info);
         virtual void cleanupNeurons();  
         virtual int numParameters();
@@ -70,7 +69,19 @@ class AllIZHNeurons : public AllIFNeurons
         virtual void readNeurons(istream &input, const SimulationInfo *sim_info);
         virtual void writeNeurons(ostream& output, const SimulationInfo *sim_info) const;
 
+#if defined(USE_GPU)
+        virtual void allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info );
+        virtual void deleteNeuronDeviceStruct( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info );
+#endif
+
     protected:
+        void allocDeviceStruct( AllIZHNeurons &allNeurons, SimulationInfo *sim_info );
+        void deleteDeviceStruct( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
+        void copyHostToDevice( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
+        void copyDeviceToHost( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
+
         void createNeuron(SimulationInfo *sim_info, int neuron_index);
         void setNeuronDefaults(const int index);
         virtual void initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT);

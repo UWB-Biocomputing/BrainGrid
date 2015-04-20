@@ -8,6 +8,14 @@
 
 void AllIFNeurons::allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info ) {
 	AllIFNeurons allNeurons;
+
+	allocDeviceStruct( allNeurons, sim_info );
+
+        HANDLE_ERROR( cudaMalloc( allNeuronsDevice, sizeof( AllIFNeurons ) ) );
+        HANDLE_ERROR( cudaMemcpy ( *allNeuronsDevice, &allNeurons, sizeof( AllIFNeurons ), cudaMemcpyHostToDevice ) );
+}
+
+void AllIFNeurons::allocDeviceStruct( AllIFNeurons &allNeurons, SimulationInfo *sim_info ) {
 	int count = sim_info->totalNeurons;
 	int max_spikes = static_cast<int> (sim_info->epochDuration * sim_info->maxFiringRate);
  
@@ -41,18 +49,22 @@ void AllIFNeurons::allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationI
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.spike_history, pSpikeHistory,
 		count * sizeof( uint64_t* ), cudaMemcpyHostToDevice ) );
 
-	HANDLE_ERROR( cudaMalloc( allNeuronsDevice, sizeof( AllIFNeurons ) ) );
-	HANDLE_ERROR( cudaMemcpy ( *allNeuronsDevice, &allNeurons, sizeof( AllIFNeurons ), cudaMemcpyHostToDevice ) );
-
 	// get device summation point address and set it to sim info
 	sim_info->pSummationMap = allNeurons.summation_map;
 }
 
 void AllIFNeurons::deleteNeuronDeviceStruct( void* allNeuronsDevice, const SimulationInfo *sim_info ) {
 	AllIFNeurons allNeurons;
-	int count = sim_info->totalNeurons;
 
 	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
+
+	deleteDeviceStruct( allNeurons, sim_info );
+
+	HANDLE_ERROR( cudaFree( allNeuronsDevice ) );
+}
+
+void AllIFNeurons::deleteDeviceStruct( AllIFNeurons& allNeurons, const SimulationInfo *sim_info ) {
+	int count = sim_info->totalNeurons;
 
 	uint64_t* pSpikeHistory[count];
 	HANDLE_ERROR( cudaMemcpy ( pSpikeHistory, allNeurons.spike_history,
@@ -83,15 +95,17 @@ void AllIFNeurons::deleteNeuronDeviceStruct( void* allNeuronsDevice, const Simul
 	HANDLE_ERROR( cudaFree( allNeurons.starter_map ) );
 	HANDLE_ERROR( cudaFree( allNeurons.summation_map ) );
 	HANDLE_ERROR( cudaFree( allNeurons.spike_history ) );
-
-	HANDLE_ERROR( cudaFree( allNeuronsDevice ) );
 }
 
 void AllIFNeurons::copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info ) { 
 	AllIFNeurons allNeurons;
-	int count = sim_info->totalNeurons;
 
 	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
+	copyHostToDevice( allNeurons, sim_info );
+}
+
+void AllIFNeurons::copyHostToDevice( AllIFNeurons& allNeurons, const SimulationInfo *sim_info ) { 
+	int count = sim_info->totalNeurons;
 
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.C1, C1, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.C2, C2, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
@@ -118,9 +132,13 @@ void AllIFNeurons::copyNeuronHostToDevice( void* allNeuronsDevice, const Simulat
 
 void AllIFNeurons::copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info ) {
 	AllIFNeurons allNeurons;
-	int count = sim_info->totalNeurons;
 
 	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
+	copyDeviceToHost( allNeurons, sim_info );
+}
+
+void AllIFNeurons::copyDeviceToHost( AllIFNeurons& allNeurons, const SimulationInfo *sim_info ) {
+	int count = sim_info->totalNeurons;
 
 	HANDLE_ERROR( cudaMemcpy ( C1, allNeurons.C1, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 	HANDLE_ERROR( cudaMemcpy ( C2, allNeurons.C2, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
