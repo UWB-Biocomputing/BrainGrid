@@ -162,3 +162,39 @@ void AllIFNeurons::copyDeviceToHost( AllIFNeurons& allNeurons, const SimulationI
 	HANDLE_ERROR( cudaMemcpy ( starter_map, allNeurons.starter_map, count * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 	//HANDLE_ERROR( cudaMemcpy ( spike_history, allNeurons.spike_history, count * sizeof( uint64_t* ), cudaMemcpyDeviceToHost ) );
 }
+
+/**
+ *  Get spike history in AllIFNeurons struct on device memory.
+ *  @param  allNeuronsDevice      Reference to the allNeurons struct on device memory.
+ *  @param  sim_info    SimulationInfo to refer from.
+ */
+void AllIFNeurons::copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDevice, const SimulationInfo *sim_info ) 
+{        
+        AllIFNeurons allNeurons;
+        HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );        
+        AllSpikingNeurons::copyDeviceSpikeHistoryToHost( allNeurons, sim_info );
+}
+
+/**
+ *  Get spikeCount in AllIFNeurons struct on device memory.
+ *  @param  allNeuronsDevice      Reference to the allNeurons struct on device memory.
+ *  @param  sim_info    SimulationInfo to refer from.
+ */
+void AllIFNeurons::copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, const SimulationInfo *sim_info )
+{
+        AllIFNeurons allNeurons;
+        HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
+        AllSpikingNeurons::copyDeviceSpikeCountsToHost( allNeurons, sim_info );
+}
+
+/** 
+*  Clear the spike counts out of all Neurons.
+ *  @param  allNeuronsDevice      Reference to the allNeurons struct on device memory.
+ *  @param  sim_info    SimulationInfo to refer from.
+*/
+void AllIFNeurons::clearNeuronSpikeCounts( void* allNeuronsDevice, const SimulationInfo *sim_info )
+{
+        AllIFNeurons allNeurons;
+        HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
+        AllSpikingNeurons::clearDeviceSpikeCounts( allNeurons, sim_info );
+}

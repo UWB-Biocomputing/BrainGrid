@@ -28,11 +28,16 @@ void normalMTGPU(float * randNoise_d);
 void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, unsigned int nPerRng, unsigned int mt_rng_count);
 }
 
+__global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, int max_synapses, int width);
+
 //! Perform updating synapses for one time step.
 __global__ void advanceSynapsesDevice ( int total_synapse_counts, GPUSpikingModel::SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice );
 
 //! Calculate summation point.
 __global__ void calcSummationMapDevice( int totalNeurons, GPUSpikingModel::SynapseIndexMap* synapseIndexMapDevice, AllDSSynapses* allSynapsesDevice );
+
+//! Update the network.
+__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice );
 
 //! Add a synapse to the network.
 __device__ void addSynapse( AllDSSynapses* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons );
@@ -42,6 +47,9 @@ __device__ void createSynapse( AllDSSynapses* allSynapsesDevice, const int neuro
 
 //! Remove a synapse from the network.
 __device__ void eraseSynapse( AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses );
+
+//! Get the type of synapse.
+__device__ synapseType synType( AllSpikingNeurons* allNeuronsDevice, const int src_neuron, const int dest_neuron );
 
 //! Get the type of synapse (excitatory or inhibitory)
 __device__ int synSign( synapseType t );
@@ -57,6 +65,7 @@ GPUSpikingModel::GPUSpikingModel(Connections *conns, AllNeurons *neurons, AllSyn
 	Model::Model(conns, neurons, synapses, layout),
 	synapseIndexMapDevice(NULL),
 	randNoise_d(NULL),
+	m_allNeuronsDevice(NULL),
 	m_allSynapsesDevice(NULL)
 {
 }
@@ -140,6 +149,15 @@ void GPUSpikingModel::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
     t_gpu_advanceSynapses = 0.0f;
     t_gpu_calcSummation = 0.0f;
 #endif // PERFORMANCE_METRICS
+
+    // allocates memories on CUDA device
+    allocDeviceStruct((void **)&m_allNeuronsDevice, (void **)&m_allSynapsesDevice, sim_info);
+
+    // set device summation points
+    int neuron_count = sim_info->totalNeurons;
+    const int threadsPerBlock = 256;
+    int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
+    setSynapseSummationPointDevice <<< blocksPerGrid, threadsPerBlock >>> (neuron_count, m_allNeuronsDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron, sim_info->width);
 }
 
 /** 
@@ -148,6 +166,9 @@ void GPUSpikingModel::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
 */
 void GPUSpikingModel::cleanupSim(SimulationInfo *sim_info)
 {
+    // deallocates memories on CUDA device
+    deleteDeviceStruct((void**)&m_allNeuronsDevice, (void**)&m_allSynapsesDevice, sim_info);
+
 #ifdef PERFORMANCE_METRICS
     cudaEventDestroy( start );
     cudaEventDestroy( stop );
@@ -165,6 +186,16 @@ void GPUSpikingModel::loadMemory(istream& input, const SimulationInfo *sim_info)
    
     // create a synapse index map on device memory
     createSynapseImap(*m_synapses, sim_info);
+
+    // Reinitialize device struct - Copy host neuron and synapse arrays into GPU device
+    m_neurons->copyNeuronHostToDevice( m_allNeuronsDevice, sim_info );
+    m_synapses->copySynapseHostToDevice( m_allSynapsesDevice, sim_info );
+
+    // set summation points
+    int neuron_count = sim_info->totalNeurons;
+    const int threadsPerBlock = 256;
+    int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
+    setSynapseSummationPointDevice <<< blocksPerGrid, threadsPerBlock >>> (neuron_count, m_allNeuronsDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron, sim_info->width);
 }
 
 /** 
@@ -287,6 +318,55 @@ void GPUSpikingModel::copyDeviceSynapseSumCoordToHost(AllSynapses &allSynapsesHo
                 max_synapses * neuron_count * sizeof( Coordinate ), cudaMemcpyDeviceToHost ) );
         HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.in_use, allSynapses_0.in_use,
                 max_synapses * neuron_count * sizeof( bool ), cudaMemcpyDeviceToHost ) );
+}
+
+/** 
+*  Update the weight of the Synapses in the simulation.
+*  Note: Platform Dependent.
+*  @param  num_neurons number of neurons to update.
+*  @param  neurons the Neuron list to search from.
+*  @param  synapses    the Synapse list to search from.
+*  @param  sim_info    SimulationInfo to refer from.
+*/
+void GPUSpikingModel::updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info)
+{
+        // For now, we just set the weights to equal the areas. We will later
+        // scale it and set its sign (when we index and get its sign).
+        (*m_conns->W) = (*m_conns->area);
+
+        int width = sim_info->width;
+        BGFLOAT deltaT = sim_info->deltaT;
+
+        // CUDA parameters
+        const int threadsPerBlock = 256;
+        int blocksPerGrid;
+
+        // allocate memories
+        size_t W_d_size = sim_info->totalNeurons * sim_info->totalNeurons * sizeof (BGFLOAT);
+        BGFLOAT* W_h = new BGFLOAT[W_d_size];
+        BGFLOAT* W_d;
+        HANDLE_ERROR( cudaMalloc ( ( void ** ) &W_d, W_d_size ) );
+
+        // copy weight data to the device memory
+        for ( int i = 0 ; i < sim_info->totalNeurons; i++ )
+                for ( int j = 0; j < sim_info->totalNeurons; j++ )
+                        W_h[i * sim_info->totalNeurons + j] = (*m_conns->W)(i, j);
+
+        HANDLE_ERROR( cudaMemcpy ( W_d, W_h, W_d_size, cudaMemcpyHostToDevice ) );
+
+        blocksPerGrid = ( sim_info->totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
+        updateNetworkDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, width, deltaT, W_d, sim_info->maxSynapsesPerNeuron, m_allNeuronsDevice, m_allSynapsesDevice );
+
+        // free memories
+        HANDLE_ERROR( cudaFree( W_d ) );
+        delete[] W_h;
+
+        // copy device synapse count to host memory
+        copyDeviceSynapseCountsToHost(synapses, num_neurons);
+        // copy device synapse summation coordinate to host memory
+        copyDeviceSynapseSumCoordToHost(synapses, num_neurons, sim_info->maxSynapsesPerNeuron);
+        // create synapse inverse map
+        createSynapseImap( synapses, sim_info );
 }
 
 /* ------------------*\
@@ -437,19 +517,44 @@ void GPUSpikingModel::createSynapseImap(AllSynapses &synapses, const SimulationI
 void GPUSpikingModel::updateHistory(const int currentStep, BGFLOAT epochDuration, AllNeurons &neurons, const SimulationInfo *sim_info, IRecorder* simRecorder)
 {
     // Calculate growth cycle firing rate for previous period
-    AllSpikingNeurons &spikingNeurons = dynamic_cast<AllSpikingNeurons &>(neurons);
-    copyDeviceSpikeCountsToHost(spikingNeurons, sim_info->totalNeurons);
-    copyDeviceSpikeHistoryToHost(spikingNeurons, sim_info);
+    neurons.copyNeuronDeviceSpikeCountsToHost(m_allNeuronsDevice, sim_info);
+    neurons.copyNeuronDeviceSpikeHistoryToHost(m_allNeuronsDevice, sim_info);
 
     Model::updateHistory(currentStep, epochDuration, sim_info, simRecorder);
 
     // clear spike count
-    clearSpikeCounts(sim_info->totalNeurons);
+    neurons.clearNeuronSpikeCounts(m_allNeuronsDevice, sim_info);
 }
 
 /* ------------------*\
 |* # Global Functions
 \* ------------------*/
+
+/**
+ * Set the summation points in device memory
+ * @param[in] num_neurons        Number of neurons.
+ * @param[in] allNeuronsDevice   Pointer to the Neuron structures in device memory.
+ * @param[in] allSynapsesDevice  Pointer to the Synapse structures in device memory.
+ * @param[in] max_synapses       Maximum number of synapses per neuron.
+ * @param[in] width              Width of neuron map (assumes square).
+ */
+__global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, int max_synapses, int width)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( idx >= num_neurons )
+        return;
+
+    int src_neuron = idx;
+    int n_inUse = 0;
+    for (int syn_index = 0; n_inUse < allSynapsesDevice->synapse_counts[src_neuron]; syn_index++) {
+        if (allSynapsesDevice->in_use[max_synapses * src_neuron + syn_index] == true) {
+            int dest_neuron = allSynapsesDevice->summationCoord[max_synapses * src_neuron + syn_index].x
+                + allSynapsesDevice->summationCoord[max_synapses * src_neuron + syn_index].y * width;
+            allSynapsesDevice->summationPoint[max_synapses * src_neuron + syn_index] = &( allNeuronsDevice->summation_map[dest_neuron] );
+            n_inUse++;
+        }
+    }
+}
 
 /** 
 * @param[in] total_synapse_counts       Total number of synapses.
@@ -527,6 +632,84 @@ __global__ void calcSummationMapDevice( int totalNeurons, GPUSpikingModel::Synap
                 }
                 summationPoint = sum;
         }
+}
+
+/**
+* Adjust the strength of the synapse or remove it from the synapse map if it has gone below 
+* zero.
+* @param[in] num_neurons        Number of neurons.
+* @param[in] width              Width of neuron map (assumes square).
+* @param[in] deltaT             The time step size.
+* @param[in] W_d                Array of synapse weight.
+* @param[in] maxSynapses        Maximum number of synapses per neuron.
+* @param[in] allNeuronsDevice          Pointer to the Neuron structures in device memory.
+* @param[in] allSynapsesDevice         Pointer to the Synapse structures in device memory.
+*/
+__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice )
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( idx >= num_neurons )
+        return;
+
+    int adjusted = 0;
+    //int could_have_been_removed = 0; // TODO: use this value
+    int removed = 0;
+    int added = 0;
+
+    // Scale and add sign to the areas
+    // visit each neuron 'a'
+    int src_neuron = idx;
+    int xa = src_neuron % width;
+    int ya = src_neuron / width;
+
+    // and each destination neuron 'b'
+    for (int dest_neuron = 0; dest_neuron < num_neurons; dest_neuron++) {
+        int xb = dest_neuron % width;
+        int yb = dest_neuron / width;
+
+        // visit each synapse at (xa,ya)
+        bool connected = false;
+        synapseType type = synType(allNeuronsDevice, src_neuron, dest_neuron);
+
+        // for each existing synapse
+        size_t synapse_counts = allSynapsesDevice->synapse_counts[src_neuron];
+        int synapse_adjusted = 0;
+        for (size_t synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++) {
+            uint32_t iSyn = maxSynapses * src_neuron + synapse_index;
+            if (allSynapsesDevice->in_use[iSyn] == true) {
+                // if there is a synapse between a and b
+                if (allSynapsesDevice->summationCoord[iSyn].x == xb &&
+                    allSynapsesDevice->summationCoord[iSyn].y == yb) {
+                    connected = true;
+                    adjusted++;
+
+                    // adjust the strength of the synapse or remove
+                    // it from the synapse map if it has gone below
+                    // zero.
+                    if (W_d[src_neuron * num_neurons + dest_neuron] < 0) {
+                        removed++;
+                        eraseSynapse(allSynapsesDevice, src_neuron, synapse_index, maxSynapses);
+                    } else {
+                        // adjust
+                        // g_synapseStrengthAdjustmentConstant is 1.0e-8;
+                        allSynapsesDevice->W[iSyn] = W_d[src_neuron * num_neurons
+                            + dest_neuron] * synSign(type) * SYNAPSE_STRENGTH_ADJUSTMENT;
+                    }
+                }
+                synapse_adjusted++;
+            }
+        }
+
+        // if not connected and weight(a,b) > 0, add a new synapse from a to b
+        if (!connected && (W_d[src_neuron * num_neurons +  dest_neuron] > 0)) {
+            // locate summation point
+            BGFLOAT* sum_point = &( allNeuronsDevice->summation_map[dest_neuron] );
+            added++;
+
+            addSynapse(allSynapsesDevice, type, src_neuron, dest_neuron, xa, ya, xb, yb, sum_point, deltaT, W_d, num_neurons);
+
+        }
+    }
 }
 
 /** 
@@ -670,6 +853,27 @@ __device__ void eraseSynapse( AllDSSynapses* allSynapsesDevice, const int neuron
     allSynapsesDevice->synapse_counts[neuron_index]--;
     allSynapsesDevice->in_use[iSync] = false;
     allSynapsesDevice->summationPoint[iSync] = NULL;
+}
+
+/** 
+* Returns the type of synapse at the given coordinates
+* @param[in] allNeuronsDevice          Pointer to the Neuron structures in device memory.
+* @param src_neuron             Index of the source neuron.
+* @param dest_neuron            Index of the destination neuron.
+*/
+__device__ synapseType synType( AllSpikingNeurons* allNeuronsDevice, const int src_neuron, const int dest_neuron )
+{
+    if ( allNeuronsDevice->neuron_type_map[src_neuron] == INH && allNeuronsDevice->neuron_type_map[dest_neuron] == INH )
+        return II;
+    else if ( allNeuronsDevice->neuron_type_map[src_neuron] == INH && allNeuronsDevice->neuron_type_map[dest_neuron] == EXC )
+        return IE;
+    else if ( allNeuronsDevice->neuron_type_map[src_neuron] == EXC && allNeuronsDevice->neuron_type_map[dest_neuron] == INH )
+        return EI;
+    else if ( allNeuronsDevice->neuron_type_map[src_neuron] == EXC && allNeuronsDevice->neuron_type_map[dest_neuron] == EXC )
+        return EE;
+
+    return STYPE_UNDEF;
+
 }
 
 /** 

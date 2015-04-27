@@ -74,13 +74,16 @@ class AllIZHNeurons : public AllIFNeurons
         virtual void deleteNeuronDeviceStruct( void* allNeuronsDevice, const SimulationInfo *sim_info );
         virtual void copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info );
         virtual void copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info );
-#endif
+        virtual void copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void clearNeuronSpikeCounts( void* allNeuronsDevice, const SimulationInfo *sim_info );
 
     protected:
         void allocDeviceStruct( AllIZHNeurons &allNeurons, SimulationInfo *sim_info );
         void deleteDeviceStruct( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
         void copyHostToDevice( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
         void copyDeviceToHost( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
+#endif
 
         void createNeuron(SimulationInfo *sim_info, int neuron_index);
         void setNeuronDefaults(const int index);

@@ -182,10 +182,7 @@ protected:
 	virtual void advanceSynapses(const SimulationInfo *sim_info);
 	virtual void calcSummationMap(const SimulationInfo *sim_info);
 
-	virtual void copyDeviceSpikeHistoryToHost(AllSpikingNeurons &allNeuronsHost, const SimulationInfo *sim_info) = 0;
-	virtual void copyDeviceSpikeCountsToHost(AllSpikingNeurons &allNeuronsHost, int numNeurons) = 0;
-	virtual void clearSpikeCounts(int numNeurons) = 0;
-	virtual void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info) = 0;
+	virtual void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 	void createSynapseImap( AllSynapses &synapses, const SimulationInfo* sim_info );
 
 	/* ------------------*\
@@ -206,6 +203,9 @@ protected:
 
 	//! Synapse structures in device memory.
 	AllDSSynapses* m_allSynapsesDevice;
+
+	//! Neuron structure in device memory.
+	AllSpikingNeurons* m_allNeuronsDevice;
 
 private: 
 	/* ------------------*\
