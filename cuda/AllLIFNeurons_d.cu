@@ -1,25 +1,15 @@
-#include "LIFGPUModel.h"
+#include "AllLIFNeurons.h"
+#include "AllDSSynapses.h"
+#include "Book.h"
 
 //! Perform updating neurons for one time step.
 __global__ void advanceNeuronsDevice( int totalNeurons, uint64_t simulationStep, int maxSynapses, const BGFLOAT deltaT, float* randNoise, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice );
-
-// ----------------------------------------------------------------------------
-
-LIFGPUModel::LIFGPUModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout) :
-        GPUSpikingModel::GPUSpikingModel(conns, neurons, synapses, layout)
-{
-}
-
-LIFGPUModel::~LIFGPUModel()
-{
-        //Let Model base class handle de-allocation
-}
 
 /**
  *  Notify outgoing synapses if neuron has fired.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void LIFGPUModel::advanceNeurons(const SimulationInfo *sim_info)
+void AllLIFNeurons::advanceNeurons( AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise)
 {
     int neuron_count = sim_info->totalNeurons;
 
@@ -28,7 +18,7 @@ void LIFGPUModel::advanceNeurons(const SimulationInfo *sim_info)
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance neurons ------------->
-    advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, g_simulationStep, sim_info->maxSynapsesPerNeuron, sim_info->deltaT, randNoise_d, (AllIFNeurons *)m_allNeuronsDevice, m_allSynapsesDevice );
+    advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, g_simulationStep, sim_info->maxSynapsesPerNeuron, sim_info->deltaT, randNoise, (AllIFNeurons *)allNeuronsDevice, (AllDSSynapses*)allSynapsesDevice );
 }
 
 /* ------------------*\

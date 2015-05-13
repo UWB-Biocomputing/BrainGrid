@@ -1,9 +1,33 @@
-/**
- * @brief A leaky-integrate-and-fire (I&F) neural network model.
+/** 
+ * @authors Aaron Oziel, Sean Blackbourn
+ * 
+ * @class AllIFNeurons AllIFNeurons.h "AllIFNeurons.h"
+ * @brief A container of all LIF neuron data
  *
- * @class  LIFSingleThreadedModel LIFSingleThreadedModel.h "LIFSingleThreadedModel.h"
+ *  The container holds neuron parameters of all neurons. 
+ *  Each kind of neuron parameter is stored in a 1D array, of which length
+ *  is number of all neurons. Each array of a neuron parameter is pointed by a 
+ *  corresponding member variable of the neuron parameter in the class.
  *
- * Implements both neuron and synapse behaviour.
+ *  In this file you will find usage statistics for every variable in the BrainGrid 
+ *  project as we find them. These statistics can be used to help 
+ *  determine if a variable is being used, where it is being used, and how it
+ *  is being used in each class::function()
+ *  
+ *  For Example
+ *
+ *  Usage:
+ *  - LOCAL VARIABLE -- a variable for individual neuron
+ *  - LOCAL CONSTANT --  a constant for individual neuron
+ *  - GLOBAL VARIABLE -- a variable for all neurons
+ *  - GLOBAL CONSTANT -- a constant for all neurons
+ *
+ *  Class::function(): --- Initialized, Modified OR Accessed
+ *
+ *  OtherClass::function(): --- Accessed   
+ *
+ *  Note: All GLOBAL parameters can be scalars. Also some LOCAL CONSTANT can be categorized 
+ *  depending on neuron types. 
  *
  * A standard leaky-integrate-and-fire neuron model is implemented
  * where the membrane potential \f$V_m\f$ of a neuron is given by
@@ -68,41 +92,29 @@
  *
  * @authors Derek McLean
  */
-
 #pragma once
 
-#include "SingleThreadedSpikingModel.h"
+#include "Global.h"
+#include "AllIFNeurons.h"
 
-class LIFSingleThreadedModel : public SingleThreadedSpikingModel {
+// Class to hold all data necessary for all the Neurons.
+class AllLIFNeurons : public AllIFNeurons
+{
+    public:
 
-public:
-	//Constructor & Destructor
-	LIFSingleThreadedModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout);
-	virtual ~LIFSingleThreadedModel();
+        AllLIFNeurons();
+        virtual ~AllLIFNeurons();
 
-protected:
-	// Initiates a firing of a neuron to connected neurons
-	virtual void fire(AllSpikingNeurons &neurons, const int index, const BGFLOAT deltaT) const;
+#if defined(USE_GPU)
+        // Update the state of all neurons for a time step
+        virtual void advanceNeurons(AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise);
+#else
+        // Helper for #advanceNeuron. Updates state of a single neuron.
+        virtual void advanceNeuron(const int index, const BGFLOAT deltaT);
 
-private:
-	/* -----------------
-	* # Helper Functions
-	* ------------------
-	*/
+        // Initiates a firing of a neuron to connected neurons
+        virtual void fire(const int index, const BGFLOAT deltaT) const;
+#endif
 
-	// # Load Memory
-	// -------------
-
-	// # Create All Neurons
-	// --------------------
-
-	// # Advance Network/Model
-	// -----------------------
-
-	// Helper for #advanceNeuron. Updates state of a single neuron.
-	virtual void advanceNeuron(AllNeurons& neurons, const int index, const BGFLOAT deltaT);
+    private:
 };
-
-
-
-

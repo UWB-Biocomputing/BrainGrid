@@ -30,9 +30,6 @@ void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, uns
 
 __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, int max_synapses, int width);
 
-//! Perform updating synapses for one time step.
-__global__ void advanceSynapsesDevice ( int total_synapse_counts, GPUSpikingModel::SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice );
-
 //! Calculate summation point.
 __global__ void calcSummationMapDevice( int totalNeurons, GPUSpikingModel::SynapseIndexMap* synapseIndexMapDevice, AllDSSynapses* allSynapsesDevice );
 
@@ -225,7 +222,7 @@ void GPUSpikingModel::advance(const SimulationInfo *sim_info)
 
 	// display running info to console
 	// Advance neurons ------------->
-	advanceNeurons(sim_info);
+	m_neurons->advanceNeurons(m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoise_d);
 
 #ifdef PERFORMANCE_METRICS
 	lapTime(t_gpu_advanceNeurons);
@@ -233,7 +230,7 @@ void GPUSpikingModel::advance(const SimulationInfo *sim_info)
 #endif // PERFORMANCE_METRICS
 
 	// Advance synapses ------------->
-	advanceSynapses(sim_info);
+	m_synapses->advanceSynapses(m_allSynapsesDevice, synapseIndexMapDevice, sim_info);
 
 #ifdef PERFORMANCE_METRICS
 	lapTime(t_gpu_advanceSynapses);
@@ -246,22 +243,6 @@ void GPUSpikingModel::advance(const SimulationInfo *sim_info)
 #ifdef PERFORMANCE_METRICS
 	lapTime(t_gpu_calcSummation);
 #endif // PERFORMANCE_METRICS
-}
-
-/**
- *  Advance all the Synapses in the simulation.
- *  @param  sim_info    SimulationInfo class to read information from.
- */
-void GPUSpikingModel::advanceSynapses(const SimulationInfo *sim_info)
-{
-    size_t total_synapse_counts = m_synapses->total_synapse_counts;
-
-    // CUDA parameters
-    const int threadsPerBlock = 256;
-    int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
-
-    // Advance synapses ------------->
-    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, m_allSynapsesDevice );
 }
 
 void GPUSpikingModel::calcSummationMap(const SimulationInfo *sim_info)
@@ -288,36 +269,6 @@ void GPUSpikingModel::updateConnections(const int currentStep, const SimulationI
 	// Update the areas of overlap in between Neurons
 	m_conns->updateOverlap(num_neurons);
 	updateWeights(sim_info->totalNeurons, *m_neurons, *m_synapses, sim_info);
-}
-
-/**
- *  Get synapse_counts in AllSynapses struct on device memory.
- *  @param  allSynapsesHost     Reference to the AllSynapses struct on host memory.
- *  @param  neuron_coun         The number of neurons.
- */
-void GPUSpikingModel::copyDeviceSynapseCountsToHost(AllSynapses &allSynapsesHost, int neuron_count)
-{
-        AllDSSynapses allSynapses;
-
-        HANDLE_ERROR( cudaMemcpy ( &allSynapses, m_allSynapsesDevice, sizeof( AllDSSynapses ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.synapse_counts, allSynapses.synapse_counts, neuron_count * sizeof( size_t ), cudaMemcpyDeviceToHost ) );
-}
-
-/** 
- *  Get summationCoord and in_use in AllSynapses struct on device memory.
- *  @param  allSynapsesHost     Reference to the AllSynapses struct on host memory.
- *  @param  neuron_coun         The number of neurons.
- *  @param  max_synapses        Maximum number of synapses per neuron.
- */
-void GPUSpikingModel::copyDeviceSynapseSumCoordToHost(AllSynapses &allSynapsesHost, int neuron_count, int max_synapses)
-{
-        AllDSSynapses allSynapses_0;
-
-        HANDLE_ERROR( cudaMemcpy ( &allSynapses_0, m_allSynapsesDevice, sizeof( AllDSSynapses ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.summationCoord, allSynapses_0.summationCoord,
-                max_synapses * neuron_count * sizeof( Coordinate ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( allSynapsesHost.in_use, allSynapses_0.in_use,
-                max_synapses * neuron_count * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 }
 
 /** 
@@ -362,9 +313,9 @@ void GPUSpikingModel::updateWeights(const int num_neurons, AllNeurons &neurons, 
         delete[] W_h;
 
         // copy device synapse count to host memory
-        copyDeviceSynapseCountsToHost(synapses, num_neurons);
+        synapses.copyDeviceSynapseCountsToHost(m_allSynapsesDevice, sim_info);
         // copy device synapse summation coordinate to host memory
-        copyDeviceSynapseSumCoordToHost(synapses, num_neurons, sim_info->maxSynapsesPerNeuron);
+        synapses.copyDeviceSynapseSumCoordToHost(m_allSynapsesDevice, sim_info);
         // create synapse inverse map
         createSynapseImap( synapses, sim_info );
 }
@@ -554,59 +505,6 @@ __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeuron
             n_inUse++;
         }
     }
-}
-
-/** 
-* @param[in] total_synapse_counts       Total number of synapses.
-* @param[in] synapseIndexMap            Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
-* @param[in] simulationStep             The current simulation step.
-* @param[in] deltaT                     Inner simulation step duration.
-* @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
-*/
-__global__ void advanceSynapsesDevice ( int total_synapse_counts, GPUSpikingModel::SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice ) {
-        int idx = blockIdx.x * blockDim.x + threadIdx.x;
-        if ( idx >= total_synapse_counts )
-                return;
-
-        uint32_t iSyn = synapseIndexMapDevice->activeSynapseIndex[idx];
-
-        BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
-        BGFLOAT decay = allSynapsesDevice->decay[iSyn];
-
-        // Checks if there is an input spike in the queue.
-        uint32_t &delay_queue = allSynapsesDevice->delayQueue[iSyn];
-        int &delayIdx = allSynapsesDevice->delayIdx[iSyn];
-        int ldelayQueue = allSynapsesDevice->ldelayQueue[iSyn];
-
-        uint32_t delayMask = (0x1 << delayIdx);
-        bool isFired = delay_queue & (delayMask);
-        delay_queue &= ~(delayMask);
-        if ( ++delayIdx >= ldelayQueue ) {
-                delayIdx = 0;
-        }
-
-        // is an input in the queue?
-        if (isFired) {
-                uint64_t &lastSpike = allSynapsesDevice->lastSpike[iSyn];
-                BGFLOAT &r = allSynapsesDevice->r[iSyn];
-                BGFLOAT &u = allSynapsesDevice->u[iSyn];
-                BGFLOAT D = allSynapsesDevice->D[iSyn];
-                BGFLOAT F = allSynapsesDevice->F[iSyn];
-                BGFLOAT U = allSynapsesDevice->U[iSyn];
-                BGFLOAT W = allSynapsesDevice->W[iSyn];
-
-                // adjust synapse parameters
-                if (lastSpike != ULONG_MAX) {
-                        BGFLOAT isi = (simulationStep - lastSpike) * deltaT ;
-                        r = 1 + ( r * ( 1 - u ) - 1 ) * exp( -isi / D );
-                        u = U + u * ( 1 - U ) * exp( -isi / F );
-                }
-                psr += ( ( W / decay ) * u * r );// calculate psr
-                lastSpike = simulationStep; // record the time of the spike
-        }
-
-        // decay the post spike response
-        psr *= decay;
 }
 
 /** 

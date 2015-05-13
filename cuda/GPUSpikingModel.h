@@ -113,6 +113,7 @@ inline void lapTime(float& t_event) {
 #endif // PERFORMANCE_METRICS
 
 class GpuSInputPoisson;
+class AllDSSynapses;
 
 class GPUSpikingModel : public Model  {
 	friend GpuSInputPoisson;
@@ -178,8 +179,6 @@ protected:
 	void allocDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info);
 
 	virtual void deleteDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info);
-	virtual void advanceNeurons(const SimulationInfo *sim_info) = 0;
-	virtual void advanceSynapses(const SimulationInfo *sim_info);
 	virtual void calcSummationMap(const SimulationInfo *sim_info);
 
 	virtual void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
@@ -188,8 +187,6 @@ protected:
 	/* ------------------*\
 	|* # Helper Functions
 	\* ------------------*/
-	void copyDeviceSynapseCountsToHost(AllSynapses &allSynapsesHost, int neuron_count);
-	void copyDeviceSynapseSumCoordToHost(AllSynapses &allSynapsesHost, int neuron_count, int max_synapses);
 
 	//! Pointer to device random noise array.
 	float* randNoise_d;

@@ -1,4 +1,5 @@
 #include "AllDSSynapses.h"
+#include "AllNeurons.h"
 
 const BGFLOAT AllDSSynapses::SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
 
@@ -232,6 +233,7 @@ bool AllDSSynapses::updateDecay(const uint32_t iSyn, const BGFLOAT deltaT)
         return false;
 }
 
+#if !defined(USE_GPU)
 /**
  *  Create a Synapse and connect it to the model.
  *  @param  synapses    the Neuron list to reference.
@@ -306,3 +308,77 @@ void AllDSSynapses::createSynapse(const uint32_t iSyn, Coordinate source, Coordi
     resetSynapse(iSyn, deltaT);
 }
 
+/**
+ *  Advance one specific Synapse.
+ *  @param  iSyn   index of the Synapse to connect to.
+ *  @param  deltaT   inner simulation step duration
+ */
+void AllDSSynapses::advanceSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
+{
+    uint64_t &lastSpike = this->lastSpike[iSyn];
+    BGFLOAT &r = this->r[iSyn];
+    BGFLOAT &u = this->u[iSyn];
+    BGFLOAT &D = this->D[iSyn];
+    BGFLOAT &F = this->F[iSyn];
+    BGFLOAT &U = this->U[iSyn];
+    BGFLOAT &W = this->W[iSyn];
+    BGFLOAT &decay = this->decay[iSyn];
+    BGFLOAT &psr = this->psr[iSyn];
+    BGFLOAT &summationPoint = *(this->summationPoint[iSyn]);
+
+    // is an input in the queue?
+    if (isSpikeQueue(iSyn)) {
+        // adjust synapse parameters
+        if (lastSpike != ULONG_MAX) {
+            BGFLOAT isi = (g_simulationStep - lastSpike) * deltaT ;
+            /*
+            DEBUG(
+                    cout << "Synapse (" << neuron_index << "," << synapse_index << ") =>"
+                         << "r := " << r << " " << flush
+                         << "u := " << u << " " << flush
+                         << "isi := " << isi << " " << flush
+                         << "D := " << D << " " << flush
+                         << "U := " << U << " " << flush
+                         << "F := " << F
+                         << endl;
+            )
+            */
+            r = 1 + ( r * ( 1 - u ) - 1 ) * exp( -isi / D );
+            u = U + u * ( 1 - U ) * exp( -isi / F );
+        }
+        psr += ( ( W / decay ) * u * r );// calculate psr
+        lastSpike = g_simulationStep; // record the time of the spike
+    }
+
+    // decay the post spike response
+    psr *= decay;
+    // and apply it to the summation point
+#ifdef USE_OMP
+#pragma omp atomic
+#endif
+    summationPoint += psr;
+#ifdef USE_OMP
+    //PAB: atomic above has implied flush (following statement generates error -- can't be member variable)
+    //#pragma omp flush (summationPoint)
+#endif
+}
+
+/**
+ *  Checks if there is an input spike in the queue.
+ *  @param  iSyn   index of the Synapse to connect to.
+ *  @return true if there is an input spike event.
+ */
+bool AllDSSynapses::isSpikeQueue(const uint32_t iSyn)
+{
+    uint32_t &delayQueue = this->delayQueue[iSyn];
+    int &delayIdx = this->delayIdx[iSyn];
+    int &ldelayQueue = this->ldelayQueue[iSyn];
+
+    bool r = delayQueue & (0x1 << delayIdx);
+    delayQueue &= ~(0x1 << delayIdx);
+    if ( ++delayIdx >= ldelayQueue ) {
+        delayIdx = 0;
+    }
+    return r;
+}
+#endif

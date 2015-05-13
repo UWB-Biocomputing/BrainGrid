@@ -54,7 +54,6 @@ class AllDSSynapses : public AllSynapses
         virtual void readSynapses(istream& input, AllNeurons &neurons, const SimulationInfo *sim_info);
         virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT);
         virtual void writeSynapses(ostream& output, const SimulationInfo *sim_info);
-        virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
 
 #if defined(USE_GPU)
         virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info );
@@ -64,6 +63,14 @@ class AllDSSynapses : public AllSynapses
         virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info );
         virtual void copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int max_synapses );
         virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info );
+        virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const SimulationInfo *sim_info);
+        virtual void copyDeviceSynapseSumCoordToHost(void* allSynapsesDevice, const SimulationInfo *sim_info);
+        // Update the state of all synapses for a time step
+        virtual void advanceSynapses(AllSynapses* allSynapsesDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
+#else
+        // Update the state of synapse for a time step
+        virtual void advanceSynapse(const uint32_t iSyn, const BGFLOAT deltaT);
+        virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
 #endif
 
         // TODO
@@ -130,9 +137,14 @@ class AllDSSynapses : public AllSynapses
          */
         BGFLOAT *F;
 
+    protected:
+
     private:
         void readSynapse(istream &input, const uint32_t iSyn, const BGFLOAT deltaT);
         synapseType synapseOrdinalToType(const int type_ordinal);
         bool updateDecay(const uint32_t iSyn, const BGFLOAT deltaT);
         void writeSynapse(ostream& output, const uint32_t iSyn) const;
+#if !defined(USE_GPU)
+        bool isSpikeQueue(const uint32_t iSyn);
+#endif
 };

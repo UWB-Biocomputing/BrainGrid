@@ -14,9 +14,8 @@
 
 #include "Network.h"
 #include "IModel.h"
-#include "AllIFNeurons.h"
+#include "AllLIFNeurons.h"
 #include "AllIZHNeurons.h"
-#include "IZHSingleThreadedModel.h"
 #include "AllDSSynapses.h"
 #include "XmlRecorder.h"
 #ifdef USE_HDF5
@@ -29,14 +28,13 @@
 // #include <vld.h>
 
 #if defined(USE_GPU)
-    #include "LIFGPUModel.h"
-    #include "IZHGPUModel.h"
+    #include "GPUSpikingModel.h"
     #include "GPUSimulator.h"
 #elif defined(USE_OMP)
 //    #include "MultiThreadedSim.h"
 #else 
-    #include "LIFSingleThreadedModel.h"
     #include "SingleThreadedSim.h"
+    #include "SingleThreadedSpikingModel.h"
 #endif
 
 using namespace std;
@@ -82,13 +80,13 @@ bool parseCommandLine(int argc, char* argv[]);
 int main(int argc, char* argv[]) {
     // create the model
     #if defined(USE_GPU)
-	 model = new IZHGPUModel(new Connections(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
-	 //model = new LIFGPUModel(new Connections(), new AllIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new GPUSpikingModel(new Connections(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
+	 model = new GPUSpikingModel(new Connections(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
     #elif defined(USE_OMP)
-	 model = new LIFSingleThreadedModel(new Connections(), new AllIFNeurons(), new AllDSSynapses(), new Layout());
+	 model = new SingleThreadedSpikingModel(new Connections(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
     #else
-	 model = new IZHSingleThreadedModel(new Connections(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
-	 //model = new LIFSingleThreadedModel(new Connections(), new AllIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new SingleThreadedSpikingModel(new Connections(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
+	 model = new SingleThreadedSpikingModel(new Connections(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
     #endif
     
     DEBUG(cout << "reading parameters from xml file" << endl;)

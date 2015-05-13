@@ -246,6 +246,8 @@ class AllIFNeurons : public AllSpikingNeurons
         void deleteDeviceStruct( AllIFNeurons& allNeurons, const SimulationInfo *sim_info );
 	void copyHostToDevice( AllIFNeurons& allNeurons, const SimulationInfo *sim_info );
 	void copyDeviceToHost( AllIFNeurons& allNeurons, const SimulationInfo *sim_info );
+
+        virtual void advanceNeurons(AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise);
 #endif
 
         void createNeuron(SimulationInfo *sim_info, int neuron_index);

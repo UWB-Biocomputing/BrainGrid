@@ -46,3 +46,22 @@ void AllNeurons::freeResources()
 
     size = 0;
 }
+
+/**
+ *  Returns the type of synapse at the given coordinates
+ * @param    src_neuron  integer that points to a Neuron in the type map as a source.
+ * @param    dest_neuron integer that points to a Neuron in the type map as a destination.
+ */
+synapseType AllNeurons::synType(const int src_neuron, const int dest_neuron)
+{
+    if ( neuron_type_map[src_neuron] == INH && neuron_type_map[dest_neuron] == INH )
+        return II;
+    else if ( neuron_type_map[src_neuron] == INH && neuron_type_map[dest_neuron] == EXC )
+        return IE;
+    else if ( neuron_type_map[src_neuron] == EXC && neuron_type_map[dest_neuron] == INH )
+        return EI;
+    else if ( neuron_type_map[src_neuron] == EXC && neuron_type_map[dest_neuron] == EXC )
+        return EE;
+
+    return STYPE_UNDEF;
+}

@@ -40,12 +40,13 @@
 #pragma once
 
 #include "Global.h"
-#include "AllNeurons.h"
 #include "SimulationInfo.h"
 
 #ifdef _WIN32
 typedef unsigned _int8 uint8_t;
 #endif
+
+class AllNeurons;
 
 class AllSynapses
 {
@@ -61,8 +62,6 @@ class AllSynapses
         virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT) = 0;
         virtual void writeSynapses(ostream& output, const SimulationInfo *sim_info) = 0;
         void initSpikeQueue(const uint32_t iSyn);
-        virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
-
 #if defined(USE_GPU)
         virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
         virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int max_synapses ) = 0;
@@ -71,6 +70,18 @@ class AllSynapses
         virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
         virtual void copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int max_synapses ) = 0;
         virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
+        virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const SimulationInfo *sim_info) = 0;
+        virtual void copyDeviceSynapseSumCoordToHost(void* allSynapsesDevice, const SimulationInfo *sim_info) = 0;
+        // Update the state of all synapses for a time step
+        virtual void advanceSynapses(AllSynapses* allSynapsesDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info) = 0;
+#else
+        // Update the state of all synapses for a time step
+        virtual void advanceSynapses(const SimulationInfo *sim_info);
+        virtual void advanceSynapse(const uint32_t iSyn, const BGFLOAT deltaT) = 0;
+        virtual void preSpikeHit(const uint32_t iSyn);
+        virtual void eraseSynapse(const int neuron_index, const uint32_t iSyn);
+        virtual void addSynapse(BGFLOAT weight, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, const BGFLOAT deltaT);
+        virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
 #endif
  
         /*! The coordinates of the summation point.
@@ -318,6 +329,7 @@ class AllSynapses
         size_t maxSynapsesPerNeuron;
 
     protected:
+
         /*! The number of neurons
          *  Aaron: Is this even supposed to be here?!
          *  Usage: Used by destructor

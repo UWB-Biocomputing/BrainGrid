@@ -1,4 +1,6 @@
 #include "AllSpikingNeurons.h"
+#include "AllSynapses.h"
+
 // Default constructor
 AllSpikingNeurons::AllSpikingNeurons() : AllNeurons()
 {
@@ -63,3 +65,57 @@ void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info)
         spikeCount[i] = 0;
     }
 }
+
+#if !defined(USE_GPU)
+/**
+ *  Notify outgoing synapses if neuron has fired.
+ *  @param  synapses    the Synapse list to search from.
+ *  @param  sim_info    SimulationInfo class to read information from.
+ */
+void AllSpikingNeurons::advanceNeurons(AllSynapses &synapses, const SimulationInfo *sim_info)
+{
+    // TODO: move this code into a helper class - it's being used in multiple places.
+    // For each neuron in the network
+    for (int i = sim_info->totalNeurons - 1; i >= 0; --i) {
+        // advance neurons
+        advanceNeuron(i, sim_info->deltaT);
+
+        // notify outgoing synapses if neuron has fired
+        if (hasFired[i]) {
+            DEBUG_MID(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * sim_info->deltaT << endl;)
+
+            int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
+            assert( spikeCount[i] < max_spikes );
+
+            size_t synapse_counts = synapses.synapse_counts[i];
+            int synapse_notified = 0;
+            for (int z = 0; synapse_notified < synapse_counts; z++) {
+                uint32_t iSyn = sim_info->maxSynapsesPerNeuron * i + z;
+                if (synapses.in_use[iSyn] == true) {
+                    synapses.preSpikeHit(iSyn);
+                    synapse_notified++;
+                }
+            }
+
+            hasFired[i] = false;
+        }
+    }
+}
+
+/**
+ *  Fire the selected Neuron and calculate the result.
+ *  @param  index   index of the Neuron to update.
+ *  @param  deltaT  inner simulation step duration
+ */
+void AllSpikingNeurons::fire(const int index, const BGFLOAT deltaT) const
+{
+    // Note that the neuron has fired!
+    hasFired[index] = true;
+    
+    // record spike time
+    spike_history[index][spikeCount[index]] = g_simulationStep;
+    
+    // increment spike count and total spike count
+    spikeCount[index]++;
+}
+#endif

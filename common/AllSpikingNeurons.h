@@ -62,6 +62,7 @@ class AllSpikingNeurons : public AllNeurons
         virtual void writeNeurons(ostream& output, const SimulationInfo *sim_info) const = 0;
         void clearSpikeCounts(const SimulationInfo *sim_info);
 
+
 #if defined(USE_GPU)
         virtual void allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info ) = 0;
         virtual void deleteNeuronDeviceStruct( void* allNeuronsDevice, const SimulationInfo *sim_info ) = 0;
@@ -75,6 +76,18 @@ class AllSpikingNeurons : public AllNeurons
         void copyDeviceSpikeHistoryToHost( AllSpikingNeurons& allNeurons, const SimulationInfo *sim_info );
         void copyDeviceSpikeCountsToHost( AllSpikingNeurons& allNeurons, const SimulationInfo *sim_info );
         void clearDeviceSpikeCounts( AllSpikingNeurons& allNeurons, const SimulationInfo *sim_info );
+
+        // Update the state of all neurons for a time step
+        virtual void advanceNeurons(AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise) = 0;
+#else
+        // Update the state of all neurons for a time step
+        virtual void advanceNeurons(AllSynapses &synapses, const SimulationInfo *sim_info);
+
+        // Helper for #advanceNeuron. Updates state of a single neuron.
+        virtual void advanceNeuron(const int index, const BGFLOAT deltaT) = 0;
+
+        // Initiates a firing of a neuron to connected neurons
+        virtual void fire(const int index, const BGFLOAT deltaT) const;
 #endif
 
     private:
