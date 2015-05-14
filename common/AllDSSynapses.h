@@ -67,6 +67,7 @@ class AllDSSynapses : public AllSynapses
         virtual void copyDeviceSynapseSumCoordToHost(void* allSynapsesDevice, const SimulationInfo *sim_info);
         // Update the state of all synapses for a time step
         virtual void advanceSynapses(AllSynapses* allSynapsesDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
+        virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h);
 #else
         // Update the state of synapse for a time step
         virtual void advanceSynapse(const uint32_t iSyn, const BGFLOAT deltaT);

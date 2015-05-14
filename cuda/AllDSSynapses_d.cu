@@ -7,6 +7,13 @@
 #include "GPUSpikingModel.h"
 #include "Book.h"
 
+__global__ void getFpCreateSynapseDevice(void (**fpCreateSynapse_d)(AllDSSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType));
+
+//! Perform updating synapses for one time step.
+__global__ void advanceSynapsesDevice ( int total_synapse_counts, GPUSpikingModel::SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice );
+
+__device__ void createSynapse(AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
+
 void AllDSSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info ) {
 	int num_neurons = sim_info->totalNeurons;
 	int max_synapses = sim_info->maxSynapsesPerNeuron;
@@ -218,9 +225,6 @@ void AllDSSynapses::copyDeviceSynapseSumCoordToHost(void* allSynapsesDevice, con
                 max_synapses * neuron_count * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 }
 
-//! Perform updating synapses for one time step.
-__global__ void advanceSynapsesDevice ( int total_synapse_counts, GPUSpikingModel::SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice );
-
 /**
  *  Advance all the Synapses in the simulation.
  *  @param  sim_info    SimulationInfo class to read information from.
@@ -235,9 +239,26 @@ void AllDSSynapses::advanceSynapses(AllSynapses* allSynapsesDevice, void* synaps
     advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (GPUSpikingModel::SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllDSSynapses*)allSynapsesDevice );
 }
 
+void AllDSSynapses::getFpCreateSynapse(unsigned long long& fpCreateSynapse_h)
+{
+    unsigned long long *fpCreateSynapse_d;
+
+    HANDLE_ERROR( cudaMalloc(&fpCreateSynapse_d, sizeof(unsigned long long)) );
+
+    getFpCreateSynapseDevice<<<1,1>>>((void (**)(AllDSSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType))fpCreateSynapse_d);
+
+    HANDLE_ERROR( cudaMemcpy(&fpCreateSynapse_h, fpCreateSynapse_d, sizeof(unsigned long long), cudaMemcpyDeviceToHost) );
+    HANDLE_ERROR( cudaFree( fpCreateSynapse_d ) );
+}
+
 /* ------------------*\
 |* # Global Functions
 \* ------------------*/
+
+__global__ void getFpCreateSynapseDevice(void (**fpCreateSynapse_d)(AllDSSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType))
+{
+    *fpCreateSynapse_d = createSynapse;
+}
 
 /** 
 * @param[in] total_synapse_counts       Total number of synapses.
@@ -290,5 +311,94 @@ __global__ void advanceSynapsesDevice ( int total_synapse_counts, GPUSpikingMode
 
         // decay the post spike response
         psr *= decay;
+}
+
+/**
+ *  Create a Synapse and connect it to the model.
+ *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
+ *  @param neuron_index         Index of the source neuron.
+ *  @param synapse_index        Index of the Synapse to create.
+ *  @param source_x             X location of source.
+ *  @param source_y             Y location of source.
+ *  @param dest_x               X location of destination.
+ *  @param dest_y               Y location of destination.
+ *  @param sum_point            Pointer to the summation point.
+ *  @param deltaT               The time step size.
+ *  @param type                 Type of the Synapse to create.
+ */
+__device__ void createSynapse(AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+{
+    BGFLOAT delay;
+    size_t max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
+    uint32_t iSyn = max_synapses * neuron_index + synapse_index;
+
+    allSynapsesDevice->in_use[iSyn] = true;
+    allSynapsesDevice->summationPoint[iSyn] = sum_point;
+    allSynapsesDevice->summationCoord[iSyn].x = dest_x;
+    allSynapsesDevice->summationCoord[iSyn].y = dest_y;
+    allSynapsesDevice->synapseCoord[iSyn].x = source_x;
+    allSynapsesDevice->synapseCoord[iSyn].y = source_y;
+    allSynapsesDevice->W[iSyn] = 10.0e-9;
+
+    allSynapsesDevice->delayQueue[iSyn] = 0;
+    allSynapsesDevice->delayIdx[iSyn] = 0;
+    allSynapsesDevice->ldelayQueue[iSyn] = LENGTH_OF_DELAYQUEUE;
+
+    allSynapsesDevice->psr[iSyn] = 0.0;
+    allSynapsesDevice->r[iSyn] = 1.0;
+    allSynapsesDevice->u[iSyn] = 0.4;     // DEFAULT_U
+    allSynapsesDevice->lastSpike[iSyn] = ULONG_MAX;
+    allSynapsesDevice->type[iSyn] = type;
+
+    allSynapsesDevice->U[iSyn] = DEFAULT_U;
+    allSynapsesDevice->tau[iSyn] = DEFAULT_tau;
+
+    BGFLOAT U;
+    BGFLOAT D;
+    BGFLOAT F;
+    BGFLOAT tau;
+    switch (type) {
+        case II:
+            U = 0.32;
+            D = 0.144;
+            F = 0.06;
+            tau = 6e-3;
+            delay = 0.8e-3;
+            break;
+        case IE:
+            U = 0.25;
+            D = 0.7;
+            F = 0.02;
+            tau = 6e-3;
+            delay = 0.8e-3;
+            break;
+        case EI:
+            U = 0.05;
+            D = 0.125;
+            F = 1.2;
+            tau = 3e-3;
+            delay = 0.8e-3;
+            break;
+        case EE:
+            U = 0.5;
+            D = 1.1;
+            F = 0.05;
+            tau = 3e-3;
+            delay = 1.5e-3;
+            break;
+        default:
+            break;
+    }
+
+    allSynapsesDevice->U[iSyn] = U;
+    allSynapsesDevice->D[iSyn] = D;
+    allSynapsesDevice->F[iSyn] = F;
+
+    allSynapsesDevice->tau[iSyn] = tau;
+    allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
+    allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
+
+    size_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
+    assert( size <= BYTES_OF_DELAYQUEUE );
 }
 
