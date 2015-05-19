@@ -221,6 +221,7 @@ void Hdf5Recorder::compileHistories(AllNeurons &neurons, BGFLOAT minRadius)
     VectorMatrix& rates = (*m_model->getConnections()->rates);
     VectorMatrix& radii = (*m_model->getConnections()->radii);
     AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
+    int max_spikes = (int) ((m_sim_info->epochDuration * m_sim_info->maxFiringRate));
 
     unsigned int iProbe = 0;    // index of the probedNeuronsLayout vector
     bool fProbe = false;
@@ -234,16 +235,18 @@ void Hdf5Recorder::compileHistories(AllNeurons &neurons, BGFLOAT minRadius)
         uint64_t* pSpikes = spNeurons.spike_history[iNeuron];
 
         int& spike_count = spNeurons.spikeCount[iNeuron];
-        for (int i = 0; i < spike_count; i++)
+        int& offset = spNeurons.spikeCountOffset[iNeuron];
+        for (int i = 0, idxSp = offset; i < spike_count; i++, idxSp++)
         {
+            if (idxSp >= max_spikes) idxSp = 0;
             // compile network wide burstiness index data in 1s bins
-            int idx1 = static_cast<int>( static_cast<double>( pSpikes[i] ) *  m_sim_info->deltaT
+            int idx1 = static_cast<int>( static_cast<double>( pSpikes[idxSp] ) *  m_sim_info->deltaT
                 - ( (m_sim_info->currentStep - 1) * m_sim_info->epochDuration ) );
             assert(idx1 >= 0 && idx1 < m_sim_info->epochDuration);
             burstinessHist[idx1]++;
 
             // compile network wide spike count in 10ms bins
-            int idx2 = static_cast<int>( static_cast<double>( pSpikes[i] ) * m_sim_info->deltaT * 100
+            int idx2 = static_cast<int>( static_cast<double>( pSpikes[idxSp] ) * m_sim_info->deltaT * 100
                 - ( (m_sim_info->currentStep - 1) * m_sim_info->epochDuration * 100 ) );
             assert(idx2 >= 0 && idx2 < m_sim_info->epochDuration * 100);
             spikesHistory[idx2]++;

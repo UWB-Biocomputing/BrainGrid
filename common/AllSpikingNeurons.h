@@ -36,6 +36,8 @@ class AllSpikingNeurons : public AllNeurons
          */
         int *spikeCount;
 
+        int *spikeCountOffset;
+
         /*! Step count for each spike fired by each neuron
          *
          *  Usage: LOCAL VARIABLE
@@ -84,10 +86,10 @@ class AllSpikingNeurons : public AllNeurons
         virtual void advanceNeurons(AllSynapses &synapses, const SimulationInfo *sim_info);
 
         // Helper for #advanceNeuron. Updates state of a single neuron.
-        virtual void advanceNeuron(const int index, const BGFLOAT deltaT) = 0;
+        virtual void advanceNeuron(const int index, const SimulationInfo *sim_info) = 0;
 
         // Initiates a firing of a neuron to connected neurons
-        virtual void fire(const int index, const BGFLOAT deltaT) const;
+        virtual void fire(const int index, const SimulationInfo *sim_info) const;
 #endif
 
     private:

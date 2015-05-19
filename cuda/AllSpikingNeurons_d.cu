@@ -25,6 +25,7 @@ void AllSpikingNeurons::copyDeviceSpikeCountsToHost( AllSpikingNeurons& allNeuro
         int numNeurons = sim_info->totalNeurons;
 
         HANDLE_ERROR( cudaMemcpy ( spikeCount, allNeurons.spikeCount, numNeurons * sizeof( int ), cudaMemcpyDeviceToHost ) );
+        HANDLE_ERROR( cudaMemcpy ( spikeCountOffset, allNeurons.spikeCountOffset, numNeurons * sizeof( int ), cudaMemcpyDeviceToHost ) );
 }
 
 
@@ -33,4 +34,5 @@ void AllSpikingNeurons::clearDeviceSpikeCounts( AllSpikingNeurons& allNeurons, c
         int numNeurons = sim_info->totalNeurons;
 
         HANDLE_ERROR( cudaMemset( allNeurons.spikeCount, 0, numNeurons * sizeof( int ) ) );
+        HANDLE_ERROR( cudaMemcpy ( allNeurons.spikeCountOffset, spikeCountOffset, numNeurons * sizeof( int ), cudaMemcpyHostToDevice ) );
 }

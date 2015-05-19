@@ -14,10 +14,11 @@ AllLIFNeurons::~AllLIFNeurons()
 /**
  *  Update the indexed Neuron.
  *  @param  index   index of the Neuron to update.
- *  @param  deltaT  inner simulation step duration.
+ *  @param  sim_info    SimulationInfo class to read information from.
  */
-void AllLIFNeurons::advanceNeuron(const int index, const BGFLOAT deltaT)
+void AllLIFNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info)
 {
+    const BGFLOAT deltaT = sim_info->deltaT;
     BGFLOAT &Vm = this->Vm[index];
     BGFLOAT &Vthresh = this->Vthresh[index];
     BGFLOAT &summationPoint = this->summation_map[index];
@@ -32,7 +33,7 @@ void AllLIFNeurons::advanceNeuron(const int index, const BGFLOAT deltaT)
         --nStepsInRefr;
     } else if (Vm >= Vthresh) {
         // should it fire?
-        fire(index, deltaT);
+        fire(index, sim_info);
     } else {
         summationPoint += I0; // add IO
         // add noise
@@ -60,11 +61,12 @@ void AllLIFNeurons::advanceNeuron(const int index, const BGFLOAT deltaT)
 /**
  *  Fire the selected Neuron and calculate the result.
  *  @param  index   index of the Neuron to update.
- *  @param  deltaT  inner simulation step duration
+ *  @param  sim_info    SimulationInfo class to read information from.
  */
-void AllLIFNeurons::fire(const int index, const BGFLOAT deltaT) const
+void AllLIFNeurons::fire(const int index, const SimulationInfo *sim_info) const
 {
-    AllSpikingNeurons::fire(index, deltaT);
+    const BGFLOAT deltaT = sim_info->deltaT;
+    AllSpikingNeurons::fire(index, sim_info);
 
     // calculate the number of steps in the absolute refractory period
     nStepsInRefr[index] = static_cast<int> ( Trefract[index] / deltaT + 0.5 );

@@ -156,10 +156,10 @@ class AllIZHNeurons : public AllIFNeurons
         virtual void advanceNeurons(AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise);
 #else
         // Helper for #advanceNeuron. Updates state of a single neuron.
-        virtual void advanceNeuron(const int index, const BGFLOAT deltaT);
+        virtual void advanceNeuron(const int index, const SimulationInfo *sim_info);
 
         // Initiates a firing of a neuron to connected neurons
-        virtual void fire(const int index, const BGFLOAT deltaT) const;
+        virtual void fire(const int index, const SimulationInfo *sim_info) const;
 #endif
 
     private:
