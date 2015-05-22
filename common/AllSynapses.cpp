@@ -179,6 +179,15 @@ void AllSynapses::preSpikeHit(const uint32_t iSyn)
     delay_queue |= (0x1 << idx);
 }
 
+bool AllSynapses::allowBackPropagation()
+{
+    return false;
+}
+
+void AllSynapses::postSpikeHit(const uint32_t iSyn)
+{
+}
+
 /**
  *  Remove a synapse from the network.
  *  @param  neuron_index   Index of a neuron.

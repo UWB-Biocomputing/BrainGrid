@@ -107,7 +107,7 @@ class AllLIFNeurons : public AllIFNeurons
 
 #if defined(USE_GPU)
         // Update the state of all neurons for a time step
-        virtual void advanceNeurons(AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise);
+        virtual void advanceNeurons(AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
 #else
         // Helper for #advanceNeuron. Updates state of a single neuron.
         virtual void advanceNeuron(const int index, const SimulationInfo *sim_info);

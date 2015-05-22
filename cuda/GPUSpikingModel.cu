@@ -31,7 +31,7 @@ void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, uns
 __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, int max_synapses, int width);
 
 //! Calculate summation point.
-__global__ void calcSummationMapDevice( int totalNeurons, GPUSpikingModel::SynapseIndexMap* synapseIndexMapDevice, AllDSSynapses* allSynapsesDevice );
+__global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllDSSynapses* allSynapsesDevice );
 
 //! Update the network.
 __global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, void (*fpCreateSynapse)(AllDSSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType) );
@@ -88,11 +88,8 @@ void GPUSpikingModel::allocDeviceStruct(void** allNeuronsDevice, void** allSynap
 	m_neurons->copyNeuronHostToDevice( *allNeuronsDevice, sim_info );
 	m_synapses->copySynapseHostToDevice( *allSynapsesDevice, sim_info );
 
-	// allocate synapse inverse map
+	// allocate synapse inverse map in device memory
 	allocSynapseImap( neuron_count );
-
-	// create a synapse index map on device memory
-	createSynapseImap(*m_synapses, sim_info);
 }
 
 void GPUSpikingModel::deleteDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info)
@@ -177,9 +174,9 @@ void GPUSpikingModel::cleanupSim(SimulationInfo *sim_info)
 void GPUSpikingModel::loadMemory(istream& input, const SimulationInfo *sim_info)
 {
     Model::loadMemory(input, sim_info);
-   
-    // create a synapse index map on device memory
-    createSynapseImap(*m_synapses, sim_info);
+
+    // copy inverse map to the device memory
+    copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons, m_synapses->total_synapse_counts);
 
     // Reinitialize device struct - Copy host neuron and synapse arrays into GPU device
     m_neurons->copyNeuronHostToDevice( m_allNeuronsDevice, sim_info );
@@ -219,7 +216,7 @@ void GPUSpikingModel::advance(const SimulationInfo *sim_info)
 
 	// display running info to console
 	// Advance neurons ------------->
-	m_neurons->advanceNeurons(m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoise_d);
+	m_neurons->advanceNeurons(m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoise_d, synapseIndexMapDevice);
 
 #ifdef PERFORMANCE_METRICS
 	lapTime(t_gpu_advanceNeurons);
@@ -318,6 +315,8 @@ void GPUSpikingModel::updateWeights(const int num_neurons, AllNeurons &neurons, 
         synapses.copyDeviceSynapseSumCoordToHost(m_allSynapsesDevice, sim_info);
         // create synapse inverse map
         createSynapseImap( synapses, sim_info );
+        // copy inverse map to the device memory
+        copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons, synapses.total_synapse_counts);
 }
 
 /* ------------------*\
@@ -364,6 +363,9 @@ void GPUSpikingModel::deleteSynapseImap(  )
  */
 void GPUSpikingModel::copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIndexMapHost, int neuron_count, int total_synapse_counts)
 {
+	if (total_synapse_counts == 0)
+		return;
+
 	SynapseIndexMap synapseIndexMap;
 
 	HANDLE_ERROR( cudaMemcpy ( &synapseIndexMap, synapseIndexMapDevice, sizeof( SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
@@ -383,78 +385,6 @@ void GPUSpikingModel::copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIn
 	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.activeSynapseIndex, synapseIndexMapHost.activeSynapseIndex, total_synapse_counts * sizeof( uint32_t ), cudaMemcpyHostToDevice ) );
 
 	HANDLE_ERROR( cudaMemcpy ( synapseIndexMapDevice, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
-}
-
-/**
- *  Create a synapse index map on device memory.
- *  @param  synapses     Reference to the AllSynapses struct on host memory.
- *  @param] sim_info     Pointer to the simulation information.
- */
-void GPUSpikingModel::createSynapseImap(AllSynapses &synapses, const SimulationInfo* sim_info )
-{
-	int neuron_count = sim_info->totalNeurons;
-	int width = sim_info->width;
-	int total_synapse_counts = 0;
-
-	// count the total synapses
-        for ( int i = 0; i < neuron_count; i++ )
-        {
-                assert( synapses.synapse_counts[i] < synapses.maxSynapsesPerNeuron );
-                total_synapse_counts += synapses.synapse_counts[i];
-        }
-
-        DEBUG ( cout << "total_synapse_counts: " << total_synapse_counts << endl; )
-
-        if ( total_synapse_counts == 0 )
-        {
-                return;
-        }
-
-        // allocate memories for inverse map
-        vector<uint32_t>* rgSynapseSynapseIndexMap = new vector<uint32_t>[neuron_count];
-
-        uint32_t syn_i = 0;
-	int n_inUse = 0;
-
-        // create synapse inverse map
-	SynapseIndexMap synapseIndexMap(neuron_count, total_synapse_counts);
-        for (int i = 0; i < neuron_count; i++)
-        {
-                for ( int j = 0; j < synapses.maxSynapsesPerNeuron; j++, syn_i++ )
-                {
-                        uint32_t iSyn = synapses.maxSynapsesPerNeuron * i + j;
-                        if ( synapses.in_use[iSyn] == true )
-                        {
-                                int idx = synapses.summationCoord[iSyn].x
-                                        + synapses.summationCoord[iSyn].y * width;
-                                rgSynapseSynapseIndexMap[idx].push_back(syn_i);
-
-				synapseIndexMap.activeSynapseIndex[n_inUse] = syn_i;
-                                n_inUse++;
-                        }
-                }
-        }
-
-        assert( total_synapse_counts == n_inUse ); 
-        synapses.total_synapse_counts = total_synapse_counts; 
-
-        syn_i = 0;
-        for (int i = 0; i < neuron_count; i++)
-        {
-                synapseIndexMap.incomingSynapse_begin[i] = syn_i;
-                synapseIndexMap.synapseCount[i] = rgSynapseSynapseIndexMap[i].size();
-
-                for ( int j = 0; j < rgSynapseSynapseIndexMap[i].size(); j++, syn_i++)
-                {
-                        synapseIndexMap.inverseIndex[syn_i] = rgSynapseSynapseIndexMap[i][j];
-                }
-        }
-
-        // copy inverse map to the device memory
-	copySynapseIndexMapHostToDevice(synapseIndexMap, neuron_count, total_synapse_counts);
-
-        // delete memories
-        delete[] rgSynapseSynapseIndexMap;
 }
 
 /**
@@ -512,7 +442,7 @@ __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeuron
 * @param[in] synapseIndexMap    Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
 * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
 */
-__global__ void calcSummationMapDevice( int totalNeurons, GPUSpikingModel::SynapseIndexMap* synapseIndexMapDevice, AllDSSynapses* allSynapsesDevice ) {
+__global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllDSSynapses* allSynapsesDevice ) {
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )
                 return;

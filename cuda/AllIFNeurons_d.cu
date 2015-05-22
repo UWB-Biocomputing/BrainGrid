@@ -207,6 +207,6 @@ void AllIFNeurons::clearNeuronSpikeCounts( void* allNeuronsDevice, const Simulat
  *  Notify outgoing synapses if neuron has fired.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void AllIFNeurons::advanceNeurons( AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise)
+void AllIFNeurons::advanceNeurons( AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice )
 {
 }

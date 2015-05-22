@@ -14,7 +14,8 @@ Model::Model(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Lay
     m_conns(conns),
     m_neurons(neurons),
     m_synapses(synapses),
-    m_layout(layout)
+    m_layout(layout),
+    m_synapseIndexMap(NULL)
 {
 }
 
@@ -41,6 +42,11 @@ Model::~Model()
     if (m_layout != NULL) {
         delete m_layout;
         m_layout = NULL;
+    }
+
+    if (m_synapseIndexMap != NULL) {
+        delete m_synapseIndexMap;
+        m_synapseIndexMap = NULL;
     }
 }
 
@@ -119,6 +125,9 @@ void Model::loadMemory(istream& input, const SimulationInfo *sim_info)
 
     // read the connections data
     m_conns->readConns(input, sim_info);
+
+    // create a synapse index map 
+    createSynapseImap(*m_synapses, sim_info);
 }
 
 /**
@@ -276,3 +285,79 @@ Layout* Model::getLayout()
 {
     return m_layout;
 }
+
+/**
+ *  Create a synapse index map on device memory.
+ *  @param  synapses     Reference to the AllSynapses struct on host memory.
+ *  @param] sim_info     Pointer to the simulation information.
+ */
+void Model::createSynapseImap(AllSynapses &synapses, const SimulationInfo* sim_info )
+{
+        int neuron_count = sim_info->totalNeurons;
+        int width = sim_info->width;
+        int total_synapse_counts = 0;
+
+        // count the total synapses
+        for ( int i = 0; i < neuron_count; i++ )
+        {
+                assert( synapses.synapse_counts[i] < synapses.maxSynapsesPerNeuron );
+                total_synapse_counts += synapses.synapse_counts[i];
+        }
+
+        DEBUG ( cout << "total_synapse_counts: " << total_synapse_counts << endl; )
+
+        if ( total_synapse_counts == 0 )
+        {
+                return;
+        }
+
+        // allocate memories for inverse map
+        vector<uint32_t>* rgSynapseSynapseIndexMap = new vector<uint32_t>[neuron_count];
+
+        uint32_t syn_i = 0;
+        int n_inUse = 0;
+
+        if (m_synapseIndexMap != NULL) 
+        {
+            delete m_synapseIndexMap;
+            m_synapseIndexMap = NULL;
+        }
+
+        // create synapse inverse map
+        m_synapseIndexMap = new SynapseIndexMap(neuron_count, total_synapse_counts);
+        for (int i = 0; i < neuron_count; i++)
+        {
+                for ( int j = 0; j < synapses.maxSynapsesPerNeuron; j++, syn_i++ )
+                {
+                        uint32_t iSyn = synapses.maxSynapsesPerNeuron * i + j;
+                        if ( synapses.in_use[iSyn] == true )
+                        {
+                                int idx = synapses.summationCoord[iSyn].x
+                                        + synapses.summationCoord[iSyn].y * width;
+                                rgSynapseSynapseIndexMap[idx].push_back(syn_i);
+
+                                m_synapseIndexMap->activeSynapseIndex[n_inUse] = syn_i;
+                                n_inUse++;
+                        }
+                }
+        }
+
+        assert( total_synapse_counts == n_inUse );
+        synapses.total_synapse_counts = total_synapse_counts;
+
+        syn_i = 0;
+        for (int i = 0; i < neuron_count; i++)
+        {
+                m_synapseIndexMap->incomingSynapse_begin[i] = syn_i;
+                m_synapseIndexMap->synapseCount[i] = rgSynapseSynapseIndexMap[i].size();
+
+                for ( int j = 0; j < rgSynapseSynapseIndexMap[i].size(); j++, syn_i++)
+                {
+                        m_synapseIndexMap->inverseIndex[syn_i] = rgSynapseSynapseIndexMap[i][j];
+                }
+        }
+
+        // delete memories
+        delete[] rgSynapseSynapseIndexMap;
+}
+

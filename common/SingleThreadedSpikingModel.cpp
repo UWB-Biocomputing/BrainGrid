@@ -24,7 +24,7 @@ SingleThreadedSpikingModel::~SingleThreadedSpikingModel()
  */
 void SingleThreadedSpikingModel::advance(const SimulationInfo *sim_info)
 {
-    m_neurons->advanceNeurons(*m_synapses, sim_info);
+    m_neurons->advanceNeurons(*m_synapses, sim_info, m_synapseIndexMap);
     m_synapses->advanceSynapses(sim_info);
 }
 
@@ -135,6 +135,9 @@ void SingleThreadedSpikingModel::updateWeights(const int num_neurons, AllNeurons
             }
         }
     }
+
+    // create synapse inverse map
+    createSynapseImap( synapses, sim_info );
 
     DEBUG (cout << "adjusted: " << adjusted << endl;)
     DEBUG (cout << "could have been removed (TODO: calculate this): " << could_have_been_removed << endl;)

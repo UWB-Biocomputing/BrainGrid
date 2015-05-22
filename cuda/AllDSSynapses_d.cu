@@ -10,7 +10,7 @@
 __global__ void getFpCreateSynapseDevice(void (**fpCreateSynapse_d)(AllDSSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType));
 
 //! Perform updating synapses for one time step.
-__global__ void advanceSynapsesDevice ( int total_synapse_counts, GPUSpikingModel::SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice );
+__global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice );
 
 __device__ void createSynapse(AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
 
@@ -236,7 +236,7 @@ void AllDSSynapses::advanceSynapses(AllSynapses* allSynapsesDevice, void* synaps
     int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance synapses ------------->
-    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (GPUSpikingModel::SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllDSSynapses*)allSynapsesDevice );
+    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllDSSynapses*)allSynapsesDevice );
 }
 
 void AllDSSynapses::getFpCreateSynapse(unsigned long long& fpCreateSynapse_h)
@@ -267,7 +267,7 @@ __global__ void getFpCreateSynapseDevice(void (**fpCreateSynapse_d)(AllDSSynapse
 * @param[in] deltaT                     Inner simulation step duration.
 * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
 */
-__global__ void advanceSynapsesDevice ( int total_synapse_counts, GPUSpikingModel::SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice ) {
+__global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice ) {
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= total_synapse_counts )
                 return;

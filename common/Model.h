@@ -4,6 +4,7 @@
 #include "Coordinate.h"
 #include "Connections.h"
 #include "Layout.h"
+#include "SynapseIndexMap.h"
 
 #include <vector>
 #include <iostream>
@@ -44,6 +45,8 @@ class Model : public IModel, TiXmlVisitor
          * ------------------
          */
 
+        void createSynapseImap(AllSynapses &synapses, const SimulationInfo* sim_info );
+
         // # Read Parameters
         // -----------------
 
@@ -80,6 +83,9 @@ class Model : public IModel, TiXmlVisitor
 
         // 
         Layout *m_layout;
+
+        //
+        SynapseIndexMap *m_synapseIndexMap;
 
     private:
         /**

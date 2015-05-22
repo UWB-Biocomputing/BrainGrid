@@ -4,6 +4,7 @@ using namespace std;
 
 #include "Global.h"
 #include "SimulationInfo.h"
+#include "SynapseIndexMap.h"
 
 class AllSynapses;
 
@@ -71,10 +72,10 @@ class AllNeurons
         virtual void copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, const SimulationInfo *sim_info ) = 0;
         virtual void clearNeuronSpikeCounts( void* allNeuronsDevice, const SimulationInfo *sim_info ) = 0;
         // Update the state of all neurons for a time step
-        virtual void advanceNeurons(AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise) = 0;
+        virtual void advanceNeurons(AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice) = 0;
 #else
         // Update the state of all neurons for a time step
-        virtual void advanceNeurons(AllSynapses &synapses, const SimulationInfo *sim_info) = 0;
+        virtual void advanceNeurons(AllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap) = 0;
 #endif
 
     protected:

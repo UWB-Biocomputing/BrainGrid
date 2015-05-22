@@ -80,10 +80,10 @@ class AllSpikingNeurons : public AllNeurons
         void clearDeviceSpikeCounts( AllSpikingNeurons& allNeurons, const SimulationInfo *sim_info );
 
         // Update the state of all neurons for a time step
-        virtual void advanceNeurons(AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise) = 0;
+        virtual void advanceNeurons(AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice) = 0;
 #else
         // Update the state of all neurons for a time step
-        virtual void advanceNeurons(AllSynapses &synapses, const SimulationInfo *sim_info);
+        virtual void advanceNeurons(AllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap);
 
         // Helper for #advanceNeuron. Updates state of a single neuron.
         virtual void advanceNeuron(const int index, const SimulationInfo *sim_info) = 0;

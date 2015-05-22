@@ -80,6 +80,8 @@ class AllSynapses
         virtual void advanceSynapses(const SimulationInfo *sim_info);
         virtual void advanceSynapse(const uint32_t iSyn, const BGFLOAT deltaT) = 0;
         virtual void preSpikeHit(const uint32_t iSyn);
+        virtual bool allowBackPropagation();
+        virtual void postSpikeHit(const uint32_t iSyn);
         virtual void eraseSynapse(const int neuron_index, const uint32_t iSyn);
         virtual void addSynapse(BGFLOAT weight, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, const BGFLOAT deltaT);
         virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;

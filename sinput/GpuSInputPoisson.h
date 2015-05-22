@@ -61,7 +61,7 @@ private:
     AllDSSynapses* allSynapsesDevice;
  
     //! Pointer to synapse index map in device memory.
-    GPUSpikingModel::SynapseIndexMap* synapseIndexMapDevice;
+    SynapseIndexMap* synapseIndexMapDevice;
 
     //! Pointer to device interval counter.
     int* nISIs_d;

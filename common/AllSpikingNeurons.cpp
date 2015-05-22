@@ -80,32 +80,48 @@ void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info)
  *  @param  synapses    the Synapse list to search from.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void AllSpikingNeurons::advanceNeurons(AllSynapses &synapses, const SimulationInfo *sim_info)
+void AllSpikingNeurons::advanceNeurons(AllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap)
 {
-    // TODO: move this code into a helper class - it's being used in multiple places.
+    int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
+
     // For each neuron in the network
-    for (int i = sim_info->totalNeurons - 1; i >= 0; --i) {
+    for (int idx = sim_info->totalNeurons - 1; idx >= 0; --idx) {
         // advance neurons
-        advanceNeuron(i, sim_info);
+        advanceNeuron(idx, sim_info);
 
-        // notify outgoing synapses if neuron has fired
-        if (hasFired[i]) {
-            DEBUG_MID(cout << " !! Neuron" << i << "has Fired @ t: " << g_simulationStep * sim_info->deltaT << endl;)
+        // notify outgoing/incomming synapses if neuron has fired
+        if (hasFired[idx]) {
+            DEBUG_MID(cout << " !! Neuron" << idx << "has Fired @ t: " << g_simulationStep * sim_info->deltaT << endl;)
 
-            int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
-            assert( spikeCount[i] < max_spikes );
+            assert( spikeCount[idx] < max_spikes );
 
-            size_t synapse_counts = synapses.synapse_counts[i];
+            // notify outgoing synapses
+            size_t synapse_counts = synapses.synapse_counts[idx];
             int synapse_notified = 0;
             for (int z = 0; synapse_notified < synapse_counts; z++) {
-                uint32_t iSyn = sim_info->maxSynapsesPerNeuron * i + z;
+                uint32_t iSyn = sim_info->maxSynapsesPerNeuron * idx + z;
                 if (synapses.in_use[iSyn] == true) {
                     synapses.preSpikeHit(iSyn);
                     synapse_notified++;
                 }
             }
 
-            hasFired[i] = false;
+            // notify incomming synapses
+            if (synapses.allowBackPropagation()) {
+                synapse_counts = synapseIndexMap->synapseCount[idx];
+                if (synapse_counts != 0) {
+                        int beginIndex = synapseIndexMap->incomingSynapse_begin[idx];
+                        uint32_t* inverseMap_begin = &( synapseIndexMap->inverseIndex[beginIndex] );
+                        uint32_t iSyn;
+                        for ( uint32_t i = 0; i < synapse_counts; i++ ) {
+                            iSyn = inverseMap_begin[i];
+                            synapses.postSpikeHit(iSyn);
+                            synapse_notified++;
+                        }
+                }
+            }
+
+            hasFired[idx] = false;
         }
     }
 }
