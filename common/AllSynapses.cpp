@@ -10,14 +10,7 @@ AllSynapses::AllSynapses() :
     summationPoint = NULL;
     synapseCoord = NULL;
     psr = NULL;
-    decay = NULL;
-    total_delay = NULL;
-    delayQueue = NULL;
-    delayIdx = NULL;
-    ldelayQueue = NULL;
     type = NULL;
-    tau = NULL;
-    lastSpike = NULL;
     in_use = NULL;
     synapse_counts = NULL;
 }
@@ -51,14 +44,7 @@ void AllSynapses::setupSynapses(const int num_neurons, const int max_synapses)
         summationPoint = new BGFLOAT*[max_total_synapses];
         synapseCoord = new Coordinate[max_total_synapses];
         psr = new BGFLOAT[max_total_synapses];
-        decay = new BGFLOAT[max_total_synapses];
-        total_delay = new int[max_total_synapses];
-        delayQueue = new uint32_t[max_total_synapses];
-        delayIdx = new int[max_total_synapses];
-        ldelayQueue = new int[max_total_synapses];
         type = new synapseType[max_total_synapses];
-        tau = new BGFLOAT[max_total_synapses];
-        lastSpike = new uint64_t[max_total_synapses];
         in_use = new bool[max_total_synapses];
         synapse_counts = new size_t[num_neurons];
 
@@ -83,14 +69,7 @@ void AllSynapses::cleanupSynapses()
         delete[] summationPoint;
         delete[] synapseCoord;
         delete[] psr;
-        delete[] decay;
-        delete[] total_delay;
-        delete[] delayQueue;
-        delete[] delayIdx;
-        delete[] ldelayQueue;
         delete[] type;
-        delete[] tau;
-        delete[] lastSpike;
         delete[] in_use;
         delete[] synapse_counts;
     }
@@ -100,37 +79,12 @@ void AllSynapses::cleanupSynapses()
     summationPoint = NULL;
     synapseCoord = NULL;
     psr = NULL;
-    decay = NULL;
-    total_delay = NULL;
-    delayQueue = NULL;
-    delayIdx = NULL;
-    ldelayQueue = NULL;
     type = NULL;
-    tau = NULL;
-    lastSpike = NULL;
     in_use = NULL;
     synapse_counts = NULL;
 
     count_neurons = 0;
     maxSynapsesPerNeuron = 0;
-}
-
-/**
- *  Initializes the queues for the Synapses.
- *  @param  iSyn   index of the synapse to set.
- */
-void AllSynapses::initSpikeQueue(const uint32_t iSyn)
-{
-    int &total_delay = this->total_delay[iSyn];
-    uint32_t &delayQueue = this->delayQueue[iSyn];
-    int &delayIdx = this->delayIdx[iSyn];
-    int &ldelayQueue = this->ldelayQueue[iSyn];
-
-    size_t size = total_delay / ( sizeof(uint8_t) * 8 ) + 1;
-    assert( size <= BYTES_OF_DELAYQUEUE );
-    delayQueue = 0;
-    delayIdx = 0;
-    ldelayQueue = LENGTH_OF_DELAYQUEUE;
 }
 
 #if !defined(USE_GPU)
@@ -153,39 +107,6 @@ void AllSynapses::advanceSynapses(const SimulationInfo *sim_info)
             synapse_advanced++;
         }
     }
-}
-
-/**
- *  Prepares Synapse for a spike hit.
- *  @param  iSyn   index of the Synapse to update.
- */
-void AllSynapses::preSpikeHit(const uint32_t iSyn)
-{
-    uint32_t &delay_queue = this->delayQueue[iSyn];
-    int &delayIdx = this->delayIdx[iSyn];
-    int &ldelayQueue = this->ldelayQueue[iSyn];
-    int &total_delay = this->total_delay[iSyn];
-
-    // Add to spike queue
-
-    // calculate index where to insert the spike into delayQueue
-    int idx = delayIdx +  total_delay;
-    if ( idx >= ldelayQueue ) {
-        idx -= ldelayQueue;
-    }
-
-    // set a spike
-    assert( !(delay_queue & (0x1 << idx)) );
-    delay_queue |= (0x1 << idx);
-}
-
-bool AllSynapses::allowBackPropagation()
-{
-    return false;
-}
-
-void AllSynapses::postSpikeHit(const uint32_t iSyn)
-{
 }
 
 /**

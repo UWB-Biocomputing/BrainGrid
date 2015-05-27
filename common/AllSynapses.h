@@ -61,14 +61,12 @@ class AllSynapses
         virtual void readSynapses(istream& input, AllNeurons &neurons, const SimulationInfo *sim_info) = 0;
         virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT) = 0;
         virtual void writeSynapses(ostream& output, const SimulationInfo *sim_info) = 0;
-        void initSpikeQueue(const uint32_t iSyn);
 #if defined(USE_GPU)
         virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int max_synapses ) = 0;
-        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
-        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice, int num_neurons, int max_synapses ) = 0;
+        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) = 0;
+        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice ) = 0;
         virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
-        virtual void copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int max_synapses ) = 0;
+        virtual void copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) = 0;
         virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
         virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const SimulationInfo *sim_info) = 0;
         virtual void copyDeviceSynapseSumCoordToHost(void* allSynapsesDevice, const SimulationInfo *sim_info) = 0;
@@ -79,9 +77,6 @@ class AllSynapses
         // Update the state of all synapses for a time step
         virtual void advanceSynapses(const SimulationInfo *sim_info);
         virtual void advanceSynapse(const uint32_t iSyn, const BGFLOAT deltaT) = 0;
-        virtual void preSpikeHit(const uint32_t iSyn);
-        virtual bool allowBackPropagation();
-        virtual void postSpikeHit(const uint32_t iSyn);
         virtual void eraseSynapse(const int neuron_index, const uint32_t iSyn);
         virtual void addSynapse(BGFLOAT weight, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, const BGFLOAT deltaT);
         virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
@@ -154,18 +149,6 @@ class AllSynapses
          */
         synapseType *type;
 
-        /*! The time of the last spike.
-         *  
-         *  Usage: LOCAL VARIABLE
-         *  - LIFModel::readSynapse() --- Modified
-         *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFModel::resetSynapse() --- Initialized
-         *  - SingleThreadedSpikingModel::advanceSynapse() --- Accessed & Modified 
-         *  - GpuSim_Struct::createSynapse() --- Initialized
-     	 *  - GpuSim_Struct::advanceSynapseDevice() --- Accessed & Modified  
-         */
-        uint64_t *lastSpike;
-
         /*! The post-synaptic response is the result of whatever computation 
          *  is going on in the synapse.
          *  
@@ -179,92 +162,6 @@ class AllSynapses
          *  - GpuSim_Struct::calcSummationMap() --- Accessed
          */
         BGFLOAT *psr;
-
-        /*! The decay for the psr.
-         *  
-         *  Usage: LOCAL CONSTANT depending on synapse type
-         *  - LIFModel::readSynapse() --- Modified
-         *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFModel::updateDecay() --- Modified
-         *  - SingleThreadedSpikingModel::advanceSynapse() --- Accessed
-         *  - GpuSim_Struct::createSynapse() --- Modified
-         *  - GpuSim_Struct::advanceSynapsesDevice() --- Accessed
-         */
-        BGFLOAT *decay;
-
-        /*! The synaptic time constant \f$\tau\f$ [units=sec; range=(0,100)].
-         *  
-         *  Usage: LOCAL CONSTANT depending on synapse type
-         *  - LIFModel::readSynapse() --- Modified
-         *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFModel::updateDecay() --- Accessed
-         *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
-         *  - GpuSim_Struct::createSynapse() --- Initialized
-         */
-        BGFLOAT *tau;
-
-        /*! The synaptic transmission delay, descretized into time steps.
-         *  
-         *  Usage: LOCAL CONSTANT depending on synapse type
-         *  - LIFModel::readSynapse() --- Modified
-         *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFModel::initSpikeQueue() --- Accessed
-         *  - SingleThreadedSpikingModel::preSpikeHit() --- Accessed
-         *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
-         *  - GpuSim_Struct::createSynapse() --- Initialized
-         *  - GpuSim_Struct::advanceNeuronsDevice() --- Accessed
-         */
-        int *total_delay;
-
-#define BYTES_OF_DELAYQUEUE         ( sizeof(uint32_t) / sizeof(uint8_t) )
-#define LENGTH_OF_DELAYQUEUE        ( BYTES_OF_DELAYQUEUE * 8 )
-        /*! Pointer to the delayed queue
-         *  
-         *  Usage: LOCAL CONSTANT
-         *  - LIFModel::readSynapse() --- Modified
-         *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFModel::initSpikeQueue() --- Initialized
-         *  - SingleThreadedSpikingModel::preSpikeHit() --- Accessed
-         *  - SingleThreadedSpikingModel::isSpikeQueue() --- Accessed
-         *  - GpuSim_Struct::createSynapse() --- Initialized  
-         *  - GpuSim_Struct::advanceNeuronsDevice() --- Accessed
-         *  - GpuSim_Struct::advanceSynapseDevice() --- Accessed
-         */
-        uint32_t *delayQueue;
-
-        /*! The index indicating the current time slot in the delayed queue
-         *  
-         *  Usage: LOCAL VARIABLE
-         *  - AllSynapses::AllSynapses() --- Initialized
-         *  - LIFModel::initSpikeQueue() --- Initialized
-         *  - LIFModel::readSynapse() --- Modified
-         *  - LIFModel::writeSynapse() --- Accessed
-         *  - SingleThreadedSpikingModel::preSpikeHit() --- Accessed
-         *  - SingleThreadedSpikingModel::isSpikeQueue() --- Accessed & Modified
-         *  - GpuSim_Struct::advanceNeuronsDevice() --- Accessed
-         *  - GpuSim_Struct::advanceSynapseDevice() --- Accessed & Modified
-         *  - GpuSim_Struct::createSynapse() --- Initialized
-         *  
-         *  Note: This variable is used in GpuSim_struct.cu but I am not sure 
-         *  if it is actually from a synapse. Will need a little help here. -Aaron
-         *  Note: This variable can be GLOBAL VARIABLE, but need to modify the code.
-         */
-        int *delayIdx;
-
-        /*! Length of the delayed queue
-         *  
-         *  Usage: GLOBAL CONSTANT
-         *  - AllSynapses::AllSynapses() --- Initialized
-         *  - LIFModel::readSynapse() --- Modified
-         *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFModel::initSpikeQueue() --- Initialized
-         *  - SingleThreadedSpikingModel::preSpikeHit() --- Accessed
-         *  - SingleThreadedSpikingModel::isSpikeQueue() --- Accessed
-         *  - GpuSim_Struct::advanceNeuronsDevice() --- Accessed
-         *  - GpuSim_Struct::advanceSynapsesDevice() --- Accessed
-         *  - GpuSim_Struct::createSynapse() --- Initialzied
-         */
-        int *ldelayQueue;
 
     	/*! The boolean value indicating the entry in the array is in use.
          *  

@@ -3,7 +3,7 @@
 
 const BGFLOAT AllDSSynapses::SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
 
-AllDSSynapses::AllDSSynapses() : AllSynapses()
+AllDSSynapses::AllDSSynapses() : AllSpikingSynapses()
 {
     r = NULL;
     u = NULL;
@@ -13,7 +13,7 @@ AllDSSynapses::AllDSSynapses() : AllSynapses()
 }
 
 AllDSSynapses::AllDSSynapses(const int num_neurons, const int max_synapses) :
-        AllSynapses(num_neurons, max_synapses)
+        AllSpikingSynapses(num_neurons, max_synapses)
 {
     setupSynapses(num_neurons, max_synapses);
 }
@@ -30,7 +30,7 @@ void AllDSSynapses::setupSynapses(SimulationInfo *sim_info)
 
 void AllDSSynapses::setupSynapses(const int num_neurons, const int max_synapses)
 {
-    AllSynapses::setupSynapses(num_neurons, max_synapses);
+    AllSpikingSynapses::setupSynapses(num_neurons, max_synapses);
 
     uint32_t max_total_synapses = max_synapses * num_neurons;
 
@@ -61,7 +61,7 @@ void AllDSSynapses::cleanupSynapses()
     U = NULL;
     F = NULL;
 
-    AllSynapses::cleanupSynapses();
+    AllSpikingSynapses::cleanupSynapses();
 }
 
 void AllDSSynapses::readSynapses(istream& input, AllNeurons &neurons, const SimulationInfo *sim_info)

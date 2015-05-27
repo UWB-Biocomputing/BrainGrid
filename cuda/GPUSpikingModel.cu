@@ -28,19 +28,19 @@ void normalMTGPU(float * randNoise_d);
 void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, unsigned int nPerRng, unsigned int mt_rng_count);
 }
 
-__global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, int max_synapses, int width);
+__global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, int max_synapses, int width);
 
 //! Calculate summation point.
-__global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllDSSynapses* allSynapsesDevice );
+__global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapses* allSynapsesDevice );
 
 //! Update the network.
-__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, void (*fpCreateSynapse)(AllDSSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType) );
+__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, void (*fpCreateSynapse)(AllSpikingSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType) );
 
 //! Add a synapse to the network.
-__device__ void addSynapse( AllDSSynapses* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons, void (*fpCreateSynapse)(AllDSSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType) );
+__device__ void addSynapse( AllSpikingSynapses* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons, void (*fpCreateSynapse)(AllSpikingSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType) );
 
 //! Remove a synapse from the network.
-__device__ void eraseSynapse( AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses );
+__device__ void eraseSynapse( AllSpikingSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses );
 
 //! Get the type of synapse.
 __device__ synapseType synType( AllSpikingNeurons* allNeuronsDevice, const int src_neuron, const int dest_neuron );
@@ -104,7 +104,7 @@ void GPUSpikingModel::deleteDeviceStruct(void** allNeuronsDevice, void** allSyna
     m_synapses->copySynapseDeviceToHost( *allSynapsesDevice, sim_info );
 
     // Deallocate device memory
-    m_synapses->deleteSynapseDeviceStruct( *allSynapsesDevice, sim_info );
+    m_synapses->deleteSynapseDeviceStruct( *allSynapsesDevice );
 
     deleteSynapseImap();
 
@@ -303,7 +303,7 @@ void GPUSpikingModel::updateWeights(const int num_neurons, AllNeurons &neurons, 
         synapses.getFpCreateSynapse(fpCreateSynapse_h); 
 
         blocksPerGrid = ( sim_info->totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
-        updateNetworkDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, width, deltaT, W_d, sim_info->maxSynapsesPerNeuron, m_allNeuronsDevice, m_allSynapsesDevice, (void (*)(AllDSSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType))fpCreateSynapse_h );
+        updateNetworkDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, width, deltaT, W_d, sim_info->maxSynapsesPerNeuron, m_allNeuronsDevice, m_allSynapsesDevice, (void (*)(AllSpikingSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType))fpCreateSynapse_h );
 
         // free memories
         HANDLE_ERROR( cudaFree( W_d ) );
@@ -419,7 +419,7 @@ void GPUSpikingModel::updateHistory(const int currentStep, BGFLOAT epochDuration
  * @param[in] max_synapses       Maximum number of synapses per neuron.
  * @param[in] width              Width of neuron map (assumes square).
  */
-__global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, int max_synapses, int width)
+__global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, int max_synapses, int width)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= num_neurons )
@@ -442,7 +442,7 @@ __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeuron
 * @param[in] synapseIndexMap    Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
 * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
 */
-__global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllDSSynapses* allSynapsesDevice ) {
+__global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapses* allSynapsesDevice ) {
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )
                 return;
@@ -473,7 +473,7 @@ __global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synap
 * @param[in] allNeuronsDevice          Pointer to the Neuron structures in device memory.
 * @param[in] allSynapsesDevice         Pointer to the Synapse structures in device memory.
 */
-__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, void (*fpCreateSynapse)(AllDSSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType) )
+__global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, void (*fpCreateSynapse)(AllSpikingSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType) )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= num_neurons )
@@ -556,7 +556,7 @@ __global__ void updateNetworkDevice( int num_neurons, int width, BGFLOAT deltaT,
 * @param W_d                    Array of synapse weight.
 * @param num_neurons            The number of neurons.
 */
-__device__ void addSynapse(AllDSSynapses* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons, void (*fpCreateSynapse)(AllDSSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType))
+__device__ void addSynapse(AllSpikingSynapses* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons, void (*fpCreateSynapse)(AllSpikingSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType))
 {
     if (allSynapsesDevice->synapse_counts[src_neuron] >= allSynapsesDevice->maxSynapsesPerNeuron) {
         return; // TODO: ERROR!
@@ -586,7 +586,7 @@ __device__ void addSynapse(AllDSSynapses* allSynapsesDevice, synapseType type, c
 * @param synapse_index  Index of a synapse.
 * @param[in] maxSynapses        Maximum number of synapses per neuron.
 */
-__device__ void eraseSynapse( AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses )
+__device__ void eraseSynapse( AllSpikingSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses )
 {
     uint32_t iSync = maxSynapses * neuron_index + synapse_index;
     allSynapsesDevice->synapse_counts[neuron_index]--;

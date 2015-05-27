@@ -4,7 +4,7 @@
  */
 
 #include "AllIZHNeurons.h"
-#include "AllDSSynapses.h"
+#include "AllSpikingSynapses.h"
 #include "Book.h"
 
 void AllIZHNeurons::allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info ) {
@@ -18,7 +18,6 @@ void AllIZHNeurons::allocNeuronDeviceStruct( void** allNeuronsDevice, Simulation
 
 void AllIZHNeurons::allocDeviceStruct( AllIZHNeurons &allNeurons, SimulationInfo *sim_info ) {
 	int count = sim_info->totalNeurons;
-	int max_spikes = static_cast<int> (sim_info->epochDuration * sim_info->maxFiringRate);
 
 	AllIFNeurons::allocDeviceStruct( allNeurons, sim_info );
  
@@ -41,8 +40,6 @@ void AllIZHNeurons::deleteNeuronDeviceStruct( void* allNeuronsDevice, const Simu
 }
 
 void AllIZHNeurons::deleteDeviceStruct( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info ) {
-	int count = sim_info->totalNeurons;
-
 	HANDLE_ERROR( cudaFree( allNeurons.Aconst ) );
 	HANDLE_ERROR( cudaFree( allNeurons.Bconst ) );
 	HANDLE_ERROR( cudaFree( allNeurons.Cconst ) );
@@ -129,7 +126,7 @@ void AllIZHNeurons::clearNeuronSpikeCounts( void* allNeuronsDevice, const Simula
 }
 
 //! Perform updating neurons for one time step.
-__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice );
+__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice );
 
 /**
  *  Notify outgoing synapses if neuron has fired.
@@ -145,7 +142,7 @@ void AllIZHNeurons::advanceNeurons( AllNeurons* allNeuronsDevice, AllSynapses* a
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance neurons ------------->
-    advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIZHNeurons *)allNeuronsDevice, (AllDSSynapses*)allSynapsesDevice, synapseIndexMapDevice );
+    advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIZHNeurons *)allNeuronsDevice, (AllSpikingSynapses*)allSynapsesDevice, synapseIndexMapDevice );
 }
 
 /* ------------------*\
@@ -164,7 +161,7 @@ void AllIZHNeurons::advanceNeurons( AllNeurons* allNeuronsDevice, AllSynapses* a
 * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
 * @param[in] synapseIndexMap    Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
 */
-__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice ) {
+__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice ) {
         // determine which neuron this thread is processing
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )

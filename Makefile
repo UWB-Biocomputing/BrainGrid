@@ -70,6 +70,7 @@ CUDAOBJS =   \
             $(CUDADIR)/AllIZHNeurons_cuda.o \
             $(CUDADIR)/AllIZHNeurons_d.o \
             $(CUDADIR)/AllSynapses_cuda.o \
+            $(CUDADIR)/AllSpikingSynapses_cuda.o \
             $(CUDADIR)/AllDSSynapses_cuda.o \
             $(CUDADIR)/AllDSSynapses_d.o \
             $(CUDADIR)/MersenneTwister_kernel.o \
@@ -126,6 +127,7 @@ SINGLEOBJS = $(MAIN)/BGDriver.o  \
 			$(COMMDIR)/AllLIFNeurons.o \
 			$(COMMDIR)/AllIZHNeurons.o \
 			$(COMMDIR)/AllSynapses.o \
+			$(COMMDIR)/AllSpikingSynapses.o \
 			$(COMMDIR)/AllDSSynapses.o \
 			$(COMMDIR)/Global.o 
 
@@ -201,6 +203,9 @@ $(CUDADIR)/AllIZHNeurons_cuda.o: $(COMMDIR)/AllIZHNeurons.cpp $(COMMDIR)/AllIZHN
 $(CUDADIR)/AllSynapses_cuda.o: $(COMMDIR)/AllSynapses.cpp $(COMMDIR)/AllSynapses.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllSynapses.cpp -o $(CUDADIR)/AllSynapses_cuda.o
 
+$(CUDADIR)/AllSpikingSynapses_cuda.o: $(COMMDIR)/AllSpikingSynapses.cpp $(COMMDIR)/AllSpikingSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllSpikingSynapses.cpp -o $(CUDADIR)/AllSpikingSynapses_cuda.o
+
 $(CUDADIR)/AllDSSynapses_cuda.o: $(COMMDIR)/AllDSSynapses.cpp $(COMMDIR)/AllDSSynapses.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllDSSynapses.cpp -o $(CUDADIR)/AllDSSynapses_cuda.o
 
@@ -231,6 +236,9 @@ $(COMMDIR)/AllIZHNeurons.o: $(COMMDIR)/AllIZHNeurons.cpp $(COMMDIR)/AllIZHNeuron
 	
 $(COMMDIR)/AllSynapses.o: $(COMMDIR)/AllSynapses.cpp $(COMMDIR)/AllSynapses.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllSynapses.cpp -o $(COMMDIR)/AllSynapses.o
+
+$(COMMDIR)/AllSpikingSynapses.o: $(COMMDIR)/AllSpikingSynapses.cpp $(COMMDIR)/AllSpikingSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllSpikingSynapses.cpp -o $(COMMDIR)/AllSpikingSynapses.o
 
 $(COMMDIR)/AllDSSynapses.o: $(COMMDIR)/AllDSSynapses.cpp $(COMMDIR)/AllDSSynapses.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllDSSynapses.cpp -o $(COMMDIR)/AllDSSynapses.o

@@ -167,7 +167,7 @@ void GpuSInputPoisson::deleteDeviceValues(IModel* model, SimulationInfo* psi )
     HANDLE_ERROR( cudaFree( devStates_d ) );
     HANDLE_ERROR( cudaFree( masks_d ) );
 
-    synapses->deleteSynapseDeviceStruct( allSynapsesDevice, neuron_count, 1 );
+    synapses->deleteSynapseDeviceStruct( allSynapsesDevice );
 
     // deallocate memory for synapse index map
     SynapseIndexMap synapseIndexMap;

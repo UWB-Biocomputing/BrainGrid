@@ -1,9 +1,9 @@
 #include "AllLIFNeurons.h"
-#include "AllDSSynapses.h"
+#include "AllSpikingSynapses.h"
 #include "Book.h"
 
 //! Perform updating neurons for one time step.
-__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice ); 
+__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice ); 
 
 /**
  *  Notify outgoing synapses if neuron has fired.
@@ -19,7 +19,7 @@ void AllLIFNeurons::advanceNeurons( AllNeurons* allNeuronsDevice, AllSynapses* a
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance neurons ------------->
-    advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeurons *)allNeuronsDevice, (AllDSSynapses*)allSynapsesDevice, synapseIndexMapDevice );
+    advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeurons *)allNeuronsDevice, (AllSpikingSynapses*)allSynapsesDevice, synapseIndexMapDevice );
 }
 
 /* ------------------*\
@@ -38,7 +38,7 @@ void AllLIFNeurons::advanceNeurons( AllNeurons* allNeuronsDevice, AllSynapses* a
 * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
 * @param[in] synapseIndexMap    Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
 */
-__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllDSSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice ) {
+__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice ) {
         // determine which neuron this thread is processing
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )

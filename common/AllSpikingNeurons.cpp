@@ -1,5 +1,5 @@
 #include "AllSpikingNeurons.h"
-#include "AllSynapses.h"
+#include "AllSpikingSynapses.h"
 
 // Default constructor
 AllSpikingNeurons::AllSpikingNeurons() : AllNeurons()
@@ -84,6 +84,7 @@ void AllSpikingNeurons::advanceNeurons(AllSynapses &synapses, const SimulationIn
 {
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
+    AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
     // For each neuron in the network
     for (int idx = sim_info->totalNeurons - 1; idx >= 0; --idx) {
         // advance neurons
@@ -96,18 +97,18 @@ void AllSpikingNeurons::advanceNeurons(AllSynapses &synapses, const SimulationIn
             assert( spikeCount[idx] < max_spikes );
 
             // notify outgoing synapses
-            size_t synapse_counts = synapses.synapse_counts[idx];
+            size_t synapse_counts = spSynapses.synapse_counts[idx];
             int synapse_notified = 0;
             for (int z = 0; synapse_notified < synapse_counts; z++) {
                 uint32_t iSyn = sim_info->maxSynapsesPerNeuron * idx + z;
-                if (synapses.in_use[iSyn] == true) {
-                    synapses.preSpikeHit(iSyn);
+                if (spSynapses.in_use[iSyn] == true) {
+                    spSynapses.preSpikeHit(iSyn);
                     synapse_notified++;
                 }
             }
 
             // notify incomming synapses
-            if (synapses.allowBackPropagation()) {
+            if (spSynapses.allowBackPropagation() && synapseIndexMap != NULL) {
                 synapse_counts = synapseIndexMap->synapseCount[idx];
                 if (synapse_counts != 0) {
                         int beginIndex = synapseIndexMap->incomingSynapse_begin[idx];
@@ -115,7 +116,7 @@ void AllSpikingNeurons::advanceNeurons(AllSynapses &synapses, const SimulationIn
                         uint32_t iSyn;
                         for ( uint32_t i = 0; i < synapse_counts; i++ ) {
                             iSyn = inverseMap_begin[i];
-                            synapses.postSpikeHit(iSyn);
+                            spSynapses.postSpikeHit(iSyn);
                             synapse_notified++;
                         }
                 }

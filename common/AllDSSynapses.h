@@ -39,9 +39,9 @@
  */
 #pragma once
 
-#include "AllSynapses.h"
+#include "AllSpikingSynapses.h"
 
-class AllDSSynapses : public AllSynapses
+class AllDSSynapses : public AllSpikingSynapses
 {
     public:
         AllDSSynapses();
@@ -57,17 +57,24 @@ class AllDSSynapses : public AllSynapses
 
 #if defined(USE_GPU)
         virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info );
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int max_synapses );
-        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice, const SimulationInfo *sim_info );
-        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice, int num_neurons, int max_synapses );
+        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron );
+        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice );
         virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info );
-        virtual void copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int max_synapses );
+        virtual void copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron );
         virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info );
         virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const SimulationInfo *sim_info);
         virtual void copyDeviceSynapseSumCoordToHost(void* allSynapsesDevice, const SimulationInfo *sim_info);
         // Update the state of all synapses for a time step
         virtual void advanceSynapses(AllSynapses* allSynapsesDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
         virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h);
+
+    protected:
+        virtual void allocDeviceStruct( AllDSSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        virtual void deleteDeviceStruct( AllDSSynapses& allSynapses );
+        virtual void copyHostToDevice( void* allSynapsesDevice, AllDSSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        virtual void copyDeviceToHost( AllDSSynapses& allSynapses, const SimulationInfo *sim_info );
+
+    public:
 #else
         // Update the state of synapse for a time step
         virtual void advanceSynapse(const uint32_t iSyn, const BGFLOAT deltaT);

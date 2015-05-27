@@ -86,7 +86,7 @@
 #pragma once
 #include "Model.h"
 #include "AllSpikingNeurons.h"
-#include "AllDSSynapses.h"
+#include "AllSpikingSynapses.h"
 #ifdef __CUDACC__
 #include "Book.h"
 #endif
@@ -113,7 +113,7 @@ inline void lapTime(float& t_event) {
 #endif // PERFORMANCE_METRICS
 
 class GpuSInputPoisson;
-class AllDSSynapses;
+class AllSpikingSynapses;
 
 class GPUSpikingModel : public Model  {
 	friend GpuSInputPoisson;
@@ -151,7 +151,7 @@ protected:
 	\*----------------------------------------------*/
 
 	//! Synapse structures in device memory.
-	AllDSSynapses* m_allSynapsesDevice;
+	AllSpikingSynapses* m_allSynapsesDevice;
 
 	//! Neuron structure in device memory.
 	AllSpikingNeurons* m_allNeuronsDevice;
