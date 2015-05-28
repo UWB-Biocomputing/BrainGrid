@@ -55,6 +55,7 @@ class AllSpikingSynapses : public AllSynapses
         virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT) = 0;
         virtual void writeSynapses(ostream& output, const SimulationInfo *sim_info) = 0;
         void initSpikeQueue(const uint32_t iSyn);
+        virtual bool allowBackPropagation();
 #if defined(USE_GPU)
         virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
         virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) = 0;
@@ -67,11 +68,11 @@ class AllSpikingSynapses : public AllSynapses
         // Update the state of all synapses for a time step
         virtual void advanceSynapses(AllSynapses* allSynapsesDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info) = 0;
         virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h) = 0;
+        virtual void getFpPrePostSpikeHit(unsigned long long& fpPreSpikeHit_h, unsigned long long& fpPostSpikeHit_h);
 #else
         // Update the state of all synapses for a time step
         virtual void advanceSynapse(const uint32_t iSyn, const BGFLOAT deltaT) = 0;
         virtual void preSpikeHit(const uint32_t iSyn);
-        virtual bool allowBackPropagation();
         virtual void postSpikeHit(const uint32_t iSyn);
         virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
 #endif

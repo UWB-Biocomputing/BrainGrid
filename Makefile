@@ -71,6 +71,7 @@ CUDAOBJS =   \
             $(CUDADIR)/AllIZHNeurons_d.o \
             $(CUDADIR)/AllSynapses_cuda.o \
             $(CUDADIR)/AllSpikingSynapses_cuda.o \
+            $(CUDADIR)/AllSpikingSynapses_d.o \
             $(CUDADIR)/AllDSSynapses_cuda.o \
             $(CUDADIR)/AllDSSynapses_d.o \
             $(CUDADIR)/MersenneTwister_kernel.o \
@@ -178,6 +179,9 @@ $(CUDADIR)/AllLIFNeurons_d.o: $(CUDADIR)/AllLIFNeurons_d.cu $(COMMDIR)/Global.h 
 
 $(CUDADIR)/AllIZHNeurons_d.o: $(CUDADIR)/AllIZHNeurons_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllIZHNeurons.h
 	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllIZHNeurons_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllIZHNeurons_d.o
+
+$(CUDADIR)/AllSpikingSynapses_d.o: $(CUDADIR)/AllSpikingSynapses_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllSpikingSynapses.h
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllSpikingSynapses_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllSpikingSynapses_d.o
 
 $(CUDADIR)/AllDSSynapses_d.o: $(CUDADIR)/AllDSSynapses_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllDSSynapses.h
 	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllDSSynapses_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllDSSynapses_d.o

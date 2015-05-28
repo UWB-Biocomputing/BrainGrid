@@ -111,12 +111,12 @@ void AllSpikingSynapses::preSpikeHit(const uint32_t iSyn)
     delay_queue |= (0x1 << idx);
 }
 
-bool AllSpikingSynapses::allowBackPropagation()
-{
-    return false;
-}
-
 void AllSpikingSynapses::postSpikeHit(const uint32_t iSyn)
 {
 }
 #endif
+
+bool AllSpikingSynapses::allowBackPropagation()
+{
+    return false;
+}

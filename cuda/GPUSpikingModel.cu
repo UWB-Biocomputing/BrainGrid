@@ -216,7 +216,7 @@ void GPUSpikingModel::advance(const SimulationInfo *sim_info)
 
 	// display running info to console
 	// Advance neurons ------------->
-	m_neurons->advanceNeurons(m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoise_d, synapseIndexMapDevice);
+	m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoise_d, synapseIndexMapDevice);
 
 #ifdef PERFORMANCE_METRICS
 	lapTime(t_gpu_advanceNeurons);

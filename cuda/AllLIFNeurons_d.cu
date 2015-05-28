@@ -3,23 +3,28 @@
 #include "Book.h"
 
 //! Perform updating neurons for one time step.
-__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice ); 
+__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const uint32_t, AllSpikingSynapses*), void (*fpPostSpikeHit)(const uint32_t, AllSpikingSynapses*), bool fAllowBackPropagation ); 
 
 /**
  *  Notify outgoing synapses if neuron has fired.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void AllLIFNeurons::advanceNeurons( AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice)
+void AllLIFNeurons::advanceNeurons( AllSynapses &synapses, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice )
 {
     int neuron_count = sim_info->totalNeurons;
     int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
 
+    AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
     // CUDA parameters
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance neurons ------------->
-    advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeurons *)allNeuronsDevice, (AllSpikingSynapses*)allSynapsesDevice, synapseIndexMapDevice );
+    bool fAllowBackPropagation = spSynapses.allowBackPropagation();
+    unsigned long long fpPreSpikeHit_h, fpPostSpikeHit_h;
+    spSynapses.getFpPrePostSpikeHit(fpPreSpikeHit_h, fpPostSpikeHit_h);
+
+    advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeurons *)allNeuronsDevice, (AllSpikingSynapses*)allSynapsesDevice, synapseIndexMapDevice, (void (*)(const uint32_t, AllSpikingSynapses*))fpPreSpikeHit_h, (void (*)(const uint32_t, AllSpikingSynapses*))fpPostSpikeHit_h, fAllowBackPropagation );
 }
 
 /* ------------------*\
@@ -38,7 +43,7 @@ void AllLIFNeurons::advanceNeurons( AllNeurons* allNeuronsDevice, AllSynapses* a
 * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
 * @param[in] synapseIndexMap    Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
 */
-__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice ) {
+__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const uint32_t, AllSpikingSynapses*), void (*fpPostSpikeHit)(const uint32_t, AllSpikingSynapses*), bool fAllowBackPropagation ) {
         // determine which neuron this thread is processing
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )
@@ -76,36 +81,20 @@ __global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int max
                 for (int i = 0; synapse_notified < synapse_counts; i++) {
                         uint32_t iSyn = maxSynapses * idx + i;
                         if (allSynapsesDevice->in_use[iSyn] == true) {
-                                uint32_t &delay_queue = allSynapsesDevice->delayQueue[iSyn];
-                                int delayIdx = allSynapsesDevice->delayIdx[iSyn];
-                                int ldelayQueue = allSynapsesDevice->ldelayQueue[iSyn];
-                                int total_delay = allSynapsesDevice->total_delay[iSyn];
-
-                                // Add to spike queue
-
-                                // calculate index where to insert the spike into delayQueue
-                                int idx = delayIdx +  total_delay;
-                                if ( idx >= ldelayQueue ) {
-                                        idx -= ldelayQueue;
-                                }
-
-                                // set a spike
-                                //assert( !(delay_queue[0] & (0x1 << idx)) );
-                                delay_queue |= (0x1 << idx);
-
+                                fpPreSpikeHit(iSyn, allSynapsesDevice); 
                                 synapse_notified++;
                         }
                 }
 
                 // notify incomming synapses of spike
                 synapse_counts = synapseIndexMapDevice->synapseCount[idx];
-                if (synapse_counts != 0) {
+                if (fAllowBackPropagation && synapse_counts != 0) {
                         int beginIndex = synapseIndexMapDevice->incomingSynapse_begin[idx];
                         uint32_t* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] );
                         uint32_t iSyn = inverseMap_begin[0];
                         for ( uint32_t i = 0; i < synapse_counts; i++ ) {
                                 iSyn = inverseMap_begin[i];
-                                // postSpikeHit(iSyn);
+                                fpPostSpikeHit(iSyn, allSynapsesDevice);
                                 synapse_notified++;
                         }
                 }
@@ -120,4 +109,3 @@ __global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int max
         // clear synaptic input for next time step
         sp = 0;
 }
-
