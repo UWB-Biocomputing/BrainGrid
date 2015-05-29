@@ -1,4 +1,5 @@
 #include "AllSynapses.h"
+#include "AllNeurons.h"
 
 AllSynapses::AllSynapses() :
         maxSynapsesPerNeuron(0),
@@ -87,6 +88,119 @@ void AllSynapses::cleanupSynapses()
     maxSynapsesPerNeuron = 0;
 }
 
+void AllSynapses::readSynapses(istream& input, AllNeurons &neurons, const SimulationInfo *sim_info)
+{
+        // read the synapse data & create synapses
+        int* read_synapses_counts= new int[sim_info->totalNeurons];
+        for (int i = 0; i < sim_info->totalNeurons; i++) {
+                read_synapses_counts[i] = 0;
+        }
+
+        int synapse_count;
+        input >> synapse_count; input.ignore();
+        for (int i = 0; i < synapse_count; i++) {
+                // read the synapse data and add it to the list
+                // create synapse
+                Coordinate synapseCoord_coord;
+                input >> synapseCoord_coord.x; input.ignore();
+                input >> synapseCoord_coord.y; input.ignore();
+
+                int neuron_index = synapseCoord_coord.x + synapseCoord_coord.y * sim_info->width;
+                int synapse_index = read_synapses_counts[neuron_index];
+                uint32_t iSyn = maxSynapsesPerNeuron * neuron_index + synapse_index;
+
+                synapseCoord[iSyn] = synapseCoord_coord;
+
+                readSynapse(input, iSyn);
+
+                summationPoint[iSyn] =
+                                &(neurons.summation_map[summationCoord[iSyn].x
+                                + summationCoord[iSyn].y * sim_info->width]);
+
+                read_synapses_counts[neuron_index]++;
+        }
+
+        for (int i = 0; i < sim_info->totalNeurons; i++) {
+                        synapse_counts[i] = read_synapses_counts[i];
+        }
+        delete[] read_synapses_counts;
+}
+
+void AllSynapses::writeSynapses(ostream& output, const SimulationInfo *sim_info)
+{
+    // write the synapse data
+    int synapse_count = 0;
+    for (int i = 0; i < sim_info->totalNeurons; i++) {
+        synapse_count += synapse_counts[i];
+    }
+    output << synapse_count << ends;
+
+    for (int neuron_index = 0; neuron_index < sim_info->totalNeurons; neuron_index++) {
+        for (size_t synapse_index = 0; synapse_index < synapse_counts[neuron_index]; synapse_index++) {
+            uint32_t iSyn = maxSynapsesPerNeuron * neuron_index + synapse_index;
+            writeSynapse(output, iSyn);
+        }
+    }
+}
+
+/*
+ *  Sets the data for Synapse #synapse_index from Neuron #neuron_index.
+ *  @param  input   istream to read from.
+ *  @param  iSyn   index of the synapse to set.
+ */
+void AllSynapses::readSynapse(istream &input, const uint32_t iSyn)
+{
+    int synapse_type(0);
+
+    // input.ignore() so input skips over end-of-line characters.
+    input >> summationCoord[iSyn].x; input.ignore();
+    input >> summationCoord[iSyn].y; input.ignore();
+    input >> W[iSyn]; input.ignore();
+    input >> psr[iSyn]; input.ignore();
+    input >> synapse_type; input.ignore();
+    input >> in_use[iSyn]; input.ignore();
+
+    type[iSyn] = synapseOrdinalToType(synapse_type);
+}
+
+/**
+ *  Write the synapse data to the stream.
+ *  @param  output  stream to print out to.
+ *  @param  iSyn   index of the synapse to print out.
+ */
+void AllSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const
+{
+    output << synapseCoord[iSyn].x << ends;
+    output << synapseCoord[iSyn].y << ends;
+    output << summationCoord[iSyn].x << ends;
+    output << summationCoord[iSyn].y << ends;
+    output << W[iSyn] << ends;
+    output << psr[iSyn] << ends;
+    output << type[iSyn] << ends;
+    output << in_use[iSyn] << ends;
+}
+
+/**     
+ *  Returns an appropriate synapseType object for the given integer.
+ *  @param  type_ordinal    integer that correspond with a synapseType.
+ *  @return the SynapseType that corresponds with the given integer.
+ */
+synapseType AllSynapses::synapseOrdinalToType(const int type_ordinal)
+{
+        switch (type_ordinal) {
+        case 0:
+                return II;
+        case 1:
+                return IE;
+        case 2:
+                return EI;
+        case 3:
+                return EE;
+        default:
+                return STYPE_UNDEF;
+        }
+}
+
 #if !defined(USE_GPU)
 /**
  *  Advance all the Synapses in the simulation.
@@ -155,4 +269,4 @@ void AllSynapses::addSynapse(BGFLOAT weight, synapseType type, const int src_neu
 
     W[iSyn] = weight;
 }
-#endif
+#endif // !defined(USE_GPU)

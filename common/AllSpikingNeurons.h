@@ -64,7 +64,6 @@ class AllSpikingNeurons : public AllNeurons
         virtual void writeNeurons(ostream& output, const SimulationInfo *sim_info) const = 0;
         void clearSpikeCounts(const SimulationInfo *sim_info);
 
-
 #if defined(USE_GPU)
         virtual void allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info ) = 0;
         virtual void deleteNeuronDeviceStruct( void* allNeuronsDevice, const SimulationInfo *sim_info ) = 0;

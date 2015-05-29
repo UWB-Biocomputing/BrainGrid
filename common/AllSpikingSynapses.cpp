@@ -86,7 +86,63 @@ void AllSpikingSynapses::initSpikeQueue(const uint32_t iSyn)
     ldelayQueue = LENGTH_OF_DELAYQUEUE;
 }
 
+/*
+ *  Sets the data for Synapse #synapse_index from Neuron #neuron_index.
+ *  @param  input   istream to read from.
+ *  @param  iSyn   index of the synapse to set.
+ */
+void AllSpikingSynapses::readSynapse(istream &input, const uint32_t iSyn)
+{
+    AllSynapses::readSynapse(input, iSyn);
+
+    // input.ignore() so input skips over end-of-line characters.
+    input >> decay[iSyn]; input.ignore();
+    input >> total_delay[iSyn]; input.ignore();
+    input >> delayQueue[iSyn]; input.ignore();
+    input >> delayIdx[iSyn]; input.ignore();
+    input >> ldelayQueue[iSyn]; input.ignore();
+    input >> tau[iSyn]; input.ignore();
+    input >> lastSpike[iSyn]; input.ignore();
+}
+
+/**
+ *  Write the synapse data to the stream.
+ *  @param  output  stream to print out to.
+ *  @param  iSyn   index of the synapse to print out.
+ */
+void AllSpikingSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const
+{
+    AllSynapses::writeSynapse(output, iSyn);
+
+    output << decay[iSyn] << ends;
+    output << total_delay[iSyn] << ends;
+    output << delayQueue[iSyn] << ends;
+    output << delayIdx[iSyn] << ends;
+    output << ldelayQueue[iSyn] << ends;
+    output << tau[iSyn] << ends;
+    output << lastSpike[iSyn] << ends;
+}
+
 #if !defined(USE_GPU)
+/**
+ *  Checks if there is an input spike in the queue.
+ *  @param  iSyn   index of the Synapse to connect to.
+ *  @return true if there is an input spike event.
+ */
+bool AllSpikingSynapses::isSpikeQueue(const uint32_t iSyn)
+{
+    uint32_t &delayQueue = this->delayQueue[iSyn];
+    int &delayIdx = this->delayIdx[iSyn];
+    int &ldelayQueue = this->ldelayQueue[iSyn];
+
+    bool r = delayQueue & (0x1 << delayIdx);
+    delayQueue &= ~(0x1 << delayIdx);
+    if ( ++delayIdx >= ldelayQueue ) {
+        delayIdx = 0;
+    }
+    return r;
+}
+
 /**
  *  Prepares Synapse for a spike hit.
  *  @param  iSyn   index of the Synapse to update.
@@ -114,7 +170,25 @@ void AllSpikingSynapses::preSpikeHit(const uint32_t iSyn)
 void AllSpikingSynapses::postSpikeHit(const uint32_t iSyn)
 {
 }
-#endif
+
+#endif //!defined(USE_GPU)
+
+/**
+ *  Updates the decay if the synapse selected.
+ *  @param  iSyn   index of the synapse to set.
+ *  @param  deltaT  inner simulation step duration
+ */
+bool AllSpikingSynapses::updateDecay(const uint32_t iSyn, const BGFLOAT deltaT)
+{
+        BGFLOAT &tau = this->tau[iSyn];
+        BGFLOAT &decay = this->decay[iSyn];
+
+        if (tau > 0) {
+                decay = exp( -deltaT / tau );
+                return true;
+        }
+        return false;
+}
 
 bool AllSpikingSynapses::allowBackPropagation()
 {

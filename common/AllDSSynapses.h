@@ -51,10 +51,13 @@ class AllDSSynapses : public AllSpikingSynapses
         virtual void setupSynapses(SimulationInfo *sim_info);
         virtual void setupSynapses(const int num_neurons, const int max_synapses);
         virtual void cleanupSynapses();
-        virtual void readSynapses(istream& input, AllNeurons &neurons, const SimulationInfo *sim_info);
         virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT);
-        virtual void writeSynapses(ostream& output, const SimulationInfo *sim_info);
 
+    protected:
+        virtual void readSynapse(istream &input, const uint32_t iSyn);
+        virtual void writeSynapse(ostream& output, const uint32_t iSyn) const;
+
+    public:
 #if defined(USE_GPU)
         virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info );
         virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron );
@@ -144,15 +147,4 @@ class AllDSSynapses : public AllSpikingSynapses
     	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
         BGFLOAT *F;
-
-    protected:
-
-    private:
-        void readSynapse(istream &input, const uint32_t iSyn, const BGFLOAT deltaT);
-        synapseType synapseOrdinalToType(const int type_ordinal);
-        bool updateDecay(const uint32_t iSyn, const BGFLOAT deltaT);
-        void writeSynapse(ostream& output, const uint32_t iSyn) const;
-#if !defined(USE_GPU)
-        bool isSpikeQueue(const uint32_t iSyn);
-#endif
 };
