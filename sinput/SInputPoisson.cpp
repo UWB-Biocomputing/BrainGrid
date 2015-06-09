@@ -144,7 +144,7 @@ void SInputPoisson::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi
         uint32_t iSyn = psi->maxSynapsesPerNeuron * neuron_index;
 
         synapses->createSynapse(iSyn, NULL, dest, sum_point, psi->deltaT, type);
-        synapses->W[iSyn] = weight * AllDSSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+        synapses->W[iSyn] = weight * Connections::SYNAPSE_STRENGTH_ADJUSTMENT;
     }
 }
 

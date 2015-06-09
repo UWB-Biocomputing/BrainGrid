@@ -25,7 +25,7 @@ SingleThreadedSpikingModel::~SingleThreadedSpikingModel()
 void SingleThreadedSpikingModel::advance(const SimulationInfo *sim_info)
 {
     m_neurons->advanceNeurons(*m_synapses, sim_info, m_synapseIndexMap);
-    m_synapses->advanceSynapses(sim_info);
+    m_synapses->advanceSynapses(sim_info, m_neurons);
 }
 
 /**
@@ -111,7 +111,7 @@ void SingleThreadedSpikingModel::updateWeights(const int num_neurons, AllNeurons
                             // adjust
                             // g_synapseStrengthAdjustmentConstant is 1.0e-8;
                             synapses.W[iSyn] = (*m_conns->W)(src_neuron, dest_neuron) *
-                                synSign(type) * AllDSSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+                                synSign(type) * Connections::SYNAPSE_STRENGTH_ADJUSTMENT;
 
                             DEBUG_MID(cout << "weight of rgSynapseMap" <<
                                    coordToString(xa, ya)<<"[" <<synapse_index<<"]: " <<
@@ -129,7 +129,7 @@ void SingleThreadedSpikingModel::updateWeights(const int num_neurons, AllNeurons
                 BGFLOAT* sum_point = &( neurons.summation_map[dest_neuron] );
                 added++;
 
-                BGFLOAT weight = (*m_conns->W)(src_neuron, dest_neuron) * synSign(type) * AllDSSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+                BGFLOAT weight = (*m_conns->W)(src_neuron, dest_neuron) * synSign(type) * Connections::SYNAPSE_STRENGTH_ADJUSTMENT;
                 synapses.addSynapse(weight, type, src_neuron, dest_neuron, src_coord, dest_coord, sum_point, sim_info->deltaT);
 
             }

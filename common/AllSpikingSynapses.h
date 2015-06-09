@@ -40,6 +40,7 @@
 #pragma once
 
 #include "AllSynapses.h"
+#include "AllSpikingNeurons.h"
 
 class AllSpikingSynapses : public AllSynapses
 {
@@ -51,11 +52,11 @@ class AllSpikingSynapses : public AllSynapses
         virtual void setupSynapses(const int num_neurons, const int max_synapses);
         virtual void setupSynapses(SimulationInfo *sim_info);
         virtual void cleanupSynapses();
-        virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT) = 0;
-        void initSpikeQueue(const uint32_t iSyn);
+        virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT);
         virtual bool allowBackPropagation();
 
     protected:
+        virtual void initSpikeQueue(const uint32_t iSyn);
         bool updateDecay(const uint32_t iSyn, const BGFLOAT deltaT);
         virtual void readSynapse(istream &input, const uint32_t iSyn);
         virtual void writeSynapse(ostream& output, const uint32_t iSyn) const;
@@ -76,27 +77,16 @@ class AllSpikingSynapses : public AllSynapses
         virtual void getFpPrePostSpikeHit(unsigned long long& fpPreSpikeHit_h, unsigned long long& fpPostSpikeHit_h);
 #else
         // Update the state of all synapses for a time step
-        virtual void advanceSynapse(const uint32_t iSyn, const BGFLOAT deltaT) = 0;
+        virtual void advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, AllNeurons *neurons);
         virtual void preSpikeHit(const uint32_t iSyn);
         virtual void postSpikeHit(const uint32_t iSyn);
-        virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
+        virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
 
     protected:
         bool isSpikeQueue(const uint32_t iSyn);
+        virtual void changePSR(const uint32_t iSyn, const BGFLOAT deltaT);
 #endif
     public:
- 
-        /*! The time of the last spike.
-         *  
-         *  Usage: LOCAL VARIABLE
-         *  - LIFModel::readSynapse() --- Modified
-         *  - LIFModel::writeSynapse() --- Accessed
-         *  - LIFModel::resetSynapse() --- Initialized
-         *  - SingleThreadedSpikingModel::advanceSynapse() --- Accessed & Modified 
-         *  - GpuSim_Struct::createSynapse() --- Initialized
-     	 *  - GpuSim_Struct::advanceSynapseDevice() --- Accessed & Modified  
-         */
-        uint64_t *lastSpike;
 
         /*! The decay for the psr.
          *  

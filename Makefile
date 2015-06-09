@@ -130,6 +130,8 @@ SINGLEOBJS = $(MAIN)/BGDriver.o  \
 			$(COMMDIR)/AllSynapses.o \
 			$(COMMDIR)/AllSpikingSynapses.o \
 			$(COMMDIR)/AllDSSynapses.o \
+			$(COMMDIR)/AllSTDPSynapses.o \
+			$(COMMDIR)/AllDynamicSTDPSynapses.o \
 			$(COMMDIR)/Global.o 
 
 XMLOBJS = $(XMLDIR)/tinyxml.o \
@@ -246,6 +248,12 @@ $(COMMDIR)/AllSpikingSynapses.o: $(COMMDIR)/AllSpikingSynapses.cpp $(COMMDIR)/Al
 
 $(COMMDIR)/AllDSSynapses.o: $(COMMDIR)/AllDSSynapses.cpp $(COMMDIR)/AllDSSynapses.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllDSSynapses.cpp -o $(COMMDIR)/AllDSSynapses.o
+
+$(COMMDIR)/AllSTDPSynapses.o: $(COMMDIR)/AllSTDPSynapses.cpp $(COMMDIR)/AllSTDPSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllSTDPSynapses.cpp -o $(COMMDIR)/AllSTDPSynapses.o
+
+$(COMMDIR)/AllDynamicSTDPSynapses.o: $(COMMDIR)/AllDynamicSTDPSynapses.cpp $(COMMDIR)/AllDynamicSTDPSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllDynamicSTDPSynapses.cpp -o $(COMMDIR)/AllDynamicSTDPSynapses.o
 
 $(COMMDIR)/Global.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Global.cpp -o $(COMMDIR)/Global.o

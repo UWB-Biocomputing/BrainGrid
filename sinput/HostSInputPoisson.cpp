@@ -88,6 +88,6 @@ int chunk_size = psi->totalNeurons / omp_get_max_threads();
             nISIs[neuron_index] = static_cast<int>( (isi / 1000) / psi->deltaT + 0.5 );
         }
         // process synapse
-        synapses->advanceSynapse(iSyn, psi->deltaT);
+        synapses->advanceSynapse(iSyn, psi, NULL);
     }
 }

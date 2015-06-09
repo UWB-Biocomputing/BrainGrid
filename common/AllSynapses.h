@@ -58,7 +58,7 @@ class AllSynapses
         virtual void setupSynapses(const int num_neurons, const int max_synapses);
         virtual void setupSynapses(SimulationInfo *sim_info);
         virtual void cleanupSynapses();
-        virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT) = 0;
+        virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT);
         void readSynapses(istream& input, AllNeurons &neurons, const SimulationInfo *sim_info);
         void writeSynapses(ostream& output, const SimulationInfo *sim_info);
 
@@ -82,8 +82,8 @@ class AllSynapses
         virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h) = 0;
 #else
         // Update the state of all synapses for a time step
-        virtual void advanceSynapses(const SimulationInfo *sim_info);
-        virtual void advanceSynapse(const uint32_t iSyn, const BGFLOAT deltaT) = 0;
+        virtual void advanceSynapses(const SimulationInfo *sim_info, AllNeurons *neurons);
+        virtual void advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, AllNeurons *neurons) = 0;
         virtual void eraseSynapse(const int neuron_index, const uint32_t iSyn);
         virtual void addSynapse(BGFLOAT weight, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, const BGFLOAT deltaT);
         virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;

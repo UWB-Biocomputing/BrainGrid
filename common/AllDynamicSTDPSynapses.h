@@ -1,7 +1,7 @@
 /** 
  * @authors Aaron Oziel, Sean Blackbourn
  * 
- * @class AllDSSynapses AllDSSynapses.h "AllDSSynapses.h"
+ * @class AllDynamicSTDPSynapses AllDynamicSTDPSynapses.h "AllDynamicSTDPSynapses.h"
  * @brief A container of all synapse data
  *
  *  The container holds synapse parameters of all synapses. 
@@ -36,17 +36,30 @@
  *
  *  Note: All GLOBAL parameters can be scalars. Also some LOCAL CONSTANT can be categorized 
  *  depending on synapse types. 
+ *  
+ *  The AllDynamicSTDPSynapses inherited properties from the AllDSSynapses and the AllSTDPSynapses
+ *  classes (multiple inheritance), and both the AllDSSynapses and the AllSTDPSynapses classes are
+ *  the subclass of the AllSpikingSynapses class. Therefore, this is known as a diamond class
+ *  inheritance, which causes the problem of ambibuous hierarchy compositon. To solve the
+ *  problem, we can use the virtual inheritance. 
+ *  However, the virtual inheritance will bring another problem. That is, we cannot static cast
+ *  from a pointer to the AllSynapses class to a pointer to the AllDSSynapses or the AllSTDPSynapses 
+ *  classes. Compiler requires dynamic casting because vtable mechanism is involed in solving the 
+ *  casting. But the dynamic casting cannot be used for the pointers to device (CUDA) memories. 
+ *  Considering these issues, I decided that making the AllDynamicSTDPSynapses class the subclass
+ *  of the AllSTDPSynapses class and adding properties of the AllDSSynapses class to it (fumik).
+ *   
  */
 #pragma once
 
-#include "AllSpikingSynapses.h"
+#include "AllSTDPSynapses.h"
 
-class AllDSSynapses : public AllSpikingSynapses
+class AllDynamicSTDPSynapses : public AllSTDPSynapses
 {
     public:
-        AllDSSynapses();
-        AllDSSynapses(const int num_neurons, const int max_synapses);
-        virtual ~AllDSSynapses();
+        AllDynamicSTDPSynapses();
+        AllDynamicSTDPSynapses(const int num_neurons, const int max_synapses);
+        virtual ~AllDynamicSTDPSynapses();
  
         virtual void setupSynapses(SimulationInfo *sim_info);
         virtual void setupSynapses(const int num_neurons, const int max_synapses);
@@ -72,18 +85,20 @@ class AllDSSynapses : public AllSpikingSynapses
         virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h);
 
     protected:
-        virtual void allocDeviceStruct( AllDSSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
-        virtual void deleteDeviceStruct( AllDSSynapses& allSynapses );
-        virtual void copyHostToDevice( void* allSynapsesDevice, AllDSSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
-        virtual void copyDeviceToHost( AllDSSynapses& allSynapses, const SimulationInfo *sim_info );
+        virtual void allocDeviceStruct( AllDynamicSTDPSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        virtual void deleteDeviceStruct( AllDynamicSTDPSynapses& allSynapses );
+        virtual void copyHostToDevice( void* allSynapsesDevice, AllDynamicSTDPSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        virtual void copyDeviceToHost( AllDynamicSTDPSynapses& allSynapses, const SimulationInfo *sim_info );
 
     public:
 #else
-        // Update the state of synapse for a time step
         virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
 
     protected:
         virtual void changePSR(const uint32_t iSyn, const BGFLOAT deltaT);
+
+    private:
+
 #endif
     public:
 
@@ -108,10 +123,10 @@ class AllDSSynapses : public AllSpikingSynapses
          *  - LIFModel::resetSynapse() --- Initialized
          *  - SingleThreadedSpikingModel::advanceSynapse() --- Modified 
          *  - GpuSim_Struct::createSynapse() --- Initialized
-    	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
+         *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
         BGFLOAT *r;
-        
+
         /*! The time varying state variable \f$u\f$ for facilitation.
          *  
          *  Usage: LOCAL VARIABL
@@ -120,10 +135,10 @@ class AllDSSynapses : public AllSpikingSynapses
          *  - LIFModel::resetSynapse() --- Initialized
          *  - SingleThreadedSpikingModel::advanceSynapse() --- Modified 
          *  - GpuSim_Struct::createSynapse() --- Initialized
-    	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
+         *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
         BGFLOAT *u;
-        
+
         /*! The time constant of the depression of the dynamic synapse [range=(0,10); units=sec].
          *  
          *  Usage: LOCAL CONSTANT depending on synapse type
@@ -132,10 +147,10 @@ class AllDSSynapses : public AllSpikingSynapses
          *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
          *  - SingleThreadedSpikingModel::advanceSynapse() --- Accessed
          *  - GpuSim_Struct::createSynapse() --- Initialized
-    	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
+         *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
         BGFLOAT *D;
-        
+
         /*! The use parameter of the dynamic synapse [range=(1e-5,1)].
          *  
          *  Usage: LOCAL CONSTANT depending on synapse type
@@ -144,10 +159,10 @@ class AllDSSynapses : public AllSpikingSynapses
          *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
          *  - SingleThreadedSpikingModel::advanceSynapse() --- Accessed
          *  - GpuSim_Struct::createSynapse() --- Initialized
-    	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
+         *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
         BGFLOAT *U;
-        
+
         /*! The time constant of the facilitation of the dynamic synapse [range=(0,10); units=sec].
          *  
          *  Usage: LOCAL CONSTANT depending on synapse type
@@ -156,7 +171,7 @@ class AllDSSynapses : public AllSpikingSynapses
          *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
          *  - SingleThreadedSpikingModel::advanceSynapse() --- Accessed
          *  - GpuSim_Struct::createSynapse() --- Initialized
-    	 *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
+         *  - GpuSim_Struct::advanceSynapsesDevice() --- Modified
          */
         BGFLOAT *F;
 };

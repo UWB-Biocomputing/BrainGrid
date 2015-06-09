@@ -1,7 +1,7 @@
-#include "AllDSSynapses.h"
+#include "AllDynamicSTDPSynapses.h"
 #include "AllNeurons.h"
 
-AllDSSynapses::AllDSSynapses() : AllSpikingSynapses()
+AllDynamicSTDPSynapses::AllDynamicSTDPSynapses() : AllSTDPSynapses()
 {
     lastSpike = NULL;
     r = NULL;
@@ -11,25 +11,25 @@ AllDSSynapses::AllDSSynapses() : AllSpikingSynapses()
     F = NULL;
 }
 
-AllDSSynapses::AllDSSynapses(const int num_neurons, const int max_synapses) :
-        AllSpikingSynapses(num_neurons, max_synapses)
+AllDynamicSTDPSynapses::AllDynamicSTDPSynapses(const int num_neurons, const int max_synapses) :
+        AllSTDPSynapses(num_neurons, max_synapses)
 {
     setupSynapses(num_neurons, max_synapses);
 }
 
-AllDSSynapses::~AllDSSynapses()
+AllDynamicSTDPSynapses::~AllDynamicSTDPSynapses()
 {
     cleanupSynapses();
 }
 
-void AllDSSynapses::setupSynapses(SimulationInfo *sim_info)
+void AllDynamicSTDPSynapses::setupSynapses(SimulationInfo *sim_info)
 {
     setupSynapses(sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron);
 }
 
-void AllDSSynapses::setupSynapses(const int num_neurons, const int max_synapses)
+void AllDynamicSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapses)
 {
-    AllSpikingSynapses::setupSynapses(num_neurons, max_synapses);
+    AllSTDPSynapses::setupSynapses(num_neurons, max_synapses);
 
     uint32_t max_total_synapses = max_synapses * num_neurons;
 
@@ -43,7 +43,7 @@ void AllDSSynapses::setupSynapses(const int num_neurons, const int max_synapses)
     }
 }
 
-void AllDSSynapses::cleanupSynapses()
+void AllDynamicSTDPSynapses::cleanupSynapses()
 {
     uint32_t max_total_synapses = maxSynapsesPerNeuron * count_neurons;
 
@@ -63,7 +63,7 @@ void AllDSSynapses::cleanupSynapses()
     U = NULL;
     F = NULL;
 
-    AllSpikingSynapses::cleanupSynapses();
+    AllSTDPSynapses::cleanupSynapses();
 }
 
 /*
@@ -71,9 +71,9 @@ void AllDSSynapses::cleanupSynapses()
  *  @param  input   istream to read from.
  *  @param  iSyn   index of the synapse to set.
  */
-void AllDSSynapses::readSynapse(istream &input, const uint32_t iSyn)
+void AllDynamicSTDPSynapses::readSynapse(istream &input, const uint32_t iSyn)
 {
-    AllSpikingSynapses::readSynapse(input, iSyn);
+    AllSTDPSynapses::readSynapse(input, iSyn);
 
     // input.ignore() so input skips over end-of-line characters.
     input >> lastSpike[iSyn]; input.ignore();
@@ -89,9 +89,9 @@ void AllDSSynapses::readSynapse(istream &input, const uint32_t iSyn)
  *  @param  output  stream to print out to.
  *  @param  iSyn   index of the synapse to print out.
  */
-void AllDSSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const 
+void AllDynamicSTDPSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const 
 {
-    AllSpikingSynapses::writeSynapse(output, iSyn);
+    AllSTDPSynapses::writeSynapse(output, iSyn);
 
     output << lastSpike[iSyn] << ends;
     output << r[iSyn] << ends;
@@ -106,9 +106,9 @@ void AllDSSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const
  *  @param  iSyn   index of the synapse to set.
  *  @param  deltaT          inner simulation step duration
  */
-void AllDSSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
+void AllDynamicSTDPSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
 {
-    AllSpikingSynapses::resetSynapse(iSyn, deltaT);
+    AllSTDPSynapses::resetSynapse(iSyn, deltaT);
 
     u[iSyn] = DEFAULT_U;
     r[iSyn] = 1.0;
@@ -126,9 +126,9 @@ void AllDSSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
  *  @param  deltaT  TODO
  *  @param  type    type of the Synapse to create.
  */
-void AllDSSynapses::createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+void AllDynamicSTDPSynapses::createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
-    AllSpikingSynapses::createSynapse(iSyn, source, dest, sum_point, deltaT, type);
+    AllSTDPSynapses::createSynapse(iSyn, source, dest, sum_point, deltaT, type);
 
     U[iSyn] = DEFAULT_U;
 
@@ -166,7 +166,7 @@ void AllDSSynapses::createSynapse(const uint32_t iSyn, Coordinate source, Coordi
     this->F[iSyn] = F;
 }
 
-void AllDSSynapses::changePSR(const uint32_t iSyn, const BGFLOAT deltaT)
+void AllDynamicSTDPSynapses::changePSR(const uint32_t iSyn, const BGFLOAT deltaT)
 {
     BGFLOAT &psr = this->psr[iSyn];
     BGFLOAT &W = this->W[iSyn];

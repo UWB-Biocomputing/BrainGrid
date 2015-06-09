@@ -88,6 +88,16 @@ void AllSynapses::cleanupSynapses()
     maxSynapsesPerNeuron = 0;
 }
 
+/**
+ *  Reset time varying state vars and recompute decay.
+ *  @param  iSyn   index of the synapse to set.
+ *  @param  deltaT          inner simulation step duration
+ */
+void AllSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
+{
+    psr[iSyn] = 0.0;
+}
+
 void AllSynapses::readSynapses(istream& input, AllNeurons &neurons, const SimulationInfo *sim_info)
 {
         // read the synapse data & create synapses
@@ -206,7 +216,7 @@ synapseType AllSynapses::synapseOrdinalToType(const int type_ordinal)
  *  Advance all the Synapses in the simulation.
  *  param  sim_info    SimulationInfo class to read information from.
  */
-void AllSynapses::advanceSynapses(const SimulationInfo *sim_info)
+void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, AllNeurons *neurons)
 {
     int num_neurons = sim_info->totalNeurons;
     BGFLOAT deltaT = sim_info->deltaT;
@@ -217,7 +227,7 @@ void AllSynapses::advanceSynapses(const SimulationInfo *sim_info)
         for (int z = 0; z < synapse_counts; z++) {
             // Advance Synapse
             uint32_t iSyn = maxSynapsesPerNeuron * i + z;
-            advanceSynapse(iSyn, deltaT);
+            advanceSynapse(iSyn, sim_info, neurons);
             synapse_advanced++;
         }
     }

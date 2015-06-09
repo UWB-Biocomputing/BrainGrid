@@ -146,4 +146,12 @@ void AllSpikingNeurons::fire(const int index, const SimulationInfo *sim_info) co
     // increment spike count and total spike count
     spikeCount[index]++;
 }
+
+uint64_t AllSpikingNeurons::getSpikeHistory(int index, int offIndex, const SimulationInfo *sim_info)
+{
+    // offIndex is a minus offset
+    int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
+    int idxSp = (spikeCount[index] + spikeCountOffset[index] +  max_spikes + offIndex) % max_spikes;
+    return spike_history[index][idxSp];
+}
 #endif

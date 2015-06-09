@@ -89,7 +89,10 @@ class AllSpikingNeurons : public AllNeurons
 
         // Initiates a firing of a neuron to connected neurons
         virtual void fire(const int index, const SimulationInfo *sim_info) const;
-#endif
+
+    public:
+        uint64_t getSpikeHistory(int index, int offIndex, const SimulationInfo *sim_info);
+#endif // defined(USE_GPU)
 
     private:
         void freeResources();

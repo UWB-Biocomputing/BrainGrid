@@ -17,6 +17,9 @@ class Connections
 {
     public:
         // TODO
+        static const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
+
+        // TODO
         static const string MATRIX_TYPE;
         // TODO
         static const string MATRIX_INIT;
