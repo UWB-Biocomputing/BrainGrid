@@ -72,9 +72,11 @@ class AllSpikingSynapses : public AllSynapses
         virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const SimulationInfo *sim_info) = 0;
         virtual void copyDeviceSynapseSumCoordToHost(void* allSynapsesDevice, const SimulationInfo *sim_info) = 0;
         // Update the state of all synapses for a time step
-        virtual void advanceSynapses(AllSynapses* allSynapsesDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info) = 0;
+        virtual void advanceSynapses(AllSynapses* allSynapsesDevice, AllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
         virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h) = 0;
-        virtual void getFpPrePostSpikeHit(unsigned long long& fpPreSpikeHit_h, unsigned long long& fpPostSpikeHit_h);
+        virtual void getFpChangePSR(unsigned long long& fpChangePSR_h);
+        virtual void getFpPreSpikeHit(unsigned long long& fpPreSpikeHit_h);
+        virtual void getFpPostSpikeHit(unsigned long long& fpPostSpikeHit_h);
 #else
         // Update the state of all synapses for a time step
         virtual void advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, AllNeurons *neurons);

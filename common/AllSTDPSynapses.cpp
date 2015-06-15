@@ -387,9 +387,9 @@ void AllSTDPSynapses::postSpikeHit(const uint32_t iSyn)
     assert( !(delay_queue & (0x1 << idx)) );
     delay_queue |= (0x1 << idx);
 }
+#endif // !defined(USE_GPU)
 
 bool AllSTDPSynapses::allowBackPropagation()
 {
     return true;
 }
-#endif // !defined(USE_GPU)

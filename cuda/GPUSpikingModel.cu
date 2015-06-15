@@ -224,7 +224,7 @@ void GPUSpikingModel::advance(const SimulationInfo *sim_info)
 #endif // PERFORMANCE_METRICS
 
 	// Advance synapses ------------->
-	m_synapses->advanceSynapses(m_allSynapsesDevice, synapseIndexMapDevice, sim_info);
+	m_synapses->advanceSynapses(m_allSynapsesDevice, m_allNeuronsDevice, synapseIndexMapDevice, sim_info);
 
 #ifdef PERFORMANCE_METRICS
 	lapTime(t_gpu_advanceSynapses);

@@ -74,6 +74,10 @@ CUDAOBJS =   \
             $(CUDADIR)/AllSpikingSynapses_d.o \
             $(CUDADIR)/AllDSSynapses_cuda.o \
             $(CUDADIR)/AllDSSynapses_d.o \
+            $(CUDADIR)/AllSTDPSynapses_cuda.o \
+            $(CUDADIR)/AllSTDPSynapses_d.o \
+            $(CUDADIR)/AllDynamicSTDPSynapses_cuda.o \
+            $(CUDADIR)/AllDynamicSTDPSynapses_d.o \
             $(CUDADIR)/MersenneTwister_kernel.o \
             $(CUDADIR)/BGDriver_cuda.o \
             $(SINPUTDIR)/GpuSInputRegular.o \
@@ -188,6 +192,12 @@ $(CUDADIR)/AllSpikingSynapses_d.o: $(CUDADIR)/AllSpikingSynapses_d.cu $(COMMDIR)
 $(CUDADIR)/AllDSSynapses_d.o: $(CUDADIR)/AllDSSynapses_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllDSSynapses.h
 	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllDSSynapses_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllDSSynapses_d.o
 
+$(CUDADIR)/AllSTDPSynapses_d.o: $(CUDADIR)/AllSTDPSynapses_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllSTDPSynapses.h
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllSTDPSynapses_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllSTDPSynapses_d.o
+
+$(CUDADIR)/AllDynamicSTDPSynapses_d.o: $(CUDADIR)/AllDynamicSTDPSynapses_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllDynamicSTDPSynapses.h
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllDynamicSTDPSynapses_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllDynamicSTDPSynapses_d.o
+
 $(CUDADIR)/BGDriver_cuda.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/IModel.h $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Network.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -I$(CUDADIR) -c $(MAIN)/BGDriver.cpp -o $(CUDADIR)/BGDriver_cuda.o
 
@@ -214,6 +224,12 @@ $(CUDADIR)/AllSpikingSynapses_cuda.o: $(COMMDIR)/AllSpikingSynapses.cpp $(COMMDI
 
 $(CUDADIR)/AllDSSynapses_cuda.o: $(COMMDIR)/AllDSSynapses.cpp $(COMMDIR)/AllDSSynapses.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllDSSynapses.cpp -o $(CUDADIR)/AllDSSynapses_cuda.o
+
+$(CUDADIR)/AllSTDPSynapses_cuda.o: $(COMMDIR)/AllSTDPSynapses.cpp $(COMMDIR)/AllSTDPSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllSTDPSynapses.cpp -o $(CUDADIR)/AllSTDPSynapses_cuda.o
+
+$(CUDADIR)/AllDynamicSTDPSynapses_cuda.o: $(COMMDIR)/AllDynamicSTDPSynapses.cpp $(COMMDIR)/AllDynamicSTDPSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllDynamicSTDPSynapses.cpp -o $(CUDADIR)/AllDynamicSTDPSynapses_cuda.o
 
 $(CUDADIR)/Global_cuda.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/Global.cpp -o $(CUDADIR)/Global_cuda.o

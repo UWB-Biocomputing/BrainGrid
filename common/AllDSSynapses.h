@@ -68,8 +68,8 @@ class AllDSSynapses : public AllSpikingSynapses
         virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const SimulationInfo *sim_info);
         virtual void copyDeviceSynapseSumCoordToHost(void* allSynapsesDevice, const SimulationInfo *sim_info);
         // Update the state of all synapses for a time step
-        virtual void advanceSynapses(AllSynapses* allSynapsesDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
         virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h);
+        virtual void getFpChangePSR(unsigned long long& fpChangePSR_h);
 
     protected:
         virtual void allocDeviceStruct( AllDSSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron );

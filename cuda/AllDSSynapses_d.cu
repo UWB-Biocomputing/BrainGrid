@@ -9,10 +9,11 @@
 
 __global__ void getFpCreateSynapseDevice(void (**fpCreateSynapse_d)(AllDSSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType));
 
-//! Perform updating synapses for one time step.
-__global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice );
+__global__ void getFpChangePSRDevice(void (**fpChangePSR_d)(AllDSSynapses*, const uint32_t, const uint64_t, const BGFLOAT));
 
 __device__ void createSynapse(AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
+
+__device__ void changePSR(AllDSSynapses* allSynapsesDevice, const uint32_t, const uint64_t, const BGFLOAT deltaT);
 
 void AllDSSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info ) {
 	allocSynapseDeviceStruct( allSynapsesDevice, sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron );
@@ -228,20 +229,6 @@ void AllDSSynapses::copyDeviceSynapseSumCoordToHost(void* allSynapsesDevice, con
                 max_total_synapses * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 }
 
-/**
- *  Advance all the Synapses in the simulation.
- *  @param  sim_info    SimulationInfo class to read information from.
- */
-void AllDSSynapses::advanceSynapses(AllSynapses* allSynapsesDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info)
-{
-    // CUDA parameters
-    const int threadsPerBlock = 256;
-    int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
-
-    // Advance synapses ------------->
-    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllDSSynapses*)allSynapsesDevice );
-}
-
 void AllDSSynapses::getFpCreateSynapse(unsigned long long& fpCreateSynapse_h)
 {
     unsigned long long *fpCreateSynapse_d;
@@ -254,6 +241,18 @@ void AllDSSynapses::getFpCreateSynapse(unsigned long long& fpCreateSynapse_h)
     HANDLE_ERROR( cudaFree( fpCreateSynapse_d ) );
 }
 
+void AllDSSynapses::getFpChangePSR(unsigned long long& fpChangePSR_h)
+{
+    unsigned long long *fpChangePSR_d;
+
+    HANDLE_ERROR( cudaMalloc(&fpChangePSR_d, sizeof(unsigned long long)) );
+
+    getFpChangePSRDevice<<<1,1>>>((void (**)(AllDSSynapses*, const uint32_t, const uint64_t, const BGFLOAT))fpChangePSR_d);
+
+    HANDLE_ERROR( cudaMemcpy(&fpChangePSR_h, fpChangePSR_d, sizeof(unsigned long long), cudaMemcpyDeviceToHost) );
+    HANDLE_ERROR( cudaFree( fpChangePSR_d ) );
+}
+
 /* ------------------*\
 |* # Global Functions
 \* ------------------*/
@@ -263,57 +262,9 @@ __global__ void getFpCreateSynapseDevice(void (**fpCreateSynapse_d)(AllDSSynapse
     *fpCreateSynapse_d = createSynapse;
 }
 
-/** 
-* @param[in] total_synapse_counts       Total number of synapses.
-* @param[in] synapseIndexMap            Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
-* @param[in] simulationStep             The current simulation step.
-* @param[in] deltaT                     Inner simulation step duration.
-* @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
-*/
-__global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapses* allSynapsesDevice ) {
-        int idx = blockIdx.x * blockDim.x + threadIdx.x;
-        if ( idx >= total_synapse_counts )
-                return;
-
-        uint32_t iSyn = synapseIndexMapDevice->activeSynapseIndex[idx];
-
-        BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
-        BGFLOAT decay = allSynapsesDevice->decay[iSyn];
-
-        // Checks if there is an input spike in the queue.
-        uint32_t &delay_queue = allSynapsesDevice->delayQueue[iSyn];
-        int &delayIdx = allSynapsesDevice->delayIdx[iSyn];
-        int ldelayQueue = allSynapsesDevice->ldelayQueue[iSyn];
-
-        uint32_t delayMask = (0x1 << delayIdx);
-        bool isFired = delay_queue & (delayMask);
-        delay_queue &= ~(delayMask);
-        if ( ++delayIdx >= ldelayQueue ) {
-                delayIdx = 0;
-        }
-
-        // is an input in the queue?
-        if (isFired) {
-                uint64_t &lastSpike = allSynapsesDevice->lastSpike[iSyn];
-                BGFLOAT &r = allSynapsesDevice->r[iSyn];
-                BGFLOAT &u = allSynapsesDevice->u[iSyn];
-                BGFLOAT D = allSynapsesDevice->D[iSyn];
-                BGFLOAT F = allSynapsesDevice->F[iSyn];
-                BGFLOAT U = allSynapsesDevice->U[iSyn];
-                BGFLOAT W = allSynapsesDevice->W[iSyn];
-
-                // adjust synapse parameters
-                if (lastSpike != ULONG_MAX) {
-                        BGFLOAT isi = (simulationStep - lastSpike) * deltaT ;
-                        r = 1 + ( r * ( 1 - u ) - 1 ) * exp( -isi / D );
-                        u = U + u * ( 1 - U ) * exp( -isi / F );
-                }
-                psr += ( ( W / decay ) * u * r );// calculate psr
-                lastSpike = simulationStep; // record the time of the spike
-        }
-
-        // decay the post spike response
-        psr *= decay;
+__global__ void getFpChangePSRDevice(void (**fpChangePSR_d)(AllDSSynapses*, const uint32_t, const uint64_t, const BGFLOAT))
+{
+    *fpChangePSR_d = changePSR;
 }
 
 /**
@@ -405,3 +356,24 @@ __device__ void createSynapse(AllDSSynapses* allSynapsesDevice, const int neuron
     assert( size <= BYTES_OF_DELAYQUEUE );
 }
 
+__device__ void changePSR(AllDSSynapses* allSynapsesDevice, const uint32_t iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
+{
+    uint64_t &lastSpike = allSynapsesDevice->lastSpike[iSyn];
+    BGFLOAT &r = allSynapsesDevice->r[iSyn];
+    BGFLOAT &u = allSynapsesDevice->u[iSyn];
+    BGFLOAT D = allSynapsesDevice->D[iSyn];
+    BGFLOAT F = allSynapsesDevice->F[iSyn];
+    BGFLOAT U = allSynapsesDevice->U[iSyn];
+    BGFLOAT W = allSynapsesDevice->W[iSyn];
+    BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
+    BGFLOAT decay = allSynapsesDevice->decay[iSyn];
+
+    // adjust synapse parameters
+    if (lastSpike != ULONG_MAX) {
+            BGFLOAT isi = (simulationStep - lastSpike) * deltaT ;
+            r = 1 + ( r * ( 1 - u ) - 1 ) * exp( -isi / D );
+            u = U + u * ( 1 - U ) * exp( -isi / F );
+    }
+    psr += ( ( W / decay ) * u * r );// calculate psr
+    lastSpike = simulationStep; // record the time of the spike
+}

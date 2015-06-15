@@ -21,8 +21,12 @@ void AllLIFNeurons::advanceNeurons( AllSynapses &synapses, AllNeurons* allNeuron
 
     // Advance neurons ------------->
     bool fAllowBackPropagation = spSynapses.allowBackPropagation();
-    unsigned long long fpPreSpikeHit_h, fpPostSpikeHit_h;
-    spSynapses.getFpPrePostSpikeHit(fpPreSpikeHit_h, fpPostSpikeHit_h);
+    unsigned long long fpPreSpikeHit_h = NULL;
+    unsigned long long fpPostSpikeHit_h = NULL;
+    spSynapses.getFpPreSpikeHit(fpPreSpikeHit_h);
+    if (fAllowBackPropagation) {
+        spSynapses.getFpPostSpikeHit(fpPostSpikeHit_h);
+    }
 
     advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeurons *)allNeuronsDevice, (AllSpikingSynapses*)allSynapsesDevice, synapseIndexMapDevice, (void (*)(const uint32_t, AllSpikingSynapses*))fpPreSpikeHit_h, (void (*)(const uint32_t, AllSpikingSynapses*))fpPostSpikeHit_h, fAllowBackPropagation );
 }

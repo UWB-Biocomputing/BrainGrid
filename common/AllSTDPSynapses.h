@@ -70,8 +70,9 @@ class AllSTDPSynapses : public AllSpikingSynapses
         virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const SimulationInfo *sim_info);
         virtual void copyDeviceSynapseSumCoordToHost(void* allSynapsesDevice, const SimulationInfo *sim_info);
         // Update the state of all synapses for a time step
-        virtual void advanceSynapses(AllSynapses* allSynapsesDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
+        virtual void advanceSynapses(AllSynapses* allSynapsesDevice, AllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
         virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h);
+        virtual void getFpPostSpikeHit(unsigned long long& fpPostSpikeHit_h);
 
     protected:
         virtual void allocDeviceStruct( AllSTDPSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
@@ -112,7 +113,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
 
         BGFLOAT *tauneg;
 
-        BGFLOAT *STDPgap;;
+        BGFLOAT *STDPgap;
 
         BGFLOAT *Wex;
 
