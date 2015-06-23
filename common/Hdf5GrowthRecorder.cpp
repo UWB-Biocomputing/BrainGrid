@@ -1,12 +1,13 @@
 /**
- *      @file Hdf5Recorder.cpp
+ *      @file Hdf5GrowthRecorder.cpp
  *
  *      @brief An implementation for recording spikes history on hdf5 file
  */
 //! An implementation for recording spikes history on hdf5 file
 
-#include "Hdf5Recorder.h"
+#include "Hdf5GrowthRecorder.h"
 #include "AllIFNeurons.h"      // TODO: remove LIF model specific code
+#include "ConnGrowth.h"
 
 // hdf5 dataset name
 const H5std_string  nameBurstHist("burstinessHist");
@@ -27,13 +28,13 @@ const H5std_string  nameAttrPNUnit("attrPNUint");
 const H5std_string  nameProbedNeurons("probedNeurons");
 
 //! THe constructor and destructor
-Hdf5Recorder::Hdf5Recorder(IModel *model, SimulationInfo* sim_info) :
+Hdf5GrowthRecorder::Hdf5GrowthRecorder(IModel *model, SimulationInfo* sim_info) :
     m_model(dynamic_cast<Model*> (model)),
     m_sim_info(sim_info)
 {
 }
 
-Hdf5Recorder::~Hdf5Recorder()
+Hdf5GrowthRecorder::~Hdf5GrowthRecorder()
 {
 }
 
@@ -41,7 +42,7 @@ Hdf5Recorder::~Hdf5Recorder()
  * Initialize data
  * @param[in] stateOutputFileName	File name to save histories
  */
-void Hdf5Recorder::init(const string& stateOutputFileName)
+void Hdf5GrowthRecorder::init(const string& stateOutputFileName)
 {
     try
     {
@@ -144,10 +145,12 @@ void Hdf5Recorder::init(const string& stateOutputFileName)
 
 /*
  * Init radii and rates history matrices with default values
- * @param[in] startRadius       The starting connectivity radius for all neurons
  */
-void Hdf5Recorder::initDefaultValues(BGFLOAT startRadius)
+void Hdf5GrowthRecorder::initDefaultValues()
 {
+    Connections* pConn = m_model->getConnections();
+    BGFLOAT startRadius = dynamic_cast<ConnGrowth*>(pConn)->m_growth.startRadius;
+
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
         radiiHistory[i] = startRadius;
@@ -162,12 +165,14 @@ void Hdf5Recorder::initDefaultValues(BGFLOAT startRadius)
 /*
  * Init radii and rates history matrices with current radii and rates
  */
-void Hdf5Recorder::initValues()
+void Hdf5GrowthRecorder::initValues()
 {
+    Connections* pConn = m_model->getConnections();
+
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
-        radiiHistory[i] = (*m_model->getConnections()->radii)[i];
-        ratesHistory[i] = (*m_model->getConnections()->rates)[i];
+        radiiHistory[i] = (*dynamic_cast<ConnGrowth*>(pConn)->radii)[i];
+        ratesHistory[i] = (*dynamic_cast<ConnGrowth*>(pConn)->rates)[i];
     }
 
     // write initial radii and rate 
@@ -178,19 +183,21 @@ void Hdf5Recorder::initValues()
 /*
  * Get the current radii and rates values
  */
-void Hdf5Recorder::getValues()
+void Hdf5GrowthRecorder::getValues()
 {
+    Connections* pConn = m_model->getConnections();
+
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
-        (*m_model->getConnections()->radii)[i] = radiiHistory[i];
-        (*m_model->getConnections()->rates)[i] = ratesHistory[i];
+        (*dynamic_cast<ConnGrowth*>(pConn)->radii)[i] = radiiHistory[i];
+        (*dynamic_cast<ConnGrowth*>(pConn)->rates)[i] = ratesHistory[i];
     }
 }
 
 /**
  * Terminate process
  */
-void Hdf5Recorder::term()
+void Hdf5GrowthRecorder::term()
 {
     // deallocate all objects
     delete[] burstinessHist;
@@ -214,12 +221,14 @@ void Hdf5Recorder::term()
 /**
  * Compile history information in every epoch
  * @param[in] neurons   The entire list of neurons.
- * @param[in] minRadius The minimum possible radius.
  */
-void Hdf5Recorder::compileHistories(AllNeurons &neurons, BGFLOAT minRadius)
+void Hdf5GrowthRecorder::compileHistories(AllNeurons &neurons)
 {
-    VectorMatrix& rates = (*m_model->getConnections()->rates);
-    VectorMatrix& radii = (*m_model->getConnections()->radii);
+    Connections* pConn = m_model->getConnections();
+
+    BGFLOAT minRadius = dynamic_cast<ConnGrowth*>(pConn)->m_growth.minRadius;
+    VectorMatrix& rates = (*dynamic_cast<ConnGrowth*>(pConn)->rates);
+    VectorMatrix& radii = (*dynamic_cast<ConnGrowth*>(pConn)->radii);
     AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
     int max_spikes = (int) ((m_sim_info->epochDuration * m_sim_info->maxFiringRate));
 
@@ -342,7 +351,7 @@ void Hdf5Recorder::compileHistories(AllNeurons &neurons, BGFLOAT minRadius)
 /**
  * Incrementaly write radii and rates histories
  */
-void Hdf5Recorder::writeRadiiRates()
+void Hdf5GrowthRecorder::writeRadiiRates()
 {
     try
     {
@@ -414,7 +423,7 @@ void Hdf5Recorder::writeRadiiRates()
  * Save current simulation state to XML
  * @param  neurons the Neuron list to search from.
  **/
-void Hdf5Recorder::saveSimState(const AllNeurons &neurons)
+void Hdf5GrowthRecorder::saveSimState(const AllNeurons &neurons)
 {
     try
     {
@@ -581,7 +590,7 @@ void Hdf5Recorder::saveSimState(const AllNeurons &neurons)
  *  @param  starter_map bool map to reference neuron matrix location from.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void Hdf5Recorder::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info)
+void Hdf5GrowthRecorder::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info)
 {
     int cur = 0;
     for (int x = 0; x < sim_info->width; x++) {

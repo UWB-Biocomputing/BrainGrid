@@ -160,3 +160,13 @@ class AllDSSynapses : public AllSpikingSynapses
          */
         BGFLOAT *F;
 };
+
+#if defined(__CUDACC__)
+extern __global__ void getFpCreateSynapseDevice(void (**fpCreateSynapse_d)(AllDSSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType));
+
+extern __global__ void getFpChangePSRDevice(void (**fpChangePSR_d)(AllDSSynapses*, const uint32_t, const uint64_t, const BGFLOAT));
+
+extern __device__ void createSynapse(AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
+
+extern __device__ void changePSR(AllDSSynapses* allSynapsesDevice, const uint32_t, const uint64_t, const BGFLOAT deltaT);
+#endif

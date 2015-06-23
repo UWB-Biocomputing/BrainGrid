@@ -67,11 +67,15 @@ void Network::advance(ISInput* pInput)
 
 /**
  *  Performs growth in the network: updating connections between neurons for the current epoch.
- *  @params currentStep the current epoch of the simulation.
  */
-void Network::updateConnections(const int currentStep)
+void Network::updateConnections()
 {
-    m_model->updateConnections(currentStep, m_sim_info, m_simRecorder);
+    m_model->updateConnections(m_sim_info);
+}
+
+void Network::updateHistory()
+{
+    m_model->updateHistory(m_sim_info, m_simRecorder);
 }
 
 /**

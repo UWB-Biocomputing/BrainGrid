@@ -4,6 +4,7 @@
 
 #include "ParseParamError.h"
 #include "Util.h"
+#include "ConnGrowth.h"
 
 
 /**
@@ -189,7 +190,7 @@ void Model::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
     m_conns->setupConnections(sim_info);
 
     // Init radii and rates history matrices with default values
-    simRecorder->initDefaultValues(m_conns->m_growth.startRadius);
+    simRecorder->initDefaultValues();
 
     // Creates all the Neurons and generates data for them.
     createAllNeurons(sim_info);
@@ -212,6 +213,10 @@ void Model::cleanupSim(SimulationInfo *sim_info)
  */
 void Model::logSimStep(const SimulationInfo *sim_info) const
 {
+    ConnGrowth* pConnGrowth = dynamic_cast<ConnGrowth*>(m_conns);
+    if (pConnGrowth == NULL)
+        return;
+
     cout << "format:\ntype,radius,firing rate" << endl;
 
     for (int y = 0; y < sim_info->height; y++) {
@@ -235,7 +240,7 @@ void Model::logSimStep(const SimulationInfo *sim_info) const
                 break;
             }
 
-            ss << " " << (*m_conns->radii)[x + y * sim_info->width];
+            ss << " " << (*pConnGrowth->radii)[x + y * sim_info->width];
 
             if (x + 1 < sim_info->width) {
                 ss.width(2);
@@ -257,18 +262,13 @@ void Model::logSimStep(const SimulationInfo *sim_info) const
 
 /**
  *  Update the Neuron's history.
- *  @param  currentStep 	current step of the simulation
- *  @param  epochDuration    	duration of the epoch
- *  @param  sim_info  		Pointer to the simulation information.
- *  @param  simRecorder 	Pointer to the simulation recordig object.
+ *  @param  sim_info    SimulationInfo to refer from.
+ *  @param  simRecorder	Pointer to the simulation recordig object.
  */
-void Model::updateHistory(const int currentStep, BGFLOAT epochDuration, const SimulationInfo *sim_info, IRecorder* simRecorder)
+void Model::updateHistory(const SimulationInfo *sim_info, IRecorder* simRecorder)
 {
-    // Update Connections data
-    m_conns->updateConns(*m_neurons, sim_info);
-
     // Compile history information in every epoch
-    simRecorder->compileHistories(*m_neurons, m_conns->m_growth.minRadius);
+    simRecorder->compileHistories(*m_neurons);
 }
 
 AllNeurons* Model::getNeurons()

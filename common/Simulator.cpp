@@ -58,7 +58,9 @@ void Simulator::simulate(ISInput* pInput)
 #ifdef PERFORMANCE_METRICS
         short_timer.start();
 #endif
-        network->updateConnections(currentStep);
+        network->updateConnections();
+
+        network->updateHistory();
 
 #ifdef PERFORMANCE_METRICS
         t_host_adjustSynapses = short_timer.lap() / 1000.0f;

@@ -88,7 +88,11 @@ class AllSynapses
         virtual void eraseSynapse(const int neuron_index, const uint32_t iSyn);
         virtual void addSynapse(BGFLOAT weight, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, const BGFLOAT deltaT);
         virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
+        int synSign(const synapseType type);
 #endif
+
+        // TODO
+        static const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
  
         /*! The coordinates of the summation point.
          *  

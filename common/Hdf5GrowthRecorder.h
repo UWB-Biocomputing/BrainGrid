@@ -1,17 +1,17 @@
 /**
- *      @file Hdf5Recorder.h
+ *      @file Hdf5GrowthRecorder.h
  *
- *      @brief Header file for Hdf5Recorder.h
+ *      @brief Header file for Hdf5GrowthRecorder.h
  */
 //! An implementation for recording spikes history on hdf5 file
 
 /**
- ** @class Hdf5Recorder Hdf5Recorder.h "Hdf5Recorder.h"
+ ** @class Hdf5GrowthRecorder Hdf5GrowthRecorder.h "Hdf5GrowthRecorder.h"
  **
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
  **
- ** The Hdf5Recorder provides a mechanism for recording spikes history,
+ ** The Hdf5GrowthRecorder provides a mechanism for recording spikes history,
  ** and compile history information on hdf5 file:
  ** 	(1) individual neuron's spike rate in epochs,
  **	(2) burstiness index data in 1s bins,
@@ -28,9 +28,6 @@
 
 #pragma once
 
-#ifndef _HD5RECORDER_H_
-#define _HD5RECORDER_H_
-
 #include "IRecorder.h"
 #include "Model.h"
 #include "H5Cpp.h"
@@ -45,12 +42,12 @@
 #define H5_FLOAT PredType::NATIVE_DOUBLE
 #endif
 
-class Hdf5Recorder : public IRecorder
+class Hdf5GrowthRecorder : public IRecorder
 {
 public:
     //! THe constructor and destructor
-    Hdf5Recorder(IModel *model, SimulationInfo* sim_info);
-    ~Hdf5Recorder();
+    Hdf5GrowthRecorder(IModel *model, SimulationInfo* sim_info);
+    ~Hdf5GrowthRecorder();
 
     /**
      * Initialize data
@@ -60,9 +57,8 @@ public:
 
     /*
      * Init radii and rates history matrices with default values
-     * @param[in] startRadius       The starting connectivity radius for all neurons
      */
-    virtual void initDefaultValues(BGFLOAT startRadius);
+    virtual void initDefaultValues();
 
     /*
      * Init radii and rates history matrices with current radii and rates
@@ -82,9 +78,8 @@ public:
     /**
      * Compile history information in every epoch
      * @param[in] neurons   The entire list of neurons.
-     * @param[in] minRadius The minimum possible radius.
      */
-    virtual void compileHistories(AllNeurons &neurons, BGFLOAT minRadius);
+    virtual void compileHistories(AllNeurons &neurons);
 
     /**
      * Save current simulation state to XML
@@ -142,4 +137,3 @@ private:
     Model *m_model;
 };
 
-#endif // _HD5RECORDER_H_

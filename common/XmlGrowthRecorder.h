@@ -1,17 +1,17 @@
 /**
- *      @file XmlRecorder.h
+ *      @file XmlGrowthRecorder.h
  *
- *      @brief Header file for XmlRecorder.h
+ *      @brief Header file for XmlGrowthRecorder.h
  */
 //! An implementation for recording spikes history on xml file
 
 /**
- ** \class XmlRecorder XmlRecorder.h "XmlRecorder.h"
+ ** \class XmlGrowthRecorder XmlGrowthRecorder.h "XmlGrowthRecorder.h"
  **
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
  **
- ** The XmlRecorder provides a mechanism for recording spikes history,
+ ** The XmlGrowthRecorder provides a mechanism for recording spikes history,
  ** and compile history information on xml file:
  ** 	(1) individual neuron's spike rate in epochs,
  **	(2) burstiness index data in 1s bins,
@@ -28,19 +28,16 @@
 
 #pragma once
 
-#ifndef _XMLRECORDER_H_
-#define _XMLRECORDER_H_
-
 #include "IRecorder.h"
 #include "Model.h"
 #include <fstream>
 
-class XmlRecorder : public IRecorder
+class XmlGrowthRecorder : public IRecorder
 {
 public:
     //! THe constructor and destructor
-    XmlRecorder(IModel *model, SimulationInfo* sim_info);
-    ~XmlRecorder();
+    XmlGrowthRecorder(IModel *model, SimulationInfo* sim_info);
+    ~XmlGrowthRecorder();
 
     /**
      * Initialize data
@@ -50,9 +47,8 @@ public:
 
     /*
      * Init radii and rates history matrices with default values
-     * @param[in] startRadius       The starting connectivity radius for all neurons
      */
-    virtual void initDefaultValues(BGFLOAT startRadius);
+    virtual void initDefaultValues();
 
     /*
      * Init radii and rates history matrices with current radii and rates
@@ -72,9 +68,8 @@ public:
     /**
      * Compile history information in every epoch
      * @param[in] neurons   The entire list of neurons.
-     * @param[in] minRadius The minimum possible radius.
      */
-    virtual void compileHistories(AllNeurons &neurons, BGFLOAT minRadius);
+    virtual void compileHistories(AllNeurons &neurons);
 
     /**
      * Save current simulation state to XML
@@ -107,4 +102,3 @@ private:
     Model *m_model;
 };
 
-#endif // _XMLRECORDER_H_

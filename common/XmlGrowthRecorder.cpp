@@ -1,15 +1,16 @@
 /**
- *      @file XmlRecorder.cpp
+ *      @file XmlGrowthRecorder.cpp
  *
  *      @brief An implementation for recording spikes history on xml file
  */
 //! An implementation for recording spikes history on xml file
 
-#include "XmlRecorder.h"
+#include "XmlGrowthRecorder.h"
 #include "AllIFNeurons.h"      // TODO: remove LIF model specific code
+#include "ConnGrowth.h"
 
 //! THe constructor and destructor
-XmlRecorder::XmlRecorder(IModel *model, SimulationInfo* sim_info) :
+XmlGrowthRecorder::XmlGrowthRecorder(IModel *model, SimulationInfo* sim_info) :
         burstinessHist("complete", "const", 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps), 0),
         spikesHistory("complete", "const", 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps * 100), 0),
         ratesHistory("complete", "const", static_cast<int>(sim_info->maxSteps + 1), sim_info->totalNeurons),
@@ -19,7 +20,7 @@ XmlRecorder::XmlRecorder(IModel *model, SimulationInfo* sim_info) :
 {
 }
 
-XmlRecorder::~XmlRecorder()
+XmlGrowthRecorder::~XmlGrowthRecorder()
 {
 }
 
@@ -27,7 +28,7 @@ XmlRecorder::~XmlRecorder()
  * Initialize data
  * @param[in] stateOutputFileName	File name to save histories
  */
-void XmlRecorder::init(const string& stateOutputFileName)
+void XmlGrowthRecorder::init(const string& stateOutputFileName)
 {
     stateOut.open( stateOutputFileName.c_str( ) );
 
@@ -35,10 +36,12 @@ void XmlRecorder::init(const string& stateOutputFileName)
 
 /*
  * Init radii and rates history matrices with default values
- * @param[in] startRadius 	The starting connectivity radius for all neurons
  */
-void XmlRecorder::initDefaultValues(BGFLOAT startRadius)
+void XmlGrowthRecorder::initDefaultValues()
 {
+    Connections* pConn = m_model->getConnections();
+    BGFLOAT startRadius = dynamic_cast<ConnGrowth*>(pConn)->m_growth.startRadius;
+
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
         radiiHistory(0, i) = startRadius;
@@ -49,31 +52,35 @@ void XmlRecorder::initDefaultValues(BGFLOAT startRadius)
 /*
  * Init radii and rates history matrices with current radii and rates
  */
-void XmlRecorder::initValues()
+void XmlGrowthRecorder::initValues()
 {
+    Connections* pConn = m_model->getConnections();
+
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
-        radiiHistory(0, i) = (*m_model->getConnections()->radii)[i];
-        ratesHistory(0, i) = (*m_model->getConnections()->rates)[i];
+        radiiHistory(0, i) = (*dynamic_cast<ConnGrowth*>(pConn)->radii)[i];
+        ratesHistory(0, i) = (*dynamic_cast<ConnGrowth*>(pConn)->rates)[i];
     }
 }
 
 /*
  * Get the current radii and rates values
  */
-void XmlRecorder::getValues()
+void XmlGrowthRecorder::getValues()
 {
+    Connections* pConn = m_model->getConnections();
+
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
-        (*m_model->getConnections()->radii)[i] = radiiHistory(m_sim_info->currentStep, i);
-        (*m_model->getConnections()->rates)[i] = ratesHistory(m_sim_info->currentStep, i);
+        (*dynamic_cast<ConnGrowth*>(pConn)->radii)[i] = radiiHistory(m_sim_info->currentStep, i);
+        (*dynamic_cast<ConnGrowth*>(pConn)->rates)[i] = ratesHistory(m_sim_info->currentStep, i);
     }
 }
 
 /**
  * Terminate process
  */
-void XmlRecorder::term()
+void XmlGrowthRecorder::term()
 {
     stateOut.close();
 }
@@ -81,12 +88,14 @@ void XmlRecorder::term()
 /**
  * Compile history information in every epoch
  * @param[in] neurons 	The entire list of neurons.
- * @param[in] minRadius	The minimum possible radius.
  */
-void XmlRecorder::compileHistories(AllNeurons &neurons, BGFLOAT minRadius)
+void XmlGrowthRecorder::compileHistories(AllNeurons &neurons)
 {
-    VectorMatrix& rates = (*m_model->getConnections()->rates);
-    VectorMatrix& radii = (*m_model->getConnections()->radii);
+    Connections* pConn = m_model->getConnections();
+
+    BGFLOAT minRadius = dynamic_cast<ConnGrowth*>(pConn)->m_growth.minRadius;
+    VectorMatrix& rates = (*dynamic_cast<ConnGrowth*>(pConn)->rates);
+    VectorMatrix& radii = (*dynamic_cast<ConnGrowth*>(pConn)->radii);
     AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
     int max_spikes = (int) ((m_sim_info->epochDuration * m_sim_info->maxFiringRate));
 
@@ -131,7 +140,7 @@ void XmlRecorder::compileHistories(AllNeurons &neurons, BGFLOAT minRadius)
  * Save current simulation state to XML
  * @param  neurons the Neuron list to search from.
  **/
-void XmlRecorder::saveSimState(const AllNeurons &neurons)
+void XmlGrowthRecorder::saveSimState(const AllNeurons &neurons)
 {
     // create Neuron Types matrix
     VectorMatrix neuronTypes("complete", "const", 1, m_sim_info->totalNeurons, EXC);
@@ -200,7 +209,7 @@ void XmlRecorder::saveSimState(const AllNeurons &neurons)
  *  @param  starter_map bool map to reference neuron matrix location from.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void XmlRecorder::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info)
+void XmlGrowthRecorder::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info)
 {
     int cur = 0;
     for (int x = 0; x < sim_info->width; x++) {

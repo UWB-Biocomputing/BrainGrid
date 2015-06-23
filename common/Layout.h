@@ -7,16 +7,16 @@
 
 using namespace std;
 
-class XmlRecorder;
+class XmlGrowthRecorder;
 #ifdef USE_HDF5
-class Hdf5Recorder;
+class Hdf5GrowthRecorder;
 #endif // USE_HDF5
 
 class Layout
 {
-        friend XmlRecorder;
+        friend XmlGrowthRecorder;
 #ifdef USE_HDF5
-        friend Hdf5Recorder;
+        friend Hdf5GrowthRecorder;
 #endif // USE_HDF5
 
     public:

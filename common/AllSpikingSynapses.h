@@ -176,3 +176,35 @@ class AllSpikingSynapses : public AllSynapses
          */
         int *ldelayQueue;
 };
+
+#if defined(__CUDACC__)
+//! Perform updating synapses for one time step.
+extern __global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT) );
+
+extern __device__ bool isSpikeQueueDevice(AllSpikingSynapses* allSynapsesDevice, uint32_t iSyn);
+
+extern __global__ void getFpPreSpikeHitDevice(void (**fpPreSpikeHit_d)(const uint32_t, AllSpikingSynapses*));
+
+extern __global__ void getFpPostSpikeHitDevice(void (**fpPostSpikeHit_d)(const uint32_t, AllSpikingSynapses*));
+
+extern __device__ void preSpikeHitDevice( const uint32_t iSyn, AllSpikingSynapses* allSynapsesDevice );
+
+extern __device__ void postSpikeHitDevice( const uint32_t iSyn, AllSpikingSynapses* allSynapsesDevice );
+
+extern __global__ void getFpChangePSRDevice(void (**fpChangePSR_d)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT));
+
+extern __device__ void changePSR(AllSpikingSynapses* allSynapsesDevice, const uint32_t, const uint64_t, const BGFLOAT deltaT);
+
+//! Add a synapse to the network.
+extern __device__ void addSynapse( AllSpikingSynapses* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons, void (*fpCreateSynapse)(AllSpikingSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType) );
+
+//! Remove a synapse from the network.
+extern __device__ void eraseSynapse( AllSpikingSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses );
+
+//! Get the type of synapse.
+extern __device__ synapseType synType( AllSpikingNeurons* allNeuronsDevice, const int src_neuron, const int dest_neuron );
+
+//! Get the type of synapse (excitatory or inhibitory)
+extern __device__ int synSign( synapseType t );
+#endif
+

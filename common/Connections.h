@@ -8,6 +8,7 @@
 #include "Global.h"
 #include "SimulationInfo.h"
 #include "AllSpikingNeurons.h"
+#include "AllSpikingSynapses.h"
 #include <vector>
 #include <iostream>
 
@@ -17,39 +18,18 @@ class Connections
 {
     public:
         // TODO
-        static const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
-
-        // TODO
         static const string MATRIX_TYPE;
         // TODO
         static const string MATRIX_INIT;
 
         // TODO
-        int *spikeCounts;
-
-        // TODO
         VectorMatrix *xloc;
         // TODO
         VectorMatrix *yloc;
-
-        //! synapse weight
-        CompleteMatrix *W;
-        //! neuron radii
-        VectorMatrix *radii;
-        //! spiking rate
-        VectorMatrix *rates;
         //! Inter-neuron distance squared
         CompleteMatrix *dist2;
-        //! distance between connection frontiers
-        CompleteMatrix *delta;
         //! the true inter-neuron distance
         CompleteMatrix *dist;
-        //! areas of overlap
-        CompleteMatrix *area;
-        //! neuron's outgrowth
-        VectorMatrix *outgrowth;
-        //! displacement of neuron radii
-        VectorMatrix *deltaR;
 
         // TODO
         Connections();
@@ -61,24 +41,12 @@ class Connections
         virtual void printParameters(ostream &output) const;
         virtual void readConns(istream& input, const SimulationInfo *sim_info);
         virtual void writeConns(ostream& output, const SimulationInfo *sim_info);
-        virtual void updateConns(AllNeurons &neurons, const SimulationInfo *sim_info);
-        virtual void updateFrontiers(const int num_neurons);
-        virtual void updateOverlap(BGFLOAT num_neurons);
-
-        struct GrowthParams
-        {
-            BGFLOAT epsilon; //null firing rate(zero outgrowth)
-            BGFLOAT beta;  //sensitivity of outgrowth to firing rate
-            BGFLOAT rho;  //outgrowth rate constant
-            BGFLOAT targetRate; // Spikes/second
-            BGFLOAT maxRate; // = targetRate / epsilon;
-            BGFLOAT minRadius; // To ensure that even rapidly-firing neurons will connect to
-                               // other neurons, when within their RFS.
-            BGFLOAT startRadius; // No need to wait a long time before RFs start to overlap
-        };
-
-        // TODO
-        GrowthParams m_growth;
+        virtual bool updateConnections(AllNeurons &neurons, const SimulationInfo *sim_info);
+#if defined(USE_GPU)
+        virtual void updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice) = 0;
+#else
+        virtual void updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
+#endif
 
     private:
 };

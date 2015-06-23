@@ -2,7 +2,6 @@
 
 #include "IModel.h"
 #include "Coordinate.h"
-#include "Connections.h"
 #include "Layout.h"
 #include "SynapseIndexMap.h"
 
@@ -37,6 +36,7 @@ class Model : public IModel, TiXmlVisitor
         virtual AllNeurons* getNeurons();
         virtual Connections* getConnections();
         virtual Layout* getLayout();
+        virtual void updateHistory(const SimulationInfo *sim_info, IRecorder* simRecorder);
 
     protected:
 
@@ -60,9 +60,6 @@ class Model : public IModel, TiXmlVisitor
         // # Save State
         // ------------
 	void logSimStep(const SimulationInfo *sim_info) const;
-
-	// TODO     
-        void updateHistory(int currentStep, BGFLOAT epochDuration, const SimulationInfo *sim_info, IRecorder* simRecorder);
 
         // -----------------------------------------------------------------------------------------
         // # Generic Functions for handling synapse types

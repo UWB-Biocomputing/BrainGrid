@@ -17,9 +17,9 @@
 #include "AllLIFNeurons.h"
 #include "AllIZHNeurons.h"
 #include "AllDSSynapses.h"
-#include "XmlRecorder.h"
+#include "XmlGrowthRecorder.h"
 #ifdef USE_HDF5
-#include "Hdf5Recorder.h"
+#include "Hdf5GrowthRecorder.h"
 #endif // USE_HDF5
 #include "FSInput.h"
 
@@ -80,13 +80,13 @@ bool parseCommandLine(int argc, char* argv[]);
 int main(int argc, char* argv[]) {
     // create the model
     #if defined(USE_GPU)
-	 //model = new GPUSpikingModel(new Connections(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
-	 model = new GPUSpikingModel(new Connections(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new GPUSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
+	 model = new GPUSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
     #elif defined(USE_OMP)
-	 model = new SingleThreadedSpikingModel(new Connections(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
     #else
-	 //model = new SingleThreadedSpikingModel(new Connections(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
-	 model = new SingleThreadedSpikingModel(new Connections(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
+	 model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
     #endif
     
     DEBUG(cout << "reading parameters from xml file" << endl;)
@@ -106,11 +106,11 @@ int main(int argc, char* argv[]) {
     // create & init simulation recorder
     IRecorder* simRecorder = NULL;
     if (stateOutputFileName.find(".xml") != string::npos) {
-        simRecorder = new XmlRecorder(model, simInfo);
+        simRecorder = new XmlGrowthRecorder(model, simInfo);
     }
 #ifdef USE_HDF5
     else if (stateOutputFileName.find(".h5") != string::npos) {
-        simRecorder = new Hdf5Recorder(model, simInfo); 
+        simRecorder = new Hdf5GrowthRecorder(model, simInfo); 
     }
     else {
         cerr << "! ERROR: invalid state output file name extension." << endl;

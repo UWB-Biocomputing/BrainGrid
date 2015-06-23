@@ -18,7 +18,7 @@ public:
 	virtual ~SingleThreadedSpikingModel();
 
 	virtual void advance(const SimulationInfo *sim_info);
-	virtual void updateConnections(const int currentStep, const SimulationInfo *sim_info, IRecorder* simRecorder);
+	virtual void updateConnections(const SimulationInfo *sim_info);
 
 	/* -----------------
 	* # Helper Functions
@@ -28,21 +28,6 @@ public:
 protected:
 
 private:
-	// # Advance Network/Model
-	// -----------------------
-
-	// # Update Connections
-	// --------------------
-
-	// TODO
-	void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
-
-	// -----------------------------------------------------------------------------------------
-	// # Generic Functions for handling synapse types
-	// ---------------------------------------------
-
-	// Determines the direction of the weight for a given synapse type.
-	int synSign(const synapseType t);
 
 };
 

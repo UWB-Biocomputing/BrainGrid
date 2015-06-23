@@ -96,6 +96,7 @@
 
 #include "Global.h"
 #include "AllIFNeurons.h"
+#include "AllSpikingSynapses.h"
 
 // Class to hold all data necessary for all the Neurons.
 class AllLIFNeurons : public AllIFNeurons
@@ -118,3 +119,8 @@ class AllLIFNeurons : public AllIFNeurons
 
     private:
 };
+
+#if defined(__CUDACC__)
+//! Perform updating neurons for one time step.
+extern __global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const uint32_t, AllSpikingSynapses*), void (*fpPostSpikeHit)(const uint32_t, AllSpikingSynapses*), bool fAllowBackPropagation ); 
+#endif

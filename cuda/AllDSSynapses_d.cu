@@ -7,14 +7,6 @@
 #include "GPUSpikingModel.h"
 #include "Book.h"
 
-__global__ void getFpCreateSynapseDevice(void (**fpCreateSynapse_d)(AllDSSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType));
-
-__global__ void getFpChangePSRDevice(void (**fpChangePSR_d)(AllDSSynapses*, const uint32_t, const uint64_t, const BGFLOAT));
-
-__device__ void createSynapse(AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
-
-__device__ void changePSR(AllDSSynapses* allSynapsesDevice, const uint32_t, const uint64_t, const BGFLOAT deltaT);
-
 void AllDSSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info ) {
 	allocSynapseDeviceStruct( allSynapsesDevice, sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron );
 }

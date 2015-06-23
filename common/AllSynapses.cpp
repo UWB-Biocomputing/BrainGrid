@@ -279,4 +279,27 @@ void AllSynapses::addSynapse(BGFLOAT weight, synapseType type, const int src_neu
 
     W[iSyn] = weight;
 }
+
+/**
+ *  Get the sign of the synapseType.
+ *  @param    type    synapseType I to I, I to E, E to I, or E to E
+ *  @return   1 or -1, or 0 if error
+ */
+int AllSynapses::synSign(const synapseType type)
+{
+    switch ( type ) {
+        case II:
+        case IE:
+            return -1;
+        case EI:
+        case EE:
+            return 1;
+        case STYPE_UNDEF:
+            // TODO error.
+            return 0;
+    }
+
+    return 0;
+}
+
 #endif // !defined(USE_GPU)

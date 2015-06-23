@@ -7,23 +7,6 @@
 #include "GPUSpikingModel.h"
 #include "Book.h"
 
-__global__ void getFpCreateSynapseDevice(void (**fpCreateSynapse_d)(AllSTDPSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType));
-
-__global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSTDPSynapses*, const uint32_t, const uint64_t, const BGFLOAT), AllSpikingNeurons* allNeuronsDevice, int max_spikes, int width ); 
-
-__device__ void stdpLearningDevice(AllSTDPSynapses* allSynapsesDevice, const uint32_t iSyn, double delta, double epost, double epre);
-
-extern __device__ bool isSpikeQueueDevice(AllSpikingSynapses* allSynapsesDevice, uint32_t iSyn);
-__device__ bool isSpikeQueuePostDevice(AllSTDPSynapses* allSynapsesDevice, uint32_t iSyn);
-
-__device__ uint64_t getSpikeHistoryDevice(AllSpikingNeurons* allNeuronsDevice, int index, int offIndex, int max_spikes);
-
-__device__ void createSynapse(AllSTDPSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
-
-__global__ void getFpPostSpikeHitDevice(void (**fpPostSpikeHit_d)(const uint32_t, AllSTDPSynapses*));
-
-__device__ void postSpikeHitDevice( const uint32_t iSyn, AllSTDPSynapses* allSynapsesDevice );
-
 void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info ) {
 	allocSynapseDeviceStruct( allSynapsesDevice, sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron );
 }

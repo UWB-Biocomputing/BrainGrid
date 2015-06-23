@@ -78,6 +78,8 @@ CUDAOBJS =   \
             $(CUDADIR)/AllSTDPSynapses_d.o \
             $(CUDADIR)/AllDynamicSTDPSynapses_cuda.o \
             $(CUDADIR)/AllDynamicSTDPSynapses_d.o \
+            $(CUDADIR)/ConnGrowth_cuda.o \
+            $(CUDADIR)/ConnGrowth_d.o \
             $(CUDADIR)/MersenneTwister_kernel.o \
             $(CUDADIR)/BGDriver_cuda.o \
             $(SINPUTDIR)/GpuSInputRegular.o \
@@ -97,8 +99,8 @@ LIBOBJS =               \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
 			$(COMMDIR)/Util.o \
-			$(COMMDIR)/XmlRecorder.o \
-			$(COMMDIR)/Hdf5Recorder.o 
+			$(COMMDIR)/XmlGrowthRecorder.o \
+			$(COMMDIR)/Hdf5GrowthRecorder.o 
 else
 LIBOBJS =               \
 			$(COMMDIR)/Simulator.o \
@@ -111,7 +113,7 @@ LIBOBJS =               \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
 			$(COMMDIR)/Util.o \
-			$(COMMDIR)/XmlRecorder.o 
+			$(COMMDIR)/XmlGrowthRecorder.o 
 endif
  
 		
@@ -136,6 +138,7 @@ SINGLEOBJS = $(MAIN)/BGDriver.o  \
 			$(COMMDIR)/AllDSSynapses.o \
 			$(COMMDIR)/AllSTDPSynapses.o \
 			$(COMMDIR)/AllDynamicSTDPSynapses.o \
+			$(COMMDIR)/ConnGrowth.o \
 			$(COMMDIR)/Global.o 
 
 XMLOBJS = $(XMLDIR)/tinyxml.o \
@@ -198,6 +201,9 @@ $(CUDADIR)/AllSTDPSynapses_d.o: $(CUDADIR)/AllSTDPSynapses_d.cu $(COMMDIR)/Globa
 $(CUDADIR)/AllDynamicSTDPSynapses_d.o: $(CUDADIR)/AllDynamicSTDPSynapses_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllDynamicSTDPSynapses.h
 	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllDynamicSTDPSynapses_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllDynamicSTDPSynapses_d.o
 
+$(CUDADIR)/ConnGrowth_d.o: $(CUDADIR)/ConnGrowth_d.cu $(COMMDIR)/Global.h $(COMMDIR)/ConnGrowth.h
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/ConnGrowth_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/ConnGrowth_d.o
+
 $(CUDADIR)/BGDriver_cuda.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/IModel.h $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Network.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -I$(CUDADIR) -c $(MAIN)/BGDriver.cpp -o $(CUDADIR)/BGDriver_cuda.o
 
@@ -230,6 +236,9 @@ $(CUDADIR)/AllSTDPSynapses_cuda.o: $(COMMDIR)/AllSTDPSynapses.cpp $(COMMDIR)/All
 
 $(CUDADIR)/AllDynamicSTDPSynapses_cuda.o: $(COMMDIR)/AllDynamicSTDPSynapses.cpp $(COMMDIR)/AllDynamicSTDPSynapses.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllDynamicSTDPSynapses.cpp -o $(CUDADIR)/AllDynamicSTDPSynapses_cuda.o
+
+$(CUDADIR)/ConnGrowth_cuda.o: $(COMMDIR)/ConnGrowth.cpp $(COMMDIR)/ConnGrowth.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/ConnGrowth.cpp -o $(CUDADIR)/ConnGrowth_cuda.o
 
 $(CUDADIR)/Global_cuda.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/Global.cpp -o $(CUDADIR)/Global_cuda.o
@@ -286,6 +295,9 @@ $(COMMDIR)/Model.o: $(COMMDIR)/Model.cpp $(COMMDIR)/Model.h $(COMMDIR)/IModel.h 
 $(COMMDIR)/Connections.o: $(COMMDIR)/Connections.cpp $(COMMDIR)/Connections.h 
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Connections.cpp -o $(COMMDIR)/Connections.o
 
+$(COMMDIR)/ConnGrowth.o: $(COMMDIR)/ConnGrowth.cpp $(COMMDIR)/ConnGrowth.h 
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/ConnGrowth.cpp -o $(COMMDIR)/ConnGrowth.o
+
 $(COMMDIR)/Layout.o: $(COMMDIR)/Layout.cpp $(COMMDIR)/Layout.h 
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Layout.cpp -o $(COMMDIR)/Layout.o
 
@@ -304,12 +316,12 @@ $(COMMDIR)/Timer.o: $(COMMDIR)/Timer.cpp $(COMMDIR)/Timer.h
 $(COMMDIR)/Util.o: $(COMMDIR)/Util.cpp $(COMMDIR)/Util.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Util.cpp -o $(COMMDIR)/Util.o
 
-$(COMMDIR)/XmlRecorder.o: $(COMMDIR)/XmlRecorder.cpp $(COMMDIR)/XmlRecorder.h $(COMMDIR)/IRecorder.h
-	$(CXX) $(CXXFLAGS) $(COMMDIR)/XmlRecorder.cpp -o $(COMMDIR)/XmlRecorder.o
+$(COMMDIR)/XmlGrowthRecorder.o: $(COMMDIR)/XmlGrowthRecorder.cpp $(COMMDIR)/XmlGrowthRecorder.h $(COMMDIR)/IRecorder.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/XmlGrowthRecorder.cpp -o $(COMMDIR)/XmlGrowthRecorder.o
 
 ifeq ($(CUSEHDF5), yes)
-$(COMMDIR)/Hdf5Recorder.o: $(COMMDIR)/Hdf5Recorder.cpp $(COMMDIR)/Hdf5Recorder.h $(COMMDIR)/IRecorder.h
-	$(CXX) $(CXXFLAGS) $(COMMDIR)/Hdf5Recorder.cpp -o $(COMMDIR)/Hdf5Recorder.o
+$(COMMDIR)/Hdf5Recorder.o: $(COMMDIR)/Hdf5GrowthRecorder.cpp $(COMMDIR)/Hdf5GrowthRecorder.h $(COMMDIR)/IRecorder.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/Hdf5GrowthRecorder.cpp -o $(COMMDIR)/Hdf5GrowthRecorder.o
 endif
 
 

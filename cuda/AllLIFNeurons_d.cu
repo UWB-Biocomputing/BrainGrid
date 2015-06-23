@@ -1,9 +1,5 @@
 #include "AllLIFNeurons.h"
-#include "AllSpikingSynapses.h"
 #include "Book.h"
-
-//! Perform updating neurons for one time step.
-__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const uint32_t, AllSpikingSynapses*), void (*fpPostSpikeHit)(const uint32_t, AllSpikingSynapses*), bool fAllowBackPropagation ); 
 
 /**
  *  Notify outgoing synapses if neuron has fired.

@@ -111,7 +111,7 @@ class IModel {
          * @param currentStep - The epoch step in which the connections are being updated.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void updateConnections(const int currentStep, const SimulationInfo *sim_info, IRecorder* simRecorder) =0;
+        virtual void updateConnections(const SimulationInfo *sim_info) =0;
 
         /**
          * Performs any finalization tasks on network following a simulation.
@@ -131,6 +131,8 @@ class IModel {
         virtual Connections* getConnections() = 0;
 
         virtual Layout* getLayout() = 0;
+
+        virtual void updateHistory(const SimulationInfo *sim_info, IRecorder* simRecorder) = 0;
 };
 
 #endif

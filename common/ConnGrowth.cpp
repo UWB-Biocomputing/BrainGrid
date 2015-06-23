@@ -1,5 +1,6 @@
-#include "Connections.h"
+#include "ConnGrowth.h"
 #include "ParseParamError.h"
+#include "AllSynapses.h"
 
 /* ------------- CONNECTIONS STRUCT ------------ *\
  * Below all of the resources for the various
@@ -11,9 +12,6 @@
  * into “radii” and “rates”.
 \* --------------------------------------------- */
 // TODO comment
-const string Connections::MATRIX_TYPE = "complete";
-// TODO comment
-const string Connections::MATRIX_INIT = "const";
 /* ------------------- ERROR ------------------- *\
  * terminate called after throwing an instance of 'std::bad_alloc'
  *      what():  St9bad_alloc
@@ -42,95 +40,59 @@ const string Connections::MATRIX_INIT = "const";
  * problematic matricies mentioned above will use
  * only 1/250 of their current space.
 \* --------------------------------------------- */
-Connections::Connections()
+ConnGrowth::ConnGrowth() : Connections()
 {
-    xloc = NULL;
-    yloc = NULL;
     W = NULL;
     radii = NULL;
     rates = NULL;
-    dist2 = NULL;
     delta = NULL;
-    dist = NULL;
     area = NULL;
     outgrowth = NULL;
     deltaR = NULL;
 }
 
-Connections::~Connections()
+ConnGrowth::~ConnGrowth()
 {
     cleanupConnections();
 }
 
-void Connections::setupConnections(const SimulationInfo *sim_info)
+void ConnGrowth::setupConnections(const SimulationInfo *sim_info)
 {
+    Connections::setupConnections(sim_info);
+
     int num_neurons = sim_info->totalNeurons;
 
-    xloc = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons);
-    yloc = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons);
     W = new CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0);
     radii = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, m_growth.startRadius);
     rates = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, 0);
-    dist2 = new CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons);
     delta = new CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons);
-    dist = new CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons);
     area = new CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0);
     outgrowth = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons);
     deltaR = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons);
-
-    // Initialize neuron locations 
-    for (int i = 0; i < num_neurons; i++) {
-        (*xloc)[i] = i % sim_info->width;
-        (*yloc)[i] = i / sim_info->width;
-    }   
-
-    // calculate the distance between neurons
-    for (int n = 0; n < num_neurons - 1; n++)
-    {           
-        for (int n2 = n + 1; n2 < num_neurons; n2++)
-        {
-            // distance^2 between two points in point-slope form
-            (*dist2)(n, n2) = ((*xloc)[n] - (*xloc)[n2]) * ((*xloc)[n] - (*xloc)[n2]) +             
-                ((*yloc)[n] - (*yloc)[n2]) * ((*yloc)[n] - (*yloc)[n2]);
-
-            // both points are equidistant from each other
-            (*dist2)(n2, n) = (*dist2)(n, n2);
-        }
-    }
- 
-    // take the square root to get actual distance (Pythagoras was right!)
-    // (The CompleteMatrix class makes this assignment look so easy...)
-    (*dist) = sqrt((*dist2)); 
 
     // Init connection frontier distance change matrix with the current distances
     (*delta) = (*dist);
 }
 
-void Connections::cleanupConnections()
+void ConnGrowth::cleanupConnections()
 {
-    if (xloc != NULL) delete xloc;
-    if (yloc != NULL) delete yloc;
     if (W != NULL) delete W;
     if (radii != NULL) delete radii;
     if (rates != NULL) delete rates;
-    if (dist2 != NULL) delete dist2;
     if (delta != NULL) delete delta;
-    if (dist != NULL) delete dist;
     if (area != NULL) delete area;
     if (outgrowth != NULL) delete outgrowth;
     if (deltaR != NULL) delete deltaR;
 
-    xloc = NULL;
-    yloc = NULL;
     W = NULL;
     radii = NULL;
     rates = NULL;
-    dist2 = NULL;
     delta = NULL;
-    dist = NULL;
     area = NULL;
     outgrowth = NULL;
     deltaR = NULL;
+
+    Connections::cleanupConnections();
 }
 
 /**
@@ -138,8 +100,10 @@ void Connections::cleanupConnections()
  *  @param  @param  element TiXmlElement to examine.
  *  @return true if successful, false otherwise.
  */
-bool Connections::readParameters(const TiXmlElement& element)
+bool ConnGrowth::readParameters(const TiXmlElement& element)
 {
+    Connections::readParameters(element);
+
     if (element.ValueStr().compare("GrowthParams") == 0) {
         if (element.QueryFLOATAttribute("epsilon", &m_growth.epsilon) != TIXML_SUCCESS) {
                 throw ParseParamError("epsilon", "Growth param 'epsilon' missing in XML.");
@@ -195,8 +159,10 @@ bool Connections::readParameters(const TiXmlElement& element)
  *  Prints out all parameters of the connections to ostream.
  *  @param  output  ostream to send output to.
  */
-void Connections::printParameters(ostream &output) const
+void ConnGrowth::printParameters(ostream &output) const
 {
+    Connections::printParameters(output);
+
     output << "Growth parameters: " << endl
            << "\tepsilon: " << m_growth.epsilon
            << ", beta: " << m_growth.beta
@@ -208,8 +174,10 @@ void Connections::printParameters(ostream &output) const
 
 }
 
-void Connections::readConns(istream& input, const SimulationInfo *sim_info)
+void ConnGrowth::readConns(istream& input, const SimulationInfo *sim_info)
 {
+    Connections::readConns(input, sim_info);
+
     // read the radii
     for (int i = 0; i < sim_info->totalNeurons; i++) {
             input >> (*radii)[i]; input.ignore();
@@ -221,8 +189,10 @@ void Connections::readConns(istream& input, const SimulationInfo *sim_info)
     }
 }
 
-void Connections::writeConns(ostream& output, const SimulationInfo *sim_info)
+void ConnGrowth::writeConns(ostream& output, const SimulationInfo *sim_info)
 {
+    Connections::writeConns(output, sim_info);
+
     // write the final radii
     for (int i = 0; i < sim_info->totalNeurons; i++) {
         output << (*radii)[i] << ends;
@@ -234,7 +204,22 @@ void Connections::writeConns(ostream& output, const SimulationInfo *sim_info)
     }
 }
 
-void Connections::updateConns(AllNeurons &neurons, const SimulationInfo *sim_info)
+bool ConnGrowth::updateConnections(AllNeurons &neurons, const SimulationInfo *sim_info)
+{
+    // Update Connections data
+    updateConns(neurons, sim_info);
+ 
+    // Update the distance between frontiers of Neurons
+    updateFrontiers(sim_info->totalNeurons);
+
+    // Update the areas of overlap in between Neurons
+    updateOverlap(sim_info->totalNeurons);
+
+    return true;
+}
+
+
+void ConnGrowth::updateConns(AllNeurons &neurons, const SimulationInfo *sim_info)
 {
     AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
 
@@ -256,7 +241,7 @@ void Connections::updateConns(AllNeurons &neurons, const SimulationInfo *sim_inf
  *  Update the distance between frontiers of Neurons.
  *  @param  num_neurons in the simulation to update.
  */
-void Connections::updateFrontiers(const int num_neurons)
+void ConnGrowth::updateFrontiers(const int num_neurons)
 {
     DEBUG(cout << "Updating distance between frontiers..." << endl;)
     // Update distance between frontiers
@@ -272,7 +257,7 @@ void Connections::updateFrontiers(const int num_neurons)
  *  Update the areas of overlap in between Neurons.
  *  @param  num_neurons number of Neurons to update.
  */
-void Connections::updateOverlap(BGFLOAT num_neurons)
+void ConnGrowth::updateOverlap(BGFLOAT num_neurons)
 {
     DEBUG(cout << "computing areas of overlap" << endl;)
 
@@ -313,3 +298,94 @@ void Connections::updateOverlap(BGFLOAT num_neurons)
     }
 }
 
+#if !defined(USE_GPU)
+/**
+ *  Update the weight of the Synapses in the simulation.
+ *  Note: Platform Dependent.
+ *  @param  num_neurons number of neurons to update.
+ *  @param  neurons the Neuron list to search from.
+ *  @param  synapses    the Synapse list to search from.
+ *  @param  sim_info    SimulationInfo to refer from.
+ */
+void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info)
+{
+
+    // For now, we just set the weights to equal the areas. We will later
+    // scale it and set its sign (when we index and get its sign).
+    (*W) = (*area);
+
+    int adjusted = 0;
+    int could_have_been_removed = 0; // TODO: use this value
+    int removed = 0;
+    int added = 0;
+
+    DEBUG(cout << "adjusting weights" << endl;)
+
+    // Scale and add sign to the areas
+    // visit each neuron 'a'
+    for (int src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
+        int xa = src_neuron % sim_info->width;
+        int ya = src_neuron / sim_info->width;
+        Coordinate src_coord(xa, ya);
+
+        // and each destination neuron 'b'
+        for (int dest_neuron = 0; dest_neuron < num_neurons; dest_neuron++) {
+            int xb = dest_neuron % sim_info->width;
+            int yb = dest_neuron / sim_info->width;
+            Coordinate dest_coord(xb, yb);
+
+            // visit each synapse at (xa,ya)
+            bool connected = false;
+            synapseType type = neurons.synType(src_neuron, dest_neuron);
+
+            // for each existing synapse
+            size_t synapse_counts = synapses.synapse_counts[src_neuron];
+            int synapse_adjusted = 0;
+            for (size_t synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++) {
+                uint32_t iSyn = synapses.maxSynapsesPerNeuron * src_neuron + synapse_index;
+                if (synapses.in_use[iSyn] == true) {
+                    // if there is a synapse between a and b
+                    if (synapses.summationCoord[iSyn] == dest_coord) {
+                        connected = true;
+                        adjusted++;
+                        // adjust the strength of the synapse or remove
+                        // it from the synapse map if it has gone below
+                        // zero.
+                        if ((*W)(src_neuron, dest_neuron) < 0) {
+                            removed++;
+                            synapses.eraseSynapse(src_neuron, iSyn);
+                        } else {
+                            // adjust
+                            // g_synapseStrengthAdjustmentConstant is 1.0e-8;
+                            synapses.W[iSyn] = (*W)(src_neuron, dest_neuron) *
+                                synapses.synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+
+                            DEBUG_MID(cout << "weight of rgSynapseMap" <<
+                                   coordToString(xa, ya)<<"[" <<synapse_index<<"]: " <<
+                                   synapses.W[iSyn] << endl;);
+                        }
+                    }
+                    synapse_adjusted++;
+                }
+            }
+
+            // if not connected and weight(a,b) > 0, add a new synapse from a to b
+            if (!connected && ((*W)(src_neuron, dest_neuron) > 0)) {
+
+                // locate summation point
+                BGFLOAT* sum_point = &( neurons.summation_map[dest_neuron] );
+                added++;
+
+                BGFLOAT weight = (*W)(src_neuron, dest_neuron) * synapses.synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+                synapses.addSynapse(weight, type, src_neuron, dest_neuron, src_coord, dest_coord, sum_point, sim_info->deltaT);
+
+            }
+        }
+    }
+
+    DEBUG (cout << "adjusted: " << adjusted << endl;)
+    DEBUG (cout << "could have been removed (TODO: calculate this): " << could_have_been_removed << endl;)
+    DEBUG (cout << "removed: " << removed << endl;)
+    DEBUG (cout << "added: " << added << endl << endl << endl;)
+}
+#endif // !USE_GPU

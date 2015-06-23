@@ -83,7 +83,9 @@ class Network
         /**
          * Performs growth in the network: updating connections between neurons for the current epoch.
          */
-        void updateConnections(const int currentStep);
+        void updateConnections();
+
+        void updateHistory();
 
         //! Print network radii to console.
         void logSimStep() const;

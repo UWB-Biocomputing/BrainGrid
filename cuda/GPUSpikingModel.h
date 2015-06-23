@@ -126,15 +126,13 @@ public:
 	virtual void cleanupSim(SimulationInfo *sim_info);
         virtual void loadMemory(istream& input, const SimulationInfo *sim_info);
 	virtual void advance(const SimulationInfo *sim_info);
-	virtual void updateConnections(const int currentStep, const SimulationInfo *sim_info, IRecorder* simRecorder);
+	virtual void updateConnections(const SimulationInfo *sim_info);
 
 protected:
 	void allocDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info);
 
 	virtual void deleteDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info);
 	virtual void calcSummationMap(const SimulationInfo *sim_info);
-
-	virtual void updateWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info);
 
 	/* ------------------*\
 	|* # Helper Functions
@@ -176,9 +174,8 @@ private:
 	// # Update Connections
 	// --------------------
 
-	// TODO
-	void updateHistory(const int currentStep, BGFLOAT epochDuration, AllNeurons &neuron, const SimulationInfo *sim_infos, IRecorder* simRecorder);
-	// TODO
+        void updateHistory(const SimulationInfo *sim_infos, IRecorder* simRecorder);
+
 	// TODO
 	void eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
 	// TODO
@@ -190,3 +187,15 @@ private:
 	|  Generic Functions for handling synapse types
 	\*----------------------------------------------*/
 };
+
+#if defined(__CUDACC__)
+extern "C" {
+void normalMTGPU(float * randNoise_d);
+void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, unsigned int nPerRng, unsigned int mt_rng_count); 
+}       
+        
+extern __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, int max_synapses, int width);
+        
+//! Calculate summation point.
+extern __global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapses* allSynapsesDevice );
+#endif
