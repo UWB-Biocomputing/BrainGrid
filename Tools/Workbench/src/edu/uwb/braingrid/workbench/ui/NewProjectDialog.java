@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
  * @version 0.1
  */
 public class NewProjectDialog extends javax.swing.JDialog {
+    private boolean isRunning = false;
 
     // <editor-fold defaultstate="collapsed" desc="Auto-Generated Code">    
 
@@ -143,6 +144,7 @@ public class NewProjectDialog extends javax.swing.JDialog {
      * @param evt - The event that triggered this action (cancel button clicked)
      */
     private void newProjectCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newProjectCancelButtonActionPerformed
+        isRunning = false;
         setVisible(false);
     }//GEN-LAST:event_newProjectCancelButtonActionPerformed
 
@@ -178,9 +180,10 @@ public class NewProjectDialog extends javax.swing.JDialog {
      * @param modal - True if the parent should be disabled while this dialog is
      * open, otherwise false
      */
-    public NewProjectDialog(boolean modal) {
-        setModal(modal);
+    public NewProjectDialog(boolean modal) {      
         initComponents();
+        setModal(modal);
+        isRunning = true;
         // show window center-screen
         center();
         setVisible(true);
@@ -237,6 +240,7 @@ public class NewProjectDialog extends javax.swing.JDialog {
 
     private void specifyNewProject() {
         success = true;
+        isRunning = false;
         setVisible(false);
     }
     //</editor-fold>
@@ -306,4 +310,8 @@ public class NewProjectDialog extends javax.swing.JDialog {
         return isMatch;
     }
     //</editor-fold>
+
+    public boolean isRunning() {
+        return isRunning;
+    }
 }

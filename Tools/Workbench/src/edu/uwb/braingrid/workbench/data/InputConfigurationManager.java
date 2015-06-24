@@ -18,12 +18,11 @@ public class InputConfigurationManager {
     InputConfiguration inputConfig;
     InputConfigurationBuilder inputConfigBuilder;
     
-    private boolean load;
+    private final boolean load;
     
     public InputConfigurationManager(String configFilename) throws SAXException,
             IOException, ParserConfigurationException {
-        inputConfigBuilder = new InputConfigurationBuilder();
-        
+        inputConfigBuilder = new InputConfigurationBuilder();        
         if (configFilename != null) {
             load = true;            
             inputConfig = inputConfigBuilder.load(configFilename);
@@ -33,6 +32,12 @@ public class InputConfigurationManager {
         }
     }
 
+    /**
+     * Adds parameters 
+     * @param parameter
+     * @param value
+     * @return 
+     */
     public boolean addParameterValue(String parameter, String value) {
         boolean success = inputConfig.isLegalParameter(parameter);
         if (success) {

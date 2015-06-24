@@ -23,5 +23,4 @@ public class AProbesPanel extends JPanel {
 		add(label);
 		add(tfield);
 	}
-
 }

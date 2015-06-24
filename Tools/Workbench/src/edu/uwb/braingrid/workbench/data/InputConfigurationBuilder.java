@@ -1,5 +1,5 @@
 package edu.uwb.braingrid.workbench.data;
-
+/////////////////CLEANED
 import edu.uwb.braingrid.workbench.model.InputConfiguration;
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +16,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**

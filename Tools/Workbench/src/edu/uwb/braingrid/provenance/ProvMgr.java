@@ -1,5 +1,5 @@
 package edu.uwb.braingrid.provenance;
-
+/////////////////CLEANED
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -66,6 +66,7 @@ public class ProvMgr {
     public static final String ipServiceURL = "http://checkip.amazonaws.com/";
     public static String REMOTE_NS_PREFIX = "remote";
     public static String LOCAL_NS_PREFIX = "local";
+
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction">
@@ -158,6 +159,7 @@ public class ProvMgr {
             model.setNsPrefix(prefix, uri + "#");
         }
     }
+
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Getters">
@@ -179,6 +181,7 @@ public class ProvMgr {
     public Model getModel() {
         return model;
     }
+
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Model Manipulation">
@@ -288,7 +291,9 @@ public class ProvMgr {
         uri = uri.replaceAll("\\\\", "/");
         String fullUri = remote ? getProjectFullRemoteURI(uri)
                 : getProjectFullLocalURI(uri);
-        //removeResource(uri);
+        if (replace) {
+            removeResource(uri);
+        }
         // make parts necessary for defining this particular agent in the model
         Resource agentToAdd = createStatement(fullUri,
                 ProvOntology.getRDFTypeFullURI(),
@@ -566,7 +571,7 @@ public class ProvMgr {
     public Resource addToCollection(Resource collection, Resource entity) {
         Property hadMember = model.createProperty(ProvOntology.
                 getHadMemberExpandedPropertyFullURI());
-        Statement s = model.createStatement(collection, hadMember, entity);
+        model.createStatement(collection, hadMember, entity);
         return collection;
     }
 
@@ -595,7 +600,6 @@ public class ProvMgr {
         Resource activity = addActivity(activityURI, activityLabel, remoteAgent, false);
         Resource program = addSoftwareAgent(agentURI, agentLabel, remoteAgent, false);
         Resource file = addEntity(fileURI, fileLabel, remoteFile, false);
-        wasGeneratedBy(file, activity);
         generated(activity, file);
         wasAssociatedWith(activity, program);
         return file;
@@ -614,7 +618,6 @@ public class ProvMgr {
      */
     public Resource addFileGeneration(Resource activity, Resource agent,
             Resource file) {
-        wasGeneratedBy(file, activity);
         generated(activity, file);
         wasAssociatedWith(activity, agent);
         return file;
@@ -622,6 +625,18 @@ public class ProvMgr {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Query Support">
+    /**
+     * Provides the URIs for all subjects in the provenance model.
+     *
+     * Note: Full URIs are accumulated in the list parameter that was passed in.
+     * Whereas, a list of abbreviated (any parent directories removed) URIs are
+     * returned. Abbreviation occurs on web resources, as well as file
+     * resources. (e.g. http://www.somesite.com/myFile.xml becomes myFile.xml)
+     *
+     * @param fullURIs - A List to populate with full URIs of all subjects.
+     * @return - A List of abbreviated URIs of all subjects (parent directories
+     * removed)
+     */
     public List<String> getSubjects(List<String> fullURIs) {
         List<String> abbreviatedURI = new ArrayList<>();
         StmtIterator si = model.listStatements();
@@ -638,6 +653,11 @@ public class ProvMgr {
         return abbreviatedURI;
     }
 
+    /**
+     * Provides a collection of all predicate URIs in the provenance model.
+     *
+     * @return A collection of all predicate URIs in the provenance model.
+     */
     public Collection<String> getPredicates() {
         HashSet<String> fullURISet = new HashSet<>();
         StmtIterator si = model.listStatements();
@@ -647,6 +667,18 @@ public class ProvMgr {
         return fullURISet;
     }
 
+    /**
+     * Provides the URIs for all objects in the provenance model.
+     *
+     * Note: Full URIs are accumulated in the list parameter that was passed in.
+     * Whereas, a list of abbreviated (any parent directories removed) URIs are
+     * returned. Abbreviation occurs on web resources, as well as file
+     * resources. (e.g. http://www.somesite.com/myFile.xml becomes myFile.xml)
+     *
+     * @param fullURIs - A List to populate with full URIs of all objects.
+     * @return - A List of abbreviated URIs of all objects (parent directories
+     * removed)
+     */
     public List<String> getObjects(List<String> fullURIs) {
         List<String> abbreviatedURI = new ArrayList<>();
         StmtIterator si = model.listStatements();
@@ -727,7 +759,6 @@ public class ProvMgr {
      * URI
      */
     private String getProjectFullLocalURI(String uri) {
-        //return localNS + uri;
         return LOCAL_NS_PREFIX + ":" + uri;
     }
 

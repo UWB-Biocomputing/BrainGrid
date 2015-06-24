@@ -433,6 +433,7 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
     public ScriptSpecificationDialog(boolean modal) {
         setModal(modal);
         initComponents();
+        simulatorLocationTextField.setText("BrainGrid");
         center();
         pack();
         setVisible(true);

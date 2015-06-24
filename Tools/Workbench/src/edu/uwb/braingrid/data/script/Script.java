@@ -1,5 +1,5 @@
 package edu.uwb.braingrid.data.script;
-
+/////////////////CLEANED
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,12 +9,16 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 /**
- * Provides support for building simple bash scripts in java where it is
+ * Provides support for building simple bash scripts in Java, where it is
  * anticipated that the script will automatically record provenance and
  * execution output to files. Provenance support includes the time that commands
  * began execution, ended execution, and their state when execution completed.
  *
- * Created by Nathan on 7/16/2014; Updated by Del on 7/23/2014
+ * Note: Variable names and paths diverge to enable Windows batch support in
+ * future releases. Please, do not refactor the code away from this support.
+ *
+ * Created by Nathan on 7/16/2014; Updated by Del on 7/23/2014 and maintained
+ * since.
  *
  * @author Nathan Duncan
  * @version 0.1
@@ -24,6 +28,7 @@ public class Script {
 
     // <editor-fold defaultstate="collapsed" desc="Members">
     /* model data */
+
     private String bashScript;
     private final List<String> bashStatements;
     private final List<String> bashArgNames;
@@ -33,8 +38,6 @@ public class Script {
     private boolean bashScriptConstructed;
     /* temporary variables */
     private StringBuilder sb;
-    /* version information */
-    private String version;
     /* redirect stdout/stderr of commands to this file */
     private String cmdOutputFilename;
     /* redirect stdout/stderr of printf statements to this file */
@@ -77,6 +80,7 @@ public class Script {
      * redirect file for simulation status
      */
     public static final String simStatusFilename = "simStatus.txt";
+
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction">
@@ -90,22 +94,8 @@ public class Script {
         bashArgDeclarations = new ArrayList<>();
         usageStatements = new ArrayList<>();
         bashScriptConstructed = false;
-        version = null;
         cmdOutputFilename = commandOutputFilename;
         scriptStatusOutputFilename = Script.defaultScriptStatusFilename;
-    }
-
-    /**
-     * Constructs Script object and initializes members. In addition to the
-     * default constructor, the version of the script is set. The version is
-     * generally incremental and should follow the previous version of the
-     * script where the first script version is "1".
-     *
-     * @param ver - the iteration of persisted scripts for the project
-     */
-    public Script(String ver) {
-        this();
-        version = ver;
     }
     // </editor-fold>
 
@@ -114,11 +104,14 @@ public class Script {
      * Shortcut helper function, to be used when all args are not variable and
      * thus there are no corresponding usage statements
      *
-     * @param filename name of the file to execute from this script
+     * @param filename - name of the file to execute from this script
      * @param args - arguments to provide for execution. Even for variable
      * arguments this is necessary because the names are used in the usage for
      * the script.
-     * @param fromWrkDir
+     * @param fromWrkDir - indicates whether or not the executable should be
+     * prefaced by the working directory syntax (used to differentiate between
+     * pathed executables and executables existing in the current working
+     * directory, but having the same name e.g. ./exec_name)
      * @return true if the program execution statement was added to the script
      * model correctly, otherwise false
      */
@@ -162,18 +155,19 @@ public class Script {
      * @param addToUsage - explanation of each argument. (The usage explanation
      * for non-variable args will not be used, but must be specified or null as
      * the length of addToUsage must match the args and variable parameters)
-     * @param fromWrkDir - Indicates whether or not the command execution should
-     * be prefaced with a symbolic link to the current working directory.
-     * @return True if the command was successfully added to the script,
-     * otherwise false
+     * @param fromWrkDir - indicates whether or not the executable should be
+     * prefaced by the working directory syntax (used to differentiate between
+     * pathed executables and executables existing in the current working
+     * directory, but having the same name e.g. ./exec_name) otherwise false
+     * @return True if the statement was successfully appended to the current
+     * script state (does not indicate persistence), otherwise false
      */
     public boolean executeProgram(String filename, String[] args,
             boolean[] variable, String[] addToUsage, boolean fromWrkDir) {
-        boolean success1;//, success2 = true;
+        boolean success1;
         success1 = executeProgramForBash(filename, args,
                 variable, addToUsage, fromWrkDir);
-        //success2 = executeProgramForBatch(filename, args, variable, addToUsage);
-        return success1;// && success2;
+        return success1;
     }
 
     /**
@@ -192,10 +186,12 @@ public class Script {
      * @param addToUsage - explanation of each argument. (The usage explanation
      * for non-variable args will not be used, but must be specified or null as
      * the length of addToUsage must match the args and variable parameters)
-     * @param fromWrkDir - Indicates whether or not the command execution should
-     * be prefaced with a symbolic link to the current working directory.
-     * @return True if the command was successfully added to the script,
-     * otherwise false
+     * @param fromWrkDir - indicates whether or not the executable should be
+     * prefaced by the working directory syntax (used to differentiate between
+     * pathed executables and executables existing in the current working
+     * directory, but having the same name e.g. ./exec_name)
+     * @return True if the statement was successfully appended to the current
+     * script state (does not indicate persistence), otherwise false
      */
     private boolean executeProgramForBash(String filename, String[] args,
             boolean[] variable, String[] addToUsage, boolean fromWrkDir) {
@@ -227,12 +223,12 @@ public class Script {
             if (!bashStatements.isEmpty()) {
                 sb.append('>');
             }
-            sb.append(" ~/" + cmdOutputFilename);
+            sb.append(" ~/").append(cmdOutputFilename);
             sb.append(" 2>");
             if (!bashStatements.isEmpty()) {
                 sb.append(">");
             }
-            sb.append(" ~/" + cmdOutputFilename);
+            sb.append(" ~/").append(cmdOutputFilename);
             bashStatements.add(sb.toString());
             postCommandOutput(!bashStatements.isEmpty());
         } else {
@@ -269,7 +265,7 @@ public class Script {
     /**
      * Adds a command statement to the script irrespective of script variables
      *
-     * @param stmt
+     * @param stmt - Command statement to be added
      * @param outputFile - File to redirect standard error/out to
      * @param append - Whether or not the output file should be appended to.
      * Note: Since any file name, previously used or not, can be specified as
@@ -281,7 +277,6 @@ public class Script {
      * previous execution of the script.
      */
     public void addVerbatimStatement(String stmt, String outputFile, boolean append) {
-        //stmt = printfEscape(stmt);
         if (outputFile == null) {
             outputFile = "~/" + cmdOutputFilename;
         }
@@ -292,6 +287,13 @@ public class Script {
         postCommandOutput(!bashStatements.isEmpty());
     }
 
+    /**
+     * Escapes control characters of a string for input to the printf command on
+     * Posix systems.
+     *
+     * @param s - printf input to escape
+     * @return escaped printf input
+     */
     public static String printfEscape(String s) {
         return s.replaceAll("\\Q\\a\\E", Matcher.quoteReplacement("\\\\\\a")).
                 replaceAll("\\Q\\b\\E", Matcher.quoteReplacement("\\\\\\b")).
@@ -308,6 +310,16 @@ public class Script {
                 replaceAll("\\Q\\\"\\E", Matcher.quoteReplacement("\\\\\""));
     }
 
+    /**
+     * Adds a printf statement redirected to the script output file. This is
+     * used to record what was executed and when it started.
+     *
+     * @param whatStarted - Command that was executed
+     * @param append - Indicates whether or not to append the output file. Note
+     * for future work: All appending of redirect output should probably be
+     * refactored to be managed by this class, rather than relying on code in
+     * the script manager.
+     */
     private void preCommandOutput(String whatStarted, boolean append) {
         whatStarted = printfEscape(whatStarted);
         StringBuilder s = new StringBuilder();
@@ -315,33 +327,78 @@ public class Script {
         outToken = append ? ">>" : ">";
         s.append("printf \"command: ").append(whatStarted.replaceAll("\"", "")).
                 append("\\ntime started: `date +%s`\\n\" ").
-                append(outToken).append(" ~/" + scriptStatusOutputFilename).append(" 2").
-                append(outToken).append(" ~/" + scriptStatusOutputFilename);
+                append(outToken).
+                append(" ~/").append(scriptStatusOutputFilename).append(" 2").
+                append(outToken).
+                append(" ~/").append(scriptStatusOutputFilename);
         bashStatements.add(s.toString());
     }
 
+    /**
+     * Adds a printf statement redirected to the script output file. This is
+     * used to record the exit status of the last command executed and the time
+     * execution ended.
+     *
+     * @param append - Indicates whether or not to append the output file. Note
+     * for future work: All appending of redirect output should probably be
+     * refactored to be managed by this class, rather than relying on code in
+     * the script manager.
+     */
     private void postCommandOutput(boolean append) {
         StringBuilder s = new StringBuilder();
         String outToken;
         outToken = append ? ">>" : ">";
         s.append("printf \"exit status: $?\\ntime completed: `date +%s`\\n\" ").
-                append(outToken).append(" ~/" + scriptStatusOutputFilename).append(" 2").
-                append(outToken).append(" ~/" + scriptStatusOutputFilename);
+                append(outToken).
+                append(" ~/").append(scriptStatusOutputFilename).append(" 2").
+                append(outToken).
+                append(" ~/").append(scriptStatusOutputFilename);
         bashStatements.add(s.toString());
     }
 
+    /**
+     * Specifies the name of the default file used to redirect the output from
+     * commands executed by the script. This file can be overridden for specific
+     * statements using the appropriate functions with null filename strings
+     * (see printf(...) and addVerbatimStatement(...)), rather than the generic
+     * functions.
+     *
+     * @param filename - the name of the default file used to redirect the
+     * output from commands executed by the script
+     */
     public void setCmdOutputFilename(String filename) {
         cmdOutputFilename = filename;
     }
 
+    /**
+     * Provides the filename of the file associated with logging script
+     * execution information.
+     *
+     * @return The filename of the file associated with logging script execution
+     * information.
+     */
     public String getCmdOutputFilename() {
         return cmdOutputFilename;
     }
 
+    /**
+     * Specifies the filename of the file associated with logging script
+     * execution information.
+     *
+     * @param filename - the filename of the file associated with logging script
+     * execution information.
+     */
     public void setScriptStatusOutputFilename(String filename) {
         scriptStatusOutputFilename = filename;
     }
 
+    /**
+     * Provides the filename of the file associated with logging script
+     * execution information.
+     *
+     * @return The filename of the file associated with logging script execution
+     * information.
+     */
     public String getScriptStatusOutputFilename() {
         return scriptStatusOutputFilename;
     }
@@ -353,13 +410,12 @@ public class Script {
      */
     public boolean construct() {
         bashScriptConstructed = constructBashScript();
-        //batchScriptConstructed = constructBatchScript();
         return bashScriptConstructed;
     }
 
     /**
-     * Constructs the batch script from the previously constructed parts see
-     * model data declarations
+     * Constructs the bash script from the previously constructed parts (see
+     * model data declarations)
      */
     private boolean constructBashScript() {
         StringBuilder builder = new StringBuilder();

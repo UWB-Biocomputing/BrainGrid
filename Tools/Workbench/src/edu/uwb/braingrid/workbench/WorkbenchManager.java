@@ -1,4 +1,5 @@
 package edu.uwb.braingrid.workbench;
+/////////////////CLEANED
 
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
@@ -48,7 +49,6 @@ public class WorkbenchManager {
 
     /* Configuration Data */
     private final String folderDelimiter;
-    private String NLEditPath;
     private final String rootDir;
     private final String projectsDir;
     private SimulationSpecification simSpec;
@@ -74,16 +74,6 @@ public class WorkbenchManager {
         prov = null;
         projectMgr = null;
         simSpec = null;
-        try {
-            String currDir = Paths.get((new java.io.File("."))
-                    .getCanonicalPath()).toString();
-            String jarName = "NLEdit.jar";
-            String ps = folderDelimiter;
-            NLEditPath = currDir + ps + "tools" + ps + "NLEdit" + ps + jarName;
-        } catch (IOException e) {
-            NLEditPath = ": Exception occured during initialization"
-                    + " while locating parent of working directory!";
-        }
     }
     // </editor-fold>
 
@@ -617,40 +607,6 @@ public class WorkbenchManager {
     }
 
     /**
-     * Launches the neuron list editor (NLEdit) from an external jar file.
-     * NLEdit provides a means to graphically specify Brain Grid simulation
-     * input files. InputAnalyzer files represent lists of neurons with regard
-     * to their position in a neuron array (e.g. position 12 is x: 1, y: 2 on a
-     * 10x10 grid)
-     *
-     * Note: Launching externally means that NLEdit will not communicate with
-     * this frame. Therefore, this method should only be called in the event
-     * that provenance support is turned off for the open project.
-     */
-    private void runExternalNLEdit() {
-        (new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String pathToJar = NLEditPath;
-                    if (new File(pathToJar).exists()) {
-                        msgFromOtherThread = pathToJar;
-                        String cmd = "java -jar " + pathToJar;
-                        Runtime.getRuntime().exec(cmd);
-                        msgFromOtherThread = "";
-                    } else {
-                        msgFromOtherThread = NLEditPath
-                                + " not found";
-                    }
-                } catch (IOException e) {
-                    msgFromOtherThread = e.toString() + "<br>"
-                            + msgFromOtherThread;
-                }
-            }
-        }).run();
-    }
-
-    /**
      * Delivers a full system-dependent canonical form of the path to the
      * working directory
      *
@@ -698,14 +654,33 @@ public class WorkbenchManager {
         return projectsDirectory;
     }
 
+    /**
+     * Sets the ScriptRan attribute of the Project to false. Run invalidation
+     * should occur whenever the script specification or simulation
+     * specification changes. This attribute is used by the view to update
+     * workflow state (which buttons are enabled and what text is shown to the
+     * user)
+     */
     public void invalidateScriptRan() {
         projectMgr.setScriptRan(false);
     }
 
+    /**
+     * Removes the script from the project. Invalidation should occur whenever
+     * the script specification or simulation specification changes. This is a
+     * safety measure meant to protect against utilizing an expired script (i.e.
+     * the version doesn't match, but the script gets used anyway)
+     */
     public void invalidateScriptGenerated() {
         projectMgr.removeScript();
     }
 
+    /**
+     * Sets the time when the script completed execution to an error code.
+     * Invalidation should occur whenever script specification or simulation
+     * specification occurs. This is a safety measure for the view in updating
+     * the overview of script output analysis.
+     */
     public void invalidateScriptAnalyzed() {
         projectMgr.setScriptCompletedAt(DateTime.ERROR_TIME);
     }

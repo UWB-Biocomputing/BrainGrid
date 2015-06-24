@@ -1,5 +1,5 @@
 package edu.uwb.braingrid.provenance.model;
-
+/////////////////CLEANED
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -203,7 +203,7 @@ public class ProvenanceStatement {
      * @param uri - A unique resource identifier used to construct a RDF
      * resource representing the subject of this provenance statement
      */
-    public void setSubject(String uri) {
+    public final void setSubject(String uri) {
         if (uri != null) {
             subject = defaultModel.createResource(uri);
         }
@@ -249,7 +249,7 @@ public class ProvenanceStatement {
      * @param uri - A unique resource identifier used to construct a RDF
      * resource representing the predicate of this provenance statement
      */
-    public void setPredicate(String uri) {
+    public final void setPredicate(String uri) {
         if (uri != null) {
             predicate = defaultModel.createProperty(uri);
         }
@@ -283,7 +283,7 @@ public class ProvenanceStatement {
      * @param literal - If true, a Literal will be constructed, otherwise, a
      * Resource
      */
-    public void setObject(String uri, boolean literal) {
+    public final void setObject(String uri, boolean literal) {
         if (uri != null) {
             if (literal) {
                 objectNode = defaultModel.createLiteral(uri);

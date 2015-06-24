@@ -1,5 +1,5 @@
 package edu.uwb.braingrid.data.script;
-
+/////////////////CLEANED
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
@@ -36,7 +36,11 @@ import org.xml.sax.SAXException;
 public class ScriptManager {
 
     private String outstandingMessages;
-
+    
+    /**
+     * Responsible for construction of the script manager and initialization of
+     * queued messages reported to the class maintaining this object.
+     */
     public ScriptManager() {
         outstandingMessages = "";
     }
@@ -44,12 +48,16 @@ public class ScriptManager {
     /**
      * Generates a constructed (but not persisted) Script
      *
-     * @param projectname
+     * @param projectname - name of the project that generated the script
      * @param version The version of the script (used in tracing output back to
      * the script that printed the output)
      * @param simSpec - The specification for the simulator to execute in the
      * script
-     * @param simConfigFilename
+     * @param simConfigFilename - Name of configuration file used as simulation
+     * input (XML file that specifies simulation parameters, environment
+     * constants, and simulated spatial information (or names of files which
+     * contain such spatial data). This is the file that is constructed using
+     * the simulation specification dialog)
      * @return A constructed script or null in the case that the script could
      * not be constructed properly
      */
@@ -65,7 +73,7 @@ public class ScriptManager {
         }
         simConfigFilename = FileManager.getSimpleFilename(simConfigFilename);
         // create a new script
-        Script script = new Script(version);
+        Script script = new Script();
         script.setCmdOutputFilename(projectname
                 + "_v"
                 + version
@@ -150,17 +158,7 @@ public class ScriptManager {
                 + version
                 + "_"
                 + Script.SHA1KeyFilename, false);
-//        /* Checkout Refactor */
-//     String[] gitCheckoutRefactorArgs = {"checkout", "refactor-stable-cuda"};
-//     script.executeProgram("git", gitCheckoutRefactorArgs);
-
         /* Make the Simulator */
-//        if (fileMgr.isWindowsSystem() && !simSpec.isRemote()) {
-//            // set visual studio environment variables
-//            script.addVerbatimStatement("vcvars32.bat", null, success);
-//            // compile code
-//            script.addVerbatimStatement("build.bat", null, success);
-//        } else {
         // clean previous build
         if (simSpec.buildFirst()) {
             String[] cleanMakeArgs = {"-s", "clean"};
@@ -169,8 +167,6 @@ public class ScriptManager {
             String[] makeArgs = {"-s", simExecutableToInvoke, "CUSEHDF5='no'"};
             script.executeProgram("make", makeArgs);
         }
-//        }
-
         /* Make Results Folder */
         if (simSpec.isRemote()) {
             String[] mkResultsDirArgs = {"results"};
@@ -213,7 +209,6 @@ public class ScriptManager {
         } catch (IOException e) {
             success = false;
         }
-
         /* Run the Simulator */
         script.addVerbatimStatement("./"
                 + simExecutableToInvoke
@@ -250,7 +245,7 @@ public class ScriptManager {
         return projectFolder + "scripts"
                 + FileManager.getFileManager().getFolderDelimiter();
     }
-
+    
     /**
      * Runs the script as specified in the associated simulation specification.
      *
@@ -284,14 +279,12 @@ public class ScriptManager {
             success = runRemoteScript(provMgr, simSpec, scriptPath,
                     scriptVersion, nListFilenames, simConfigFilename);
         } else { // or run it locally
-            //if (!FileManager.getFileManager().isWindowsSystem()) {
             success = runLocalScript(provMgr, simSpec, scriptPath,
                     scriptVersion, nListFilenames, simConfigFilename);
-            //}
         }
         return success;
     }
-
+ 
     private boolean runRemoteScript(ProvMgr provMgr,
             SimulationSpecification simSpec, String scriptPath,
             String scriptVersion, String[] nListFilenames,
@@ -313,7 +306,7 @@ public class ScriptManager {
             /* Upload Script */
             if (sft.uploadFile(scriptPath, "", hostname, lcd.getUsername(),
                     password, null)) {
-                // record upload provenance
+                // record provenance of upload
                 if (provMgr != null) {
                     Long startTime = System.currentTimeMillis();
                     WorkbenchOperationRecorder.uploadFile(provMgr, scriptPath,
@@ -443,7 +436,7 @@ public class ScriptManager {
         }
         return success;
     }
-
+    
     private boolean runLocalScript(ProvMgr provMgr,
             SimulationSpecification simSpec, String scriptLocation,
             String scriptVersion, String[] inputFilenames,
@@ -563,23 +556,8 @@ public class ScriptManager {
         String oldWrkDir = System.getProperty("user.dir");
         //String homeDir = System.getProperty("user.home");
         System.setProperty("user.dir", System.getProperty("user.home"));
-
-//        if (!homeDir.endsWith(fm.getFolderDelimiter())) {
-//            homeDir += fm.getFolderDelimiter();
-//        }
         String cmd = "sh " + fm.getUserDir()
                 + FileManager.getSimpleFilename(scriptTargetPath.toString());
-
-        //PrintWriter out = null;
-//        try {
-//            out = new PrintWriter(new BufferedWriter(
-//                    new FileWriter("sysexec.txt", true)));
-//            out.println("Sys exec cmd: " + cmd);
-//            out.close();
-//        } catch (IOException e) {
-//            System.err.println("Problem writing sys exec command to sysexec.txt.");
-//            e.printStackTrace();
-//        }
         // run the script
         try {
             if (Desktop.isDesktopSupported() && fm.isWindowsSystem()) {
@@ -741,10 +719,9 @@ public class ScriptManager {
                         }
                     }
                 }
+        //LEAVE THIS COMMENTED CODE (BELOW): THIS IS AUTOMATED PROV COLLECTION//
 //                String scriptName = Script.getFilename(
 //                        analyzer.getScriptVersion());
-
-                //git log --pretty=format:'%H' -n 1
 //                SimulationSpecification spec = analyzer.getSimSpec();
 //                List<ExecutedCommand> allCommandsList = null;
 //                Collection<ExecutedCommand> allCommands
@@ -757,6 +734,7 @@ public class ScriptManager {
 //                        //System.err.println(ec);
 //                    }
 //                }
+                ///////////////////LEAVE COMMENTED CODE (ABOVE)/////////////////
                 // collect output file and standard output redirect file
                 accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
             }
@@ -770,7 +748,7 @@ public class ScriptManager {
         }
         return timeCompleted;
     }
-
+    
     private String fetchScriptOutputFiles(ProjectMgr projectMgr,
             SimulationSpecification simSpec, String outputStorageFolder) throws
             JSchException, SftpException, IOException {
@@ -807,12 +785,10 @@ public class ScriptManager {
                 + "results"
                 + fm.getFolderDelimiter();
         new File(localSimResultsFolder).mkdirs();
-
         // calculate simulation history dump filename to write
         String historyDumpFilename = projectMgr
                 .determineProjectOutputLocation()
                 + projectMgr.getSimStateOutputFile();
-
         // run simulation here or on another machine?
         boolean remote = simSpec.isRemote();
         if (remote) {

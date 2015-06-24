@@ -366,7 +366,6 @@
             <StringItem index="1" value="Pre-built"/>
           </StringArray>
         </Property>
-        <Property name="selectedItem" type="java.lang.Object" value="Build"/>
       </Properties>
       <Events>
         <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="buildOptionComboBoxItemStateChanged"/>
