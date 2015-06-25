@@ -370,6 +370,8 @@ public class ProjectMgr {
     /**
      * Adds an input file to both the project XML and the input list
      *
+     * NOTE: DEAD CODE
+     * 
      * @param uri - The location identifier for the input file
      * @param type - The type of input file (INHIBITORY, ACTIVE, PROBED)
      * @return The uri of a replaced input file, or null if no input file of the
@@ -451,6 +453,8 @@ public class ProjectMgr {
 
     /**
      * Searches for an input with the specified type.
+     * 
+     * NOTE: DEAD CODE
      *
      * @param type - The input type to search for
      * @return The first input element with the type specified. If no element

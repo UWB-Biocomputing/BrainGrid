@@ -287,6 +287,8 @@ public class WorkbenchManager {
      * Opens input files from any reachable file system location. These files
      * are added to the project and overwrite any previously opened files of the
      * same neuron list type.
+     * 
+     * NOTE: DEAD CODE
      *
      * @return True if at least one input file was added to the project
      * successfully
@@ -559,6 +561,8 @@ public class WorkbenchManager {
      * provenance of the file's creation is added to the provenance model.
      * InputAnalyzer filenames are also added to the existing file input label.
      *
+     * NOTE: DEAD CODE
+     * 
      * @param uri - The file location
      * @param type - The type of input file
      */
