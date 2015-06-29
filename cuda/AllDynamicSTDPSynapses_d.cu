@@ -130,14 +130,14 @@ void AllDynamicSTDPSynapses::copyDeviceSynapseCountsToHost(void* allSynapsesDevi
  *  Get summationCoord and in_use in AllSynapses struct on device memory.
  *  @param  sim_info    SimulationInfo to refer from.
  */
-void AllDynamicSTDPSynapses::copyDeviceSynapseSumCoordToHost(void* allSynapsesDevice, const SimulationInfo *sim_info)
+void AllDynamicSTDPSynapses::copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info)
 {
         AllDynamicSTDPSynapses allSynapses;
 	uint32_t max_total_synapses = sim_info->maxSynapsesPerNeuron * sim_info->totalNeurons;
 
         HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllDynamicSTDPSynapses ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( summationCoord, allSynapses.summationCoord,
-                max_total_synapses * sizeof( Coordinate ), cudaMemcpyDeviceToHost ) );
+        HANDLE_ERROR( cudaMemcpy ( destNeuronIndex, allSynapses.destNeuronIndex,
+                max_total_synapses * sizeof( int ), cudaMemcpyDeviceToHost ) );
         HANDLE_ERROR( cudaMemcpy ( in_use, allSynapses.in_use,
                 max_total_synapses * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 }
@@ -148,7 +148,7 @@ void AllDynamicSTDPSynapses::getFpCreateSynapse(unsigned long long& fpCreateSyna
 
     HANDLE_ERROR( cudaMalloc(&fpCreateSynapse_d, sizeof(unsigned long long)) );
 
-    getFpCreateSynapseDevice<<<1,1>>>((void (**)(AllDynamicSTDPSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType))fpCreateSynapse_d);
+    getFpCreateSynapseDevice<<<1,1>>>((void (**)(AllDynamicSTDPSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))fpCreateSynapse_d);
 
     HANDLE_ERROR( cudaMemcpy(&fpCreateSynapse_h, fpCreateSynapse_d, sizeof(unsigned long long), cudaMemcpyDeviceToHost) );
     HANDLE_ERROR( cudaFree( fpCreateSynapse_d ) );
@@ -170,7 +170,7 @@ void AllDynamicSTDPSynapses::getFpChangePSR(unsigned long long& fpChangePSR_h)
 |* # Global Functions
 \* ------------------*/
 
-__global__ void getFpCreateSynapseDevice(void (**fpCreateSynapse_d)(AllDynamicSTDPSynapses*, const int, const int, int, int, int, int, BGFLOAT*, const BGFLOAT, synapseType))
+__global__ void getFpCreateSynapseDevice(void (**fpCreateSynapse_d)(AllDynamicSTDPSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))
 {
     *fpCreateSynapse_d = createSynapse;
 }
@@ -193,7 +193,7 @@ __global__ void getFpChangePSRDevice(void (**fpChangePSR_d)(AllDynamicSTDPSynaps
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-__device__ void createSynapse(AllDynamicSTDPSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+__device__ void createSynapse(AllDynamicSTDPSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
     size_t max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
@@ -201,10 +201,8 @@ __device__ void createSynapse(AllDynamicSTDPSynapses* allSynapsesDevice, const i
 
     allSynapsesDevice->in_use[iSyn] = true;
     allSynapsesDevice->summationPoint[iSyn] = sum_point;
-    allSynapsesDevice->summationCoord[iSyn].x = dest_x;
-    allSynapsesDevice->summationCoord[iSyn].y = dest_y;
-    allSynapsesDevice->synapseCoord[iSyn].x = source_x;
-    allSynapsesDevice->synapseCoord[iSyn].y = source_y;
+    allSynapsesDevice->destNeuronIndex[iSyn] = dest_index;
+    allSynapsesDevice->sourceNeuronIndex[iSyn] = source_index;
     allSynapsesDevice->W[iSyn] = 10.0e-9;
 
     allSynapsesDevice->delayQueue[iSyn] = 0;

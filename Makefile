@@ -94,6 +94,7 @@ LIBOBJS =               \
 			$(COMMDIR)/Model.o \
 			$(COMMDIR)/Connections.o \
 			$(COMMDIR)/Layout.o \
+			$(COMMDIR)/LayoutGrid.o \
 			$(COMMDIR)/SingleThreadedSpikingModel.o \
 			$(COMMDIR)/Network.o \
 			$(COMMDIR)/ParseParamError.o \
@@ -108,6 +109,7 @@ LIBOBJS =               \
 			$(COMMDIR)/Model.o \
 			$(COMMDIR)/Connections.o \
 			$(COMMDIR)/Layout.o \
+			$(COMMDIR)/LayoutGrid.o \
 			$(COMMDIR)/SingleThreadedSpikingModel.o \
 			$(COMMDIR)/Network.o \
 			$(COMMDIR)/ParseParamError.o \
@@ -300,6 +302,9 @@ $(COMMDIR)/ConnGrowth.o: $(COMMDIR)/ConnGrowth.cpp $(COMMDIR)/ConnGrowth.h
 
 $(COMMDIR)/Layout.o: $(COMMDIR)/Layout.cpp $(COMMDIR)/Layout.h 
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Layout.cpp -o $(COMMDIR)/Layout.o
+
+$(COMMDIR)/LayoutGrid.o: $(COMMDIR)/LayoutGrid.cpp $(COMMDIR)/LayoutGrid.h 
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/LayoutGrid.cpp -o $(COMMDIR)/LayoutGrid.o
 
 $(COMMDIR)/SingleThreadedSpikingModel.o: $(COMMDIR)/SingleThreadedSpikingModel.cpp $(COMMDIR)/SingleThreadedSpikingModel.h $(COMMDIR)/Model.h 
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/SingleThreadedSpikingModel.cpp -o $(COMMDIR)/SingleThreadedSpikingModel.o

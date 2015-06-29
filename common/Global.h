@@ -143,3 +143,8 @@ void printPerformanceMetrics(const float total_time);
 #endif // PERFORMANCE_METRICS
 
 #endif
+
+// TODO comment
+extern const string MATRIX_TYPE;
+// TODO comment
+extern const string MATRIX_INIT;

@@ -190,9 +190,9 @@ void AllSTDPSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
  *  @param  deltaT  TODO
  *  @param  type    type of the Synapse to create.
  */
-void AllSTDPSynapses::createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+void AllSTDPSynapses::createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
-    AllSpikingSynapses::createSynapse(iSyn, source, dest, sum_point, deltaT, type);
+    AllSpikingSynapses::createSynapse(iSyn, source_index, dest_index, sum_point, deltaT, type);
 
     Apos[iSyn] = 0.5;
     Aneg[iSyn] = -0.5;
@@ -241,8 +241,8 @@ void AllSTDPSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInfo *
         AllSpikingNeurons* spNeurons = dynamic_cast<AllSpikingNeurons*>(neurons);
 
         // pre and post neurons index
-        int idxPre = iSyn / maxSynapsesPerNeuron; 
-        int idxPost = summationCoord[iSyn].x + summationCoord[iSyn].y * sim_info->width;
+        int idxPre = sourceNeuronIndex[iSyn];
+        int idxPost = destNeuronIndex[iSyn];
         uint64_t spikeHistory, spikeHistory2;
         BGFLOAT delta;
         BGFLOAT epre, epost;

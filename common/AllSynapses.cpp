@@ -6,10 +6,10 @@ AllSynapses::AllSynapses() :
         total_synapse_counts(0),
         count_neurons(0)
 {
-    summationCoord = NULL;
+    destNeuronIndex = NULL;
     W = NULL;
     summationPoint = NULL;
-    synapseCoord = NULL;
+    sourceNeuronIndex = NULL;
     psr = NULL;
     type = NULL;
     in_use = NULL;
@@ -40,10 +40,10 @@ void AllSynapses::setupSynapses(const int num_neurons, const int max_synapses)
     count_neurons = num_neurons;
 
     if (max_total_synapses != 0) {
-        summationCoord = new Coordinate[max_total_synapses];
+        destNeuronIndex = new int[max_total_synapses];
         W = new BGFLOAT[max_total_synapses];
         summationPoint = new BGFLOAT*[max_total_synapses];
-        synapseCoord = new Coordinate[max_total_synapses];
+        sourceNeuronIndex = new int[max_total_synapses];
         psr = new BGFLOAT[max_total_synapses];
         type = new synapseType[max_total_synapses];
         in_use = new bool[max_total_synapses];
@@ -65,20 +65,20 @@ void AllSynapses::cleanupSynapses()
     uint32_t max_total_synapses = maxSynapsesPerNeuron * count_neurons;
 
     if (max_total_synapses != 0) {
-        delete[] summationCoord;
+        delete[] destNeuronIndex;
         delete[] W;
         delete[] summationPoint;
-        delete[] synapseCoord;
+        delete[] sourceNeuronIndex;
         delete[] psr;
         delete[] type;
         delete[] in_use;
         delete[] synapse_counts;
     }
 
-    summationCoord = NULL;
+    destNeuronIndex = NULL;
     W = NULL;
     summationPoint = NULL;
-    synapseCoord = NULL;
+    sourceNeuronIndex = NULL;
     psr = NULL;
     type = NULL;
     in_use = NULL;
@@ -111,21 +111,17 @@ void AllSynapses::readSynapses(istream& input, AllNeurons &neurons, const Simula
         for (int i = 0; i < synapse_count; i++) {
                 // read the synapse data and add it to the list
                 // create synapse
-                Coordinate synapseCoord_coord;
-                input >> synapseCoord_coord.x; input.ignore();
-                input >> synapseCoord_coord.y; input.ignore();
+                int neuron_index;
+                input >> neuron_index; input.ignore();
 
-                int neuron_index = synapseCoord_coord.x + synapseCoord_coord.y * sim_info->width;
                 int synapse_index = read_synapses_counts[neuron_index];
                 uint32_t iSyn = maxSynapsesPerNeuron * neuron_index + synapse_index;
 
-                synapseCoord[iSyn] = synapseCoord_coord;
+                sourceNeuronIndex[iSyn] = neuron_index;
 
                 readSynapse(input, iSyn);
 
-                summationPoint[iSyn] =
-                                &(neurons.summation_map[summationCoord[iSyn].x
-                                + summationCoord[iSyn].y * sim_info->width]);
+                summationPoint[iSyn] = &(neurons.summation_map[destNeuronIndex[iSyn]]);
 
                 read_synapses_counts[neuron_index]++;
         }
@@ -163,8 +159,8 @@ void AllSynapses::readSynapse(istream &input, const uint32_t iSyn)
     int synapse_type(0);
 
     // input.ignore() so input skips over end-of-line characters.
-    input >> summationCoord[iSyn].x; input.ignore();
-    input >> summationCoord[iSyn].y; input.ignore();
+    input >> sourceNeuronIndex[iSyn]; input.ignore();
+    input >> destNeuronIndex[iSyn]; input.ignore();
     input >> W[iSyn]; input.ignore();
     input >> psr[iSyn]; input.ignore();
     input >> synapse_type; input.ignore();
@@ -180,10 +176,8 @@ void AllSynapses::readSynapse(istream &input, const uint32_t iSyn)
  */
 void AllSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const
 {
-    output << synapseCoord[iSyn].x << ends;
-    output << synapseCoord[iSyn].y << ends;
-    output << summationCoord[iSyn].x << ends;
-    output << summationCoord[iSyn].y << ends;
+    output << sourceNeuronIndex[iSyn] << ends;
+    output << destNeuronIndex[iSyn] << ends;
     output << W[iSyn] << ends;
     output << psr[iSyn] << ends;
     output << type[iSyn] << ends;
@@ -256,7 +250,7 @@ void AllSynapses::eraseSynapse(const int neuron_index, const uint32_t iSyn)
  *  @param  sum_point   TODO
  *  @param deltaT   inner simulation step duration
  */
-void AllSynapses::addSynapse(BGFLOAT weight, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, const BGFLOAT deltaT)
+void AllSynapses::addSynapse(BGFLOAT weight, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT)
 {
     if (synapse_counts[src_neuron] >= maxSynapsesPerNeuron) {
         return; // TODO: ERROR!
@@ -275,7 +269,7 @@ void AllSynapses::addSynapse(BGFLOAT weight, synapseType type, const int src_neu
     synapse_counts[src_neuron]++;
 
     // create a synapse
-    createSynapse(iSyn, source, dest, sum_point, deltaT, type );
+    createSynapse(iSyn, src_neuron, dest_neuron, sum_point, deltaT, type );
 
     W[iSyn] = weight;
 }

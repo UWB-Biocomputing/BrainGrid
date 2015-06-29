@@ -126,9 +126,9 @@ void AllDSSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
  *  @param  deltaT  TODO
  *  @param  type    type of the Synapse to create.
  */
-void AllDSSynapses::createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+void AllDSSynapses::createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
-    AllSpikingSynapses::createSynapse(iSyn, source, dest, sum_point, deltaT, type);
+    AllSpikingSynapses::createSynapse(iSyn, source_index, dest_index, sum_point, deltaT, type);
 
     U[iSyn] = DEFAULT_U;
 

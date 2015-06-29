@@ -76,7 +76,7 @@ class AllSynapses
         virtual void copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) = 0;
         virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
         virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const SimulationInfo *sim_info) = 0;
-        virtual void copyDeviceSynapseSumCoordToHost(void* allSynapsesDevice, const SimulationInfo *sim_info) = 0;
+        virtual void copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info) = 0;
         // Update the state of all synapses for a time step
         virtual void advanceSynapses(AllSynapses* allSynapsesDevice, AllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info) = 0;
         virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h) = 0;
@@ -86,14 +86,24 @@ class AllSynapses
         virtual void advanceSynapses(const SimulationInfo *sim_info, AllNeurons *neurons);
         virtual void advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, AllNeurons *neurons) = 0;
         virtual void eraseSynapse(const int neuron_index, const uint32_t iSyn);
-        virtual void addSynapse(BGFLOAT weight, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, const BGFLOAT deltaT);
-        virtual void createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
+        virtual void addSynapse(BGFLOAT weight, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT);
+        virtual void createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
         int synSign(const synapseType type);
 #endif
 
         // TODO
         static const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
  
+        /*! The location of the synapse.
+         *  
+         *  Usage: NOT USED ANYWHERE
+         *  - LIFModel::loadMemory() --- Iniialized
+         *  - LIFModel::writeSynapse() --- Accessed
+         *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
+         *  - GpuSim_Struct::createSynapse() --- Initialized
+         */
+        int *sourceNeuronIndex;
+
         /*! The coordinates of the summation point.
          *  
          *  Usage: LOCAL CONSTANT
@@ -108,7 +118,7 @@ class AllSynapses
          *  - GpuSim_Struct::updateNetworkDevice() --- Accessed
          *  - GpuSim_Struct::createSynapse() --- Initialized
          */
-        Coordinate *summationCoord;
+        int *destNeuronIndex;
 
         /*! The weight (scaling factor, strength, maximal amplitude) of the synapse.
          *  
@@ -140,16 +150,6 @@ class AllSynapses
          *  - GpuSim_Struct::createSynapse() --- Initialized
          */
         BGFLOAT **summationPoint;
-
-        /*! The location of the synapse.
-         *  
-         *  Usage: NOT USED ANYWHERE
-         *  - LIFModel::loadMemory() --- Iniialized
-         *  - LIFModel::writeSynapse() --- Accessed
-         *  - SingleThreadedSpikingModel::createSynapse() --- Initialized
-         *  - GpuSim_Struct::createSynapse() --- Initialized
-         */
-        Coordinate *synapseCoord;
 
     	/*! Synapse type
          *  

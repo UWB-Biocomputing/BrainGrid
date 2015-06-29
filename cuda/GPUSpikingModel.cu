@@ -233,8 +233,8 @@ void GPUSpikingModel::updateConnections(const SimulationInfo *sim_info)
         m_neurons->copyNeuronDeviceSpikeHistoryToHost(m_allNeuronsDevice, sim_info);
 
         // Update Connections data
-        if (m_conns->updateConnections(*m_neurons, sim_info)) {
-	    m_conns->updateSynapsesWeights(sim_info->totalNeurons, *m_neurons, *m_synapses, sim_info, m_allNeuronsDevice, m_allSynapsesDevice);
+        if (m_conns->updateConnections(*m_neurons, sim_info, m_layout)) {
+	    m_conns->updateSynapsesWeights(sim_info->totalNeurons, *m_neurons, *m_synapses, sim_info, m_allNeuronsDevice, m_allSynapsesDevice, m_layout);
             // create synapse inverse map
             createSynapseImap( *m_synapses, sim_info );
             // copy inverse map to the device memory
@@ -345,8 +345,7 @@ __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeuron
     int n_inUse = 0;
     for (int syn_index = 0; n_inUse < allSynapsesDevice->synapse_counts[src_neuron]; syn_index++) {
         if (allSynapsesDevice->in_use[max_synapses * src_neuron + syn_index] == true) {
-            int dest_neuron = allSynapsesDevice->summationCoord[max_synapses * src_neuron + syn_index].x
-                + allSynapsesDevice->summationCoord[max_synapses * src_neuron + syn_index].y * width;
+            int dest_neuron = allSynapsesDevice->destNeuronIndex[max_synapses * src_neuron + syn_index];
             allSynapsesDevice->summationPoint[max_synapses * src_neuron + syn_index] = &( allNeuronsDevice->summation_map[dest_neuron] );
             n_inUse++;
         }

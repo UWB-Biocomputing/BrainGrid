@@ -6,18 +6,9 @@
  *      \brief A class that performs stimulus input (implementation Poisson) on GPU.
  */
 
-#include "GpuSInputPoisson.h"
 #include "curand_kernel.h"
+#include "GpuSInputPoisson.h"
 #include "Book.h"
-
-//! Device function that processes input stimulus for each time step.
-__global__ void initSynapsesDevice( int n, AllDSSynapses* allSynapsesDevice, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight );
-__global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapses* allSynapsesDevice );
-__global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapses* allSynapsesDevice );
-__global__ void setupSeeds( int n, curandState* devStates_d, unsigned long seed );
-
-extern __global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT) );
-extern __device__ void createSynapse(AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_x, int source_y, int dest_x, int dest_y, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
 
 //! Memory to save global state for curand.
 curandState* devStates_d;
@@ -198,11 +189,9 @@ __global__ void initSynapsesDevice( int n, AllDSSynapses* allSynapsesDevice, BGF
 
     // create a synapse
     int neuron_index = idx;
-    int dest_x = neuron_index % width;;
-    int dest_y = neuron_index / width;;
     BGFLOAT* sum_point = &( pSummationMap[neuron_index] );
     synapseType type = allSynapsesDevice->type[neuron_index];
-    createSynapse(allSynapsesDevice, neuron_index, 0, 0, 0, dest_x, dest_y, sum_point, deltaT, type );
+    createSynapse(allSynapsesDevice, neuron_index, 0, 0, neuron_index, sum_point, deltaT, type );
     allSynapsesDevice->W[neuron_index] = weight * SYNAPSE_STRENGTH_ADJUSTMENT;
 }
 

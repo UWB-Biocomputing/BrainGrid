@@ -13,9 +13,6 @@
 void allocDeviceValues( SimulationInfo* psi, BGFLOAT* initValues, int *nShiftValues );
 void deleteDeviceValues( );
 
-//! Device function that processes input stimulus for each time step.
-__global__ void inputStimulusDevice( int n, BGFLOAT* summationPoint_d, BGFLOAT* initValues_d, int* nShiftValues_d, int nStepsInCycle, int nStepsCycle, int nStepsDuration );
-
 //! Pointer to device input values.
 BGFLOAT* initValues_d = NULL;
 int * nShiftValues_d = NULL;

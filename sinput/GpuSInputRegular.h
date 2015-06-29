@@ -49,4 +49,9 @@ public:
     virtual void inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint);
 };
 
+//! Device function that processes input stimulus for each time step.
+#if defined(__CUDACC__)
+extern __global__ void inputStimulusDevice( int n, BGFLOAT* summationPoint_d, BGFLOAT* initValues_d, int* nShiftValues_d, int nStepsInCycle, int nStepsCycle, int nStepsDuration );
+#endif
+
 #endif // _GPUSINPUTREGULAR_H_

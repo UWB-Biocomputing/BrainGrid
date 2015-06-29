@@ -216,14 +216,14 @@ void AllSpikingSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInf
  *  @param  deltaT  TODO
  *  @param  type    type of the Synapse to create.
  */
-void AllSpikingSynapses::createSynapse(const uint32_t iSyn, Coordinate source, Coordinate dest, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+void AllSpikingSynapses::createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
 
     in_use[iSyn] = true;
     summationPoint[iSyn] = sum_point;
-    summationCoord[iSyn] = dest;
-    synapseCoord[iSyn] = source;
+    destNeuronIndex[iSyn] = dest_index;
+    sourceNeuronIndex[iSyn] = source_index;
     W[iSyn] = 10.0e-9;
     this->type[iSyn] = type;
     tau[iSyn] = DEFAULT_tau;

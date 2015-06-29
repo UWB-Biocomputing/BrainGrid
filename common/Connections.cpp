@@ -11,10 +11,6 @@
  * the constructor fills in known information
  * into “radii” and “rates”.
 \* --------------------------------------------- */
-// TODO comment
-const string Connections::MATRIX_TYPE = "complete";
-// TODO comment
-const string Connections::MATRIX_INIT = "const";
 /* ------------------- ERROR ------------------- *\
  * terminate called after throwing an instance of 'std::bad_alloc'
  *      what():  St9bad_alloc
@@ -45,10 +41,6 @@ const string Connections::MATRIX_INIT = "const";
 \* --------------------------------------------- */
 Connections::Connections()
 {
-    xloc = NULL;
-    yloc = NULL;
-    dist2 = NULL;
-    dist = NULL;
 }
 
 Connections::~Connections()
@@ -56,51 +48,12 @@ Connections::~Connections()
     cleanupConnections();
 }
 
-void Connections::setupConnections(const SimulationInfo *sim_info)
+void Connections::setupConnections(const SimulationInfo *sim_info, Layout *layout)
 {
-    int num_neurons = sim_info->totalNeurons;
-
-    xloc = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons);
-    yloc = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons);
-    dist2 = new CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons);
-    dist = new CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons);
-
-    // Initialize neuron locations 
-    for (int i = 0; i < num_neurons; i++) {
-        (*xloc)[i] = i % sim_info->width;
-        (*yloc)[i] = i / sim_info->width;
-    }   
-
-    // calculate the distance between neurons
-    for (int n = 0; n < num_neurons - 1; n++)
-    {           
-        for (int n2 = n + 1; n2 < num_neurons; n2++)
-        {
-            // distance^2 between two points in point-slope form
-            (*dist2)(n, n2) = ((*xloc)[n] - (*xloc)[n2]) * ((*xloc)[n] - (*xloc)[n2]) +             
-                ((*yloc)[n] - (*yloc)[n2]) * ((*yloc)[n] - (*yloc)[n2]);
-
-            // both points are equidistant from each other
-            (*dist2)(n2, n) = (*dist2)(n, n2);
-        }
-    }
- 
-    // take the square root to get actual distance (Pythagoras was right!)
-    // (The CompleteMatrix class makes this assignment look so easy...)
-    (*dist) = sqrt((*dist2)); 
 }
 
 void Connections::cleanupConnections()
 {
-    if (xloc != NULL) delete xloc;
-    if (yloc != NULL) delete yloc;
-    if (dist2 != NULL) delete dist2;
-    if (dist != NULL) delete dist;
-
-    xloc = NULL;
-    yloc = NULL;
-    dist2 = NULL;
-    dist = NULL;
 }
 
 /**
@@ -129,7 +82,7 @@ void Connections::writeConns(ostream& output, const SimulationInfo *sim_info)
 {
 }
 
-bool Connections::updateConnections(AllNeurons &neurons, const SimulationInfo *sim_info)
+bool Connections::updateConnections(AllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout)
 {
     return false;
 }
@@ -143,7 +96,7 @@ bool Connections::updateConnections(AllNeurons &neurons, const SimulationInfo *s
  *  @param  synapses    the Synapse list to search from.
  *  @param  sim_info    SimulationInfo to refer from.
  */
-void Connections::updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info)
+void Connections::updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, Layout *layout)
 {
 }
 #endif // !USE_GPU

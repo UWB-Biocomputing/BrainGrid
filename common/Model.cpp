@@ -169,11 +169,11 @@ void Model::createAllNeurons(SimulationInfo *sim_info)
     DEBUG(cout << "\nAllocating neurons..." << endl;)
 
     // init neuron's map with layout
-    m_layout->generateNeuronTypeMap(m_neurons->neuron_type_map, sim_info->totalNeurons);
-    m_layout->initStarterMap(m_neurons->starter_map, sim_info->totalNeurons, m_neurons->neuron_type_map);
+    m_layout->generateNeuronTypeMap(sim_info->totalNeurons);
+    m_layout->initStarterMap(sim_info->totalNeurons);
 
     // set their specific types
-    m_neurons->createAllNeurons(sim_info);
+    m_neurons->createAllNeurons(sim_info, m_layout);
 
     DEBUG(cout << "Done initializing neurons..." << endl;)
 }
@@ -187,7 +187,8 @@ void Model::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
 {
     m_neurons->setupNeurons(sim_info);
     m_synapses->setupSynapses(sim_info);
-    m_conns->setupConnections(sim_info);
+    m_layout->setupLayout(sim_info);
+    m_conns->setupConnections(sim_info, m_layout);
 
     // Init radii and rates history matrices with default values
     simRecorder->initDefaultValues();
@@ -225,9 +226,9 @@ void Model::logSimStep(const SimulationInfo *sim_info) const
         ss.precision(1);
 
         for (int x = 0; x < sim_info->width; x++) {
-            switch (m_neurons->neuron_type_map[x + y * sim_info->width]) {
+            switch (m_layout->neuron_type_map[x + y * sim_info->width]) {
             case EXC:
-                if (m_neurons->starter_map[x + y * sim_info->width])
+                if (m_layout->starter_map[x + y * sim_info->width])
                     ss << "s";
                 else
                     ss << "e";
@@ -332,8 +333,7 @@ void Model::createSynapseImap(AllSynapses &synapses, const SimulationInfo* sim_i
                         uint32_t iSyn = synapses.maxSynapsesPerNeuron * i + j;
                         if ( synapses.in_use[iSyn] == true )
                         {
-                                int idx = synapses.summationCoord[iSyn].x
-                                        + synapses.summationCoord[iSyn].y * width;
+                                int idx = synapses.destNeuronIndex[iSyn];
                                 rgSynapseSynapseIndexMap[idx].push_back(syn_i);
 
                                 m_synapseIndexMap->activeSynapseIndex[n_inUse] = syn_i;

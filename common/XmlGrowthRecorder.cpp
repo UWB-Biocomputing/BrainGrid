@@ -11,10 +11,10 @@
 
 //! THe constructor and destructor
 XmlGrowthRecorder::XmlGrowthRecorder(IModel *model, SimulationInfo* sim_info) :
-        burstinessHist("complete", "const", 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps), 0),
-        spikesHistory("complete", "const", 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps * 100), 0),
-        ratesHistory("complete", "const", static_cast<int>(sim_info->maxSteps + 1), sim_info->totalNeurons),
-        radiiHistory("complete", "const", static_cast<int>(sim_info->maxSteps + 1), sim_info->totalNeurons),
+        burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps), 0),
+        spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps * 100), 0),
+        ratesHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(sim_info->maxSteps + 1), sim_info->totalNeurons),
+        radiiHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(sim_info->maxSteps + 1), sim_info->totalNeurons),
         m_model(dynamic_cast<Model*> (model)),
         m_sim_info(sim_info)
 {
@@ -143,26 +143,15 @@ void XmlGrowthRecorder::compileHistories(AllNeurons &neurons)
 void XmlGrowthRecorder::saveSimState(const AllNeurons &neurons)
 {
     // create Neuron Types matrix
-    VectorMatrix neuronTypes("complete", "const", 1, m_sim_info->totalNeurons, EXC);
+    VectorMatrix neuronTypes(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, EXC);
     for (int i = 0; i < m_sim_info->totalNeurons; i++) {
-        neuronTypes[i] = neurons.neuron_type_map[i];
+        neuronTypes[i] = m_model->getLayout()->neuron_type_map[i];
     }
 
     // create neuron threshold matrix
-    VectorMatrix neuronThresh("complete", "const", 1, m_sim_info->totalNeurons, 0);
+    VectorMatrix neuronThresh(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, 0);
     for (int i = 0; i < m_sim_info->totalNeurons; i++) {
         neuronThresh[i] = dynamic_cast<const AllIFNeurons&>(neurons).Vthresh[i];
-    }
-
-    // neuron locations matrices
-    VectorMatrix xloc("complete", "const", 1, m_sim_info->totalNeurons);
-    VectorMatrix yloc("complete", "const", 1, m_sim_info->totalNeurons);
-
-    // Initialize neurons
-    for (int i = 0; i < m_sim_info->totalNeurons; i++)
-    {
-        xloc[i] = i % m_sim_info->width;
-        yloc[i] = i / m_sim_info->width;
     }
 
     // Write XML header information:
@@ -175,16 +164,16 @@ void XmlGrowthRecorder::saveSimState(const AllNeurons &neurons)
     stateOut << "   " << ratesHistory.toXML("ratesHistory") << endl;
     stateOut << "   " << burstinessHist.toXML("burstinessHist") << endl;
     stateOut << "   " << spikesHistory.toXML("spikesHistory") << endl;
-    stateOut << "   " << xloc.toXML("xloc") << endl;
-    stateOut << "   " << yloc.toXML("yloc") << endl;
+    stateOut << "   " << m_model->getLayout()->xloc->toXML("xloc") << endl;
+    stateOut << "   " << m_model->getLayout()->yloc->toXML("yloc") << endl;
     stateOut << "   " << neuronTypes.toXML("neuronTypes") << endl;
 
     // create starter nuerons matrix
     int num_starter_neurons = static_cast<int>(m_model->getLayout()->m_frac_starter_neurons * m_sim_info->totalNeurons);
     if (num_starter_neurons > 0)
     {
-        VectorMatrix starterNeurons("complete", "const", 1, num_starter_neurons);
-        getStarterNeuronMatrix(starterNeurons, neurons.starter_map, m_sim_info);
+        VectorMatrix starterNeurons(MATRIX_TYPE, MATRIX_INIT, 1, num_starter_neurons);
+        getStarterNeuronMatrix(starterNeurons, m_model->getLayout()->starter_map, m_sim_info);
         stateOut << "   " << starterNeurons.toXML("starterNeurons") << endl;
     }
 
@@ -212,12 +201,10 @@ void XmlGrowthRecorder::saveSimState(const AllNeurons &neurons)
 void XmlGrowthRecorder::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info)
 {
     int cur = 0;
-    for (int x = 0; x < sim_info->width; x++) {
-        for (int y = 0; y < sim_info->height; y++) {
-            if (starter_map[x + y * sim_info->width]) {
-                matrix[cur] = x + y * sim_info->height;
-                cur++;
-            }
+    for (int i = 0; i < sim_info->totalNeurons; i++) {
+        if (starter_map[i]) {
+            matrix[cur] = i;
+            cur++;
         }
     }
 }

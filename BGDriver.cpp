@@ -22,6 +22,8 @@
 #include "Hdf5GrowthRecorder.h"
 #endif // USE_HDF5
 #include "FSInput.h"
+#include "ConnGrowth.h"
+#include "LayoutGrid.h"
 
 
 // Uncomment to use visual leak detector (Visual Studios Plugin)
@@ -81,12 +83,12 @@ int main(int argc, char* argv[]) {
     // create the model
     #if defined(USE_GPU)
 	 //model = new GPUSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
-	 model = new GPUSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 model = new GPUSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new LayoutGrid());
     #elif defined(USE_OMP)
-	 model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new LayoutGrid());
     #else
-	 //model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
-	 model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new LayoutGrid());
+	 model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new LayoutGrid());
     #endif
     
     DEBUG(cout << "reading parameters from xml file" << endl;)

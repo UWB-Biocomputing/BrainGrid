@@ -7,10 +7,63 @@ const bool Layout::STARTER_FLAG(true);
 Layout::Layout() :
     m_fixed_layout(false)
 {
+    xloc = NULL;
+    yloc = NULL;
+    dist2 = NULL;
+    dist = NULL;
+    neuron_type_map = NULL;
+    starter_map = NULL;
 }
 
 Layout::~Layout()
 {
+    if (xloc != NULL) delete xloc;
+    if (yloc != NULL) delete yloc;
+    if (dist2 != NULL) delete dist2;
+    if (dist != NULL) delete dist;
+    if (neuron_type_map != NULL) delete[] neuron_type_map;
+    if (starter_map != NULL) delete[] starter_map;
+
+    xloc = NULL;
+    yloc = NULL;
+    dist2 = NULL;
+    dist = NULL;
+    neuron_type_map = NULL;
+    starter_map = NULL;
+}
+
+void Layout::setupLayout(const SimulationInfo *sim_info)
+{
+    int num_neurons = sim_info->totalNeurons;
+
+    xloc = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons);
+    yloc = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons);
+    dist2 = new CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons);
+    dist = new CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons);
+
+    // Initialize neuron locations
+    initNeuronsLocs(sim_info);
+
+    // calculate the distance between neurons
+    for (int n = 0; n < num_neurons - 1; n++)
+    {
+        for (int n2 = n + 1; n2 < num_neurons; n2++)
+        {
+            // distance^2 between two points in point-slope form
+            (*dist2)(n, n2) = ((*xloc)[n] - (*xloc)[n2]) * ((*xloc)[n] - (*xloc)[n2]) +
+                ((*yloc)[n] - (*yloc)[n2]) * ((*yloc)[n] - (*yloc)[n2]);
+
+            // both points are equidistant from each other
+            (*dist2)(n2, n) = (*dist2)(n, n2);
+        }
+    }
+
+    // take the square root to get actual distance (Pythagoras was right!)
+    // (The CompleteMatrix class makes this assignment look so easy...)
+    (*dist) = sqrt((*dist2));
+
+    neuron_type_map = new neuronType[num_neurons];
+    starter_map = new bool[num_neurons];
 }
 
 /**
@@ -159,11 +212,10 @@ void Layout::printParameters(ostream &output) const
 
 /**
  *  Creates a randomly ordered distribution with the specified numbers of neuron types.
- *  @param  neuron_types    array of the types of neurons to have in the map.
  *  @param  num_neurons number of the neurons to have in the type map.
  *  @return a flat vector (to map to 2-d [x,y] = [i % m_width, i / m_width])
  */
-void Layout::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
+void Layout::generateNeuronTypeMap(int num_neurons)
 {
     //TODO: m_pInhibitoryNeuronLayout
     int num_inhibitory_neurons = m_inhibitory_neuron_layout.size();
@@ -171,7 +223,7 @@ void Layout::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
     DEBUG(cout << "\nInitializing neuron type map"<< endl;);
 
     for (int i = 0; i < num_neurons; i++) {
-        neuron_types[i] = EXC;
+        neuron_type_map[i] = EXC;
     }
 
     if (m_fixed_layout) {
@@ -180,7 +232,7 @@ void Layout::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
         DEBUG(cout << "Excitatory Neurons: " << num_excititory_neurons << endl;)
 
         for (int i = 0; i < num_inhibitory_neurons; i++) {
-            neuron_types[m_inhibitory_neuron_layout.at(i)] = INH;
+            neuron_type_map[m_inhibitory_neuron_layout.at(i)] = INH;
         }
     } else {
         int num_excititory_neurons = (int) (m_frac_excititory_neurons * num_neurons + 0.5);
@@ -205,7 +257,7 @@ void Layout::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
         }
 
         for (int i = 0; i < num_inhibitory_neurons; i++) {
-            neuron_types[rg_inhibitory_layout[i]] = INH;
+            neuron_type_map[rg_inhibitory_layout[i]] = INH;
         }
         delete[] rg_inhibitory_layout;
     }
@@ -216,11 +268,9 @@ void Layout::generateNeuronTypeMap(neuronType neuron_types[], int num_neurons)
 /**
  *  Populates the starter map.
  *  Selects \e numStarter excitory neurons and converts them into starter neurons.
- *  @param  starter_map booleam array of neurons to initiate.
  *  @param  num_neurons number of neurons to have in the map.
- *  @param  neuron_type_map array of neuronTypes to set the starter map to.
  */
-void Layout::initStarterMap(bool *starter_map, const int num_neurons, const neuronType neuron_type_map[])
+void Layout::initStarterMap(const int num_neurons)
 {
     for (int i = 0; i < num_neurons; i++) {
         starter_map[i] = false;
@@ -263,3 +313,23 @@ void Layout::initStarterMap(bool *starter_map, const int num_neurons, const neur
         DEBUG(cout <<"Done randomly initializing starter map\n\n";)
     }
 }
+
+/**
+ *  Returns the type of synapse at the given coordinates
+ * @param    src_neuron  integer that points to a Neuron in the type map as a source.
+ * @param    dest_neuron integer that points to a Neuron in the type map as a destination.
+ */
+synapseType Layout::synType(const int src_neuron, const int dest_neuron)
+{
+    if ( neuron_type_map[src_neuron] == INH && neuron_type_map[dest_neuron] == INH )
+        return II;
+    else if ( neuron_type_map[src_neuron] == INH && neuron_type_map[dest_neuron] == EXC )
+        return IE;
+    else if ( neuron_type_map[src_neuron] == EXC && neuron_type_map[dest_neuron] == INH )
+        return EI;
+    else if ( neuron_type_map[src_neuron] == EXC && neuron_type_map[dest_neuron] == EXC )
+        return EE;
+
+    return STYPE_UNDEF;
+}
+

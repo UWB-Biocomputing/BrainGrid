@@ -227,7 +227,7 @@ class AllIFNeurons : public AllSpikingNeurons
         virtual int numParameters();
         virtual int readParameters(const TiXmlElement& element);
         virtual void printParameters(ostream &output) const;
-        virtual void createAllNeurons(SimulationInfo *sim_info);
+        virtual void createAllNeurons(SimulationInfo *sim_info, Layout *layout);
         virtual string toString(const int i) const;
         virtual void readNeurons(istream &input, const SimulationInfo *sim_info);
         virtual void writeNeurons(ostream& output, const SimulationInfo *sim_info) const;
@@ -250,7 +250,7 @@ class AllIFNeurons : public AllSpikingNeurons
         virtual void advanceNeurons(AllSynapses &synapses, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
 #endif
 
-        void createNeuron(SimulationInfo *sim_info, int neuron_index);
+        void createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layoug);
         void setNeuronDefaults(const int index);
         virtual void initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT);
         void readNeuron(istream &input, const SimulationInfo *sim_info, int i);

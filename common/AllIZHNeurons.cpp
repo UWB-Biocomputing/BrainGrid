@@ -160,21 +160,21 @@ void AllIZHNeurons::printParameters(ostream &output) const
  *  Creates all the Neurons and generates data for them.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void AllIZHNeurons::createAllNeurons(SimulationInfo *sim_info)
+void AllIZHNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout)
 {
     /* set their specific types */
     for (int neuron_index = 0; neuron_index < sim_info->totalNeurons; neuron_index++) {
         setNeuronDefaults(neuron_index);
 
         // set the neuron info for neurons
-        createNeuron(sim_info, neuron_index);
+        createNeuron(sim_info, neuron_index, layout);
     }
 }
 
-void AllIZHNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index)
+void AllIZHNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layout)
 {
     // set the neuron info for neurons
-    AllIFNeurons::createNeuron(sim_info, neuron_index);
+    AllIFNeurons::createNeuron(sim_info, neuron_index, layout);
 
     Aconst[neuron_index] = rng.inRange(m_Aconst[0], m_Aconst[1]); 
     Bconst[neuron_index] = rng.inRange(m_Bconst[0], m_Bconst[1]); 

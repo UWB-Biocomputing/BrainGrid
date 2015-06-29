@@ -56,9 +56,9 @@ ConnGrowth::~ConnGrowth()
     cleanupConnections();
 }
 
-void ConnGrowth::setupConnections(const SimulationInfo *sim_info)
+void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout)
 {
-    Connections::setupConnections(sim_info);
+    Connections::setupConnections(sim_info, layout);
 
     int num_neurons = sim_info->totalNeurons;
 
@@ -71,7 +71,7 @@ void ConnGrowth::setupConnections(const SimulationInfo *sim_info)
     deltaR = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons);
 
     // Init connection frontier distance change matrix with the current distances
-    (*delta) = (*dist);
+    (*delta) = (*layout->dist);
 }
 
 void ConnGrowth::cleanupConnections()
@@ -204,16 +204,16 @@ void ConnGrowth::writeConns(ostream& output, const SimulationInfo *sim_info)
     }
 }
 
-bool ConnGrowth::updateConnections(AllNeurons &neurons, const SimulationInfo *sim_info)
+bool ConnGrowth::updateConnections(AllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout)
 {
     // Update Connections data
     updateConns(neurons, sim_info);
  
     // Update the distance between frontiers of Neurons
-    updateFrontiers(sim_info->totalNeurons);
+    updateFrontiers(sim_info->totalNeurons, layout);
 
     // Update the areas of overlap in between Neurons
-    updateOverlap(sim_info->totalNeurons);
+    updateOverlap(sim_info->totalNeurons, layout);
 
     return true;
 }
@@ -241,13 +241,13 @@ void ConnGrowth::updateConns(AllNeurons &neurons, const SimulationInfo *sim_info
  *  Update the distance between frontiers of Neurons.
  *  @param  num_neurons in the simulation to update.
  */
-void ConnGrowth::updateFrontiers(const int num_neurons)
+void ConnGrowth::updateFrontiers(const int num_neurons, Layout *layout)
 {
     DEBUG(cout << "Updating distance between frontiers..." << endl;)
     // Update distance between frontiers
     for (int unit = 0; unit < num_neurons - 1; unit++) {
         for (int i = unit + 1; i < num_neurons; i++) {
-            (*delta)(unit, i) = (*dist)(unit, i) - ((*radii)[unit] + (*radii)[i]);
+            (*delta)(unit, i) = (*layout->dist)(unit, i) - ((*radii)[unit] + (*radii)[i]);
             (*delta)(i, unit) = (*delta)(unit, i);
         }
     }
@@ -257,7 +257,7 @@ void ConnGrowth::updateFrontiers(const int num_neurons)
  *  Update the areas of overlap in between Neurons.
  *  @param  num_neurons number of Neurons to update.
  */
-void ConnGrowth::updateOverlap(BGFLOAT num_neurons)
+void ConnGrowth::updateOverlap(BGFLOAT num_neurons, Layout *layout)
 {
     DEBUG(cout << "computing areas of overlap" << endl;)
 
@@ -267,7 +267,7 @@ void ConnGrowth::updateOverlap(BGFLOAT num_neurons)
                 (*area)(i, j) = 0.0;
 
                 if ((*delta)(i, j) < 0) {
-                        BGFLOAT lenAB = (*dist)(i, j);
+                        BGFLOAT lenAB = (*layout->dist)(i, j);
                         BGFLOAT r1 = (*radii)[i];
                         BGFLOAT r2 = (*radii)[j];
 
@@ -279,7 +279,7 @@ void ConnGrowth::updateOverlap(BGFLOAT num_neurons)
 #endif // LOGFILE
                         } else {
                                 // Partially overlapping unit
-                                BGFLOAT lenAB2 = (*dist2)(i, j);
+                                BGFLOAT lenAB2 = (*layout->dist2)(i, j);
                                 BGFLOAT r12 = r1 * r1;
                                 BGFLOAT r22 = r2 * r2;
 
@@ -307,7 +307,7 @@ void ConnGrowth::updateOverlap(BGFLOAT num_neurons)
  *  @param  synapses    the Synapse list to search from.
  *  @param  sim_info    SimulationInfo to refer from.
  */
-void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info)
+void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, Layout *layout)
 {
 
     // For now, we just set the weights to equal the areas. We will later
@@ -324,19 +324,11 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neuron
     // Scale and add sign to the areas
     // visit each neuron 'a'
     for (int src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
-        int xa = src_neuron % sim_info->width;
-        int ya = src_neuron / sim_info->width;
-        Coordinate src_coord(xa, ya);
-
         // and each destination neuron 'b'
         for (int dest_neuron = 0; dest_neuron < num_neurons; dest_neuron++) {
-            int xb = dest_neuron % sim_info->width;
-            int yb = dest_neuron / sim_info->width;
-            Coordinate dest_coord(xb, yb);
-
             // visit each synapse at (xa,ya)
             bool connected = false;
-            synapseType type = neurons.synType(src_neuron, dest_neuron);
+            synapseType type = layout->synType(src_neuron, dest_neuron);
 
             // for each existing synapse
             size_t synapse_counts = synapses.synapse_counts[src_neuron];
@@ -345,7 +337,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neuron
                 uint32_t iSyn = synapses.maxSynapsesPerNeuron * src_neuron + synapse_index;
                 if (synapses.in_use[iSyn] == true) {
                     // if there is a synapse between a and b
-                    if (synapses.summationCoord[iSyn] == dest_coord) {
+                    if (synapses.destNeuronIndex[iSyn] == dest_neuron) {
                         connected = true;
                         adjusted++;
                         // adjust the strength of the synapse or remove
@@ -361,7 +353,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neuron
                                 synapses.synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 
                             DEBUG_MID(cout << "weight of rgSynapseMap" <<
-                                   coordToString(xa, ya)<<"[" <<synapse_index<<"]: " <<
+                                   "[" <<synapse_index<<"]: " <<
                                    synapses.W[iSyn] << endl;);
                         }
                     }
@@ -377,7 +369,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neuron
                 added++;
 
                 BGFLOAT weight = (*W)(src_neuron, dest_neuron) * synapses.synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
-                synapses.addSynapse(weight, type, src_neuron, dest_neuron, src_coord, dest_coord, sum_point, sim_info->deltaT);
+                synapses.addSynapse(weight, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT);
 
             }
         }

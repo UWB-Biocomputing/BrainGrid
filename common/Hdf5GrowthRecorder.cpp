@@ -428,34 +428,20 @@ void Hdf5GrowthRecorder::saveSimState(const AllNeurons &neurons)
     try
     {
         // create Neuron Types matrix
-        VectorMatrix neuronTypes("complete", "const", 1, m_sim_info->totalNeurons, EXC);
+        VectorMatrix neuronTypes(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, EXC);
         for (int i = 0; i < m_sim_info->totalNeurons; i++) {
-            neuronTypes[i] = neurons.neuron_type_map[i];
+            neuronTypes[i] = m_model->getLayout()->neuron_type_map[i];
         }
 
         // create neuron threshold matrix
-        VectorMatrix neuronThresh("complete", "const", 1, m_sim_info->totalNeurons, 0);
+        VectorMatrix neuronThresh(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, 0);
         for (int i = 0; i < m_sim_info->totalNeurons; i++) {
             neuronThresh[i] = dynamic_cast<const AllIFNeurons&>(neurons).Vthresh[i];
         }
 
-        // neuron locations matrices
-        int* xloc = new int[m_sim_info->totalNeurons];
-        int* yloc = new int[m_sim_info->totalNeurons];
-
-        // Initialize neurons
-        for (int i = 0; i < m_sim_info->totalNeurons; i++)
-        {
-            xloc[i] = i % m_sim_info->width;
-            yloc[i] = i / m_sim_info->width;
-        }
-
-        // Write the location matrices
-        dataSetXloc->write(xloc, PredType::NATIVE_INT);
-        dataSetYloc->write(yloc, PredType::NATIVE_INT);
-
-        delete[] xloc;
-        delete[] yloc;
+        // Write the neuron location matrices
+        dataSetXloc->write(m_model->getLayout()->xloc, PredType::NATIVE_INT);
+        dataSetYloc->write(m_model->getLayout()->yloc, PredType::NATIVE_INT);
 
         int* iNeuronTypes = new int[m_sim_info->totalNeurons];
         for (int i = 0; i < m_sim_info->totalNeurons; i++)
@@ -468,8 +454,8 @@ void Hdf5GrowthRecorder::saveSimState(const AllNeurons &neurons)
         int num_starter_neurons = static_cast<int>(m_model->getLayout()->m_frac_starter_neurons * m_sim_info->totalNeurons);
         if (num_starter_neurons > 0)
         {
-            VectorMatrix starterNeurons("complete", "const", 1, num_starter_neurons);
-            getStarterNeuronMatrix(starterNeurons, neurons.starter_map, m_sim_info);
+            VectorMatrix starterNeurons(MATRIX_TYPE, MATRIX_INIT, 1, num_starter_neurons);
+            getStarterNeuronMatrix(starterNeurons, m_model->getLayout()->starter_map, m_sim_info);
 
             // create the data space & dataset for starter neurons
             hsize_t dims[2];
@@ -593,12 +579,10 @@ void Hdf5GrowthRecorder::saveSimState(const AllNeurons &neurons)
 void Hdf5GrowthRecorder::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info)
 {
     int cur = 0;
-    for (int x = 0; x < sim_info->width; x++) {
-        for (int y = 0; y < sim_info->height; y++) {
-            if (starter_map[x + y * sim_info->width]) {
-                matrix[cur] = x + y * sim_info->height;
-                cur++;
-            }   
-        }   
-    }   
+    for (int i = 0; i < sim_info->totalNeurons; i++) {
+        if (starter_map[i]) {
+            matrix[cur] = i;
+            cur++;
+        }
+    }
 }

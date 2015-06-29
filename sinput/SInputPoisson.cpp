@@ -131,11 +131,8 @@ void SInputPoisson::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi
     synapses = new AllDSSynapses(psi->totalNeurons, 1);
     for (int neuron_index = 0; neuron_index < psi->totalNeurons; neuron_index++)
     {
-        int x = neuron_index % psi->width;
-        int y = neuron_index / psi->width;
-        Coordinate dest(x, y);
         synapseType type;
-        if (neurons.neuron_type_map[neuron_index] == INH)
+        if (model->getLayout()->neuron_type_map[neuron_index] == INH)
             type = EI;
         else
             type = EE;
@@ -143,7 +140,7 @@ void SInputPoisson::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi
         BGFLOAT* sum_point = &( psi->pSummationMap[neuron_index] );
         uint32_t iSyn = psi->maxSynapsesPerNeuron * neuron_index;
 
-        synapses->createSynapse(iSyn, NULL, dest, sum_point, psi->deltaT, type);
+        synapses->createSynapse(iSyn, 0, neuron_index, sum_point, psi->deltaT, type);
         synapses->W[iSyn] = weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
     }
 }

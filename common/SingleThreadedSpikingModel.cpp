@@ -35,8 +35,8 @@ void SingleThreadedSpikingModel::advance(const SimulationInfo *sim_info)
 void SingleThreadedSpikingModel::updateConnections(const SimulationInfo *sim_info)
 {
     // Update Connections data
-    if (m_conns->updateConnections(*m_neurons, sim_info)) {
-        m_conns->updateSynapsesWeights(sim_info->totalNeurons, *m_neurons, *m_synapses, sim_info);
+    if (m_conns->updateConnections(*m_neurons, sim_info, m_layout)) {
+        m_conns->updateSynapsesWeights(sim_info->totalNeurons, *m_neurons, *m_synapses, sim_info, m_layout);
         // create synapse inverse map
         createSynapseImap( *m_synapses, sim_info );
     }

@@ -20,7 +20,6 @@ AllIFNeurons::AllIFNeurons() : AllSpikingNeurons()
     Vrest = NULL;
     Vthresh = NULL;
     nStepsInRefr = NULL;
-    neuron_type_map = NULL;
 }
 
 AllIFNeurons::~AllIFNeurons()
@@ -276,18 +275,18 @@ void AllIFNeurons::printParameters(ostream &output) const
  *  Creates all the Neurons and generates data for them.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void AllIFNeurons::createAllNeurons(SimulationInfo *sim_info)
+void AllIFNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout)
 {
     /* set their specific types */
     for (int neuron_index = 0; neuron_index < sim_info->totalNeurons; neuron_index++) {
         setNeuronDefaults(neuron_index);
 
         // set the neuron info for neurons
-        createNeuron(sim_info, neuron_index);
+        createNeuron(sim_info, neuron_index, layout);
     }
 }
 
-void AllIFNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index)
+void AllIFNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layout)
 {
     // set the neuron info for neurons
     Iinject[neuron_index] = rng.inRange(m_Iinject[0], m_Iinject[1]);
@@ -306,7 +305,7 @@ void AllIFNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index)
         spike_history[neuron_index][j] = -1;
     }
 
-    switch (neuron_type_map[neuron_index]) {
+    switch (layout->neuron_type_map[neuron_index]) {
         case INH:
             DEBUG_MID(cout << "setting inhibitory neuron: "<< neuron_index << endl;)
             // set inhibitory absolute refractory period
@@ -320,12 +319,12 @@ void AllIFNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index)
             break;
 
         default:
-            DEBUG_MID(cout << "ERROR: unknown neuron type: " << neuron_type_map[neuron_index] << "@" << neuron_index << endl;)
+            DEBUG_MID(cout << "ERROR: unknown neuron type: " << layout->neuron_type_map[neuron_index] << "@" << neuron_index << endl;)
             assert(false);
             break;
     }
     // endogenously_active_neuron_map -> Model State
-    if (starter_map[neuron_index]) {
+    if (layout->starter_map[neuron_index]) {
         // set endogenously active threshold voltage, reset voltage, and refractory period
         Vthresh[neuron_index] = rng.inRange(m_starter_Vthresh[0], m_starter_Vthresh[1]);
         Vreset[neuron_index] = rng.inRange(m_starter_Vreset[0], m_starter_Vreset[1]);
