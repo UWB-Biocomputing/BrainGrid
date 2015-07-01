@@ -70,6 +70,16 @@ public final class FileManager {
         }
         return filename;
     }
+    
+    public static String getLastNamePrefix(String longFilename) {
+        String lastNamePrefix = null;
+        if (longFilename != null) {
+            String filename = getSimpleFilename(longFilename);
+            int lastIndexOfDot = filename.lastIndexOf('.');
+            lastNamePrefix = filename.substring(0, lastIndexOfDot);
+        }
+        return lastNamePrefix;
+    }
 
     /**
      * Copies a whole directory to a new location preserving the file dates.

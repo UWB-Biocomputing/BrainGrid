@@ -18,6 +18,7 @@ public class Datum {
 
     public Datum(String name) {
         this.name = name;
+        content = "";
     }
 
     public String getName() {
@@ -51,8 +52,8 @@ public class Datum {
     public Node getElement(Document doc) {
         Element e = doc.createElement(name);
         Set<String> keys = attributes.keySet();
-        for (String s : keys) {
-            e.setAttribute(s, attributes.get(s));
+        for (String key : keys) {
+            e.setAttribute(key, attributes.get(key));
         }
         e.setTextContent(content);
         return e;

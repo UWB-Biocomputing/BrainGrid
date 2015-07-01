@@ -167,7 +167,8 @@ public class WorkbenchManager {
                 try {
                     File selectedFile = chooser.getSelectedFile();
                     try {
-                        projectMgr = new ProjectMgr(selectedFile.getName(), true);
+                        projectMgr = new ProjectMgr(FileManager.getLastNamePrefix(selectedFile.getName()), true);
+                        
                     } catch (IOException ex1) {
                         messageAccumulator += "\n"
                                 + "Unmanaged project selected.\n"
@@ -180,7 +181,7 @@ public class WorkbenchManager {
                                 + "\nFrom: " + selectedFile.getParent()
                                 + "\nTo:   "
                                 + destFolder + "\n";
-                        projectMgr = new ProjectMgr(selectedFile.getName(), true);
+                        projectMgr = new ProjectMgr(FileManager.getLastNamePrefix(selectedFile.getName()), true);
                     }
                     updateSimSpec();
                     if (projectMgr.isProvenanceEnabled()) {

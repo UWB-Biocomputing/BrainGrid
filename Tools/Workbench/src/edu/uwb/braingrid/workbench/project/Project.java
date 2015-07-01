@@ -2,6 +2,7 @@ package edu.uwb.braingrid.workbench.project;
 
 // CLOSED FOR MODIFICATION
 
+import edu.uwb.braingrid.workbench.FileManager;
 import edu.uwb.braingrid.workbench.project.model.Datum;
 import edu.uwb.braingrid.workbench.project.model.ProjectData;
 import java.io.File;
@@ -10,6 +11,12 @@ import java.util.HashMap;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -34,24 +41,39 @@ public class Project {
      * @param filename
      * @return filename
      */
-    public String persist(String filename) throws ParserConfigurationException {
-        /* Build New XML Document */
+    public String persist() throws ParserConfigurationException,
+            TransformerException, IOException {
+        // Build New XML Document
         Document doc = DocumentBuilderFactory.newInstance().
                 newDocumentBuilder().newDocument();
 
-        /* Build Root Node */
+        //  Build Root Node
         Element root = doc.createElement("project");
         doc.appendChild(root);
         // record the project name as an attribute of the root element        
         root.setAttribute("name", projectName);
         
         Set<String> keys = projectData.keySet();
-        ProjectData projData = null;
         for (String s : keys) {
-            projData = projectData.get(s);
-            
+            projectData.get(s).appendElement(doc, root);
         }
-        return filename;
+        
+        // calculate the full path to the project file
+        String projectFilename = getProjectFilename();
+
+        // create any necessary non-existent directories
+        (new File(determineProjectOutputLocation())).mkdirs();
+
+        // create the file we want to save
+        File projectFile = new File(projectFilename);
+
+        // write the content into xml file
+        Transformer t = TransformerFactory.newInstance().newTransformer();
+        t.setOutputProperty(OutputKeys.INDENT, "yes");
+        t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+        t.transform(new DOMSource(doc), new StreamResult(projectFile));
+
+        return projectFilename;
     }
 
     /**
@@ -67,11 +89,6 @@ public class Project {
         doc.getDocumentElement().normalize();
         Element root = doc.getDocumentElement();
 
-        //Get all data elements
-        //For each data element
-        //construct the cooresponding object
-        //Check tag name to determine which object is corresponding
-        //
         NodeList childList = root.getChildNodes();
         NodeList eChildren = null;
         ProjectData projData;
@@ -102,6 +119,16 @@ public class Project {
         return this;
     }
 
+    public void setProjectName(String projName)  {
+        if (projName == null)
+        {
+            projectName = "None";
+        }
+        else {
+            projectName = projName;
+        }
+    }
+    
     public String getProjectName() {
         return projectName;
     }
@@ -113,4 +140,38 @@ public class Project {
     public ProjectData getProjectData(String key) {
         return projectData.get(key);
     }
+    
+    /**
+     * Provides the full path, including the filename, containing the XML for
+     * this project.
+     *
+     * @return The full path, including the filename, for the file containing
+     * the XML for this project
+     * @throws IOException
+     */
+    public String getProjectFilename() throws IOException {
+        if (projectName == null) {
+            throw new IOException();
+        }
+        return determineProjectOutputLocation()
+                + projectName + ".xml";
+    }
+    
+    /**
+     * Determines the folder location for a project based on the currently
+     * loaded configuration
+     *
+     * @return The path to the project folder for the specified project
+     * @throws IOException
+     */
+    public final String determineProjectOutputLocation()
+            throws IOException {
+        String workingDirectory = FileManager.getCanonicalWorkingDirectory();
+        String ps = FileManager.getFileManager().getFolderDelimiter();
+        String projectDirectory = workingDirectory + ps + "projects" + ps
+                + projectName + ps;
+        return projectDirectory;
+    }
+    
+    
 }
