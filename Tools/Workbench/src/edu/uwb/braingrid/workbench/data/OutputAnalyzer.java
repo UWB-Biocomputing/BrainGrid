@@ -1,4 +1,5 @@
 package edu.uwb.braingrid.workbench.data;
+// CLEANED
 
 import edu.uwb.braingrid.data.script.Script;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;

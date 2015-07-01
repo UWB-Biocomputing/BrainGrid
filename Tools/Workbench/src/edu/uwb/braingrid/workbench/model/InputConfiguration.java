@@ -1,4 +1,5 @@
 package edu.uwb.braingrid.workbench.model;
+// CLEANED
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -61,6 +62,10 @@ public class InputConfiguration {
     public static final String LAYOUT_FILES_PROBED_N_LIST_FILE_NAME
             = "probedNListFileName";
 
+    /**
+     * Responsible for initializing containers for parameters/values and their
+     * default values, as well as constructing this input configuration object.
+     */
     public InputConfiguration() {
         inputConfig = new HashMap<>();
         defaultValues = new HashMap<>();
@@ -101,24 +106,57 @@ public class InputConfiguration {
         defaultValues.put(SIM_PARAMS_MAX_SYNAPSES_PER_NEURON, "200");
         defaultValues.put(OUTPUT_PARAMS_STATE_OUTPUT_FILENAME, "results/tR_1.9--fE_0.98_historyDump.xml");
         defaultValues.put(SEED_VALUE, "1");
-        //defaultValues.put(LAYOUT_TYPE, "FixedLayout");
+        //defaultValues.put(LAYOUT_TYPE, "FixedLayout"); // obsolete?
         defaultValues.put(LAYOUT_FILES_ACTIVE_N_LIST_FILE_NAME, "Unknown");
         defaultValues.put(LAYOUT_FILES_INH_N_LIST_FILE_NAME, "Unknown");
         defaultValues.put(LAYOUT_FILES_PROBED_N_LIST_FILE_NAME, "Unknown");
     }
 
+    /**
+     * Sets the value of a parameter in the input configuration. May also be
+     * used to add a new parameter.
+     *
+     * @param key - The parameter to be added or that's value should be set
+     * @param value - The value corresponding to the parameter specified by key
+     * @return The previous value associated with the parameter, or null if
+     * there was no mapping for the parameter key
+     */
     public String setValue(String key, String value) {
         return inputConfig.put(key, value);
     }
 
+    /**
+     * Provides the value for a parameter specified by key in the current input
+     * configuration.
+     *
+     * @param key - The parameter that's value should be returned
+     * @return The value for the parameter specified or null if the parameter is
+     * not mapped in the current input configuration
+     */
     public String getValue(String key) {
         return inputConfig.get(key);
     }
 
+    /**
+     * Indicates whether the specified parameter fits the model provided in the
+     * default values for the configuration
+     *
+     * @param parameter - The key for the parameter
+     * @return True if the parameter was found in the default values, otherwise
+     * false
+     */
     public boolean isLegalParameter(String parameter) {
         return defaultValues.containsKey(parameter);
     }
-    
+
+    /**
+     * Provides the default value for a specified parameter
+     *
+     * @param parameter - The key for the parameter that's default value should
+     * be provided
+     * @return The default value of the parameter, or an empty string if the
+     * parameter was not contained in the default input configuration
+     */
     public String getDefaultValue(String parameter) {
         String value;
         if ((value = defaultValues.get(parameter)) == null) {
@@ -127,6 +165,15 @@ public class InputConfiguration {
         return value;
     }
 
+    /**
+     * Indicates whether all parameters specified in the default input
+     * configuration have values set in the current input configuration. This
+     * may be used to validate user input when all parameters are required
+     * before the input configuration may be constructed.
+     *
+     * @return True if all parameters in the default model have had their values
+     * set in the current configuration, otherwise false
+     */
     public boolean allValuesSet() {
         boolean set = true;
         Iterator<String> keyIter = defaultValues.keySet().iterator();
@@ -149,14 +196,26 @@ public class InputConfiguration {
         return set;
     }
 
+    /**
+     * Provides the current input configuration map
+     *
+     * @return The input configuration map
+     */
     public HashMap<String, String> getMap() {
         return inputConfig;
     }
 
+    /**
+     * Copies all of the default input configuration to the current
+     * configuration.
+     */
     public void setAllToDefault() {
         inputConfig = new HashMap<>(defaultValues);
     }
 
+    /**
+     * Resets the current and default configurations to their initial states.
+     */
     public void purgeStoredValues() {
         inputConfig = new HashMap<>();
         defaultValues = new HashMap<>();

@@ -1,5 +1,6 @@
 package edu.uwb.braingrid.data.script;
 /////////////////CLEANED
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -28,7 +29,6 @@ public class Script {
 
     // <editor-fold defaultstate="collapsed" desc="Members">
     /* model data */
-
     private String bashScript;
     private final List<String> bashStatements;
     private final List<String> bashArgNames;
@@ -82,7 +82,6 @@ public class Script {
     public static final String simStatusFilename = "simStatus.txt";
 
     // </editor-fold>
-
     // <editor-fold defaultstate="collapsed" desc="Construction">
     /**
      * Constructs Script object and initializes members

@@ -1,4 +1,5 @@
 package edu.uwb.braingrid.workbench.project.model;
+// NOT CLEANED!!! (Needs JavaDocs, and class header)
 
 import java.util.HashMap;
 import java.util.List;

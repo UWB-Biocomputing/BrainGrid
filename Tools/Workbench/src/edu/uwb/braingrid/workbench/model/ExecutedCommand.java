@@ -1,4 +1,5 @@
 package edu.uwb.braingrid.workbench.model;
+// CLEANED
 
 import java.util.Date;
 
@@ -142,14 +143,5 @@ public class ExecutedCommand {
      */
     public boolean hasCompleted() {
         return timeCompleted != null;
-    }
-
-    @Override
-    public String toString() {
-        String s = "";
-        if (fullCommand != null) {
-            s = fullCommand;
-        }
-        return s;
     }
 }

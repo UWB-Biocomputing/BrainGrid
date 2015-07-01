@@ -1,28 +1,18 @@
 package edu.uwb.braingrid.workbench.project;
+// NOT CLEANED (Still Implementing / Testing / JavaDocs / Class Header)
 
 import edu.uwb.braingrid.workbench.FileManager;
-import edu.uwb.braingrid.workbench.data.InputAnalyzer;
 import edu.uwb.braingrid.workbench.model.ScriptHistory;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
 import edu.uwb.braingrid.workbench.project.model.Datum;
 import edu.uwb.braingrid.workbench.project.model.ProjectData;
 import edu.uwb.braingrid.workbench.utils.DateTime;
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
@@ -33,8 +23,7 @@ import org.xml.sax.SAXException;
  * @author Aaron
  */
 public class ProjectManager {
-    
-    
+
     // <editor-fold defaultstate="collapsed" desc="Members">
     private Project project;
 //    private Document doc;
@@ -50,10 +39,10 @@ public class ProjectManager {
 //    private static final String projectTagName = "project";
 //    private static final String projectNameAttribute = "name";
     private static final String provTagName = "provenance";
-    
+
     // FIX THIS : Find where this is used
     private static final String provLocationTagName = "location";
-    
+
     private static final String provEnabledAttributeName = "enabled";
     private static final String simulatorTagName = "simulator";
     private static final String simulatorExecutionMachine
@@ -79,9 +68,10 @@ public class ProjectManager {
     private static final String simConfigFileTagName = "simConfigFile";
     private static final String simulationConfigurationFileAttributeName
             = "simulationConfigurationFile";
-    // </editor-fold>
 
+    // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Construction">
+
     /**
      * Constructs a project including the XML document that constitutes the
      * project, as well as project members
@@ -98,8 +88,8 @@ public class ProjectManager {
         initState();
         project.setProjectName(rootNodeName);
         if (load) {
-            project.load(project.determineProjectOutputLocation() +
-                    project.getProjectName() + ".xml");
+            project.load(project.determineProjectOutputLocation()
+                    + project.getProjectName() + ".xml");
         }
     }
 
@@ -108,7 +98,6 @@ public class ProjectManager {
     }
 
     //</editor-fold>
-
     // <editor-fold defaultstate="collapsed" desc="Persistence">
     /**
      * Writes the document representing this project to disk
@@ -124,9 +113,10 @@ public class ProjectManager {
             IOException, ParserConfigurationException {
         return project.persist();
     }
-    // </editor-fold>
 
+    // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="ProjectMgr Configuration">
+
     /**
      * Determines the folder location for storing provenance data for a given
      * project
@@ -158,9 +148,7 @@ public class ProjectManager {
         return projectDirectory;
     }
 
-    
     // </editor-fold>
-
     // <editor-fold defaultstate="collapsed" desc="Getters/Setters">
     /**
      * Sets the project's name. This will also modify the name attribute for the
@@ -223,14 +211,14 @@ public class ProjectManager {
         ProjectData simulatorData = project.getProjectData(simulatorTagName);
         Datum simConfigData = null;
         if (scriptData != null) {
-            simConfigData = scriptData.getDatum(scriptFileTagName); 
+            simConfigData = scriptData.getDatum(scriptFileTagName);
         }
         return simulatorData != null && simConfigData != null;
     }
-    // </editor-fold>
 
+    // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Data Manipulation">
-    
+
     /**
      * Provides the current simulation specification based on the content of the
      * elements in the project XML document
@@ -241,7 +229,7 @@ public class ProjectManager {
     public SimulationSpecification getSimulationSpecification() {
         SimulationSpecification simSpec = new SimulationSpecification();
         ProjectData simData = project.getProjectData(simulatorTagName);
-        
+
         String simType = getSimulationType(simData);
         String codeLocation = getSimulatorCodeLocation(simData);
         String locale = getSimulatorLocale(simData);
@@ -368,7 +356,7 @@ public class ProjectManager {
     public String getSimulationType(ProjectData simData) {
         return getChildDataContent(simData, simulationTypeTagName);
     }
-    
+
     private String getChildDataContent(ProjectData parentData, String tagname) {
         String content = null;
         Datum childDatum = parentData.getDatum(tagname);
@@ -387,7 +375,7 @@ public class ProjectManager {
         boolean ran = hasScriptRun(scriptData);
         String filename = getScriptFilename(scriptData);
         int version = getScriptVersion(scriptData);
-        
+
         scriptHistory.setStartedAt(startedAt);
         scriptHistory.setCompletedAt(completedAt);
         scriptHistory.setOutputAnalyzed(outputAnalyzed);
@@ -396,39 +384,38 @@ public class ProjectManager {
         scriptHistory.setVersion(version);
         return scriptHistory;
     }
-    
+
     public String getScriptTimeStarted(ProjectData scriptData) {
         return scriptData.getAttribute(scriptRanAtAttributeName);
     }
-    
+
     public String getScriptTimeCompleted(ProjectData scriptData) {
         return scriptData.getAttribute(scriptCompletedAtAttributeName);
     }
-    
+
     public boolean wasScriptAnalyzed(ProjectData scriptData) {
         return Boolean.valueOf(scriptData.getAttribute(scriptAnalyzedAttributeName));
     }
-    
+
     public boolean hasScriptRun(ProjectData scriptData) {
         return Boolean.valueOf(scriptData.getAttribute(scriptRanRunAttributeName));
     }
-    
+
     public String getScriptFilename(ProjectData scriptData) {
         return getChildDataContent(scriptData, scriptFileTagName);
     }
-    
+
     public int getScriptVersion(ProjectData scriptData) {
         int version;
         try {
             version = Integer.valueOf(getChildDataContent(scriptData,
                     scriptVersionVersionTagName));
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             version = 0;
         }
         return version;
     }
-    
+
     /**
      * Provides the version of the script currently associated with the project.
      * This value can be used to determine the base name of the script file name
@@ -449,8 +436,7 @@ public class ProjectManager {
      * project when another script is generated.
      */
     public String getNextScriptVersion() {
-        
-        
+
         int scriptVerNum;
         try {
             scriptVerNum = Integer.valueOf(getScriptVersion());
@@ -941,5 +927,4 @@ public class ProjectManager {
         return filename;
     }
     // </editor-fold>
-
 }

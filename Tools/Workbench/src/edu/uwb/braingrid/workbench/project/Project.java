@@ -1,7 +1,8 @@
 package edu.uwb.braingrid.workbench.project;
 
 // CLOSED FOR MODIFICATION
-
+// NOT CLEANED
+// FIX THIS!!! (Needs JavaDocs / Line Comments)
 import edu.uwb.braingrid.workbench.FileManager;
 import edu.uwb.braingrid.workbench.project.model.Datum;
 import edu.uwb.braingrid.workbench.project.model.ProjectData;
@@ -28,7 +29,7 @@ import org.xml.sax.SAXException;
  * @author Aaron Conrad
  */
 public class Project {
-    
+
     private HashMap<String, ProjectData> projectData;
     private String projectName;
 
@@ -52,12 +53,12 @@ public class Project {
         doc.appendChild(root);
         // record the project name as an attribute of the root element        
         root.setAttribute("name", projectName);
-        
+
         Set<String> keys = projectData.keySet();
         for (String s : keys) {
             projectData.get(s).appendElement(doc, root);
         }
-        
+
         // calculate the full path to the project file
         String projectFilename = getProjectFilename();
 
@@ -113,34 +114,33 @@ public class Project {
                     }
                     datum.setContent(eChild.getTextContent());
                 }
-                    
-            } catch (ClassCastException ex) {}
+
+            } catch (ClassCastException ex) {
+            }
         }
         return this;
     }
 
-    public void setProjectName(String projName)  {
-        if (projName == null)
-        {
+    public void setProjectName(String projName) {
+        if (projName == null) {
             projectName = "None";
-        }
-        else {
+        } else {
             projectName = projName;
         }
     }
-    
+
     public String getProjectName() {
         return projectName;
     }
-    
+
     public void addProjectData(ProjectData projData) {
         projectData.put(projData.getName(), projData);
     }
-    
+
     public ProjectData getProjectData(String key) {
         return projectData.get(key);
     }
-    
+
     /**
      * Provides the full path, including the filename, containing the XML for
      * this project.
@@ -156,7 +156,7 @@ public class Project {
         return determineProjectOutputLocation()
                 + projectName + ".xml";
     }
-    
+
     /**
      * Determines the folder location for a project based on the currently
      * loaded configuration
@@ -172,6 +172,5 @@ public class Project {
                 + projectName + ps;
         return projectDirectory;
     }
-    
-    
+
 }

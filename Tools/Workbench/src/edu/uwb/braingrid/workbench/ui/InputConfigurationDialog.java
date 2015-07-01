@@ -947,6 +947,12 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction"> 
+    /**
+     * 
+     * @param projectName
+     * @param modal
+     * @param configFilename 
+     */
     public InputConfigurationDialog(String projectName, boolean modal,
             String configFilename) {
         initComponents();
