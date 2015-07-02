@@ -138,7 +138,11 @@ public class Project {
     }
 
     public ProjectData getProjectData(String key) {
-        return projectData.get(key);
+        ProjectData data;
+        if ((data = projectData.get(key)) == null) {
+            projectData.put(key, new ProjectData(key));
+        }
+        return data;
     }
 
     /**
