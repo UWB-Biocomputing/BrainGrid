@@ -203,7 +203,7 @@ __device__ void createSynapse(AllDynamicSTDPSynapses* allSynapsesDevice, const i
     allSynapsesDevice->summationPoint[iSyn] = sum_point;
     allSynapsesDevice->destNeuronIndex[iSyn] = dest_index;
     allSynapsesDevice->sourceNeuronIndex[iSyn] = source_index;
-    allSynapsesDevice->W[iSyn] = 10.0e-9;
+    allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
 
     allSynapsesDevice->delayQueue[iSyn] = 0;
     allSynapsesDevice->delayIdx[iSyn] = 0;

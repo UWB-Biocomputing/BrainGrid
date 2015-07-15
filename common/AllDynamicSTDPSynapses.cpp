@@ -115,7 +115,6 @@ void AllDynamicSTDPSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT del
     lastSpike[iSyn] = ULONG_MAX;
 }
 
-#if !defined(USE_GPU)
 /**
  *  Create a Synapse and connect it to the model.
  *  @param  synapses    the Neuron list to reference.
@@ -166,6 +165,7 @@ void AllDynamicSTDPSynapses::createSynapse(const uint32_t iSyn, int source_index
     this->F[iSyn] = F;
 }
 
+#if !defined(USE_GPU)
 void AllDynamicSTDPSynapses::changePSR(const uint32_t iSyn, const BGFLOAT deltaT)
 {
     BGFLOAT &psr = this->psr[iSyn];

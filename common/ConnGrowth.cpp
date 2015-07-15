@@ -56,10 +56,8 @@ ConnGrowth::~ConnGrowth()
     cleanupConnections();
 }
 
-void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout)
+void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout, AllNeurons *neurons, AllSynapses *synapses)
 {
-    Connections::setupConnections(sim_info, layout);
-
     int num_neurons = sim_info->totalNeurons;
 
     W = new CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0);
@@ -91,8 +89,6 @@ void ConnGrowth::cleanupConnections()
     area = NULL;
     outgrowth = NULL;
     deltaR = NULL;
-
-    Connections::cleanupConnections();
 }
 
 /**
@@ -102,8 +98,6 @@ void ConnGrowth::cleanupConnections()
  */
 bool ConnGrowth::readParameters(const TiXmlElement& element)
 {
-    Connections::readParameters(element);
-
     if (element.ValueStr().compare("GrowthParams") == 0) {
         if (element.QueryFLOATAttribute("epsilon", &m_growth.epsilon) != TIXML_SUCCESS) {
                 throw ParseParamError("epsilon", "Growth param 'epsilon' missing in XML.");
@@ -161,8 +155,6 @@ bool ConnGrowth::readParameters(const TiXmlElement& element)
  */
 void ConnGrowth::printParameters(ostream &output) const
 {
-    Connections::printParameters(output);
-
     output << "Growth parameters: " << endl
            << "\tepsilon: " << m_growth.epsilon
            << ", beta: " << m_growth.beta
@@ -176,8 +168,6 @@ void ConnGrowth::printParameters(ostream &output) const
 
 void ConnGrowth::readConns(istream& input, const SimulationInfo *sim_info)
 {
-    Connections::readConns(input, sim_info);
-
     // read the radii
     for (int i = 0; i < sim_info->totalNeurons; i++) {
             input >> (*radii)[i]; input.ignore();
@@ -191,8 +181,6 @@ void ConnGrowth::readConns(istream& input, const SimulationInfo *sim_info)
 
 void ConnGrowth::writeConns(ostream& output, const SimulationInfo *sim_info)
 {
-    Connections::writeConns(output, sim_info);
-
     // write the final radii
     for (int i = 0; i < sim_info->totalNeurons; i++) {
         output << (*radii)[i] << ends;
@@ -334,7 +322,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neuron
             size_t synapse_counts = synapses.synapse_counts[src_neuron];
             int synapse_adjusted = 0;
             for (size_t synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++) {
-                uint32_t iSyn = synapses.maxSynapsesPerNeuron * src_neuron + synapse_index;
+                uint32_t iSyn = sim_info->maxSynapsesPerNeuron * src_neuron + synapse_index;
                 if (synapses.in_use[iSyn] == true) {
                     // if there is a synapse between a and b
                     if (synapses.destNeuronIndex[iSyn] == dest_neuron) {
@@ -368,8 +356,10 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neuron
                 BGFLOAT* sum_point = &( neurons.summation_map[dest_neuron] );
                 added++;
 
-                BGFLOAT weight = (*W)(src_neuron, dest_neuron) * synapses.synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
-                synapses.addSynapse(weight, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT);
+                uint32_t iSyn;
+                synapses.addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT);
+                synapses.W[iSyn] = (*W)(src_neuron, dest_neuron) * synapses.synSign(type) * AllSynapses
+::SYNAPSE_STRENGTH_ADJUSTMENT;
 
             }
         }

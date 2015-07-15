@@ -1,105 +1,106 @@
 /**
- *      @file XmlGrowthRecorder.cpp
+ *      @file XmlRecorder.cpp
  *
  *      @brief An implementation for recording spikes history on xml file
  */
 //! An implementation for recording spikes history on xml file
 
-#include "XmlGrowthRecorder.h"
+#include "XmlRecorder.h"
 #include "AllIFNeurons.h"      // TODO: remove LIF model specific code
 #include "ConnGrowth.h"
 
 //! THe constructor and destructor
-XmlGrowthRecorder::XmlGrowthRecorder(IModel *model, SimulationInfo* sim_info) :
-        XmlRecorder(model, sim_info),
-        ratesHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(sim_info->maxSteps + 1), sim_info->totalNeurons),
-        radiiHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(sim_info->maxSteps + 1), sim_info->totalNeurons)
+XmlRecorder::XmlRecorder(IModel *model, SimulationInfo* sim_info) :
+        burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps), 0),
+        spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps * 100), 0),
+        m_model(dynamic_cast<Model*> (model)),
+        m_sim_info(sim_info)
 {
 }
 
-XmlGrowthRecorder::~XmlGrowthRecorder()
+XmlRecorder::~XmlRecorder()
 {
+}
+
+/**
+ * Initialize data
+ * @param[in] stateOutputFileName	File name to save histories
+ */
+void XmlRecorder::init(const string& stateOutputFileName)
+{
+    stateOut.open( stateOutputFileName.c_str( ) );
+
 }
 
 /*
  * Init radii and rates history matrices with default values
  */
-void XmlGrowthRecorder::initDefaultValues()
+void XmlRecorder::initDefaultValues()
 {
-    Connections* pConn = m_model->getConnections();
-    BGFLOAT startRadius = dynamic_cast<ConnGrowth*>(pConn)->m_growth.startRadius;
-
-    for (int i = 0; i < m_sim_info->totalNeurons; i++)
-    {
-        radiiHistory(0, i) = startRadius;
-        ratesHistory(0, i) = 0;
-    }
 }
 
 /*
  * Init radii and rates history matrices with current radii and rates
  */
-void XmlGrowthRecorder::initValues()
+void XmlRecorder::initValues()
 {
-    Connections* pConn = m_model->getConnections();
-
-    for (int i = 0; i < m_sim_info->totalNeurons; i++)
-    {
-        radiiHistory(0, i) = (*dynamic_cast<ConnGrowth*>(pConn)->radii)[i];
-        ratesHistory(0, i) = (*dynamic_cast<ConnGrowth*>(pConn)->rates)[i];
-    }
 }
 
 /*
  * Get the current radii and rates values
  */
-void XmlGrowthRecorder::getValues()
+void XmlRecorder::getValues()
 {
-    Connections* pConn = m_model->getConnections();
+}
 
-    for (int i = 0; i < m_sim_info->totalNeurons; i++)
-    {
-        (*dynamic_cast<ConnGrowth*>(pConn)->radii)[i] = radiiHistory(m_sim_info->currentStep, i);
-        (*dynamic_cast<ConnGrowth*>(pConn)->rates)[i] = ratesHistory(m_sim_info->currentStep, i);
-    }
+/**
+ * Terminate process
+ */
+void XmlRecorder::term()
+{
+    stateOut.close();
 }
 
 /**
  * Compile history information in every epoch
  * @param[in] neurons 	The entire list of neurons.
  */
-void XmlGrowthRecorder::compileHistories(AllNeurons &neurons)
+void XmlRecorder::compileHistories(AllNeurons &neurons)
 {
-    XmlRecorder::compileHistories(neurons);
-
     Connections* pConn = m_model->getConnections();
 
-    BGFLOAT minRadius = dynamic_cast<ConnGrowth*>(pConn)->m_growth.minRadius;
-    VectorMatrix& rates = (*dynamic_cast<ConnGrowth*>(pConn)->rates);
-    VectorMatrix& radii = (*dynamic_cast<ConnGrowth*>(pConn)->radii);
+    AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
+    int max_spikes = (int) ((m_sim_info->epochDuration * m_sim_info->maxFiringRate));
 
+    // output spikes
     for (int iNeuron = 0; iNeuron < m_sim_info->totalNeurons; iNeuron++)
     {
-        // record firing rate to history matrix
-        ratesHistory(m_sim_info->currentStep, iNeuron) = rates[iNeuron];
+        uint64_t* pSpikes = spNeurons.spike_history[iNeuron];
 
-        // Cap minimum radius size and record radii to history matrix
-        // TODO: find out why we cap this here.
-        if (radii[iNeuron] < minRadius)
-            radii[iNeuron] = minRadius;
+        int& spike_count = spNeurons.spikeCount[iNeuron];
+        int& offset = spNeurons.spikeCountOffset[iNeuron];
+        for (int i = 0, idxSp = offset; i < spike_count; i++, idxSp++)
+        {
+            if (idxSp >= max_spikes) idxSp = 0;
+            // compile network wide burstiness index data in 1s bins
+            int idx1 = static_cast<int>( static_cast<double>( pSpikes[idxSp] ) * m_sim_info->deltaT );
+            burstinessHist[idx1] = burstinessHist[idx1] + 1.0;
 
-        // record radius to history matrix
-        radiiHistory(m_sim_info->currentStep, iNeuron) = radii[iNeuron];
-
-        DEBUG_MID(cout << "radii[" << iNeuron << ":" << radii[iNeuron] << "]" << endl;)
+            // compile network wide spike count in 10ms bins
+            int idx2 = static_cast<int>( static_cast<double>( pSpikes[idxSp] ) * m_sim_info->deltaT * 100 );
+            spikesHistory[idx2] = spikesHistory[idx2] + 1.0;
+        }
     }
+
+    // clear spike count
+    spNeurons.clearSpikeCounts(m_sim_info);
 }
 
 /**
  * Save current simulation state to XML
  * @param  neurons the Neuron list to search from.
  **/
-void XmlGrowthRecorder::saveSimState(const AllNeurons &neurons)
+void XmlRecorder::saveSimState(const AllNeurons &neurons)
 {
     // create Neuron Types matrix
     VectorMatrix neuronTypes(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, EXC);
@@ -119,8 +120,6 @@ void XmlGrowthRecorder::saveSimState(const AllNeurons &neurons)
 
     // Write the core state information:
     stateOut << "<SimState>\n";
-    stateOut << "   " << radiiHistory.toXML("radiiHistory") << endl;
-    stateOut << "   " << ratesHistory.toXML("ratesHistory") << endl;
     stateOut << "   " << burstinessHist.toXML("burstinessHist") << endl;
     stateOut << "   " << spikesHistory.toXML("spikesHistory") << endl;
     stateOut << "   " << m_model->getLayout()->xloc->toXML("xloc") << endl;
@@ -151,3 +150,19 @@ void XmlGrowthRecorder::saveSimState(const AllNeurons &neurons)
     stateOut << "</SimState>" << endl;
 }
 
+/**
+ *  Get starter Neuron matrix.
+ *  @param  matrix   Starter Neuron matrix.
+ *  @param  starter_map bool map to reference neuron matrix location from.
+ *  @param  sim_info    SimulationInfo class to read information from.
+ */
+void XmlRecorder::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info)
+{
+    int cur = 0;
+    for (int i = 0; i < sim_info->totalNeurons; i++) {
+        if (starter_map[i]) {
+            matrix[cur] = i;
+            cur++;
+        }
+    }
+}

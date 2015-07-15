@@ -78,7 +78,9 @@ CUDAOBJS =   \
             $(CUDADIR)/AllSTDPSynapses_d.o \
             $(CUDADIR)/AllDynamicSTDPSynapses_cuda.o \
             $(CUDADIR)/AllDynamicSTDPSynapses_d.o \
+            $(CUDADIR)/Connections_cuda.o \
             $(CUDADIR)/ConnGrowth_cuda.o \
+            $(CUDADIR)/ConnStatic_cuda.o \
             $(CUDADIR)/ConnGrowth_d.o \
             $(CUDADIR)/MersenneTwister_kernel.o \
             $(CUDADIR)/BGDriver_cuda.o \
@@ -90,31 +92,26 @@ CUDAOBJS =   \
 ifeq ($(CUSEHDF5), yes)
 LIBOBJS =               \
 			$(COMMDIR)/Simulator.o \
-			$(COMMDIR)/SingleThreadedSim.o \
 			$(COMMDIR)/Model.o \
-			$(COMMDIR)/Connections.o \
 			$(COMMDIR)/Layout.o \
-			$(COMMDIR)/LayoutGrid.o \
-			$(COMMDIR)/SingleThreadedSpikingModel.o \
 			$(COMMDIR)/Network.o \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
 			$(COMMDIR)/Util.o \
+			$(COMMDIR)/XmlRecorder.o \
 			$(COMMDIR)/XmlGrowthRecorder.o \
+			$(COMMDIR)/Hdf5Recorder.o \
 			$(COMMDIR)/Hdf5GrowthRecorder.o 
 else
 LIBOBJS =               \
 			$(COMMDIR)/Simulator.o \
-			$(COMMDIR)/SingleThreadedSim.o \
 			$(COMMDIR)/Model.o \
-			$(COMMDIR)/Connections.o \
 			$(COMMDIR)/Layout.o \
-			$(COMMDIR)/LayoutGrid.o \
-			$(COMMDIR)/SingleThreadedSpikingModel.o \
 			$(COMMDIR)/Network.o \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
 			$(COMMDIR)/Util.o \
+			$(COMMDIR)/XmlRecorder.o \
 			$(COMMDIR)/XmlGrowthRecorder.o 
 endif
  
@@ -129,6 +126,8 @@ PARAMOBJS = $(PARAMDIR)/ParamContainer.o
 RNGOBJS = $(RNGDIR)/Norm.o
 
 SINGLEOBJS = $(MAIN)/BGDriver.o  \
+			$(COMMDIR)/SingleThreadedSpikingModel.o \
+			$(COMMDIR)/SingleThreadedSim.o \
 			$(SINPUTDIR)/FSInput.o \
 			$(COMMDIR)/AllNeurons.o \
 			$(COMMDIR)/AllSpikingNeurons.o \
@@ -140,7 +139,9 @@ SINGLEOBJS = $(MAIN)/BGDriver.o  \
 			$(COMMDIR)/AllDSSynapses.o \
 			$(COMMDIR)/AllSTDPSynapses.o \
 			$(COMMDIR)/AllDynamicSTDPSynapses.o \
+			$(COMMDIR)/Connections.o \
 			$(COMMDIR)/ConnGrowth.o \
+			$(COMMDIR)/ConnStatic.o \
 			$(COMMDIR)/Global.o 
 
 XMLOBJS = $(XMLDIR)/tinyxml.o \
@@ -239,8 +240,14 @@ $(CUDADIR)/AllSTDPSynapses_cuda.o: $(COMMDIR)/AllSTDPSynapses.cpp $(COMMDIR)/All
 $(CUDADIR)/AllDynamicSTDPSynapses_cuda.o: $(COMMDIR)/AllDynamicSTDPSynapses.cpp $(COMMDIR)/AllDynamicSTDPSynapses.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllDynamicSTDPSynapses.cpp -o $(CUDADIR)/AllDynamicSTDPSynapses_cuda.o
 
+$(CUDADIR)/Connections_cuda.o: $(COMMDIR)/Connections.cpp $(COMMDIR)/Connections.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/Connections.cpp -o $(CUDADIR)/Connections_cuda.o
+
 $(CUDADIR)/ConnGrowth_cuda.o: $(COMMDIR)/ConnGrowth.cpp $(COMMDIR)/ConnGrowth.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/ConnGrowth.cpp -o $(CUDADIR)/ConnGrowth_cuda.o
+
+$(CUDADIR)/ConnStatic_cuda.o: $(COMMDIR)/ConnStatic.cpp $(COMMDIR)/ConnStatic.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/ConnStatic.cpp -o $(CUDADIR)/ConnStatic_cuda.o
 
 $(CUDADIR)/Global_cuda.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/Global.cpp -o $(CUDADIR)/Global_cuda.o
@@ -297,14 +304,14 @@ $(COMMDIR)/Model.o: $(COMMDIR)/Model.cpp $(COMMDIR)/Model.h $(COMMDIR)/IModel.h 
 $(COMMDIR)/Connections.o: $(COMMDIR)/Connections.cpp $(COMMDIR)/Connections.h 
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Connections.cpp -o $(COMMDIR)/Connections.o
 
+$(COMMDIR)/ConnStatic.o: $(COMMDIR)/ConnStatic.cpp $(COMMDIR)/ConnStatic.h 
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/ConnStatic.cpp -o $(COMMDIR)/ConnStatic.o
+
 $(COMMDIR)/ConnGrowth.o: $(COMMDIR)/ConnGrowth.cpp $(COMMDIR)/ConnGrowth.h 
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/ConnGrowth.cpp -o $(COMMDIR)/ConnGrowth.o
 
 $(COMMDIR)/Layout.o: $(COMMDIR)/Layout.cpp $(COMMDIR)/Layout.h 
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Layout.cpp -o $(COMMDIR)/Layout.o
-
-$(COMMDIR)/LayoutGrid.o: $(COMMDIR)/LayoutGrid.cpp $(COMMDIR)/LayoutGrid.h 
-	$(CXX) $(CXXFLAGS) $(COMMDIR)/LayoutGrid.cpp -o $(COMMDIR)/LayoutGrid.o
 
 $(COMMDIR)/SingleThreadedSpikingModel.o: $(COMMDIR)/SingleThreadedSpikingModel.cpp $(COMMDIR)/SingleThreadedSpikingModel.h $(COMMDIR)/Model.h 
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/SingleThreadedSpikingModel.cpp -o $(COMMDIR)/SingleThreadedSpikingModel.o
@@ -321,12 +328,19 @@ $(COMMDIR)/Timer.o: $(COMMDIR)/Timer.cpp $(COMMDIR)/Timer.h
 $(COMMDIR)/Util.o: $(COMMDIR)/Util.cpp $(COMMDIR)/Util.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Util.cpp -o $(COMMDIR)/Util.o
 
+$(COMMDIR)/XmlRecorder.o: $(COMMDIR)/XmlRecorder.cpp $(COMMDIR)/XmlRecorder.h $(COMMDIR)/IRecorder.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/XmlRecorder.cpp -o $(COMMDIR)/XmlRecorder.o
+
 $(COMMDIR)/XmlGrowthRecorder.o: $(COMMDIR)/XmlGrowthRecorder.cpp $(COMMDIR)/XmlGrowthRecorder.h $(COMMDIR)/IRecorder.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/XmlGrowthRecorder.cpp -o $(COMMDIR)/XmlGrowthRecorder.o
 
 ifeq ($(CUSEHDF5), yes)
 $(COMMDIR)/Hdf5Recorder.o: $(COMMDIR)/Hdf5GrowthRecorder.cpp $(COMMDIR)/Hdf5GrowthRecorder.h $(COMMDIR)/IRecorder.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Hdf5GrowthRecorder.cpp -o $(COMMDIR)/Hdf5GrowthRecorder.o
+
+
+$(COMMDIR)/Hdf5Recorder.o: $(COMMDIR)/Hdf5Recorder.cpp $(COMMDIR)/Hdf5Recorder.h $(COMMDIR)/IRecorder.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/Hdf5Recorder.cpp -o $(COMMDIR)/Hdf5Recorder.o
 endif
 
 

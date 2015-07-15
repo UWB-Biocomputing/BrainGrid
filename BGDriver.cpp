@@ -17,13 +17,16 @@
 #include "AllLIFNeurons.h"
 #include "AllIZHNeurons.h"
 #include "AllDSSynapses.h"
+#include "XmlRecorder.h"
 #include "XmlGrowthRecorder.h"
 #ifdef USE_HDF5
+#include "Hdf5Recorder.h"
 #include "Hdf5GrowthRecorder.h"
 #endif // USE_HDF5
 #include "FSInput.h"
 #include "ConnGrowth.h"
-#include "LayoutGrid.h"
+#include "ConnStatic.h"
+#include "Layout.h"
 
 
 // Uncomment to use visual leak detector (Visual Studios Plugin)
@@ -83,12 +86,15 @@ int main(int argc, char* argv[]) {
     // create the model
     #if defined(USE_GPU)
 	 //model = new GPUSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
-	 model = new GPUSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new LayoutGrid());
+	 model = new GPUSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new GPUSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
     #elif defined(USE_OMP)
-	 model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new LayoutGrid());
+	 model = new SingleThreadedSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
     #else
-	 //model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new LayoutGrid());
-	 model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new LayoutGrid());
+	 //model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
+	 model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new SingleThreadedSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
     #endif
     
     DEBUG(cout << "reading parameters from xml file" << endl;)
@@ -108,10 +114,12 @@ int main(int argc, char* argv[]) {
     // create & init simulation recorder
     IRecorder* simRecorder = NULL;
     if (stateOutputFileName.find(".xml") != string::npos) {
+        //simRecorder = new XmlRecorder(model, simInfo);
         simRecorder = new XmlGrowthRecorder(model, simInfo);
     }
 #ifdef USE_HDF5
     else if (stateOutputFileName.find(".h5") != string::npos) {
+        //simRecorder = new Hdf5Recorder(model, simInfo); 
         simRecorder = new Hdf5GrowthRecorder(model, simInfo); 
     }
     else {
@@ -119,7 +127,9 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 #endif // USE_HDF5
-    simRecorder->init(stateOutputFileName);
+    if (simRecorder != NULL) {
+        simRecorder->init(stateOutputFileName);
+    }
 
     // Create a stimulus input object
     ISInput* pInput = NULL;     // pointer to a stimulus input object
@@ -183,7 +193,9 @@ int main(int argc, char* argv[]) {
     network.finish();
 
     // terminates the simulation recorder
-    simRecorder->term();
+    if (simRecorder != NULL) {
+        simRecorder->term();
+    }
 
     for(unsigned int i = 0; i < rgNormrnd.size(); ++i) {
         delete rgNormrnd[i];
@@ -201,8 +213,10 @@ int main(int argc, char* argv[]) {
     delete model;
     model = NULL;
     
-    delete simRecorder;
-    simRecorder = NULL;
+    if (simRecorder != NULL) {
+        delete simRecorder;
+        simRecorder = NULL;
+    }
 
     delete simInfo;
     simInfo = NULL;

@@ -45,41 +45,6 @@ Connections::Connections()
 
 Connections::~Connections()
 {
-    cleanupConnections();
-}
-
-void Connections::setupConnections(const SimulationInfo *sim_info, Layout *layout)
-{
-}
-
-void Connections::cleanupConnections()
-{
-}
-
-/**
- *  Attempts to read parameters from a XML file.
- *  @param  @param  element TiXmlElement to examine.
- *  @return true if successful, false otherwise.
- */
-bool Connections::readParameters(const TiXmlElement& element)
-{
-    return true;
-}
-
-/**
- *  Prints out all parameters of the connections to ostream.
- *  @param  output  ostream to send output to.
- */
-void Connections::printParameters(ostream &output) const
-{
-}
-
-void Connections::readConns(istream& input, const SimulationInfo *sim_info)
-{
-}
-
-void Connections::writeConns(ostream& output, const SimulationInfo *sim_info)
-{
 }
 
 bool Connections::updateConnections(AllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout)
@@ -87,7 +52,11 @@ bool Connections::updateConnections(AllNeurons &neurons, const SimulationInfo *s
     return false;
 }
 
-#if !defined(USE_GPU)
+#if defined(USE_GPU)
+void Connections::updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice, Layout *layout)
+{
+}
+#else
 /**
  *  Update the weight of the Synapses in the simulation.
  *  Note: Platform Dependent.

@@ -238,6 +238,7 @@ void AllSynapses::eraseSynapse(const int neuron_index, const uint32_t iSyn)
     in_use[iSyn] = false;
     summationPoint[iSyn] = NULL;
 }
+#endif // !defined(USE_GPU)
 
 /**
  *  Adds a Synapse to the model, connecting two Neurons.
@@ -250,7 +251,7 @@ void AllSynapses::eraseSynapse(const int neuron_index, const uint32_t iSyn)
  *  @param  sum_point   TODO
  *  @param deltaT   inner simulation step duration
  */
-void AllSynapses::addSynapse(BGFLOAT weight, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT)
+void AllSynapses::addSynapse(uint32_t &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT)
 {
     if (synapse_counts[src_neuron] >= maxSynapsesPerNeuron) {
         return; // TODO: ERROR!
@@ -258,7 +259,6 @@ void AllSynapses::addSynapse(BGFLOAT weight, synapseType type, const int src_neu
 
     // add it to the list
     size_t synapse_index;
-    uint32_t iSyn;
     for (synapse_index = 0; synapse_index < maxSynapsesPerNeuron; synapse_index++) {
         iSyn = maxSynapsesPerNeuron * src_neuron + synapse_index;
         if (!in_use[iSyn]) {
@@ -270,8 +270,6 @@ void AllSynapses::addSynapse(BGFLOAT weight, synapseType type, const int src_neu
 
     // create a synapse
     createSynapse(iSyn, src_neuron, dest_neuron, sum_point, deltaT, type );
-
-    W[iSyn] = weight;
 }
 
 /**
@@ -296,4 +294,3 @@ int AllSynapses::synSign(const synapseType type)
     return 0;
 }
 
-#endif // !defined(USE_GPU)

@@ -1,17 +1,17 @@
 /**
- *      @file Hdf5GrowthRecorder.h
+ *      @file Hdf5Recorder.h
  *
- *      @brief Header file for Hdf5GrowthRecorder.h
+ *      @brief Header file for Hdf5Recorder.h
  */
 //! An implementation for recording spikes history on hdf5 file
 
 /**
- ** @class Hdf5GrowthRecorder Hdf5GrowthRecorder.h "Hdf5GrowthRecorder.h"
+ ** @class Hdf5Recorder Hdf5Recorder.h "Hdf5Recorder.h"
  **
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
  **
- ** The Hdf5GrowthRecorder provides a mechanism for recording spikes history,
+ ** The Hdf5Recorder provides a mechanism for recording spikes history,
  ** and compile history information on hdf5 file:
  ** 	(1) individual neuron's spike rate in epochs,
  **	(2) burstiness index data in 1s bins,
@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include "Hdf5Recorder.h""
+#include "IRecorder.h"
 #include "Model.h"
 #include "H5Cpp.h"
 
@@ -42,12 +42,12 @@
 #define H5_FLOAT PredType::NATIVE_DOUBLE
 #endif
 
-class Hdf5GrowthRecorder : public Hdf5Recorder
+class Hdf5Recorder : public IRecorder
 {
 public:
     //! THe constructor and destructor
-    Hdf5GrowthRecorder(IModel *model, SimulationInfo* sim_info);
-    ~Hdf5GrowthRecorder();
+    Hdf5Recorder(IModel *model, SimulationInfo* sim_info);
+    ~Hdf5Recorder();
 
     /**
      * Initialize data
@@ -81,22 +81,48 @@ public:
      */
     virtual void compileHistories(AllNeurons &neurons);
 
+    /**
+     * Save current simulation state to XML
+     * @param  neurons the Neuron list to search from.
+     **/
+    virtual void saveSimState(const AllNeurons &neurons);
+
 protected:
     virtual void initDataSet();
 
-    /**
-     * Incrementaly write radii and rates histories
-     */
-    void writeRadiiRates();
+    void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info);
+
+    // hdf5 file identifier
+    H5File* stateOut;
 
     // hdf5 file dataset
-    DataSet* dataSetRatesHist;
-    DataSet* dataSetRadiiHist;
+    DataSet* dataSetBurstHist;
+    DataSet* dataSetSpikesHist;
 
-    // track radii
-    BGFLOAT* radiiHistory;
+    DataSet* dataSetXloc;
+    DataSet* dataSetYloc;
+    DataSet* dataSetNeuronTypes;
+    DataSet* dataSetNeuronThresh;
+    DataSet* dataSetStarterNeurons;
+    DataSet* dataSetTsim;
+    DataSet* dataSetSimulationEndTime;
 
-    // track firing rate
-    BGFLOAT* ratesHistory;
+    DataSet* dataSetSpikesProbedNeurons;
+    DataSet* dataSetProbedNeurons;
+
+    // burstiness Histogram goes through the
+    int* burstinessHist;
+
+    // spikes history - history of accumulated spikes count of all neurons (10 ms bin)
+    int* spikesHistory;
+
+    // track spikes count of probed neurons
+    vector<uint64_t>* spikesProbedNeurons;
+
+    // Struct that holds information about a simulation
+    SimulationInfo *m_sim_info;
+
+    // TODO comment
+    Model *m_model;
 };
 

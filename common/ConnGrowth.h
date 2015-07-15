@@ -38,7 +38,7 @@ class ConnGrowth : public Connections
         ConnGrowth();
         virtual ~ConnGrowth();
 
-        virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout);
+        virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, AllNeurons *neurons, AllSynapses *synapses);
         virtual void cleanupConnections();
         virtual bool readParameters(const TiXmlElement& element);
         virtual void printParameters(ostream &output) const;

@@ -60,6 +60,8 @@ class AllSTDPSynapses : public AllSpikingSynapses
         virtual void initSpikeQueue(const uint32_t iSyn);
 
     public:
+        virtual void createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
+
 #if defined(USE_GPU)
         virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info );
         virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron );
@@ -84,7 +86,6 @@ class AllSTDPSynapses : public AllSpikingSynapses
 #else
         // Update the state of synapse for a time step
         virtual void advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, AllNeurons *neurons);
-        virtual void createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
         virtual void postSpikeHit(const uint32_t iSyn);
 
     protected:

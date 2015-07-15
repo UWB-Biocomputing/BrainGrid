@@ -28,22 +28,16 @@
 
 #pragma once
 
-#include "IRecorder.h"
+#include "XmlRecorder.h"
 #include "Model.h"
 #include <fstream>
 
-class XmlGrowthRecorder : public IRecorder
+class XmlGrowthRecorder : public XmlRecorder
 {
 public:
     //! THe constructor and destructor
     XmlGrowthRecorder(IModel *model, SimulationInfo* sim_info);
     ~XmlGrowthRecorder();
-
-    /**
-     * Initialize data
-     * @param[in] stateOutputFileName       File name to save histories
-     */
-    virtual void init(const string& stateOutputFileName);
 
     /*
      * Init radii and rates history matrices with default values
@@ -61,11 +55,6 @@ public:
     virtual void getValues();
 
     /**
-     * Terminate process
-     */
-    virtual void term();
-
-    /**
      * Compile history information in every epoch
      * @param[in] neurons   The entire list of neurons.
      */
@@ -78,27 +67,10 @@ public:
     virtual void saveSimState(const AllNeurons &neurons);
 
 private:
-    void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info);
-
-    // a file stream for xml output
-    ofstream stateOut;
-
-    // burstiness Histogram goes through the
-    VectorMatrix burstinessHist;
-
-    // spikes history - history of accumulated spikes count of all neurons (10 ms bin)
-    VectorMatrix spikesHistory;
-
     // track radii
     CompleteMatrix radiiHistory;
 
     // track firing rate
     CompleteMatrix ratesHistory;
-
-    // Struct that holds information about a simulation
-    SimulationInfo *m_sim_info;
-
-    // TODO comment
-    Model *m_model;
 };
 

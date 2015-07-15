@@ -129,6 +129,60 @@ void AllSpikingSynapses::writeSynapse(ostream& output, const uint32_t iSyn) cons
     output << tau[iSyn] << ends;
 }
 
+/**
+ *  Create a Synapse and connect it to the model.
+ *  @param  synapses    the Neuron list to reference.
+ *  @param  iSyn   TODO
+ *  @param  source  coordinates of the source Neuron.
+ *  @param  dest    coordinates of the destination Neuron.
+ *  @param  sum_point   TODO
+ *  @param  deltaT  TODO
+ *  @param  type    type of the Synapse to create.
+ */
+void AllSpikingSynapses::createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+{
+    BGFLOAT delay;
+
+    in_use[iSyn] = true;
+    summationPoint[iSyn] = sum_point;
+    destNeuronIndex[iSyn] = dest_index;
+    sourceNeuronIndex[iSyn] = source_index;
+    W[iSyn] = synSign(type) * 10.0e-9;
+    this->type[iSyn] = type;
+    tau[iSyn] = DEFAULT_tau;
+
+    BGFLOAT tau;
+    switch (type) {
+        case II:
+            tau = 6e-3;
+            delay = 0.8e-3;
+            break;
+        case IE:
+            tau = 6e-3;
+            delay = 0.8e-3;
+            break;
+        case EI:
+            tau = 3e-3;
+            delay = 0.8e-3;
+            break;
+        case EE:
+            tau = 3e-3;
+            delay = 1.5e-3;
+            break;
+        default:
+            assert( false );
+            break;
+    }
+
+    this->tau[iSyn] = tau;
+    this->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
+
+    // initializes the queues for the Synapses
+    initSpikeQueue(iSyn);
+    // reset time varying state vars and recompute decay
+    resetSynapse(iSyn, deltaT);
+}
+
 #if !defined(USE_GPU)
 /**
  *  Checks if there is an input spike in the queue.
@@ -204,60 +258,6 @@ void AllSpikingSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInf
     //PAB: atomic above has implied flush (following statement generates error -- can't be member variable)
     //#pragma omp flush (summationPoint)
 #endif
-}
-
-/**
- *  Create a Synapse and connect it to the model.
- *  @param  synapses    the Neuron list to reference.
- *  @param  iSyn   TODO
- *  @param  source  coordinates of the source Neuron.
- *  @param  dest    coordinates of the destination Neuron.
- *  @param  sum_point   TODO
- *  @param  deltaT  TODO
- *  @param  type    type of the Synapse to create.
- */
-void AllSpikingSynapses::createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
-{
-    BGFLOAT delay;
-
-    in_use[iSyn] = true;
-    summationPoint[iSyn] = sum_point;
-    destNeuronIndex[iSyn] = dest_index;
-    sourceNeuronIndex[iSyn] = source_index;
-    W[iSyn] = 10.0e-9;
-    this->type[iSyn] = type;
-    tau[iSyn] = DEFAULT_tau;
-
-    BGFLOAT tau;
-    switch (type) {
-        case II:
-            tau = 6e-3;
-            delay = 0.8e-3;
-            break;
-        case IE:
-            tau = 6e-3;
-            delay = 0.8e-3;
-            break;
-        case EI:
-            tau = 3e-3;
-            delay = 0.8e-3;
-            break;
-        case EE:
-            tau = 3e-3;
-            delay = 1.5e-3;
-            break;
-        default:
-            assert( false );
-            break;
-    }
-
-    this->tau[iSyn] = tau;
-    this->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
-
-    // initializes the queues for the Synapses
-    initSpikeQueue(iSyn);
-    // reset time varying state vars and recompute decay
-    resetSynapse(iSyn, deltaT);
 }
 
 void AllSpikingSynapses::changePSR(const uint32_t iSyn, const BGFLOAT deltaT)

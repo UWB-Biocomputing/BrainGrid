@@ -86,10 +86,10 @@ class AllSynapses
         virtual void advanceSynapses(const SimulationInfo *sim_info, AllNeurons *neurons);
         virtual void advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, AllNeurons *neurons) = 0;
         virtual void eraseSynapse(const int neuron_index, const uint32_t iSyn);
-        virtual void addSynapse(BGFLOAT weight, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT);
+#endif
+        virtual void addSynapse(uint32_t &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT);
         virtual void createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
         int synSign(const synapseType type);
-#endif
 
         // TODO
         static const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;

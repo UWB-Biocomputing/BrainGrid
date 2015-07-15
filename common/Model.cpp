@@ -156,8 +156,9 @@ void Model::saveMemory(ostream& output, const SimulationInfo *sim_info)
  */
 void Model::saveState(IRecorder* simRecorder)
 {
-    simRecorder->saveSimState(*m_neurons);
-
+    if (simRecorder != NULL) {
+        simRecorder->saveSimState(*m_neurons);
+    }
 }
 
 /**
@@ -188,13 +189,16 @@ void Model::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
     m_neurons->setupNeurons(sim_info);
     m_synapses->setupSynapses(sim_info);
     m_layout->setupLayout(sim_info);
-    m_conns->setupConnections(sim_info, m_layout);
 
     // Init radii and rates history matrices with default values
-    simRecorder->initDefaultValues();
+    if (simRecorder != NULL) {
+        simRecorder->initDefaultValues();
+    }
 
     // Creates all the Neurons and generates data for them.
     createAllNeurons(sim_info);
+
+    m_conns->setupConnections(sim_info, m_layout, m_neurons, m_synapses);
 }
 
 /**
@@ -269,7 +273,9 @@ void Model::logSimStep(const SimulationInfo *sim_info) const
 void Model::updateHistory(const SimulationInfo *sim_info, IRecorder* simRecorder)
 {
     // Compile history information in every epoch
-    simRecorder->compileHistories(*m_neurons);
+    if (simRecorder != NULL) {
+        simRecorder->compileHistories(*m_neurons);
+    }
 }
 
 AllNeurons* Model::getNeurons()
@@ -301,7 +307,7 @@ void Model::createSynapseImap(AllSynapses &synapses, const SimulationInfo* sim_i
         // count the total synapses
         for ( int i = 0; i < neuron_count; i++ )
         {
-                assert( synapses.synapse_counts[i] < synapses.maxSynapsesPerNeuron );
+                assert( synapses.synapse_counts[i] < sim_info->maxSynapsesPerNeuron );
                 total_synapse_counts += synapses.synapse_counts[i];
         }
 
@@ -328,9 +334,9 @@ void Model::createSynapseImap(AllSynapses &synapses, const SimulationInfo* sim_i
         m_synapseIndexMap = new SynapseIndexMap(neuron_count, total_synapse_counts);
         for (int i = 0; i < neuron_count; i++)
         {
-                for ( int j = 0; j < synapses.maxSynapsesPerNeuron; j++, syn_i++ )
+                for ( int j = 0; j < sim_info->maxSynapsesPerNeuron; j++, syn_i++ )
                 {
-                        uint32_t iSyn = synapses.maxSynapsesPerNeuron * i + j;
+                        uint32_t iSyn = sim_info->maxSynapsesPerNeuron * i + j;
                         if ( synapses.in_use[iSyn] == true )
                         {
                                 int idx = synapses.destNeuronIndex[iSyn];

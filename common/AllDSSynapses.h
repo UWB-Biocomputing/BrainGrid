@@ -58,6 +58,8 @@ class AllDSSynapses : public AllSpikingSynapses
         virtual void writeSynapse(ostream& output, const uint32_t iSyn) const;
 
     public:
+        virtual void createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
+
 #if defined(USE_GPU)
         virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info );
         virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron );
@@ -76,11 +78,8 @@ class AllDSSynapses : public AllSpikingSynapses
         virtual void deleteDeviceStruct( AllDSSynapses& allSynapses );
         virtual void copyHostToDevice( void* allSynapsesDevice, AllDSSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
         virtual void copyDeviceToHost( AllDSSynapses& allSynapses, const SimulationInfo *sim_info );
-
-    public:
 #else
         // Update the state of synapse for a time step
-        virtual void createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
 
     protected:
         virtual void changePSR(const uint32_t iSyn, const BGFLOAT deltaT);

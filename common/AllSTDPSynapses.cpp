@@ -179,7 +179,6 @@ void AllSTDPSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
     AllSpikingSynapses::resetSynapse(iSyn, deltaT);
 }
 
-#if !defined(USE_GPU)
 /**
  *  Create a Synapse and connect it to the model.
  *  @param  synapses    the Neuron list to reference.
@@ -216,6 +215,7 @@ void AllSTDPSynapses::createSynapse(const uint32_t iSyn, int source_index, int d
 */
 }
 
+#if !defined(USE_GPU)
 /**
  *  Advance one specific Synapse.
  *  @param  iSyn   index of the Synapse to connect to.

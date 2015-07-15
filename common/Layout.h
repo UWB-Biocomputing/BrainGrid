@@ -62,13 +62,15 @@ class Layout
         bool *starter_map;
 
     protected:
-        virtual void initNeuronsLocs(const SimulationInfo *sim_info) = 0;
+        virtual void initNeuronsLocs(const SimulationInfo *sim_info);
 
         static const bool STARTER_FLAG; // = true; // true = use endogenously active neurons in simulation
 
     private:
         //! True if a fixed layout has been provided
         bool m_fixed_layout;
+        // TODO
+        bool m_grid_layout;
         // TODO
         vector<int> m_endogenously_active_neuron_list;
         // TODO

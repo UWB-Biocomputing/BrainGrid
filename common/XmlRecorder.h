@@ -1,18 +1,18 @@
 /**
- *      @file Hdf5GrowthRecorder.h
+ *      @file XmlRecorder.h
  *
- *      @brief Header file for Hdf5GrowthRecorder.h
+ *      @brief Header file for XmlRecorder.h
  */
-//! An implementation for recording spikes history on hdf5 file
+//! An implementation for recording spikes history on xml file
 
 /**
- ** @class Hdf5GrowthRecorder Hdf5GrowthRecorder.h "Hdf5GrowthRecorder.h"
+ ** \class XmlRecorder XmlRecorder.h "XmlRecorder.h"
  **
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
  **
- ** The Hdf5GrowthRecorder provides a mechanism for recording spikes history,
- ** and compile history information on hdf5 file:
+ ** The XmlRecorder provides a mechanism for recording spikes history,
+ ** and compile history information on xml file:
  ** 	(1) individual neuron's spike rate in epochs,
  **	(2) burstiness index data in 1s bins,
  **     (3) network wide spike count in 10ms bins.
@@ -28,26 +28,16 @@
 
 #pragma once
 
-#include "Hdf5Recorder.h""
+#include "IRecorder.h"
 #include "Model.h"
-#include "H5Cpp.h"
+#include <fstream>
 
-#ifndef H5_NO_NAMESPACE
-    using namespace H5;
-#endif
-
-#ifdef SINGLEPRECISION
-#define H5_FLOAT PredType::NATIVE_FLOAT
-#else
-#define H5_FLOAT PredType::NATIVE_DOUBLE
-#endif
-
-class Hdf5GrowthRecorder : public Hdf5Recorder
+class XmlRecorder : public IRecorder
 {
 public:
     //! THe constructor and destructor
-    Hdf5GrowthRecorder(IModel *model, SimulationInfo* sim_info);
-    ~Hdf5GrowthRecorder();
+    XmlRecorder(IModel *model, SimulationInfo* sim_info);
+    ~XmlRecorder();
 
     /**
      * Initialize data
@@ -81,22 +71,28 @@ public:
      */
     virtual void compileHistories(AllNeurons &neurons);
 
-protected:
-    virtual void initDataSet();
-
     /**
-     * Incrementaly write radii and rates histories
-     */
-    void writeRadiiRates();
+     * Save current simulation state to XML
+     * @param  neurons the Neuron list to search from.
+     **/
+    virtual void saveSimState(const AllNeurons &neurons);
 
-    // hdf5 file dataset
-    DataSet* dataSetRatesHist;
-    DataSet* dataSetRadiiHist;
+protected:
+    void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info);
 
-    // track radii
-    BGFLOAT* radiiHistory;
+    // a file stream for xml output
+    ofstream stateOut;
 
-    // track firing rate
-    BGFLOAT* ratesHistory;
+    // burstiness Histogram goes through the
+    VectorMatrix burstinessHist;
+
+    // spikes history - history of accumulated spikes count of all neurons (10 ms bin)
+    VectorMatrix spikesHistory;
+
+    // Struct that holds information about a simulation
+    SimulationInfo *m_sim_info;
+
+    // TODO comment
+    Model *m_model;
 };
 

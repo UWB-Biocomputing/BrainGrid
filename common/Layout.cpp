@@ -5,7 +5,8 @@
 const bool Layout::STARTER_FLAG(true);
 
 Layout::Layout() :
-    m_fixed_layout(false)
+    m_fixed_layout(false),
+    m_grid_layout(true)
 {
     xloc = NULL;
     yloc = NULL;
@@ -333,3 +334,20 @@ synapseType Layout::synType(const int src_neuron, const int dest_neuron)
     return STYPE_UNDEF;
 }
 
+void Layout::initNeuronsLocs(const SimulationInfo *sim_info)
+{
+    int num_neurons = sim_info->totalNeurons;
+
+    // Initialize neuron locations
+    if (m_grid_layout) {
+        for (int i = 0; i < num_neurons; i++) {
+            (*xloc)[i] = i % sim_info->width;
+            (*yloc)[i] = i / sim_info->width;
+        }
+    } else {
+        for (int i = 0; i < num_neurons; i++) {
+            (*xloc)[i] = rng.inRange(0, sim_info->width);
+            (*yloc)[i] = rng.inRange(0, sim_info->height);
+        }
+    }
+}
