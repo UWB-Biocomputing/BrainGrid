@@ -22,9 +22,11 @@ public class ConfigDatum {
     public static final int TAB_TYPE = 1;
     public static final int SUBHEAD_TYPE = 2;
     public static final int PARAM_TYPE = 3;
+    public static final int TAB_END = 4;
+    public static final int SUBHEAD_END = 5;
 
     //Specific attribute tags
-    private static final String LABEL_TAG = "label";
+    private static final String LABEL_TAG = "name";
     private static final String FILE_CHOOSER_TAG = "fileChooser";
 
     private int datumType;
@@ -34,23 +36,35 @@ public class ConfigDatum {
 
     public ConfigDatum(Node element, int datumType) {
         //Check whether datum type is valid
-        if (datumType < NULL_TYPE || datumType > PARAM_TYPE) {
+        if (datumType < NULL_TYPE || datumType > SUBHEAD_END) {
             this.datumType = NULL_TYPE;
         } else {
             this.datumType = datumType;
         }
-
-        tagName = element.getNodeName();
-        content = element.getTextContent();
         attributes = new HashMap<>();
-
-        NamedNodeMap nodes = element.getAttributes();
-        if (nodes != null) {
-            Node node;
-            for (int i = 0, im = nodes.getLength(); i < im; i++) {
-                node = nodes.item(i);
-                attributes.put(node.getNodeName(), node.getNodeValue());
+        
+        if (element != null) {
+            tagName = element.getNodeName();
+            
+            if (this.datumType == PARAM_TYPE) {
+                content = element.getTextContent();
             }
+            else {
+                content = null;
+            }
+
+            NamedNodeMap nodes = element.getAttributes();
+            if (nodes != null) {
+                Node node;
+                for (int i = 0, im = nodes.getLength(); i < im; i++) {
+                    node = nodes.item(i);
+                    attributes.put(node.getNodeName(), node.getNodeValue());
+                }
+            }
+        }
+        else {
+            tagName = "EmptyNode";
+            content = null;
         }
     }
 
@@ -130,10 +144,10 @@ public class ConfigDatum {
      * @param doc Document
      * @return this datum as an element
      */
-    public Node getElement(Document doc) {
+    public Element getElement(Document doc) {
         Element e = doc.createElement(tagName);
         Set<String> keys = attributes.keySet();
-
+        
         for (String key : keys) {
             e.setAttribute(key, attributes.get(key));
         }

@@ -6,6 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -48,7 +54,7 @@ public class SimulationConfiguration {
         doc.getDocumentElement().normalize();
         Element root = doc.getDocumentElement();
         
-        configData = new ArrayList<ConfigDatum>();
+        configData = new ArrayList<>();
         configData.add(new ConfigDatum(root, ConfigDatum.NULL_TYPE));
 
         NodeList tabs = root.getChildNodes();
@@ -84,16 +90,86 @@ public class SimulationConfiguration {
                         } else {
                             configData.add(new ConfigDatum(tabChild, ConfigDatum.PARAM_TYPE));
                         }
+                        configData.add(new ConfigDatum(null, ConfigDatum.SUBHEAD_END));
                     }
                 }
+                configData.add(new ConfigDatum(null, ConfigDatum.TAB_END));
             }
         }
 
         return this;
     }
 
-    // TO DO!!!!!
-    public String persist() {
+    // TO DO - INCLUDE CHECKS ON THE FILENAME
+    public String persist(String projectFilename) throws ParserConfigurationException, TransformerException {
+        // Build New XML Document
+        Document doc = DocumentBuilderFactory.newInstance().
+                newDocumentBuilder().newDocument();
+        
+        //Add the root
+        Element root = configData.get(0).getElement(doc);
+        doc.appendChild(root);
+        
+        //Underlying structure to build document
+        Element currentTab = null;
+        Element currentSubhead = null;
+        Element currentElement = null;
+        ConfigDatum datum;
+        int datumType;
+        
+        for (int index = 1, im = configData.size(); index < im; index++) {
+            datum = configData.get(index);
+            datumType = datum.getDatumType();
+            currentElement = datum.getElement(doc);
+            if (datumType == ConfigDatum.TAB_TYPE) {
+                //Append this to root
+                root.appendChild(currentElement);
+                currentTab = currentElement;
+                currentSubhead = null;
+            }
+            else if (datumType == ConfigDatum.TAB_END) {
+                currentTab = null;
+                currentSubhead = null;
+            }
+            else if (datumType == ConfigDatum.SUBHEAD_TYPE) {
+                //Append this to most recent tab
+                if (currentTab != null) {
+                    currentTab.appendChild(currentElement);
+                    currentSubhead = currentElement;
+                }
+                else {
+                    root.appendChild(currentElement);
+                }
+            }
+            else if (datumType == ConfigDatum.SUBHEAD_END)  {
+                currentSubhead = null;
+            }
+            else if (datumType == ConfigDatum.PARAM_TYPE) {
+                //Append this to most recent subhead if it exists, to the tab otherwise
+                if (currentSubhead != null) {
+                    currentSubhead.appendChild(currentElement);
+                }
+                else if (currentTab != null) {
+                    currentTab.appendChild(currentElement);
+                }
+                else {
+                    root.appendChild(currentElement);
+                }
+            }
+            else {
+                //Append this to root
+                root.appendChild(currentElement);
+            }
+        }
+        
+        // create the file we want to save
+        File projectFile = new File(projectFilename);
+
+        // write the content into xml file
+        Transformer t = TransformerFactory.newInstance().newTransformer();
+        t.setOutputProperty(OutputKeys.INDENT, "yes");
+        t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+        t.transform(new DOMSource(doc), new StreamResult(projectFile));
         return null;
     }
 
@@ -112,13 +188,14 @@ public class SimulationConfiguration {
     }
 
     public static void main(String args[]) {
-        String filename = "C:\\Users\\Aaron\\Desktop\\SimulationConfigurationTest.xml";
+        String readFile = "C:\\Users\\Aaron\\Desktop\\SimulationConfigurationTest.xml";
+        String persistFile = "C:\\Users\\Aaron\\Desktop\\SimConfigOutput.xml";
         SimulationConfiguration simConfig = null;
         try {
-            simConfig = new SimulationConfiguration(filename);
+            simConfig = new SimulationConfiguration(readFile);
+            //persist(persistFile);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        simConfig.persist();
     }
 }
