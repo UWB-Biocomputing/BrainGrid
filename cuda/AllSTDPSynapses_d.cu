@@ -51,6 +51,7 @@ void AllSTDPSynapses::allocDeviceStruct( AllSTDPSynapses &allSynapses, int num_n
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.Apos, max_total_synapses * sizeof( BGFLOAT ) ) );
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.mupos, max_total_synapses * sizeof( BGFLOAT ) ) );
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.muneg, max_total_synapses * sizeof( BGFLOAT ) ) );
+        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.useFroemkeDanSTDP, max_total_synapses * sizeof( bool ) ) );
 }
 
 void AllSTDPSynapses::deleteSynapseDeviceStruct( void* allSynapsesDevice ) {
@@ -91,6 +92,7 @@ void AllSTDPSynapses::deleteDeviceStruct( AllSTDPSynapses& allSynapses ) {
         HANDLE_ERROR( cudaFree( allSynapses.Apos ) );
         HANDLE_ERROR( cudaFree( allSynapses.mupos ) );
         HANDLE_ERROR( cudaFree( allSynapses.muneg ) );
+        HANDLE_ERROR( cudaFree( allSynapses.useFroemkeDanSTDP ) );
 }
 
 void AllSTDPSynapses::copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info ) { // copy everything necessary
@@ -165,6 +167,8 @@ void AllSTDPSynapses::copyHostToDevice( void* allSynapsesDevice, AllSTDPSynapses
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
         HANDLE_ERROR( cudaMemcpy ( allSynapses.muneg, muneg,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
+        HANDLE_ERROR( cudaMemcpy ( allSynapses.useFroemkeDanSTDP, useFroemkeDanSTDP,
+                max_total_synapses * sizeof( bool ), cudaMemcpyHostToDevice ) ); 
 }
 
 void AllSTDPSynapses::copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info ) {
@@ -237,6 +241,8 @@ void AllSTDPSynapses::copyDeviceToHost( AllSTDPSynapses& allSynapses, const Simu
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
         HANDLE_ERROR( cudaMemcpy ( muneg, allSynapses.muneg,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+        HANDLE_ERROR( cudaMemcpy ( useFroemkeDanSTDP, allSynapses.useFroemkeDanSTDP,
+                max_total_synapses * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 }
 
 /**
@@ -386,22 +392,19 @@ __device__ void createSynapse(AllSTDPSynapses* allSynapsesDevice, const int neur
     allSynapsesDevice->Aneg[iSyn] = -0.5;
     allSynapsesDevice->STDPgap[iSyn] = 2e-3;
 
-/* TODO: these values need to be initialized
-    total_delayPost = 0;
-    delayQueuePost = 0;
-    delayIdxPost = 0;
-    ldelayQueuePost = 0;
-    tauspost = 0;
-    tauspre = 0;
-    taupos = 0;
-    tauneg = 0;
-    STDPgap = 0;
-    Wex = 0;
-    Aneg = 0;
-    Apos = 0;
-    mupos = 0;
-    muneg = 0;
-*/
+    allSynapsesDevice->total_delayPost[iSyn] = 0;
+
+    allSynapsesDevice->tauspost[iSyn] = 0;
+    allSynapsesDevice->tauspre[iSyn] = 0;
+
+    allSynapsesDevice->taupos[iSyn] = 15e-3;
+    allSynapsesDevice->tauneg[iSyn] = 35e-3;
+    allSynapsesDevice->Wex[iSyn] = 1.0;
+
+    allSynapsesDevice->mupos[iSyn] = 0;
+    allSynapsesDevice->muneg[iSyn] = 0;
+
+    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
 }
 
 /**
@@ -430,36 +433,47 @@ __global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMa
         BGFLOAT &taupos = allSynapsesDevice->taupos[iSyn];
         BGFLOAT &tauneg = allSynapsesDevice->tauneg[iSyn];
         int &total_delay = allSynapsesDevice->total_delay[iSyn];
+        bool &useFroemkeDanSTDP = allSynapsesDevice->useFroemkeDanSTDP[iSyn];
 
         // pre and post neurons index
         int idxPre = allSynapsesDevice->sourceNeuronIndex[iSyn];
         int idxPost = allSynapsesDevice->destNeuronIndex[iSyn];
-        uint64_t spikeHistory, spikeHistory2;
+        int64_t spikeHistory, spikeHistory2;
         BGFLOAT delta;
         BGFLOAT epre, epost;
 
         if (fPre) {     // preSpikeHit
+            // spikeCount points to the next available position of spike_history,
+            // so the getSpikeHistory w/offset = -2 will return the spike time 
+            // just one before the last spike.
             spikeHistory = getSpikeHistoryDevice(allNeuronsDevice, idxPre, -2, max_spikes);
-            if (spikeHistory > 0) {
-                delta = (simulationStep - spikeHistory) * deltaT;
+            if (spikeHistory > 0 && useFroemkeDanSTDP) {
+                // delta will include the transmission delay
+                delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
                 epre = 1.0 - exp(-delta / tauspre);
             } else {
                 epre = 1.0;
             }
 
-            int offIndex = -1;
+            // call the learning function stdpLearning() for each pair of
+            // pre-post spikes
+            int offIndex = -1;	// last spike
             while (true) {
                 spikeHistory = getSpikeHistoryDevice(allNeuronsDevice, idxPost, offIndex, max_spikes);
-                if (spikeHistory <= 0)
+                if (spikeHistory == ULONG_MAX)
                     break;
-                delta = (spikeHistory - simulationStep) * deltaT;
+                // delta is the spike interval between pre-post spikes
+                delta = (spikeHistory - (int64_t)simulationStep) * deltaT;
                 if (delta <= -3.0 * tauneg)
                     break;
-                spikeHistory2 = getSpikeHistoryDevice(allNeuronsDevice, idxPost, offIndex-1, max_spikes);
-                if (spikeHistory2 <= 0)
-                    break;
-                delta = (spikeHistory - spikeHistory2) * deltaT;
-                epost = 1.0 - exp(-delta / tauspost);
+                if (useFroemkeDanSTDP) {
+                    spikeHistory2 = getSpikeHistoryDevice(allNeuronsDevice, idxPost, offIndex-1, max_spikes);
+                    if (spikeHistory2 == ULONG_MAX)
+                        break;
+                    epost = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspost);
+                } else {
+                    epost = 1.0;
+                }
                 stdpLearningDevice(allSynapsesDevice, iSyn, delta, epost, epre);
                 --offIndex;
             }
@@ -468,27 +482,37 @@ __global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMa
         }
 
         if (fPost) {    // postSpikeHit
+            // spikeCount points to the next available position of spike_history,
+            // so the getSpikeHistory w/offset = -2 will return the spike time
+            // just one before the last spike.
             spikeHistory = getSpikeHistoryDevice(allNeuronsDevice, idxPost, -2, max_spikes);
-            if (spikeHistory > 0) {
-                delta = (simulationStep - spikeHistory) * deltaT;
+            if (spikeHistory > 0 && useFroemkeDanSTDP) {
+                // delta will include the transmission delay
+                delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
                 epost = 1.0 - exp(-delta / tauspost);
             } else {
                 epost = 1.0;
             }
 
-            int offIndex = -1;
+            // call the learning function stdpLearning() for each pair of
+            // post-pre spikes
+            int offIndex = -1;	// last spike
             while (true) {
                 spikeHistory = getSpikeHistoryDevice(allNeuronsDevice, idxPre, offIndex, max_spikes);
-                if (spikeHistory <= 0)
+                if (spikeHistory == ULONG_MAX)
                     break;
-                delta = (spikeHistory - simulationStep) * deltaT - total_delay;
+                // delta is the spike interval between post-pre spikes
+                delta = ((int64_t)spikeHistory - simulationStep - total_delay) * deltaT;
                 if (delta <= 0 || delta >= 3.0 * taupos)
                     break;
-                spikeHistory2 = getSpikeHistoryDevice(allNeuronsDevice, idxPre, offIndex-1, max_spikes);
-                if (spikeHistory2 <= 0)
-                    break;
-                delta = (spikeHistory - spikeHistory2) * deltaT;
-                epre = 1.0 - exp(-delta / tauspre);
+                if (useFroemkeDanSTDP) {
+                    spikeHistory2 = getSpikeHistoryDevice(allNeuronsDevice, idxPre, offIndex-1, max_spikes);
+                    if (spikeHistory2 == ULONG_MAX)
+                        break;
+                    epre = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspre);
+                } else {
+                    epre = 1.0;
+                }
                 stdpLearningDevice(allSynapsesDevice, iSyn, delta, epost, epre);
                 --offIndex;
             }

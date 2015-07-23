@@ -17,6 +17,7 @@ AllSTDPSynapses::AllSTDPSynapses() : AllSpikingSynapses()
     Apos = NULL;
     mupos = NULL;
     muneg = NULL;
+    useFroemkeDanSTDP = NULL;
 }
 
 AllSTDPSynapses::AllSTDPSynapses(const int num_neurons, const int max_synapses) :
@@ -56,6 +57,7 @@ void AllSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapse
         Apos = new BGFLOAT[max_total_synapses];
         mupos = new BGFLOAT[max_total_synapses];
         muneg = new BGFLOAT[max_total_synapses];
+        useFroemkeDanSTDP = new bool[max_total_synapses];
     }
 }
 
@@ -78,6 +80,7 @@ void AllSTDPSynapses::cleanupSynapses()
         delete[] Apos;
         delete[] mupos;
         delete[] muneg;
+        delete[] useFroemkeDanSTDP;
     }
 
     total_delayPost = NULL;
@@ -94,6 +97,7 @@ void AllSTDPSynapses::cleanupSynapses()
     Apos = NULL;
     mupos = NULL;
     muneg = NULL;
+    useFroemkeDanSTDP = NULL;
 
     AllSpikingSynapses::cleanupSynapses();
 }
@@ -142,6 +146,7 @@ void AllSTDPSynapses::readSynapse(istream &input, const uint32_t iSyn)
     input >> Apos[iSyn]; input.ignore();
     input >> mupos[iSyn]; input.ignore();
     input >> muneg[iSyn]; input.ignore();
+    input >> useFroemkeDanSTDP[iSyn]; input.ignore();
 }
 
 /**
@@ -167,6 +172,7 @@ void AllSTDPSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const
     output << Apos[iSyn] << ends;
     output << mupos[iSyn] << ends;
     output << muneg[iSyn] << ends;
+    output << useFroemkeDanSTDP[iSyn] << ends;
 }
 
 /**
@@ -197,22 +203,19 @@ void AllSTDPSynapses::createSynapse(const uint32_t iSyn, int source_index, int d
     Aneg[iSyn] = -0.5;
     STDPgap[iSyn] = 2e-3;
 
-/* TODO: these values need to be initialized
-    total_delayPost = 0;
-    delayQueuePost = 0;
-    delayIdxPost = 0;
-    ldelayQueuePost = 0;
-    tauspost = 0;
-    tauspre = 0;
-    taupos = 0;
-    tauneg = 0;
-    STDPgap = 0;
-    Wex = 0;
-    Aneg = 0;
-    Apos = 0;
-    mupos = 0;
-    muneg = 0;
-*/
+    total_delayPost[iSyn] = 0;
+
+    tauspost[iSyn] = 0;
+    tauspre[iSyn] = 0;
+
+    taupos[iSyn] = 15e-3;
+    tauneg[iSyn] = 35e-3;
+    Wex[iSyn] = 1.0;
+
+    mupos[iSyn] = 0;
+    muneg[iSyn] = 0;
+
+    useFroemkeDanSTDP[iSyn] = false;
 }
 
 #if !defined(USE_GPU)
@@ -236,6 +239,7 @@ void AllSTDPSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInfo *
         BGFLOAT &taupos = this->taupos[iSyn];
         BGFLOAT &tauneg = this->tauneg[iSyn];
         int &total_delay = this->total_delay[iSyn];
+        bool &useFroemkeDanSTDP = this->useFroemkeDanSTDP[iSyn];
 
         BGFLOAT deltaT = sim_info->deltaT;
         AllSpikingNeurons* spNeurons = dynamic_cast<AllSpikingNeurons*>(neurons);
@@ -243,32 +247,43 @@ void AllSTDPSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInfo *
         // pre and post neurons index
         int idxPre = sourceNeuronIndex[iSyn];
         int idxPost = destNeuronIndex[iSyn];
-        uint64_t spikeHistory, spikeHistory2;
+        int64_t spikeHistory, spikeHistory2;
         BGFLOAT delta;
         BGFLOAT epre, epost;
 
         if (fPre) {	// preSpikeHit
+            // spikeCount points to the next available position of spike_history,
+            // so the getSpikeHistory w/offset = -2 will return the spike time 
+            // just one before the last spike.
             spikeHistory = spNeurons->getSpikeHistory(idxPre, -2, sim_info);
-            if (spikeHistory > 0) {
-                delta = (g_simulationStep - spikeHistory) * deltaT;
+            if (spikeHistory > 0 && useFroemkeDanSTDP) {
+                // delta will include the transmission delay
+                delta = ((int64_t)g_simulationStep - spikeHistory) * deltaT;
                 epre = 1.0 - exp(-delta / tauspre);
             } else {
                 epre = 1.0;
             }
 
-            int offIndex = -1;
+            // call the learning function stdpLearning() for each pair of
+            // pre-post spikes
+            int offIndex = -1;	// last spike
             while (true) {
                 spikeHistory = spNeurons->getSpikeHistory(idxPost, offIndex, sim_info);
-                if (spikeHistory <= 0)
+                if (spikeHistory == ULONG_MAX)
                     break;
-                delta = (spikeHistory - g_simulationStep) * deltaT;
+                // delta is the spike interval between pre-post spikes
+                // (include pre-synaptic transmission delay)
+                delta = (spikeHistory - (int64_t)g_simulationStep) * deltaT;
                 if (delta <= -3.0 * tauneg)
                     break;
-                spikeHistory2 = spNeurons->getSpikeHistory(idxPost, offIndex-1, sim_info);
-                if (spikeHistory2 <= 0)
-                    break;
-                delta = (spikeHistory - spikeHistory2) * deltaT;
-                epost = 1.0 - exp(-delta / tauspost);
+                if (useFroemkeDanSTDP) {
+                    spikeHistory2 = spNeurons->getSpikeHistory(idxPost, offIndex-1, sim_info);
+                    if (spikeHistory2 == ULONG_MAX)
+                        break;
+                    epost = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspost);
+                } else {
+                    epost = 1.0;
+                }
                 stdpLearning(iSyn, delta, epost, epre);
                 --offIndex;
             }
@@ -277,27 +292,37 @@ void AllSTDPSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInfo *
         }
 
         if (fPost) {	// postSpikeHit
+            // spikeCount points to the next available position of spike_history,
+            // so the getSpikeHistory w/offset = -2 will return the spike time
+            // just one before the last spike.
             spikeHistory = spNeurons->getSpikeHistory(idxPost, -2, sim_info);
-            if (spikeHistory > 0) {
-                delta = (g_simulationStep - spikeHistory) * deltaT;
+            if (spikeHistory > 0 && useFroemkeDanSTDP) {
+                // delta will include the transmission delay
+                delta = ((int64_t)g_simulationStep - spikeHistory) * deltaT;
                 epost = 1.0 - exp(-delta / tauspost);
             } else {
                 epost = 1.0;
             }
 
-            int offIndex = -1;
+            // call the learning function stdpLearning() for each pair of
+            // post-pre spikes
+            int offIndex = -1;	// last spike
             while (true) {
                 spikeHistory = spNeurons->getSpikeHistory(idxPre, offIndex, sim_info);
-                if (spikeHistory <= 0)
+                if (spikeHistory == ULONG_MAX)
                     break;
-                delta = (spikeHistory - g_simulationStep) * deltaT - total_delay;
+                // delta is the spike interval between post-pre spikes
+                delta = ((int64_t)g_simulationStep - spikeHistory - total_delay) * deltaT;
                 if (delta <= 0 || delta >= 3.0 * taupos)
                     break;
-                spikeHistory2 = spNeurons->getSpikeHistory(idxPre, offIndex-1, sim_info);
-                if (spikeHistory2 <= 0)
-                    break;                
-                delta = (spikeHistory - spikeHistory2) * deltaT;
-                epre = 1.0 - exp(-delta / tauspre);
+                if (useFroemkeDanSTDP) {
+                    spikeHistory2 = spNeurons->getSpikeHistory(idxPre, offIndex-1, sim_info);
+                    if (spikeHistory2 == ULONG_MAX)
+                        break;                
+                    epre = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspre);
+                } else {
+                    epre = 1.0;
+                }
                 stdpLearning(iSyn, delta, epost, epre);
                 --offIndex;
             }

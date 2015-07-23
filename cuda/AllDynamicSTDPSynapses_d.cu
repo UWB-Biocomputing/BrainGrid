@@ -270,22 +270,19 @@ __device__ void createSynapse(AllDynamicSTDPSynapses* allSynapsesDevice, const i
     allSynapsesDevice->Aneg[iSyn] = -0.5;
     allSynapsesDevice->STDPgap[iSyn] = 2e-3;
 
-/* TODO: these values need to be initialized
-    total_delayPost = 0;
-    delayQueuePost = 0;
-    delayIdxPost = 0;
-    ldelayQueuePost = 0;
-    tauspost = 0;
-    tauspre = 0;
-    taupos = 0;
-    tauneg = 0;
-    STDPgap = 0;
-    Wex = 0;
-    Aneg = 0;
-    Apos = 0;
-    mupos = 0;
-    muneg = 0;
-*/
+    allSynapsesDevice->total_delayPost[iSyn] = 0;
+
+    allSynapsesDevice->tauspost[iSyn] = 0;
+    allSynapsesDevice->tauspre[iSyn] = 0;
+
+    allSynapsesDevice->taupos[iSyn] = 15e-3;
+    allSynapsesDevice->tauneg[iSyn] = 35e-3;
+    allSynapsesDevice->Wex[iSyn] = 1.0;
+
+    allSynapsesDevice->mupos[iSyn] = 0;
+    allSynapsesDevice->muneg[iSyn] = 0;
+
+    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
 }
 
 __device__ void changePSR(AllDynamicSTDPSynapses* allSynapsesDevice, const uint32_t iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)

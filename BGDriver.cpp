@@ -17,6 +17,7 @@
 #include "AllLIFNeurons.h"
 #include "AllIZHNeurons.h"
 #include "AllDSSynapses.h"
+#include "AllSTDPSynapses.h"
 #include "XmlRecorder.h"
 #include "XmlGrowthRecorder.h"
 #ifdef USE_HDF5
@@ -85,16 +86,20 @@ bool parseCommandLine(int argc, char* argv[]);
 int main(int argc, char* argv[]) {
     // create the model
     #if defined(USE_GPU)
-	 //model = new GPUSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
+	// model = new GPUSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
 	 model = new GPUSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new GPUSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllSTDPSynapses(), new Layout());
 	 //model = new GPUSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new GPUSpikingModel(new ConnStatic(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
     #elif defined(USE_OMP)
 	 model = new SingleThreadedSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
 	 //model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
     #else
 	 //model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
 	 model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new SingleThreadedSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllSTDPSynapses(), new Layout());
 	 //model = new SingleThreadedSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new SingleThreadedSpikingModel(new ConnStatic(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
     #endif
     
     DEBUG(cout << "reading parameters from xml file" << endl;)

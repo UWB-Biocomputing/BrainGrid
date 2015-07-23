@@ -302,7 +302,7 @@ void AllIFNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Layo
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
     spike_history[neuron_index] = new uint64_t[max_spikes];
     for (int j = 0; j < max_spikes; ++j) {
-        spike_history[neuron_index][j] = -1;
+        spike_history[neuron_index][j] = ULONG_MAX;
     }
 
     switch (layout->neuron_type_map[neuron_index]) {

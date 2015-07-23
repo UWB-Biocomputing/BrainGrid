@@ -37,6 +37,27 @@
  *  Note: All GLOBAL parameters can be scalars. Also some LOCAL CONSTANT can be categorized 
  *  depending on synapse types. 
  */
+
+/** Implements the basic weight update for a time difference \f$Delta =
+t_{post}-t_{pre}\f$ with presynaptic spike at time \f$t_{pre}\f$ and
+postsynaptic spike at time \f$t_{post}\f$. Then, the weight update is given by
+\f$dw =  Apos * exp(-Delta/taupos)\f$ for \f$Delta > 0\f$, and \f$dw =  Aneg *
+exp(-Delta/tauneg)\f$ for \f$Delta < 0\f$. (set \f$useFroemkeDanSTDP=0\f$ and
+\f$mupos=muneg=0\f$ for this basic update rule).
+
+It is also possible to use an
+extended multiplicative update by changing mupos and muneg. Then \f$dw =
+(Wex-W)^{mupos} * Apos * exp(-Delta/taupos)\f$ for \f$Delta > 0\f$ and \f$dw =
+W^{mupos} * Aneg * exp(Delta/tauneg)\f$ for \f$Delta < 0\f$. (see Guetig,
+Aharonov, Rotter and Sompolinsky (2003). Learning input correlations through
+non-linear asymmetric Hebbian plasticity. Journal of Neuroscience 23.
+pp.3697-3714.)
+    
+Set \f$useFroemkeDanSTDP=1\f$ (this is the default value) and
+use \f$tauspost\f$ and \f$tauspre\f$ for the rule given in Froemke and Dan
+(2002). Spike-timing-dependent synaptic modification induced by natural spike
+trains. Nature 416 (3/2002). */
+
 #pragma once
 
 #include "AllSpikingSynapses.h"
@@ -125,6 +146,8 @@ class AllSTDPSynapses : public AllSpikingSynapses
         BGFLOAT *mupos;
 
         BGFLOAT *muneg;
+  
+        bool *useFroemkeDanSTDP;
 };
 
 #if defined(__CUDACC__)
