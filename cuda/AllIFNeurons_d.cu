@@ -124,7 +124,13 @@ void AllIFNeurons::copyHostToDevice( AllIFNeurons& allNeurons, const SimulationI
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.nStepsInRefr, nStepsInRefr, count * sizeof( int ), cudaMemcpyHostToDevice ) );
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.spikeCount, spikeCount, count * sizeof( int ), cudaMemcpyHostToDevice ) );
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.spikeCountOffset, spikeCountOffset, count * sizeof( int ), cudaMemcpyHostToDevice ) );
-	//HANDLE_ERROR( cudaMemcpy ( allNeurons.spike_history, spike_history, count * sizeof( uint64_t* ), cudaMemcpyHostToDevice ) );
+
+        int max_spikes = static_cast<int> (sim_info->epochDuration * sim_info->maxFiringRate);
+        uint64_t* pSpikeHistory[count];
+        HANDLE_ERROR( cudaMemcpy ( pSpikeHistory, allNeurons.spike_history, count * sizeof( uint64_t* ), cudaMemcpyDeviceToHost ) );
+        for (int i = 0; i < count; i++) {
+                HANDLE_ERROR( cudaMemcpy ( pSpikeHistory[i], spike_history[i], max_spikes * sizeof( uint64_t ), cudaMemcpyHostToDevice ) );
+        }
 }
 
 void AllIFNeurons::copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info ) {
@@ -156,7 +162,13 @@ void AllIFNeurons::copyDeviceToHost( AllIFNeurons& allNeurons, const SimulationI
 	HANDLE_ERROR( cudaMemcpy ( nStepsInRefr, allNeurons.nStepsInRefr, count * sizeof( int ), cudaMemcpyDeviceToHost ) );
 	HANDLE_ERROR( cudaMemcpy ( spikeCount, allNeurons.spikeCount, count * sizeof( int ), cudaMemcpyDeviceToHost ) );
 	HANDLE_ERROR( cudaMemcpy ( spikeCountOffset, allNeurons.spikeCountOffset, count * sizeof( int ), cudaMemcpyDeviceToHost ) );
-	//HANDLE_ERROR( cudaMemcpy ( spike_history, allNeurons.spike_history, count * sizeof( uint64_t* ), cudaMemcpyDeviceToHost ) );
+
+        int max_spikes = static_cast<int> (sim_info->epochDuration * sim_info->maxFiringRate);
+        uint64_t* pSpikeHistory[count];
+        HANDLE_ERROR( cudaMemcpy ( pSpikeHistory, allNeurons.spike_history, count * sizeof( uint64_t* ), cudaMemcpyDeviceToHost ) );
+        for (int i = 0; i < count; i++) {
+                HANDLE_ERROR( cudaMemcpy ( spike_history[i], pSpikeHistory[i], max_spikes * sizeof( uint64_t ), cudaMemcpyDeviceToHost ) );
+        }
 }
 
 /**

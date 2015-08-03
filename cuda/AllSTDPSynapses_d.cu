@@ -464,6 +464,17 @@ __global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMa
                     break;
                 // delta is the spike interval between pre-post spikes
                 delta = (spikeHistory - (int64_t)simulationStep) * deltaT;
+
+                DEBUG_SYNAPSE(
+                    printf("advanceSynapsesDevice: fPre\n");
+                    printf("          iSyn: %d\n", iSyn);
+                    printf("          idxPre: %d\n", idxPre);
+                    printf("          idxPost: %d\n", idxPost);
+                    printf("          spikeHistory: %d\n", spikeHistory);
+                    printf("          simulationStep: %d\n", simulationStep);
+                    printf("          delta: %f\n\n", delta);
+                );
+
                 if (delta <= -3.0 * tauneg)
                     break;
                 if (useFroemkeDanSTDP) {
@@ -502,7 +513,18 @@ __global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMa
                 if (spikeHistory == ULONG_MAX)
                     break;
                 // delta is the spike interval between post-pre spikes
-                delta = ((int64_t)spikeHistory - simulationStep - total_delay) * deltaT;
+                delta = ((int64_t)simulationStep - spikeHistory - total_delay) * deltaT;
+
+                DEBUG_SYNAPSE(
+                    printf("advanceSynapsesDevice: fPost\n");
+                    printf("          iSyn: %d\n", iSyn);
+                    printf("          idxPre: %d\n", idxPre);
+                    printf("          idxPost: %d\n", idxPost);
+                    printf("          spikeHistory: %d\n", spikeHistory);
+                    printf("          simulationStep: %d\n", simulationStep);
+                    printf("          delta: %f\n\n", delta);
+                );
+
                 if (delta <= 0 || delta >= 3.0 * taupos)
                     break;
                 if (useFroemkeDanSTDP) {
@@ -553,6 +575,16 @@ __device__ void stdpLearningDevice(AllSTDPSynapses* allSynapsesDevice, const uin
 
     // check for greater Wmax
     if (fabs(W) > fabs(Wex)) W = Wex;
+
+    DEBUG_SYNAPSE(
+        printf("AllSTDPSynapses::stdpLearning:\n");
+        printf("          iSyn: %d\n", iSyn);
+        printf("          delta: %f\n", delta);
+        printf("          epre: %f\n", epre);
+        printf("          epost: %f\n", epost);
+        printf("          dw: %f\n", dw);
+        printf("          W: %f\n\n", W);
+    );
 }
 
 __device__ bool isSpikeQueuePostDevice(AllSTDPSynapses* allSynapsesDevice, uint32_t iSyn)

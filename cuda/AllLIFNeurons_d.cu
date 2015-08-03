@@ -69,6 +69,12 @@ __global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int max
                 allNeuronsDevice->spike_history[idx][idxSp] = simulationStep;
                 spikeCount++;
 
+                DEBUG_SYNAPSE(
+                    printf("advanceNeuronsDevice\n");
+                    printf("          index: %d\n", idx);
+                    printf("          simulationStep: %d\n\n", simulationStep);
+                );
+
                 // calculate the number of steps in the absolute refractory period
                 allNeuronsDevice->nStepsInRefr[idx] = static_cast<int> ( allNeuronsDevice->Trefract[idx] / deltaT + 0.5 );
 

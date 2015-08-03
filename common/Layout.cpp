@@ -233,6 +233,7 @@ void Layout::generateNeuronTypeMap(int num_neurons)
         DEBUG(cout << "Excitatory Neurons: " << num_excititory_neurons << endl;)
 
         for (int i = 0; i < num_inhibitory_neurons; i++) {
+            assert(m_inhibitory_neuron_layout.at(i) < num_neurons);
             neuron_type_map[m_inhibitory_neuron_layout.at(i)] = INH;
         }
     } else {
@@ -287,6 +288,7 @@ void Layout::initStarterMap(const int num_neurons)
     if (m_fixed_layout) {
         size_t num_endogenously_active_neurons = m_endogenously_active_neuron_list.size();
         for (size_t i = 0; i < num_endogenously_active_neurons; i++) {
+            assert(m_endogenously_active_neuron_list.at(i) < num_neurons);
             starter_map[m_endogenously_active_neuron_list.at(i)] = true;
         }
     } else {

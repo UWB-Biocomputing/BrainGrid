@@ -199,6 +199,9 @@ void Model::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
     createAllNeurons(sim_info);
 
     m_conns->setupConnections(sim_info, m_layout, m_neurons, m_synapses);
+
+    // create a synapse index map 
+    createSynapseImap(*m_synapses, sim_info);
 }
 
 /**

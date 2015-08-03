@@ -142,6 +142,12 @@ void AllSpikingNeurons::fire(const int index, const SimulationInfo *sim_info) co
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
     int idxSp = (spikeCount[index] + spikeCountOffset[index]) % max_spikes;
     spike_history[index][idxSp] = g_simulationStep;
+
+    DEBUG_SYNAPSE(
+        cout << "AllSpikingNeurons::fire:" << endl;
+        cout << "          index: " << index << endl;
+        cout << "          g_simulationStep: " << g_simulationStep << endl << endl;
+    );
     
     // increment spike count and total spike count
     spikeCount[index]++;

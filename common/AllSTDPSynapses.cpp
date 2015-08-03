@@ -274,6 +274,17 @@ void AllSTDPSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInfo *
                 // delta is the spike interval between pre-post spikes
                 // (include pre-synaptic transmission delay)
                 delta = (spikeHistory - (int64_t)g_simulationStep) * deltaT;
+
+                DEBUG_SYNAPSE(
+                    cout << "AllSTDPSynapses::advanceSynapse: fPre" << endl;
+                    cout << "          iSyn: " << iSyn << endl;
+                    cout << "          idxPre: " << idxPre << endl;
+                    cout << "          idxPost: " << idxPost << endl;
+                    cout << "          spikeHistory: " << spikeHistory << endl;
+                    cout << "          g_simulationStep: " << g_simulationStep << endl;
+                    cout << "          delta: " << delta << endl << endl;
+                );
+
                 if (delta <= -3.0 * tauneg)
                     break;
                 if (useFroemkeDanSTDP) {
@@ -313,6 +324,17 @@ void AllSTDPSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInfo *
                     break;
                 // delta is the spike interval between post-pre spikes
                 delta = ((int64_t)g_simulationStep - spikeHistory - total_delay) * deltaT;
+
+                DEBUG_SYNAPSE(
+                    cout << "AllSTDPSynapses::advanceSynapse: fPost" << endl;
+                    cout << "          iSyn: " << iSyn << endl;
+                    cout << "          idxPre: " << idxPre << endl;
+                    cout << "          idxPost: " << idxPost << endl;
+                    cout << "          spikeHistory: " << spikeHistory << endl;
+                    cout << "          g_simulationStep: " << g_simulationStep << endl;
+                    cout << "          delta: " << delta << endl << endl;
+                );
+
                 if (delta <= 0 || delta >= 3.0 * taupos)
                     break;
                 if (useFroemkeDanSTDP) {
@@ -372,6 +394,16 @@ void AllSTDPSynapses::stdpLearning(const uint32_t iSyn, double delta, double epo
 
     // check for greater Wmax
     if (fabs(W) > fabs(Wex)) W = Wex;
+
+    DEBUG_SYNAPSE(
+        cout << "AllSTDPSynapses::stdpLearning:" << endl;
+        cout << "          iSyn: " << iSyn << endl;
+        cout << "          delta: " << delta << endl;
+        cout << "          epre: " << epre << endl;
+        cout << "          epost: " << epost << endl;
+        cout << "          dw: " << dw << endl;
+        cout << "          W: " << W << endl << endl;
+    );
 }
 
 /**

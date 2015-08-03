@@ -88,11 +88,12 @@ int main(int argc, char* argv[]) {
     #if defined(USE_GPU)
 	// model = new GPUSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
 	 model = new GPUSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new GPUSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllSTDPSynapses(), new Layout());
 	 //model = new GPUSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllSTDPSynapses(), new Layout());
 	 //model = new GPUSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
 	 //model = new GPUSpikingModel(new ConnStatic(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
     #elif defined(USE_OMP)
-	 model = new SingleThreadedSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
+	 //model = new SingleThreadedSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
 	 //model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
     #else
 	 //model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());

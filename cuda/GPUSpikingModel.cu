@@ -28,6 +28,8 @@ float g_time;
 cudaEvent_t start, stop;
 #endif // PERFORMANCE_METRICS
 
+__constant__ int d_debug_mask[1];
+
 // ----------------------------------------------------------------------------
 
 GPUSpikingModel::GPUSpikingModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout) : 	
@@ -96,6 +98,9 @@ void GPUSpikingModel::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
     // Set device ID
     HANDLE_ERROR( cudaSetDevice( g_deviceId ) );
 
+    // Set DEBUG flag
+    HANDLE_ERROR( cudaMemcpyToSymbol (d_debug_mask, &g_debug_mask, sizeof(int) ) );
+
     Model::setupSim(sim_info, simRecorder);
 
     //initialize Mersenne Twister
@@ -124,6 +129,9 @@ void GPUSpikingModel::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
     setSynapseSummationPointDevice <<< blocksPerGrid, threadsPerBlock >>> (neuron_count, m_allNeuronsDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron, sim_info->width);
+
+    // copy inverse map to the device memory
+    copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons, m_synapses->total_synapse_counts);
 }
 
 /** 
