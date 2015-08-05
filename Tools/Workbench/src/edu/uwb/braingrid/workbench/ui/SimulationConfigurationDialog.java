@@ -2,34 +2,55 @@ package edu.uwb.braingrid.workbench.ui;
 
 import edu.uwb.braingrid.simconfig.model.ConfigDatum;
 import edu.uwb.braingrid.simconfig.model.SimulationConfiguration;
+import edu.uwb.braingrid.workbench.FileManager;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
-//extends javax.swing.JDialog
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
 /**
  *
  * @author Aaron
  */
-public class SimulationConfigurationDialog {
+public class SimulationConfigurationDialog extends javax.swing.JDialog {
     
-    private JFrame window;  ///////////////////////////////////////////////////////
     private String projectName;
+    
+    
     private JTabbedPane tabs;
     private List<JTextField> fields;
+    private JButton cancelButton;
+    private JButton okButton;
+    private JButton buildButton;
+    private JTextField configFilename_textField;
+    private JLabel configFilename_label;
+    private JSeparator jSeparator1;
+    private JLabel messageLabel;
+    private JLabel messageLabelText;
     
+    /**
+     * Constructor creates a new dialog box
+     * @param projectName
+     * @param modal
+     * @param configFilename
+     * @param simConfig 
+     */
     public SimulationConfigurationDialog(String projectName, boolean modal,
             String configFilename, SimulationConfiguration simConfig) {
         initComponents(simConfig);
-        //setModal(modal);
+        setModal(modal);
         this.projectName = projectName;
         
         // show window center-screen
-        //pack();
-        //center();
-        //setSize(new Dimension(400, 800));
-        //setVisible(true);
+        pack();
+        center();
+        //setSize(new Dimension(600, 600));
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setVisible(true);
     }
     
     // TO DO - CHECK IF THE FIRST IF STATEMENT CAN BE IMPROVED
@@ -37,7 +58,6 @@ public class SimulationConfigurationDialog {
         if (simConfig == null) {
             return;
         }
-        window = new JFrame("TESTING"); /////////////////////////////////////////////
         fields = new ArrayList<>();
         tabs = new JTabbedPane();
         String nextTabName = "";
@@ -50,23 +70,36 @@ public class SimulationConfigurationDialog {
         String labelText;
         JScrollPane scrollPane;
         
+        cancelButton = new javax.swing.JButton();
+        okButton = new javax.swing.JButton();
+        buildButton = new javax.swing.JButton();
+        configFilename_textField = new javax.swing.JTextField();
+        configFilename_label = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        messageLabel = new javax.swing.JLabel();
+        messageLabelText = new javax.swing.JLabel();
+        
         int datumType;
         int index = 0;
         ConfigDatum datum = simConfig.getDatum(index);
         
+        //For each datum that the simConfig contains, create its relevant component
         while (datum != null) {
             datumType = datum.getDatumType();
             labelText = datum.getLabel();
+            //If there is no label, get the tag name instead
             if (labelText == null) {
                 labelText = datum.getName();
             }
             
+            //If a tab type, create new tab
             if (datumType == ConfigDatum.TAB_TYPE) {
                nextTabName = labelText;
                contentPanel = new JPanel();
                contentLayout = new BoxLayout(contentPanel, BoxLayout.PAGE_AXIS);
                contentPanel.setLayout(contentLayout);
             }
+            //If subhead type, create new subhead label
             else if (datumType == ConfigDatum.SUBHEAD_TYPE) {
                 subPanel = new JPanel();
                 subLayout = new GroupLayout(subPanel);
@@ -90,6 +123,7 @@ public class SimulationConfigurationDialog {
                     contentPanel.add(subPanel);
                 }
             }
+            //If param type, create new label and text field
             else if (datumType == ConfigDatum.PARAM_TYPE) {
                 subPanel = new JPanel();
                 subLayout = new GroupLayout(subPanel);
@@ -120,8 +154,8 @@ public class SimulationConfigurationDialog {
                     contentPanel.add(subPanel);
                 }
             }
+            //If subhead_end type, add a seperation
             else if (datumType == ConfigDatum.SUBHEAD_END) {
-                //Add blank space
                 subPanel = new JPanel();
                 subLayout = new GroupLayout(subPanel);
                 subPanel.setLayout(subLayout);
@@ -136,23 +170,106 @@ public class SimulationConfigurationDialog {
                                 .addComponent(label))
                 );
                 contentPanel.add(subPanel);
+                //contentPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
             }
+            //If tab_end type, finish the tab and add to the dialog
             else if (datumType == ConfigDatum.TAB_END) {
                 scrollPane = new JScrollPane(contentPanel);
                 tabs.add(nextTabName, scrollPane);
                 nextTabName = "";
             }
+            //If null type, do nothing
             
+            //Get next datum
             index++;
             datum = simConfig.getDatum(index);
         }
-        //add(tabs);
-        window.add(tabs);  ////////////////////////////////////////////////////////
-        window.setSize(400, 400);
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setVisible(true);
+        add(tabs);
+        tabs.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        
+        
+        //Additional panel at bottom that contains the OK, Cancel, and Build buttons
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
+
+        okButton.setText("OK");
+        okButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                okButtonActionPerformed(evt);
+            }
+        });
+
+        buildButton.setText("Build");
+        buildButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buildButtonActionPerformed(evt);
+            }
+        });
+
+        configFilename_textField.setEnabled(false);
+
+        configFilename_label.setText("Config Filename:");
+
+        messageLabel.setText("Message:");
+
+        messageLabelText.setText("None");
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jSeparator1)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(buildButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(configFilename_label)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(configFilename_textField)
+                        .addGap(18, 18, 18)
+                        .addComponent(okButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cancelButton))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(messageLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(messageLabelText)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+            .addComponent(tabs)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(tabs, javax.swing.GroupLayout.PREFERRED_SIZE, 261, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(messageLabel)
+                    .addComponent(messageLabelText))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cancelButton)
+                    .addComponent(okButton)
+                    .addComponent(buildButton)
+                    .addComponent(configFilename_textField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(configFilename_label))
+                .addContainerGap())
+        );
     }
     
+    // <editor-fold defaultstate="collapsed" desc="UI Manipulation">
+    /**
+     * Forces the dialog box to appear in the center of the screen
+     */
     private void center() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension frameSize = getSize();
@@ -165,6 +282,52 @@ public class SimulationConfigurationDialog {
         setLocation((screenSize.width - frameSize.width) / 2,
                 (screenSize.height - frameSize.height) / 2);
     }
+    // </editor-fold>
+    
+    private void buildButtonActionPerformed(java.awt.event.ActionEvent evt) {                                            
+        /*try {
+            //Purge stored values
+            //Store new values
+
+            try {
+                String fileName = configFilename_textField.getText();
+                if (fileName != null && !fileName.isEmpty()) {
+                    fileName = icm.buildAndPersist(projectName, fileName);
+                    if (fileName != null) {
+                        okButton.setEnabled(true);
+                        lastBuiltFile = fileName;
+                        lastStateOutputFileName = stateOutputFilename_textField.getText();
+                        messageLabelText.setText("<html><span style=\"color:green\">"
+                                + FileManager.getSimpleFilename(fileName)
+                                + " successfully persisted..."
+                                + "</span></html>");
+                    } else {
+                        messageLabelText.setText("<html><span style=\"color:red\">*All fields must be filled</span></html>");
+                    }
+                }
+            } catch (TransformerException | IOException e) {
+                messageLabelText.setText("<html><span style=\"color:red\">"
+                        + e.getClass()
+                        + " prevented successful build...</span></html>");
+                e.printStackTrace();
+            }
+        } catch (ParserConfigurationException ex) {
+            messageLabelText.setText("<html><span style=\"color:red\">"
+                    + ex.getClass()
+                    + " prevented successful build...</span></html>");
+            ex.printStackTrace();
+        }*/
+    }                                           
+
+    private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        //okClicked = true;
+        setVisible(false);
+    }                                        
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        setVisible(false);
+    }                                            
+
     
     public static void main(String[] args) {
         String filename = "C:\\Users\\Aaron\\Desktop\\SimulationConfigurationTest.xml";
