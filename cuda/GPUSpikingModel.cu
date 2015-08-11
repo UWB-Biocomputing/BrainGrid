@@ -132,6 +132,12 @@ void GPUSpikingModel::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
 
     // copy inverse map to the device memory
     copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons, m_synapses->total_synapse_counts);
+
+    // set some parameters used for advanceNeuronsDevice
+    m_neurons->setAdvanceNeuronsDeviceParams(*m_synapses);
+
+    // set some parameters used for advanceSynapsesDevice
+    m_synapses->setAdvanceSynapsesDeviceParams();
 }
 
 /** 

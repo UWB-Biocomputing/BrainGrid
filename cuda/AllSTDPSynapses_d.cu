@@ -291,16 +291,13 @@ void AllSTDPSynapses::getFpCreateSynapse(unsigned long long& fpCreateSynapse_h)
  */
 void AllSTDPSynapses::advanceSynapses(AllSynapses* allSynapsesDevice, AllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info)
 {
-    unsigned long long fpChangePSR_h;
-    getFpChangePSR(fpChangePSR_h);
-
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
     // CUDA parameters
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
     // Advance synapses ------------->
-    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapses*)allSynapsesDevice, (void (*)(AllSTDPSynapses*, const uint32_t, const uint64_t, const BGFLOAT))fpChangePSR_h, (AllSpikingNeurons*)allNeuronsDevice, max_spikes, sim_info->width );
+    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapses*)allSynapsesDevice, (void (*)(AllSTDPSynapses*, const uint32_t, const uint64_t, const BGFLOAT))m_fpChangePSR_h, (AllSpikingNeurons*)allNeuronsDevice, max_spikes, sim_info->width );
 }
 
 void AllSTDPSynapses::getFpPostSpikeHit(unsigned long long& fpPostSpikeHit_h)

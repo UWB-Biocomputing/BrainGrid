@@ -6,21 +6,23 @@
 #include "AllSpikingSynapses.h"
 #include "Book.h"
 
+void AllSpikingSynapses::setAdvanceSynapsesDeviceParams()
+{
+    getFpChangePSR(m_fpChangePSR_h);
+}
+
 /**
  *  Advance all the Synapses in the simulation.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
 void AllSpikingSynapses::advanceSynapses(AllSynapses* allSynapsesDevice, AllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info)
 {
-    unsigned long long fpChangePSR_h;
-    getFpChangePSR(fpChangePSR_h);
-
     // CUDA parameters
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance synapses ------------->
-    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSpikingSynapses*)allSynapsesDevice, (void (*)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT))fpChangePSR_h );
+    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSpikingSynapses*)allSynapsesDevice, (void (*)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT))m_fpChangePSR_h );
 }
 
 void AllSpikingSynapses::getFpPreSpikeHit(unsigned long long& fpPreSpikeHit_h)

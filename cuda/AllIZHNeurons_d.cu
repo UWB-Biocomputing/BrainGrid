@@ -137,21 +137,12 @@ void AllIZHNeurons::advanceNeurons( AllSynapses &synapses, AllNeurons* allNeuron
     int neuron_count = sim_info->totalNeurons;
     int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
 
-    AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
     // CUDA parameters
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance neurons ------------->
-    bool fAllowBackPropagation = spSynapses.allowBackPropagation();
-    unsigned long long fpPreSpikeHit_h = NULL;
-    unsigned long long fpPostSpikeHit_h = NULL;
-    spSynapses.getFpPreSpikeHit(fpPreSpikeHit_h);
-    if (fAllowBackPropagation) {
-        spSynapses.getFpPostSpikeHit(fpPostSpikeHit_h);
-    }
-
-    advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIZHNeurons *)allNeuronsDevice, (AllSpikingSynapses*)allSynapsesDevice, synapseIndexMapDevice, (void (*)(const uint32_t, AllSpikingSynapses*))fpPreSpikeHit_h, (void (*)(const uint32_t, AllSpikingSynapses*))fpPostSpikeHit_h, fAllowBackPropagation );
+    advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIZHNeurons *)allNeuronsDevice, (AllSpikingSynapses*)allSynapsesDevice, synapseIndexMapDevice, (void (*)(const uint32_t, AllSpikingSynapses*))m_fpPreSpikeHit_h, (void (*)(const uint32_t, AllSpikingSynapses*))m_fpPostSpikeHit_h, m_fAllowBackPropagation );
 }
 
 /* ------------------*\
