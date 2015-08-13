@@ -160,6 +160,10 @@ public class Project {
         return determineProjectOutputLocation()
                 + projectName + ".xml";
     }
+    
+    public ProjectData remove(String projectDataKey) {
+        return projectData.remove(projectDataKey);
+    }
 
     /**
      * Determines the folder location for a project based on the currently

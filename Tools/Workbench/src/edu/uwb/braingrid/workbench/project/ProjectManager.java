@@ -582,44 +582,20 @@ public class ProjectManager {
      */
     public String getScriptCanonicalFilePath() {
         String path = null;
-        if (script != null) {
-            NodeList nl
-                    = script.getElementsByTagName(scriptFileTagName);
-            if (nl.getLength() > 0) {
-                Text scriptPathText
-                        = (Text) nl.item(0).getFirstChild();
-                if (scriptPathText != null) {
-                    path = scriptPathText.getTextContent();
-                }
-                if (path != null && (path.equals("null")
-                        || path.equals(""))) {
-                    path = null;
-                }
+        ProjectData script = project.getProjectData(scriptTagName);
+        Datum fileDatum = script.getDatum(scriptFileTagName);
+        
+        if (fileDatum != null) {
+            path = fileDatum.getContent();
+            if (path.isEmpty()) {
+                path = null;
             }
         }
         return path;
     }
 
-    private void removeSimulator() {
-        if (null != simulator) {
-            simulator.getParentNode().removeChild(simulator);
-            simulator = null;
-        }
-    }
-
-    private void removeSimulationConfigurationFile() {
-        if (null != simulationConfigurationFile) {
-            simulationConfigurationFile.getParentNode().removeChild(
-                    simulationConfigurationFile);
-            simulationConfigurationFile = null;
-        }
-    }
-
     public void removeScript() {
-        if (script != null) {
-            script.getParentNode().removeChild(script);
-            script = null;
-        }
+        project.remove(scriptTagName);
     }
 
     /**
