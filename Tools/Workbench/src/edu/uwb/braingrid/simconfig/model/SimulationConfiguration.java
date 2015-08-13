@@ -1,22 +1,11 @@
 package edu.uwb.braingrid.simconfig.model;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 /**
  * Maintains the collection of parameters to be used in a simulation once
@@ -31,27 +20,18 @@ public class SimulationConfiguration {
 
     private List<ConfigDatum> configData;
 
-    public SimulationConfiguration(String filename) throws
-            ParserConfigurationException, SAXException, IOException {
-        load(filename);
+    public SimulationConfiguration(Document doc) {
+        load(doc);
     }
 
     /**
      * Loads the file with the given name, parses it, and creates a
      * SimulationConfiguration based off that file.
      * 
-     * @param filename
+     * @param doc - Document containing all the information
      * @return this SimulationConfiguration
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException 
      */
-    public SimulationConfiguration load(String filename) throws
-            ParserConfigurationException, SAXException, IOException {
-        File file = new File(filename);
-        Document doc = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().parse(file);
-        doc.getDocumentElement().normalize();
+    public SimulationConfiguration load(Document doc) {
         Element root = doc.getDocumentElement();
         
         configData = new ArrayList<>();
@@ -100,16 +80,7 @@ public class SimulationConfiguration {
         return this;
     }
 
-    // TO DO - INCLUDE CHECKS ON THE FILENAME
-    public String persist(String projectFilename) throws ParserConfigurationException, TransformerException {
-        // Build New XML Document
-        Document doc = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().newDocument();
-        
-        //Add the root
-        Element root = configData.get(0).getElement(doc);
-        doc.appendChild(root);
-        
+    public void build(Document doc, Element root) {
         //Underlying structure to build document
         Element currentTab = null;
         Element currentSubhead = null;
@@ -161,16 +132,6 @@ public class SimulationConfiguration {
                 root.appendChild(currentElement);
             }
         }
-        
-        // create the file we want to save
-        File projectFile = new File(projectFilename);
-
-        // write the content into xml file
-        Transformer t = TransformerFactory.newInstance().newTransformer();
-        t.setOutputProperty(OutputKeys.INDENT, "yes");
-        t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-        t.transform(new DOMSource(doc), new StreamResult(projectFile));
-        return null;
     }
 
     /**
@@ -185,17 +146,5 @@ public class SimulationConfiguration {
             retVal = configData.get(position);
         }
         return retVal;
-    }
-
-    public static void main(String args[]) {
-        String readFile = "C:\\Users\\Aaron\\Desktop\\SimulationConfigurationTest.xml";
-        String persistFile = "C:\\Users\\Aaron\\Desktop\\SimConfigOutput.xml";
-        SimulationConfiguration simConfig = null;
-        try {
-            simConfig = new SimulationConfiguration(readFile);
-            //persist(persistFile);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

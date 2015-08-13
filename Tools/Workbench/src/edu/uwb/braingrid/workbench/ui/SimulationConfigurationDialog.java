@@ -416,8 +416,7 @@ public class SimulationConfigurationDialog extends javax.swing.JDialog {
                  + "The selected file did not match the type: "
                  + type.toString() + "</span></html>");
                  }*/
-            } catch (SAXException |
-                    IOException ex) {
+            } catch (IOException ex) {
                 messageLabelText.setText(
                         "<html><span style=\"color:red\">"
                         + ex.getClass()
