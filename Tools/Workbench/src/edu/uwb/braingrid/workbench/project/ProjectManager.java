@@ -14,7 +14,6 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
@@ -68,7 +67,7 @@ public class ProjectManager {
     private static final String scriptCompletedAtAttributeName = "completedAt";
     private static final String scriptAnalyzedAttributeName = "outputAnalyzed";
     private static final String simConfigFileTagName = "simConfigFile";
-    private static final String simulationConfigurationFileAttributeName
+    private static final String simulationConfigurationFileTagName
             = "simulationConfigurationFile";
 
     // </editor-fold>
@@ -372,7 +371,7 @@ public class ProjectManager {
 
     private void setChildDataContent(ProjectData parentData, String tagname, String content) {
         if (parentData != null) {
-            parentData.addDatum(tagname, content, null).setContent(content);
+            parentData.addDatum(tagname, content, null);
         }
     }
 
@@ -554,7 +553,7 @@ public class ProjectManager {
     /**
      * Provides the number of milliseconds since January 1, 1970, 00:00:00 GMT
      * when execution completed for the script associated with this project
-     * 
+     *
      * Note: guaranteed to be successful... If the script has yet to be added to
      * the project, it is automatically added here.
      *
@@ -584,7 +583,7 @@ public class ProjectManager {
         String path = null;
         ProjectData script = project.getProjectData(scriptTagName);
         Datum fileDatum = script.getDatum(scriptFileTagName);
-        
+
         if (fileDatum != null) {
             path = fileDatum.getContent();
             if (path.isEmpty()) {
@@ -596,118 +595,36 @@ public class ProjectManager {
 
     public void removeScript() {
         project.remove(scriptTagName);
+        // return simSpec;
     }
 
     /**
-     * Add a specification for the simulator used in this project to the model.
-     * The elements of a specification are used to determine the content of an
-     * execution script as well as where it will be executed
+     * Specifies the script for this project.
      *
-     * @param simulatorExecutionLocation - Indicates where the simulator will be
-     * executed (e.g. Remote, or Local)
-     * @param hostname - The name of the remote host, if the simulator will be
-     * executed remotely
-     * @param simFolder - The top folder where the script will be deployed to.
-     * This also serves as the parent folder of the local copy of the simulator
-     * source code.
-     * @param simulationType - Indicates which version of the simulator will be
-     * executed (e.g. growth, or growth_CUDA
-     * @param versionAnnotation - A human interpretable note regarding the
-     * version of the simulator that will be executed.
-     * @param codeLocation - The location of the repository that contains the
-     * code for the simulator
-     * @param sourceCodeUpdating - Whether the source code should be updated
-     * prior to execution (e.g. Pull, or None). If sourceCodeUpdating is set to
-     * first do a pull on the repository, a clone will be attempted first in
-     * case the repository has yet to be cloned.
-     * @return True if the simulator was added to the model correctly, false if
-     * not
+     * @param scriptSpec - Model containing specification data
      */
-    public boolean addSimulator(String simulatorExecutionLocation,
-            String hostname, String simFolder, String simulationType,
-            String codeLocation, String versionAnnotation,
-            String sourceCodeUpdating, String SHA1Key, String buildOption) {
-        boolean success = true;
-        // remove previously defined simulator
-        removeSimulator();
-        try {
-            /* Create Elements */
-            simulator = doc.createElement(simulatorTagName);
-            Element simExecLocation
-                    = doc.createElement(simulatorExecutionMachine);
-            Element versionAnnotationElem
-                    = doc.createElement(simulatorVersionAnnotationTagName);
-            Element codeLocationElem = doc.createElement(
-                    simulatorCodeLocationTagName);
-            Element hostnameElem = doc.createElement(hostnameTagName);
-            Element simFolderElem = doc.createElement(simFolderTagName);
-            Element simulationTypeElem
-                    = doc.createElement(simulationTypeTagName);
-            Element sourceCodeUpdatingElem
-                    = doc.createElement(simulatorSourceCodeUpdatingTagName);
-            Element SHA1KeyElem = doc.createElement(SHA1KeyTagName);
-            Element buildOptionElem = doc.createElement(buildOptionTagName);
-
-            /* Add Values */
-            // create text nodes to add to created elements
-            Text simulatorExecutionLocationText
-                    = doc.createTextNode(simulatorExecutionLocation);
-            Text versionAnnotationText = doc.createTextNode(versionAnnotation);
-            Text codeLocationText = doc.createTextNode(codeLocation);
-            Text hostnameText = doc.createTextNode(hostname);
-            Text simFolderText = doc.createTextNode(simFolder);
-            Text simulationTypeText
-                    = doc.createTextNode(simulationType);
-            Text sourceCodeUpdatingText
-                    = doc.createTextNode(sourceCodeUpdating);
-            Text sha1keyText = doc.createTextNode(SHA1Key);
-            Text buildOptionText = doc.createTextNode(buildOption);
-
-            // attach the text to respective elements
-            simExecLocation.appendChild(simulatorExecutionLocationText);
-            versionAnnotationElem.appendChild(versionAnnotationText);
-            codeLocationElem.appendChild(codeLocationText);
-            hostnameElem.appendChild(hostnameText);
-            simFolderElem.appendChild(simFolderText);
-            simulationTypeElem.appendChild(simulationTypeText);
-            sourceCodeUpdatingElem.appendChild(sourceCodeUpdatingText);
-            SHA1KeyElem.appendChild(sha1keyText);
-            buildOptionElem.appendChild(buildOptionText);
-
-            /* Attach Elements */
-            // attach the parameter elements to the input element
-            simulator.appendChild(simExecLocation);
-            simulator.appendChild(versionAnnotationElem);
-            simulator.appendChild(codeLocationElem);
-            simulator.appendChild(hostnameElem);
-            simulator.appendChild(simFolderElem);
-            simulator.appendChild(simulationTypeElem);
-            simulator.appendChild(sourceCodeUpdatingElem);
-            simulator.appendChild(SHA1KeyElem);
-            simulator.appendChild(buildOptionElem);
-            // attach the input element to the project element
-            root.appendChild(simulator);
-        } catch (DOMException e) {
-            simulator = null;
-            success = false;
-        }
-        return success;
+    public void addSimulator(SimulationSpecification scriptSpec) {
+        ProjectData parentData = project.getProjectData(simulatorTagName);
+        setChildDataContent(parentData, simulatorExecutionMachine, scriptSpec.getSimulationLocale());
+        setChildDataContent(parentData, simulatorVersionAnnotationTagName, scriptSpec.getVersionAnnotation());
+        setChildDataContent(parentData, simulatorCodeLocationTagName, scriptSpec.getCodeLocation());
+        setChildDataContent(parentData, hostnameTagName, scriptSpec.getHostAddr());
+        setChildDataContent(parentData, simFolderTagName, scriptSpec.getSimulatorFolder());
+        setChildDataContent(parentData, simulationTypeTagName, scriptSpec.getSimulationType());
+        setChildDataContent(parentData, simulatorSourceCodeUpdatingTagName, scriptSpec.getSourceCodeUpdating());
+        setChildDataContent(parentData, SHA1KeyTagName, scriptSpec.getSHA1CheckoutKey());
+        setChildDataContent(parentData, buildOptionTagName, scriptSpec.getBuildOption());
     }
 
-    public boolean addSimConfigFile(String filename) {
-        boolean success = true;
-        try {
-            removeSimulationConfigurationFile();
-            simulationConfigurationFile
-                    = doc.createElement(simConfigFileTagName);
-            Text configFileText = doc.createTextNode(filename);
-            simulationConfigurationFile.appendChild(configFileText);
-            root.appendChild(simulationConfigurationFile);
-        } catch (DOMException e) {
-            simulationConfigurationFile = null;
-            success = false;
-        }
-        return success;
+    /**
+     * Specifies the location of the simulation configuration file.
+     *
+     * @param filename - name of file on the local workbench system
+     */
+    public void addSimConfigFile(String filename) {
+        setChildDataContent(project.getProjectData(simConfigFileTagName),
+                simulationConfigurationFileTagName, filename
+        );
     }
 
     /**
@@ -785,7 +702,7 @@ public class ProjectManager {
     public void setSimStateOutputFile(String stateOutputFilename) {
         if (simulationConfigurationFile != null) {
             simulationConfigurationFile.setAttribute(
-                    simulationConfigurationFileAttributeName,
+                    simulationConfigurationFileTagName,
                     stateOutputFilename);
         }
     }
@@ -794,7 +711,7 @@ public class ProjectManager {
         String filename = null;
         if (simulationConfigurationFile != null) {
             filename = simulationConfigurationFile.getAttribute(
-                    simulationConfigurationFileAttributeName);
+                    simulationConfigurationFileTagName);
         }
         return filename;
     }
