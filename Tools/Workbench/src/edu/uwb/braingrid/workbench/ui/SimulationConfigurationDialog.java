@@ -3,6 +3,7 @@ package edu.uwb.braingrid.workbench.ui;
 import edu.uwb.braingrid.simconfig.model.ConfigDatum;
 import edu.uwb.braingrid.simconfig.model.SimulationConfiguration;
 import edu.uwb.braingrid.workbench.FileManager;
+import edu.uwb.braingrid.workbench.data.SimulationConfigurationManager;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
@@ -19,11 +20,16 @@ import org.xml.sax.SAXException;
 
 /**
  *
- * @author Aaron
+ * @author Aaron Conrad and Del Davis
  */
 public class SimulationConfigurationDialog extends javax.swing.JDialog {
 
-    private String projectName;
+    // <editor-fold defaultstate="collapsed" desc="Custom Members"> 
+    private SimulationConfigurationManager scm;
+    private boolean okClicked = false;
+    private String lastBuiltFile = null;
+    private String lastStateOutputFileName = null;
+    private String projectName = null;
 
     private JTabbedPane tabs;
     private List<JTextField> fields;
@@ -35,6 +41,7 @@ public class SimulationConfigurationDialog extends javax.swing.JDialog {
     private JSeparator jSeparator1;
     private JLabel messageLabel;
     private JLabel messageLabelText;
+    // </editor-fold>
 
     /**
      * Constructor creates a new dialog box
@@ -49,13 +56,23 @@ public class SimulationConfigurationDialog extends javax.swing.JDialog {
         initComponents(simConfig);
         setModal(modal);
         this.projectName = projectName;
-
-        // show window center-screen
-        pack();
-        center();
-        //setSize(new Dimension(600, 600));
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        setVisible(true);
+        
+        try {
+            scm = new SimulationConfigurationManager(configFilename);
+        } catch (Exception e) {
+            System.err.println(e.toString());
+        }
+        if (scm != null) {
+            okButton.setEnabled(false);
+            
+            
+            // show window center-screen
+            pack();
+            center();
+            //setSize(new Dimension(600, 600));
+            //setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            setVisible(true);
+        }
     }
 
     // TO DO - CHECK IF THE FIRST IF STATEMENT CAN BE IMPROVED
@@ -348,7 +365,7 @@ public class SimulationConfigurationDialog extends javax.swing.JDialog {
 
     //TO DO - FINISH THIS
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        //okClicked = true;
+        okClicked = true;
         setVisible(false);
     }
 
@@ -416,8 +433,7 @@ public class SimulationConfigurationDialog extends javax.swing.JDialog {
                  + "The selected file did not match the type: "
                  + type.toString() + "</span></html>");
                  }*/
-            } catch (SAXException |
-                    IOException ex) {
+            } catch (IOException ex) {
                 messageLabelText.setText(
                         "<html><span style=\"color:red\">"
                         + ex.getClass()
@@ -431,11 +447,11 @@ public class SimulationConfigurationDialog extends javax.swing.JDialog {
     }
 
     public static void main(String[] args) {
-        String filename = "C:\\Users\\Aaron\\Desktop\\SimulationConfigurationTest.xml";
+        /*String filename = "C:\\Users\\Aaron\\Desktop\\SimulationConfigurationTest.xml";
         try {
-            SimulationConfigurationDialog dialog = new SimulationConfigurationDialog("Test", true, "Test.xml", new SimulationConfiguration(filename));
+            SimulationConfigurationDialog dialog = new SimulationConfigurationDialog("Test", true, filename, new SimulationConfiguration(filename));
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 }
