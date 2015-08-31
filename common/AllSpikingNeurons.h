@@ -80,6 +80,11 @@ class AllSpikingNeurons : public AllNeurons
 
         // Update the state of all neurons for a time step
         virtual void advanceNeurons(AllSynapses &synapses, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice) = 0;
+
+    public:
+        // set some parameters used for advanceNeuronsDevice
+        virtual void setAdvanceNeuronsDeviceParams(AllSynapses &synapses);
+
 #else
         // Update the state of all neurons for a time step
         virtual void advanceNeurons(AllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap);
@@ -93,6 +98,12 @@ class AllSpikingNeurons : public AllNeurons
     public:
         uint64_t getSpikeHistory(int index, int offIndex, const SimulationInfo *sim_info);
 #endif // defined(USE_GPU)
+
+    protected:
+        // parameters used for advanceNeuronsDevice
+        bool m_fAllowBackPropagation;
+        unsigned long long m_fpPreSpikeHit_h;
+        unsigned long long m_fpPostSpikeHit_h;
 
     private:
         void freeResources();

@@ -49,6 +49,8 @@ class AllNeurons
         virtual void clearNeuronSpikeCounts( void* allNeuronsDevice, const SimulationInfo *sim_info ) = 0;
         // Update the state of all neurons for a time step
         virtual void advanceNeurons(AllSynapses &synapses, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice) = 0;
+
+        virtual void setAdvanceNeuronsDeviceParams(AllSynapses &synapses) = 0;
 #else
         // Update the state of all neurons for a time step
         virtual void advanceNeurons(AllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap) = 0;
