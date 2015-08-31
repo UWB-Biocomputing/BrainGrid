@@ -81,8 +81,6 @@ class AllSynapses
         virtual void advanceSynapses(AllSynapses* allSynapsesDevice, AllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info) = 0;
         virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h) = 0;
         virtual void getFpChangePSR(unsigned long long& fpChangePSR_h) = 0;
-
-        virtual void setAdvanceSynapsesDeviceParams() = 0;
 #else
         // Update the state of all synapses for a time step
         virtual void advanceSynapses(const SimulationInfo *sim_info, AllNeurons *neurons);

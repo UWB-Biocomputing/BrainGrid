@@ -4,7 +4,6 @@
  */
 
 #include "AllSpikingNeurons.h"
-#include "AllSpikingSynapses.h"
 #include "Book.h"
 
 void AllSpikingNeurons::copyDeviceSpikeHistoryToHost( AllSpikingNeurons& allNeurons, const SimulationInfo *sim_info ) 
@@ -36,17 +35,4 @@ void AllSpikingNeurons::clearDeviceSpikeCounts( AllSpikingNeurons& allNeurons, c
 
         HANDLE_ERROR( cudaMemset( allNeurons.spikeCount, 0, numNeurons * sizeof( int ) ) );
         HANDLE_ERROR( cudaMemcpy ( allNeurons.spikeCountOffset, spikeCountOffset, numNeurons * sizeof( int ), cudaMemcpyHostToDevice ) );
-}
-
-void AllSpikingNeurons::setAdvanceNeuronsDeviceParams(AllSynapses &synapses)
-{
-    AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
-    m_fAllowBackPropagation = spSynapses.allowBackPropagation();
-
-    m_fpPreSpikeHit_h = NULL;
-    m_fpPostSpikeHit_h = NULL;
-    spSynapses.getFpPreSpikeHit(m_fpPreSpikeHit_h);
-    if (m_fAllowBackPropagation) {
-        spSynapses.getFpPostSpikeHit(m_fpPostSpikeHit_h);
-    }
 }

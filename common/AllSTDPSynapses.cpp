@@ -205,8 +205,8 @@ void AllSTDPSynapses::createSynapse(const uint32_t iSyn, int source_index, int d
 
     total_delayPost[iSyn] = 0;
 
-    tauspost[iSyn] = 75e-3;
-    tauspre[iSyn] = 34e-3;
+    tauspost[iSyn] = 0;
+    tauspre[iSyn] = 0;
 
     taupos[iSyn] = 15e-3;
     tauneg[iSyn] = 35e-3;
@@ -215,7 +215,7 @@ void AllSTDPSynapses::createSynapse(const uint32_t iSyn, int source_index, int d
     mupos[iSyn] = 0;
     muneg[iSyn] = 0;
 
-    useFroemkeDanSTDP[iSyn] = true;
+    useFroemkeDanSTDP[iSyn] = false;
 }
 
 #if !defined(USE_GPU)

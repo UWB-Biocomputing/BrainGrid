@@ -79,8 +79,6 @@ class AllSpikingSynapses : public AllSynapses
         virtual void getFpChangePSR(unsigned long long& fpChangePSR_h);
         virtual void getFpPreSpikeHit(unsigned long long& fpPreSpikeHit_h);
         virtual void getFpPostSpikeHit(unsigned long long& fpPostSpikeHit_h);
-
-        virtual void setAdvanceSynapsesDeviceParams();
 #else
         // Update the state of all synapses for a time step
         virtual void advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, AllNeurons *neurons);
@@ -91,10 +89,6 @@ class AllSpikingSynapses : public AllSynapses
         bool isSpikeQueue(const uint32_t iSyn);
         virtual void changePSR(const uint32_t iSyn, const BGFLOAT deltaT);
 #endif
-
-    protected:
-        unsigned long long m_fpChangePSR_h;
-
     public:
 
         /*! The decay for the psr.
