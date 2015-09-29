@@ -66,6 +66,24 @@ void AllDSSynapses::cleanupSynapses()
     AllSpikingSynapses::cleanupSynapses();
 }
 
+/**
+ *  Attempts to read parameters from a XML file.
+ *  @param  @param  element TiXmlElement to examine.
+ *  @return the number of parameters that have been read.
+ */
+bool AllDSSynapses::readParameters(const TiXmlElement& element)
+{
+    return true;
+}
+
+/**
+ *  Prints out all parameters of the neurons to ostream.
+ *  @param  output  ostream to send output to.
+ */
+void AllDSSynapses::printParameters(ostream &output) const
+{
+}
+
 /*
  *  Sets the data for Synapse #synapse_index from Neuron #neuron_index.
  *  @param  input   istream to read from.

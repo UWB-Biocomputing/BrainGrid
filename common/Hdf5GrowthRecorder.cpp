@@ -14,7 +14,7 @@ const H5std_string  nameRatesHist("ratesHistory");
 const H5std_string  nameRadiiHist("radiiHistory");
 
 //! THe constructor and destructor
-Hdf5GrowthRecorder::Hdf5GrowthRecorder(IModel *model, SimulationInfo* sim_info) :
+Hdf5GrowthRecorder::Hdf5GrowthRecorder(IModel *model, const SimulationInfo* sim_info) :
     Hdf5Recorder(model, sim_info)
 {
 }

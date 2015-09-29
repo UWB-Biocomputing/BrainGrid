@@ -87,6 +87,7 @@ CUDAOBJS =   \
             $(SINPUTDIR)/GpuSInputRegular.o \
             $(SINPUTDIR)/GpuSInputPoisson.o \
             $(SINPUTDIR)/FSInput_cuda.o \
+            $(CUDADIR)/FClassOfCategory_cuda.o \
             $(CUDADIR)/Global_cuda.o
 
 ifeq ($(CUSEHDF5), yes)
@@ -129,6 +130,7 @@ SINGLEOBJS = $(MAIN)/BGDriver.o  \
 			$(COMMDIR)/SingleThreadedSpikingModel.o \
 			$(COMMDIR)/SingleThreadedSim.o \
 			$(SINPUTDIR)/FSInput.o \
+			$(COMMDIR)/FClassOfCategory.o \
 			$(COMMDIR)/AllNeurons.o \
 			$(COMMDIR)/AllSpikingNeurons.o \
 			$(COMMDIR)/AllIFNeurons.o \
@@ -255,6 +257,9 @@ $(CUDADIR)/Global_cuda.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
 $(CUDADIR)/GPUSimulator.o: $(COMMDIR)/GPUSimulator.cpp $(COMMDIR)/GPUSimulator.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/GPUSimulator.cpp -o $(CUDADIR)/GPUSimulator.o
 
+$(CUDADIR)/FClassOfCategory_cuda.o: $(COMMDIR)/FClassOfCategory.cpp $(COMMDIR)/FClassOfCategory.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/FClassOfCategory.cpp -o $(CUDADIR)/FClassOfCategory_cuda.o
+
 
 # Library
 # ------------------------------------------------------------------------------
@@ -335,13 +340,16 @@ $(COMMDIR)/XmlGrowthRecorder.o: $(COMMDIR)/XmlGrowthRecorder.cpp $(COMMDIR)/XmlG
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/XmlGrowthRecorder.cpp -o $(COMMDIR)/XmlGrowthRecorder.o
 
 ifeq ($(CUSEHDF5), yes)
-$(COMMDIR)/Hdf5Recorder.o: $(COMMDIR)/Hdf5GrowthRecorder.cpp $(COMMDIR)/Hdf5GrowthRecorder.h $(COMMDIR)/IRecorder.h
+$(COMMDIR)/Hdf5GrowthRecorder.o: $(COMMDIR)/Hdf5GrowthRecorder.cpp $(COMMDIR)/Hdf5GrowthRecorder.h $(COMMDIR)/IRecorder.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Hdf5GrowthRecorder.cpp -o $(COMMDIR)/Hdf5GrowthRecorder.o
 
 
 $(COMMDIR)/Hdf5Recorder.o: $(COMMDIR)/Hdf5Recorder.cpp $(COMMDIR)/Hdf5Recorder.h $(COMMDIR)/IRecorder.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Hdf5Recorder.cpp -o $(COMMDIR)/Hdf5Recorder.o
 endif
+
+$(COMMDIR)/FClassOfCategory.o: $(COMMDIR)/FClassOfCategory.cpp $(COMMDIR)/FClassOfCategory.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/FClassOfCategory.cpp -o $(COMMDIR)/FClassOfCategory.o
 
 
 # Matrix

@@ -38,6 +38,8 @@ class ConnGrowth : public Connections
         ConnGrowth();
         virtual ~ConnGrowth();
 
+        static Connections* Create() { return new ConnGrowth(); }
+
         virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, AllNeurons *neurons, AllSynapses *synapses);
         virtual void cleanupConnections();
         virtual bool readParameters(const TiXmlElement& element);
@@ -45,6 +47,7 @@ class ConnGrowth : public Connections
         virtual void readConns(istream& input, const SimulationInfo *sim_info);
         virtual void writeConns(ostream& output, const SimulationInfo *sim_info);
         virtual bool updateConnections(AllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout);
+        virtual IRecorder* createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *sim_info);
 #if defined(USE_GPU)
         virtual void updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice, Layout *layout);
 #else

@@ -46,7 +46,7 @@ class Hdf5Recorder : public IRecorder
 {
 public:
     //! THe constructor and destructor
-    Hdf5Recorder(IModel *model, SimulationInfo* sim_info);
+    Hdf5Recorder(IModel *model, const SimulationInfo* sim_info);
     ~Hdf5Recorder();
 
     /**
@@ -120,7 +120,7 @@ protected:
     vector<uint64_t>* spikesProbedNeurons;
 
     // Struct that holds information about a simulation
-    SimulationInfo *m_sim_info;
+    const SimulationInfo *m_sim_info;
 
     // TODO comment
     Model *m_model;

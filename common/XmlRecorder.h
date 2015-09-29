@@ -36,7 +36,7 @@ class XmlRecorder : public IRecorder
 {
 public:
     //! THe constructor and destructor
-    XmlRecorder(IModel *model, SimulationInfo* sim_info);
+    XmlRecorder(IModel *model, const SimulationInfo* sim_info);
     ~XmlRecorder();
 
     /**
@@ -90,7 +90,7 @@ protected:
     VectorMatrix spikesHistory;
 
     // Struct that holds information about a simulation
-    SimulationInfo *m_sim_info;
+    const SimulationInfo *m_sim_info;
 
     // TODO comment
     Model *m_model;

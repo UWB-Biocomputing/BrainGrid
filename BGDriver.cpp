@@ -14,20 +14,9 @@
 
 #include "Network.h"
 #include "IModel.h"
-#include "AllLIFNeurons.h"
-#include "AllIZHNeurons.h"
-#include "AllDSSynapses.h"
-#include "AllSTDPSynapses.h"
-#include "XmlRecorder.h"
-#include "XmlGrowthRecorder.h"
-#ifdef USE_HDF5
-#include "Hdf5Recorder.h"
-#include "Hdf5GrowthRecorder.h"
-#endif // USE_HDF5
+#include "FClassOfCategory.h"
+#include "IRecorder.h"
 #include "FSInput.h"
-#include "ConnGrowth.h"
-#include "ConnStatic.h"
-#include "Layout.h"
 
 
 // Uncomment to use visual leak detector (Visual Studios Plugin)
@@ -61,6 +50,11 @@ bool fWriteMemImage = false;  // True if dumped memory image is written after
 string stimulusInputFileName;
 
 IModel *model = NULL;
+AllNeurons *neurons = NULL;
+AllSynapses *synapses = NULL;
+Connections *conns = NULL;
+Layout *layout = NULL;
+
 SimulationInfo *simInfo = NULL;
 
 
@@ -74,6 +68,7 @@ void LoadSimulationParameters(TiXmlElement*);
 //void SaveSimState(ostream &);
 void printParams();
 bool parseCommandLine(int argc, char* argv[]);
+bool createAllClassInstances(TiXmlElement*);
 
 /**
  *  Main for Simulator. Handles command line arguments and loads parameters
@@ -84,31 +79,13 @@ bool parseCommandLine(int argc, char* argv[]);
  *  @return -1 if error, else if success.
  */
 int main(int argc, char* argv[]) {
-    // create the model
-    #if defined(USE_GPU)
-	// model = new GPUSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
-	 model = new GPUSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
-	 //model = new GPUSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllSTDPSynapses(), new Layout());
-	 //model = new GPUSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllSTDPSynapses(), new Layout());
-	 //model = new GPUSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
-	 //model = new GPUSpikingModel(new ConnStatic(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
-    #elif defined(USE_OMP)
-	 //model = new SingleThreadedSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
-	 //model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
-    #else
-	 //model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
-	 model = new SingleThreadedSpikingModel(new ConnGrowth(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
-	 //model = new SingleThreadedSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllSTDPSynapses(), new Layout());
-	 //model = new SingleThreadedSpikingModel(new ConnStatic(), new AllLIFNeurons(), new AllDSSynapses(), new Layout());
-	 //model = new SingleThreadedSpikingModel(new ConnStatic(), new AllIZHNeurons(), new AllDSSynapses(), new Layout());
-    #endif
-    
-    DEBUG(cout << "reading parameters from xml file" << endl;)
-
     if (!parseCommandLine(argc, argv)) {
         cerr << "! ERROR: failed during command line parse" << endl;
         return -1;
     }
+
+    DEBUG(cout << "reading parameters from xml file" << endl;)
+
     if (!LoadAllParameters(stateInputFileName)) {
         cerr << "! ERROR: failed while parsing simulation parameters." << endl;
         return -1;
@@ -117,30 +94,24 @@ int main(int argc, char* argv[]) {
     /*    verify that params were read correctly */
     DEBUG(printParams();)
 
+    // create the model
+    #if defined(USE_GPU)
+	 model = new GPUSpikingModel(conns, neurons, synapses, layout);
+    #else
+	 model = new SingleThreadedSpikingModel(conns, neurons, synapses, layout);
+    #endif
+    
     // create & init simulation recorder
-    IRecorder* simRecorder = NULL;
-    if (stateOutputFileName.find(".xml") != string::npos) {
-        //simRecorder = new XmlRecorder(model, simInfo);
-        simRecorder = new XmlGrowthRecorder(model, simInfo);
-    }
-#ifdef USE_HDF5
-    else if (stateOutputFileName.find(".h5") != string::npos) {
-        //simRecorder = new Hdf5Recorder(model, simInfo); 
-        simRecorder = new Hdf5GrowthRecorder(model, simInfo); 
-    }
-    else {
+    IRecorder* simRecorder = conns->createRecorder(stateOutputFileName, model, simInfo);
+
+    if (simRecorder == NULL) {
         cerr << "! ERROR: invalid state output file name extension." << endl;
         return -1;
-    }
-#endif // USE_HDF5
-    if (simRecorder != NULL) {
-        simRecorder->init(stateOutputFileName);
     }
 
     // Create a stimulus input object
     ISInput* pInput = NULL;     // pointer to a stimulus input object
-    FSInput fsi;
-    pInput = fsi.CreateInstance(model, simInfo, stimulusInputFileName);
+    pInput = FSInput::get()->CreateInstance(model, simInfo, stimulusInputFileName);
 
     // create the network
     Network network(model, simInfo, simRecorder);
@@ -288,8 +259,24 @@ void printParams() {
     cout << "\tNumber of simulations to run: " << simInfo->maxSteps << endl;
 
     cout << "Model Parameters:" << endl;
-    model->printParameters(cout);
+    FClassOfCategory::get()->printParameters(cout);
     cout << "Done printing parameters" << endl;
+}
+
+bool createAllClassInstances(TiXmlElement* parms)
+{
+    // create neurons, synapses, connections, and layout objects specified in the description file
+    neurons = FClassOfCategory::get()->createNeurons(parms);
+    synapses = FClassOfCategory::get()->createSynapses(parms);
+    conns = FClassOfCategory::get()->createConnections(parms);
+    layout = FClassOfCategory::get()->createLayout(parms);
+
+    if (neurons == NULL || synapses == NULL || conns == NULL || layout == NULL) {
+        cerr << "!ERROR: failed to create classes" << endl;
+        return false;
+    }
+
+    return FClassOfCategory::get()->readParameters(parms);
 }
 
 /**
@@ -325,7 +312,12 @@ bool LoadAllParameters(const string &sim_param_filename)
              << endl;
         return false;
     }
-    return model->readParameters(parms);
+
+    if (createAllClassInstances(parms) != true) {
+        return false;
+    }
+ 
+    return true;
 }
 
 /**

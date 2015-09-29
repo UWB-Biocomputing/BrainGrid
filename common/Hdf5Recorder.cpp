@@ -25,7 +25,7 @@ const H5std_string  nameAttrPNUnit("attrPNUint");
 const H5std_string  nameProbedNeurons("probedNeurons");
 
 //! THe constructor and destructor
-Hdf5Recorder::Hdf5Recorder(IModel *model, SimulationInfo* sim_info) :
+Hdf5Recorder::Hdf5Recorder(IModel *model, const SimulationInfo* sim_info) :
     m_model(dynamic_cast<Model*> (model)),
     m_sim_info(sim_info)
 {
@@ -198,6 +198,12 @@ void Hdf5Recorder::compileHistories(AllNeurons &neurons)
         int& offset = spNeurons.spikeCountOffset[iNeuron];
         for (int i = 0, idxSp = offset; i < spike_count; i++, idxSp++)
         {
+            // Single precision (float) gives you 23 bits of significand, 8 bits of exponent, 
+            // and 1 sign bit. Double precision (double) gives you 52 bits of significand, 
+            // 11 bits of exponent, and 1 sign bit. 
+            // Therefore, single precision can only handle 2^23 = 8,388,608 simulation steps 
+            // or 8 epochs (1 epoch = 100s, 1 simulation step = 0.1ms).
+
             if (idxSp >= max_spikes) idxSp = 0;
             // compile network wide burstiness index data in 1s bins
             int idx1 = static_cast<int>( static_cast<double>( pSpikes[idxSp] ) *  m_sim_info->deltaT

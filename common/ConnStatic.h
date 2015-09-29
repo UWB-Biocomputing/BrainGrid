@@ -20,12 +20,15 @@ class ConnStatic : public Connections
         ConnStatic();
         virtual ~ConnStatic();
 
+        static Connections* Create() { return new ConnStatic(); }
+
         virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, AllNeurons *neurons, AllSynapses *synapses);
         virtual void cleanupConnections();
         virtual bool readParameters(const TiXmlElement& element);
         virtual void printParameters(ostream &output) const;
         virtual void readConns(istream& input, const SimulationInfo *sim_info);
         virtual void writeConns(ostream& output, const SimulationInfo *sim_info);
+        virtual IRecorder* createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *sim_info);
 
     private:
         // number of maximum connections per neurons

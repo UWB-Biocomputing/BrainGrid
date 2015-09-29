@@ -59,6 +59,8 @@ class AllSynapses
         virtual void setupSynapses(SimulationInfo *sim_info);
         virtual void cleanupSynapses();
         virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT);
+        virtual bool readParameters(const TiXmlElement& element) = 0;
+        virtual void printParameters(ostream &output) const = 0;
         void readSynapses(istream& input, AllNeurons &neurons, const SimulationInfo *sim_info);
         void writeSynapses(ostream& output, const SimulationInfo *sim_info);
 

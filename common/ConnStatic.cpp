@@ -1,13 +1,15 @@
 #include "ConnStatic.h"
 #include "ParseParamError.h"
 #include "AllSynapses.h"
+#include "XmlRecorder.h"
+#include "Hdf5Recorder.h"
 #include <algorithm>
 
 ConnStatic::ConnStatic() : Connections()
 {
-    threshConnsRadius = 2.0;
-    nConnsPerNeuron = 100;
-    pRewiring = 0.03;
+    threshConnsRadius = 0;
+    nConnsPerNeuron = 0;
+    pRewiring = 0;
 }
 
 ConnStatic::~ConnStatic()
@@ -75,6 +77,32 @@ void ConnStatic::cleanupConnections()
  */
 bool ConnStatic::readParameters(const TiXmlElement& element)
 {
+    if (element.ValueStr().compare("ConnectionsParams") == 0) {
+        // number of maximum connections per neurons
+        if (element.QueryIntAttribute("nConnsPerNeuron", &nConnsPerNeuron) != TIXML_SUCCESS) {
+                throw ParseParamError("nConnsPerNeuron", "Static Connections param 'nConnsPerNeuron' missing in XML.");
+        }
+        if (nConnsPerNeuron < 0) {
+                throw ParseParamError("nConnsPerNeuron", "Invalid negative Growth param 'nConnsPerNeuron' value.");
+        }
+
+        // Connection radius threshold
+        if (element.QueryFLOATAttribute("threshConnsRadius", &threshConnsRadius) != TIXML_SUCCESS) {
+                throw ParseParamError("threshConnsRadius", "Static Connections param 'threshConnsRadius' missing in XML.");
+        }
+        if (threshConnsRadius < 0) {
+                throw ParseParamError("threshConnsRadius", "Invalid negative Growth param 'threshConnsRadius' value.");
+        }
+
+        // Small-world rewiring probability
+        if (element.QueryFLOATAttribute("pRewiring", &pRewiring) != TIXML_SUCCESS) {
+                throw ParseParamError("pRewiring", "Static Connections param 'pRewiring' missing in XML.");
+        }
+        if (pRewiring < 0 || pRewiring > 1.0) {
+                throw ParseParamError("pRewiring", "Invalid negative Growth param 'pRewiring' value.");
+        }
+    }
+
     return true;
 }
 
@@ -92,4 +120,26 @@ void ConnStatic::readConns(istream& input, const SimulationInfo *sim_info)
 
 void ConnStatic::writeConns(ostream& output, const SimulationInfo *sim_info)
 {
+}
+
+IRecorder* ConnStatic::createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *simInfo)
+{
+    // create & init simulation recorder
+    IRecorder* simRecorder = NULL;
+    if (stateOutputFileName.find(".xml") != string::npos) {
+        simRecorder = new XmlRecorder(model, simInfo);
+    }
+#ifdef USE_HDF5
+    else if (stateOutputFileName.find(".h5") != string::npos) {
+        simRecorder = new Hdf5Recorder(model, simInfo);
+    }
+#endif // USE_HDF5
+    else {
+        return NULL;
+    }
+    if (simRecorder != NULL) {
+        simRecorder->init(stateOutputFileName);
+    }
+
+    return simRecorder;
 }

@@ -60,11 +60,15 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
         AllDynamicSTDPSynapses();
         AllDynamicSTDPSynapses(const int num_neurons, const int max_synapses);
         virtual ~AllDynamicSTDPSynapses();
+
+        static AllSynapses* Create() { return new AllDynamicSTDPSynapses(); }
  
         virtual void setupSynapses(SimulationInfo *sim_info);
         virtual void setupSynapses(const int num_neurons, const int max_synapses);
         virtual void cleanupSynapses();
         virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT);
+        virtual bool readParameters(const TiXmlElement& element);
+        virtual void printParameters(ostream &output) const;
 
     protected:
         virtual void readSynapse(istream &input, const uint32_t iSyn);

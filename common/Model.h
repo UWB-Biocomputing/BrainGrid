@@ -26,8 +26,6 @@ class Model : public IModel, TiXmlVisitor
          * @see Model.h
          */
 
-        virtual bool readParameters(TiXmlElement *source);
-        virtual void printParameters(ostream &output) const;
         virtual void loadMemory(istream& input, const SimulationInfo *sim_info);
         virtual void saveMemory(ostream& output, const SimulationInfo *sim_info);
         virtual void saveState(IRecorder* simRecorder);
@@ -46,13 +44,6 @@ class Model : public IModel, TiXmlVisitor
          */
 
         void createSynapseImap(AllSynapses &synapses, const SimulationInfo* sim_info );
-
-        // # Read Parameters
-        // -----------------
-
-        // Parse an element for parameter values.
-        // Required by TiXmlVisitor, which is used by #readParameters
-        bool VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute);
 
         // # Print Parameters
         // ------------------

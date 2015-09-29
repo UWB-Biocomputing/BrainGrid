@@ -101,6 +101,8 @@ class AllIZHNeurons : public AllIFNeurons
         AllIZHNeurons();
         virtual ~AllIZHNeurons();
 
+        static AllNeurons* Create() { return new AllIZHNeurons(); }
+
         //! A constant (0.02, 01) describing the coupling of variable u to Vm;
         BGFLOAT *Aconst;
 
@@ -122,7 +124,7 @@ class AllIZHNeurons : public AllIFNeurons
         virtual void setupNeurons(SimulationInfo *sim_info);
         virtual void cleanupNeurons();  
         virtual int numParameters();
-        virtual int readParameters(const TiXmlElement& element);
+        virtual bool readParameters(const TiXmlElement& element);
         virtual void printParameters(ostream &output) const;
         virtual void createAllNeurons(SimulationInfo *sim_info, Layout *layout);
         virtual string toString(const int i) const;

@@ -10,7 +10,7 @@
 #include "ConnGrowth.h"
 
 //! THe constructor and destructor
-XmlGrowthRecorder::XmlGrowthRecorder(IModel *model, SimulationInfo* sim_info) :
+XmlGrowthRecorder::XmlGrowthRecorder(IModel *model, const SimulationInfo* sim_info) :
         XmlRecorder(model, sim_info),
         ratesHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(sim_info->maxSteps + 1), sim_info->totalNeurons),
         radiiHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(sim_info->maxSteps + 1), sim_info->totalNeurons)

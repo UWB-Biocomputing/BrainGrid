@@ -56,7 +56,7 @@ class AllSpikingNeurons : public AllNeurons
         virtual void setupNeurons(SimulationInfo *sim_info);
         virtual void cleanupNeurons(); 
         virtual int numParameters() = 0;
-        virtual int readParameters(const TiXmlElement& element) = 0;
+        virtual bool readParameters(const TiXmlElement& element) = 0;
         virtual void printParameters(ostream &output) const = 0;
         virtual void createAllNeurons(SimulationInfo *sim_info, Layout *layout) = 0;
         virtual string toString(const int i) const = 0;

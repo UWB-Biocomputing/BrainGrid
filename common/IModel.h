@@ -49,23 +49,6 @@ class IModel {
          */
 
         /**
-         * Read model specific parameters from the xml parameter file and finishes setting up model
-         * state.
-         *
-         * @param source - the xml parameter document
-         *
-         * @return success of read (e.g. whether all parameters were read).
-         */
-        virtual bool readParameters(TiXmlElement *source) =0;
-
-        /**
-         * Writes model parameters to an output file. Parameters should be written in xml format.
-         *
-         * @param output - file to write to.
-         */
-        virtual void printParameters(ostream &output) const =0;
-
-        /**
          * TODO(derek) comment.
          */
         virtual void loadMemory(istream& input, const SimulationInfo *sim_info) =0;

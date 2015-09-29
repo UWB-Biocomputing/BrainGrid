@@ -14,6 +14,8 @@ class Layout
         Layout();
         virtual ~Layout();
 
+        static Layout* Create() { return new Layout(); }
+
         virtual void setupLayout(const SimulationInfo *sim_info);
         virtual bool readParameters(const TiXmlElement& element);
         virtual void printParameters(ostream &output) const;

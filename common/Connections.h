@@ -10,10 +10,13 @@
 #include "AllSpikingNeurons.h"
 #include "AllSpikingSynapses.h"
 #include "Layout.h"
+#include "IRecorder.h"
 #include <vector>
 #include <iostream>
 
 using namespace std;
+
+class IModel;
 
 class Connections
 {
@@ -29,6 +32,7 @@ class Connections
         virtual void readConns(istream& input, const SimulationInfo *sim_info) = 0;
         virtual void writeConns(ostream& output, const SimulationInfo *sim_info) = 0;
         virtual bool updateConnections(AllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout);
+        virtual IRecorder* createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *sim_info) = 0;
 #if defined(USE_GPU)
         virtual void updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice, Layout *layout);
 #else

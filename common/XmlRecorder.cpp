@@ -10,7 +10,7 @@
 #include "ConnGrowth.h"
 
 //! THe constructor and destructor
-XmlRecorder::XmlRecorder(IModel *model, SimulationInfo* sim_info) :
+XmlRecorder::XmlRecorder(IModel *model, const SimulationInfo* sim_info) :
         burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps), 0),
         spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps * 100), 0),
         m_model(dynamic_cast<Model*> (model)),
@@ -81,6 +81,12 @@ void XmlRecorder::compileHistories(AllNeurons &neurons)
         int& offset = spNeurons.spikeCountOffset[iNeuron];
         for (int i = 0, idxSp = offset; i < spike_count; i++, idxSp++)
         {
+            // Single precision (float) gives you 23 bits of significand, 8 bits of exponent, 
+            // and 1 sign bit. Double precision (double) gives you 52 bits of significand, 
+            // 11 bits of exponent, and 1 sign bit. 
+            // Therefore, single precision can only handle 2^23 = 8,388,608 simulation steps 
+            // or 8 epochs (1 epoch = 100s, 1 simulation step = 0.1ms).
+
             if (idxSp >= max_spikes) idxSp = 0;
             // compile network wide burstiness index data in 1s bins
             int idx1 = static_cast<int>( static_cast<double>( pSpikes[idxSp] ) * m_sim_info->deltaT );

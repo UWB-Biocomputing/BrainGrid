@@ -1,6 +1,8 @@
 #include "ConnGrowth.h"
 #include "ParseParamError.h"
 #include "AllSynapses.h"
+#include "XmlGrowthRecorder.h"
+#include "Hdf5GrowthRecorder.h"
 
 /* ------------- CONNECTIONS STRUCT ------------ *\
  * Below all of the resources for the various
@@ -141,10 +143,11 @@ bool ConnGrowth::readParameters(const TiXmlElement& element)
         if (m_growth.startRadius < 0) {
                 throw ParseParamError("startRadius", "Invalid negative Growth startRadius.");
         }
+
+        // initial maximum firing rate
+        m_growth.maxRate = m_growth.targetRate / m_growth.epsilon;
     }
 
-    // initial maximum firing rate
-    m_growth.maxRate = m_growth.targetRate / m_growth.epsilon;
         
     return true;
 }
@@ -371,3 +374,25 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neuron
     DEBUG (cout << "added: " << added << endl << endl << endl;)
 }
 #endif // !USE_GPU
+
+IRecorder* ConnGrowth::createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *simInfo)
+{
+    // create & init simulation recorder
+    IRecorder* simRecorder = NULL;
+    if (stateOutputFileName.find(".xml") != string::npos) {
+        simRecorder = new XmlGrowthRecorder(model, simInfo);
+    }
+#ifdef USE_HDF5
+    else if (stateOutputFileName.find(".h5") != string::npos) {
+        simRecorder = new Hdf5GrowthRecorder(model, simInfo);
+    }
+#endif // USE_HDF5
+    else {
+        return NULL;
+    }
+    if (simRecorder != NULL) {
+        simRecorder->init(stateOutputFileName);
+    }
+
+    return simRecorder;
+}

@@ -106,6 +106,8 @@ class AllLIFNeurons : public AllIFNeurons
         AllLIFNeurons();
         virtual ~AllLIFNeurons();
 
+        static AllNeurons* Create() { return new AllLIFNeurons(); }
+
 #if defined(USE_GPU)
         // Update the state of all neurons for a time step
         virtual void advanceNeurons(AllSynapses &synapses, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);

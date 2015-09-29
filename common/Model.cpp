@@ -52,66 +52,6 @@ Model::~Model()
 }
 
 /**
- *  Attempts to read parameters from a XML file.
- *  @param  source  the TiXmlElement to read from.
- *  @return true if successful, false otherwise.
- */
-bool Model::readParameters(TiXmlElement *source)
-{
-    m_read_params = 0;
-    try {
-         source->Accept(this);
-    } catch (ParseParamError &error) {
-        error.print(cerr);
-        cerr << endl;
-        return false;
-    }
-    
-    return m_read_params == m_neurons->numParameters();
-}
-
-/**
- *  Takes an XmlElement and checks for errors. If not, calls getValueList().
- *  @param  element TiXmlElement to examine.
- *  @param  firstAttribute  ***NOT USED***.
- *  @return true if method finishes without errors.
- */
-bool Model::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute)
-//TODO: firstAttribute does not seem to be used! Delete?
-{
-    // Read neurons parameters
-    m_read_params += m_neurons->readParameters(element);
-    
-    // Read connections parameters (growth parameters)
-    if (m_conns->readParameters(element) != true) {
-        throw ParseParamError("Connections", "Failed in readParameters.");
-    }
-
-    // Read layout parameters
-    if (m_layout->readParameters(element) != true) {
-        throw ParseParamError("Layout", "Failed in readParameters.");
-    }
-
-    return true;
-}
-
-/**
- *  Prints out all parameters of the model to ostream.
- *  @param  output  ostream to send output to.
- */
-void Model::printParameters(ostream &output) const
-{
-    // Prints all neurons parameters
-    m_neurons->printParameters(output);
-
-    // Prints all connections parameters
-    m_conns->printParameters(output);
-
-    // Prints all layout parameters
-    m_layout->printParameters(output);
-}
-
-/**
  *  Loads the simulation based on istream input.
  *  @param  input   istream to read from.
  *  @param  sim_info    used as a reference to set info for neurons and synapses.

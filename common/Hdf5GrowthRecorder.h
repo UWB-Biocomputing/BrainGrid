@@ -46,7 +46,7 @@ class Hdf5GrowthRecorder : public Hdf5Recorder
 {
 public:
     //! THe constructor and destructor
-    Hdf5GrowthRecorder(IModel *model, SimulationInfo* sim_info);
+    Hdf5GrowthRecorder(IModel *model, const SimulationInfo* sim_info);
     ~Hdf5GrowthRecorder();
 
     /**

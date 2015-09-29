@@ -112,10 +112,8 @@ int AllIFNeurons::numParameters()
  *  @param  @param  element TiXmlElement to examine.
  *  @return the number of parameters that have been read.
  */
-int AllIFNeurons::readParameters(const TiXmlElement& element)
+bool AllIFNeurons::readParameters(const TiXmlElement& element)
 {
-    int read_params = 0;
-
     if (element.ValueStr().compare("Iinject") == 0) {
         if (element.QueryFLOATAttribute("min", &m_Iinject[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Iinject min", "Iinject missing minimum value in XML.");
@@ -129,7 +127,7 @@ int AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_Iinject[0] > m_Iinject[1]) {
             throw ParseParamError("Iinject max", "Invalid range for Iinject value.");
         }
-        read_params++;
+        return true;
     }
 
     if (element.ValueStr().compare("Inoise") == 0) {
@@ -145,7 +143,7 @@ int AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_Inoise[0] > m_Inoise[1]) {
             throw ParseParamError("Inoise max", "Invalid range for Inoise value.");
         }
-        read_params++;
+        return true;
     }
 
     if (element.ValueStr().compare("Vthresh") == 0) {
@@ -161,7 +159,7 @@ int AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_Vthresh[0] > m_Vthresh[1]) {
             throw ParseParamError("Vthresh max", "Invalid range for Vthresh value.");
         }
-        read_params++;
+        return true;
     }
 
     if (element.ValueStr().compare("Vresting") == 0) {
@@ -174,7 +172,7 @@ int AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_Vresting[0] > m_Vresting[1]) {
             throw ParseParamError("Vresting max", "Invalid range for Vresting value.");
         }
-        read_params++;
+        return true;
     }
 
     if (element.ValueStr().compare("Vreset") == 0) {
@@ -187,7 +185,7 @@ int AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_Vreset[0] > m_Vreset[1]) {
             throw ParseParamError("Vreset max", "Invalid range for Vreset value.");
         }
-        read_params++;
+        return true;
     }
 
     if (element.ValueStr().compare("Vinit") == 0) {
@@ -200,7 +198,7 @@ int AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_Vinit[0] > m_Vinit[1]) {
             throw ParseParamError("Vinit max", "Invalid range for Vinit value.");
         }
-        read_params++;
+        return true;
     }
 
     if (element.ValueStr().compare("starter_vthresh") == 0) {
@@ -217,7 +215,7 @@ int AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_starter_Vthresh[0] > m_starter_Vthresh[1]) {
             throw ParseParamError("starter_vthresh max", "Invalid range for starter_vthresh value.");
         }
-        read_params++;
+        return true;
     }
 
     if (element.ValueStr().compare("starter_vreset") == 0) {
@@ -233,10 +231,10 @@ int AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_starter_Vreset[0] > m_starter_Vreset[1]) {
             throw ParseParamError("starter_vreset max", "Invalid range for starter_vreset value.");
         }
-        read_params++;
+        return true;
     }
 
-    return read_params;
+    return true;
 }
 
 /**

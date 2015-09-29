@@ -67,11 +67,9 @@ int AllIZHNeurons::numParameters()
  *  @param  @param  element TiXmlElement to examine.
  *  @return the number of parameters that have been read.
  */
-int AllIZHNeurons::readParameters(const TiXmlElement& element)
+bool AllIZHNeurons::readParameters(const TiXmlElement& element)
 {
-    int read_params = 0;
-
-    read_params += AllIFNeurons::readParameters(element);
+    AllIFNeurons::readParameters(element);
 
     if (element.ValueStr().compare("Aconst") == 0) {
         if (element.QueryFLOATAttribute("min", &m_Aconst[0]) != TIXML_SUCCESS) {
@@ -86,7 +84,7 @@ int AllIZHNeurons::readParameters(const TiXmlElement& element)
         if (m_Aconst[0] > m_Aconst[1]) {
             throw ParseParamError("Aconst max", "Invalid range for Aconst value.");
         }
-        read_params++;
+        return true;
     }
 
     if (element.ValueStr().compare("Bconst") == 0) {
@@ -99,7 +97,7 @@ int AllIZHNeurons::readParameters(const TiXmlElement& element)
         if (m_Bconst[0] > m_Bconst[1]) {
             throw ParseParamError("Bconst max", "Invalid range for Bconst value.");
         }
-        read_params++;
+        return true;
     }
 
     if (element.ValueStr().compare("Cconst") == 0) {
@@ -112,7 +110,7 @@ int AllIZHNeurons::readParameters(const TiXmlElement& element)
         if (m_Cconst[0] > m_Cconst[1]) {
             throw ParseParamError("Cconst max", "Invalid range for Cconst value.");
         }
-        read_params++;
+        return true;
     }
 
     if (element.ValueStr().compare("Dconst") == 0) {
@@ -128,10 +126,10 @@ int AllIZHNeurons::readParameters(const TiXmlElement& element)
         if (m_Dconst[0] > m_Dconst[1]) {
             throw ParseParamError("Dconst max", "Invalid range for Dconst value.");
         }
-        read_params++;
+        return true;
     }
 
-    return read_params;
+    return true;
 }
 
 /**
