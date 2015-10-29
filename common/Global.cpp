@@ -105,3 +105,8 @@ void printPerformanceMetrics(const float total_time)
     cout << "t_host_adjustSynapses: " << t_host_adjustSynapses << " ms (" << t_host_adjustSynapses / total_time * 100 << "%)" << endl;
 }
 #endif // PERFORMANCE_METRICS
+
+// TODO comment
+const string MATRIX_TYPE = "complete";
+// TODO comment
+const string MATRIX_INIT = "const";

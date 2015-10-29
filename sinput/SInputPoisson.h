@@ -32,7 +32,7 @@
 #define _SINPUTPOISSON_H_
 
 #include "ISInput.h"
-#include "AllSynapses.h"
+#include "AllDSSynapses.h"
 
 class SInputPoisson : public ISInput
 {
@@ -42,10 +42,10 @@ public:
     ~SInputPoisson();
 
     //! Initialize data.
-    virtual void init(Model* model, AllNeurons &neurons, SimulationInfo* psi);
+    virtual void init(IModel* model, AllNeurons &neurons, SimulationInfo* psi);
 
     //! Terminate process.
-    virtual void term(Model* model, SimulationInfo* psi);
+    virtual void term(IModel* model, SimulationInfo* psi);
 
 protected:
     //! True if stimuls input is on.
@@ -61,7 +61,7 @@ protected:
     int* nISIs;
 
     //! List of synapses
-    AllSynapses *synapses;
+    AllDSSynapses *synapses;
 
     //! Masks for stimulus input
     bool* masks;

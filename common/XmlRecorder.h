@@ -6,7 +6,7 @@
 //! An implementation for recording spikes history on xml file
 
 /**
- ** \class XmlRecorder.h XmlRecorder.h "XmlRecorder.h"
+ ** \class XmlRecorder XmlRecorder.h "XmlRecorder.h"
  **
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
@@ -28,18 +28,15 @@
 
 #pragma once
 
-#ifndef _XMLRECORDER_H_
-#define _XMLRECORDER_H_
-
 #include "IRecorder.h"
-#include "LIFModel.h"
+#include "Model.h"
 #include <fstream>
 
 class XmlRecorder : public IRecorder
 {
 public:
     //! THe constructor and destructor
-    XmlRecorder(Model *model, SimulationInfo* sim_info);
+    XmlRecorder(IModel *model, const SimulationInfo* sim_info);
     ~XmlRecorder();
 
     /**
@@ -50,9 +47,8 @@ public:
 
     /*
      * Init radii and rates history matrices with default values
-     * @param[in] startRadius       The starting connectivity radius for all neurons
      */
-    virtual void initDefaultValues(BGFLOAT startRadius);
+    virtual void initDefaultValues();
 
     /*
      * Init radii and rates history matrices with current radii and rates
@@ -72,9 +68,8 @@ public:
     /**
      * Compile history information in every epoch
      * @param[in] neurons   The entire list of neurons.
-     * @param[in] minRadius The minimum possible radius.
      */
-    virtual void compileHistories(const AllNeurons &neurons, BGFLOAT minRadius);
+    virtual void compileHistories(AllNeurons &neurons);
 
     /**
      * Save current simulation state to XML
@@ -82,7 +77,9 @@ public:
      **/
     virtual void saveSimState(const AllNeurons &neurons);
 
-private:
+protected:
+    void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info);
+
     // a file stream for xml output
     ofstream stateOut;
 
@@ -92,17 +89,10 @@ private:
     // spikes history - history of accumulated spikes count of all neurons (10 ms bin)
     VectorMatrix spikesHistory;
 
-    // track radii
-    CompleteMatrix radiiHistory;
-
-    // track firing rate
-    CompleteMatrix ratesHistory;
-
     // Struct that holds information about a simulation
-    SimulationInfo *m_sim_info;
+    const SimulationInfo *m_sim_info;
 
     // TODO comment
-    LIFModel *m_model;
+    Model *m_model;
 };
 
-#endif // _XMLRECORDER_H_

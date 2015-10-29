@@ -40,10 +40,10 @@ public:
     ~SInputRegular();
 
     //! Initialize data.
-    virtual void init(Model* model, AllNeurons &neurons, SimulationInfo* psi);
+    virtual void init(IModel* model, AllNeurons &neurons, SimulationInfo* psi);
 
     //! Terminate process.
-    virtual void term(Model* model, SimulationInfo* psi);
+    virtual void term(IModel* model, SimulationInfo* psi);
 
 protected:
     //! True if stimuls input is on.

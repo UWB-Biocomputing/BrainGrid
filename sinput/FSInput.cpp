@@ -37,7 +37,7 @@ FSInput::~FSInput()
  * @param[in] stimulusInputFileName Stimulus input file name
  * @return a pointer to a SInput object
  */
-ISInput* FSInput::CreateInstance(Model* model, SimulationInfo* psi, string stimulusInputFileName)
+ISInput* FSInput::CreateInstance(IModel* model, SimulationInfo* psi, string stimulusInputFileName)
 {
     if (stimulusInputFileName.empty())
     {

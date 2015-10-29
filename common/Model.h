@@ -1,146 +1,86 @@
-/**
- * @brief An interface for Neural Network Models.
- *
- * @class Model Model.h "Model.h"
- *
- * @author Derek L. Mclean
- */
-
 #pragma once
-#ifndef _MODEL_H_
-#define _MODEL_H_
 
+#include "IModel.h"
+#include "Coordinate.h"
+#include "Layout.h"
+#include "SynapseIndexMap.h"
+
+#include <vector>
 #include <iostream>
 
 using namespace std;
 
-#include "../tinyxml/tinyxml.h"
-
-#include "Global.h"
-#include "AllNeurons.h"
-#include "AllSynapses.h"
-#include "SimulationInfo.h"
-#include "IRecorder.h"
-
 /**
- * Neural Network Model interface.
- *
- * Implementations define behavior of the network specific to the model. Specifically, a model
- * implementation handles:
- * * I/O
- * * Network creation
- * * Network simulation
- *
- * It is recommended that mutations of model state, if any, are avoided during a simulation. Some
- * models, such as those with complex connection dynamics or network history, may need to modify an
- * internal state during simulation.
- *
- * This is a pure interface and, thus, not meant to be directly instanced.
+ * Implementation of Model for the Leaky-Integrate-and-Fire model.
  */
-class Model {
+class Model : public IModel, TiXmlVisitor
+{
     public:
-        virtual ~Model() { }
+        Model(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout);
+        virtual ~Model();
 
-        /* --------------------
-         * # Network IO Methods
-         * --------------------
-         */
-
-        /**
-         * Read model specific parameters from the xml parameter file and finishes setting up model
-         * state.
+        /*
+         * Declarations of concrete implementations of Model interface for an Leaky-Integrate-and-Fire
+         * model.
          *
-         * @param source - the xml parameter document
-         *
-         * @return success of read (e.g. whether all parameters were read).
-         */
-        virtual bool readParameters(TiXmlElement *source) =0;
-
-        /**
-         * Writes model parameters to an output file. Parameters should be written in xml format.
-         *
-         * @param output - file to write to.
-         */
-        virtual void printParameters(ostream &output) const =0;
-
-        /**
-         * TODO(derek) comment.
-         */
-        virtual void loadMemory(istream& input, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info) =0;
-
-        /**
-         * TODO(derek) comment.
-         */
-        virtual void saveMemory(ostream& output, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info) =0;
-
-        /**
-         * TODO(derek) comment.
-         */
-        virtual void saveState(const AllNeurons &neurons, IRecorder* simRecorder) =0;
-
-        /* ----------------
-         * Network Creation
-         * ----------------
+         * @see Model.h
          */
 
+        virtual void loadMemory(istream& input, const SimulationInfo *sim_info);
+        virtual void saveMemory(ostream& output, const SimulationInfo *sim_info);
+        virtual void saveState(IRecorder* simRecorder);
+        virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder);
+        virtual void cleanupSim(SimulationInfo *sim_info);
+        virtual AllNeurons* getNeurons();
+        virtual Connections* getConnections();
+        virtual Layout* getLayout();
+        virtual void updateHistory(const SimulationInfo *sim_info, IRecorder* simRecorder);
+
+    protected:
+
+        /* -----------------------------------------------------------------------------------------
+         * # Helper Functions
+         * ------------------
+         */
+
+        void createSynapseImap(AllSynapses &synapses, const SimulationInfo* sim_info );
+
+        // # Print Parameters
+        // ------------------
+
+        // # Save State
+        // ------------
+	void logSimStep(const SimulationInfo *sim_info) const;
+
+        // -----------------------------------------------------------------------------------------
+        // # Generic Functions for handling synapse types
+        // ---------------------------------------------
+
+        // Tracks the number of parameters that have been read by read params -
+        // kind of a hack to do error handling for read params
+        int m_read_params;
+
+        // TODO
+        Connections *m_conns;
+
+        //
+        AllNeurons *m_neurons;
+
+        //
+        AllSynapses *m_synapses;
+
+        // 
+        Layout *m_layout;
+
+        //
+        SynapseIndexMap *m_synapseIndexMap;
+
+    private:
         /**
          * Populate an instance of AllNeurons with an initial state for each neuron.
          *
-         * @param neurons - collection of neurons to populate.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void createAllNeurons(AllNeurons &neurons, const SimulationInfo *sim_info) =0;
+        void createAllNeurons(SimulationInfo *sim_info);
 
-        /* --------------------------
-         * Network Simulation Methods
-         * --------------------------
-         */
-
-        /**
-         * Set up model state, if anym for a specific simulation run.
-         *
-         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
-         * @param neurons  - list of all Neurons.
-         * @param synapses - list of all Synapses.
-         */
-        virtual void setupSim(SimulationInfo *sim_info, const AllNeurons &neurons, AllSynapses &synapses, IRecorder* simRecorder) =0;
-
-        /**
-         * Advances network state one simulation step.
-         *
-         * @param neurons - collection of neurons in network
-         * @param synapses - collection of connections between neurons in network.
-         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
-         */
-        virtual void advance(AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info) =0;
-
-        /**
-         * Modifies connections between neurons based on current state of the network and behavior
-         * over the past epoch. Should be called once every epoch.
-         *
-         * @param currentStep - The epoch step in which the connections are being updated.
-         * @param neurons - collection of neurons in network
-         * @param synapses - collection of connections between neurons in network.
-         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
-         */
-        virtual void updateConnections(const int currentStep, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, IRecorder* simRecorder) =0;
-
-        /**
-         * Performs any finalization tasks on network following a simulation.
-         * @param neurons - collection of neurons in network
-         * @param synapses - collection of synapses in network
-         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
-         */
-        virtual void cleanupSim(AllNeurons &neurons, AllSynapses &synapses, SimulationInfo *sim_info) =0;
-
-        /**
-         * Prints debug information about the current state of the network.
-         *
-         * @param neurons - collection of neurons in network
-         * @param synapses - collection of connections between neurons in network.
-         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
-         */
-        virtual void logSimStep(const AllNeurons &neurons, const AllSynapses &synapses, const SimulationInfo *sim_info) const =0;
 };
-
-#endif

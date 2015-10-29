@@ -44,14 +44,14 @@
 #include "Global.h"
 #include "Timer.h"
 
-#include "Model.h"
+#include "IModel.h"
 #include "ISInput.h"
 
 class Network
 {
     public:
         //! The constructor for Network.
-        Network(Model *model, SimulationInfo *sim_info, IRecorder* simRecorder, ISInput* pInput);
+        Network(IModel *model, SimulationInfo *sim_info, IRecorder* simRecorder);
         ~Network();
 
         //! Frees dynamically allocated memory associated with the maps.
@@ -70,10 +70,10 @@ class Network
         void readSimMemory(istream& is);
 
         // Setup simulation
-        void setup(BGFLOAT growthEpochDuration, BGFLOAT num_growth_steps);
+        void setup(ISInput* pInput);
 
         // Cleanup after simulation
-        void finish(BGFLOAT growthEpochDuration, BGFLOAT num_growth_steps);
+        void finish();
 
         /**
          * Advance the network one step in an epoch.
@@ -83,22 +83,17 @@ class Network
         /**
          * Performs growth in the network: updating connections between neurons for the current epoch.
          */
-        void updateConnections(const int currentStep);
+        void updateConnections();
+
+        void updateHistory();
 
         //! Print network radii to console.
         void logSimStep() const;
 
         // TODO comment
-        Model *m_model;
-        // TODO comment
-        AllNeurons *neurons;
-        // TODO comment
-        AllSynapses *synapses;
+        IModel *m_model;
         // TODO comment
         IRecorder* m_simRecorder;
-
-        //! The map of summation points.
-        BGFLOAT* m_summationMap;
 
     private:
         // Struct that holds information about a simulation

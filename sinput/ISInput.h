@@ -29,7 +29,7 @@
 
 #include "Global.h"
 #include "SimulationInfo.h"
-#include "Model.h"
+#include "IModel.h"
 #include "tinyxml.h"
 
 class ISInput
@@ -43,12 +43,12 @@ public:
      * @param[in] neurons   The Neuron list to search from.
      * @param[in] psi       Pointer to the simulation information.
      */
-    virtual void init(Model* model, AllNeurons &neurons, SimulationInfo* psi) = 0;
+    virtual void init(IModel* model, AllNeurons &neurons, SimulationInfo* psi) = 0;
 
     /**
      * Terminate process
      */
-    virtual void term(Model* model, SimulationInfo* psi) = 0;
+    virtual void term(IModel* model, SimulationInfo* psi) = 0;
 
     /**
      * Process input stimulus for each time step
@@ -56,7 +56,7 @@ public:
      * @param[in] psi       Pointer to the simulation information.
      * @param[in] summationPoint
      */
-    virtual void inputStimulus(Model* model, SimulationInfo* psi, BGFLOAT* summationPoint) = 0;
+    virtual void inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint) = 0;
 };
 
 #endif // _ISINPUT_H_

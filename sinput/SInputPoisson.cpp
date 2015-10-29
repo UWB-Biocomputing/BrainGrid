@@ -8,7 +8,7 @@
 
 #include "SInputPoisson.h"
 #include "tinyxml.h"
-#include "LIFSingleThreadedModel.h"
+#include "AllDSSynapses.h"
 
 extern void getValueList(const string& valString, vector<BGFLOAT>* pList);
 
@@ -122,26 +122,26 @@ SInputPoisson::~SInputPoisson()
  * @param[in] neurons  	The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
  */
-void SInputPoisson::init(Model* model, AllNeurons &neurons, SimulationInfo* psi)
+void SInputPoisson::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi)
 {
     if (fSInput == false)
         return;
 
     // create an input synapse layer
-    synapses = new AllSynapses(psi->totalNeurons, 1);
+    synapses = new AllDSSynapses(psi->totalNeurons, 1);
     for (int neuron_index = 0; neuron_index < psi->totalNeurons; neuron_index++)
     {
-        int x = neuron_index % psi->width;
-        int y = neuron_index / psi->width;
-        Coordinate dest(x, y);
         synapseType type;
-        if (neurons.neuron_type_map[neuron_index] == INH)
+        if (model->getLayout()->neuron_type_map[neuron_index] == INH)
             type = EI;
         else
             type = EE;
+
         BGFLOAT* sum_point = &( psi->pSummationMap[neuron_index] );
-        static_cast<LIFSingleThreadedModel*>(model)->createSynapse(*synapses, neuron_index, 0, NULL, dest, sum_point, psi->deltaT, type);
-        synapses->W[neuron_index][0] = weight * LIFModel::SYNAPSE_STRENGTH_ADJUSTMENT;
+        uint32_t iSyn = psi->maxSynapsesPerNeuron * neuron_index;
+
+        synapses->createSynapse(iSyn, 0, neuron_index, sum_point, psi->deltaT, type);
+        synapses->W[iSyn] = weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
     }
 }
 
@@ -150,7 +150,7 @@ void SInputPoisson::init(Model* model, AllNeurons &neurons, SimulationInfo* psi)
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information.
  */
-void SInputPoisson::term(Model* model, SimulationInfo* psi)
+void SInputPoisson::term(IModel* model, SimulationInfo* psi)
 {
     // clear memory for interval counter
     if (nISIs != NULL)

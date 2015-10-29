@@ -123,7 +123,7 @@ SInputRegular::~SInputRegular()
  * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
  */
-void SInputRegular::init(Model* model, AllNeurons& neurons, SimulationInfo* psi)
+void SInputRegular::init(IModel* model, AllNeurons& neurons, SimulationInfo* psi)
 {
 }
 
@@ -132,7 +132,7 @@ void SInputRegular::init(Model* model, AllNeurons& neurons, SimulationInfo* psi)
  * @param[in] model              Pointer to the Neural Network Model object.
  * @param[in] psi                Pointer to the simulation information.
  */
-void SInputRegular::term(Model* model, SimulationInfo* psi)
+void SInputRegular::term(IModel* model, SimulationInfo* psi)
 {
 }
 

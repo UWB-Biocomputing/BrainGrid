@@ -29,7 +29,7 @@ HostSInputRegular::~HostSInputRegular()
  * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
  */
-void HostSInputRegular::init(Model* model, AllNeurons &neurons, SimulationInfo* psi)
+void HostSInputRegular::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi)
 {
     SInputRegular::init(model, neurons, psi);
 }
@@ -39,7 +39,7 @@ void HostSInputRegular::init(Model* model, AllNeurons &neurons, SimulationInfo* 
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information.
  */
-void HostSInputRegular::term(Model* model, SimulationInfo* psi)
+void HostSInputRegular::term(IModel* model, SimulationInfo* psi)
 {
     if (values != NULL)
         delete[] values;
@@ -55,7 +55,7 @@ void HostSInputRegular::term(Model* model, SimulationInfo* psi)
  * @param[in] psi       Pointer to the simulation information.
  * @param[in] summationPoint
  */
-void HostSInputRegular::inputStimulus(Model* model, SimulationInfo* psi, BGFLOAT* summationPoint)
+void HostSInputRegular::inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint)
 {
     if (fSInput == false)
         return;

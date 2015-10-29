@@ -13,11 +13,9 @@
 #include "paramcontainer/ParamContainer.h"
 
 #include "Network.h"
-#include "Model.h"
-#include "XmlRecorder.h"
-#ifdef USE_HDF5
-#include "Hdf5Recorder.h"
-#endif // USE_HDF5
+#include "IModel.h"
+#include "FClassOfCategory.h"
+#include "IRecorder.h"
 #include "FSInput.h"
 
 
@@ -25,13 +23,13 @@
 // #include <vld.h>
 
 #if defined(USE_GPU)
-    #include "LIFGPUModel.h"
+    #include "GPUSpikingModel.h"
     #include "GPUSimulator.h"
 #elif defined(USE_OMP)
 //    #include "MultiThreadedSim.h"
 #else 
-    #include "LIFSingleThreadedModel.h"
     #include "SingleThreadedSim.h"
+    #include "SingleThreadedSpikingModel.h"
 #endif
 
 using namespace std;
@@ -51,7 +49,12 @@ bool fWriteMemImage = false;  // True if dumped memory image is written after
 // stimulus input file name
 string stimulusInputFileName;
 
-Model *model = NULL;
+IModel *model = NULL;
+AllNeurons *neurons = NULL;
+AllSynapses *synapses = NULL;
+Connections *conns = NULL;
+Layout *layout = NULL;
+
 SimulationInfo *simInfo = NULL;
 
 
@@ -65,6 +68,7 @@ void LoadSimulationParameters(TiXmlElement*);
 //void SaveSimState(ostream &);
 void printParams();
 bool parseCommandLine(int argc, char* argv[]);
+bool createAllClassInstances(TiXmlElement*);
 
 /**
  *  Main for Simulator. Handles command line arguments and loads parameters
@@ -75,21 +79,13 @@ bool parseCommandLine(int argc, char* argv[]);
  *  @return -1 if error, else if success.
  */
 int main(int argc, char* argv[]) {
-    // create the model
-    #if defined(USE_GPU)
-	 model = new LIFGPUModel();
-    #elif defined(USE_OMP)
-	 model = new LIFSingleThreadedModel();
-    #else
-	 model = new LIFSingleThreadedModel();
-    #endif
-    
-    DEBUG(cout << "reading parameters from xml file" << endl;)
-
     if (!parseCommandLine(argc, argv)) {
         cerr << "! ERROR: failed during command line parse" << endl;
         return -1;
     }
+
+    DEBUG(cout << "reading parameters from xml file" << endl;)
+
     if (!LoadAllParameters(stateInputFileName)) {
         cerr << "! ERROR: failed while parsing simulation parameters." << endl;
         return -1;
@@ -98,29 +94,27 @@ int main(int argc, char* argv[]) {
     /*    verify that params were read correctly */
     DEBUG(printParams();)
 
+    // create the model
+    #if defined(USE_GPU)
+	 model = new GPUSpikingModel(conns, neurons, synapses, layout);
+    #else
+	 model = new SingleThreadedSpikingModel(conns, neurons, synapses, layout);
+    #endif
+    
     // create & init simulation recorder
-    IRecorder* simRecorder = NULL;
-    if (stateOutputFileName.find(".xml") != string::npos) {
-        simRecorder = new XmlRecorder(model, simInfo);
-    }
-#ifdef USE_HDF5
-    else if (stateOutputFileName.find(".h5") != string::npos) {
-        simRecorder = new Hdf5Recorder(model, simInfo); 
-    }
-    else {
+    IRecorder* simRecorder = conns->createRecorder(stateOutputFileName, model, simInfo);
+
+    if (simRecorder == NULL) {
         cerr << "! ERROR: invalid state output file name extension." << endl;
         return -1;
     }
-#endif // USE_HDF5
-    simRecorder->init(stateOutputFileName);
 
     // Create a stimulus input object
     ISInput* pInput = NULL;     // pointer to a stimulus input object
-    FSInput fsi;
-    pInput = fsi.CreateInstance(model, simInfo, stimulusInputFileName);
+    pInput = FSInput::get()->CreateInstance(model, simInfo, stimulusInputFileName);
 
     // create the network
-    Network network(model, simInfo, simRecorder, pInput);
+    Network network(model, simInfo, simRecorder);
 
     time_t start_time, end_time;
     time(&start_time);
@@ -142,7 +136,7 @@ int main(int argc, char* argv[]) {
 	
     // setup simulation
     DEBUG(cout << "Setup simulation." << endl;);
-    network.setup(simInfo->epochDuration, simInfo->maxSteps);
+    network.setup(pInput);
 
     if (fReadMemImage) {
         ifstream memory_in;
@@ -172,8 +166,13 @@ int main(int argc, char* argv[]) {
         memory_out.close();
     }
 
+    // Tell network to clean-up and run any post-simulation logic.
+    network.finish();
+
     // terminates the simulation recorder
-    simRecorder->term();
+    if (simRecorder != NULL) {
+        simRecorder->term();
+    }
 
     for(unsigned int i = 0; i < rgNormrnd.size(); ++i) {
         delete rgNormrnd[i];
@@ -191,8 +190,10 @@ int main(int argc, char* argv[]) {
     delete model;
     model = NULL;
     
-    delete simRecorder;
-    simRecorder = NULL;
+    if (simRecorder != NULL) {
+        delete simRecorder;
+        simRecorder = NULL;
+    }
 
     delete simInfo;
     simInfo = NULL;
@@ -258,8 +259,24 @@ void printParams() {
     cout << "\tNumber of simulations to run: " << simInfo->maxSteps << endl;
 
     cout << "Model Parameters:" << endl;
-    model->printParameters(cout);
+    FClassOfCategory::get()->printParameters(cout);
     cout << "Done printing parameters" << endl;
+}
+
+bool createAllClassInstances(TiXmlElement* parms)
+{
+    // create neurons, synapses, connections, and layout objects specified in the description file
+    neurons = FClassOfCategory::get()->createNeurons(parms);
+    synapses = FClassOfCategory::get()->createSynapses(parms);
+    conns = FClassOfCategory::get()->createConnections(parms);
+    layout = FClassOfCategory::get()->createLayout(parms);
+
+    if (neurons == NULL || synapses == NULL || conns == NULL || layout == NULL) {
+        cerr << "!ERROR: failed to create classes" << endl;
+        return false;
+    }
+
+    return FClassOfCategory::get()->readParameters(parms);
 }
 
 /**
@@ -289,13 +306,17 @@ bool LoadAllParameters(const string &sim_param_filename)
 
     try {
         LoadSimulationParameters(parms);
-        model->readParameters(parms);
     } catch (KII_exception &e) {
         cerr << "Failure loading simulation parameters from file "
              << sim_param_filename << ":\n\t" << e.what()
              << endl;
         return false;
     }
+
+    if (createAllClassInstances(parms) != true) {
+        return false;
+    }
+ 
     return true;
 }
 

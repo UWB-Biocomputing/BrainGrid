@@ -40,13 +40,18 @@ public:
     ~GpuSInputRegular();
 
     //! Initialize data.
-    virtual void init(Model* model, AllNeurons &neurons, SimulationInfo* psi);
+    virtual void init(IModel* model, AllNeurons &neurons, SimulationInfo* psi);
 
     //! Terminate process.
-    virtual void term(Model* model, SimulationInfo* psi);
+    virtual void term(IModel* model, SimulationInfo* psi);
 
     //! Process input stimulus for each time step.
-    virtual void inputStimulus(Model* model, SimulationInfo* psi, BGFLOAT* summationPoint);
+    virtual void inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint);
 };
+
+//! Device function that processes input stimulus for each time step.
+#if defined(__CUDACC__)
+extern __global__ void inputStimulusDevice( int n, BGFLOAT* summationPoint_d, BGFLOAT* initValues_d, int* nShiftValues_d, int nStepsInCycle, int nStepsCycle, int nStepsDuration );
+#endif
 
 #endif // _GPUSINPUTREGULAR_H_

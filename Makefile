@@ -58,43 +58,62 @@ LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
 ################################################################################
 
 CUDAOBJS =   \
-	    $(COMMDIR)/LIFGPUModel.o \
+	    $(CUDADIR)/GPUSpikingModel.o \
 	    $(COMMDIR)/GPUSimulator.o \
-            $(CUDADIR)/LifNeuron_struct_d.o \
-            $(CUDADIR)/DynamicSpikingSynapse_struct_d.o \
-            $(CUDADIR)/AllSynapsesDevice.o \
+            $(CUDADIR)/AllNeurons_cuda.o \
+            $(CUDADIR)/AllSpikingNeurons_cuda.o \
+            $(CUDADIR)/AllSpikingNeurons_d.o \
+            $(CUDADIR)/AllIFNeurons_cuda.o \
+            $(CUDADIR)/AllIFNeurons_d.o \
+            $(CUDADIR)/AllLIFNeurons_cuda.o \
+            $(CUDADIR)/AllLIFNeurons_d.o \
+            $(CUDADIR)/AllIZHNeurons_cuda.o \
+            $(CUDADIR)/AllIZHNeurons_d.o \
+            $(CUDADIR)/AllSynapses_cuda.o \
+            $(CUDADIR)/AllSpikingSynapses_cuda.o \
+            $(CUDADIR)/AllSpikingSynapses_d.o \
+            $(CUDADIR)/AllDSSynapses_cuda.o \
+            $(CUDADIR)/AllDSSynapses_d.o \
+            $(CUDADIR)/AllSTDPSynapses_cuda.o \
+            $(CUDADIR)/AllSTDPSynapses_d.o \
+            $(CUDADIR)/AllDynamicSTDPSynapses_cuda.o \
+            $(CUDADIR)/AllDynamicSTDPSynapses_d.o \
+            $(CUDADIR)/Connections_cuda.o \
+            $(CUDADIR)/ConnGrowth_cuda.o \
+            $(CUDADIR)/ConnStatic_cuda.o \
+            $(CUDADIR)/ConnGrowth_d.o \
             $(CUDADIR)/MersenneTwister_kernel.o \
             $(CUDADIR)/BGDriver_cuda.o \
             $(SINPUTDIR)/GpuSInputRegular.o \
             $(SINPUTDIR)/GpuSInputPoisson.o \
             $(SINPUTDIR)/FSInput_cuda.o \
+            $(CUDADIR)/FClassOfCategory_cuda.o \
             $(CUDADIR)/Global_cuda.o
 
 ifeq ($(CUSEHDF5), yes)
-LIBOBJS = $(COMMDIR)/AllNeurons.o \
-			$(COMMDIR)/AllSynapses.o \
+LIBOBJS =               \
 			$(COMMDIR)/Simulator.o \
-			$(COMMDIR)/SingleThreadedSim.o \
-			$(COMMDIR)/LIFModel.o \
-			$(COMMDIR)/LIFSingleThreadedModel.o \
+			$(COMMDIR)/Model.o \
+			$(COMMDIR)/Layout.o \
 			$(COMMDIR)/Network.o \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
 			$(COMMDIR)/Util.o \
 			$(COMMDIR)/XmlRecorder.o \
-			$(COMMDIR)/Hdf5Recorder.o 
+			$(COMMDIR)/XmlGrowthRecorder.o \
+			$(COMMDIR)/Hdf5Recorder.o \
+			$(COMMDIR)/Hdf5GrowthRecorder.o 
 else
-LIBOBJS = $(COMMDIR)/AllNeurons.o \
-			$(COMMDIR)/AllSynapses.o \
+LIBOBJS =               \
 			$(COMMDIR)/Simulator.o \
-			$(COMMDIR)/SingleThreadedSim.o \
-			$(COMMDIR)/LIFModel.o \
-			$(COMMDIR)/LIFSingleThreadedModel.o \
+			$(COMMDIR)/Model.o \
+			$(COMMDIR)/Layout.o \
 			$(COMMDIR)/Network.o \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
 			$(COMMDIR)/Util.o \
-			$(COMMDIR)/XmlRecorder.o 
+			$(COMMDIR)/XmlRecorder.o \
+			$(COMMDIR)/XmlGrowthRecorder.o 
 endif
  
 		
@@ -108,7 +127,23 @@ PARAMOBJS = $(PARAMDIR)/ParamContainer.o
 RNGOBJS = $(RNGDIR)/Norm.o
 
 SINGLEOBJS = $(MAIN)/BGDriver.o  \
+			$(COMMDIR)/SingleThreadedSpikingModel.o \
+			$(COMMDIR)/SingleThreadedSim.o \
 			$(SINPUTDIR)/FSInput.o \
+			$(COMMDIR)/FClassOfCategory.o \
+			$(COMMDIR)/AllNeurons.o \
+			$(COMMDIR)/AllSpikingNeurons.o \
+			$(COMMDIR)/AllIFNeurons.o \
+			$(COMMDIR)/AllLIFNeurons.o \
+			$(COMMDIR)/AllIZHNeurons.o \
+			$(COMMDIR)/AllSynapses.o \
+			$(COMMDIR)/AllSpikingSynapses.o \
+			$(COMMDIR)/AllDSSynapses.o \
+			$(COMMDIR)/AllSTDPSynapses.o \
+			$(COMMDIR)/AllDynamicSTDPSynapses.o \
+			$(COMMDIR)/Connections.o \
+			$(COMMDIR)/ConnGrowth.o \
+			$(COMMDIR)/ConnStatic.o \
 			$(COMMDIR)/Global.o 
 
 XMLOBJS = $(XMLDIR)/tinyxml.o \
@@ -144,27 +179,86 @@ $(CUDADIR)/MersenneTwister_kernel.o: $(CUDADIR)/MersenneTwister_kernel.cu $(COMM
 	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/MersenneTwister_kernel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/MersenneTwister_kernel.o
 
 
-$(COMMDIR)/LIFGPUModel.o: $(COMMDIR)/LIFGPUModel.cu $(COMMDIR)/Global.h $(COMMDIR)/LIFGPUModel.h $(COMMDIR)/AllNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Model.h $(CUDADIR)/AllSynapsesDevice.h 
-	nvcc -c -g -arch=sm_20 -rdc=true $(COMMDIR)/LIFGPUModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(COMMDIR)/LIFGPUModel.o
+$(CUDADIR)/GPUSpikingModel.o: $(CUDADIR)/GPUSpikingModel.cu $(COMMDIR)/Global.h $(CUDADIR)/GPUSpikingModel.h $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/IModel.h  
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/GPUSpikingModel.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/GPUSpikingModel.o
 
-$(CUDADIR)/LifNeuron_struct_d.o: $(CUDADIR)/LifNeuron_struct_d.cu $(COMMDIR)/Global.h $(COMMDIR)/LIFGPUModel.h
-	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/LifNeuron_struct_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/LifNeuron_struct_d.o
+$(CUDADIR)/AllSpikingNeurons_d.o: $(CUDADIR)/AllSpikingNeurons_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllSpikingNeurons.h
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllSpikingNeurons_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllSpikingNeurons_d.o
 
-$(CUDADIR)/DynamicSpikingSynapse_struct_d.o: $(CUDADIR)/DynamicSpikingSynapse_struct_d.cu $(COMMDIR)/Global.h $(COMMDIR)/LIFGPUModel.h
-	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/DynamicSpikingSynapse_struct_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/DynamicSpikingSynapse_struct_d.o
+$(CUDADIR)/AllIFNeurons_d.o: $(CUDADIR)/AllIFNeurons_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllIFNeurons.h
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllIFNeurons_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllIFNeurons_d.o
 
-$(CUDADIR)/AllSynapsesDevice.o: $(CUDADIR)/AllSynapsesDevice.cpp $(CUDADIR)/AllSynapsesDevice.h $(COMMDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CUDADIR)/AllSynapsesDevice.cpp -o $(CUDADIR)/AllSynapsesDevice.o
+$(CUDADIR)/AllLIFNeurons_d.o: $(CUDADIR)/AllLIFNeurons_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllLIFNeurons.h
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllLIFNeurons_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllLIFNeurons_d.o
 
+$(CUDADIR)/AllIZHNeurons_d.o: $(CUDADIR)/AllIZHNeurons_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllIZHNeurons.h
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllIZHNeurons_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllIZHNeurons_d.o
 
-$(CUDADIR)/BGDriver_cuda.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/Model.h $(COMMDIR)/AllNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Model.h $(COMMDIR)/Network.h
+$(CUDADIR)/AllSpikingSynapses_d.o: $(CUDADIR)/AllSpikingSynapses_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllSpikingSynapses.h
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllSpikingSynapses_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllSpikingSynapses_d.o
+
+$(CUDADIR)/AllDSSynapses_d.o: $(CUDADIR)/AllDSSynapses_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllDSSynapses.h
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllDSSynapses_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllDSSynapses_d.o
+
+$(CUDADIR)/AllSTDPSynapses_d.o: $(CUDADIR)/AllSTDPSynapses_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllSTDPSynapses.h
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllSTDPSynapses_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllSTDPSynapses_d.o
+
+$(CUDADIR)/AllDynamicSTDPSynapses_d.o: $(CUDADIR)/AllDynamicSTDPSynapses_d.cu $(COMMDIR)/Global.h $(COMMDIR)/AllDynamicSTDPSynapses.h
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/AllDynamicSTDPSynapses_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/AllDynamicSTDPSynapses_d.o
+
+$(CUDADIR)/ConnGrowth_d.o: $(CUDADIR)/ConnGrowth_d.cu $(COMMDIR)/Global.h $(COMMDIR)/ConnGrowth.h
+	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/ConnGrowth_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/ConnGrowth_d.o
+
+$(CUDADIR)/BGDriver_cuda.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/IModel.h $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Network.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -I$(CUDADIR) -c $(MAIN)/BGDriver.cpp -o $(CUDADIR)/BGDriver_cuda.o
+
+$(CUDADIR)/AllNeurons_cuda.o: $(COMMDIR)/AllNeurons.cpp $(COMMDIR)/AllNeurons.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllNeurons.cpp -o $(CUDADIR)/AllNeurons_cuda.o
+	
+$(CUDADIR)/AllSpikingNeurons_cuda.o: $(COMMDIR)/AllSpikingNeurons.cpp $(COMMDIR)/AllSpikingNeurons.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllSpikingNeurons.cpp -o $(CUDADIR)/AllSpikingNeurons_cuda.o
+        
+$(CUDADIR)/AllIFNeurons_cuda.o: $(COMMDIR)/AllIFNeurons.cpp $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllIFNeurons.cpp -o $(CUDADIR)/AllIFNeurons_cuda.o
+	
+$(CUDADIR)/AllLIFNeurons_cuda.o: $(COMMDIR)/AllLIFNeurons.cpp $(COMMDIR)/AllLIFNeurons.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllLIFNeurons.cpp -o $(CUDADIR)/AllLIFNeurons_cuda.o
+	
+$(CUDADIR)/AllIZHNeurons_cuda.o: $(COMMDIR)/AllIZHNeurons.cpp $(COMMDIR)/AllIZHNeurons.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllIZHNeurons.cpp -o $(CUDADIR)/AllIZHNeurons_cuda.o
+	
+$(CUDADIR)/AllSynapses_cuda.o: $(COMMDIR)/AllSynapses.cpp $(COMMDIR)/AllSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllSynapses.cpp -o $(CUDADIR)/AllSynapses_cuda.o
+
+$(CUDADIR)/AllSpikingSynapses_cuda.o: $(COMMDIR)/AllSpikingSynapses.cpp $(COMMDIR)/AllSpikingSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllSpikingSynapses.cpp -o $(CUDADIR)/AllSpikingSynapses_cuda.o
+
+$(CUDADIR)/AllDSSynapses_cuda.o: $(COMMDIR)/AllDSSynapses.cpp $(COMMDIR)/AllDSSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllDSSynapses.cpp -o $(CUDADIR)/AllDSSynapses_cuda.o
+
+$(CUDADIR)/AllSTDPSynapses_cuda.o: $(COMMDIR)/AllSTDPSynapses.cpp $(COMMDIR)/AllSTDPSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllSTDPSynapses.cpp -o $(CUDADIR)/AllSTDPSynapses_cuda.o
+
+$(CUDADIR)/AllDynamicSTDPSynapses_cuda.o: $(COMMDIR)/AllDynamicSTDPSynapses.cpp $(COMMDIR)/AllDynamicSTDPSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllDynamicSTDPSynapses.cpp -o $(CUDADIR)/AllDynamicSTDPSynapses_cuda.o
+
+$(CUDADIR)/Connections_cuda.o: $(COMMDIR)/Connections.cpp $(COMMDIR)/Connections.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/Connections.cpp -o $(CUDADIR)/Connections_cuda.o
+
+$(CUDADIR)/ConnGrowth_cuda.o: $(COMMDIR)/ConnGrowth.cpp $(COMMDIR)/ConnGrowth.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/ConnGrowth.cpp -o $(CUDADIR)/ConnGrowth_cuda.o
+
+$(CUDADIR)/ConnStatic_cuda.o: $(COMMDIR)/ConnStatic.cpp $(COMMDIR)/ConnStatic.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/ConnStatic.cpp -o $(CUDADIR)/ConnStatic_cuda.o
 
 $(CUDADIR)/Global_cuda.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/Global.cpp -o $(CUDADIR)/Global_cuda.o
 
 $(CUDADIR)/GPUSimulator.o: $(COMMDIR)/GPUSimulator.cpp $(COMMDIR)/GPUSimulator.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/GPUSimulator.cpp -o $(CUDADIR)/GPUSimulator.o
+
+$(CUDADIR)/FClassOfCategory_cuda.o: $(COMMDIR)/FClassOfCategory.cpp $(COMMDIR)/FClassOfCategory.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/FClassOfCategory.cpp -o $(CUDADIR)/FClassOfCategory_cuda.o
 
 
 # Library
@@ -173,8 +267,32 @@ $(CUDADIR)/GPUSimulator.o: $(COMMDIR)/GPUSimulator.cpp $(COMMDIR)/GPUSimulator.h
 $(COMMDIR)/AllNeurons.o: $(COMMDIR)/AllNeurons.cpp $(COMMDIR)/AllNeurons.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllNeurons.cpp -o $(COMMDIR)/AllNeurons.o
 	
+$(COMMDIR)/AllSpikingNeurons.o: $(COMMDIR)/AllSpikingNeurons.cpp $(COMMDIR)/AllSpikingNeurons.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllSpikingNeurons.cpp -o $(COMMDIR)/AllSpikingNeurons.o
+	
+$(COMMDIR)/AllIFNeurons.o: $(COMMDIR)/AllIFNeurons.cpp $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllIFNeurons.cpp -o $(COMMDIR)/AllIFNeurons.o
+	
+$(COMMDIR)/AllLIFNeurons.o: $(COMMDIR)/AllLIFNeurons.cpp $(COMMDIR)/AllLIFNeurons.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllLIFNeurons.cpp -o $(COMMDIR)/AllLIFNeurons.o
+	
+$(COMMDIR)/AllIZHNeurons.o: $(COMMDIR)/AllIZHNeurons.cpp $(COMMDIR)/AllIZHNeurons.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllIZHNeurons.cpp -o $(COMMDIR)/AllIZHNeurons.o
+	
 $(COMMDIR)/AllSynapses.o: $(COMMDIR)/AllSynapses.cpp $(COMMDIR)/AllSynapses.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllSynapses.cpp -o $(COMMDIR)/AllSynapses.o
+
+$(COMMDIR)/AllSpikingSynapses.o: $(COMMDIR)/AllSpikingSynapses.cpp $(COMMDIR)/AllSpikingSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllSpikingSynapses.cpp -o $(COMMDIR)/AllSpikingSynapses.o
+
+$(COMMDIR)/AllDSSynapses.o: $(COMMDIR)/AllDSSynapses.cpp $(COMMDIR)/AllDSSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllDSSynapses.cpp -o $(COMMDIR)/AllDSSynapses.o
+
+$(COMMDIR)/AllSTDPSynapses.o: $(COMMDIR)/AllSTDPSynapses.cpp $(COMMDIR)/AllSTDPSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllSTDPSynapses.cpp -o $(COMMDIR)/AllSTDPSynapses.o
+
+$(COMMDIR)/AllDynamicSTDPSynapses.o: $(COMMDIR)/AllDynamicSTDPSynapses.cpp $(COMMDIR)/AllDynamicSTDPSynapses.h $(COMMDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/AllDynamicSTDPSynapses.cpp -o $(COMMDIR)/AllDynamicSTDPSynapses.o
 
 $(COMMDIR)/Global.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Global.cpp -o $(COMMDIR)/Global.o
@@ -185,11 +303,23 @@ $(COMMDIR)/Simulator.o: $(COMMDIR)/Simulator.cpp $(COMMDIR)/Simulator.h $(COMMDI
 $(COMMDIR)/SingleThreadedSim.o: $(COMMDIR)/SingleThreadedSim.cpp $(COMMDIR)/SingleThreadedSim.h $(COMMDIR)/Simulator.h $(COMMDIR)/Global.h $(COMMDIR)/SimulationInfo.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/SingleThreadedSim.cpp -o $(COMMDIR)/SingleThreadedSim.o
 
-$(COMMDIR)/LIFModel.o: $(COMMDIR)/LIFModel.cpp $(COMMDIR)/LIFModel.h $(COMMDIR)/Model.h $(COMMDIR)/ParseParamError.h $(COMMDIR)/Util.h $(XMLDIR)/tinyxml.h
-	$(CXX) $(CXXFLAGS) $(COMMDIR)/LIFModel.cpp -o $(COMMDIR)/LIFModel.o
+$(COMMDIR)/Model.o: $(COMMDIR)/Model.cpp $(COMMDIR)/Model.h $(COMMDIR)/IModel.h $(COMMDIR)/ParseParamError.h $(COMMDIR)/Util.h $(XMLDIR)/tinyxml.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/Model.cpp -o $(COMMDIR)/Model.o
 
-$(COMMDIR)/LIFSingleThreadedModel.o: $(COMMDIR)/LIFSingleThreadedModel.cpp $(COMMDIR)/LIFSingleThreadedModel.h $(COMMDIR)/LIFModel.h 
-	$(CXX) $(CXXFLAGS) $(COMMDIR)/LIFSingleThreadedModel.cpp -o $(COMMDIR)/LIFSingleThreadedModel.o
+$(COMMDIR)/Connections.o: $(COMMDIR)/Connections.cpp $(COMMDIR)/Connections.h 
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/Connections.cpp -o $(COMMDIR)/Connections.o
+
+$(COMMDIR)/ConnStatic.o: $(COMMDIR)/ConnStatic.cpp $(COMMDIR)/ConnStatic.h 
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/ConnStatic.cpp -o $(COMMDIR)/ConnStatic.o
+
+$(COMMDIR)/ConnGrowth.o: $(COMMDIR)/ConnGrowth.cpp $(COMMDIR)/ConnGrowth.h 
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/ConnGrowth.cpp -o $(COMMDIR)/ConnGrowth.o
+
+$(COMMDIR)/Layout.o: $(COMMDIR)/Layout.cpp $(COMMDIR)/Layout.h 
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/Layout.cpp -o $(COMMDIR)/Layout.o
+
+$(COMMDIR)/SingleThreadedSpikingModel.o: $(COMMDIR)/SingleThreadedSpikingModel.cpp $(COMMDIR)/SingleThreadedSpikingModel.h $(COMMDIR)/Model.h 
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/SingleThreadedSpikingModel.cpp -o $(COMMDIR)/SingleThreadedSpikingModel.o
 
 $(COMMDIR)/Network.o: $(COMMDIR)/Network.cpp $(COMMDIR)/Network.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Network.cpp -o $(COMMDIR)/Network.o
@@ -206,10 +336,20 @@ $(COMMDIR)/Util.o: $(COMMDIR)/Util.cpp $(COMMDIR)/Util.h
 $(COMMDIR)/XmlRecorder.o: $(COMMDIR)/XmlRecorder.cpp $(COMMDIR)/XmlRecorder.h $(COMMDIR)/IRecorder.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/XmlRecorder.cpp -o $(COMMDIR)/XmlRecorder.o
 
+$(COMMDIR)/XmlGrowthRecorder.o: $(COMMDIR)/XmlGrowthRecorder.cpp $(COMMDIR)/XmlGrowthRecorder.h $(COMMDIR)/IRecorder.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/XmlGrowthRecorder.cpp -o $(COMMDIR)/XmlGrowthRecorder.o
+
 ifeq ($(CUSEHDF5), yes)
+$(COMMDIR)/Hdf5GrowthRecorder.o: $(COMMDIR)/Hdf5GrowthRecorder.cpp $(COMMDIR)/Hdf5GrowthRecorder.h $(COMMDIR)/IRecorder.h
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/Hdf5GrowthRecorder.cpp -o $(COMMDIR)/Hdf5GrowthRecorder.o
+
+
 $(COMMDIR)/Hdf5Recorder.o: $(COMMDIR)/Hdf5Recorder.cpp $(COMMDIR)/Hdf5Recorder.h $(COMMDIR)/IRecorder.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Hdf5Recorder.cpp -o $(COMMDIR)/Hdf5Recorder.o
 endif
+
+$(COMMDIR)/FClassOfCategory.o: $(COMMDIR)/FClassOfCategory.cpp $(COMMDIR)/FClassOfCategory.h
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/FClassOfCategory.cpp -o $(COMMDIR)/FClassOfCategory.o
 
 
 # Matrix

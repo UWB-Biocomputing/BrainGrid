@@ -6,7 +6,7 @@
 //! An implementation for recording spikes history on hdf5 file
 
 /**
- ** \class Hdf5Recorder.h Hdf5Recorder.h "Hdf5Recorder.h"
+ ** @class Hdf5Recorder Hdf5Recorder.h "Hdf5Recorder.h"
  **
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
@@ -28,11 +28,8 @@
 
 #pragma once
 
-#ifndef _HD5RECORDER_H_
-#define _HD5RECORDER_H_
-
 #include "IRecorder.h"
-#include "LIFModel.h"
+#include "Model.h"
 #include "H5Cpp.h"
 
 #ifndef H5_NO_NAMESPACE
@@ -49,7 +46,7 @@ class Hdf5Recorder : public IRecorder
 {
 public:
     //! THe constructor and destructor
-    Hdf5Recorder(Model *model, SimulationInfo* sim_info);
+    Hdf5Recorder(IModel *model, const SimulationInfo* sim_info);
     ~Hdf5Recorder();
 
     /**
@@ -60,9 +57,8 @@ public:
 
     /*
      * Init radii and rates history matrices with default values
-     * @param[in] startRadius       The starting connectivity radius for all neurons
      */
-    virtual void initDefaultValues(BGFLOAT startRadius);
+    virtual void initDefaultValues();
 
     /*
      * Init radii and rates history matrices with current radii and rates
@@ -82,9 +78,8 @@ public:
     /**
      * Compile history information in every epoch
      * @param[in] neurons   The entire list of neurons.
-     * @param[in] minRadius The minimum possible radius.
      */
-    virtual void compileHistories(const AllNeurons &neurons, BGFLOAT minRadius);
+    virtual void compileHistories(AllNeurons &neurons);
 
     /**
      * Save current simulation state to XML
@@ -92,11 +87,10 @@ public:
      **/
     virtual void saveSimState(const AllNeurons &neurons);
 
-private:
-    /**
-     * Incrementaly write radii and rates histories
-     */
-    void writeRadiiRates();
+protected:
+    virtual void initDataSet();
+
+    void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info);
 
     // hdf5 file identifier
     H5File* stateOut;
@@ -104,8 +98,6 @@ private:
     // hdf5 file dataset
     DataSet* dataSetBurstHist;
     DataSet* dataSetSpikesHist;
-    DataSet* dataSetRatesHist;
-    DataSet* dataSetRadiiHist;
 
     DataSet* dataSetXloc;
     DataSet* dataSetYloc;
@@ -124,20 +116,13 @@ private:
     // spikes history - history of accumulated spikes count of all neurons (10 ms bin)
     int* spikesHistory;
 
-    // track radii
-    BGFLOAT* radiiHistory;
-
-    // track firing rate
-    BGFLOAT* ratesHistory;
-
     // track spikes count of probed neurons
     vector<uint64_t>* spikesProbedNeurons;
 
     // Struct that holds information about a simulation
-    SimulationInfo *m_sim_info;
+    const SimulationInfo *m_sim_info;
 
     // TODO comment
-    LIFModel *m_model;
+    Model *m_model;
 };
 
-#endif // _HD5RECORDER_H_

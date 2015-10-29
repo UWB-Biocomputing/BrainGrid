@@ -7,7 +7,7 @@
  */
 
 #include "HostSInputPoisson.h"
-#include "LIFSingleThreadedModel.h"
+#include "SingleThreadedSpikingModel.h"
 #include "tinyxml.h"
 
 /**
@@ -31,7 +31,7 @@ HostSInputPoisson::~HostSInputPoisson()
  * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
  */
-void HostSInputPoisson::init(Model* model, AllNeurons &neurons, SimulationInfo* psi)
+void HostSInputPoisson::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi)
 {
     SInputPoisson::init(model, neurons, psi);
 
@@ -44,7 +44,7 @@ void HostSInputPoisson::init(Model* model, AllNeurons &neurons, SimulationInfo* 
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information.
  */
-void HostSInputPoisson::term(Model* model, SimulationInfo* psi)
+void HostSInputPoisson::term(IModel* model, SimulationInfo* psi)
 {
     SInputPoisson::term(model, psi);
 }
@@ -56,7 +56,7 @@ void HostSInputPoisson::term(Model* model, SimulationInfo* psi)
  * @param[in] psi       Pointer to the simulation information.
  * @param[in] summationPoint
  */
-void HostSInputPoisson::inputStimulus(Model* model, SimulationInfo* psi, BGFLOAT* summationPoint)
+void HostSInputPoisson::inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint)
 {
     if (fSInput == false)
         return;
@@ -73,10 +73,11 @@ int chunk_size = psi->totalNeurons / omp_get_max_threads();
         if (masks[neuron_index] == false)
             continue;
 
+        uint32_t iSyn = psi->maxSynapsesPerNeuron * neuron_index;
         if (--nISIs[neuron_index] <= 0)
         {
             // add a spike
-            static_cast<LIFSingleThreadedModel*>(model)->preSpikeHit(*synapses, neuron_index, 0);
+            synapses->preSpikeHit(iSyn);
 
             // update interval counter (exponectially distribution ISIs, Poisson)
             BGFLOAT isi = -lambda * log(rng.inRange(0, 1));
@@ -87,6 +88,6 @@ int chunk_size = psi->totalNeurons / omp_get_max_threads();
             nISIs[neuron_index] = static_cast<int>( (isi / 1000) / psi->deltaT + 0.5 );
         }
         // process synapse
-        static_cast<LIFSingleThreadedModel*>(model)->advanceSynapse(*synapses, neuron_index, 0, psi->deltaT);
+        synapses->advanceSynapse(iSyn, psi, NULL);
     }
 }
