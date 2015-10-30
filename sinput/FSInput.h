@@ -37,6 +37,12 @@ public:
     FSInput();
     ~FSInput();
 
+    static FSInput *get()
+    {
+        static FSInput instance;
+        return &instance;
+    }
+ 
     //! Create an instance.
     ISInput* CreateInstance(IModel* model, SimulationInfo* psi, string stimulusInputFileName);
 
