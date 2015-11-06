@@ -2,7 +2,9 @@
 #include "ParseParamError.h"
 #include "AllSynapses.h"
 #include "XmlGrowthRecorder.h"
+#ifdef USE_HDF5
 #include "Hdf5GrowthRecorder.h"
+#endif
 
 /* ------------- CONNECTIONS STRUCT ------------ *\
  * Below all of the resources for the various
