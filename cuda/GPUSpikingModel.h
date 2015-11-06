@@ -112,11 +112,10 @@ inline void lapTime(float& t_event) {
 };
 #endif // PERFORMANCE_METRICS
 
-class GpuSInputPoisson;
 class AllSpikingSynapses;
 
 class GPUSpikingModel : public Model  {
-	friend GpuSInputPoisson;
+	friend class GpuSInputPoisson;
 
 public:
 	GPUSpikingModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout);
