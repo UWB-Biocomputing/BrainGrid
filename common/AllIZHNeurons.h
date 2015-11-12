@@ -45,7 +45,7 @@
  * inactivation of \f$Na^+\f$ ionic currents, and it provides negative feedback to \f$v\f$. 
  * \f$I_{syn}(t)\f$ is the current supplied by the synapses, \f$I_{inject}\f$ is a non-specific 
  * background current and Inoise is a Gaussian random variable with zero mean and 
- * a given variance noise. (Izhikevich. 2003)
+ * a given variance noise (Izhikevich. 2003).
  *
  * The simple Euler method combined with the exponential Euler method is used for 
  * numerical integration. The main idea behind the exponential Euler rule is 

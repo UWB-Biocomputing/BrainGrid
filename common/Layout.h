@@ -1,3 +1,22 @@
+/**
+ *      @file Layout.h
+ *
+ *      @brief The Layout class defines the layout of neurons in neunal networks
+ */
+
+/**
+ *
+ * @class Layout Layout.h "Layout.h"
+ *
+ * \latexonly  \subsubsection*{Implementation} \endlatexonly
+ * \htmlonly   <h3>Implementation</h3> \endhtmlonly
+ *
+ * The Layout class maintains neurons locations (x, y coordinates), distance of every couple neurons,
+ * neurons type map (distribution of excitatory and inhibitory neurons), and starter neurons map
+ * (distribution of endogenously active neurons).  
+ *
+ */
+
 #pragma once
 
 #include "Global.h"

@@ -1,13 +1,26 @@
 /**
- ** \brief A factoy class for creating a class of the category.
+ *      @file FClassOfCategory.h
+ *
+ *      @brief A factoy class for creating an instance of class of each category
+ */
+
+/**
  **
- ** \class FClassOfCategory FClassOfCategory.h "FClassOfCategory.h"
+ ** @class FClassOfCategory FClassOfCategory.h "FClassOfCategory.h"
  **
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
  **
- ** The FClassOfCategory creates an instance of a class specified by the category.
+ ** The FClassOfCategory creates an instance of the class specified by each category.
+ ** Class categories are neurons, synapses, connections, and layout. 
+ ** The factory reads the parameter file and look for the class name of each category.
+ ** When the class name of the categry is found, an instance of the class will be created,
+ ** and initialized by calling readParameters() method of the class.
  **
+ ** The following is the step to add a new class: 1) Register the class name and the method
+ ** to create an instance of the class in the factory; 2) Prepare the paameter file of the 
+ ** class; 3) Export Create() method of the class.
+
  ** \latexonly  \subsubsection*{Credits} \endlatexonly
  ** \htmlonly   <h3>Credits</h3> \endhtmlonly
  **
@@ -15,12 +28,6 @@
  **
  **
  **     @author Fumitaka Kawasaki
- **/
-
-/**
- ** \file FClassOfCategory.h
- **
- ** \brief Header file for FClassOfCategory.
  **/
 
 #pragma once
@@ -35,7 +42,7 @@
 class FClassOfCategory : public TiXmlVisitor
 {
 public:
-    //! The constructor for FSInput.
+    //! The constructor for FClassOfCategory.
     FClassOfCategory();
     ~FClassOfCategory();
 

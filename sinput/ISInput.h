@@ -1,9 +1,8 @@
 /**
  *      @file ISInput.h
  *
- *      @brief Header file for ISInput.h
+ *      @brief An interface for stimulus input classes.
  */
-//! An interface for stimulus input classes.
 
 /**
  ** \class ISInput ISInput.h "ISInput.h"

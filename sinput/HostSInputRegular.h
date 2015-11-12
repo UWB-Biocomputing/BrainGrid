@@ -1,12 +1,16 @@
 /**
- ** \brief A class that performs stimulus input (implementation Regular).
+ *      @file HostSInputRegular.h
+ *
+ *      @brief A class that performs stimulus input (implementation Regular).
+ */
+/**
  **
  ** \class HostSInputRegular HostSInputRegular.h "HostSInputRegular.h"
  **
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
  **
- ** The HostSInputRegular.hSInputRegular performs providing stimulus input to the network for each time step.
+ ** The HostSInputRegular performs providing stimulus input to the network for each time step.
  ** Inputs are series of current pulses, which are characterized by a duration, an interval
  ** and input values.
  **
@@ -17,12 +21,6 @@
  **
  **
  **     @author Fumitaka Kawasaki
- **/
-
-/**
- ** \file HostSInputRegular.h
- **
- ** \brief Header file for HostSInputRegular.
  **/
 
 #pragma once

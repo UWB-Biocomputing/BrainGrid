@@ -1,9 +1,8 @@
 /**
  *      @file Hdf5GrowthRecorder.h
  *
- *      @brief Header file for Hdf5GrowthRecorder.h
+ *      @brief An implementation for recording spikes history on hdf5 file
  */
-//! An implementation for recording spikes history on hdf5 file
 
 /**
  ** @class Hdf5GrowthRecorder Hdf5GrowthRecorder.h "Hdf5GrowthRecorder.h"
@@ -11,11 +10,16 @@
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
  **
- ** The Hdf5GrowthRecorder provides a mechanism for recording spikes history,
+ ** The Hdf5GrowthRecorder provides a mechanism for recording neuron's layout, spikes history,
  ** and compile history information on hdf5 file:
- ** 	(1) individual neuron's spike rate in epochs,
- **	(2) burstiness index data in 1s bins,
- **     (3) network wide spike count in 10ms bins.
+ **     -# neuron's locations, and type map,
+ **     -# individual neuron's spike rate in epochs,
+ **     -# network wide burstiness index data in 1s bins,
+ **     -# network wide spike count in 10ms bins,
+ **     -# individual neuron's radius history of every epoch.
+ **
+ ** Hierarchical Data Format (HDF) is a set of file formats (HDF4, HDF5) designed 
+ ** to store and organize large amounts of data. 
  **
  ** \latexonly  \subsubsection*{Credits} \endlatexonly
  ** \htmlonly   <h3>Credits</h3> \endhtmlonly

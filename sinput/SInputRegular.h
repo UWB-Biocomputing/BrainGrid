@@ -1,5 +1,10 @@
 /**
- ** \brief A class that performs stimulus input (implementation Regular).
+ *      @file SInputRegular.h
+ *
+ *      @brief A class that performs stimulus input (implementation Regular).
+ */
+
+/**
  **
  ** \class SInputRegular SInputRegular.h "SInputRegular.h"
  **
@@ -10,6 +15,8 @@
  ** Inputs are series of current pulses, which are characterized by a duration, an interval
  ** and input values.
  **
+ ** This class is the base class of GpuSInputRegular and HostSInputRegular.
+ **
  ** \latexonly  \subsubsection*{Credits} \endlatexonly
  ** \htmlonly   <h3>Credits</h3> \endhtmlonly
  **
@@ -17,12 +24,6 @@
  **
  **
  **     @author Fumitaka Kawasaki
- **/
-
-/**
- ** \file SInputRegular.h
- **
- ** \brief Header file for SInputRegular.
  **/
 
 #pragma once

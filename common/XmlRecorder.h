@@ -11,11 +11,12 @@
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
  **
- ** The XmlRecorder provides a mechanism for recording spikes history,
+ ** The XmlRecorder provides a mechanism for recording neuron's layout, spikes history,
  ** and compile history information on xml file:
- ** 	(1) individual neuron's spike rate in epochs,
- **	(2) burstiness index data in 1s bins,
- **     (3) network wide spike count in 10ms bins.
+ **     -# neuron's locations, and type map,
+ **     -# individual neuron's spike rate in epochs,
+ **     -# network wide burstiness index data in 1s bins,
+ **     -# network wide spike count in 10ms bins.
  **
  ** \latexonly  \subsubsection*{Credits} \endlatexonly
  ** \htmlonly   <h3>Credits</h3> \endhtmlonly

@@ -1,6 +1,31 @@
 /**
- * Maintains intra-epoch state of connections in the network. This includes history and parameters
- * that inform how new connections are made during growth.
+ *      @file Connections.h
+ *
+ *      @brief The base class of all connections classes
+ */
+
+/**
+ *
+ * @class Connections Connections.h "Connections.h"
+ *
+ * \latexonly  \subsubsection*{Implementation} \endlatexonly
+ * \htmlonly   <h3>Implementation</h3> \endhtmlonly
+ *
+ * A placeholder to define connections of neunal networks.
+ * In neunal networks, neurons are connected through synapses where messages are exchanged.
+ * The strength of connections is characterized by synapse's weight. 
+ * The connections classes define topologies, the way to connect neurons,  
+ * and dynamics, the way to change connections as time elapses, of the networks. 
+ * 
+ * Connections can be either static or dynamic. The static connectons are ones where
+ * connections are established at initialization and never change. 
+ * The dynamic connections can be changed as the networks evolve, so in the dynamic networks
+ * synapses will be created, deleted, or their weight will be modifed.  
+ *
+ * Connections classes may maintains intra-epoch state of connections in the network. 
+ * This includes history and parameters that inform how new connections are made during growth.
+ * Therefore, connections classes will have customized recorder classes, and provide
+ * a function to craete the recorder class.
  */
 
 #pragma once

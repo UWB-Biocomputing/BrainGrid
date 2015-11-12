@@ -11,11 +11,15 @@
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
  **
- ** The Hdf5Recorder provides a mechanism for recording spikes history,
+ ** The Hdf5Recorder provides a mechanism for recording neuron's layout, spikes history,
  ** and compile history information on hdf5 file:
- ** 	(1) individual neuron's spike rate in epochs,
- **	(2) burstiness index data in 1s bins,
- **     (3) network wide spike count in 10ms bins.
+ **     -# neuron's locations, and type map,
+ **     -# individual neuron's spike rate in epochs,
+ **     -# network wide burstiness index data in 1s bins,
+ **     -# network wide spike count in 10ms bins.
+ **
+ ** Hierarchical Data Format (HDF) is a set of file formats (HDF4, HDF5) designed 
+ ** to store and organize large amounts of data.
  **
  ** \latexonly  \subsubsection*{Credits} \endlatexonly
  ** \htmlonly   <h3>Credits</h3> \endhtmlonly

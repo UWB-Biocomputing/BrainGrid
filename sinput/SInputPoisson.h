@@ -1,5 +1,10 @@
 /**
- ** \brief A class that performs stimulus input (implementation Poisson).
+ *      @file SInputPoisson.h
+ *
+ *      @brief A class that performs stimulus input (implementation Poisson).
+ */
+
+/**
  **
  ** \class SInputPoisson SInputPoisson.h "SInputPoisson.h"
  **
@@ -11,6 +16,8 @@
  ** Each synapse gets an indivisual spike train (Poisson distribution) characterized 
  ** by mean firing rate, and each synapse has individual weight value. 
  **
+ ** This class is the base class of GpuSInputPoisson and HostSInputPoisson.
+ **
  ** \latexonly  \subsubsection*{Credits} \endlatexonly
  ** \htmlonly   <h3>Credits</h3> \endhtmlonly
  **
@@ -18,12 +25,6 @@
  **
  **
  **     @author Fumitaka Kawasaki
- **/
-
-/**
- ** \file SInputPoisson.h
- **
- ** \brief Header file for SInputPoisson.
  **/
 
 #pragma once

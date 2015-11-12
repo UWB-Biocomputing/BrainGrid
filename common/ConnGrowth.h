@@ -1,6 +1,70 @@
 /**
- * Maintains intra-epoch state of connections in the network. This includes history and parameters
- * that inform how new connections are made during growth.
+ *      @file ConnGrowth.h
+ *
+ *      @brief The model of the activity dependent neurite outgrowth
+ */
+
+/**
+ *
+ * @class ConnGrowth ConnGrowth.h "ConnGrowth.h"
+ *
+ ** \latexonly  \subsubsection*{Implementation} \endlatexonly
+ ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
+ **
+ * The activity dependent neurite outgrowth model is a phenomenological model derived by
+ * a number of studies that demonstarated low level of electric activity (low firing rate)
+ * stimulated neurite outgrowth, and high level of electric activity (high firing rate)
+ * lead to regression (Ooyen etal. 1995).
+ *
+ * In this, synaptic strength (connectivity), \f$W\f$, was determined dynamically by a model of neurite
+ * (cell input and output region) growth and synapse formation,
+ * and a cell's region of connectivity is modeled as a circle with radius that changes
+ * at a rate inversely proportional to a sigmoidal function of cell firing rate:
+ * \f[
+ *  \frac{d R_{i}}{dt} = \rho G(F_{i})
+ * \f]
+ * \f[
+ *  G(F_{i}) = 1 - \frac{2}{1 + exp((\epsilon - F_{i}) / \beta)}
+ * \f]
+ * where \f$R_{i}\f$ is the radius of connectivity of neuron \f$i\f$, \f$F_{i}\f$ is neuron i's firing rate
+ * (normalized to be in the range \f$[0,1]\f$, \f$\rho\f$ is an outgrowth rate constant, \f$\epsilon\f$ is a constant
+ * that sets the "null point" for outgrowth (the firing rate in spikes/sec that causes
+ * no outgrowth or retration), and \f$\beta\f$ determines the slope of \f$G(\cdot)\f$.
+ * One divergence in these simulations from strict modeling of the living preparation
+ * was that \f$\rho\f$ was increased to reduce simulated development times from the weeks
+ * that the living preparation takes to 60,000s (approximaely 16 simulated hours).
+ * Extensive analysis and simulation was performed to determine the maximum \f$\rho\f$ \f$(\rho=0.0001)\f$
+ * that would not interfere with network dynamics (the increased value of \f$\rho\f$ was still
+ * orders of magnitude slower than the slowest of the neuron or synapse time constants,
+ * which were order of \f$10^{-2}\f$~\f$10^{-3}sec\f$).
+ *
+ * Synaptic strengths were computed for all pairs of neurons that had overlapping connectivity
+ * regions as the area of their circle's overlap:
+ * \f[
+ *  r_0^2 = r_1^2 + |AB|^2 - 2 r_1 |AB| cos(\angle CBA)
+ * \f]
+ * \f[
+ *  cos(\angle CBA) = \frac{r_1^2 + |AB|^2 - r_0^2}{2 r_1 |AB|}
+ * \f]
+ * \f[
+ *  \angle CBD =  2 \angle CBA
+ * \f]
+ * \f[
+ *  cos(\angle CAB) = \frac{r_0^2 + |AB|^2 - r_1^2}{2 r_0 |AB|}
+ * \f]
+ * \f[
+ *  \angle CAD =  2 \angle CAB
+ * \f]
+ * \f[
+ *  w_{01} = \frac{1}{2} \angle CBD r_1^2 - \frac{1}{2} r_1^2 sin(\angle CBD) + \frac{1}{2} \angle CAD r_0^2 - \frac{1}{2} r_0^2 sin(\angle CAD)
+ * \f]
+ * \f[
+ *  w_{01} = w_{10}
+ * \f]
+ * where A and B are the locations of neurons A and B, \f$r_0\f$ and 
+ * \f$r_1\f$ are the neurite radii of neuron A and B, C and B are locations of intersections 
+ * of neurite boundaries of neuron A and B, and \f$w_{01}\f$ and \f$w_{10}\f$ are the areas of 
+ * their circla's overlap. 
  */
 
 #pragma once

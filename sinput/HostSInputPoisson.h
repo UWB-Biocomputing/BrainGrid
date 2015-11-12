@@ -1,12 +1,17 @@
 /**
- ** \brief A class that performs stimulus input (implementation Poisson).
+ *      @file HostSInputPoisson.h
+ *
+ *      @brief A class that performs stimulus input (implementation Poisson).
+ */
+
+/**
  **
  ** \class HostSInputPoisson HostSInputPoisson.h "HostSInputPoisson.h"
  **
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
  **
- ** The HostSInputPoisson SInputPoisson performs providing stimulus input to the network for each time step.
+ ** The HostSInputPoisson performs providing stimulus input to the network for each time step.
  ** In this version, a layer of synapses are added, which accept external spike trains.
  ** Each synapse gets an indivisual spike train (Poisson distribution) characterized
  ** by mean firing rate, and each synapse has individual weight value.
@@ -18,12 +23,6 @@
  **
  **
  **     @author Fumitaka Kawasaki
- **/
-
-/**
- ** \file HostSInputPoisson.h
- **
- ** \brief Header file for HostSInputPoisson.
  **/
 
 #pragma once

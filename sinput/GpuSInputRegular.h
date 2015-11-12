@@ -1,5 +1,10 @@
 /**
- ** \brief A class that performs stimulus input (implementation Regular).
+ *      @file GpuSInputRegular.h
+ *
+ *      @brief A class that performs stimulus input (implementation Regular on GPU).
+ */
+
+/**
  **
  ** \class GpuSInputRegular GpuSInputRegular.h "GpuSInputRegular.h"
  **
@@ -17,12 +22,6 @@
  **
  **
  **     @author Fumitaka Kawasaki
- **/
-
-/**
- ** \file GpuSInputRegular.h
- **
- ** \brief Header file for GpuSInputRegular.
  **/
 
 #pragma once

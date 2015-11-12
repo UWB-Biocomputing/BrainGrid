@@ -77,7 +77,7 @@ void Hdf5GrowthRecorder::initDataSet()
     DataSpace dsRatesHist(2, dims);
     dataSetRatesHist = new DataSet(stateOut->createDataSet(nameRatesHist, H5_FLOAT, dsRatesHist));
 
-    // create the data space & dataset for radii histoey
+    // create the data space & dataset for radii history
     dims[0] = static_cast<hsize_t>(m_sim_info->maxSteps + 1);
     dims[1] = static_cast<hsize_t>(m_sim_info->totalNeurons);
     DataSpace dsRadiiHist(2, dims);
