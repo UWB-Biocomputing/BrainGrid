@@ -24,7 +24,9 @@ Hdf5GrowthRecorder::~Hdf5GrowthRecorder()
 }
 
 /**
- * Initialize data
+ * Initialize data.
+ * Create a new hdf5 file with default properties.
+ *
  * @param[in] stateOutputFileName	File name to save histories
  */
 void Hdf5GrowthRecorder::init(const string& stateOutputFileName)
@@ -66,6 +68,9 @@ void Hdf5GrowthRecorder::init(const string& stateOutputFileName)
     }
 }
 
+/**
+ *  Create data spaces and data sets of the hdf5 for recording histories.
+ */
 void Hdf5GrowthRecorder::initDataSet()
 {
     Hdf5Recorder::initDataSet();
@@ -152,7 +157,8 @@ void Hdf5GrowthRecorder::term()
 }
 
 /**
- * Compile history information in every epoch
+ * Compile history information in every epoch.
+ *
  * @param[in] neurons   The entire list of neurons.
  */
 void Hdf5GrowthRecorder::compileHistories(AllNeurons &neurons)

@@ -29,9 +29,8 @@ Simulator::~Simulator()
 
 /**
 * Run simulation
+*
 * @param[in] pInput    Pointer to the stimulus input object.
-* @param growthEpochDuration
-* @param maxGrowthSteps
 */
 void Simulator::simulate(ISInput* pInput)
 {
@@ -82,6 +81,7 @@ void Simulator::simulate(ISInput* pInput)
 * Helper for #simulate().
 * Advance simulation until it's ready for the next growth cycle. This should simulate all neuron and
 * synapse activity for one epoch.
+*
 * @param currentStep the current epoch in which the network is being simulated.
 * @param[in] pInput    Pointer to the stimulus input object.
 */
@@ -125,6 +125,7 @@ void Simulator::saveState() const
 * Deserializes internal state from a prior run of the simulation.
 * This allows simulations to be continued from a particular point, to be restarted, or to be
 * started from a known state.
+*
 * @param memory_in - where to read the state from.
 */
 void Simulator::readMemory(istream &memory_in)
@@ -136,6 +137,7 @@ void Simulator::readMemory(istream &memory_in)
 * Serializes internal state for the current simulation.
 * This allows simulations to be continued from a particular point, to be restarted, or to be
 * started from a known state.
+*
 * @param memory_out - where to write the state to.
 * This method needs to be debugged to verify that it works.
 */

@@ -27,6 +27,11 @@ AllIFNeurons::~AllIFNeurons()
     freeResources();
 }
 
+/**
+ *  Setup the internal structure of the class (allocate memories).
+ *
+ *  @param  sim_info  SimulationInfo class to read information from.
+ */
 void AllIFNeurons::setupNeurons(SimulationInfo *sim_info)
 {
     AllSpikingNeurons::setupNeurons(sim_info);
@@ -54,12 +59,18 @@ void AllIFNeurons::setupNeurons(SimulationInfo *sim_info)
     }
 }
 
+/**
+ *  Cleanup the class (deallocate memories).
+ */
 void AllIFNeurons::cleanupNeurons()
 {
     freeResources();
     AllSpikingNeurons::cleanupNeurons();
 }
 
+/**
+ *  Deallocate all resources
+ */
 void AllIFNeurons::freeResources()
 {
     if (size != 0) {
@@ -100,7 +111,7 @@ void AllIFNeurons::freeResources()
 }
 
 /**
- * Returns the number of required parameters.
+ *  Returns the number of required parameters.
  */
 int AllIFNeurons::numParameters()
 {
@@ -109,8 +120,9 @@ int AllIFNeurons::numParameters()
 
 /**
  *  Attempts to read parameters from a XML file.
- *  @param  @param  element TiXmlElement to examine.
- *  @return the number of parameters that have been read.
+ *
+ *  @param  element TiXmlElement to examine.
+ *  @return true if successful, false otherwise.
  */
 bool AllIFNeurons::readParameters(const TiXmlElement& element)
 {
@@ -239,6 +251,7 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
 
 /**
  *  Prints out all parameters of the neurons to ostream.
+ * 
  *  @param  output  ostream to send output to.
  */
 void AllIFNeurons::printParameters(ostream &output) const
@@ -271,7 +284,9 @@ void AllIFNeurons::printParameters(ostream &output) const
 
 /**
  *  Creates all the Neurons and generates data for them.
+ *
  *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  layout      Layout information of the neunal network.
  */
 void AllIFNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout)
 {
@@ -284,6 +299,13 @@ void AllIFNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout)
     }
 }
 
+/**
+ *  Creates a single Neuron and generates data for it.
+ *
+ *  @param  sim_info     SimulationInfo class to read information from.
+ *  @param  neuron_index Index of the neuron to create.
+ *  @param  layout       Layout information of the neunal network.
+ */
 void AllIFNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layout)
 {
     // set the neuron info for neurons
@@ -342,7 +364,8 @@ void AllIFNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Layo
 
 /**
  *  Set the Neuron at the indexed location to default values.
- *  @param  neuron_index    index of the Neuron that the synapse belongs to.
+ *
+ *  @param  neuron_index    Index of the Neuron that the synapse belongs to.
  */
 void AllIFNeurons::setNeuronDefaults(const int index)
 {
@@ -360,8 +383,9 @@ void AllIFNeurons::setNeuronDefaults(const int index)
 
 /**
  *  Initializes the Neuron constants at the indexed location.
- *  @param  neuron_index    index of the Neuron.
- *  @param  deltaT  inner simulation step duration
+ *
+ *  @param  neuron_index    Index of the Neuron.
+ *  @param  deltaT          Inner simulation step duration
  */
 void AllIFNeurons::initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT)
 {
@@ -391,6 +415,7 @@ void AllIFNeurons::initNeuronConstsFromParamValues(int neuron_index, const BGFLO
 
 /**
  *  Outputs state of the neuron chosen as a string.
+ *
  *  @param  i   index of the neuron (in neurons) to output info from.
  *  @return the complete state of the neuron.
  */
@@ -416,8 +441,9 @@ string AllIFNeurons::toString(const int i) const
 }
 
 /**
- *  Sets the data for Neuron #index to input's data.
- *  @param  input   istream to read from.
+ *  Sets the data for Neurons to input's data.
+ *
+ *  @param  input       istream to read from.
  *  @param  sim_info    used as a reference to set info for neuronss.
  */
 void AllIFNeurons::readNeurons(istream &input, const SimulationInfo *sim_info)
@@ -427,6 +453,13 @@ void AllIFNeurons::readNeurons(istream &input, const SimulationInfo *sim_info)
     }
 }
 
+/**
+ *  Sets the data for Neuron #index to input's data.
+ *
+ *  @param  input       istream to read from.
+ *  @param  sim_info    used as a reference to set info for neurons.
+ *  @param  i           index of the neuron (in neurons).
+ */
 void AllIFNeurons::readNeuron(istream &input, const SimulationInfo *sim_info, int i)
 {
     // input.ignore() so input skips over end-of-line characters.
@@ -450,8 +483,9 @@ void AllIFNeurons::readNeuron(istream &input, const SimulationInfo *sim_info, in
 }
 
 /**
- *  Writes out the data in the selected Neuron.
- *  @param  output  stream to write out to.
+ *  Writes out the data in Neurons.
+ *
+ *  @param  output      stream to write out to.
  *  @param  sim_info    used as a reference to set info for neuronss.
  */
 void AllIFNeurons::writeNeurons(ostream& output, const SimulationInfo *sim_info) const 
@@ -461,6 +495,13 @@ void AllIFNeurons::writeNeurons(ostream& output, const SimulationInfo *sim_info)
     }
 }
 
+/**
+ *  Writes out the data in the selected Neuron.
+ *
+ *  @param  output      stream to write out to.
+ *  @param  sim_info    used as a reference to set info for neuronss.
+ *  @param  i           index of the neuron (in neurons).
+ */
 void AllIFNeurons::writeNeuron(ostream& output, const SimulationInfo *sim_info, int i) const
 {
     output << Cm[i] << ends;

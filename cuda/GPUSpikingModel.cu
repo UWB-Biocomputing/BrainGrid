@@ -47,8 +47,11 @@ GPUSpikingModel::~GPUSpikingModel()
 }
 
 /**
-* Allocates memories on CUDA device.
-* @param[in] sim_info			Pointer to the simulation information.
+* Allocates and initializes memories on CUDA device.
+*
+* @param[out] allNeuronsDevice          Memory loation of the pointer to the neurons list on device memory.
+* @param[out] allSynapsesDevice         Memory loation of the pointer to the synapses list on device memory.
+* @param[in]  sim_info			Pointer to the simulation information.
 */
 void GPUSpikingModel::allocDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info)
 {
@@ -69,6 +72,13 @@ void GPUSpikingModel::allocDeviceStruct(void** allNeuronsDevice, void** allSynap
 	allocSynapseImap( neuron_count );
 }
 
+/**
+ * Copies device memories to host memories and deallocaes them.
+ *
+* @param[out] allNeuronsDevice          Memory loation of the pointer to the neurons list on device memory.
+* @param[out] allSynapsesDevice         Memory loation of the pointer to the synapses list on device memory.
+* @param[in]  sim_info                  Pointer to the simulation information.
+ */
 void GPUSpikingModel::deleteDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info)
 {
     // copy device synapse and neuron structs to host memory
@@ -228,6 +238,11 @@ void GPUSpikingModel::advance(const SimulationInfo *sim_info)
 #endif // PERFORMANCE_METRICS
 }
 
+/**
+ * Add psr of all incoming synapses to summation points.
+ *
+ * @param[in] sim_info                   Pointer to the simulation information.
+ */
 void GPUSpikingModel::calcSummationMap(const SimulationInfo *sim_info)
 {
     // CUDA parameters

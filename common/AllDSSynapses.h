@@ -1,8 +1,16 @@
+/**
+ *      @file AllDSSynapses.h
+ *
+ *      @brief A container of all DS synapse data
+ */
+
 /** 
  * @authors Aaron Oziel, Sean Blackbourn
  * 
  * @class AllDSSynapses AllDSSynapses.h "AllDSSynapses.h"
- * @brief A container of all synapse data
+ *
+ * \latexonly  \subsubsection*{Implementation} \endlatexonly
+ * \htmlonly   <h3>Implementation</h3> \endhtmlonly
  *
  *  The container holds synapse parameters of all synapses. 
  *  Each kind of synapse parameter is stored in a 2D array. Each item in the first 
@@ -36,6 +44,12 @@
  *
  *  Note: All GLOBAL parameters can be scalars. Also some LOCAL CONSTANT can be categorized 
  *  depending on synapse types. 
+ *
+ * \latexonly  \subsubsection*{Credits} \endlatexonly
+ * \htmlonly   <h3>Credits</h3> \endhtmlonly
+ *
+ * Some models in this simulator is a rewrite of CSIM (2006) and other
+ * work (Stiber and Kawasaki (2007?))
  */
 #pragma once
 

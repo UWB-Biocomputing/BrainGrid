@@ -19,7 +19,9 @@ int * nShiftValues_d = NULL;
 
 /**
  * constructor
+ *
  * @param[in] psi       Pointer to the simulation information
+ * @param[in] parms     TiXmlElement to examine.
  */
 GpuSInputRegular::GpuSInputRegular(SimulationInfo* psi, TiXmlElement* parms) : SInputRegular(psi, parms)
 {
@@ -34,6 +36,7 @@ GpuSInputRegular::~GpuSInputRegular()
 
 /**
  * Initialize data.
+ *
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
@@ -54,6 +57,7 @@ void GpuSInputRegular::init(IModel* model, AllNeurons &neurons, SimulationInfo* 
 
 /**
  * Terminate process.
+ *
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information.
  */
@@ -65,6 +69,7 @@ void GpuSInputRegular::term(IModel* model, SimulationInfo* psi)
 
 /**
  * Process input stimulus for each time step on GPU.
+ *
  * @param[in] model     	Pointer to the Neural Network Model object.
  * @param[in] psi               Pointer to the simulation information.
  * @param[in] summationPoint_d  Pointer to the summation map.
@@ -89,6 +94,7 @@ void GpuSInputRegular::inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT
 
 /**
  * Allocate GPU device memory and copy values
+ *
  * @param[in] psi               Pointer to the simulation information.
  * @param[in] initValues        Pointer to the initial values.
  * @param[in] nShiftValues      Pointer to the shift values.
@@ -120,6 +126,7 @@ void deleteDeviceValues(  )
 // CUDA code for -----------------------------------------------------------------------
 /**
  * Device code for adding input values to the summation map.
+ *
  * @param[in] summationPoint_d  Pointer to the summation map.
  * @param[in] initValues_d      Pointer to the input values.
  * @param[in] nShiftValues_d    Pointer to the shift values.

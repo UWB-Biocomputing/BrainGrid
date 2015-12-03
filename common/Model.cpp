@@ -53,7 +53,8 @@ Model::~Model()
 
 /**
  *  Loads the simulation based on istream input.
- *  @param  input   istream to read from.
+ *
+ *  @param  input       istream to read from.
  *  @param  sim_info    used as a reference to set info for neurons and synapses.
  */
 void Model::loadMemory(istream& input, const SimulationInfo *sim_info)
@@ -73,8 +74,9 @@ void Model::loadMemory(istream& input, const SimulationInfo *sim_info)
 
 /**
  *  Write the simulation's memory image.
- *  @param  output  the filestream to write.
- *  @param  simulation_step the step of the simulation at the current time.
+ *
+ *  @param  output          The filestream to write.
+ *  @param  simulation_step The step of the simulation at the current time.
  */
 void Model::saveMemory(ostream& output, const SimulationInfo *sim_info)
 {
@@ -92,7 +94,10 @@ void Model::saveMemory(ostream& output, const SimulationInfo *sim_info)
 }
 
 /**
- *  Prepares a stream with data from the model and Neurons.
+ *  Save current simulation state.
+ *
+ *  @param simRecorder    Pointer to the simulation recordig object.
+ *
  */
 void Model::saveState(IRecorder* simRecorder)
 {
@@ -103,6 +108,7 @@ void Model::saveState(IRecorder* simRecorder)
 
 /**
  *  Creates all the Neurons and generates data for them.
+ *
  *  @param  sim_info    SimulationInfo class to read information from.
  */
 void Model::createAllNeurons(SimulationInfo *sim_info)
@@ -121,6 +127,7 @@ void Model::createAllNeurons(SimulationInfo *sim_info)
 
 /**
  *  Sets up the Simulation.
+ *
  *  @param  sim_info    SimulationInfo class to read information from.
  *  @param  simRecorder Pointer to the simulation recordig object.
  */
@@ -146,6 +153,7 @@ void Model::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
 
 /**
  *  Clean up the simulation.
+ *
  *  @param  sim_info    SimulationInfo to refer.
  */
 void Model::cleanupSim(SimulationInfo *sim_info)
@@ -157,6 +165,7 @@ void Model::cleanupSim(SimulationInfo *sim_info)
 
 /**
  *  Log this simulation step.
+ *
  *  @param  sim_info    SimulationInfo to reference.
  */
 void Model::logSimStep(const SimulationInfo *sim_info) const
@@ -209,7 +218,8 @@ void Model::logSimStep(const SimulationInfo *sim_info) const
 }
 
 /**
- *  Update the Neuron's history.
+ *  Update the simulation history of every epoch.
+ *
  *  @param  sim_info    SimulationInfo to refer from.
  *  @param  simRecorder	Pointer to the simulation recordig object.
  */
@@ -221,16 +231,31 @@ void Model::updateHistory(const SimulationInfo *sim_info, IRecorder* simRecorder
     }
 }
 
+/**
+ *  Get the AllNeurons class object.
+ *
+ *  @return Pointer to the AllNeurons class object.
+ */
 AllNeurons* Model::getNeurons()
 {
     return m_neurons;
 }
 
+/**
+ *  Get the Connections class object.
+ *
+ *  @return Pointer to the Connections class object.
+ */
 Connections* Model::getConnections()
 {
     return m_conns;
 }
 
+/**
+ *  Get the Layout class object.
+ *
+ *  @return Pointer to the Layout class object.
+ */
 Layout* Model::getLayout()
 {
     return m_layout;
@@ -238,8 +263,9 @@ Layout* Model::getLayout()
 
 /**
  *  Create a synapse index map on device memory.
+ *
  *  @param  synapses     Reference to the AllSynapses struct on host memory.
- *  @param] sim_info     Pointer to the simulation information.
+ *  @param  sim_info     Pointer to the simulation information.
  */
 void Model::createSynapseImap(AllSynapses &synapses, const SimulationInfo* sim_info )
 {

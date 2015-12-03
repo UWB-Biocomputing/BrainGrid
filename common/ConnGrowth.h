@@ -65,6 +65,12 @@
  * \f$r_1\f$ are the neurite radii of neuron A and B, C and B are locations of intersections 
  * of neurite boundaries of neuron A and B, and \f$w_{01}\f$ and \f$w_{10}\f$ are the areas of 
  * their circla's overlap. 
+ *
+ * \latexonly  \subsubsection*{Credits} \endlatexonly
+ * \htmlonly   <h3>Credits</h3> \endhtmlonly
+ *
+ * Some models in this simulator is a rewrite of CSIM (2006) and other
+ * work (Stiber and Kawasaki (2007?))
  */
 
 #pragma once

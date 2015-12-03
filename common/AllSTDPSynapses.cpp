@@ -31,11 +31,22 @@ AllSTDPSynapses::~AllSTDPSynapses()
     cleanupSynapses();
 }
 
+/**
+ *  Setup the internal structure of the class (allocate memories and initialize them).
+ *
+ *  @param  sim_info  SimulationInfo class to read information from.
+ */
 void AllSTDPSynapses::setupSynapses(SimulationInfo *sim_info)
 {
     setupSynapses(sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron);
 }
 
+/**
+ *  Setup the internal structure of the class (allocate memories and initialize them).
+ *
+ *  @param  num_neurons   Total number of neurons in the network.
+ *  @param  max_synapses  Maximum number of synapses per neuron.
+ */
 void AllSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapses)
 {
     AllSpikingSynapses::setupSynapses(num_neurons, max_synapses);
@@ -61,6 +72,9 @@ void AllSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapse
     }
 }
 
+/**
+ *  Cleanup the class (deallocate memories).
+ */
 void AllSTDPSynapses::cleanupSynapses()
 {
     uint32_t max_total_synapses = maxSynapsesPerNeuron * count_neurons;
@@ -103,7 +117,8 @@ void AllSTDPSynapses::cleanupSynapses()
 }
 
 /**
- *  Initializes the queues for the Synapses.
+ *  Initializes the queues for the Synapse.
+ *
  *  @param  iSyn   index of the synapse to set.
  */
 void AllSTDPSynapses::initSpikeQueue(const uint32_t iSyn)
@@ -124,8 +139,9 @@ void AllSTDPSynapses::initSpikeQueue(const uint32_t iSyn)
 
 /**
  *  Attempts to read parameters from a XML file.
- *  @param  @param  element TiXmlElement to examine.
- *  @return the number of parameters that have been read.
+ *
+ *  @param  element TiXmlElement to examine.
+ *  @return true if successful, false otherwise.
  */
 bool AllSTDPSynapses::readParameters(const TiXmlElement& element)
 {
@@ -134,6 +150,7 @@ bool AllSTDPSynapses::readParameters(const TiXmlElement& element)
 
 /**
  *  Prints out all parameters of the neurons to ostream.
+ *
  *  @param  output  ostream to send output to.
  */
 void AllSTDPSynapses::printParameters(ostream &output) const
@@ -141,9 +158,10 @@ void AllSTDPSynapses::printParameters(ostream &output) const
 }
 
 /*
- *  Sets the data for Synapse #synapse_index from Neuron #neuron_index.
- *  @param  input   istream to read from.
- *  @param  iSyn   index of the synapse to set.
+ *  Sets the data for Synapse to input's data.
+ *
+ *  @param  input  istream to read from.
+ *  @param  iSyn   Index of the synapse to set.
  */
 void AllSTDPSynapses::readSynapse(istream &input, const uint32_t iSyn)
 {
@@ -169,8 +187,9 @@ void AllSTDPSynapses::readSynapse(istream &input, const uint32_t iSyn)
 
 /**
  *  Write the synapse data to the stream.
+ *
  *  @param  output  stream to print out to.
- *  @param  iSyn   index of the synapse to print out.
+ *  @param  iSyn    Index of the synapse to print out.
  */
 void AllSTDPSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const 
 {
@@ -195,8 +214,9 @@ void AllSTDPSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const
 
 /**
  *  Reset time varying state vars and recompute decay.
- *  @param  iSyn   index of the synapse to set.
- *  @param  deltaT          inner simulation step duration
+ *
+ *  @param  iSyn            Index of the synapse to set.
+ *  @param  deltaT          Inner simulation step duration
  */
 void AllSTDPSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
 {
@@ -205,13 +225,14 @@ void AllSTDPSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
 
 /**
  *  Create a Synapse and connect it to the model.
- *  @param  synapses    the Neuron list to reference.
- *  @param  iSyn   TODO
- *  @param  source  coordinates of the source Neuron.
- *  @param  dest    coordinates of the destination Neuron.
- *  @param  sum_point   TODO
- *  @param  deltaT  TODO
- *  @param  type    type of the Synapse to create.
+ *
+ *  @param  synapses    The synapse list to reference.
+ *  @param  iSyn        Index of the synapse to set.
+ *  @param  source      Coordinates of the source Neuron.
+ *  @param  dest        Coordinates of the destination Neuron.
+ *  @param  sum_point   Summation point address.
+ *  @param  deltaT      Inner simulation step duration.
+ *  @param  type        Type of the Synapse to create.
  */
 void AllSTDPSynapses::createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
@@ -239,8 +260,10 @@ void AllSTDPSynapses::createSynapse(const uint32_t iSyn, int source_index, int d
 #if !defined(USE_GPU)
 /**
  *  Advance one specific Synapse.
- *  @param  iSyn   index of the Synapse to connect to.
- *  @param  deltaT   inner simulation step duration
+ *
+ *  @param  iSyn      Index of the Synapse to connect to.
+ *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  neurons   The Neuron list to search from.
  */
 void AllSTDPSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, AllNeurons *neurons)
 {
@@ -382,6 +405,15 @@ void AllSTDPSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInfo *
 #endif
 }
 
+/**
+ *  Adjust synapse weight according to the Spike-timing-dependent synaptic modification 
+ *  induced by natural spike trains
+ *
+ *  @param  iSyn        Index of the synapse to set.
+ *  @param  delta       Pre/post synaptic spike interval.
+ *  @param  epost       Params for the rule given in Froemke and Dan (2002).
+ *  @param  epre        Params for the rule given in Froemke and Dan (2002).
+ */
 void AllSTDPSynapses::stdpLearning(const uint32_t iSyn, double delta, double epost, double epre)
 {
     BGFLOAT STDPgap = this->STDPgap[iSyn];
@@ -425,8 +457,9 @@ void AllSTDPSynapses::stdpLearning(const uint32_t iSyn, double delta, double epo
 }
 
 /**
- *  Checks if there is an input spike in the queue.
- *  @param  iSyn   index of the Synapse to connect to.
+ *  Checks if there is an input spike in the queue (for back propagation).
+ *
+ *  @param  iSyn   Index of the Synapse to connect to.
  *  @return true if there is an input spike event.
  */
 bool AllSTDPSynapses::isSpikeQueuePost(const uint32_t iSyn)
@@ -443,6 +476,11 @@ bool AllSTDPSynapses::isSpikeQueuePost(const uint32_t iSyn)
     return r;
 }
 
+/**
+ *  Prepares Synapse for a spike hit (for back propagation).
+ *
+ *  @param  iSyn   Index of the Synapse to connect to.
+ */
 void AllSTDPSynapses::postSpikeHit(const uint32_t iSyn)
 {
     uint32_t &delay_queue = this->delayQueuePost[iSyn];
@@ -464,6 +502,12 @@ void AllSTDPSynapses::postSpikeHit(const uint32_t iSyn)
 }
 #endif // !defined(USE_GPU)
 
+/**
+ *  Check if the back propagation (notify a spike event to the pre neuron)
+ *  is allowed in the synapse class.
+ *
+ *  @retrun true if the back propagation is allowed.
+ */
 bool AllSTDPSynapses::allowBackPropagation()
 {
     return true;

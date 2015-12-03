@@ -19,7 +19,8 @@
  ** \latexonly  \subsubsection*{Credits} \endlatexonly
  ** \htmlonly   <h3>Credits</h3> \endhtmlonly
  **
- ** This simulator is a rewrite of CSIM (2006) and other work (Stiber and Kawasaki (2007?))
+ ** Some models in this simulator is a rewrite of CSIM (2006) and other 
+ ** work (Stiber and Kawasaki (2007?))
  **
  **
  **     @author Fumitaka Kawasaki
@@ -35,17 +36,17 @@
 class HostSInputPoisson : public SInputPoisson
 {
 public:
-    //! The constructor for HostSInputPoisson.
+    // The constructor for HostSInputPoisson.
     HostSInputPoisson(SimulationInfo* psi, TiXmlElement* parms);
     ~HostSInputPoisson();
 
-    //! Initialize data.
+    // Initialize data.
     virtual void init(IModel* model, AllNeurons &neurons, SimulationInfo* psi);
 
-    //! Terminate process.
+    // Terminate process.
     virtual void term(IModel* model, SimulationInfo* psi);
 
-    //! Process input stimulus for each time step.
+    // Process input stimulus for each time step.
     virtual void inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint);
 
 private:

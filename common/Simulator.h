@@ -3,7 +3,7 @@
  *
  * @authors Derek McLean & Sean Blackbourn
  *
- * @brief Abstract base class for BrainGrid simulator for different platforms
+ * @brief Platform independent base class for the Brain Grid simulator.
  */
 
 #ifndef _SIMULATOR_H_
@@ -17,11 +17,16 @@
 #include "Timer.h"
 
 /**
- * @class Simulator
+ * @class Simulator Simulator.h "Simulator.h"
  *
- * @brief Platform independent base class for the Brain Grid simulator.
  *
  * This class should be extended when developing the simulator for a specific platform.
+ *
+ * \latexonly  \subsubsection*{Credits} \endlatexonly
+ * \htmlonly   <h3>Credits</h3> \endhtmlonly
+ *
+ * Some models in this simulator is a rewrite of CSIM (2006) and other
+ * work (Stiber and Kawasaki (2007?))
  */
 class Simulator
 {

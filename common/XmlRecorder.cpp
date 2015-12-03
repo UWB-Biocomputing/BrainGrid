@@ -24,6 +24,8 @@ XmlRecorder::~XmlRecorder()
 
 /**
  * Initialize data
+ * Create a new xml file.
+ *
  * @param[in] stateOutputFileName	File name to save histories
  */
 void XmlRecorder::init(const string& stateOutputFileName)
@@ -63,6 +65,7 @@ void XmlRecorder::term()
 
 /**
  * Compile history information in every epoch
+ *
  * @param[in] neurons 	The entire list of neurons.
  */
 void XmlRecorder::compileHistories(AllNeurons &neurons)
@@ -104,6 +107,7 @@ void XmlRecorder::compileHistories(AllNeurons &neurons)
 
 /**
  * Save current simulation state to XML
+ *
  * @param  neurons the Neuron list to search from.
  **/
 void XmlRecorder::saveSimState(const AllNeurons &neurons)
@@ -158,8 +162,9 @@ void XmlRecorder::saveSimState(const AllNeurons &neurons)
 
 /**
  *  Get starter Neuron matrix.
- *  @param  matrix   Starter Neuron matrix.
- *  @param  starter_map bool map to reference neuron matrix location from.
+ *
+ *  @param  matrix      Starter Neuron matrix.
+ *  @param  starter_map Bool map to reference neuron matrix location from.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
 void XmlRecorder::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info)

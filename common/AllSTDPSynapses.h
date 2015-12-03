@@ -1,8 +1,16 @@
+/**
+ *      @file AllSTDPSynapses.h
+ *
+ *      @brief A container of all STDP synapse data
+ */
+
 /** 
  * @authors Aaron Oziel, Sean Blackbourn
  * 
  * @class AllSTDPSynapses AllSTDPSynapses.h "AllSTDPSynapses.h"
- * @brief A container of all synapse data
+ *
+ * \latexonly  \subsubsection*{Implementation} \endlatexonly
+ * \htmlonly   <h3>Implementation</h3> \endhtmlonly
  *
  *  The container holds synapse parameters of all synapses. 
  *  Each kind of synapse parameter is stored in a 2D array. Each item in the first 
@@ -38,25 +46,33 @@
  *  depending on synapse types. 
  */
 
-/** Implements the basic weight update for a time difference \f$Delta =
-t_{post}-t_{pre}\f$ with presynaptic spike at time \f$t_{pre}\f$ and
-postsynaptic spike at time \f$t_{post}\f$. Then, the weight update is given by
-\f$dw =  Apos * exp(-Delta/taupos)\f$ for \f$Delta > 0\f$, and \f$dw =  Aneg *
-exp(-Delta/tauneg)\f$ for \f$Delta < 0\f$. (set \f$useFroemkeDanSTDP=0\f$ and
-\f$mupos=muneg=0\f$ for this basic update rule).
-
-It is also possible to use an
-extended multiplicative update by changing mupos and muneg. Then \f$dw =
-(Wex-W)^{mupos} * Apos * exp(-Delta/taupos)\f$ for \f$Delta > 0\f$ and \f$dw =
-W^{mupos} * Aneg * exp(Delta/tauneg)\f$ for \f$Delta < 0\f$. (see Guetig,
-Aharonov, Rotter and Sompolinsky (2003). Learning input correlations through
-non-linear asymmetric Hebbian plasticity. Journal of Neuroscience 23.
-pp.3697-3714.)
-    
-Set \f$useFroemkeDanSTDP=1\f$ (this is the default value) and
-use \f$tauspost\f$ and \f$tauspre\f$ for the rule given in Froemke and Dan
-(2002). Spike-timing-dependent synaptic modification induced by natural spike
-trains. Nature 416 (3/2002). */
+/** 
+ *  Implements the basic weight update for a time difference \f$Delta =
+ *  t_{post}-t_{pre}\f$ with presynaptic spike at time \f$t_{pre}\f$ and
+ *  postsynaptic spike at time \f$t_{post}\f$. Then, the weight update is given by
+ *  \f$dw =  Apos * exp(-Delta/taupos)\f$ for \f$Delta > 0\f$, and \f$dw =  Aneg *
+ *  exp(-Delta/tauneg)\f$ for \f$Delta < 0\f$. (set \f$useFroemkeDanSTDP=0\f$ and
+ *  \f$mupos=muneg=0\f$ for this basic update rule).
+ *  
+ *  It is also possible to use an
+ *  extended multiplicative update by changing mupos and muneg. Then \f$dw =
+ *  (Wex-W)^{mupos} * Apos * exp(-Delta/taupos)\f$ for \f$Delta > 0\f$ and \f$dw =
+ *  W^{mupos} * Aneg * exp(Delta/tauneg)\f$ for \f$Delta < 0\f$. (see Guetig,
+ *  Aharonov, Rotter and Sompolinsky (2003). Learning input correlations through
+ *  non-linear asymmetric Hebbian plasticity. Journal of Neuroscience 23.
+ *  pp.3697-3714.)
+ *      
+ *  Set \f$useFroemkeDanSTDP=1\f$ (this is the default value) and
+ *  use \f$tauspost\f$ and \f$tauspre\f$ for the rule given in Froemke and Dan
+ *  (2002). Spike-timing-dependent synaptic modification induced by natural spike
+ *  trains. Nature 416 (3/2002). 
+ *
+ * \latexonly  \subsubsection*{Credits} \endlatexonly
+ * \htmlonly   <h3>Credits</h3> \endhtmlonly
+ *
+ * Some models in this simulator is a rewrite of CSIM (2006) and other
+ * work (Stiber and Kawasaki (2007?))
+ */
 
 #pragma once
 

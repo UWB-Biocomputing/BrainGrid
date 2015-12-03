@@ -1,3 +1,9 @@
+/**
+ *      @file AllNeurons.h
+ *
+ *      @brief A container of the base class of all neuron data
+ */
+
 #pragma once
 
 using namespace std;

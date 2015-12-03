@@ -10,6 +10,9 @@
 
 /**
  * constructor
+ *
+ * @param[in] psi       Pointer to the simulation information
+ * @param[in] parms     TiXmlElement to examine.
  */
 HostSInputRegular::HostSInputRegular(SimulationInfo* psi, TiXmlElement* parms) : SInputRegular(psi, parms)
 {
@@ -25,6 +28,7 @@ HostSInputRegular::~HostSInputRegular()
 
 /**
  * Initialize data.
+ *
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
@@ -36,6 +40,7 @@ void HostSInputRegular::init(IModel* model, AllNeurons &neurons, SimulationInfo*
 
 /**
  * Terminate process.
+ *
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information.
  */
@@ -51,9 +56,10 @@ void HostSInputRegular::term(IModel* model, SimulationInfo* psi)
 /**
  * Process input stimulus for each time step.
  * Apply inputs on summationPoint.
- * @param[in] model     Pointer to the Neural Network Model object.
- * @param[in] psi       Pointer to the simulation information.
- * @param[in] summationPoint
+ *
+ * @param[in] model           Pointer to the Neural Network Model object.
+ * @param[in] psi             Pointer to the simulation information.
+ * @param[in] summationPoint  Poiner to the summation point.
  */
 void HostSInputRegular::inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint)
 {

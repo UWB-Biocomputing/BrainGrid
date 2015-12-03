@@ -66,6 +66,7 @@ void XmlGrowthRecorder::getValues()
 
 /**
  * Compile history information in every epoch
+ *
  * @param[in] neurons 	The entire list of neurons.
  */
 void XmlGrowthRecorder::compileHistories(AllNeurons &neurons)
@@ -97,6 +98,7 @@ void XmlGrowthRecorder::compileHistories(AllNeurons &neurons)
 
 /**
  * Save current simulation state to XML
+ *
  * @param  neurons the Neuron list to search from.
  **/
 void XmlGrowthRecorder::saveSimState(const AllNeurons &neurons)

@@ -1,3 +1,30 @@
+/**
+ *      @file Model.h
+ *
+ *      @brief Implementation of Model for the spiking neunal networks.
+ */
+
+/**
+ *
+ * @class Model Model.h "Model.h"
+ *
+ * \latexonly  \subsubsection*{Implementation} \endlatexonly
+ * \htmlonly   <h3>Implementation</h3> \endhtmlonly
+ *
+ * The Model class maintains and manages classes of objects that make up
+ * essential components of the spiking neunal networks.
+ *    -# AllNeurons: A class to define a list of partiular type of neurons.
+ *    -# AllSynapses: A class to define a list of partiular type of synapses.
+ *    -# Connections: A class to define connections of the neunal network.
+ *    -# Layout: A class to define neurons' layout information in the network.
+ *
+ * \latexonly  \subsubsection*{Credits} \endlatexonly
+ * \htmlonly   <h3>Credits</h3> \endhtmlonly
+ *
+ * Some models in this simulator is a rewrite of CSIM (2006) and other
+ * work (Stiber and Kawasaki (2007?))
+ */
+
 #pragma once
 
 #include "IModel.h"
@@ -10,9 +37,6 @@
 
 using namespace std;
 
-/**
- * Implementation of Model for the Leaky-Integrate-and-Fire model.
- */
 class Model : public IModel, TiXmlVisitor
 {
     public:

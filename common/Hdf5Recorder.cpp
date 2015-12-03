@@ -37,6 +37,8 @@ Hdf5Recorder::~Hdf5Recorder()
 
 /**
  * Initialize data
+ * Create a new hdf5 file with default properties.
+ *
  * @param[in] stateOutputFileName	File name to save histories
  */
 void Hdf5Recorder::init(const string& stateOutputFileName)
@@ -78,6 +80,9 @@ void Hdf5Recorder::init(const string& stateOutputFileName)
     }
 }
 
+/**
+ *  Create data spaces and data sets of the hdf5 for recording histories.
+ */
 void Hdf5Recorder::initDataSet()
 {
     // create the data space & dataset for burstiness history
@@ -132,21 +137,21 @@ void Hdf5Recorder::initDataSet()
 }
 
 /*
- * Init radii and rates history matrices with default values
+ * Init history matrices with default values
  */
 void Hdf5Recorder::initDefaultValues()
 {
 }
 
 /*
- * Init radii and rates history matrices with current radii and rates
+ * Init history matrices with current radii and rates
  */
 void Hdf5Recorder::initValues()
 {
 }
 
 /*
- * Get the current radii and rates values
+ * Get the current values
  */
 void Hdf5Recorder::getValues()
 {
@@ -173,7 +178,8 @@ void Hdf5Recorder::term()
 }
 
 /**
- * Compile history information in every epoch
+ * Compile history information in every epoch.
+ *
  * @param[in] neurons   The entire list of neurons.
  */
 void Hdf5Recorder::compileHistories(AllNeurons &neurons)
@@ -290,7 +296,8 @@ void Hdf5Recorder::compileHistories(AllNeurons &neurons)
 }
 
 /**
- * Save current simulation state to XML
+ * Save current simulation state to the hdf5 file.
+ *
  * @param  neurons the Neuron list to search from.
  **/
 void Hdf5Recorder::saveSimState(const AllNeurons &neurons)
@@ -442,8 +449,9 @@ void Hdf5Recorder::saveSimState(const AllNeurons &neurons)
 
 /**
  *  Get starter Neuron matrix.
- *  @param  matrix   Starter Neuron matrix.
- *  @param  starter_map bool map to reference neuron matrix location from.
+ *
+ *  @param  matrix      Starter Neuron matrix.
+ *  @param  starter_map Bool map to reference neuron matrix location from.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
 void Hdf5Recorder::getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info)

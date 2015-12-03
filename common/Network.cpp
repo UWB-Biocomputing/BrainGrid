@@ -31,6 +31,8 @@ Network::~Network()
 
 /**
  *  Initialize and prepare network for simulation.
+ *
+ *  @param pInput    Pointer to the stimulus input object.
  */
 void Network::setup(ISInput* pInput)
 {
@@ -55,6 +57,8 @@ void Network::finish()
  *  Advance the network one step in the current epoch. This means do
  *  everything that needs to be done within the model to move
  *  everything forward one time step.
+ *
+ *  @param pInput    Pointer to the stimulus input object.
  */
 void Network::advance(ISInput* pInput)
 {
@@ -73,6 +77,9 @@ void Network::updateConnections()
     m_model->updateConnections(m_sim_info);
 }
 
+/**
+ *  Update the simulation history of every epoch.
+ */
 void Network::updateHistory()
 {
     m_model->updateHistory(m_sim_info, m_simRecorder);
@@ -126,9 +133,9 @@ void Network::saveState()
 
 /**
  *  Write the simulation memory image.
- *  @param simulation_step should be an integer type.
- *  @param  os  yhe filestream to write.
  *  This needs to be debugged and verified to be working.
+ *
+ *  @param  os  The filestream to write.
  */
 void Network::writeSimMemory(ostream& os)
 {
@@ -141,6 +148,7 @@ void Network::writeSimMemory(ostream& os)
 
 /**
  *  Read the simulation memory image.
+ *
  *  @param  is  the filestream to read.
  */
 void Network::readSimMemory(istream& is)

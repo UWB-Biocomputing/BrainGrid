@@ -1,8 +1,16 @@
+/**
+ *      @file AllDynamicSTDPSynapses.h
+ *
+ *      @brief A container of all dynamic STDP synapse data
+ */
+
 /** 
  * @authors Aaron Oziel, Sean Blackbourn
  * 
  * @class AllDynamicSTDPSynapses AllDynamicSTDPSynapses.h "AllDynamicSTDPSynapses.h"
- * @brief A container of all synapse data
+ *
+ * \latexonly  \subsubsection*{Implementation} \endlatexonly
+ * \htmlonly   <h3>Implementation</h3> \endhtmlonly
  *
  *  The container holds synapse parameters of all synapses. 
  *  Each kind of synapse parameter is stored in a 2D array. Each item in the first 
@@ -49,6 +57,11 @@
  *  Considering these issues, I decided that making the AllDynamicSTDPSynapses class the subclass
  *  of the AllSTDPSynapses class and adding properties of the AllDSSynapses class to it (fumik).
  *   
+ * \latexonly  \subsubsection*{Credits} \endlatexonly
+ * \htmlonly   <h3>Credits</h3> \endhtmlonly
+ *
+ * Some models in this simulator is a rewrite of CSIM (2006) and other
+ * work (Stiber and Kawasaki (2007?))
  */
 #pragma once
 

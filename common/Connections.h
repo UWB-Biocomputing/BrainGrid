@@ -26,6 +26,12 @@
  * This includes history and parameters that inform how new connections are made during growth.
  * Therefore, connections classes will have customized recorder classes, and provide
  * a function to craete the recorder class.
+ *
+ * \latexonly  \subsubsection*{Credits} \endlatexonly
+ * \htmlonly   <h3>Credits</h3> \endhtmlonly
+ *
+ * Some models in this simulator is a rewrite of CSIM (2006) and other
+ * work (Stiber and Kawasaki (2007?))
  */
 
 #pragma once

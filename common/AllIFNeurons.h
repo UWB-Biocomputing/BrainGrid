@@ -1,8 +1,16 @@
+/**
+ *      @file AllIFNeurons.h
+ *
+ *      @brief A container of all IF neuron data
+ */
+
 /** 
  * @authors Aaron Oziel, Sean Blackbourn
  * 
  * @class AllIFNeurons AllIFNeurons.h "AllIFNeurons.h"
- * @brief A container of all LIF neuron data
+ *
+ * \latexonly  \subsubsection*{Implementation} \endlatexonly
+ * \htmlonly   <h3>Implementation</h3> \endhtmlonly
  *
  *  The container holds neuron parameters of all neurons. 
  *  Each kind of neuron parameter is stored in a 1D array, of which length

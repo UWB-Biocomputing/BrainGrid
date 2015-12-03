@@ -20,6 +20,7 @@ SingleThreadedSpikingModel::~SingleThreadedSpikingModel()
 /**
  *  Advance everything in the model one time step. In this case, that
  *  means advancing just the Neurons and Synapses.
+ *
  *  @param  sim_info    SimulationInfo class to read information from.
  */
 void SingleThreadedSpikingModel::advance(const SimulationInfo *sim_info)
@@ -30,6 +31,7 @@ void SingleThreadedSpikingModel::advance(const SimulationInfo *sim_info)
 
 /**
  *  Update the connection of all the Neurons and Synapses of the simulation.
+ *
  *  @param  sim_info    SimulationInfo class to read information from.
  */
 void SingleThreadedSpikingModel::updateConnections(const SimulationInfo *sim_info)

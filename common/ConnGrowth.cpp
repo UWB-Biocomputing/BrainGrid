@@ -60,6 +60,14 @@ ConnGrowth::~ConnGrowth()
     cleanupConnections();
 }
 
+/**
+ *  Setup the internal structure of the class (allocate memories and initialize them).
+ *
+ *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  layout    Layout information of the neunal network.
+ *  @param  neurons   The Neuron list to search from.
+ *  @param  synapses  The Synapse list to search from.
+ */
 void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout, AllNeurons *neurons, AllSynapses *synapses)
 {
     int num_neurons = sim_info->totalNeurons;
@@ -76,6 +84,9 @@ void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout
     (*delta) = (*layout->dist);
 }
 
+/**
+ *  Cleanup the class (deallocate memories).
+ */
 void ConnGrowth::cleanupConnections()
 {
     if (W != NULL) delete W;
@@ -97,7 +108,8 @@ void ConnGrowth::cleanupConnections()
 
 /**
  *  Attempts to read parameters from a XML file.
- *  @param  @param  element TiXmlElement to examine.
+ *
+ *  @param  element TiXmlElement to examine.
  *  @return true if successful, false otherwise.
  */
 bool ConnGrowth::readParameters(const TiXmlElement& element)
@@ -156,6 +168,7 @@ bool ConnGrowth::readParameters(const TiXmlElement& element)
 
 /**
  *  Prints out all parameters of the connections to ostream.
+ *
  *  @param  output  ostream to send output to.
  */
 void ConnGrowth::printParameters(ostream &output) const
@@ -171,6 +184,12 @@ void ConnGrowth::printParameters(ostream &output) const
 
 }
 
+/**
+ *  Reads the intermediate connection status from istream.
+ *
+ *  @param  input    istream to read status from.
+ *  @param  sim_info SimulationInfo class to read information from.
+ */
 void ConnGrowth::readConns(istream& input, const SimulationInfo *sim_info)
 {
     // read the radii
@@ -184,6 +203,12 @@ void ConnGrowth::readConns(istream& input, const SimulationInfo *sim_info)
     }
 }
 
+/**
+ *  Writes the intermediate connection status to ostream.
+ *
+ *  @param  output   ostream to write status to.
+ *  @param  sim_info SimulationInfo class to read information from.
+ */
 void ConnGrowth::writeConns(ostream& output, const SimulationInfo *sim_info)
 {
     // write the final radii
@@ -197,6 +222,14 @@ void ConnGrowth::writeConns(ostream& output, const SimulationInfo *sim_info)
     }
 }
 
+/**
+ *  Update the connections status in every epoch.
+ *
+ *  @param  neurons  The Neuron list to search from.
+ *  @param  sim_info SimulationInfo class to read information from.
+ *  @param  layout   Layout information of the neunal network.
+ *  @return true if successful, false otherwise.
+ */
 bool ConnGrowth::updateConnections(AllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout)
 {
     // Update Connections data
@@ -211,7 +244,12 @@ bool ConnGrowth::updateConnections(AllNeurons &neurons, const SimulationInfo *si
     return true;
 }
 
-
+/**
+ *  Calculates firing rates, neuron radii change and assign new values.
+ *
+ *  @param  neurons  The Neuron list to search from.
+ *  @param  sim_info SimulationInfo class to read information from.
+ */
 void ConnGrowth::updateConns(AllNeurons &neurons, const SimulationInfo *sim_info)
 {
     AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
@@ -232,7 +270,9 @@ void ConnGrowth::updateConns(AllNeurons &neurons, const SimulationInfo *sim_info
 
 /**
  *  Update the distance between frontiers of Neurons.
- *  @param  num_neurons in the simulation to update.
+ *
+ *  @param  num_neurons Number of neurons to update.
+ *  @param  layout      Layout information of the neunal network.
  */
 void ConnGrowth::updateFrontiers(const int num_neurons, Layout *layout)
 {
@@ -248,7 +288,9 @@ void ConnGrowth::updateFrontiers(const int num_neurons, Layout *layout)
 
 /**
  *  Update the areas of overlap in between Neurons.
- *  @param  num_neurons number of Neurons to update.
+ *
+ *  @param  num_neurons Number of Neurons to update.
+ *  @param  layout      Layout information of the neunal network.
  */
 void ConnGrowth::updateOverlap(BGFLOAT num_neurons, Layout *layout)
 {
@@ -295,9 +337,10 @@ void ConnGrowth::updateOverlap(BGFLOAT num_neurons, Layout *layout)
 /**
  *  Update the weight of the Synapses in the simulation.
  *  Note: Platform Dependent.
- *  @param  num_neurons number of neurons to update.
- *  @param  neurons the Neuron list to search from.
- *  @param  synapses    the Synapse list to search from.
+ *
+ *  @param  num_neurons Number of neurons to update.
+ *  @param  neurons     The Neuron list to search from.
+ *  @param  synapses    The Synapse list to search from.
  *  @param  sim_info    SimulationInfo to refer from.
  */
 void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, Layout *layout)
@@ -377,6 +420,16 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neuron
 }
 #endif // !USE_GPU
 
+/**
+ *  Creates a recorder class object for the connection.
+ *
+ *  @param  stateOutputFileName  Name of the state output file.
+ *                               This function tries to create either Xml recorder or
+ *                               Hdf5 recorder based on the extension of the file name.
+ *  @param  model                Poiner to the model class object. 
+ *  @param  simInfo              SimulationInfo to refer from.
+ *  @return Pointer to the recorder class object.
+ */
 IRecorder* ConnGrowth::createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *simInfo)
 {
     // create & init simulation recorder

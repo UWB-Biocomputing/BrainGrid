@@ -15,6 +15,11 @@ AllSpikingNeurons::~AllSpikingNeurons()
     freeResources();
 }
 
+/**
+ *  Setup the internal structure of the class (allocate memories).
+ *
+ *  @param  sim_info  SimulationInfo class to read information from.
+ */
 void AllSpikingNeurons::setupNeurons(SimulationInfo *sim_info)
 {
     AllNeurons::setupNeurons(sim_info);
@@ -35,12 +40,18 @@ void AllSpikingNeurons::setupNeurons(SimulationInfo *sim_info)
     sim_info->pSummationMap = summation_map;
 }
 
+/**
+ *  Cleanup the class (deallocate memories).
+ */
 void AllSpikingNeurons::cleanupNeurons()
 {
     freeResources();
     AllNeurons::cleanupNeurons();
 }
 
+/**
+ *  Deallocate all resources
+ */
 void AllSpikingNeurons::freeResources()
 {
     if (size != 0) {
@@ -62,8 +73,9 @@ void AllSpikingNeurons::freeResources()
 
 /**
  *  Clear the spike counts out of all Neurons.
+ *
+ *  @param  sim_info  SimulationInfo class to read information from.
  */
-//! Clear spike count of each neuron.
 void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info)
 {
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
@@ -76,9 +88,12 @@ void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info)
 
 #if !defined(USE_GPU)
 /**
+ *  Update internal state of the indexed Neuron (called by every simulation step).
  *  Notify outgoing synapses if neuron has fired.
- *  @param  synapses    the Synapse list to search from.
- *  @param  sim_info    SimulationInfo class to read information from.
+ *
+ *  @param  synapses         The Synapse list to search from.
+ *  @param  sim_info         SimulationInfo class to read information from.
+ *  @param  synapseIndexMap  Reference to the SynapseIndexMap.
  */
 void AllSpikingNeurons::advanceNeurons(AllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap)
 {
@@ -129,7 +144,8 @@ void AllSpikingNeurons::advanceNeurons(AllSynapses &synapses, const SimulationIn
 
 /**
  *  Fire the selected Neuron and calculate the result.
- *  @param  index   index of the Neuron to update.
+ *
+ *  @param  index       Index of the Neuron to update.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
 void AllSpikingNeurons::fire(const int index, const SimulationInfo *sim_info) const

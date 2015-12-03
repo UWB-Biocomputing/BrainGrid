@@ -19,6 +19,17 @@ ConnStatic::~ConnStatic()
     cleanupConnections();
 }
 
+/**
+ *  Setup the internal structure of the class (allocate memories and initialize them).
+ *  Initialize the small world network characterized by parameters: 
+ *  number of maximum connections per neurons, connection radius threshold, and
+ *  small-world rewiring probability.
+ *
+ *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  layout    Layout information of the neunal network.
+ *  @param  neurons   The Neuron list to search from.
+ *  @param  synapses  The Synapse list to search from.
+ */
 void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout, AllNeurons *neurons, AllSynapses *synapses)
 {
     int num_neurons = sim_info->totalNeurons;
@@ -68,13 +79,16 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
     DEBUG (cout << "added connections: " << added << endl << endl << endl;)
 }
 
+/**
+ *  Cleanup the class.
+ */
 void ConnStatic::cleanupConnections()
 {
 }
 
 /**
  *  Attempts to read parameters from a XML file.
- *  @param  @param  element TiXmlElement to examine.
+ *  @param  element TiXmlElement to examine.
  *  @return true if successful, false otherwise.
  */
 bool ConnStatic::readParameters(const TiXmlElement& element)
@@ -110,20 +124,43 @@ bool ConnStatic::readParameters(const TiXmlElement& element)
 
 /**
  *  Prints out all parameters of the connections to ostream.
+ *
  *  @param  output  ostream to send output to.
  */
 void ConnStatic::printParameters(ostream &output) const
 {
 }
 
+/**
+ *  Reads the intermediate connection status from istream.
+ *
+ *  @param  input    istream to read status from.
+ *  @param  sim_info SimulationInfo class to read information from.
+ */
 void ConnStatic::readConns(istream& input, const SimulationInfo *sim_info)
 {
 }
 
+/**
+ *  Writes the intermediate connection status to ostream.
+ *
+ *  @param  output   ostream to write status to.
+ *  @param  sim_info SimulationInfo class to read information from.
+ */
 void ConnStatic::writeConns(ostream& output, const SimulationInfo *sim_info)
 {
 }
 
+/**
+ *  Creates a recorder class object for the connection.
+ *
+ *  @param  stateOutputFileName  Name of the state output file.
+ *                               This function tries to create either Xml recorder or
+ *                               Hdf5 recorder based on the extension of the file name.
+ *  @param  model                Poiner to the model class object.
+ *  @param  simInfo              SimulationInfo to refer from.
+ *  @return Pointer to the recorder class object.
+ */
 IRecorder* ConnStatic::createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *simInfo)
 {
     // create & init simulation recorder

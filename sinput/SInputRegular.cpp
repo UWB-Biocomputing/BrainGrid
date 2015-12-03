@@ -13,6 +13,7 @@ void getValueList(const string& valString, vector<BGFLOAT>* pList);
 
 /**
  * constructor
+ *
  * @param[in] psi       Pointer to the simulation information
  * @param[in] parms     Pointer to xml parms element
  */
@@ -119,6 +120,7 @@ SInputRegular::~SInputRegular()
 
 /**
  * Initialize data.
+ *
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
@@ -129,6 +131,7 @@ void SInputRegular::init(IModel* model, AllNeurons& neurons, SimulationInfo* psi
 
 /**
  * Terminate process.
+ *
  * @param[in] model              Pointer to the Neural Network Model object.
  * @param[in] psi                Pointer to the simulation information.
  */

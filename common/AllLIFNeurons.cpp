@@ -12,8 +12,9 @@ AllLIFNeurons::~AllLIFNeurons()
 
 #if !defined(USE_GPU)
 /**
- *  Update the indexed Neuron.
- *  @param  index   index of the Neuron to update.
+ *  Update internal state of the indexed Neuron (called by every simulation step).
+ *
+ *  @param  index       Index of the Neuron to update.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
 void AllLIFNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info)
@@ -60,7 +61,8 @@ void AllLIFNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
 
 /**
  *  Fire the selected Neuron and calculate the result.
- *  @param  index   index of the Neuron to update.
+ *
+ *  @param  index       Index of the Neuron to update.
  *  @param  sim_info    SimulationInfo class to read information from.
  */
 void AllLIFNeurons::fire(const int index, const SimulationInfo *sim_info) const

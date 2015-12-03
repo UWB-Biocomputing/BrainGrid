@@ -47,6 +47,14 @@ Connections::~Connections()
 {
 }
 
+/**
+ *  Update the connections status in every epoch.
+ *
+ *  @param  neurons  The Neuron list to search from.
+ *  @param  sim_info SimulationInfo class to read information from.
+ *  @param  layout   Layout information of the neunal network.
+ *  @return true if successful, false otherwise.
+ */
 bool Connections::updateConnections(AllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout)
 {
     return false;
@@ -60,9 +68,9 @@ void Connections::updateSynapsesWeights(const int num_neurons, AllNeurons &neuro
 /**
  *  Update the weight of the Synapses in the simulation.
  *  Note: Platform Dependent.
- *  @param  num_neurons number of neurons to update.
- *  @param  neurons the Neuron list to search from.
- *  @param  synapses    the Synapse list to search from.
+ *  @param  num_neurons Number of neurons to update.
+ *  @param  neurons     The Neuron list to search from.
+ *  @param  synapses    The Synapse list to search from.
  *  @param  sim_info    SimulationInfo to refer from.
  */
 void Connections::updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, Layout *layout)

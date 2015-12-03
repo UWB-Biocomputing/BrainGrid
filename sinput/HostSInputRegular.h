@@ -17,7 +17,8 @@
  ** \latexonly  \subsubsection*{Credits} \endlatexonly
  ** \htmlonly   <h3>Credits</h3> \endhtmlonly
  **
- ** This simulator is a rewrite of CSIM (2006) and other work (Stiber and Kawasaki (2007?))
+ ** Some models in this simulator is a rewrite of CSIM (2006) and other 
+ ** work (Stiber and Kawasaki (2007?))
  **
  **
  **     @author Fumitaka Kawasaki

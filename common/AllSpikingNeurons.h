@@ -1,3 +1,9 @@
+/**
+ *      @file AllSpikingNeurons.h
+ *
+ *      @brief A container of all spiking neuron data
+ */
+
 #pragma once
 
 using namespace std;

@@ -2,9 +2,8 @@
  *	@file Network.h
  *
  *
- *	@brief Header file for Network.
+ *	@brief A collection of Neurons and their connecting synapses.
  */
-//! A collection of Neurons and their connecting synapses.
 
 /**
  ** \class Network Network.h "Network.h"
@@ -15,24 +14,25 @@
  ** \image html bg_data_layout.png
  **
  ** The network is composed of 3 superimposed 2-d arrays: neurons, synapses, and
- ** summation points (m_neuronList, m_rgSynapseMap, and m_summationMap).
+ ** summation points.
  **
  ** Synapses in the synapse map are located at the coordinates of the neuron
  ** from which they receive output.  Each synapse stores a pointer into a
- ** m_summationMap bin.  Bins in the m_summationMap map directly to their output neurons.
+ ** summation point. 
  ** 
  ** If, during an advance cycle, a neuron \f$A\f$ at coordinates \f$x,y\f$ fires, every synapse
- ** \f$B\f$ at \f$x,y\f$ in the m_rgSynapseMap is notified of the spike. Those synapses then hold
+ ** which receives output is notified of the spike. Those synapses then hold
  ** the spike until their delay period is completed.  At a later advance cycle, once the delay
- ** period has been completed, the synapses apply their PSRs (Post-Synaptic-Response) to their output bins \f$C\f$ in
- ** the m_summationMap.  Finally, on the next advance cycle, each neuron \f$D\f$ adds the value stored
- ** in their corresponding m_summationMap bin to their \f$V_m\f$ and resets the m_summationMap bin to
+ ** period has been completed, the synapses apply their PSRs (Post-Synaptic-Response) to 
+ ** the summation points.  Finally, on the next advance cycle, each neuron \f$B\f$ adds the value stored
+ ** in their corresponding summation points to their \f$V_m\f$ and resets the summation points to
  ** zero.
  **
  ** \latexonly \subsubsection*{Credits} \endlatexonly
  ** \htmlonly <h3>Credits</h3> \endhtmlonly
  **
- ** This simulator is a rewrite of CSIM (2006) and other work (Stiber and Kawasaki (2007?))
+ ** Some models in this simulator is a rewrite of CSIM (2006) and other 
+ ** work (Stiber and Kawasaki (2007?))
  **
  **
  **	@authors Allan Ortiz and Cory Mayberry

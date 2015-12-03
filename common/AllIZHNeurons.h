@@ -1,8 +1,15 @@
+/**
+ *      @file AllIZHNeurons.h
+ *
+ *      @brief A container of all Izhikevich neuron data
+ */
+
 /** 
- * @authors Aaron Oziel, Sean Blackbourn
  * 
  * @class AllIZHNeurons AllIZHNeurons.h "AllIZHNeurons.h"
- * @brief A container of all LIF neuron data
+ *
+ * \latexonly  \subsubsection*{Implementation} \endlatexonly
+ * \htmlonly   <h3>Implementation</h3> \endhtmlonly
  *
  *  The container holds neuron parameters of all neurons. 
  *  Each kind of neuron parameter is stored in a 1D array, of which length
@@ -84,10 +91,12 @@
  * \f[
  *  EPSP_{n}=A \cdot r_{n} \cdot u_{n}
  * \f]
+ *
+ * \latexonly  \subsubsection*{Credits} \endlatexonly
+ * \htmlonly   <h3>Credits</h3> \endhtmlonly
+ *
  * This model is a rewrite of work by Stiber, Kawasaki, Allan Ortiz, and Cory Mayberry
  *
- * @authors Derek McLean
-
  */
 #pragma once
 
