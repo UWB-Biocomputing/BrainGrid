@@ -569,22 +569,22 @@ public class WorkbenchManager {
      * @param type - The type of input file
      */
     public void addInputFile(String uri, InputAnalyzer.InputType type) {
-        /* add prov */
-        if (projectMgr.isProvenanceEnabled()) {
-            prov.addEntity(uri, type.toString(), false, false);
-        }
-        /* add to project */
-        String toRemove = projectMgr.addInputFile(uri, type);
-        messageAccumulator += "\n" + "Adding input: " + uri
-                + " to the project...\n";
-        if (toRemove != null) {
-            messageAccumulator += "\n" + type.toString() + " neuron list input"
-                    + toRemove + " replaced: \n" + toRemove
-                    + " as a project input" + "\n";
-        } else {
-            messageAccumulator += "\n" + uri
-                    + " successfully added as a project input" + "\n";
-        }
+//        /* add prov */
+//        if (projectMgr.isProvenanceEnabled()) {
+//            prov.addEntity(uri, type.toString(), false, false);
+//        }
+//        /* add to project */
+//        //String toRemove = projectMgr.addInputFile(uri, type);
+//        messageAccumulator += "\n" + "Adding input: " + uri
+//                + " to the project...\n";
+//        if (toRemove != null) {
+//            messageAccumulator += "\n" + type.toString() + " neuron list input"
+//                    + toRemove + " replaced: \n" + toRemove
+//                    + " as a project input" + "\n";
+//        } else {
+//            messageAccumulator += "\n" + uri
+//                    + " successfully added as a project input" + "\n";
+//        }
     }
     // </editor-fold>
 

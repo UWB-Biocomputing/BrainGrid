@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import org.xml.sax.SAXException;
@@ -56,7 +57,7 @@ public class SimulationConfigurationDialog extends javax.swing.JDialog {
         initComponents(simConfig);
         setModal(modal);
         this.projectName = projectName;
-        
+
         try {
             scm = new SimulationConfigurationManager(configFilename);
         } catch (Exception e) {
@@ -64,8 +65,7 @@ public class SimulationConfigurationDialog extends javax.swing.JDialog {
         }
         if (scm != null) {
             okButton.setEnabled(false);
-            
-            
+
             // show window center-screen
             pack();
             center();
@@ -93,11 +93,11 @@ public class SimulationConfigurationDialog extends javax.swing.JDialog {
         JButton importButton;
         String importButtonText = "Import";
         JScrollPane scrollPane;
-        
+
         ActionListener al = new ActionListener() {
-              public void actionPerformed(java.awt.event.ActionEvent evt) {
-                  importButtonActionPerformed(evt);
-              }
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                importButtonActionPerformed(evt);
+            }
         };
 
         cancelButton = new javax.swing.JButton();
@@ -163,9 +163,9 @@ public class SimulationConfigurationDialog extends javax.swing.JDialog {
 
                 if (datum.isFileChooser()) {
                     importButton = new JButton(importButtonText);
-                    importButton.setActionCommand(fields.size()+"");
+                    importButton.setActionCommand(fields.size() + "");
                     importButton.addActionListener(al);
-                    
+
                     subLayout.setHorizontalGroup(
                             subLayout.createSequentialGroup()
                             .addComponent(label)
@@ -179,8 +179,7 @@ public class SimulationConfigurationDialog extends javax.swing.JDialog {
                             .addComponent(field)
                             .addComponent(importButton)
                     );
-                }
-                else {
+                } else {
                     subLayout.setHorizontalGroup(
                             subLayout.createSequentialGroup()
                             .addComponent(label)
@@ -447,11 +446,30 @@ public class SimulationConfigurationDialog extends javax.swing.JDialog {
     }
 
     public static void main(String[] args) {
-        /*String filename = "C:\\Users\\Aaron\\Desktop\\SimulationConfigurationTest.xml";
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
         try {
-            SimulationConfigurationDialog dialog = new SimulationConfigurationDialog("Test", true, filename, new SimulationConfiguration(filename));
+            for (javax.swing.UIManager.LookAndFeelInfo info
+                    : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(SimulationConfigurationDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        // FILE CAN BE FOUND IN BrainGrid/Tools/Workbench/models
+        String filename = "C:\\Users\\Del\\Desktop\\SimulationConfigurationTest.xml";
+        try {
+            SimulationConfigurationDialog dialog = new SimulationConfigurationDialog("Test", true, filename, new SimulationConfiguration(DocumentBuilderFactory.newInstance().
+                    newDocumentBuilder().parse(new File(filename))));
         } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }
     }
 }

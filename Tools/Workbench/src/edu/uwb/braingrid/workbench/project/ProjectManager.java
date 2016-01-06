@@ -626,94 +626,94 @@ public class ProjectManager {
                 simulationConfigurationFileTagName, filename
         );
     }
-
-    /**
-     * Adds a generated script file to the project
-     *
-     * @param scriptBasename - The base-name of the file path
-     * @param extension - The extension of the file path
-     * @return True if the script was added to the model correctly, false if not
-     */
-    public boolean addScript(String scriptBasename, String extension) {
-        boolean success = true;
-        try {
-            /* Remove Previous Script */
-            removeScript();
-
-            /* Create Elements */
-            // this will overwrite previously defined script
-            script = doc.createElement(scriptTagName);
-            // file element of the script element
-            Element scriptFile = doc.createElement(scriptFileTagName);
-
-            /* Add Values */
-            // text element describing the file location
-            Text scriptFileLocation = doc.createTextNode(scriptBasename + "."
-                    + extension);
-
-            // 
-            /* Attach Elements */
-            scriptFile.appendChild(scriptFileLocation);
-            script.appendChild(scriptFile);
-            root.appendChild(script);
-
-            int version = 0;
-            try {
-                version = Integer.valueOf(getScriptVersion());
-            } catch (NumberFormatException e) { // version not present
-                initScriptVersion();
-            }
-            version++;
-            setScriptVersion(String.valueOf(version));
-        } catch (DOMException | NumberFormatException e) {
-            script = null;
-            success = false;
-        }
-        return success;
-    }
-
-    public String getSimConfigFilename() {
-        return getFirstChildTextContent(root,
-                simConfigFileTagName);
-    }
-
-    public boolean scriptGenerated() {
-        return script != null;
-    }
-
-    public boolean scriptOutputAnalyzed() {
-        String analyzedAttributeValue;
-        boolean analyzed = false;
-        if (script != null) {
-            analyzedAttributeValue = script.getAttribute(
-                    scriptAnalyzedAttributeName);
-            analyzed = Boolean.valueOf(analyzedAttributeValue);
-        }
-        return analyzed;
-    }
-
-    public void setScriptAnalyzed(boolean analyzed) {
-        if (script != null) {
-            script.setAttribute(scriptAnalyzedAttributeName,
-                    String.valueOf(analyzed));
-        }
-    }
-
-    public void setSimStateOutputFile(String stateOutputFilename) {
-        if (simulationConfigurationFile != null) {
-            simulationConfigurationFile.setAttribute(
-                    simulationConfigurationFileTagName,
-                    stateOutputFilename);
-        }
-    }
-
-    public String getSimStateOutputFile() {
-        String filename = null;
-        if (simulationConfigurationFile != null) {
-            filename = simulationConfigurationFile.getAttribute(
-                    simulationConfigurationFileTagName);
-        }
-        return filename;
-    }
+//
+//    /**
+//     * Adds a generated script file to the project
+//     *
+//     * @param scriptBasename - The base-name of the file path
+//     * @param extension - The extension of the file path
+//     * @return True if the script was added to the model correctly, false if not
+//     */
+//    public boolean addScript(String scriptBasename, String extension) {
+//        boolean success = true;
+//        try {
+//            /* Remove Previous Script */
+//            removeScript();
+//
+//            /* Create Elements */
+//            // this will overwrite previously defined script
+//            script = doc.createElement(scriptTagName);
+//            // file element of the script element
+//            Element scriptFile = doc.createElement(scriptFileTagName);
+//
+//            /* Add Values */
+//            // text element describing the file location
+//            Text scriptFileLocation = doc.createTextNode(scriptBasename + "."
+//                    + extension);
+//
+//            // 
+//            /* Attach Elements */
+//            scriptFile.appendChild(scriptFileLocation);
+//            script.appendChild(scriptFile);
+//            root.appendChild(script);
+//
+//            int version = 0;
+//            try {
+//                version = Integer.valueOf(getScriptVersion());
+//            } catch (NumberFormatException e) { // version not present
+//                initScriptVersion();
+//            }
+//            version++;
+//            setScriptVersion(String.valueOf(version));
+//        } catch (DOMException | NumberFormatException e) {
+//            script = null;
+//            success = false;
+//        }
+//        return success;
+//    }
+//
+//    public String getSimConfigFilename() {
+//        return getFirstChildTextContent(root,
+//                simConfigFileTagName);
+//    }
+//
+//    public boolean scriptGenerated() {
+//        return script != null;
+//    }
+//
+//    public boolean scriptOutputAnalyzed() {
+//        String analyzedAttributeValue;
+//        boolean analyzed = false;
+//        if (script != null) {
+//            analyzedAttributeValue = script.getAttribute(
+//                    scriptAnalyzedAttributeName);
+//            analyzed = Boolean.valueOf(analyzedAttributeValue);
+//        }
+//        return analyzed;
+//    }
+//
+//    public void setScriptAnalyzed(boolean analyzed) {
+//        if (script != null) {
+//            script.setAttribute(scriptAnalyzedAttributeName,
+//                    String.valueOf(analyzed));
+//        }
+//    }
+//
+//    public void setSimStateOutputFile(String stateOutputFilename) {
+//        if (simulationConfigurationFile != null) {
+//            simulationConfigurationFile.setAttribute(
+//                    simulationConfigurationFileTagName,
+//                    stateOutputFilename);
+//        }
+//    }
+//
+//    public String getSimStateOutputFile() {
+//        String filename = null;
+//        if (simulationConfigurationFile != null) {
+//            filename = simulationConfigurationFile.getAttribute(
+//                    simulationConfigurationFileTagName);
+//        }
+//        return filename;
+//    }*/
     // </editor-fold>
 }
