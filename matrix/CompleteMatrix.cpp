@@ -2,8 +2,8 @@
  @file CompleteMatrix.cpp
  @brief An efficient implementation of a dynamically-allocated 2D array.
  @author Michael Stiber
- @date $Date: 2006/11/22 07:07:34 $
- @version $Revision: 1.2 $
+ @date January 2016
+ @version 2
  */
 
 // CompleteMatrix.cpp 2D Matrix with all elements present
@@ -41,6 +41,27 @@
 #include "CompleteMatrix.h"
 
 // Create a complete 2D Matrix
+/*
+ Allocate storage and initialize attributes. If "v" (values) is
+ not empty, it will be used as a source of data for initializing
+ the matrix (and must be a list of whitespace separated textual
+ numeric data with rows * columns elements, if "t" (type) is
+ "complete", or number of elements in diagonal, if "t" is "diag").
+ 
+ If "i" (initialization) is "const", then "m" will be used to initialize either all
+ elements (for a "complete" matrix) or diagonal elements (for "diag").
+ 
+ "random" initialization is not yet implemented.
+ 
+ @throws Matrix_bad_alloc
+ @throws Matrix_invalid_argument
+ @param t Matrix type (defaults to "complete")
+ @param i Matrix initialization (defaults to "const")
+ @param r rows in Matrix (defaults to 2)
+ @param c columns in Matrix (defaults to 2)
+ @param m multiplier used for initialization (defaults to zero)
+ @param v values for initializing CompleteMatrix (this string is parsed as a list of floating point numbers)
+ */
 CompleteMatrix::CompleteMatrix(string t, string i, int r,
                                int c, BGFLOAT m, string values)
 : Matrix(t, i, r, c, m), theMatrix(NULL)
@@ -187,17 +208,20 @@ void CompleteMatrix::alloc(int rows, int columns)
         throw MatrixException("Attempt to allocate storage for non-cleared Matrix");
     
     if ((theMatrix = new BGFLOAT*[rows]) == NULL)
-        throw KII_bad_alloc("Failed allocating storage to copy Matrix.");
+        throw Matrix_bad_alloc("Failed allocating storage to copy Matrix.");
     
     for (int i=0; i<rows; i++)
         if ((theMatrix[i] = new BGFLOAT[columns]) == NULL)
-            throw KII_bad_alloc("Failed allocating storage to copy Matrix.");
+            throw Matrix_bad_alloc("Failed allocating storage to copy Matrix.");
     DEBUG_MATRIX(cerr << "\tStorage allocated for "<< rows << "X" << columns << " Matrix." << endl;)
     
 }
 
 
-// Polymorphic output
+/*
+ @brief Polymorphic output. Produces text output on stream os. Used by operator<<()
+ @param os stream to output to
+ */
 void CompleteMatrix::Print(ostream& os) const
 {
     for (int i=0; i<rows; i++) {
@@ -232,7 +256,7 @@ string CompleteMatrix::toXML(string name) const
 const CompleteMatrix CompleteMatrix::operator+(const CompleteMatrix& rhs) const
 {
     if ((rhs.rows != rows) || (rhs.columns != columns)) {
-        throw KII_domain_error("Illegal matrix addition: dimension mismatch");
+        throw Matrix_domain_error("Illegal matrix addition: dimension mismatch");
     }
     // Start with this
     CompleteMatrix result(*this);
@@ -248,7 +272,7 @@ const CompleteMatrix CompleteMatrix::operator+(const CompleteMatrix& rhs) const
 // Multiply the rhs into the current object
 const CompleteMatrix CompleteMatrix::operator*(const CompleteMatrix& rhs) const
 {
-    throw KII_domain_error("CompleteMatrix product not yet implemented");
+    throw Matrix_domain_error("CompleteMatrix product not yet implemented");
 }
 
 // Element-wise square root of a vector

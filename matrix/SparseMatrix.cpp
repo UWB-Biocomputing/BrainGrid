@@ -2,8 +2,8 @@
  @file SparseMatrix.cpp
  @brief An efficient implementation of a dynamically-allocated 2D sparse array.
  @author Michael Stiber
- @date $Date: 2006/11/18 04:42:32 $
- @version $Revision: 1.1.1.1 $
+ @date January 2016
+ @version 2
  */
 
 // SparseMatrix.cpp 2D Sparse Matrix
@@ -55,12 +55,19 @@
 #include <algorithm>
 
 #include "Global.h"
-#include "KIIexceptions.h"
 #include "SparseMatrix.h"
 
 extern bool debugSparseMatrix;
 
 // hash table methods and static members
+/*
+ @class HashTable
+ @brief Specialized hash table for pointers to Elements.
+ 
+ Implemented using linear probing. Because of this choice, we cannot delete storage taken
+ up by elements that get zeroed out. These elements can be re-used, of course. Consequently,
+ a SparseMatrix never shrinks.
+ */
 
 /* A special Element to mark deleted table locations */
 SparseMatrix::Element SparseMatrix::HashTable::deleted(-1, -1, -1.0);
@@ -506,7 +513,7 @@ void SparseMatrix::rowFromXML(TiXmlElement* rowElement)
 {
     int rowNum;
     if (rowElement->QueryIntAttribute("number", &rowNum)!=TIXML_SUCCESS)
-        throw KII_invalid_argument("Attempt to read SparseMatrix row without a number");
+        throw Matrix_invalid_argument("Attempt to read SparseMatrix row without a number");
     
     // Iterate through the entries, inserting them into the row, column,
     // and hash table
@@ -515,9 +522,9 @@ void SparseMatrix::rowFromXML(TiXmlElement* rowElement)
         int colNum;
         BGFLOAT val;
         if (child->QueryIntAttribute("number", &colNum)!=TIXML_SUCCESS)
-            throw KII_invalid_argument("Attempt to read SparseMatrix Entry without a number");
+            throw Matrix_invalid_argument("Attempt to read SparseMatrix Entry without a number");
         if (child->QueryFLOATAttribute("value", &val)!=TIXML_SUCCESS)
-            throw KII_invalid_argument("Attempt to read SparseMatrix Entry without a value");
+            throw Matrix_invalid_argument("Attempt to read SparseMatrix Entry without a value");
         Element* el = new Element(rowNum, colNum, val);
         theRows[rowNum].push_back(el);
         theColumns[colNum].push_back(el);
@@ -662,14 +669,14 @@ const SparseMatrix SparseMatrix::operator-() const
 
 const SparseMatrix SparseMatrix::operator+(const SparseMatrix& rhs) const
 {
-    throw KII_domain_error("SparseMatrix addition not yet implemented");
+    throw Matrix_domain_error("SparseMatrix addition not yet implemented");
 }
 
 
 // Multiply the rhs into the current object
 const SparseMatrix SparseMatrix::operator*(const SparseMatrix& rhs) const
 {
-    throw KII_domain_error("SparseMatrix product not yet implemented");
+    throw Matrix_domain_error("SparseMatrix product not yet implemented");
 }
 
 
@@ -677,7 +684,7 @@ const SparseMatrix SparseMatrix::operator*(const SparseMatrix& rhs) const
 const VectorMatrix operator*(const VectorMatrix& v, const SparseMatrix& m)
 {
     if (m.rows != v.size) {
-        throw KII_domain_error("Illegal vector/matrix product. Rows of matrix must equal vector size.");
+        throw Matrix_domain_error("Illegal vector/matrix product. Rows of matrix must equal vector size.");
     }
     
     // the result is a vector the same size as m columns

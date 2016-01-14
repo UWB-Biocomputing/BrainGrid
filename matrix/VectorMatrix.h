@@ -56,9 +56,6 @@ const VectorMatrix sqrt(const VectorMatrix& v);
 
 const VectorMatrix exp(const VectorMatrix& v);
 
-class csimInterface;
-
-
 /**
   @class VectorMatrix
   @brief An efficient implementation of a dynamically-allocated 1D
@@ -82,16 +79,14 @@ class VectorMatrix : public Matrix
 {
 public:
 
-friend class csimInterface;
-
   /**
     Allocate storage and initialize attributes. Either
     "rows" or "columns" must be equal to 1. If "v" is not empty, it
     will be used as a source of data for initializing the vector (and
     must be a list of whitespace separated textual numeric data with the
     same number of elements as this VectorMatrix).
-    @throws KII_bad_alloc
-    @throws KII_invalid_argument
+    @throws Matrix_bad_alloc
+    @throws Matrix_invalid_argument
     @param t Matrix type
     @param i Matrix initialization
     @param r rows in Matrix
@@ -188,7 +183,7 @@ friend class csimInterface;
 
   /**
     @brief Compute the sum of two VectorMatrices of the same length.
-    @throws KII_domain_error
+    @throws Matrix_domain_error
     @param rhs right-hand argument to the addition. Must be same
     length as this.
     @return A new VectorMatrix, with value equal to the sum of this
@@ -206,7 +201,7 @@ friend class csimInterface;
 
   /**
     @brief There are two possible vector products. This is an inner product.
-    @throws KII_domain_error
+    @throws Matrix_domain_error
     @param rhs right-hand argument to the inner product.
     @return A scalar of type BGFLOAT
    */
@@ -219,7 +214,7 @@ friend class csimInterface;
     vector; multiplies by matrix with same number of rows as size of
     this vector to produce a new vector the same size as the number of
     columns of the matrix
-    @throws KII_domain_error
+    @throws Matrix_domain_error
     @param rhs right-hand argument to the vector/matrix product
     @return A vector the same size as the number of columns of rhs
    */
@@ -227,7 +222,7 @@ friend class csimInterface;
 
   /**
     @brief Element-by-element multiplication of two vectors.
-    @throws KII_domain_error
+    @throws Matrix_domain_error
     @param rhs right-hand argument to the vector/matrix product. Must
     be same size as current vector
     @return A vector the same size as the current vector
@@ -272,7 +267,7 @@ friend class csimInterface;
 
   /**
     @brief Compute and assign the sum of two VectorMatrices of the same length.
-    @throws KII_domain_error
+    @throws Matrix_domain_error
     @param rhs right-hand argument to the addition. Must be same
     length as this.
     @return reference to this
@@ -299,7 +294,7 @@ friend class csimInterface;
 
     Size of v must equal to number of rows of m. Size of resultant
     vector is equal to number Of columns of m.
-    @throws KII_domain_error
+    @throws Matrix_domain_error
     @return A VectorMatrix with size equal to number of columns of m.
   */
   friend const VectorMatrix operator*(const VectorMatrix& v, const SparseMatrix& m);
@@ -370,7 +365,7 @@ protected:
 
   /**
     @brief Allocates storage for internal Vector storage
-    @throws KII_bad_alloc
+    @throws Matrix_bad_alloc
     @throws MatrixException
     @param size number of Vector elements
    */

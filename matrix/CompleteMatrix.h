@@ -2,7 +2,8 @@
   @file CompleteMatrix.h
   @brief An efficient implementation of a dynamically-allocated 2D array.
   @author Michael Stiber
-  @date 7/30/14
+  @date January 2016
+  @version 2
 */
 
 // Written December 2004 by Michael Stiber

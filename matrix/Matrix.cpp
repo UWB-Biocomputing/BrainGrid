@@ -46,7 +46,16 @@ Matrix::Matrix(string t, string i, int r, int c, BGFLOAT m)
   : type(t), init(i), rows(r), columns(c), multiplier(m), dimensions(0) {}
 
 
-void Matrix::SetAttributes(string t, string i, int r, int c, 
+/*
+ @brief Convenience mutator
+ @param t Matrix type (subclasses add legal values; basically, cheapo reflection)
+ @param i Matrix initialization (subclasses can also add legal values to this)
+ @param r rows in Matrix
+ @param c columns in Matrix
+ @param m multiplier used for initialization
+ @param d indicates one or two dimensional
+ */
+void Matrix::SetAttributes(string t, string i, int r, int c,
 			   BGFLOAT m, int d)
 {
   type = t;
@@ -58,7 +67,13 @@ void Matrix::SetAttributes(string t, string i, int r, int c,
 }
 
 
-// Convenience function
+/*
+ Stream output operator for the Matrix class
+ hierarchy. Subclasses must implement the Print() method
+ to take advantage of this.
+ @param os the output stream
+ @param obj the Matrix object to send to the output stream
+ */
 ostream& operator<<(ostream& os, const Matrix& obj)
 {
   obj.Print(os);
