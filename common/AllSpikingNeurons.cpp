@@ -169,6 +169,13 @@ void AllSpikingNeurons::fire(const int index, const SimulationInfo *sim_info) co
     spikeCount[index]++;
 }
 
+/**
+ *  Get the spike history of neuron[index] at the location offIndex.
+ *
+ *  @param  index            Index of the neuron to get spike history.
+ *  @param  offIndex         Offset of the history buffer to get from.
+ *  @param  sim_info         SimulationInfo class to read information from.
+ */
 uint64_t AllSpikingNeurons::getSpikeHistory(int index, int offIndex, const SimulationInfo *sim_info)
 {
     // offIndex is a minus offset

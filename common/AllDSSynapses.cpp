@@ -100,7 +100,7 @@ void AllDSSynapses::printParameters(ostream &output) const
 {
 }
 
-/*
+/**
  *  Sets the data for Synapse to input's data.
  *
  *  @param  input  istream to read from.

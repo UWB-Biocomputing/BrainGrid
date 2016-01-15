@@ -26,13 +26,16 @@ void AllLIFNeurons::advanceNeurons( AllSynapses &synapses, AllNeurons* allNeuron
 /**
 * @param[in] totalNeurons       Number of neurons.
 * @param[in] maxSynapses        Maximum number of synapses per neuron.
-* @param[in] maxSpikes
+* @param[in] maxSpikes          Maximum number of spikes per epoch.
 * @param[in] deltaT             Inner simulation step duration.
 * @param[in] simulationStep     The current simulation step.
 * @param[in] randNoise          Pointer to device random noise array.
 * @param[in] allNeuronsDevice   Pointer to Neuron structures in device memory.
 * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
 * @param[in] synapseIndexMap    Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
+* @param  fpPreSpikeHit          Function pointer to PreSpikeHit device function.
+* @param  fpPostSpikeHit         Function pointer to PostSpikeHit device function.
+* @param  fAllowBackPropagation  True if back propagation is allowed.
 */
 __global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const uint32_t, AllSpikingSynapses*), void (*fpPostSpikeHit)(const uint32_t, AllSpikingSynapses*), bool fAllowBackPropagation ) {
         // determine which neuron this thread is processing

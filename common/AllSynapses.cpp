@@ -113,7 +113,7 @@ void AllSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
     psr[iSyn] = 0.0;
 }
 
-/*
+/**
  *  Sets the data for Synapses to input's data.
  *
  *  @param  input  istream to read from.
@@ -176,7 +176,7 @@ void AllSynapses::writeSynapses(ostream& output, const SimulationInfo *sim_info)
     }
 }
 
-/*
+/**
  *  Sets the data for Synapse to input's data.
  *
  *  @param  input  istream to read from.

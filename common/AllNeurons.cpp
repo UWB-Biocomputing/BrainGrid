@@ -10,7 +10,7 @@ AllNeurons::~AllNeurons()
     freeResources();
 }
 
-/**
+/*
  *  Setup the internal structure of the class (allocate memories).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
@@ -28,7 +28,7 @@ void AllNeurons::setupNeurons(SimulationInfo *sim_info)
     sim_info->pSummationMap = summation_map;
 }
 
-/**
+/*
  *  Cleanup the class (deallocate memories).
  */
 void AllNeurons::cleanupNeurons()
@@ -36,7 +36,7 @@ void AllNeurons::cleanupNeurons()
     freeResources();
 }
 
-/**
+/*
  *  Deallocate all resources
  */
 void AllNeurons::freeResources()
