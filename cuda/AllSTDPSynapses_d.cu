@@ -7,10 +7,25 @@
 #include "GPUSpikingModel.h"
 #include "Book.h"
 
+/*
+ *  Allocate GPU memories to store all synapses' states,
+ *  and copy them from host to GPU memory.
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  sim_info           SimulationInfo to refer from.
+ */
 void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info ) {
 	allocSynapseDeviceStruct( allSynapsesDevice, sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron );
 }
 
+/*
+ *  Allocate GPU memories to store all synapses' states,
+ *  and copy them from host to GPU memory.
+ *
+ *  @param  allSynapsesDevice     Reference to the allSynapses struct on device memory.
+ *  @param  num_neurons           Number of neurons.
+ *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+ */
 void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) {
 	AllSTDPSynapses allSynapses;
 
@@ -20,6 +35,15 @@ void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, int nu
 	HANDLE_ERROR( cudaMemcpy ( *allSynapsesDevice, &allSynapses, sizeof( AllSTDPSynapses ), cudaMemcpyHostToDevice ) );
 }
 
+/*
+ *  Allocate GPU memories to store all synapses' states,
+ *  and copy them from host to GPU memory.
+ *  (Helper function of allocSynapseDeviceStruct)
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  num_neurons           Number of neurons.
+ *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+ */
 void AllSTDPSynapses::allocDeviceStruct( AllSTDPSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron ) {
         uint32_t max_total_synapses = maxSynapsesPerNeuron * num_neurons;
 
@@ -54,6 +78,12 @@ void AllSTDPSynapses::allocDeviceStruct( AllSTDPSynapses &allSynapses, int num_n
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.useFroemkeDanSTDP, max_total_synapses * sizeof( bool ) ) );
 }
 
+/*
+ *  Delete GPU memories.
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  sim_info           SimulationInfo to refer from.
+ */
 void AllSTDPSynapses::deleteSynapseDeviceStruct( void* allSynapsesDevice ) {
 	AllSTDPSynapses allSynapses;
 
@@ -64,6 +94,12 @@ void AllSTDPSynapses::deleteSynapseDeviceStruct( void* allSynapsesDevice ) {
 	HANDLE_ERROR( cudaFree( allSynapsesDevice ) );
 }
 
+/*
+ *  Delete GPU memories.
+ *  (Helper function of deleteSynapseDeviceStruct)
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ */
 void AllSTDPSynapses::deleteDeviceStruct( AllSTDPSynapses& allSynapses ) {
         HANDLE_ERROR( cudaFree( allSynapses.destNeuronIndex ) );
         HANDLE_ERROR( cudaFree( allSynapses.W ) );
@@ -95,10 +131,24 @@ void AllSTDPSynapses::deleteDeviceStruct( AllSTDPSynapses& allSynapses ) {
         HANDLE_ERROR( cudaFree( allSynapses.useFroemkeDanSTDP ) );
 }
 
+/*
+ *  Copy all synapses' data from host to device.
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  num_neurons           Number of neurons.
+ *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+ */
 void AllSTDPSynapses::copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info ) { // copy everything necessary
 	copySynapseHostToDevice( allSynapsesDevice, sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron );	
 }
 
+/*
+ *  Copy all synapses' data from host to device.
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  num_neurons           Number of neurons.
+ *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+ */
 void AllSTDPSynapses::copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) { // copy everything necessary
 	AllSTDPSynapses allSynapses;
 
@@ -107,6 +157,14 @@ void AllSTDPSynapses::copySynapseHostToDevice( void* allSynapsesDevice, int num_
 	copyHostToDevice( allSynapsesDevice, allSynapses, num_neurons, maxSynapsesPerNeuron );	
 }
 
+/*
+ *  Copy all synapses' data from host to device.
+ *  (Helper function of copySynapseHostToDevice)
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  num_neurons           Number of neurons.
+ *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+ */
 void AllSTDPSynapses::copyHostToDevice( void* allSynapsesDevice, AllSTDPSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron ) { // copy everything necessary 
         uint32_t max_total_synapses = maxSynapsesPerNeuron * num_neurons;
         
@@ -171,6 +229,12 @@ void AllSTDPSynapses::copyHostToDevice( void* allSynapsesDevice, AllSTDPSynapses
                 max_total_synapses * sizeof( bool ), cudaMemcpyHostToDevice ) ); 
 }
 
+/*
+ *  Copy all synapses' data from device to host.
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  sim_info           SimulationInfo to refer from.
+ */
 void AllSTDPSynapses::copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info ) {
 	// copy everything necessary
 	AllSTDPSynapses allSynapses;
@@ -180,6 +244,14 @@ void AllSTDPSynapses::copySynapseDeviceToHost( void* allSynapsesDevice, const Si
 	copyDeviceToHost( allSynapses, sim_info );
 }
 
+/*
+ *  Copy all synapses' data from device to host.
+ *  (Helper function of copySynapseDeviceToHost)
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  num_neurons           Number of neurons.
+ *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+ */
 void AllSTDPSynapses::copyDeviceToHost( AllSTDPSynapses& allSynapses, const SimulationInfo *sim_info ) {
 	int num_neurons = sim_info->totalNeurons;
 	uint32_t max_total_synapses = sim_info->maxSynapsesPerNeuron * num_neurons;
@@ -245,9 +317,11 @@ void AllSTDPSynapses::copyDeviceToHost( AllSTDPSynapses& allSynapses, const Simu
                 max_total_synapses * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 }
 
-/**
+/*
  *  Get synapse_counts in AllSynapses struct on device memory.
- *  @param  sim_info    SimulationInfo to refer from.
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllSTDPSynapses::copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const SimulationInfo *sim_info)
 {
@@ -258,9 +332,11 @@ void AllSTDPSynapses::copyDeviceSynapseCountsToHost(void* allSynapsesDevice, con
         HANDLE_ERROR( cudaMemcpy ( synapse_counts, allSynapses.synapse_counts, neuron_count * sizeof( size_t ), cudaMemcpyDeviceToHost ) );
 }
 
-/** 
+/* 
  *  Get summationCoord and in_use in AllSynapses struct on device memory.
- *  @param  sim_info    SimulationInfo to refer from.
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllSTDPSynapses::copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info)
 {
@@ -274,22 +350,37 @@ void AllSTDPSynapses::copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, con
                 max_total_synapses * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 }
 
+/*
+ *  Get a pointer to the device function createSTDPSynapse.
+ *  The function will be called from updateSynapsesWeightsDevice device function.
+ *  Because we cannot use virtual function (Polymorphism) in device functions,
+ *  we use this scheme.
+ *
+ *  @param  fpCreateSynapse_h     Reference to the memory location 
+ *                                where the function pointer will be set.
+ */
 void AllSTDPSynapses::getFpCreateSynapse(unsigned long long& fpCreateSynapse_h)
 {
     unsigned long long *fpCreateSynapse_d;
 
     HANDLE_ERROR( cudaMalloc(&fpCreateSynapse_d, sizeof(unsigned long long)) );
 
-    getFpCreateSynapseDevice<<<1,1>>>((void (**)(AllSTDPSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))fpCreateSynapse_d);
+    getFpCreateSTDPSynapseDevice<<<1,1>>>((void (**)(AllSTDPSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))fpCreateSynapse_d);
 
     HANDLE_ERROR( cudaMemcpy(&fpCreateSynapse_h, fpCreateSynapse_d, sizeof(unsigned long long), cudaMemcpyDeviceToHost) );
     HANDLE_ERROR( cudaFree( fpCreateSynapse_d ) );
 }
 
-/** *  Advance all the Synapses in the simulation.
- *  @param  sim_info    SimulationInfo class to read information from.
+/*
+ *  Advance all the Synapses in the simulation.
+ *  Update the state of all synapses for a time step.
+ *
+ *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
+ *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
+ *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
+ *  @param  sim_info               SimulationInfo class to read information from.
  */
-void AllSTDPSynapses::advanceSynapses(AllSynapses* allSynapsesDevice, AllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info)
+void AllSTDPSynapses::advanceSynapses(IAllSynapses* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info)
 {
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
@@ -297,16 +388,25 @@ void AllSTDPSynapses::advanceSynapses(AllSynapses* allSynapsesDevice, AllNeurons
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
     // Advance synapses ------------->
-    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapses*)allSynapsesDevice, (void (*)(AllSTDPSynapses*, const uint32_t, const uint64_t, const BGFLOAT))m_fpChangePSR_h, (AllSpikingNeurons*)allNeuronsDevice, max_spikes, sim_info->width );
+    advanceSTDPSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapses*)allSynapsesDevice, (void (*)(AllSTDPSynapses*, const uint32_t, const uint64_t, const BGFLOAT))m_fpChangePSR_h, (AllSpikingNeurons*)allNeuronsDevice, max_spikes, sim_info->width );
 }
 
+/*
+ *  Get a pointer to the device function ostSpikeHit.
+ *  The function will be called from advanceNeuronsDevice device function.
+ *  Because we cannot use virtual function (Polymorphism) in device functions,
+ *  we use this scheme.
+ *
+ *  @param  fpostSpikeHit_h       Reference to the memory location
+ *                                where the function pointer will be set.
+ */
 void AllSTDPSynapses::getFpPostSpikeHit(unsigned long long& fpPostSpikeHit_h)
 {
     unsigned long long *fpPostSpikeHit_d;
 
     HANDLE_ERROR( cudaMalloc(&fpPostSpikeHit_d, sizeof(unsigned long long)) );
 
-    getFpPostSpikeHitDevice<<<1,1>>>((void (**)(const uint32_t, AllSTDPSynapses*))fpPostSpikeHit_d);
+    getFpSTDPSynapsePostSpikeHitDevice<<<1,1>>>((void (**)(const uint32_t, AllSTDPSynapses*))fpPostSpikeHit_d);
 
     HANDLE_ERROR( cudaMemcpy(&fpPostSpikeHit_h, fpPostSpikeHit_d, sizeof(unsigned long long), cudaMemcpyDeviceToHost) );
 
@@ -317,13 +417,161 @@ void AllSTDPSynapses::getFpPostSpikeHit(unsigned long long& fpPostSpikeHit_h)
 |* # Global Functions
 \* ------------------*/
 
-__global__ void getFpCreateSynapseDevice(void (**fpCreateSynapse_d)(AllSTDPSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))
+__global__ void getFpCreateSTDPSynapseDevice(void (**fpCreateSynapse_d)(AllSTDPSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))
 {
-    *fpCreateSynapse_d = createSynapse;
+    *fpCreateSynapse_d = createSTDPSynapse;
 }
 
-/**
+/*
+ * @param[in] total_synapse_counts       Total number of synapses.
+ * @param[in] synapseIndexMap            Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
+ * @param[in] simulationStep             The current simulation step.
+ * @param[in] deltaT                     Inner simulation step duration.
+ * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
+ */
+__global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSTDPSynapses*, const uint32_t, const uint64_t, const BGFLOAT), AllSpikingNeurons* allNeuronsDevice, int max_spikes, int width ) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( idx >= total_synapse_counts )
+            return;
+
+    uint32_t iSyn = synapseIndexMapDevice->activeSynapseIndex[idx];
+
+    BGFLOAT &decay = allSynapsesDevice->decay[iSyn];
+    BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
+
+    // is an input in the queue?
+    bool fPre = isSpikingSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn);
+    bool fPost = isSTDPSynapseSpikeQueuePostDevice(allSynapsesDevice, iSyn);
+    if (fPre || fPost) {
+        BGFLOAT &tauspre = allSynapsesDevice->tauspre[iSyn];
+        BGFLOAT &tauspost = allSynapsesDevice->tauspost[iSyn];
+        BGFLOAT &taupos = allSynapsesDevice->taupos[iSyn];
+        BGFLOAT &tauneg = allSynapsesDevice->tauneg[iSyn];
+        int &total_delay = allSynapsesDevice->total_delay[iSyn];
+        bool &useFroemkeDanSTDP = allSynapsesDevice->useFroemkeDanSTDP[iSyn];
+
+        // pre and post neurons index
+        int idxPre = allSynapsesDevice->sourceNeuronIndex[iSyn];
+        int idxPost = allSynapsesDevice->destNeuronIndex[iSyn];
+        int64_t spikeHistory, spikeHistory2;
+        BGFLOAT delta;
+        BGFLOAT epre, epost;
+
+        if (fPre) {     // preSpikeHit
+            // spikeCount points to the next available position of spike_history,
+            // so the getSpikeHistory w/offset = -2 will return the spike time 
+            // just one before the last spike.
+            spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPre, -2, max_spikes);
+            if (spikeHistory > 0 && useFroemkeDanSTDP) {
+                // delta will include the transmission delay
+                delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
+                epre = 1.0 - exp(-delta / tauspre);
+            } else {
+                epre = 1.0;
+            }
+
+            // call the learning function stdpLearning() for each pair of
+            // pre-post spikes
+            int offIndex = -1;	// last spike
+            while (true) {
+                spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPost, offIndex, max_spikes);
+                if (spikeHistory == ULONG_MAX)
+                    break;
+                // delta is the spike interval between pre-post spikes
+                delta = (spikeHistory - (int64_t)simulationStep) * deltaT;
+
+                DEBUG_SYNAPSE(
+                    printf("advanceSTDPSynapsesDevice: fPre\n");
+                    printf("          iSyn: %d\n", iSyn);
+                    printf("          idxPre: %d\n", idxPre);
+                    printf("          idxPost: %d\n", idxPost);
+                    printf("          spikeHistory: %d\n", spikeHistory);
+                    printf("          simulationStep: %d\n", simulationStep);
+                    printf("          delta: %f\n\n", delta);
+                );
+
+                if (delta <= -3.0 * tauneg)
+                    break;
+                if (useFroemkeDanSTDP) {
+                    spikeHistory2 = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPost, offIndex-1, max_spikes);
+                    if (spikeHistory2 == ULONG_MAX)
+                        break;
+                    epost = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspost);
+                } else {
+                    epost = 1.0;
+                }
+                stdpLearningDevice(allSynapsesDevice, iSyn, delta, epost, epre);
+                --offIndex;
+            }
+
+            fpChangePSR(allSynapsesDevice, iSyn, simulationStep, deltaT);
+        }
+
+        if (fPost) {    // postSpikeHit
+            // spikeCount points to the next available position of spike_history,
+            // so the getSpikeHistory w/offset = -2 will return the spike time
+            // just one before the last spike.
+            spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPost, -2, max_spikes);
+            if (spikeHistory > 0 && useFroemkeDanSTDP) {
+                // delta will include the transmission delay
+                delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
+                epost = 1.0 - exp(-delta / tauspost);
+            } else {
+                epost = 1.0;
+            }
+
+            // call the learning function stdpLearning() for each pair of
+            // post-pre spikes
+            int offIndex = -1;	// last spike
+            while (true) {
+                spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPre, offIndex, max_spikes);
+                if (spikeHistory == ULONG_MAX)
+                    break;
+                // delta is the spike interval between post-pre spikes
+                delta = ((int64_t)simulationStep - spikeHistory - total_delay) * deltaT;
+
+                DEBUG_SYNAPSE(
+                    printf("advanceSTDPSynapsesDevice: fPost\n");
+                    printf("          iSyn: %d\n", iSyn);
+                    printf("          idxPre: %d\n", idxPre);
+                    printf("          idxPost: %d\n", idxPost);
+                    printf("          spikeHistory: %d\n", spikeHistory);
+                    printf("          simulationStep: %d\n", simulationStep);
+                    printf("          delta: %f\n\n", delta);
+                );
+
+                if (delta <= 0 || delta >= 3.0 * taupos)
+                    break;
+                if (useFroemkeDanSTDP) {
+                    spikeHistory2 = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPre, offIndex-1, max_spikes);
+                    if (spikeHistory2 == ULONG_MAX)
+                        break;
+                    epre = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspre);
+                } else {
+                    epre = 1.0;
+                }
+                stdpLearningDevice(allSynapsesDevice, iSyn, delta, epost, epre);
+                --offIndex;
+            }
+        }
+    }
+
+    // decay the post spike response
+    psr *= decay;
+}
+
+__global__ void getFpSTDPSynapsePostSpikeHitDevice(void (**fpPostSpikeHit_d)(const uint32_t, AllSTDPSynapses*))
+{
+    *fpPostSpikeHit_d = postSTDPSynapseSpikeHitDevice;
+}
+
+/* ------------------*\
+|* # Device Functions
+\* ------------------*/
+
+/*
  *  Create a Synapse and connect it to the model.
+ *
  *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
  *  @param neuron_index         Index of the source neuron.
  *  @param synapse_index        Index of the Synapse to create.
@@ -335,7 +583,7 @@ __global__ void getFpCreateSynapseDevice(void (**fpCreateSynapse_d)(AllSTDPSynap
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-__device__ void createSynapse(AllSTDPSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+__device__ void createSTDPSynapse(AllSTDPSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
     size_t max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
@@ -404,144 +652,6 @@ __device__ void createSynapse(AllSTDPSynapses* allSynapsesDevice, const int neur
     allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
 }
 
-/**
-* @param[in] total_synapse_counts       Total number of synapses.
-* @param[in] synapseIndexMap            Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
-* @param[in] simulationStep             The current simulation step.
-* @param[in] deltaT                     Inner simulation step duration.
-* @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
-*/
-__global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSTDPSynapses*, const uint32_t, const uint64_t, const BGFLOAT), AllSpikingNeurons* allNeuronsDevice, int max_spikes, int width ) {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if ( idx >= total_synapse_counts )
-            return;
-
-    uint32_t iSyn = synapseIndexMapDevice->activeSynapseIndex[idx];
-
-    BGFLOAT &decay = allSynapsesDevice->decay[iSyn];
-    BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
-
-    // is an input in the queue?
-    bool fPre = isSpikeQueueDevice(allSynapsesDevice, iSyn);
-    bool fPost = isSpikeQueuePostDevice(allSynapsesDevice, iSyn);
-    if (fPre || fPost) {
-        BGFLOAT &tauspre = allSynapsesDevice->tauspre[iSyn];
-        BGFLOAT &tauspost = allSynapsesDevice->tauspost[iSyn];
-        BGFLOAT &taupos = allSynapsesDevice->taupos[iSyn];
-        BGFLOAT &tauneg = allSynapsesDevice->tauneg[iSyn];
-        int &total_delay = allSynapsesDevice->total_delay[iSyn];
-        bool &useFroemkeDanSTDP = allSynapsesDevice->useFroemkeDanSTDP[iSyn];
-
-        // pre and post neurons index
-        int idxPre = allSynapsesDevice->sourceNeuronIndex[iSyn];
-        int idxPost = allSynapsesDevice->destNeuronIndex[iSyn];
-        int64_t spikeHistory, spikeHistory2;
-        BGFLOAT delta;
-        BGFLOAT epre, epost;
-
-        if (fPre) {     // preSpikeHit
-            // spikeCount points to the next available position of spike_history,
-            // so the getSpikeHistory w/offset = -2 will return the spike time 
-            // just one before the last spike.
-            spikeHistory = getSpikeHistoryDevice(allNeuronsDevice, idxPre, -2, max_spikes);
-            if (spikeHistory > 0 && useFroemkeDanSTDP) {
-                // delta will include the transmission delay
-                delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
-                epre = 1.0 - exp(-delta / tauspre);
-            } else {
-                epre = 1.0;
-            }
-
-            // call the learning function stdpLearning() for each pair of
-            // pre-post spikes
-            int offIndex = -1;	// last spike
-            while (true) {
-                spikeHistory = getSpikeHistoryDevice(allNeuronsDevice, idxPost, offIndex, max_spikes);
-                if (spikeHistory == ULONG_MAX)
-                    break;
-                // delta is the spike interval between pre-post spikes
-                delta = (spikeHistory - (int64_t)simulationStep) * deltaT;
-
-                DEBUG_SYNAPSE(
-                    printf("advanceSynapsesDevice: fPre\n");
-                    printf("          iSyn: %d\n", iSyn);
-                    printf("          idxPre: %d\n", idxPre);
-                    printf("          idxPost: %d\n", idxPost);
-                    printf("          spikeHistory: %d\n", spikeHistory);
-                    printf("          simulationStep: %d\n", simulationStep);
-                    printf("          delta: %f\n\n", delta);
-                );
-
-                if (delta <= -3.0 * tauneg)
-                    break;
-                if (useFroemkeDanSTDP) {
-                    spikeHistory2 = getSpikeHistoryDevice(allNeuronsDevice, idxPost, offIndex-1, max_spikes);
-                    if (spikeHistory2 == ULONG_MAX)
-                        break;
-                    epost = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspost);
-                } else {
-                    epost = 1.0;
-                }
-                stdpLearningDevice(allSynapsesDevice, iSyn, delta, epost, epre);
-                --offIndex;
-            }
-
-            fpChangePSR(allSynapsesDevice, iSyn, simulationStep, deltaT);
-        }
-
-        if (fPost) {    // postSpikeHit
-            // spikeCount points to the next available position of spike_history,
-            // so the getSpikeHistory w/offset = -2 will return the spike time
-            // just one before the last spike.
-            spikeHistory = getSpikeHistoryDevice(allNeuronsDevice, idxPost, -2, max_spikes);
-            if (spikeHistory > 0 && useFroemkeDanSTDP) {
-                // delta will include the transmission delay
-                delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
-                epost = 1.0 - exp(-delta / tauspost);
-            } else {
-                epost = 1.0;
-            }
-
-            // call the learning function stdpLearning() for each pair of
-            // post-pre spikes
-            int offIndex = -1;	// last spike
-            while (true) {
-                spikeHistory = getSpikeHistoryDevice(allNeuronsDevice, idxPre, offIndex, max_spikes);
-                if (spikeHistory == ULONG_MAX)
-                    break;
-                // delta is the spike interval between post-pre spikes
-                delta = ((int64_t)simulationStep - spikeHistory - total_delay) * deltaT;
-
-                DEBUG_SYNAPSE(
-                    printf("advanceSynapsesDevice: fPost\n");
-                    printf("          iSyn: %d\n", iSyn);
-                    printf("          idxPre: %d\n", idxPre);
-                    printf("          idxPost: %d\n", idxPost);
-                    printf("          spikeHistory: %d\n", spikeHistory);
-                    printf("          simulationStep: %d\n", simulationStep);
-                    printf("          delta: %f\n\n", delta);
-                );
-
-                if (delta <= 0 || delta >= 3.0 * taupos)
-                    break;
-                if (useFroemkeDanSTDP) {
-                    spikeHistory2 = getSpikeHistoryDevice(allNeuronsDevice, idxPre, offIndex-1, max_spikes);
-                    if (spikeHistory2 == ULONG_MAX)
-                        break;
-                    epre = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspre);
-                } else {
-                    epre = 1.0;
-                }
-                stdpLearningDevice(allSynapsesDevice, iSyn, delta, epost, epre);
-                --offIndex;
-            }
-        }
-    }
-
-    // decay the post spike response
-    psr *= decay;
-}
-
 __device__ void stdpLearningDevice(AllSTDPSynapses* allSynapsesDevice, const uint32_t iSyn, double delta, double epost, double epre)
 {
     BGFLOAT STDPgap = allSynapsesDevice->STDPgap[iSyn];
@@ -584,7 +694,7 @@ __device__ void stdpLearningDevice(AllSTDPSynapses* allSynapsesDevice, const uin
     );
 }
 
-__device__ bool isSpikeQueuePostDevice(AllSTDPSynapses* allSynapsesDevice, uint32_t iSyn)
+__device__ bool isSTDPSynapseSpikeQueuePostDevice(AllSTDPSynapses* allSynapsesDevice, uint32_t iSyn)
 {
     uint32_t &delay_queue = allSynapsesDevice->delayQueuePost[iSyn];
     int &delayIdx = allSynapsesDevice->delayIdxPost[iSyn];
@@ -600,19 +710,14 @@ __device__ bool isSpikeQueuePostDevice(AllSTDPSynapses* allSynapsesDevice, uint3
     return isFired;
 }
 
-__device__ uint64_t getSpikeHistoryDevice(AllSpikingNeurons* allNeuronsDevice, int index, int offIndex, int max_spikes)
+__device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeurons* allNeuronsDevice, int index, int offIndex, int max_spikes)
 {
     // offIndex is a minus offset
     int idxSp = (allNeuronsDevice->spikeCount[index] + allNeuronsDevice->spikeCountOffset[index] +  max_spikes + offIndex) % max_spikes;
     return allNeuronsDevice->spike_history[index][idxSp];
 }
 
-__global__ void getFpPostSpikeHitDevice(void (**fpPostSpikeHit_d)(const uint32_t, AllSTDPSynapses*))
-{
-    *fpPostSpikeHit_d = postSpikeHitDevice;
-}
-
-__device__ void postSpikeHitDevice( const uint32_t iSyn, AllSTDPSynapses* allSynapsesDevice ) {
+__device__ void postSTDPSynapseSpikeHitDevice( const uint32_t iSyn, AllSTDPSynapses* allSynapsesDevice ) {
         uint32_t &delay_queue = allSynapsesDevice->delayQueuePost[iSyn];
         int delayIdx = allSynapsesDevice->delayIdxPost[iSyn];
         int ldelayQueue = allSynapsesDevice->ldelayQueuePost[iSyn];

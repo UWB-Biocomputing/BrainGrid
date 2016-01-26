@@ -54,7 +54,7 @@ class ConnStatic : public Connections
 
         static Connections* Create() { return new ConnStatic(); }
 
-        virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, AllNeurons *neurons, AllSynapses *synapses);
+        virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, IAllNeurons *neurons, IAllSynapses *synapses);
         virtual void cleanupConnections();
         virtual bool readParameters(const TiXmlElement& element);
         virtual void printParameters(ostream &output) const;

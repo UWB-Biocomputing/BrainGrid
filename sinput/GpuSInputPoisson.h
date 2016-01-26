@@ -42,7 +42,7 @@ public:
     ~GpuSInputPoisson();
 
     //! Initialize data.
-    virtual void init(IModel* model, AllNeurons &neurons, SimulationInfo* psi);
+    virtual void init(IModel* model, IAllNeurons &neurons, SimulationInfo* psi);
 
     //! Terminate process.
     virtual void term(IModel* model, SimulationInfo* psi);

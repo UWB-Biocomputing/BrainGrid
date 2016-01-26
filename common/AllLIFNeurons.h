@@ -93,9 +93,11 @@ class AllLIFNeurons : public AllIFNeurons
          *
          *  @return Reference to the instance of the class.
          */
-        static AllNeurons* Create() { return new AllLIFNeurons(); }
+        static IAllNeurons* Create() { return new AllLIFNeurons(); }
 
 #if defined(USE_GPU)
+    public:
+
         /**
          *  Update the state of all neurons for a time step
          *  Notify outgoing synapses if neuron has fired.
@@ -107,8 +109,11 @@ class AllLIFNeurons : public AllIFNeurons
          *  @param  randNoise              Reference to the random noise array.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          */
-        virtual void advanceNeurons(AllSynapses &synapses, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
-#else
+        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, IAllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
+
+#else  // !defined(USE_GPU)
+    protected:
+
         /**
          *  Helper for #advanceNeuron. Updates state of a single neuron.
          *
@@ -124,27 +129,9 @@ class AllLIFNeurons : public AllIFNeurons
          *  @param  sim_info         SimulationInfo class to read information from.
          */
         virtual void fire(const int index, const SimulationInfo *sim_info) const;
-#endif
-
-    private:
+#endif // defined(USE_GPU)
 };
 
 #if defined(__CUDACC__)
-/**
- *  Device function to perform updating neurons for one time step.
- *
- *  @param  totalNeurons           Number of neurons.
- *  @param  maxSynapses            Maximum number of synapses per neuron.
- *  @param  maxSpikes              Maximum number of spikes per epoch.
- *  @param  deltaT                 Inner simulation step duration.
- *  @param  simulationStep         The current simulation step.
- *  @param  randNoise              Pointer to device random noise array.
- *  @param  allNeuronsDevice       Pointer to Neuron structures in device memory.
- *  @param  allSynapsesDevice      Pointer to Synapse structures in device memory.
- *  @param  synapseIndexMapDevice  Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
- *  @param  fpPreSpikeHit          Function pointer to PreSpikeHit device function.
- *  @param  fpPostSpikeHit         Function pointer to PostSpikeHit device function.
- *  @param  fAllowBackPropagation  True if back propagation is allowed.
- */
-extern __global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const uint32_t, AllSpikingSynapses*), void (*fpPostSpikeHit)(const uint32_t, AllSpikingSynapses*), bool fAllowBackPropagation ); 
-#endif
+extern __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const uint32_t, AllSpikingSynapses*), void (*fpPostSpikeHit)(const uint32_t, AllSpikingSynapses*), bool fAllowBackPropagation );
+#endif // __CUDACC__

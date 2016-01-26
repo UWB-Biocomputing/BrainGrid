@@ -1,4 +1,4 @@
-/**
+/*
  *
  *	@file global.cpp
  *
@@ -18,7 +18,7 @@ int g_debug_mask
 		= 0;
 #endif
 
-/**
+/*
  *  Converts the given index to a string with the indexes of a two-dimensional array.
  *  @param  i   index to be converted.
  *  @param  width   width of the two-dimensional array
@@ -31,7 +31,7 @@ string index2dToString(int i, int width, int height) {
 	return ss.str();
 }
 
-/**
+/*
  *  Takes the two given coordinates and outputs them with brackets.
  *  @param  x   x coordinate.
  *  @param  y   y coordinate.
@@ -43,7 +43,7 @@ string coordToString(int x, int y) {
 	return ss.str();
 }
 
-/**
+/*
  *  Takes the three given coordinates and outputs them with brackets.
  *  @param  x   x coordinate.
  *  @param  y   y coordinate.

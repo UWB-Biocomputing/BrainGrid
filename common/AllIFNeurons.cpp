@@ -27,7 +27,7 @@ AllIFNeurons::~AllIFNeurons()
     freeResources();
 }
 
-/**
+/*
  *  Setup the internal structure of the class (allocate memories).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
@@ -59,7 +59,7 @@ void AllIFNeurons::setupNeurons(SimulationInfo *sim_info)
     }
 }
 
-/**
+/*
  *  Cleanup the class (deallocate memories).
  */
 void AllIFNeurons::cleanupNeurons()
@@ -110,7 +110,7 @@ void AllIFNeurons::freeResources()
     nStepsInRefr = NULL;
 }
 
-/**
+/*
  *  Returns the number of required parameters.
  */
 int AllIFNeurons::numParameters()
@@ -118,7 +118,7 @@ int AllIFNeurons::numParameters()
     return 8;
 }
 
-/**
+/*
  *  Attempts to read parameters from a XML file.
  *
  *  @param  element TiXmlElement to examine.
@@ -249,7 +249,7 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
     return true;
 }
 
-/**
+/*
  *  Prints out all parameters of the neurons to ostream.
  * 
  *  @param  output  ostream to send output to.
@@ -282,7 +282,7 @@ void AllIFNeurons::printParameters(ostream &output) const
            << endl;
 }
 
-/**
+/*
  *  Creates all the Neurons and generates data for them.
  *
  *  @param  sim_info    SimulationInfo class to read information from.
@@ -299,7 +299,7 @@ void AllIFNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout)
     }
 }
 
-/**
+/*
  *  Creates a single Neuron and generates data for it.
  *
  *  @param  sim_info     SimulationInfo class to read information from.
@@ -362,7 +362,7 @@ void AllIFNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Layo
     ;)
 }
 
-/**
+/*
  *  Set the Neuron at the indexed location to default values.
  *
  *  @param  neuron_index    Index of the Neuron that the synapse belongs to.
@@ -381,7 +381,7 @@ void AllIFNeurons::setNeuronDefaults(const int index)
     Tau[index] = DEFAULT_Cm * DEFAULT_Rm;
 }
 
-/**
+/*
  *  Initializes the Neuron constants at the indexed location.
  *
  *  @param  neuron_index    Index of the Neuron.
@@ -413,7 +413,7 @@ void AllIFNeurons::initNeuronConstsFromParamValues(int neuron_index, const BGFLO
         }
 }
 
-/**
+/*
  *  Outputs state of the neuron chosen as a string.
  *
  *  @param  i   index of the neuron (in neurons) to output info from.
@@ -440,7 +440,7 @@ string AllIFNeurons::toString(const int i) const
     return ss.str( );
 }
 
-/**
+/*
  *  Sets the data for Neurons to input's data.
  *
  *  @param  input       istream to read from.
@@ -453,7 +453,7 @@ void AllIFNeurons::readNeurons(istream &input, const SimulationInfo *sim_info)
     }
 }
 
-/**
+/*
  *  Sets the data for Neuron #index to input's data.
  *
  *  @param  input       istream to read from.
@@ -482,7 +482,7 @@ void AllIFNeurons::readNeuron(istream &input, const SimulationInfo *sim_info, in
     input >> Tau[i]; input.ignore();
 }
 
-/**
+/*
  *  Writes out the data in Neurons.
  *
  *  @param  output      stream to write out to.
@@ -495,7 +495,7 @@ void AllIFNeurons::writeNeurons(ostream& output, const SimulationInfo *sim_info)
     }
 }
 
-/**
+/*
  *  Writes out the data in the selected Neuron.
  *
  *  @param  output      stream to write out to.

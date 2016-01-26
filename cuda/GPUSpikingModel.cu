@@ -1,4 +1,4 @@
-/** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - **\ 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - **\ 
  * @authors Aaron Oziel, Sean Blackbourn 
  *
  * Fumitaka Kawasaki (5/3/14):
@@ -32,7 +32,7 @@ __constant__ int d_debug_mask[1];
 
 // ----------------------------------------------------------------------------
 
-GPUSpikingModel::GPUSpikingModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout) : 	
+GPUSpikingModel::GPUSpikingModel(Connections *conns, IAllNeurons *neurons, IAllSynapses *synapses, Layout *layout) : 	
 	Model::Model(conns, neurons, synapses, layout),
 	synapseIndexMapDevice(NULL),
 	randNoise_d(NULL),
@@ -46,13 +46,13 @@ GPUSpikingModel::~GPUSpikingModel()
 	//Let Model base class handle de-allocation
 }
 
-/**
-* Allocates and initializes memories on CUDA device.
-*
-* @param[out] allNeuronsDevice          Memory loation of the pointer to the neurons list on device memory.
-* @param[out] allSynapsesDevice         Memory loation of the pointer to the synapses list on device memory.
-* @param[in]  sim_info			Pointer to the simulation information.
-*/
+/*
+ * Allocates and initializes memories on CUDA device.
+ *
+ * @param[out] allNeuronsDevice          Memory loation of the pointer to the neurons list on device memory.
+ * @param[out] allSynapsesDevice         Memory loation of the pointer to the synapses list on device memory.
+ * @param[in]  sim_info			Pointer to the simulation information.
+ */
 void GPUSpikingModel::allocDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info)
 {
 	// Allocate Neurons and Synapses strucs on GPU device memory
@@ -72,12 +72,12 @@ void GPUSpikingModel::allocDeviceStruct(void** allNeuronsDevice, void** allSynap
 	allocSynapseImap( neuron_count );
 }
 
-/**
+/*
  * Copies device memories to host memories and deallocaes them.
  *
-* @param[out] allNeuronsDevice          Memory loation of the pointer to the neurons list on device memory.
-* @param[out] allSynapsesDevice         Memory loation of the pointer to the synapses list on device memory.
-* @param[in]  sim_info                  Pointer to the simulation information.
+ * @param[out] allNeuronsDevice          Memory loation of the pointer to the neurons list on device memory.
+ * @param[out] allSynapsesDevice         Memory loation of the pointer to the synapses list on device memory.
+ * @param[in]  sim_info                  Pointer to the simulation information.
  */
 void GPUSpikingModel::deleteDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info)
 {
@@ -98,8 +98,9 @@ void GPUSpikingModel::deleteDeviceStruct(void** allNeuronsDevice, void** allSyna
     HANDLE_ERROR( cudaFree( randNoise_d ) );
 }
 
-/**
+/*
  *  Sets up the Simulation.
+ *
  *  @param  sim_info    SimulationInfo class to read information from.
  *  @param  simRecorder Pointer to the simulation recordig object.
  */
@@ -141,7 +142,7 @@ void GPUSpikingModel::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
     setSynapseSummationPointDevice <<< blocksPerGrid, threadsPerBlock >>> (neuron_count, m_allNeuronsDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron, sim_info->width);
 
     // copy inverse map to the device memory
-    copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons, m_synapses->total_synapse_counts);
+    copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
 
     // set some parameters used for advanceNeuronsDevice
     m_neurons->setAdvanceNeuronsDeviceParams(*m_synapses);
@@ -150,10 +151,11 @@ void GPUSpikingModel::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
     m_synapses->setAdvanceSynapsesDeviceParams();
 }
 
-/** 
-*  Begin terminating the simulator.
-*  @param  sim_info    SimulationInfo to refer.
-*/
+/* 
+ *  Begin terminating the simulator.
+ *
+ *  @param  sim_info    SimulationInfo to refer.
+ */
 void GPUSpikingModel::cleanupSim(SimulationInfo *sim_info)
 {
     // deallocates memories on CUDA device
@@ -165,8 +167,9 @@ void GPUSpikingModel::cleanupSim(SimulationInfo *sim_info)
 #endif // PERFORMANCE_METRICS
 }
 
-/**
+/*
  *  Loads the simulation based on istream input.
+ *
  *  @param  input   istream to read from.
  *  @param  sim_info    used as a reference to set info for neurons and synapses.
  */
@@ -175,7 +178,7 @@ void GPUSpikingModel::loadMemory(istream& input, const SimulationInfo *sim_info)
     Model::loadMemory(input, sim_info);
 
     // copy inverse map to the device memory
-    copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons, m_synapses->total_synapse_counts);
+    copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
 
     // Reinitialize device struct - Copy host neuron and synapse arrays into GPU device
     m_neurons->copyNeuronHostToDevice( m_allNeuronsDevice, sim_info );
@@ -188,15 +191,16 @@ void GPUSpikingModel::loadMemory(istream& input, const SimulationInfo *sim_info)
     setSynapseSummationPointDevice <<< blocksPerGrid, threadsPerBlock >>> (neuron_count, m_allNeuronsDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron, sim_info->width);
 }
 
-/** 
-*  Advance everything in the model one time step. In this case, that
-*  means calling all of the kernels that do the "micro step" updating
-*  (i.e., NOT the stuff associated with growth).
-*  @param  sim_info    SimulationInfo class to read information from.
-*/
+/* 
+ *  Advance everything in the model one time step. In this case, that
+ *  means calling all of the kernels that do the "micro step" updating
+ *  (i.e., NOT the stuff associated with growth).
+ *
+ *  @param  sim_info    SimulationInfo class to read information from.
+ */
 void GPUSpikingModel::advance(const SimulationInfo *sim_info)
 {
-	size_t total_synapse_counts = m_synapses->total_synapse_counts;
+	size_t total_synapse_counts = dynamic_cast<AllSynapses*>(m_synapses)->total_synapse_counts;
 
 	// CUDA parameters
 	const int threadsPerBlock = 256;
@@ -238,7 +242,7 @@ void GPUSpikingModel::advance(const SimulationInfo *sim_info)
 #endif // PERFORMANCE_METRICS
 }
 
-/**
+/*
  * Add psr of all incoming synapses to summation points.
  *
  * @param[in] sim_info                   Pointer to the simulation information.
@@ -252,27 +256,29 @@ void GPUSpikingModel::calcSummationMap(const SimulationInfo *sim_info)
     calcSummationMapDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, synapseIndexMapDevice, m_allSynapsesDevice );
 }
 
-/** 
-*  Update the connection of all the Neurons and Synapses of the simulation.
-*  @param  sim_info    SimulationInfo class to read information from.
-*/
+/* 
+ *  Update the connection of all the Neurons and Synapses of the simulation.
+ *
+ *  @param  sim_info    SimulationInfo class to read information from.
+ */
 void GPUSpikingModel::updateConnections(const SimulationInfo *sim_info)
 {
-        m_neurons->copyNeuronDeviceSpikeCountsToHost(m_allNeuronsDevice, sim_info);
-        m_neurons->copyNeuronDeviceSpikeHistoryToHost(m_allNeuronsDevice, sim_info);
+        dynamic_cast<AllSpikingNeurons*>(m_neurons)->copyNeuronDeviceSpikeCountsToHost(m_allNeuronsDevice, sim_info);
+        dynamic_cast<AllSpikingNeurons*>(m_neurons)->copyNeuronDeviceSpikeHistoryToHost(m_allNeuronsDevice, sim_info);
 
         // Update Connections data
         if (m_conns->updateConnections(*m_neurons, sim_info, m_layout)) {
 	    m_conns->updateSynapsesWeights(sim_info->totalNeurons, *m_neurons, *m_synapses, sim_info, m_allNeuronsDevice, m_allSynapsesDevice, m_layout);
             // create synapse inverse map
-            createSynapseImap( *m_synapses, sim_info );
+            m_synapses->createSynapseImap(m_synapseIndexMap, sim_info);
             // copy inverse map to the device memory
-            copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons, m_synapses->total_synapse_counts);
+            copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
         }
 }
 
-/**
+/*
  *  Update the Neuron's history.
+ *
  *  @param  sim_info    SimulationInfo to refer from.
  *  @param  simRecorder Pointer to the simulation recordig object.
  */
@@ -281,14 +287,14 @@ void GPUSpikingModel::updateHistory(const SimulationInfo *sim_info, IRecorder* s
     Model::updateHistory(sim_info, simRecorder);
 
     // clear spike count
-    m_neurons->clearNeuronSpikeCounts(m_allNeuronsDevice, sim_info);
+    dynamic_cast<AllSpikingNeurons*>(m_neurons)->clearNeuronSpikeCounts(m_allNeuronsDevice, sim_info);
 }
 
 /* ------------------*\
 |* # Helper Functions
 \* ------------------*/
 
-/**
+/*
  *  Allocate device memory for synapse inverse map.
  *  @param  count	The number of neurons.
  */
@@ -305,7 +311,7 @@ void GPUSpikingModel::allocSynapseImap( int count )
 	HANDLE_ERROR( cudaMemcpy( synapseIndexMapDevice, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
 }
 
-/**
+/*
  *  Deallocate device memory for synapse inverse map.
  */
 void GPUSpikingModel::deleteSynapseImap(  )
@@ -320,14 +326,16 @@ void GPUSpikingModel::deleteSynapseImap(  )
 	HANDLE_ERROR( cudaFree( synapseIndexMapDevice ) );
 }
 
-/** 
+/* 
  *  Copy SynapseIndexMap in host memory to SynapseIndexMap in device memory.
+ *
  *  @param  synapseIndexMapHost		Reference to the SynapseIndexMap in host memory.
  *  @param  neuron_count		The number of neurons.
- *  @param  total_synapse_counts	The number of synapses.
  */
-void GPUSpikingModel::copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIndexMapHost, int neuron_count, int total_synapse_counts)
+void GPUSpikingModel::copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIndexMapHost, int neuron_count)
 {
+        int total_synapse_counts = dynamic_cast<AllSynapses*>(m_synapses)->total_synapse_counts;
+
 	if (total_synapse_counts == 0)
 		return;
 
@@ -356,8 +364,9 @@ void GPUSpikingModel::copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIn
 |* # Global Functions
 \* ------------------*/
 
-/**
+/*
  * Set the summation points in device memory
+ *
  * @param[in] num_neurons        Number of neurons.
  * @param[in] allNeuronsDevice   Pointer to the Neuron structures in device memory.
  * @param[in] allSynapsesDevice  Pointer to the Synapse structures in device memory.
@@ -381,11 +390,11 @@ __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeuron
     }
 }
 
-/** 
-* @param[in] totalNeurons       Number of neurons.
-* @param[in] synapseIndexMap    Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
-* @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
-*/
+/* 
+ * @param[in] totalNeurons       Number of neurons.
+ * @param[in] synapseIndexMap    Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
+ * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
+ */
 __global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapses* allSynapsesDevice ) {
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )

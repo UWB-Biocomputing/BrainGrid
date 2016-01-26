@@ -13,8 +13,8 @@
  *
  * The Model class maintains and manages classes of objects that make up
  * essential components of the spiking neunal networks.
- *    -# AllNeurons: A class to define a list of partiular type of neurons.
- *    -# AllSynapses: A class to define a list of partiular type of synapses.
+ *    -# IAllNeurons: A class to define a list of partiular type of neurons.
+ *    -# IAllSynapses: A class to define a list of partiular type of synapses.
  *    -# Connections: A class to define connections of the neunal network.
  *    -# Layout: A class to define neurons' layout information in the network.
  *
@@ -40,22 +40,21 @@ using namespace std;
 class Model : public IModel, TiXmlVisitor
 {
     public:
-        Model(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout);
+        Model(Connections *conns, IAllNeurons *neurons, IAllSynapses *synapses, Layout *layout);
         virtual ~Model();
 
         /*
-         * Declarations of concrete implementations of Model interface for an Leaky-Integrate-and-Fire
-         * model.
+         * Declarations of concrete implementations of Model interface for an 
+         * Leaky-Integrate-and-Fire * model.
          *
          * @see Model.h
          */
-
         virtual void loadMemory(istream& input, const SimulationInfo *sim_info);
         virtual void saveMemory(ostream& output, const SimulationInfo *sim_info);
         virtual void saveState(IRecorder* simRecorder);
         virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder);
         virtual void cleanupSim(SimulationInfo *sim_info);
-        virtual AllNeurons* getNeurons();
+        virtual IAllNeurons* getNeurons();
         virtual Connections* getConnections();
         virtual Layout* getLayout();
         virtual void updateHistory(const SimulationInfo *sim_info, IRecorder* simRecorder);
@@ -66,8 +65,6 @@ class Model : public IModel, TiXmlVisitor
          * # Helper Functions
          * ------------------
          */
-
-        void createSynapseImap(AllSynapses &synapses, const SimulationInfo* sim_info );
 
         // # Print Parameters
         // ------------------
@@ -88,10 +85,10 @@ class Model : public IModel, TiXmlVisitor
         Connections *m_conns;
 
         //
-        AllNeurons *m_neurons;
+        IAllNeurons *m_neurons;
 
         //
-        AllSynapses *m_synapses;
+        IAllSynapses *m_synapses;
 
         // 
         Layout *m_layout;
@@ -101,7 +98,7 @@ class Model : public IModel, TiXmlVisitor
 
     private:
         /**
-         * Populate an instance of AllNeurons with an initial state for each neuron.
+         * Populate an instance of IAllNeurons with an initial state for each neuron.
          *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */

@@ -35,8 +35,8 @@
 
 #include <map>
 #include "Global.h"
-#include "AllNeurons.h"
-#include "AllSynapses.h"
+#include "IAllNeurons.h"
+#include "IAllSynapses.h"
 #include "Connections.h"
 #include "Layout.h"
 
@@ -54,8 +54,8 @@ public:
     }
 
     //! Create an instance.
-    AllNeurons* createNeurons(TiXmlElement* parms);
-    AllSynapses* createSynapses(TiXmlElement* parms);
+    IAllNeurons* createNeurons(TiXmlElement* parms);
+    IAllSynapses* createSynapses(TiXmlElement* parms);
     Connections* createConnections(TiXmlElement* parms);
     Layout* createLayout(TiXmlElement* parms);
 
@@ -71,13 +71,13 @@ protected:
         bool VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute);
 
 private:
-    AllNeurons* m_neurons;
-    AllSynapses* m_synapses;
+    IAllNeurons* m_neurons;
+    IAllSynapses* m_synapses;
     Connections* m_conns;
     Layout* m_layout;
 
-    typedef AllNeurons* (*CreateNeuronsFn)(void);
-    typedef AllSynapses* (*CreateSynapsesFn)(void);
+    typedef IAllNeurons* (*CreateNeuronsFn)(void);
+    typedef IAllSynapses* (*CreateSynapsesFn)(void);
     typedef Connections* (*CreateConnsFn)(void);
     typedef Layout* (*CreateLayoutFn)(void);
 
@@ -96,8 +96,8 @@ private:
     void registerConns(const string &connsClassName, CreateConnsFn pfnCreateConns);
     void registerLayout(const string &layoutClassName, CreateLayoutFn pfnCreateLayout);
 
-    AllNeurons* createNeuronsWithName(const string& neuronsClassName);
-    AllSynapses* createSynapsesWithName(const string& synapsesClassName);
+    IAllNeurons* createNeuronsWithName(const string& neuronsClassName);
+    IAllSynapses* createSynapsesWithName(const string& synapsesClassName);
     Connections* createConnsWithName(const string& connsClassName);
     Layout* createLayoutWithName(const string& layoutClassName);
 };

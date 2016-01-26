@@ -82,37 +82,7 @@ class AllIZHNeurons : public AllIFNeurons
         AllIZHNeurons();
         virtual ~AllIZHNeurons();
 
-        static AllNeurons* Create() { return new AllIZHNeurons(); }
-
-        /**
-         *  A constant (0.02, 01) describing the coupling of variable u to Vm.
-         */
-        BGFLOAT *Aconst;
-
-        /**
-         *  A constant controlling sensitivity of u.
-         */
-        BGFLOAT *Bconst;
-
-        /**
-         *  A constant controlling reset of Vm. 
-         */
-        BGFLOAT *Cconst;
-
-        /**
-         *  A constant controlling reset of u.
-         */
-        BGFLOAT *Dconst;
-
-        /**
-         *  internal variable.
-         */
-        BGFLOAT *u;
-
-        /**
-         *
-         */ 
-        BGFLOAT *C3;
+        static IAllNeurons* Create() { return new AllIZHNeurons(); }
 
         /**
          *  Setup the internal structure of the class.
@@ -181,6 +151,20 @@ class AllIZHNeurons : public AllIFNeurons
         virtual void writeNeurons(ostream& output, const SimulationInfo *sim_info) const;
 
 #if defined(USE_GPU)
+    public:
+        /**
+         *  Update the state of all neurons for a time step
+         *  Notify outgoing synapses if neuron has fired.
+         *
+         *  @param  synapses               Reference to the allSynapses struct on host memory.
+         *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
+         *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
+         *  @param  sim_info               SimulationInfo to refer from.
+         *  @param  randNoise              Reference to the random noise array.
+         *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
+         */
+        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, IAllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
+
         /**
          *  Allocate GPU memories to store all neurons' states,
          *  and copy them from host to GPU memory.
@@ -238,33 +222,47 @@ class AllIZHNeurons : public AllIFNeurons
          */
         virtual void clearNeuronSpikeCounts( void* allNeuronsDevice, const SimulationInfo *sim_info );
 
+
     protected:
-        void allocDeviceStruct( AllIZHNeurons &allNeurons, SimulationInfo *sim_info );
-        void deleteDeviceStruct( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
-        void copyHostToDevice( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
-        void copyDeviceToHost( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
-#endif
-
-        void createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layout);
-        void setNeuronDefaults(const int index);
-        virtual void initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT);
-        void readNeuron(istream &input, const SimulationInfo *sim_info, int i);
-        void writeNeuron(ostream& output, const SimulationInfo *sim_info, int i) const;
-
-#if defined(USE_GPU)
         /**
-         *  Update the state of all neurons for a time step
-         *  Notify outgoing synapses if neuron has fired.
+         *  Allocate GPU memories to store all neurons' states.
+         *  (Helper function of allocNeuronDeviceStruct)
          *
-         *  @param  synapses               Reference to the allSynapses struct on host memory.
-         *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
-         *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
-         *  @param  sim_info               SimulationInfo to refer from.
-         *  @param  randNoise              Reference to the random noise array.
-         *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
+         *  @param  allNeurons         Reference to the allIFNeurons struct.
+         *  @param  sim_info           SimulationInfo to refer from.
          */
-        virtual void advanceNeurons(AllSynapses &synapses, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
-#else
+        void allocDeviceStruct( AllIZHNeurons &allNeurons, SimulationInfo *sim_info );
+
+        /**
+         *  Delete GPU memories.
+         *  (Helper function of deleteNeuronDeviceStruct)
+         *
+         *  @param  allNeurons         Reference to the allIFNeurons struct.
+         *  @param  sim_info           SimulationInfo to refer from.
+         */
+        void deleteDeviceStruct( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
+
+        /**
+         *  Copy all neurons' data from host to device.
+         *  (Helper function of copyNeuronHostToDevice)
+         *
+         *  @param  allNeurons         Reference to the allIFNeurons struct.
+         *  @param  sim_info           SimulationInfo to refer from.
+         */
+        void copyHostToDevice( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
+
+        /**
+         *  Copy all neurons' data from device to host.
+         *  (Helper function of copyNeuronDeviceToHost)
+         *
+         *  @param  allNeurons         Reference to the allIFNeurons struct.
+         *  @param  sim_info           SimulationInfo to refer from.
+         */
+        void copyDeviceToHost( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
+
+#else  // !defined(USE_GPU)
+
+    protected:
         /**
          *  Helper for #advanceNeuron. Updates state of a single neuron.
          *
@@ -280,22 +278,131 @@ class AllIZHNeurons : public AllIFNeurons
          *  @param  sim_info         SimulationInfo class to read information from.
          */
         virtual void fire(const int index, const SimulationInfo *sim_info) const;
-#endif
+#endif  // defined(USE_GPU)
+
+    protected:
+        /**
+         *  Creates a single Neuron and generates data for it.
+         *
+         *  @param  sim_info     SimulationInfo class to read information from.
+         *  @param  neuron_index Index of the neuron to create.
+         *  @param  layout       Layout information of the neunal network.
+         */
+        void createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layout);
+
+        /**
+         *  Set the Neuron at the indexed location to default values.
+         *
+         *  @param  neuron_index    Index of the Neuron that the synapse belongs to.
+         */
+        void setNeuronDefaults(const int index);
+
+        /**
+         *  Initializes the Neuron constants at the indexed location.
+         *
+         *  @param  neuron_index    Index of the Neuron.
+         *  @param  deltaT          Inner simulation step duration
+         */
+        virtual void initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT);
+
+        /**
+         *  Sets the data for Neuron #index to input's data.
+         *
+         *  @param  input       istream to read from.
+         *  @param  sim_info    used as a reference to set info for neurons.
+         *  @param  i           index of the neuron (in neurons).
+         */
+        void readNeuron(istream &input, const SimulationInfo *sim_info, int i);
+
+        /**
+         *  Writes out the data in the selected Neuron.
+         *
+         *  @param  output      stream to write out to.
+         *  @param  sim_info    used as a reference to set info for neuronss.
+         *  @param  i           index of the neuron (in neurons).
+         */
+        void writeNeuron(ostream& output, const SimulationInfo *sim_info, int i) const;
 
     private:
+        /**
+         *  Deallocate all resources
+         */
+        void freeResources();  
+
+    public:
+        /**
+         *  A constant (0.02, 01) describing the coupling of variable u to Vm.
+         */
+        BGFLOAT *Aconst;
+
+        /**
+         *  A constant controlling sensitivity of u.
+         */
+        BGFLOAT *Bconst;
+
+        /**
+         *  A constant controlling reset of Vm. 
+         */
+        BGFLOAT *Cconst;
+
+        /**
+         *  A constant controlling reset of u.
+         */
+        BGFLOAT *Dconst;
+
+        /**
+         *  internal variable.
+         */
+        BGFLOAT *u;
+
+        /**
+         *
+         */ 
+        BGFLOAT *C3;
+
+    private:
+        /**
+         *  Default value of Aconst.
+         */
         static const BGFLOAT DEFAULT_a = 0.0035;
+
+        /**
+         *  Default value of Bconst.
+         */
         static const BGFLOAT DEFAULT_b = 0.2;
+
+        /**
+         *  Default value of Cconst.
+         */
         static const BGFLOAT DEFAULT_c = -50;
+
+        /**
+         *  Default value of Dconst.
+         */
         static const BGFLOAT DEFAULT_d = 2;
 
-        // TODO
+        /**
+         *  Min/max values of Aconst.
+         */
         BGFLOAT m_Aconst[2];
-        // TODO
-        BGFLOAT m_Bconst[2];
-        // TODO
-        BGFLOAT m_Cconst[2];
-        // TODO
-        BGFLOAT m_Dconst[2];
 
-        void freeResources();  
+        /**
+         *  Min/max values of Bconst.
+         */
+        BGFLOAT m_Bconst[2];
+
+        /**
+         *  Min/max values of Cconst.
+         */
+        BGFLOAT m_Cconst[2];
+
+        /**
+         *  Min/max values of Dconst.
+         */
+        BGFLOAT m_Dconst[2];
 };
+
+#if defined(__CUDACC__)
+//! Perform updating neurons for one time step.
+extern __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const uint32_t, AllSpikingSynapses*), void (*fpPostSpikeHit)(const uint32_t, AllSpikingSynapses*), bool fAllowBackPropagation );
+#endif // __CUDACC__

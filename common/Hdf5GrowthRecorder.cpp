@@ -1,4 +1,4 @@
-/**
+/*
  *      @file Hdf5GrowthRecorder.cpp
  *
  *      @brief An implementation for recording spikes history on hdf5 file
@@ -23,7 +23,7 @@ Hdf5GrowthRecorder::~Hdf5GrowthRecorder()
 {
 }
 
-/**
+/*
  * Initialize data.
  * Create a new hdf5 file with default properties.
  *
@@ -68,7 +68,7 @@ void Hdf5GrowthRecorder::init(const string& stateOutputFileName)
     }
 }
 
-/**
+/*
  *  Create data spaces and data sets of the hdf5 for recording histories.
  */
 void Hdf5GrowthRecorder::initDataSet()
@@ -144,7 +144,7 @@ void Hdf5GrowthRecorder::getValues()
     }
 }
 
-/**
+/*
  * Terminate process
  */
 void Hdf5GrowthRecorder::term()
@@ -156,12 +156,12 @@ void Hdf5GrowthRecorder::term()
     Hdf5Recorder::term();
 }
 
-/**
+/*
  * Compile history information in every epoch.
  *
  * @param[in] neurons   The entire list of neurons.
  */
-void Hdf5GrowthRecorder::compileHistories(AllNeurons &neurons)
+void Hdf5GrowthRecorder::compileHistories(IAllNeurons &neurons)
 {
     Hdf5Recorder::compileHistories(neurons);
 
@@ -191,7 +191,7 @@ void Hdf5GrowthRecorder::compileHistories(AllNeurons &neurons)
     writeRadiiRates();
 }
 
-/**
+/*
  * Incrementaly write radii and rates histories
  */
 void Hdf5GrowthRecorder::writeRadiiRates()

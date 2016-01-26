@@ -1,4 +1,4 @@
-/**
+/*
  *      \file SInputRegular.cpp
  *
  *      \author Fumitaka Kawasaki
@@ -11,7 +11,7 @@
 
 void getValueList(const string& valString, vector<BGFLOAT>* pList);
 
-/**
+/*
  * constructor
  *
  * @param[in] psi       Pointer to the simulation information
@@ -111,25 +111,25 @@ SInputRegular::SInputRegular(SimulationInfo* psi, TiXmlElement* parms) :
     fSInput = true;
 }
 
-/**
+/*
  * destructor
  */
 SInputRegular::~SInputRegular()
 {
 }
 
-/**
+/*
  * Initialize data.
  *
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
  */
-void SInputRegular::init(IModel* model, AllNeurons& neurons, SimulationInfo* psi)
+void SInputRegular::init(IModel* model, IAllNeurons& neurons, SimulationInfo* psi)
 {
 }
 
-/**
+/*
  * Terminate process.
  *
  * @param[in] model              Pointer to the Neural Network Model object.

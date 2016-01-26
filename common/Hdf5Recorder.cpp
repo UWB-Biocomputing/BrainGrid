@@ -1,4 +1,4 @@
-/**
+/*
  *      @file Hdf5Recorder.cpp
  *
  *      @brief An implementation for recording spikes history on hdf5 file
@@ -35,7 +35,7 @@ Hdf5Recorder::~Hdf5Recorder()
 {
 }
 
-/**
+/*
  * Initialize data
  * Create a new hdf5 file with default properties.
  *
@@ -80,7 +80,7 @@ void Hdf5Recorder::init(const string& stateOutputFileName)
     }
 }
 
-/**
+/*
  *  Create data spaces and data sets of the hdf5 for recording histories.
  */
 void Hdf5Recorder::initDataSet()
@@ -157,7 +157,7 @@ void Hdf5Recorder::getValues()
 {
 }
 
-/**
+/*
  * Terminate process
  */
 void Hdf5Recorder::term()
@@ -177,12 +177,12 @@ void Hdf5Recorder::term()
     delete stateOut;
 }
 
-/**
+/*
  * Compile history information in every epoch.
  *
  * @param[in] neurons   The entire list of neurons.
  */
-void Hdf5Recorder::compileHistories(AllNeurons &neurons)
+void Hdf5Recorder::compileHistories(IAllNeurons &neurons)
 {
     Connections* pConn = m_model->getConnections();
 
@@ -295,12 +295,12 @@ void Hdf5Recorder::compileHistories(AllNeurons &neurons)
     spNeurons.clearSpikeCounts(m_sim_info);
 }
 
-/**
+/*
  * Save current simulation state to the hdf5 file.
  *
  * @param  neurons the Neuron list to search from.
  **/
-void Hdf5Recorder::saveSimState(const AllNeurons &neurons)
+void Hdf5Recorder::saveSimState(const IAllNeurons &neurons)
 {
     try
     {
@@ -447,7 +447,7 @@ void Hdf5Recorder::saveSimState(const AllNeurons &neurons)
     }
 }
 
-/**
+/*
  *  Get starter Neuron matrix.
  *
  *  @param  matrix      Starter Neuron matrix.

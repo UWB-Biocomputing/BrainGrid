@@ -50,14 +50,6 @@ class AllSpikingSynapses : public AllSynapses
         /**
          *  Setup the internal structure of the class (allocate memories and initialize them).
          *
-         *  @param  num_neurons   Total number of neurons in the network.
-         *  @param  max_synapses  Maximum number of synapses per neuron.
-         */
-        virtual void setupSynapses(const int num_neurons, const int max_synapses);
-
-        /**
-         *  Setup the internal structure of the class (allocate memories and initialize them).
-         *
          *  @param  sim_info  SimulationInfo class to read information from.
          */
         virtual void setupSynapses(SimulationInfo *sim_info);
@@ -76,6 +68,19 @@ class AllSpikingSynapses : public AllSynapses
         virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT);
 
         /**
+         *  Create a Synapse and connect it to the model.
+         *
+         *  @param  synapses    The synapse list to reference.
+         *  @param  iSyn        Index of the synapse to set.
+         *  @param  source      Coordinates of the source Neuron.
+         *  @param  dest        Coordinates of the destination Neuron.
+         *  @param  sum_point   Summation point address.
+         *  @param  deltaT      Inner simulation step duration.
+         *  @param  type        Type of the Synapse to create.
+         */
+        virtual void createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
+
+        /**
          *  Check if the back propagation (notify a spike event to the pre neuron)
          *  is allowed in the synapse class.
          *
@@ -84,7 +89,28 @@ class AllSpikingSynapses : public AllSynapses
         virtual bool allowBackPropagation();
 
     protected:
+        /**
+         *  Setup the internal structure of the class (allocate memories and initialize them).
+         *
+         *  @param  num_neurons   Total number of neurons in the network.
+         *  @param  max_synapses  Maximum number of synapses per neuron.
+         */
+        virtual void setupSynapses(const int num_neurons, const int max_synapses);
+
+        /**
+         *  Initializes the queues for the Synapse.
+         *
+         *  @param  iSyn   index of the synapse to set.
+         */
         virtual void initSpikeQueue(const uint32_t iSyn);
+
+        /**
+         *  Updates the decay if the synapse selected.
+         *
+         *  @param  iSyn    Index of the synapse to set.
+         *  @param  deltaT  Inner simulation step duration
+         *  @return true is success.
+         */
         bool updateDecay(const uint32_t iSyn, const BGFLOAT deltaT);
 
         /**
@@ -103,38 +129,59 @@ class AllSpikingSynapses : public AllSynapses
          */
         virtual void writeSynapse(ostream& output, const uint32_t iSyn) const;
 
+#if defined(USE_GPU)
     public:
         /**
-         *  Create a Synapse and connect it to the model.
+         *  Advance all the Synapses in the simulation.
+         *  Update the state of all synapses for a time step.
          *
-         *  @param  synapses    The synapse list to reference.
-         *  @param  iSyn        Index of the synapse to set.
-         *  @param  source      Coordinates of the source Neuron.
-         *  @param  dest        Coordinates of the destination Neuron.
-         *  @param  sum_point   Summation point address.
-         *  @param  deltaT      Inner simulation step duration.
-         *  @param  type        Type of the Synapse to create.
+         *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
+         *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
+         *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
+         *  @param  sim_info               SimulationInfo class to read information from.
          */
-        virtual void createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
+        virtual void advanceSynapses(IAllSynapses* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
 
-#if defined(USE_GPU)
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) = 0;
-        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice ) = 0;
-        virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
-        virtual void copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) = 0;
-        virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
-        virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const SimulationInfo *sim_info) = 0;
-        virtual void copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info) = 0;
-        // Update the state of all synapses for a time step
-        virtual void advanceSynapses(AllSynapses* allSynapsesDevice, AllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
-        virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h) = 0;
-        virtual void getFpChangePSR(unsigned long long& fpChangePSR_h);
+        /**
+         *  Get a pointer to the device function preSpikeHit.
+         *  The function will be called from advanceNeuronsDevice device function.
+         *  Because we cannot use virtual function (Polymorphism) in device functions,
+         *  we use this scheme.
+         *
+         *  @param  fpPreSpikeHit_h       Reference to the memory location
+         *                                where the function pointer will be set.
+         */
         virtual void getFpPreSpikeHit(unsigned long long& fpPreSpikeHit_h);
+
+        /**
+         *  Get a pointer to the device function ostSpikeHit.
+         *  The function will be called from advanceNeuronsDevice device function.
+         *  Because we cannot use virtual function (Polymorphism) in device functions,
+         *  we use this scheme.
+         *
+         *  @param  fpostSpikeHit_h       Reference to the memory location
+         *                                where the function pointer will be set.
+         */
         virtual void getFpPostSpikeHit(unsigned long long& fpPostSpikeHit_h);
 
+        /**
+         *  Set some parameters used for advanceSynapsesDevice.
+         *  Currently we set a member variable: m_fpChangePSR_h.
+         */
         virtual void setAdvanceSynapsesDeviceParams();
-#else
+
+        /**
+         *  Get a pointer to the device function changePSR.
+         *  The function will be called from advanceSynapsesDevice device function.
+         *  Because we cannot use virtual function (Polymorphism) in device functions,
+         *  we use this scheme.
+         *
+         *  @param  fpChangePSR_h         Reference to the memory location
+         *                                where the function pointer will be set.
+         */
+        virtual void getFpChangePSR(unsigned long long& fpChangePSR_h);
+#else  // !defined(USE_GPU)
+public:
         /**
          *  Advance one specific Synapse.
          *
@@ -142,7 +189,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  sim_info  SimulationInfo class to read information from.
          *  @param  neurons   The Neuron list to search from.
          */
-        virtual void advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, AllNeurons *neurons);
+        virtual void advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons);
 
         /**
          *  Prepares Synapse for a spike hit.
@@ -176,9 +223,6 @@ class AllSpikingSynapses : public AllSynapses
         virtual void changePSR(const uint32_t iSyn, const BGFLOAT deltaT);
 #endif
 
-    protected:
-        unsigned long long m_fpChangePSR_h;
-
     public:
 
         /**
@@ -191,15 +235,16 @@ class AllSpikingSynapses : public AllSynapses
          */
         BGFLOAT *tau;
 
+#define BYTES_OF_DELAYQUEUE         ( sizeof(uint32_t) / sizeof(uint8_t) )
+#define LENGTH_OF_DELAYQUEUE        ( BYTES_OF_DELAYQUEUE * 8 )
+
         /**
          *  The synaptic transmission delay, descretized into time steps.
          */
         int *total_delay;
 
-#define BYTES_OF_DELAYQUEUE         ( sizeof(uint32_t) / sizeof(uint8_t) )
-#define LENGTH_OF_DELAYQUEUE        ( BYTES_OF_DELAYQUEUE * 8 )
         /**
-         *  Pointer to the delayed queue
+         *  Pointer to the delayed queue.
          */
         uint32_t *delayQueue;
 
@@ -212,34 +257,40 @@ class AllSpikingSynapses : public AllSynapses
         int *delayIdx;
 
         /**
-         *  Length of the delayed queue
+         *  Length of the delayed queue.
          */
         int *ldelayQueue;
+
+    protected:
+        /**
+         *  Pointer to the changePSR device function.
+         */
+        unsigned long long m_fpChangePSR_h;
 };
 
 #if defined(__CUDACC__)
 //! Perform updating synapses for one time step.
-extern __global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT) );
+extern __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT) );
 
-extern __device__ bool isSpikeQueueDevice(AllSpikingSynapses* allSynapsesDevice, uint32_t iSyn);
+extern __global__ void getFpSpikingSynapsesPreSpikeHitDevice(void (**fpPreSpikeHit_d)(const uint32_t, AllSpikingSynapses*));
 
-extern __global__ void getFpPreSpikeHitDevice(void (**fpPreSpikeHit_d)(const uint32_t, AllSpikingSynapses*));
+extern __global__ void getFpSpikingSynapsesPostSpikeHitDevice(void (**fpPostSpikeHit_d)(const uint32_t, AllSpikingSynapses*));
 
-extern __global__ void getFpPostSpikeHitDevice(void (**fpPostSpikeHit_d)(const uint32_t, AllSpikingSynapses*));
+extern __global__ void getFpSpikingSynapsesChangePSRDevice(void (**fpChangePSR_d)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT));
 
-extern __device__ void preSpikeHitDevice( const uint32_t iSyn, AllSpikingSynapses* allSynapsesDevice );
+extern __device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapses* allSynapsesDevice, uint32_t iSyn);
 
-extern __device__ void postSpikeHitDevice( const uint32_t iSyn, AllSpikingSynapses* allSynapsesDevice );
+extern __device__ void preSpikingSynapsesSpikeHitDevice( const uint32_t iSyn, AllSpikingSynapses* allSynapsesDevice );
 
-extern __global__ void getFpChangePSRDevice(void (**fpChangePSR_d)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT));
+extern __device__ void postSpikingSynapsesSpikeHitDevice( const uint32_t iSyn, AllSpikingSynapses* allSynapsesDevice );
 
-extern __device__ void changePSR(AllSpikingSynapses* allSynapsesDevice, const uint32_t, const uint64_t, const BGFLOAT deltaT);
+extern __device__ void changeSpikingSynapsesPSR(AllSpikingSynapses* allSynapsesDevice, const uint32_t, const uint64_t, const BGFLOAT deltaT);
 
 //! Add a synapse to the network.
-extern __device__ void addSynapse( AllSpikingSynapses* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons, void (*fpCreateSynapse)(AllSpikingSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType) );
+extern __device__ void addSpikingSynapse( AllSpikingSynapses* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons, void (*fpCreateSynapse)(AllSpikingSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType) );
 
 //! Remove a synapse from the network.
-extern __device__ void eraseSynapse( AllSpikingSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses );
+extern __device__ void eraseSpikingSynapse( AllSpikingSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses );
 
 //! Get the type of synapse.
 extern __device__ synapseType synType( neuronType* neuron_type_map_d, const int src_neuron, const int dest_neuron );

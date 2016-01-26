@@ -1,4 +1,4 @@
-/**
+/*
  *      @file XmlGrowthRecorder.cpp
  *
  *      @brief An implementation for recording spikes history on xml file
@@ -64,12 +64,12 @@ void XmlGrowthRecorder::getValues()
     }
 }
 
-/**
+/*
  * Compile history information in every epoch
  *
  * @param[in] neurons 	The entire list of neurons.
  */
-void XmlGrowthRecorder::compileHistories(AllNeurons &neurons)
+void XmlGrowthRecorder::compileHistories(IAllNeurons &neurons)
 {
     XmlRecorder::compileHistories(neurons);
 
@@ -96,12 +96,12 @@ void XmlGrowthRecorder::compileHistories(AllNeurons &neurons)
     }
 }
 
-/**
+/*
  * Save current simulation state to XML
  *
  * @param  neurons the Neuron list to search from.
  **/
-void XmlGrowthRecorder::saveSimState(const AllNeurons &neurons)
+void XmlGrowthRecorder::saveSimState(const IAllNeurons &neurons)
 {
     // create Neuron Types matrix
     VectorMatrix neuronTypes(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, EXC);

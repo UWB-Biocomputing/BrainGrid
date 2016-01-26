@@ -1,4 +1,4 @@
-/**
+/*
  *      \file GpuSInputPoisson.cu
  *
  *      \author Fumitaka Kawasaki
@@ -13,7 +13,7 @@
 //! Memory to save global state for curand.
 curandState* devStates_d;
 
-/**
+/*
  * constructor
  *
  * @param[in] psi       Pointer to the simulation information
@@ -23,21 +23,21 @@ GpuSInputPoisson::GpuSInputPoisson(SimulationInfo* psi, TiXmlElement* parms) : S
 {
 }
 
-/**
+/*
  * destructor
  */
 GpuSInputPoisson::~GpuSInputPoisson()
 {
 }
 
-/**
+/*
  * Initialize data.
  *
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
  */
-void GpuSInputPoisson::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi)
+void GpuSInputPoisson::init(IModel* model, IAllNeurons &neurons, SimulationInfo* psi)
 {
     SInputPoisson::init(model, neurons, psi);
 
@@ -56,7 +56,7 @@ void GpuSInputPoisson::init(IModel* model, AllNeurons &neurons, SimulationInfo* 
     setupSeeds <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, devStates_d, time(NULL) );
 }
 
-/**
+/*
  * Terminate process.
  *
  * @param[in] model              Pointer to the Neural Network Model object.
@@ -70,7 +70,7 @@ void GpuSInputPoisson::term(IModel* model, SimulationInfo* psi)
         deleteDeviceValues(model, psi);
 }
 
-/**
+/*
  * Process input stimulus for each time step.
  * Apply inputs on summationPoint.
  *
@@ -95,15 +95,15 @@ void GpuSInputPoisson::inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT
 
     // advance synapses
     unsigned long long fpChangePSR_h;
-    synapses->getFpChangePSR(fpChangePSR_h);
+    m_synapses->getFpChangePSR(fpChangePSR_h);
 
-    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, synapseIndexMapDevice, g_simulationStep, psi->deltaT, (AllSpikingSynapses*)allSynapsesDevice, (void (*)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT))fpChangePSR_h );
+    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, synapseIndexMapDevice, g_simulationStep, psi->deltaT, (AllSpikingSynapses*)allSynapsesDevice, (void (*)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT))fpChangePSR_h );
 
     // update summation point
     applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, summationPoint_d, allSynapsesDevice );
 }
 
-/**
+/*
  * Allocate GPU device memory and copy values
  *
  * @param[in] model      Pointer to the Neural Network Model object.
@@ -122,8 +122,8 @@ void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int
     HANDLE_ERROR( cudaMemcpy ( nISIs_d, nISIs, nISIs_d_size, cudaMemcpyHostToDevice ) );
 
     // create an input synapse layer
-    synapses->allocSynapseDeviceStruct( (void **)&allSynapsesDevice, neuron_count, 1 ); 
-    synapses->copySynapseHostToDevice( allSynapsesDevice, neuron_count, 1 );
+    m_synapses->allocSynapseDeviceStruct( (void **)&allSynapsesDevice, neuron_count, 1 ); 
+    m_synapses->copySynapseHostToDevice( allSynapsesDevice, neuron_count, 1 );
 
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
@@ -154,7 +154,7 @@ void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int
     HANDLE_ERROR( cudaMemcpy ( masks_d, masks, neuron_count * sizeof( bool ), cudaMemcpyHostToDevice ) ); 
 }
 
-/**
+/*
  * Dellocate GPU device memory
  *
  * @param[in] model      Pointer to the Neural Network Model object.
@@ -168,7 +168,7 @@ void GpuSInputPoisson::deleteDeviceValues(IModel* model, SimulationInfo* psi )
     HANDLE_ERROR( cudaFree( devStates_d ) );
     HANDLE_ERROR( cudaFree( masks_d ) );
 
-    synapses->deleteSynapseDeviceStruct( allSynapsesDevice );
+    m_synapses->deleteSynapseDeviceStruct( allSynapsesDevice );
 
     // deallocate memory for synapse index map
     SynapseIndexMap synapseIndexMap;
@@ -179,7 +179,7 @@ void GpuSInputPoisson::deleteDeviceValues(IModel* model, SimulationInfo* psi )
 
 // CUDA code for -----------------------------------------------------------------------
 
-/** 
+/* 
  * Adds a synapse to the network.  Requires the locations of the source and
  * destination neurons.
  *
@@ -199,11 +199,11 @@ __global__ void initSynapsesDevice( int n, AllDSSynapses* allSynapsesDevice, BGF
     int neuron_index = idx;
     BGFLOAT* sum_point = &( pSummationMap[neuron_index] );
     synapseType type = allSynapsesDevice->type[neuron_index];
-    createSynapse(allSynapsesDevice, neuron_index, 0, 0, neuron_index, sum_point, deltaT, type );
+    createDSSynapse(allSynapsesDevice, neuron_index, 0, 0, neuron_index, sum_point, deltaT, type );
     allSynapsesDevice->W[neuron_index] = weight * SYNAPSE_STRENGTH_ADJUSTMENT;
 }
 
-/**
+/*
  * Device code for adding input values to the summation map.
  *
  * @param[in] nISIs_d            Pointer to the interval counter.
@@ -259,7 +259,7 @@ __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT
     nISIs_d[idx] = rnISIs;
 }
 
-/**
+/*
  * CUDA code for update summation point
  *
  * @param[in] n                  Number of neurons.
@@ -274,7 +274,7 @@ __global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSyna
     summationPoint_d[idx] += allSynapsesDevice->psr[idx];
 }
 
-/**
+/*
  * CUDA code for setup curand seed
  *
  * @param[in] n                  Number of neurons.

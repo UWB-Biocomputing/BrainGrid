@@ -43,17 +43,17 @@ public:
      */
     virtual void init(const string& stateOutputFileName) = 0;
 
-    /*
+    /**
      * Init radii and rates history matrices with default values
      */
     virtual void initDefaultValues() = 0;
 
-    /*
+    /**
      * Init radii and rates history matrices with current radii and rates
      */
     virtual void initValues() = 0;
 
-    /*
+    /**
      * Get the current radii and rates vlaues
      */
     virtual void getValues() = 0;
@@ -67,13 +67,13 @@ public:
      * Compile history information in every epoch
      * @param[in] neurons   The entire list of neurons.
      */
-    virtual void compileHistories(AllNeurons &neurons) = 0;
+    virtual void compileHistories(IAllNeurons &neurons) = 0;
 
     /**
      * Save current simulation state to XML
      * @param[in] neurons   The entire list of neurons.
      **/
-    virtual void saveSimState(const AllNeurons &neurons) = 0;
+    virtual void saveSimState(const IAllNeurons &neurons) = 0;
 };
 
 #endif // _IRECORDER_H_

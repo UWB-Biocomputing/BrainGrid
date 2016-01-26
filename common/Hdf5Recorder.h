@@ -60,17 +60,17 @@ public:
      */
     virtual void init(const string& stateOutputFileName);
 
-    /*
+    /**
      * Init radii and rates history matrices with default values
      */
     virtual void initDefaultValues();
 
-    /*
+    /**
      * Init radii and rates history matrices with current radii and rates
      */
     virtual void initValues();
 
-    /*
+    /**
      * Get the current radii and rates vlaues
      */
     virtual void getValues();
@@ -84,13 +84,13 @@ public:
      * Compile history information in every epoch
      * @param[in] neurons   The entire list of neurons.
      */
-    virtual void compileHistories(AllNeurons &neurons);
+    virtual void compileHistories(IAllNeurons &neurons);
 
     /**
      * Save current simulation state to XML
      * @param  neurons the Neuron list to search from.
      **/
-    virtual void saveSimState(const AllNeurons &neurons);
+    virtual void saveSimState(const IAllNeurons &neurons);
 
 protected:
     virtual void initDataSet();

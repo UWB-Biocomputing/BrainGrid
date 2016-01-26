@@ -1,6 +1,6 @@
 #include "ConnGrowth.h"
 #include "ParseParamError.h"
-#include "AllSynapses.h"
+#include "IAllSynapses.h"
 #include "XmlGrowthRecorder.h"
 #ifdef USE_HDF5
 #include "Hdf5GrowthRecorder.h"
@@ -60,7 +60,7 @@ ConnGrowth::~ConnGrowth()
     cleanupConnections();
 }
 
-/**
+/*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
@@ -68,7 +68,7 @@ ConnGrowth::~ConnGrowth()
  *  @param  neurons   The Neuron list to search from.
  *  @param  synapses  The Synapse list to search from.
  */
-void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout, AllNeurons *neurons, AllSynapses *synapses)
+void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout, IAllNeurons *neurons, IAllSynapses *synapses)
 {
     int num_neurons = sim_info->totalNeurons;
 
@@ -84,7 +84,7 @@ void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout
     (*delta) = (*layout->dist);
 }
 
-/**
+/*
  *  Cleanup the class (deallocate memories).
  */
 void ConnGrowth::cleanupConnections()
@@ -106,7 +106,7 @@ void ConnGrowth::cleanupConnections()
     deltaR = NULL;
 }
 
-/**
+/*
  *  Attempts to read parameters from a XML file.
  *
  *  @param  element TiXmlElement to examine.
@@ -166,7 +166,7 @@ bool ConnGrowth::readParameters(const TiXmlElement& element)
     return true;
 }
 
-/**
+/*
  *  Prints out all parameters of the connections to ostream.
  *
  *  @param  output  ostream to send output to.
@@ -184,7 +184,7 @@ void ConnGrowth::printParameters(ostream &output) const
 
 }
 
-/**
+/*
  *  Reads the intermediate connection status from istream.
  *
  *  @param  input    istream to read status from.
@@ -203,7 +203,7 @@ void ConnGrowth::readConns(istream& input, const SimulationInfo *sim_info)
     }
 }
 
-/**
+/*
  *  Writes the intermediate connection status to ostream.
  *
  *  @param  output   ostream to write status to.
@@ -222,7 +222,7 @@ void ConnGrowth::writeConns(ostream& output, const SimulationInfo *sim_info)
     }
 }
 
-/**
+/*
  *  Update the connections status in every epoch.
  *
  *  @param  neurons  The Neuron list to search from.
@@ -230,7 +230,7 @@ void ConnGrowth::writeConns(ostream& output, const SimulationInfo *sim_info)
  *  @param  layout   Layout information of the neunal network.
  *  @return true if successful, false otherwise.
  */
-bool ConnGrowth::updateConnections(AllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout)
+bool ConnGrowth::updateConnections(IAllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout)
 {
     // Update Connections data
     updateConns(neurons, sim_info);
@@ -244,13 +244,13 @@ bool ConnGrowth::updateConnections(AllNeurons &neurons, const SimulationInfo *si
     return true;
 }
 
-/**
+/*
  *  Calculates firing rates, neuron radii change and assign new values.
  *
  *  @param  neurons  The Neuron list to search from.
  *  @param  sim_info SimulationInfo class to read information from.
  */
-void ConnGrowth::updateConns(AllNeurons &neurons, const SimulationInfo *sim_info)
+void ConnGrowth::updateConns(IAllNeurons &neurons, const SimulationInfo *sim_info)
 {
     AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
 
@@ -268,7 +268,7 @@ void ConnGrowth::updateConns(AllNeurons &neurons, const SimulationInfo *sim_info
     (*radii) += (*deltaR);
 }
 
-/**
+/*
  *  Update the distance between frontiers of Neurons.
  *
  *  @param  num_neurons Number of neurons to update.
@@ -286,7 +286,7 @@ void ConnGrowth::updateFrontiers(const int num_neurons, Layout *layout)
     }
 }
 
-/**
+/*
  *  Update the areas of overlap in between Neurons.
  *
  *  @param  num_neurons Number of Neurons to update.
@@ -334,17 +334,19 @@ void ConnGrowth::updateOverlap(BGFLOAT num_neurons, Layout *layout)
 }
 
 #if !defined(USE_GPU)
-/**
+/*
  *  Update the weight of the Synapses in the simulation.
  *  Note: Platform Dependent.
  *
  *  @param  num_neurons Number of neurons to update.
- *  @param  neurons     The Neuron list to search from.
- *  @param  synapses    The Synapse list to search from.
+ *  @param  ineurons    The Neuron list to search from.
+ *  @param  isynapses   The Synapse list to search from.
  *  @param  sim_info    SimulationInfo to refer from.
  */
-void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, Layout *layout)
+void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &ineurons, IAllSynapses &isynapses, const SimulationInfo *sim_info, Layout *layout)
 {
+    AllNeurons &neurons = dynamic_cast<AllNeurons&>(ineurons);
+    AllSynapses &synapses = dynamic_cast<AllSynapses&>(isynapses);
 
     // For now, we just set the weights to equal the areas. We will later
     // scale it and set its sign (when we index and get its sign).
@@ -384,7 +386,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neuron
                             synapses.eraseSynapse(src_neuron, iSyn);
                         } else {
                             // adjust
-                            // g_synapseStrengthAdjustmentConstant is 1.0e-8;
+                            // SYNAPSE_STRENGTH_ADJUSTMENT is 1.0e-8;
                             synapses.W[iSyn] = (*W)(src_neuron, dest_neuron) *
                                 synapses.synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 
@@ -406,8 +408,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neuron
 
                 uint32_t iSyn;
                 synapses.addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT);
-                synapses.W[iSyn] = (*W)(src_neuron, dest_neuron) * synapses.synSign(type) * AllSynapses
-::SYNAPSE_STRENGTH_ADJUSTMENT;
+                synapses.W[iSyn] = (*W)(src_neuron, dest_neuron) * synapses.synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 
             }
         }
@@ -420,7 +421,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neuron
 }
 #endif // !USE_GPU
 
-/**
+/*
  *  Creates a recorder class object for the connection.
  *
  *  @param  stateOutputFileName  Name of the state output file.

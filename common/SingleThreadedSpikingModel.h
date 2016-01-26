@@ -12,8 +12,8 @@
  *
  * The Model class maintains and manages classes of objects that make up
  * essential components of the spiking neunal networks.
- *    -# AllNeurons: A class to define a list of partiular type of neurons.
- *    -# AllSynapses: A class to define a list of partiular type of synapses.
+ *    -# IAllNeurons: A class to define a list of partiular type of neurons.
+ *    -# IAllSynapses: A class to define a list of partiular type of synapses.
  *    -# Connections: A class to define connections of the neunal network.
  *    -# Layout: A class to define neurons' layout information in the network.
  *
@@ -36,7 +36,7 @@ class SingleThreadedSpikingModel : public Model {
 
 public:
 	//Constructor & Destructor
-	SingleThreadedSpikingModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout);
+	SingleThreadedSpikingModel(Connections *conns, IAllNeurons *neurons, IAllSynapses *synapses, Layout *layout);
 	virtual ~SingleThreadedSpikingModel();
 
 	virtual void advance(const SimulationInfo *sim_info);

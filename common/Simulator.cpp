@@ -1,4 +1,4 @@
-/**
+/*
 * @file Simulator.cpp
 *
 * @author Derek McLean
@@ -10,16 +10,16 @@
 #include "Simulator.h"
 
 /*
-* Constructor
-*/
+ * Constructor
+ */
 Simulator::Simulator(Network *network, SimulationInfo *sim_info) : network(network), m_sim_info(sim_info)
 {
 }
 
-/**
-* Destructor.
-* Releases reference to network.
-*/
+/*
+ * Destructor.
+ * Releases reference to network.
+ */
 Simulator::~Simulator()
 {
     //network is allocated externally from simulator,
@@ -27,11 +27,11 @@ Simulator::~Simulator()
     network = NULL;
 }
 
-/**
-* Run simulation
-*
-* @param[in] pInput    Pointer to the stimulus input object.
-*/
+/*
+ * Run simulation
+ *
+ * @param[in] pInput    Pointer to the stimulus input object.
+ */
 void Simulator::simulate(ISInput* pInput)
 {
     // Main simulation loop - execute maxGrowthSteps
@@ -77,14 +77,14 @@ void Simulator::simulate(ISInput* pInput)
     }
 }
 
-/**
-* Helper for #simulate().
-* Advance simulation until it's ready for the next growth cycle. This should simulate all neuron and
-* synapse activity for one epoch.
-*
-* @param currentStep the current epoch in which the network is being simulated.
-* @param[in] pInput    Pointer to the stimulus input object.
-*/
+/*
+ * Helper for #simulate().
+ * Advance simulation until it's ready for the next growth cycle. This should simulate all neuron and
+ * synapse activity for one epoch.
+ *
+ * @param currentStep the current epoch in which the network is being simulated.
+ * @param[in] pInput    Pointer to the stimulus input object.
+ */
 void Simulator::advanceUntilGrowth(const int currentStep, ISInput* pInput)
 {
     uint64_t count = 0;
@@ -113,34 +113,34 @@ void Simulator::advanceUntilGrowth(const int currentStep, ISInput* pInput)
     }
 }
 
-/**
-* Writes simulation results to an output destination.
-*/
+/*
+ * Writes simulation results to an output destination.
+ */
 void Simulator::saveState() const
 {
     network->saveState();
 }
 
-/**
-* Deserializes internal state from a prior run of the simulation.
-* This allows simulations to be continued from a particular point, to be restarted, or to be
-* started from a known state.
-*
-* @param memory_in - where to read the state from.
-*/
+/*
+ * Deserializes internal state from a prior run of the simulation.
+ * This allows simulations to be continued from a particular point, to be restarted, or to be
+ * started from a known state.
+ *
+ * @param memory_in - where to read the state from.
+ */
 void Simulator::readMemory(istream &memory_in)
 {
     network->readSimMemory(memory_in);
 }
 
-/**
-* Serializes internal state for the current simulation.
-* This allows simulations to be continued from a particular point, to be restarted, or to be
-* started from a known state.
-*
-* @param memory_out - where to write the state to.
-* This method needs to be debugged to verify that it works.
-*/
+/*
+ * Serializes internal state for the current simulation.
+ * This allows simulations to be continued from a particular point, to be restarted, or to be
+ * started from a known state.
+ *
+ * @param memory_out - where to write the state to.
+ * This method needs to be debugged to verify that it works.
+ */
 void Simulator::saveMemory(ostream &memory_out) const
 {
     network->writeSimMemory(memory_out);

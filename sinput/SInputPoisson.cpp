@@ -1,4 +1,4 @@
-/**
+/*
  *      \file SInputPoisson.cpp
  *
  *      \author Fumitaka Kawasaki
@@ -12,13 +12,13 @@
 
 extern void getValueList(const string& valString, vector<BGFLOAT>* pList);
 
-/**
+/*
  * constructor
  * @param[in] parms     Pointer to xml parms element
  */
 SInputPoisson::SInputPoisson(SimulationInfo* psi, TiXmlElement* parms) :
     nISIs(NULL),
-    synapses(NULL),
+    m_synapses(NULL),
     masks(NULL)
 {
     fSInput = false;
@@ -109,26 +109,27 @@ SInputPoisson::SInputPoisson(SimulationInfo* psi, TiXmlElement* parms) :
     fSInput = true;
 }
 
-/**
+/*
  * destructor
  */
 SInputPoisson::~SInputPoisson()
 {
 }
 
-/**
+/*
  * Initialize data.
  * @param[in] model	Pointer to the Neural Network Model object.
  * @param[in] neurons  	The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
  */
-void SInputPoisson::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi)
+void SInputPoisson::init(IModel* model, IAllNeurons &neurons, SimulationInfo* psi)
 {
     if (fSInput == false)
         return;
 
     // create an input synapse layer
-    synapses = new AllDSSynapses(psi->totalNeurons, 1);
+    // TODO: do we need to support other types of synapses?
+    m_synapses = new AllDSSynapses(psi->totalNeurons, 1);
     for (int neuron_index = 0; neuron_index < psi->totalNeurons; neuron_index++)
     {
         synapseType type;
@@ -140,12 +141,12 @@ void SInputPoisson::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi
         BGFLOAT* sum_point = &( psi->pSummationMap[neuron_index] );
         uint32_t iSyn = psi->maxSynapsesPerNeuron * neuron_index;
 
-        synapses->createSynapse(iSyn, 0, neuron_index, sum_point, psi->deltaT, type);
-        synapses->W[iSyn] = weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+        m_synapses->createSynapse(iSyn, 0, neuron_index, sum_point, psi->deltaT, type);
+        dynamic_cast<AllSynapses*>(m_synapses)->W[iSyn] = weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
     }
 }
 
-/**
+/*
  * Terminate process.
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information.
@@ -157,8 +158,8 @@ void SInputPoisson::term(IModel* model, SimulationInfo* psi)
         delete[] nISIs;
 
     // clear the synapse layer, which destroy all synase objects
-    if (synapses != NULL)
-        delete synapses;
+    if (m_synapses != NULL)
+        delete m_synapses;
 
     // clear memory for input masks
     if (masks != NULL)

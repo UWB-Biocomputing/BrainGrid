@@ -67,7 +67,7 @@ void Layout::setupLayout(const SimulationInfo *sim_info)
     starter_map = new bool[num_neurons];
 }
 
-/**
+/*
  *  Attempts to read parameters from a XML file.
  *  @param  @param  element TiXmlElement to examine.
  *  @return true if successful, false otherwise.
@@ -175,7 +175,7 @@ bool Layout::readParameters(const TiXmlElement& element)
     return fRet;
 }
 
-/**
+/*
  *  Prints out all parameters of the layout to ostream.
  *  @param  output  ostream to send output to.
  */
@@ -211,7 +211,7 @@ void Layout::printParameters(ostream &output) const
     }
 }
 
-/**
+/*
  *  Creates a randomly ordered distribution with the specified numbers of neuron types.
  *  @param  num_neurons number of the neurons to have in the type map.
  *  @return a flat vector (to map to 2-d [x,y] = [i % m_width, i / m_width])
@@ -267,7 +267,7 @@ void Layout::generateNeuronTypeMap(int num_neurons)
     DEBUG(cout << "Done initializing neuron type map" << endl;);
 }
 
-/**
+/*
  *  Populates the starter map.
  *  Selects \e numStarter excitory neurons and converts them into starter neurons.
  *  @param  num_neurons number of neurons to have in the map.
@@ -317,7 +317,7 @@ void Layout::initStarterMap(const int num_neurons)
     }
 }
 
-/**
+/*
  *  Returns the type of synapse at the given coordinates
  * @param    src_neuron  integer that points to a Neuron in the type map as a source.
  * @param    dest_neuron integer that points to a Neuron in the type map as a destination.

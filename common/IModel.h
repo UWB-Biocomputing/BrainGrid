@@ -17,8 +17,8 @@ using namespace std;
 #include "../tinyxml/tinyxml.h"
 
 #include "Global.h"
-#include "AllNeurons.h"
-#include "AllSynapses.h"
+#include "IAllNeurons.h"
+#include "IAllSynapses.h"
 #include "SimulationInfo.h"
 #include "IRecorder.h"
 #include "Connections.h"
@@ -109,7 +109,7 @@ class IModel {
          */
         virtual void logSimStep(const SimulationInfo *sim_info) const =0;
 
-        virtual AllNeurons* getNeurons() = 0;
+        virtual IAllNeurons* getNeurons() = 0;
 
         virtual Connections* getConnections() = 0;
 

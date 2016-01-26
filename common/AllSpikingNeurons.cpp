@@ -15,7 +15,7 @@ AllSpikingNeurons::~AllSpikingNeurons()
     freeResources();
 }
 
-/**
+/*
  *  Setup the internal structure of the class (allocate memories).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
@@ -40,7 +40,7 @@ void AllSpikingNeurons::setupNeurons(SimulationInfo *sim_info)
     sim_info->pSummationMap = summation_map;
 }
 
-/**
+/*
  *  Cleanup the class (deallocate memories).
  */
 void AllSpikingNeurons::cleanupNeurons()
@@ -49,7 +49,7 @@ void AllSpikingNeurons::cleanupNeurons()
     AllNeurons::cleanupNeurons();
 }
 
-/**
+/*
  *  Deallocate all resources
  */
 void AllSpikingNeurons::freeResources()
@@ -71,7 +71,7 @@ void AllSpikingNeurons::freeResources()
     spike_history = NULL;
 }
 
-/**
+/*
  *  Clear the spike counts out of all Neurons.
  *
  *  @param  sim_info  SimulationInfo class to read information from.
@@ -87,7 +87,7 @@ void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info)
 }
 
 #if !defined(USE_GPU)
-/**
+/*
  *  Update internal state of the indexed Neuron (called by every simulation step).
  *  Notify outgoing synapses if neuron has fired.
  *
@@ -95,7 +95,7 @@ void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info)
  *  @param  sim_info         SimulationInfo class to read information from.
  *  @param  synapseIndexMap  Reference to the SynapseIndexMap.
  */
-void AllSpikingNeurons::advanceNeurons(AllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap)
+void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap)
 {
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
@@ -142,7 +142,7 @@ void AllSpikingNeurons::advanceNeurons(AllSynapses &synapses, const SimulationIn
     }
 }
 
-/**
+/*
  *  Fire the selected Neuron and calculate the result.
  *
  *  @param  index       Index of the Neuron to update.
@@ -169,7 +169,7 @@ void AllSpikingNeurons::fire(const int index, const SimulationInfo *sim_info) co
     spikeCount[index]++;
 }
 
-/**
+/*
  *  Get the spike history of neuron[index] at the location offIndex.
  *
  *  @param  index            Index of the neuron to get spike history.

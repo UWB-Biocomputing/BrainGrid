@@ -50,8 +50,8 @@ bool fWriteMemImage = false;  // True if dumped memory image is written after
 string stimulusInputFileName;
 
 IModel *model = NULL;
-AllNeurons *neurons = NULL;
-AllSynapses *synapses = NULL;
+IAllNeurons *neurons = NULL;
+IAllSynapses *synapses = NULL;
 Connections *conns = NULL;
 Layout *layout = NULL;
 
@@ -70,10 +70,11 @@ void printParams();
 bool parseCommandLine(int argc, char* argv[]);
 bool createAllClassInstances(TiXmlElement*);
 
-/**
+/*
  *  Main for Simulator. Handles command line arguments and loads parameters
  *  from parameter file. All initial loading before running simulator in Network
  *  is here.
+ *
  *  @param  argc    argument count.
  *  @param  argv    arguments.
  *  @return -1 if error, else if success.
@@ -206,6 +207,7 @@ int main(int argc, char* argv[]) {
 
 /*
  *  Init SimulationInfo parameters.
+ *
  *  @param  cols    number of columns for the simulation.
  *  @param  rows    number of rows for the simulation.
  *  @param  growthEpochDuration  duration in between each growth.
@@ -244,7 +246,7 @@ SimulationInfo makeSimulationInfo(int cols, int rows,
     return simInfo;
 }
 
-/**
+/*
  *  Prints loaded parameters out to console.
  */
 void printParams() {
@@ -279,8 +281,9 @@ bool createAllClassInstances(TiXmlElement* parms)
     return FClassOfCategory::get()->readParameters(parms);
 }
 
-/**
+/*
  *  Load parameters from a file.
+ *
  *  @param  sim_param_filename  filename of file to read from
  *  @return true if successful, false if not
  */
@@ -320,8 +323,9 @@ bool LoadAllParameters(const string &sim_param_filename)
     return true;
 }
 
-/**
+/*
  *  Handles loading of parameters using tinyxml from the parameter file.
+ *
  *  @param  parms   tinyxml element to load from.
  */
 void LoadSimulationParameters(TiXmlElement* parms)
@@ -420,8 +424,9 @@ void LoadSimulationParameters(TiXmlElement* parms)
             maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed));
 }
 
-/**
+/*
  *  Handles parsing of the command line
+ *
  *  @param  argc    argument count.
  *  @param  argv    arguments.
  *  @returns    true if successful, false otherwise.

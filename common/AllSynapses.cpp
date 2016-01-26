@@ -26,7 +26,7 @@ AllSynapses::~AllSynapses()
     cleanupSynapses();
 }
 
-/**
+/*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
@@ -36,7 +36,7 @@ void AllSynapses::setupSynapses(SimulationInfo *sim_info)
     setupSynapses(sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron);
 }
 
-/**
+/*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *
  *  @param  num_neurons   Total number of neurons in the network.
@@ -71,7 +71,7 @@ void AllSynapses::setupSynapses(const int num_neurons, const int max_synapses)
     }
 }
 
-/**
+/*
  *  Cleanup the class (deallocate memories).
  */
 void AllSynapses::cleanupSynapses()
@@ -102,7 +102,7 @@ void AllSynapses::cleanupSynapses()
     maxSynapsesPerNeuron = 0;
 }
 
-/**
+/*
  *  Reset time varying state vars and recompute decay.
  *
  *  @param  iSyn     Index of the synapse to set.
@@ -113,13 +113,13 @@ void AllSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
     psr[iSyn] = 0.0;
 }
 
-/**
+/*
  *  Sets the data for Synapses to input's data.
  *
  *  @param  input  istream to read from.
  *  @param  sim_info  SimulationInfo class to read information from.
  */
-void AllSynapses::readSynapses(istream& input, AllNeurons &neurons, const SimulationInfo *sim_info)
+void AllSynapses::readSynapses(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info)
 {
         // read the synapse data & create synapses
         int* read_synapses_counts= new int[sim_info->totalNeurons];
@@ -142,7 +142,7 @@ void AllSynapses::readSynapses(istream& input, AllNeurons &neurons, const Simula
 
                 readSynapse(input, iSyn);
 
-                summationPoint[iSyn] = &(neurons.summation_map[destNeuronIndex[iSyn]]);
+                summationPoint[iSyn] = &(dynamic_cast<AllNeurons&>(neurons).summation_map[destNeuronIndex[iSyn]]);
 
                 read_synapses_counts[neuron_index]++;
         }
@@ -153,7 +153,7 @@ void AllSynapses::readSynapses(istream& input, AllNeurons &neurons, const Simula
         delete[] read_synapses_counts;
 }
 
-/**
+/*
  *  Write the synapses data to the stream.
  *
  *  @param  output  stream to print out to.
@@ -176,7 +176,7 @@ void AllSynapses::writeSynapses(ostream& output, const SimulationInfo *sim_info)
     }
 }
 
-/**
+/*
  *  Sets the data for Synapse to input's data.
  *
  *  @param  input  istream to read from.
@@ -197,7 +197,7 @@ void AllSynapses::readSynapse(istream &input, const uint32_t iSyn)
     type[iSyn] = synapseOrdinalToType(synapse_type);
 }
 
-/**
+/*
  *  Write the synapse data to the stream.
  *
  *  @param  output  stream to print out to.
@@ -213,7 +213,82 @@ void AllSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const
     output << in_use[iSyn] << ends;
 }
 
-/**     
+/*
+ *  Create a synapse index map.
+ *
+ *  @param  synapseIndexMap   Reference to thw pointer to SynapseIndexMap structure.
+ *  @param  sim_info          Pointer to the simulation information.
+ */
+void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const SimulationInfo* sim_info)
+{
+        int neuron_count = sim_info->totalNeurons;
+        int width = sim_info->width;
+        int total_synapse_counts = 0;
+
+        // count the total synapses
+        for ( int i = 0; i < neuron_count; i++ )
+        {
+                assert( synapse_counts[i] < sim_info->maxSynapsesPerNeuron );
+                total_synapse_counts += synapse_counts[i];
+        }
+
+        DEBUG ( cout << "total_synapse_counts: " << total_synapse_counts << endl; )
+
+        if ( total_synapse_counts == 0 )
+        {
+                return;
+        }
+
+        // allocate memories for inverse map
+        vector<uint32_t>* rgSynapseSynapseIndexMap = new vector<uint32_t>[neuron_count];
+
+        uint32_t syn_i = 0;
+        int n_inUse = 0;
+
+        if (synapseIndexMap != NULL)
+        {
+            delete synapseIndexMap;
+            synapseIndexMap = NULL;
+        }
+
+        // create synapse inverse map
+        synapseIndexMap = new SynapseIndexMap(neuron_count, total_synapse_counts);
+        for (int i = 0; i < neuron_count; i++)
+        {
+                for ( int j = 0; j < sim_info->maxSynapsesPerNeuron; j++, syn_i++ )
+                {
+                        uint32_t iSyn = sim_info->maxSynapsesPerNeuron * i + j;
+                        if ( in_use[iSyn] == true )
+                        {
+                                int idx = destNeuronIndex[iSyn];
+                                rgSynapseSynapseIndexMap[idx].push_back(syn_i);
+
+                                synapseIndexMap->activeSynapseIndex[n_inUse] = syn_i;
+                                n_inUse++;
+                        }
+                }
+        }
+
+        assert( total_synapse_counts == n_inUse );
+        total_synapse_counts = total_synapse_counts;
+
+        syn_i = 0;
+        for (int i = 0; i < neuron_count; i++)
+        {
+                synapseIndexMap->incomingSynapse_begin[i] = syn_i;
+                synapseIndexMap->synapseCount[i] = rgSynapseSynapseIndexMap[i].size();
+
+                for ( int j = 0; j < rgSynapseSynapseIndexMap[i].size(); j++, syn_i++)
+                {
+                        synapseIndexMap->inverseIndex[syn_i] = rgSynapseSynapseIndexMap[i][j];
+                }
+        }
+
+        // delete memories
+        delete[] rgSynapseSynapseIndexMap;
+}
+
+/*     
  *  Returns an appropriate synapseType object for the given integer.
  *
  *  @param  type_ordinal    Integer that correspond with a synapseType.
@@ -236,13 +311,13 @@ synapseType AllSynapses::synapseOrdinalToType(const int type_ordinal)
 }
 
 #if !defined(USE_GPU)
-/**
+/*
  *  Advance all the Synapses in the simulation.
  *
  *  @param  sim_info  SimulationInfo class to read information from.
  *  @param  neurons   The Neuron list to search from.
  */
-void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, AllNeurons *neurons)
+void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons)
 {
     int num_neurons = sim_info->totalNeurons;
     BGFLOAT deltaT = sim_info->deltaT;
@@ -259,7 +334,7 @@ void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, AllNeurons *ne
     }
 }
 
-/**
+/*
  *  Remove a synapse from the network.
  *
  *  @param  neuron_index   Index of a neuron to remove from.
@@ -273,7 +348,7 @@ void AllSynapses::eraseSynapse(const int neuron_index, const uint32_t iSyn)
 }
 #endif // !defined(USE_GPU)
 
-/**
+/*
  *  Adds a Synapse to the model, connecting two Neurons.
  *
  *  @param  iSyn        Index of the synapse to be added.
@@ -304,7 +379,7 @@ void AllSynapses::addSynapse(uint32_t &iSyn, synapseType type, const int src_neu
     createSynapse(iSyn, src_neuron, dest_neuron, sum_point, deltaT, type );
 }
 
-/**
+/*
  *  Get the sign of the synapseType.
  *
  *  @param    type    synapseType I to I, I to E, E to I, or E to E

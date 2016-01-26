@@ -1,4 +1,4 @@
-/**
+/*
  *  @file Network.cpp
  *
  *  @author Allan Ortiz 
@@ -9,7 +9,7 @@
 #include "Network.h"
 #include "AllDSSynapses.h"
 
-/** 
+/* 
  *  The constructor for Network.
  */
 Network::Network(IModel *model, SimulationInfo *simInfo, IRecorder* simRecorder) :
@@ -21,7 +21,7 @@ Network::Network(IModel *model, SimulationInfo *simInfo, IRecorder* simRecorder)
     g_simulationStep = 0;
 }
 
-/**
+/*
  *  Destructor.
  */
 Network::~Network()
@@ -29,7 +29,7 @@ Network::~Network()
     freeResources();
 }
 
-/**
+/*
  *  Initialize and prepare network for simulation.
  *
  *  @param pInput    Pointer to the stimulus input object.
@@ -44,7 +44,7 @@ void Network::setup(ISInput* pInput)
         pInput->init(m_model, *(m_model->getNeurons()), m_sim_info);
 }
 
-/**
+/*
  *  Begin terminating the simulator.
  */
 void Network::finish()
@@ -53,7 +53,7 @@ void Network::finish()
     m_model->cleanupSim(m_sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
 }
 
-/**
+/*
  *  Advance the network one step in the current epoch. This means do
  *  everything that needs to be done within the model to move
  *  everything forward one time step.
@@ -69,7 +69,7 @@ void Network::advance(ISInput* pInput)
     m_model->advance(m_sim_info);
 }
 
-/**
+/*
  *  Performs growth in the network: updating connections between neurons for the current epoch.
  */
 void Network::updateConnections()
@@ -77,7 +77,7 @@ void Network::updateConnections()
     m_model->updateConnections(m_sim_info);
 }
 
-/**
+/*
  *  Update the simulation history of every epoch.
  */
 void Network::updateHistory()
@@ -85,7 +85,7 @@ void Network::updateHistory()
     m_model->updateHistory(m_sim_info, m_simRecorder);
 }
 
-/**
+/*
  *  Print debug output of current internal state of the network for the current step.
  */
 void Network::logSimStep() const
@@ -93,14 +93,14 @@ void Network::logSimStep() const
     m_model->logSimStep(m_sim_info);
 }
 
-/**
+/*
  *  Clean up objects.
  */
 void Network::freeResources()
 {
 }
 
-/**
+/*
  * Resets all of the maps.
  * Releases and re-allocates memory for each map, clearing them as necessary.
  */
@@ -123,7 +123,7 @@ void Network::reset()
     DEBUG(cout << "\nExiting Network::reset()" << endl;)
 }
 
-/**
+/*
  * Save current simulation state to XML.
  */
 void Network::saveState()
@@ -131,7 +131,7 @@ void Network::saveState()
     m_model->saveState(m_simRecorder);
 }
 
-/**
+/*
  *  Write the simulation memory image.
  *  This needs to be debugged and verified to be working.
  *
@@ -146,7 +146,7 @@ void Network::writeSimMemory(ostream& os)
     m_model->saveMemory(os, m_sim_info);
 }
 
-/**
+/*
  *  Read the simulation memory image.
  *
  *  @param  is  the filestream to read.

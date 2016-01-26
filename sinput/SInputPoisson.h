@@ -44,7 +44,7 @@ public:
     ~SInputPoisson();
 
     //! Initialize data.
-    virtual void init(IModel* model, AllNeurons &neurons, SimulationInfo* psi);
+    virtual void init(IModel* model, IAllNeurons &neurons, SimulationInfo* psi);
 
     //! Terminate process.
     virtual void term(IModel* model, SimulationInfo* psi);
@@ -63,7 +63,7 @@ protected:
     int* nISIs;
 
     //! List of synapses
-    AllDSSynapses *synapses;
+    IAllSynapses *m_synapses;
 
     //! Masks for stimulus input
     bool* masks;

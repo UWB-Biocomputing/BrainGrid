@@ -1,6 +1,6 @@
 #include "Connections.h"
 #include "ParseParamError.h"
-#include "AllSynapses.h"
+#include "IAllSynapses.h"
 
 /* ------------- CONNECTIONS STRUCT ------------ *\
  * Below all of the resources for the various
@@ -47,7 +47,7 @@ Connections::~Connections()
 {
 }
 
-/**
+/*
  *  Update the connections status in every epoch.
  *
  *  @param  neurons  The Neuron list to search from.
@@ -55,17 +55,17 @@ Connections::~Connections()
  *  @param  layout   Layout information of the neunal network.
  *  @return true if successful, false otherwise.
  */
-bool Connections::updateConnections(AllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout)
+bool Connections::updateConnections(IAllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout)
 {
     return false;
 }
 
 #if defined(USE_GPU)
-void Connections::updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice, Layout *layout)
+void Connections::updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice, Layout *layout)
 {
 }
 #else
-/**
+/*
  *  Update the weight of the Synapses in the simulation.
  *  Note: Platform Dependent.
  *  @param  num_neurons Number of neurons to update.
@@ -73,7 +73,7 @@ void Connections::updateSynapsesWeights(const int num_neurons, AllNeurons &neuro
  *  @param  synapses    The Synapse list to search from.
  *  @param  sim_info    SimulationInfo to refer from.
  */
-void Connections::updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, Layout *layout)
+void Connections::updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, Layout *layout)
 {
 }
 #endif // !USE_GPU

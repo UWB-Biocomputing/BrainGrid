@@ -1,6 +1,6 @@
 #include "GPUSimulator.h"
 
-/**
+/*
  *  Constructor
  *  @param  network 
  *          pointer to a neural network implementation to be simulated by BrainGrid. (It would be

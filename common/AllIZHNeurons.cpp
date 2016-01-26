@@ -17,7 +17,7 @@ AllIZHNeurons::~AllIZHNeurons()
     freeResources();
 }
 
-/**
+/*
  *  Setup the internal structure of the class (allocate memories).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
@@ -34,7 +34,7 @@ void AllIZHNeurons::setupNeurons(SimulationInfo *sim_info)
     C3 = new BGFLOAT[size];
 }
 
-/**
+/*
  *  Cleanup the class (deallocate memories).
  */
 void AllIZHNeurons::cleanupNeurons()
@@ -43,7 +43,7 @@ void AllIZHNeurons::cleanupNeurons()
     AllIFNeurons::cleanupNeurons();
 }
 
-/**
+/*
  *  Deallocate all resources
  */
 void AllIZHNeurons::freeResources()
@@ -65,7 +65,7 @@ void AllIZHNeurons::freeResources()
     C3 = NULL;
 }
 
-/**
+/*
  *  Returns the number of required parameters.
  */
 int AllIZHNeurons::numParameters()
@@ -73,7 +73,7 @@ int AllIZHNeurons::numParameters()
     return AllIFNeurons::numParameters() + 4;
 }
 
-/**
+/*
  *  Attempts to read parameters from a XML file.
  *
  *  @param  element TiXmlElement to examine.
@@ -144,7 +144,7 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
     return true;
 }
 
-/**
+/*
  *  Prints out all parameters of the neurons to ostream.
  *
  *  @param  output  ostream to send output to.
@@ -167,7 +167,7 @@ void AllIZHNeurons::printParameters(ostream &output) const
            << endl;
 }
 
-/**
+/*
  *  Creates all the Neurons and generates data for them.
  *
  *  @param  sim_info    SimulationInfo class to read information from.
@@ -184,7 +184,7 @@ void AllIZHNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout)
     }
 }
 
-/**
+/*
  *  Creates a single Neuron and generates data for it.
  *
  *  @param  sim_info     SimulationInfo class to read information from.
@@ -213,7 +213,7 @@ void AllIZHNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Lay
 
 }
 
-/**
+/*
  *  Set the Neuron at the indexed location to default values.
  *
  *  @param  neuron_index    Index of the Neuron to refer.
@@ -228,7 +228,7 @@ void AllIZHNeurons::setNeuronDefaults(const int index)
     Dconst[index] = DEFAULT_d;
 }
 
-/**
+/*
  *  Initializes the Neuron constants at the indexed location.
  *
  *  @param  neuron_index    Index of the Neuron.
@@ -242,7 +242,7 @@ void AllIZHNeurons::initNeuronConstsFromParamValues(int neuron_index, const BGFL
     C3 = deltaT * 1000; 
 }
 
-/**
+/*
  *  Outputs state of the neuron chosen as a string.
  *
  *  @param  i   index of the neuron (in neurons) to output info from.
@@ -263,7 +263,7 @@ string AllIZHNeurons::toString(const int i) const
     return ss.str( );
 }
 
-/**
+/*
  *  Sets the data for Neurons to input's data.
  *
  *  @param  input       istream to read from.
@@ -276,7 +276,7 @@ void AllIZHNeurons::readNeurons(istream &input, const SimulationInfo *sim_info)
     }
 }
 
-/**
+/*
  *  Sets the data for Neuron #index to input's data.
  *
  *  @param  input       istream to read from.
@@ -295,7 +295,7 @@ void AllIZHNeurons::readNeuron(istream &input, const SimulationInfo *sim_info, i
     input >> C3[i]; input.ignore();
 }
 
-/**
+/*
  *  Writes out the data in Neurons.
  *
  *  @param  output      stream to write out to.
@@ -308,7 +308,7 @@ void AllIZHNeurons::writeNeurons(ostream& output, const SimulationInfo *sim_info
     }
 }
 
-/**
+/*
  *  Writes out the data in the selected Neuron.
  *
  *  @param  output      stream to write out to.
@@ -328,7 +328,7 @@ void AllIZHNeurons::writeNeuron(ostream& output, const SimulationInfo *sim_info,
 }
 
 #if !defined(USE_GPU)
-/**
+/*
  *  Update internal state of the indexed Neuron (called by every simulation step).
  *
  *  @param  index       Index of the Neuron to update.
@@ -395,7 +395,7 @@ void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
     summationPoint = 0;
 }
 
-/**
+/*
  *  Fire the selected Neuron and calculate the result.
  *
  *  @param  index       Index of the Neuron to update.

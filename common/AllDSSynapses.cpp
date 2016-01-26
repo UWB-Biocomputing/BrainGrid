@@ -1,5 +1,4 @@
 #include "AllDSSynapses.h"
-#include "AllNeurons.h"
 
 AllDSSynapses::AllDSSynapses() : AllSpikingSynapses()
 {
@@ -22,7 +21,7 @@ AllDSSynapses::~AllDSSynapses()
     cleanupSynapses();
 }
 
-/**
+/*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
@@ -32,7 +31,7 @@ void AllDSSynapses::setupSynapses(SimulationInfo *sim_info)
     setupSynapses(sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron);
 }
 
-/**
+/*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *
  *  @param  num_neurons   Total number of neurons in the network.
@@ -54,7 +53,7 @@ void AllDSSynapses::setupSynapses(const int num_neurons, const int max_synapses)
     }
 }
 
-/**
+/*
  *  Cleanup the class (deallocate memories).
  */
 void AllDSSynapses::cleanupSynapses()
@@ -80,7 +79,7 @@ void AllDSSynapses::cleanupSynapses()
     AllSpikingSynapses::cleanupSynapses();
 }
 
-/**
+/*
  *  Attempts to read parameters from a XML file.
  *
  *  @param  element TiXmlElement to examine.
@@ -91,7 +90,7 @@ bool AllDSSynapses::readParameters(const TiXmlElement& element)
     return true;
 }
 
-/**
+/*
  *  Prints out all parameters of the neurons to ostream.
  *
  *  @param  output  ostream to send output to.
@@ -100,7 +99,7 @@ void AllDSSynapses::printParameters(ostream &output) const
 {
 }
 
-/**
+/*
  *  Sets the data for Synapse to input's data.
  *
  *  @param  input  istream to read from.
@@ -119,7 +118,7 @@ void AllDSSynapses::readSynapse(istream &input, const uint32_t iSyn)
     input >> F[iSyn]; input.ignore();
 }
 
-/**
+/*
  *  Write the synapse data to the stream.
  *
  *  @param  output  stream to print out to.
@@ -137,7 +136,7 @@ void AllDSSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const
     output << F[iSyn] << ends;
 }
 
-/**
+/*
  *  Reset time varying state vars and recompute decay.
  *
  *  @param  iSyn            Index of the synapse to set.
@@ -152,7 +151,7 @@ void AllDSSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
     lastSpike[iSyn] = ULONG_MAX;
 }
 
-/**
+/*
  *  Create a Synapse and connect it to the model.
  *
  *  @param  synapses    The synapse list to reference.
@@ -204,7 +203,7 @@ void AllDSSynapses::createSynapse(const uint32_t iSyn, int source_index, int des
 }
 
 #if !defined(USE_GPU)
-/**
+/*
  *  Calculate the post synapse response after a spike.
  *
  *  @param  iSyn        Index of the synapse to set.

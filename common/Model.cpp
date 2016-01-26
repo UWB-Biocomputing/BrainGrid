@@ -7,10 +7,10 @@
 #include "ConnGrowth.h"
 
 
-/**
+/*
  *  Constructor
  */
-Model::Model(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout) :
+Model::Model(Connections *conns, IAllNeurons *neurons, IAllSynapses *synapses, Layout *layout) :
     m_read_params(0),
     m_conns(conns),
     m_neurons(neurons),
@@ -20,7 +20,7 @@ Model::Model(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Lay
 {
 }
 
-/**
+/*
  *  Destructor
  */
 Model::~Model()
@@ -51,7 +51,7 @@ Model::~Model()
     }
 }
 
-/**
+/*
  *  Loads the simulation based on istream input.
  *
  *  @param  input       istream to read from.
@@ -69,10 +69,10 @@ void Model::loadMemory(istream& input, const SimulationInfo *sim_info)
     m_conns->readConns(input, sim_info);
 
     // create a synapse index map 
-    createSynapseImap(*m_synapses, sim_info);
+    m_synapses->createSynapseImap(m_synapseIndexMap, sim_info);
 }
 
-/**
+/*
  *  Write the simulation's memory image.
  *
  *  @param  output          The filestream to write.
@@ -93,7 +93,7 @@ void Model::saveMemory(ostream& output, const SimulationInfo *sim_info)
     output << flush;
 }
 
-/**
+/*
  *  Save current simulation state.
  *
  *  @param simRecorder    Pointer to the simulation recordig object.
@@ -106,7 +106,7 @@ void Model::saveState(IRecorder* simRecorder)
     }
 }
 
-/**
+/*
  *  Creates all the Neurons and generates data for them.
  *
  *  @param  sim_info    SimulationInfo class to read information from.
@@ -125,7 +125,7 @@ void Model::createAllNeurons(SimulationInfo *sim_info)
     DEBUG(cout << "Done initializing neurons..." << endl;)
 }
 
-/**
+/*
  *  Sets up the Simulation.
  *
  *  @param  sim_info    SimulationInfo class to read information from.
@@ -148,10 +148,10 @@ void Model::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
     m_conns->setupConnections(sim_info, m_layout, m_neurons, m_synapses);
 
     // create a synapse index map 
-    createSynapseImap(*m_synapses, sim_info);
+    m_synapses->createSynapseImap(m_synapseIndexMap, sim_info);
 }
 
-/**
+/*
  *  Clean up the simulation.
  *
  *  @param  sim_info    SimulationInfo to refer.
@@ -163,7 +163,7 @@ void Model::cleanupSim(SimulationInfo *sim_info)
     m_conns->cleanupConnections();
 }
 
-/**
+/*
  *  Log this simulation step.
  *
  *  @param  sim_info    SimulationInfo to reference.
@@ -217,7 +217,7 @@ void Model::logSimStep(const SimulationInfo *sim_info) const
     }
 }
 
-/**
+/*
  *  Update the simulation history of every epoch.
  *
  *  @param  sim_info    SimulationInfo to refer from.
@@ -231,17 +231,17 @@ void Model::updateHistory(const SimulationInfo *sim_info, IRecorder* simRecorder
     }
 }
 
-/**
- *  Get the AllNeurons class object.
+/*
+ *  Get the IAllNeurons class object.
  *
  *  @return Pointer to the AllNeurons class object.
  */
-AllNeurons* Model::getNeurons()
+IAllNeurons* Model::getNeurons()
 {
     return m_neurons;
 }
 
-/**
+/*
  *  Get the Connections class object.
  *
  *  @return Pointer to the Connections class object.
@@ -251,7 +251,7 @@ Connections* Model::getConnections()
     return m_conns;
 }
 
-/**
+/*
  *  Get the Layout class object.
  *
  *  @return Pointer to the Layout class object.
@@ -259,80 +259,5 @@ Connections* Model::getConnections()
 Layout* Model::getLayout()
 {
     return m_layout;
-}
-
-/**
- *  Create a synapse index map on device memory.
- *
- *  @param  synapses     Reference to the AllSynapses struct on host memory.
- *  @param  sim_info     Pointer to the simulation information.
- */
-void Model::createSynapseImap(AllSynapses &synapses, const SimulationInfo* sim_info )
-{
-        int neuron_count = sim_info->totalNeurons;
-        int width = sim_info->width;
-        int total_synapse_counts = 0;
-
-        // count the total synapses
-        for ( int i = 0; i < neuron_count; i++ )
-        {
-                assert( synapses.synapse_counts[i] < sim_info->maxSynapsesPerNeuron );
-                total_synapse_counts += synapses.synapse_counts[i];
-        }
-
-        DEBUG ( cout << "total_synapse_counts: " << total_synapse_counts << endl; )
-
-        if ( total_synapse_counts == 0 )
-        {
-                return;
-        }
-
-        // allocate memories for inverse map
-        vector<uint32_t>* rgSynapseSynapseIndexMap = new vector<uint32_t>[neuron_count];
-
-        uint32_t syn_i = 0;
-        int n_inUse = 0;
-
-        if (m_synapseIndexMap != NULL) 
-        {
-            delete m_synapseIndexMap;
-            m_synapseIndexMap = NULL;
-        }
-
-        // create synapse inverse map
-        m_synapseIndexMap = new SynapseIndexMap(neuron_count, total_synapse_counts);
-        for (int i = 0; i < neuron_count; i++)
-        {
-                for ( int j = 0; j < sim_info->maxSynapsesPerNeuron; j++, syn_i++ )
-                {
-                        uint32_t iSyn = sim_info->maxSynapsesPerNeuron * i + j;
-                        if ( synapses.in_use[iSyn] == true )
-                        {
-                                int idx = synapses.destNeuronIndex[iSyn];
-                                rgSynapseSynapseIndexMap[idx].push_back(syn_i);
-
-                                m_synapseIndexMap->activeSynapseIndex[n_inUse] = syn_i;
-                                n_inUse++;
-                        }
-                }
-        }
-
-        assert( total_synapse_counts == n_inUse );
-        synapses.total_synapse_counts = total_synapse_counts;
-
-        syn_i = 0;
-        for (int i = 0; i < neuron_count; i++)
-        {
-                m_synapseIndexMap->incomingSynapse_begin[i] = syn_i;
-                m_synapseIndexMap->synapseCount[i] = rgSynapseSynapseIndexMap[i].size();
-
-                for ( int j = 0; j < rgSynapseSynapseIndexMap[i].size(); j++, syn_i++)
-                {
-                        m_synapseIndexMap->inverseIndex[syn_i] = rgSynapseSynapseIndexMap[i][j];
-                }
-        }
-
-        // delete memories
-        delete[] rgSynapseSynapseIndexMap;
 }
 

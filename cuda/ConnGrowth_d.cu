@@ -2,15 +2,15 @@
 #include "AllSpikingSynapses.h"
 #include "Book.h"
 
-/**
-*  Update the weight of the Synapses in the simulation.
-*  Note: Platform Dependent.
-*  @param  num_neurons number of neurons to update.
-*  @param  neurons the Neuron list to search from.
-*  @param  synapses    the Synapse list to search from.
-*  @param  sim_info    SimulationInfo to refer from.
-*/
-void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice, Layout *layout)
+/*
+ *  Update the weight of the Synapses in the simulation.
+ *  Note: Platform Dependent.
+ *  @param  num_neurons number of neurons to update.
+ *  @param  neurons the Neuron list to search from.
+ *  @param  synapses    the Synapse list to search from.
+ *  @param  sim_info    SimulationInfo to refer from.
+ */
+void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice, Layout *layout)
 {
         // For now, we just set the weights to equal the areas. We will later
         // scale it and set its sign (when we index and get its sign).
@@ -58,16 +58,16 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, AllNeurons &neuron
         synapses.copyDeviceSynapseSumIdxToHost(m_allSynapsesDevice, sim_info);
 }
 
-/**
-* Adjust the strength of the synapse or remove it from the synapse map if it has gone below
-* zero.
-* @param[in] num_neurons        Number of neurons.
-* @param[in] deltaT             The time step size.
-* @param[in] W_d                Array of synapse weight.
-* @param[in] maxSynapses        Maximum number of synapses per neuron.
-* @param[in] allNeuronsDevice          Pointer to the Neuron structures in device memory.
-* @param[in] allSynapsesDevice         Pointer to the Synapse structures in device memory.
-*/
+/*
+ * Adjust the strength of the synapse or remove it from the synapse map if it has gone below
+ * zero.
+ * @param[in] num_neurons        Number of neurons.
+ * @param[in] deltaT             The time step size.
+ * @param[in] W_d                Array of synapse weight.
+ * @param[in] maxSynapses        Maximum number of synapses per neuron.
+ * @param[in] allNeuronsDevice          Pointer to the Neuron structures in device memory.
+ * @param[in] allSynapsesDevice         Pointer to the Synapse structures in device memory.
+ */
 __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, void (*fpCreateSynapse)(AllSpikingSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType), neuronType* neuron_type_map_d )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -105,7 +105,7 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BG
                     // zero.
                     if (W_d[src_neuron * num_neurons + dest_neuron] < 0) {
                         removed++;
-                        eraseSynapse(allSynapsesDevice, src_neuron, synapse_index, maxSynapses);
+                        eraseSpikingSynapse(allSynapsesDevice, src_neuron, synapse_index, maxSynapses);
                     } else {
                         // adjust
                         // g_synapseStrengthAdjustmentConstant is 1.0e-8;
@@ -123,8 +123,7 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BG
             BGFLOAT* sum_point = &( allNeuronsDevice->summation_map[dest_neuron] );
             added++;
 
-            addSynapse(allSynapsesDevice, type, src_neuron, dest_neuron, src_neuron, dest_neuron, sum_point, deltaT, W_d, num_neurons, fpCreateSynapse);
-
+            addSpikingSynapse(allSynapsesDevice, type, src_neuron, dest_neuron, src_neuron, dest_neuron, sum_point, deltaT, W_d, num_neurons, fpCreateSynapse);
         }
     }
 }

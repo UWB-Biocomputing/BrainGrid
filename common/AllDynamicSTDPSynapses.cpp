@@ -1,5 +1,4 @@
 #include "AllDynamicSTDPSynapses.h"
-#include "AllNeurons.h"
 
 AllDynamicSTDPSynapses::AllDynamicSTDPSynapses() : AllSTDPSynapses()
 {
@@ -22,7 +21,7 @@ AllDynamicSTDPSynapses::~AllDynamicSTDPSynapses()
     cleanupSynapses();
 }
 
-/**
+/*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
@@ -32,7 +31,7 @@ void AllDynamicSTDPSynapses::setupSynapses(SimulationInfo *sim_info)
     setupSynapses(sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron);
 }
 
-/**
+/*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  * 
  *  @param  num_neurons   Total number of neurons in the network.
@@ -54,7 +53,7 @@ void AllDynamicSTDPSynapses::setupSynapses(const int num_neurons, const int max_
     }
 }
 
-/**
+/*
  *  Cleanup the class (deallocate memories).
  */
 void AllDynamicSTDPSynapses::cleanupSynapses()
@@ -80,7 +79,7 @@ void AllDynamicSTDPSynapses::cleanupSynapses()
     AllSTDPSynapses::cleanupSynapses();
 }
 
-/**
+/*
  *  Attempts to read parameters from a XML file.
  *
  *  @param  element TiXmlElement to examine.
@@ -91,7 +90,7 @@ bool AllDynamicSTDPSynapses::readParameters(const TiXmlElement& element)
     return true;
 }
 
-/**
+/*
  *  Prints out all parameters of the neurons to ostream.
  *
  *  @param  output  ostream to send output to.
@@ -119,7 +118,7 @@ void AllDynamicSTDPSynapses::readSynapse(istream &input, const uint32_t iSyn)
     input >> F[iSyn]; input.ignore();
 }
 
-/**
+/*
  *  Write the synapse data to the stream.
  *
  *  @param  output  stream to print out to.
@@ -137,7 +136,7 @@ void AllDynamicSTDPSynapses::writeSynapse(ostream& output, const uint32_t iSyn) 
     output << F[iSyn] << ends;
 }
 
-/**
+/*
  *  Reset time varying state vars and recompute decay.
  *
  *  @param  iSyn            Index of the synapse to set.
@@ -152,7 +151,7 @@ void AllDynamicSTDPSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT del
     lastSpike[iSyn] = ULONG_MAX;
 }
 
-/**
+/*
  *  Create a Synapse and connect it to the model.
  *
  *  @param  synapses    The synapse list to reference.
@@ -204,7 +203,7 @@ void AllDynamicSTDPSynapses::createSynapse(const uint32_t iSyn, int source_index
 }
 
 #if !defined(USE_GPU)
-/**
+/*
  *  Calculate the post synapse response after a spike.
  *
  *  @param  iSyn        Index of the synapse to set.

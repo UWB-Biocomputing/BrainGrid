@@ -6,6 +6,13 @@
 #include "AllIFNeurons.h"
 #include "Book.h"
 
+/*
+ *  Allocate GPU memories to store all neurons' states,
+ *  and copy them from host to GPU memory.
+ *
+ *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  sim_info           SimulationInfo to refer from.
+ */
 void AllIFNeurons::allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info ) {
 	AllIFNeurons allNeurons;
 
@@ -15,6 +22,13 @@ void AllIFNeurons::allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationI
         HANDLE_ERROR( cudaMemcpy ( *allNeuronsDevice, &allNeurons, sizeof( AllIFNeurons ), cudaMemcpyHostToDevice ) );
 }
 
+/*
+ *  Allocate GPU memories to store all neurons' states.
+ *  (Helper function of allocNeuronDeviceStruct)
+ *
+ *  @param  allNeurons         Reference to the allIFNeurons struct.
+ *  @param  sim_info           SimulationInfo to refer from.
+ */
 void AllIFNeurons::allocDeviceStruct( AllIFNeurons &allNeurons, SimulationInfo *sim_info ) {
 	int count = sim_info->totalNeurons;
 	int max_spikes = static_cast<int> (sim_info->epochDuration * sim_info->maxFiringRate);
@@ -52,6 +66,12 @@ void AllIFNeurons::allocDeviceStruct( AllIFNeurons &allNeurons, SimulationInfo *
 	sim_info->pSummationMap = allNeurons.summation_map;
 }
 
+/*
+ *  Delete GPU memories.
+ *
+ *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  sim_info           SimulationInfo to refer from.
+ */
 void AllIFNeurons::deleteNeuronDeviceStruct( void* allNeuronsDevice, const SimulationInfo *sim_info ) {
 	AllIFNeurons allNeurons;
 
@@ -62,6 +82,13 @@ void AllIFNeurons::deleteNeuronDeviceStruct( void* allNeuronsDevice, const Simul
 	HANDLE_ERROR( cudaFree( allNeuronsDevice ) );
 }
 
+/*
+ *  Delete GPU memories.
+ *  (Helper function of deleteNeuronDeviceStruct)
+ *
+ *  @param  allNeurons         Reference to the allIFNeurons struct.
+ *  @param  sim_info           SimulationInfo to refer from.
+ */
 void AllIFNeurons::deleteDeviceStruct( AllIFNeurons& allNeurons, const SimulationInfo *sim_info ) {
 	int count = sim_info->totalNeurons;
 
@@ -95,6 +122,12 @@ void AllIFNeurons::deleteDeviceStruct( AllIFNeurons& allNeurons, const Simulatio
 	HANDLE_ERROR( cudaFree( allNeurons.spike_history ) );
 }
 
+/*
+ *  Copy all neurons' data from host to device.
+ *
+ *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  sim_info           SimulationInfo to refer from.
+ */
 void AllIFNeurons::copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info ) { 
 	AllIFNeurons allNeurons;
 
@@ -102,6 +135,13 @@ void AllIFNeurons::copyNeuronHostToDevice( void* allNeuronsDevice, const Simulat
 	copyHostToDevice( allNeurons, sim_info );
 }
 
+/*
+ *  Copy all neurons' data from host to device.
+ *  (Helper function of copyNeuronHostToDevice)
+ *
+ *  @param  allNeurons         Reference to the allIFNeurons struct.
+ *  @param  sim_info           SimulationInfo to refer from.
+ */
 void AllIFNeurons::copyHostToDevice( AllIFNeurons& allNeurons, const SimulationInfo *sim_info ) { 
 	int count = sim_info->totalNeurons;
 
@@ -133,6 +173,12 @@ void AllIFNeurons::copyHostToDevice( AllIFNeurons& allNeurons, const SimulationI
         }
 }
 
+/*
+ *  Copy all neurons' data from device to host.
+ *
+ *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  sim_info           SimulationInfo to refer from.
+ */
 void AllIFNeurons::copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info ) {
 	AllIFNeurons allNeurons;
 
@@ -140,6 +186,13 @@ void AllIFNeurons::copyNeuronDeviceToHost( void* allNeuronsDevice, const Simulat
 	copyDeviceToHost( allNeurons, sim_info );
 }
 
+/*
+ *  Copy all neurons' data from device to host.
+ *  (Helper function of copyNeuronDeviceToHost)
+ *
+ *  @param  allNeurons         Reference to the allIFNeurons struct.
+ *  @param  sim_info           SimulationInfo to refer from.
+ */
 void AllIFNeurons::copyDeviceToHost( AllIFNeurons& allNeurons, const SimulationInfo *sim_info ) {
 	int count = sim_info->totalNeurons;
 
@@ -171,10 +224,11 @@ void AllIFNeurons::copyDeviceToHost( AllIFNeurons& allNeurons, const SimulationI
         }
 }
 
-/**
- *  Get spike history in AllIFNeurons struct on device memory.
- *  @param  allNeuronsDevice      Reference to the allNeurons struct on device memory.
- *  @param  sim_info    SimulationInfo to refer from.
+/*
+ *  Copy spike history data stored in device memory to host.
+ *
+ *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllIFNeurons::copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDevice, const SimulationInfo *sim_info ) 
 {        
@@ -183,10 +237,11 @@ void AllIFNeurons::copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDevice, c
         AllSpikingNeurons::copyDeviceSpikeHistoryToHost( allNeurons, sim_info );
 }
 
-/**
- *  Get spikeCount in AllIFNeurons struct on device memory.
- *  @param  allNeuronsDevice      Reference to the allNeurons struct on device memory.
- *  @param  sim_info    SimulationInfo to refer from.
+/*
+ *  Copy spike counts data stored in device memory to host.
+ *
+ *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllIFNeurons::copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, const SimulationInfo *sim_info )
 {
@@ -195,11 +250,12 @@ void AllIFNeurons::copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, co
         AllSpikingNeurons::copyDeviceSpikeCountsToHost( allNeurons, sim_info );
 }
 
-/** 
-*  Clear the spike counts out of all Neurons.
- *  @param  allNeuronsDevice      Reference to the allNeurons struct on device memory.
- *  @param  sim_info    SimulationInfo to refer from.
-*/
+/*
+ *  Clear the spike counts out of all neurons.
+ *
+ *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  sim_info           SimulationInfo to refer from.
+ */
 void AllIFNeurons::clearNeuronSpikeCounts( void* allNeuronsDevice, const SimulationInfo *sim_info )
 {
         AllIFNeurons allNeurons;
@@ -207,10 +263,17 @@ void AllIFNeurons::clearNeuronSpikeCounts( void* allNeuronsDevice, const Simulat
         AllSpikingNeurons::clearDeviceSpikeCounts( allNeurons, sim_info );
 }
 
-/**
+/*
+ *  Update the state of all neurons for a time step
  *  Notify outgoing synapses if neuron has fired.
- *  @param  sim_info    SimulationInfo class to read information from.
+ *
+ *  @param  synapses               Reference to the allSynapses struct on host memory.
+ *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
+ *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
+ *  @param  sim_info               SimulationInfo to refer from.
+ *  @param  randNoise              Reference to the random noise array.
+ *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
  */
-void AllIFNeurons::advanceNeurons( AllSynapses &synapses, AllNeurons* allNeuronsDevice, AllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice )
+void AllIFNeurons::advanceNeurons( IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, IAllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice )
 {
 }

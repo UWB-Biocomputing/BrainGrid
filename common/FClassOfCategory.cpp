@@ -1,4 +1,4 @@
-/**
+/*
  *      \file FClassOfCategory.cpp
  *
  *      \author Fumitaka Kawasaki
@@ -16,7 +16,7 @@
 #include "ConnStatic.h"
 #include "ParseParamError.h"
 
-/**
+/*
  * constructor
  */
 FClassOfCategory::FClassOfCategory() :
@@ -42,7 +42,7 @@ FClassOfCategory::FClassOfCategory() :
     registerLayout("Layout", &Layout::Create);
 }
 
-/**
+/*
  * destructor
  */
 FClassOfCategory::~FClassOfCategory()
@@ -76,7 +76,7 @@ void FClassOfCategory::registerLayout(const string &layoutClassName, CreateLayou
 /**
  * Create an instance
  */
-AllNeurons* FClassOfCategory::createNeurons(TiXmlElement* parms)
+IAllNeurons* FClassOfCategory::createNeurons(TiXmlElement* parms)
 {
     string neuronsClassName = "AllLIFNeurons";
 
@@ -84,7 +84,7 @@ AllNeurons* FClassOfCategory::createNeurons(TiXmlElement* parms)
     return m_neurons;
 }
 
-AllSynapses* FClassOfCategory::createSynapses(TiXmlElement* parms)
+IAllSynapses* FClassOfCategory::createSynapses(TiXmlElement* parms)
 {
     string synapsesClassName = "AllDSSynapses";
 
@@ -108,7 +108,7 @@ Layout* FClassOfCategory::createLayout(TiXmlElement* parms)
     return m_layout;
 }
 
-AllNeurons* FClassOfCategory::createNeuronsWithName(const string& neuronsClassName) 
+IAllNeurons* FClassOfCategory::createNeuronsWithName(const string& neuronsClassName) 
 {
     FactoryMapNeurons::iterator it = m_FactoryMapNeurons.find(neuronsClassName);
     if (it != m_FactoryMapNeurons.end())
@@ -116,7 +116,7 @@ AllNeurons* FClassOfCategory::createNeuronsWithName(const string& neuronsClassNa
     return NULL;
 }
 
-AllSynapses* FClassOfCategory::createSynapsesWithName(const string& synapsesClassName)
+IAllSynapses* FClassOfCategory::createSynapsesWithName(const string& synapsesClassName)
 {
     FactoryMapSynapses::iterator it = m_FactoryMapSynapses.find(synapsesClassName);
     if (it != m_FactoryMapSynapses.end())
@@ -140,7 +140,7 @@ Layout* FClassOfCategory::createLayoutWithName(const string& layoutClassName)
     return NULL;
 }
 
-/**
+/*
  *  Attempts to read parameters from a XML file.
  *  @param  source  the TiXmlElement to read from.
  *  @return true if successful, false otherwise.
@@ -158,7 +158,7 @@ bool FClassOfCategory::readParameters(TiXmlElement *source)
     return true;
 }
 
-/**
+/*
  *  Takes an XmlElement and checks for errors. If not, calls getValueList().
  *  @param  element TiXmlElement to examine.
  *  @param  firstAttribute  ***NOT USED***.
@@ -190,7 +190,7 @@ bool FClassOfCategory::VisitEnter(const TiXmlElement& element, const TiXmlAttrib
     return true;
 }
 
-/**
+/*
  *  Prints out all parameters of the model to ostream.
  *  @param  output  ostream to send output to.
  */

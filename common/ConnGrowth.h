@@ -110,18 +110,18 @@ class ConnGrowth : public Connections
 
         static Connections* Create() { return new ConnGrowth(); }
 
-        virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, AllNeurons *neurons, AllSynapses *synapses);
+        virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, IAllNeurons *neurons, IAllSynapses *synapses);
         virtual void cleanupConnections();
         virtual bool readParameters(const TiXmlElement& element);
         virtual void printParameters(ostream &output) const;
         virtual void readConns(istream& input, const SimulationInfo *sim_info);
         virtual void writeConns(ostream& output, const SimulationInfo *sim_info);
-        virtual bool updateConnections(AllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout);
+        virtual bool updateConnections(IAllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout);
         virtual IRecorder* createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *sim_info);
 #if defined(USE_GPU)
-        virtual void updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice, Layout *layout);
+        virtual void updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice, Layout *layout);
 #else
-        virtual void updateSynapsesWeights(const int num_neurons, AllNeurons &neurons, AllSynapses &synapses, const SimulationInfo *sim_info, Layout *layout);
+        virtual void updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, Layout *layout);
 #endif
 
         struct GrowthParams
@@ -140,7 +140,7 @@ class ConnGrowth : public Connections
         GrowthParams m_growth;
 
     private:
-        void updateConns(AllNeurons &neurons, const SimulationInfo *sim_info);
+        void updateConns(IAllNeurons &neurons, const SimulationInfo *sim_info);
         void updateFrontiers(const int num_neurons, Layout *layout);
         void updateOverlap(BGFLOAT num_neurons, Layout *layout);
 };

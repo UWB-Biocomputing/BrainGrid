@@ -59,7 +59,7 @@ class Layout
         // TODO
         BGFLOAT m_frac_starter_neurons;
 
-        /*! The neuron type map (INH, EXC).
+        /** The neuron type map (INH, EXC).
          *  
          *  Usage: LOCAL CONSTANT
          *  - LIFModel::generateNeuronTypeMap --- Initialized
@@ -70,7 +70,7 @@ class Layout
          */
         neuronType *neuron_type_map;
 
-        /*! The starter existence map (T/F).
+        /** The starter existence map (T/F).
          *  
          *  Usage: LOCAL CONSTANT
          *  - LIFModel::initStarterMap() --- Initialized

@@ -20,7 +20,7 @@ AllSpikingSynapses::~AllSpikingSynapses()
     cleanupSynapses();
 }
 
-/**
+/*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
@@ -30,7 +30,7 @@ void AllSpikingSynapses::setupSynapses(SimulationInfo *sim_info)
     setupSynapses(sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron);
 }
 
-/**
+/*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *
  *  @param  num_neurons   Total number of neurons in the network.
@@ -52,7 +52,7 @@ void AllSpikingSynapses::setupSynapses(const int num_neurons, const int max_syna
     }
 }
 
-/**
+/*
  *  Cleanup the class (deallocate memories).
  */
 void AllSpikingSynapses::cleanupSynapses()
@@ -78,7 +78,7 @@ void AllSpikingSynapses::cleanupSynapses()
     AllSynapses::cleanupSynapses();
 }
 
-/**
+/*
  *  Initializes the queues for the Synapse.
  *
  *  @param  iSyn   index of the synapse to set.
@@ -97,7 +97,7 @@ void AllSpikingSynapses::initSpikeQueue(const uint32_t iSyn)
     ldelayQueue = LENGTH_OF_DELAYQUEUE;
 }
 
-/**
+/*
  *  Reset time varying state vars and recompute decay.
  *
  *  @param  iSyn     Index of the synapse to set.
@@ -129,7 +129,7 @@ void AllSpikingSynapses::readSynapse(istream &input, const uint32_t iSyn)
     input >> tau[iSyn]; input.ignore();
 }
 
-/**
+/*
  *  Write the synapse data to the stream.
  *
  *  @param  output  stream to print out to.
@@ -147,7 +147,7 @@ void AllSpikingSynapses::writeSynapse(ostream& output, const uint32_t iSyn) cons
     output << tau[iSyn] << ends;
 }
 
-/**
+/*
  *  Create a Synapse and connect it to the model.
  *
  *  @param  synapses    The synapse list to reference.
@@ -203,7 +203,7 @@ void AllSpikingSynapses::createSynapse(const uint32_t iSyn, int source_index, in
 }
 
 #if !defined(USE_GPU)
-/**
+/*
  *  Checks if there is an input spike in the queue.
  *
  *  @param  iSyn   Index of the Synapse to connect to.
@@ -223,7 +223,7 @@ bool AllSpikingSynapses::isSpikeQueue(const uint32_t iSyn)
     return r;
 }
 
-/**
+/*
  *  Prepares Synapse for a spike hit.
  *
  *  @param  iSyn   Index of the Synapse to update.
@@ -248,7 +248,7 @@ void AllSpikingSynapses::preSpikeHit(const uint32_t iSyn)
     delay_queue |= (0x1 << idx);
 }
 
-/**
+/*
  *  Prepares Synapse for a spike hit (for back propagation).
  *
  *  @param  iSyn   Index of the Synapse to update.
@@ -257,14 +257,14 @@ void AllSpikingSynapses::postSpikeHit(const uint32_t iSyn)
 {
 }
 
-/**
+/*
  *  Advance one specific Synapse.
  *
  *  @param  iSyn      Index of the Synapse to connect to.
  *  @param  sim_info  SimulationInfo class to read information from.
  *  @param  neurons   The Neuron list to search from.
  */
-void AllSpikingSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, AllNeurons * neurons)
+void AllSpikingSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, IAllNeurons * neurons)
 {
     BGFLOAT &decay = this->decay[iSyn];
     BGFLOAT &psr = this->psr[iSyn];
@@ -288,7 +288,7 @@ void AllSpikingSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInf
 #endif
 }
 
-/**
+/*
  *  Calculate the post synapse response after a spike.
  *
  *  @param  iSyn        Index of the synapse to set.
@@ -305,7 +305,7 @@ void AllSpikingSynapses::changePSR(const uint32_t iSyn, const BGFLOAT deltaT)
 
 #endif //!defined(USE_GPU)
 
-/**
+/*
  *  Updates the decay if the synapse selected.
  *
  *  @param  iSyn    Index of the synapse to set.
@@ -323,7 +323,7 @@ bool AllSpikingSynapses::updateDecay(const uint32_t iSyn, const BGFLOAT deltaT)
         return false;
 }
 
-/**
+/*
  *  Check if the back propagation (notify a spike event to the pre neuron)
  *  is allowed in the synapse class.
  *

@@ -1,4 +1,4 @@
-/**
+/*
  *      @file XmlRecorder.cpp
  *
  *      @brief An implementation for recording spikes history on xml file
@@ -22,7 +22,7 @@ XmlRecorder::~XmlRecorder()
 {
 }
 
-/**
+/*
  * Initialize data
  * Create a new xml file.
  *
@@ -55,7 +55,7 @@ void XmlRecorder::getValues()
 {
 }
 
-/**
+/*
  * Terminate process
  */
 void XmlRecorder::term()
@@ -63,12 +63,12 @@ void XmlRecorder::term()
     stateOut.close();
 }
 
-/**
+/*
  * Compile history information in every epoch
  *
  * @param[in] neurons 	The entire list of neurons.
  */
-void XmlRecorder::compileHistories(AllNeurons &neurons)
+void XmlRecorder::compileHistories(IAllNeurons &neurons)
 {
     Connections* pConn = m_model->getConnections();
 
@@ -105,12 +105,12 @@ void XmlRecorder::compileHistories(AllNeurons &neurons)
     spNeurons.clearSpikeCounts(m_sim_info);
 }
 
-/**
+/*
  * Save current simulation state to XML
  *
  * @param  neurons the Neuron list to search from.
  **/
-void XmlRecorder::saveSimState(const AllNeurons &neurons)
+void XmlRecorder::saveSimState(const IAllNeurons &neurons)
 {
     // create Neuron Types matrix
     VectorMatrix neuronTypes(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, EXC);
@@ -160,7 +160,7 @@ void XmlRecorder::saveSimState(const AllNeurons &neurons)
     stateOut << "</SimState>" << endl;
 }
 
-/**
+/*
  *  Get starter Neuron matrix.
  *
  *  @param  matrix      Starter Neuron matrix.

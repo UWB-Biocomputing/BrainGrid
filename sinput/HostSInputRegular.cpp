@@ -1,4 +1,4 @@
-/**
+/*
  *      \file HostSInputRegular.cpp
  *
  *      \author Fumitaka Kawasaki
@@ -8,7 +8,7 @@
 
 #include "HostSInputRegular.h"
 
-/**
+/*
  * constructor
  *
  * @param[in] psi       Pointer to the simulation information
@@ -26,19 +26,19 @@ HostSInputRegular::~HostSInputRegular()
 {
 }
 
-/**
+/*
  * Initialize data.
  *
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
  */
-void HostSInputRegular::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi)
+void HostSInputRegular::init(IModel* model, IAllNeurons &neurons, SimulationInfo* psi)
 {
     SInputRegular::init(model, neurons, psi);
 }
 
-/**
+/*
  * Terminate process.
  *
  * @param[in] model     Pointer to the Neural Network Model object.
@@ -53,7 +53,7 @@ void HostSInputRegular::term(IModel* model, SimulationInfo* psi)
         delete[] nShiftValues;
 }
 
-/**
+/*
  * Process input stimulus for each time step.
  * Apply inputs on summationPoint.
  *

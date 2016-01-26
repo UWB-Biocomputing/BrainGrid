@@ -1,6 +1,6 @@
 #include "ConnStatic.h"
 #include "ParseParamError.h"
-#include "AllSynapses.h"
+#include "IAllSynapses.h"
 #include "XmlRecorder.h"
 #ifdef USE_HDF5
 #include "Hdf5Recorder.h"
@@ -19,7 +19,7 @@ ConnStatic::~ConnStatic()
     cleanupConnections();
 }
 
-/**
+/*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *  Initialize the small world network characterized by parameters: 
  *  number of maximum connections per neurons, connection radius threshold, and
@@ -30,7 +30,7 @@ ConnStatic::~ConnStatic()
  *  @param  neurons   The Neuron list to search from.
  *  @param  synapses  The Synapse list to search from.
  */
-void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout, AllNeurons *neurons, AllSynapses *synapses)
+void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout, IAllNeurons *neurons, IAllSynapses *synapses)
 {
     int num_neurons = sim_info->totalNeurons;
     vector<DistDestNeuron> distDestNeurons[num_neurons];
@@ -62,7 +62,7 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
         for (int i = 0; i < distDestNeurons[src_neuron].size() && i < nConnsPerNeuron; i++) {
             int dest_neuron = distDestNeurons[src_neuron][i].dest_neuron;
             synapseType type = layout->synType(src_neuron, dest_neuron);
-            BGFLOAT* sum_point = &( neurons->summation_map[dest_neuron] );
+            BGFLOAT* sum_point = &( dynamic_cast<AllNeurons*>(neurons)->summation_map[dest_neuron] );
 
             DEBUG_MID (cout << "source: " << src_neuron << " dest: " << dest_neuron << " dist: " << distDestNeurons[src_neuron][i].dist << endl;)
 
@@ -79,14 +79,14 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
     DEBUG (cout << "added connections: " << added << endl << endl << endl;)
 }
 
-/**
+/*
  *  Cleanup the class.
  */
 void ConnStatic::cleanupConnections()
 {
 }
 
-/**
+/*
  *  Attempts to read parameters from a XML file.
  *  @param  element TiXmlElement to examine.
  *  @return true if successful, false otherwise.
@@ -122,7 +122,7 @@ bool ConnStatic::readParameters(const TiXmlElement& element)
     return true;
 }
 
-/**
+/*
  *  Prints out all parameters of the connections to ostream.
  *
  *  @param  output  ostream to send output to.
@@ -131,7 +131,7 @@ void ConnStatic::printParameters(ostream &output) const
 {
 }
 
-/**
+/*
  *  Reads the intermediate connection status from istream.
  *
  *  @param  input    istream to read status from.
@@ -141,7 +141,7 @@ void ConnStatic::readConns(istream& input, const SimulationInfo *sim_info)
 {
 }
 
-/**
+/*
  *  Writes the intermediate connection status to ostream.
  *
  *  @param  output   ostream to write status to.
@@ -151,7 +151,7 @@ void ConnStatic::writeConns(ostream& output, const SimulationInfo *sim_info)
 {
 }
 
-/**
+/*
  *  Creates a recorder class object for the connection.
  *
  *  @param  stateOutputFileName  Name of the state output file.

@@ -27,8 +27,8 @@
  *
  * The Model class maintains and manages classes of objects that make up
  * essential components of the spiking neunal networks.
- *    -# AllNeurons: A class to define a list of partiular type of neurons.
- *    -# AllSynapses: A class to define a list of partiular type of synapses.
+ *    -# IAllNeurons: A class to define a list of partiular type of neurons.
+ *    -# IAllSynapses: A class to define a list of partiular type of synapses.
  *    -# Connections: A class to define connections of the neunal network.
  *    -# Layout: A class to define neurons' layout information in the network.
  *
@@ -77,7 +77,7 @@ class GPUSpikingModel : public Model  {
 	friend class GpuSInputPoisson;
 
 public:
-	GPUSpikingModel(Connections *conns, AllNeurons *neurons, AllSynapses *synapses, Layout *layout);
+	GPUSpikingModel(Connections *conns, IAllNeurons *neurons, IAllSynapses *synapses, Layout *layout);
 	virtual ~GPUSpikingModel();
  
 	virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder);
@@ -138,7 +138,7 @@ private:
 	\* ------------------*/
 	void allocSynapseImap( int count );
 	void deleteSynapseImap( );
-	void copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIndexMapHost, int neuron_count, int synapse_count);
+	void copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIndexMapHost, int neuron_count);
 
 	// # Load Memory
 	// -------------
@@ -155,11 +155,11 @@ private:
         void updateHistory(const SimulationInfo *sim_infos, IRecorder* simRecorder);
 
 	// TODO
-	void eraseSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index);
+	void eraseSynapse(IAllSynapses &synapses, const int neuron_index, const int synapse_index);
 	// TODO
-	void addSynapse(AllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, BGFLOAT deltaT);
+	void addSynapse(IAllSynapses &synapses, synapseType type, const int src_neuron, const int dest_neuron, Coordinate &source, Coordinate &dest, BGFLOAT *sum_point, BGFLOAT deltaT);
 	// TODO
-	void createSynapse(AllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT* sp, BGFLOAT deltaT, synapseType type);
+	void createSynapse(IAllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT* sp, BGFLOAT deltaT, synapseType type);
 
 	/*----------------------------------------------*\
 	|  Generic Functions for handling synapse types

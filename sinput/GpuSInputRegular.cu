@@ -1,4 +1,4 @@
-/**
+/*
  *      \file GpuSInputRegular.cu
  *
  *      \author Fumitaka Kawasaki
@@ -17,7 +17,7 @@ void deleteDeviceValues( );
 BGFLOAT* initValues_d = NULL;
 int * nShiftValues_d = NULL;
 
-/**
+/*
  * constructor
  *
  * @param[in] psi       Pointer to the simulation information
@@ -27,21 +27,21 @@ GpuSInputRegular::GpuSInputRegular(SimulationInfo* psi, TiXmlElement* parms) : S
 {
 }
 
-/**
+/*
  * destructor
  */
 GpuSInputRegular::~GpuSInputRegular()
 {
 }
 
-/**
+/*
  * Initialize data.
  *
  * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
  */
-void GpuSInputRegular::init(IModel* model, AllNeurons &neurons, SimulationInfo* psi)
+void GpuSInputRegular::init(IModel* model, IAllNeurons &neurons, SimulationInfo* psi)
 {
     SInputRegular::init(model, neurons, psi);
 
@@ -55,7 +55,7 @@ void GpuSInputRegular::init(IModel* model, AllNeurons &neurons, SimulationInfo* 
     delete[] nShiftValues;
 }
 
-/**
+/*
  * Terminate process.
  *
  * @param[in] model     Pointer to the Neural Network Model object.
@@ -67,7 +67,7 @@ void GpuSInputRegular::term(IModel* model, SimulationInfo* psi)
         deleteDeviceValues( );
 }
 
-/**
+/*
  * Process input stimulus for each time step on GPU.
  *
  * @param[in] model     	Pointer to the Neural Network Model object.
@@ -92,7 +92,7 @@ void GpuSInputRegular::inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT
     nStepsInCycle = (nStepsInCycle + 1) % nStepsCycle;
 }
 
-/**
+/*
  * Allocate GPU device memory and copy values
  *
  * @param[in] psi               Pointer to the simulation information.
@@ -114,7 +114,7 @@ void allocDeviceValues( SimulationInfo* psi, BGFLOAT* initValues, int *nShiftVal
     HANDLE_ERROR( cudaMemcpy ( nShiftValues_d, nShiftValues, nShiftValues_d_size, cudaMemcpyHostToDevice ) );
 }
 
-/** 
+/* 
  * Dellocate GPU device memory 
  */ 
 void deleteDeviceValues(  )
@@ -124,7 +124,7 @@ void deleteDeviceValues(  )
 }
 
 // CUDA code for -----------------------------------------------------------------------
-/**
+/*
  * Device code for adding input values to the summation map.
  *
  * @param[in] summationPoint_d  Pointer to the summation map.
