@@ -270,7 +270,7 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
         }
 
         assert( total_synapse_counts == n_inUse );
-        total_synapse_counts = total_synapse_counts;
+        this->total_synapse_counts = total_synapse_counts;
 
         syn_i = 0;
         for (int i = 0; i < neuron_count; i++)
