@@ -307,11 +307,47 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
 };
 
 #if defined(__CUDACC__)
+/**
+ *  Get a pointer to the device function createDynamicSTDPSynapse.
+ *  (CUDA helper function for AllDynamicSTDPSynapses::getFpCreateSynapse())
+ *
+ *  @param  fpCreateSynapse_d     Reference to the device memory location 
+ *                                where the function pointer will be set.
+ */
 extern __global__ void getFpCreateDynamicSTDPSynapseDevice(void (**fpCreateSynapse_d)(AllDynamicSTDPSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType));
 
+/**
+ *  Get a pointer to the device function changeDynamicSTDPSynapsePSR.
+ *  (CUDA helper function for AllDynamicSTDPSynapses::getFpChangePSR())
+ *
+ *  @param  fpChangePSR_d         Reference to the memory location
+ *                                where the function pointer will be set.
+ */
 extern __global__ void getFpChangeDynamicSTDPSynapsePSRDevice(void (**fpChangePSR_d)(AllDynamicSTDPSynapses*, const uint32_t, const uint64_t, const BGFLOAT));
 
+/**
+ *  Create a Dynamic STDP Synapse and connect it to the model.
+ *
+ *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
+ *  @param neuron_index         Index of the source neuron.
+ *  @param synapse_index        Index of the Synapse to create.
+ *  @param source_x             X location of source.
+ *  @param source_y             Y location of source.
+ *  @param dest_x               X location of destination.
+ *  @param dest_y               Y location of destination.
+ *  @param sum_point            Pointer to the summation point.
+ *  @param deltaT               The time step size.
+ *  @param type                 Type of the Synapse to create.
+ */
 extern __device__ void createDynamicSTDPSSynapse(AllDynamicSTDPSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
 
-extern __device__ void changeDynamicSTDPSynapsePSR(AllDynamicSTDPSynapses* allSynapsesDevice, const uint32_t, const uint64_t, const BGFLOAT deltaT);
+/**
+ *  Update PSR (post synapse response)
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  iSyn               Index of the synapse to set.
+ *  @param  simulationStep     The current simulation step.
+ *  @param  deltaT             Inner simulation step duration.
+ */
+extern __device__ void changeDynamicSTDPSynapsePSR(AllDynamicSTDPSynapses* allSynapsesDevice, const uint32_t iSyn, const uint64_t simulationStep, const BGFLOAT deltaT);
 #endif

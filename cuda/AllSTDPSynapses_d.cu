@@ -417,17 +417,28 @@ void AllSTDPSynapses::getFpPostSpikeHit(unsigned long long& fpPostSpikeHit_h)
 |* # Global Functions
 \* ------------------*/
 
+/*
+ *  Get a pointer to the device function createSTDPSynapse.
+ *  (CUDA helper function for AllSTDPSynapses::getFpCreateSynapse())
+ *
+ *  @param  fpCreateSynapse_d     Reference to the device memory location 
+ *                                where the function pointer will be set.
+ */
 __global__ void getFpCreateSTDPSynapseDevice(void (**fpCreateSynapse_d)(AllSTDPSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))
 {
     *fpCreateSynapse_d = createSTDPSynapse;
 }
 
 /*
- * @param[in] total_synapse_counts       Total number of synapses.
- * @param[in] synapseIndexMap            Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
- * @param[in] simulationStep             The current simulation step.
- * @param[in] deltaT                     Inner simulation step duration.
- * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
+ *  CUDA code for advancing STDP synapses.
+ *  Perform updating synapses for one time step.
+ *
+ *  @param[in] total_synapse_counts  Number of synapses.
+ *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
+ *  @param[in] simulationStep        The current simulation step.
+ *  @param[in] deltaT                Inner simulation step duration.
+ *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
+ *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
  */
 __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSTDPSynapses*, const uint32_t, const uint64_t, const BGFLOAT), AllSpikingNeurons* allNeuronsDevice, int max_spikes, int width ) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -560,6 +571,13 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
     psr *= decay;
 }
 
+/*
+ *  Get a pointer to the device function postSTDPSynapsesSpikeHitDevice.
+ *  (CUDA helper function for AllSTDPSynapses::getFpPostSpikeHit())
+ *
+ *  @param  fpPostSpikeHit_d      Reference to the memory location
+ *                                where the function pointer will be set.
+ */
 __global__ void getFpSTDPSynapsePostSpikeHitDevice(void (**fpPostSpikeHit_d)(const uint32_t, AllSTDPSynapses*))
 {
     *fpPostSpikeHit_d = postSTDPSynapseSpikeHitDevice;
@@ -652,6 +670,16 @@ __device__ void createSTDPSynapse(AllSTDPSynapses* allSynapsesDevice, const int 
     allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
 }
 
+/*     
+ *  Adjust synapse weight according to the Spike-timing-dependent synaptic modification
+ *  induced by natural spike trains
+ *
+ *  @param  allSynapsesDevice    Pointer to the Synapse structures in device memory.
+ *  @param  iSyn                 Index of the synapse to set.
+ *  @param  delta                Pre/post synaptic spike interval.
+ *  @param  epost                Params for the rule given in Froemke and Dan (2002).
+ *  @param  epre                 Params for the rule given in Froemke and Dan (2002).
+ */
 __device__ void stdpLearningDevice(AllSTDPSynapses* allSynapsesDevice, const uint32_t iSyn, double delta, double epost, double epre)
 {
     BGFLOAT STDPgap = allSynapsesDevice->STDPgap[iSyn];
@@ -694,6 +722,13 @@ __device__ void stdpLearningDevice(AllSTDPSynapses* allSynapsesDevice, const uin
     );
 }
 
+/*
+ *  Checks if there is an input spike in the queue.
+ *
+ *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
+ *  @param[in] iSyn                  Index of the Synapse to check.
+ *  @return true if there is an input spike event.
+ */
 __device__ bool isSTDPSynapseSpikeQueuePostDevice(AllSTDPSynapses* allSynapsesDevice, uint32_t iSyn)
 {
     uint32_t &delay_queue = allSynapsesDevice->delayQueuePost[iSyn];
@@ -710,6 +745,16 @@ __device__ bool isSTDPSynapseSpikeQueuePostDevice(AllSTDPSynapses* allSynapsesDe
     return isFired;
 }
 
+/*
+ *  Gets the spike history of the neuron.
+ *
+ *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory. 
+ *  @param  index                  Index of the neuron to get spike history.
+ *  @param  offIndex               Offset of the history beffer to get.
+ *                                 -1 will return the last spike.
+ *  @param  max_spikes             Maximum number of spikes per neuron per epoch.
+ *  @return Spike history.
+ */
 __device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeurons* allNeuronsDevice, int index, int offIndex, int max_spikes)
 {
     // offIndex is a minus offset
@@ -717,6 +762,12 @@ __device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeurons* allNeuro
     return allNeuronsDevice->spike_history[index][idxSp];
 }
 
+/*
+ *  Prepares Synapse for a spike hit (for back propagation).
+ *
+ *  @param[in] iSyn                  Index of the Synapse to update.
+ *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
+ */
 __device__ void postSTDPSynapseSpikeHitDevice( const uint32_t iSyn, AllSTDPSynapses* allSynapsesDevice ) {
         uint32_t &delay_queue = allSynapsesDevice->delayQueuePost[iSyn];
         int delayIdx = allSynapsesDevice->delayIdxPost[iSyn];

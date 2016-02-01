@@ -263,11 +263,25 @@ void AllDynamicSTDPSynapses::getFpChangePSR(unsigned long long& fpChangePSR_h)
 |* # Global Functions
 \* ------------------*/
 
+/*
+ *  Get a pointer to the device function createDynamicSTDPSynapse.
+ *  (CUDA helper function for AllDynamicSTDPSynapses::getFpCreateSynapse())
+ *
+ *  @param  fpCreateSynapse_d     Reference to the device memory location 
+ *                                where the function pointer will be set.
+ */
 __global__ void getFpCreateDynamicSTDPSynapseDevice(void (**fpCreateSynapse_d)(AllDynamicSTDPSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))
 {
     *fpCreateSynapse_d = createDynamicSTDPSSynapse;
 }
 
+/*
+ *  Get a pointer to the device function changeDynamicSTDPSynapsePSR.
+ *  (CUDA helper function for AllDynamicSTDPSynapses::getFpChangePSR())
+ *
+ *  @param  fpChangePSR_d         Reference to the memory location
+ *                                where the function pointer will be set. 
+ */
 __global__ void getFpChangeDynamicSTDPSynapsePSRDevice(void (**fpChangePSR_d)(AllDynamicSTDPSynapses*, const uint32_t, const uint64_t, const BGFLOAT))
 {
     *fpChangePSR_d = changeDynamicSTDPSynapsePSR;
@@ -279,6 +293,7 @@ __global__ void getFpChangeDynamicSTDPSynapsePSRDevice(void (**fpChangePSR_d)(Al
 
 /*
  *  Create a Synapse and connect it to the model.
+ *
  *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
  *  @param neuron_index         Index of the source neuron.
  *  @param synapse_index        Index of the Synapse to create.
@@ -382,6 +397,14 @@ __device__ void createDynamicSTDPSSynapse(AllDynamicSTDPSynapses* allSynapsesDev
     allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
 }
 
+/*
+ *  Update PSR (post synapse response)
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  iSyn               Index of the synapse to set.
+ *  @param  simulationStep     The current simulation step.
+ *  @param  deltaT             Inner simulation step duration.
+ */
 __device__ void changeDynamicSTDPSynapsePSR(AllDynamicSTDPSynapses* allSynapsesDevice, const uint32_t iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
 {
     uint64_t &lastSpike = allSynapsesDevice->lastSpike[iSyn];

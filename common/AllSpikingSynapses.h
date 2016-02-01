@@ -269,33 +269,126 @@ public:
 };
 
 #if defined(__CUDACC__)
-//! Perform updating synapses for one time step.
+/**
+ *  CUDA code for advancing spiking synapses.
+ *  Perform updating synapses for one time step.
+ *
+ *  @param[in] total_synapse_counts  Number of synapses.
+ *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
+ *  @param[in] simulationStep        The current simulation step.
+ *  @param[in] deltaT                Inner simulation step duration.
+ *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
+ *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
+ */
 extern __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT) );
 
+/**
+ *  Get a pointer to the device function preSpikingSynapsesSpikeHitDevice.
+ *  (CUDA helper function for AllSpikingSynapses::getFpPreSpikeHit())
+ *
+ *  @param  fpPreSpikeHit_d        Reference to the memory location
+ *                                where the function pointer will be set.
+ */
 extern __global__ void getFpSpikingSynapsesPreSpikeHitDevice(void (**fpPreSpikeHit_d)(const uint32_t, AllSpikingSynapses*));
 
+/**
+ *  Get a pointer to the device function postSpikingSynapsesSpikeHitDevice.
+ *  (CUDA helper function for AllSpikingSynapses::getFpPostSpikeHit())
+ *
+ *  @param  fpPostSpikeHit_d      Reference to the memory location
+ *                                where the function pointer will be set.
+ */
 extern __global__ void getFpSpikingSynapsesPostSpikeHitDevice(void (**fpPostSpikeHit_d)(const uint32_t, AllSpikingSynapses*));
 
+/**
+ *  Get a pointer to the device function changeSpikingSynapsePSR.
+ *  (CUDA helper function for AllSpikingSynapses::getFpChangePSR())
+ *
+ *  @param  fpChangePSR_d         Reference to the memory location
+ *                                where the function pointer will be set.
+ */
 extern __global__ void getFpSpikingSynapsesChangePSRDevice(void (**fpChangePSR_d)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT));
 
+/**
+ *  Checks if there is an input spike in the queue.
+ *
+ *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
+ *  @param[in] iSyn                  Index of the Synapse to check.
+ *  @return true if there is an input spike event.
+ */
 extern __device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapses* allSynapsesDevice, uint32_t iSyn);
 
+/**
+ *  Prepares Synapse for a spike hit.
+ *
+ *  @param[in] iSyn                  Index of the Synapse to update.
+ *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
+ */
 extern __device__ void preSpikingSynapsesSpikeHitDevice( const uint32_t iSyn, AllSpikingSynapses* allSynapsesDevice );
 
+/**
+ *  Prepares Synapse for a spike hit (for back propagation).
+ *
+ *  @param[in] iSyn                  Index of the Synapse to update.
+ *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
+ */
 extern __device__ void postSpikingSynapsesSpikeHitDevice( const uint32_t iSyn, AllSpikingSynapses* allSynapsesDevice );
 
-extern __device__ void changeSpikingSynapsesPSR(AllSpikingSynapses* allSynapsesDevice, const uint32_t, const uint64_t, const BGFLOAT deltaT);
+/**
+ *  Update PSR (post synapse response)
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  iSyn               Index of the synapse to set.
+ *  @param  simulationStep     The current simulation step.
+ *  @param  deltaT             Inner simulation step duration.
+ */
+extern __device__ void changeSpikingSynapsesPSR(AllSpikingSynapses* allSynapsesDevice, const uint32_t iSyn, const uint64_t simulationStep, const BGFLOAT deltaT);
 
-//! Add a synapse to the network.
+/**
+ * Adds a synapse to the network.  Requires the locations of the source and
+ * destination neurons.
+ *
+ * @param allSynapsesDevice      Pointer to the Synapse structures in device memory.
+ * @param type                   Type of the Synapse to create.
+ * @param src_neuron             Index of the source neuron.
+ * @param dest_neuron            Index of the destination neuron.
+ * @param source_x               X location of source.
+ * @param source_y               Y location of source.
+ * @param dest_x                 X location of destination.
+ * @param dest_y                 Y location of destination.
+ * @param sum_point              Pointer to the summation point.
+ * @param deltaT                 The time step size.
+ * @param W_d                    Array of synapse weight.
+ * @param num_neurons            The number of neurons.
+ * @param fpCreateSynapse        Pointer to the createSynapse device function.
+ */
 extern __device__ void addSpikingSynapse( AllSpikingSynapses* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons, void (*fpCreateSynapse)(AllSpikingSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType) );
 
-//! Remove a synapse from the network.
+/**
+ * Remove a synapse from the network.
+ *
+ * @param[in] allSynapsesDevice         Pointer to the Synapse structures in device memory.
+ * @param neuron_index   Index of a neuron.
+ * @param synapse_index  Index of a synapse.
+ * @param[in] maxSynapses        Maximum number of synapses per neuron.
+ */
 extern __device__ void eraseSpikingSynapse( AllSpikingSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses );
 
-//! Get the type of synapse.
+/**
+ * Returns the type of synapse at the given coordinates
+ *
+ * @param[in] allNeuronsDevice          Pointer to the Neuron structures in device memory.
+ * @param src_neuron             Index of the source neuron.
+ * @param dest_neuron            Index of the destination neuron.
+ */
 extern __device__ synapseType synType( neuronType* neuron_type_map_d, const int src_neuron, const int dest_neuron );
 
-//! Get the type of synapse (excitatory or inhibitory)
+/**
+ * Return 1 if originating neuron is excitatory, -1 otherwise.
+ *
+ * @param[in] t  synapseType I to I, I to E, E to I, or E to E
+ * @return 1 or -1
+ */
 extern __device__ int synSign( synapseType t );
 #endif
 

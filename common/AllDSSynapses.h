@@ -317,11 +317,47 @@ class AllDSSynapses : public AllSpikingSynapses
 };
 
 #if defined(__CUDACC__)
+/**
+ *  Get a pointer to the device function createSynapse.
+ *  (CUDA helper function for AllDSSynapses::getFpCreateSynapse())
+ *
+ *  @param  fpCreateSynapse_d     Reference to the device memory location 
+ *                                where the function pointer will be set.
+ */
 extern __global__ void getFpCreateDSSynapseDevice(void (**fpCreateSynapse_d)(AllDSSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType));
 
+/**
+ *  Get a pointer to the device function changeDSSynapsePSR.
+ *  (CUDA helper function for AllDSSynapses::getFpChangePSR())
+ *
+ *  @param  fpChangePSR_d         Reference to the memory location
+ *                                where the function pointer will be set.
+ */
 extern __global__ void getFpChangeDSSynapsePSRDevice(void (**fpChangePSR_d)(AllDSSynapses*, const uint32_t, const uint64_t, const BGFLOAT));
 
+/**
+ *  Create a Synapse and connect it to the model.
+ *
+ *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
+ *  @param neuron_index         Index of the source neuron.
+ *  @param synapse_index        Index of the Synapse to create.
+ *  @param source_x             X location of source.
+ *  @param source_y             Y location of source.
+ *  @param dest_x               X location of destination.
+ *  @param dest_y               Y location of destination.
+ *  @param sum_point            Pointer to the summation point.
+ *  @param deltaT               The time step size.
+ *  @param type                 Type of the Synapse to create.
+ */
 extern __device__ void createDSSynapse(AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
 
+/**
+ *  Update PSR (post synapse response)
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  iSyn               Index of the synapse to set.
+ *  @param  simulationStep      The current simulation step.
+ *  @param  deltaT              Inner simulation step duration.
+ */
 extern __device__ void changeDSSynapsePSR(AllDSSynapses* allSynapsesDevice, const uint32_t, const uint64_t, const BGFLOAT deltaT);
 #endif

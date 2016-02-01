@@ -342,11 +342,25 @@ void AllDSSynapses::getFpChangePSR(unsigned long long& fpChangePSR_h)
 |* # Global Functions
 \* ------------------*/
 
+/*
+ *  Get a pointer to the device function createDSSynapse.
+ *  (CUDA helper function for AllDSSynapses::getFpCreateSynapse())
+ *
+ *  @param  fpCreateSynapse_d     Reference to the device memory location 
+ *                                where the function pointer will be set.
+ */
 __global__ void getFpCreateDSSynapseDevice(void (**fpCreateSynapse_d)(AllDSSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))
 {
     *fpCreateSynapse_d = createDSSynapse;
 }
 
+/*
+ *  Get a pointer to the device function changeDSSynapsePSR.
+ *  (CUDA helper function for AllDSSynapses::getFpChangePSR())
+ *
+ *  @param  fpChangePSR_d         Reference to the memory location
+ *                                where the function pointer will be set.
+ */
 __global__ void getFpChangeDSSynapsePSRDevice(void (**fpChangePSR_d)(AllDSSynapses*, const uint32_t, const uint64_t, const BGFLOAT))
 {
     *fpChangePSR_d = changeDSSynapsePSR;
@@ -357,7 +371,7 @@ __global__ void getFpChangeDSSynapsePSRDevice(void (**fpChangePSR_d)(AllDSSynaps
 \* ------------------*/
 
 /*
- *  Create a Synapse and connect it to the model.
+ *  Create a DS Synapse and connect it to the model.
  *
  *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
  *  @param neuron_index         Index of the source neuron.
@@ -444,6 +458,14 @@ __device__ void createDSSynapse(AllDSSynapses* allSynapsesDevice, const int neur
     assert( size <= BYTES_OF_DELAYQUEUE );
 }
 
+/*
+ *  Update PSR (post synapse response)
+ *
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  iSyn               Index of the synapse to set.
+ *  @param  simulationStep      The current simulation step.
+ *  @param  deltaT              Inner simulation step duration.
+ */
 __device__ void changeDSSynapsePSR(AllDSSynapses* allSynapsesDevice, const uint32_t iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
 {
     uint64_t &lastSpike = allSynapsesDevice->lastSpike[iSyn];
