@@ -59,7 +59,6 @@ LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
 
 CUDAOBJS =   \
 	    $(CUDADIR)/GPUSpikingModel.o \
-	    $(COMMDIR)/GPUSimulator.o \
             $(CUDADIR)/AllNeurons_cuda.o \
             $(CUDADIR)/AllSpikingNeurons_cuda.o \
             $(CUDADIR)/AllSpikingNeurons_d.o \
@@ -128,7 +127,6 @@ RNGOBJS = $(RNGDIR)/Norm.o
 
 SINGLEOBJS = $(MAIN)/BGDriver.o  \
 			$(COMMDIR)/SingleThreadedSpikingModel.o \
-			$(COMMDIR)/SingleThreadedSim.o \
 			$(SINPUTDIR)/FSInput.o \
 			$(COMMDIR)/FClassOfCategory.o \
 			$(COMMDIR)/AllNeurons.o \
@@ -254,9 +252,6 @@ $(CUDADIR)/ConnStatic_cuda.o: $(COMMDIR)/ConnStatic.cpp $(COMMDIR)/ConnStatic.h 
 $(CUDADIR)/Global_cuda.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/Global.cpp -o $(CUDADIR)/Global_cuda.o
 
-$(CUDADIR)/GPUSimulator.o: $(COMMDIR)/GPUSimulator.cpp $(COMMDIR)/GPUSimulator.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/GPUSimulator.cpp -o $(CUDADIR)/GPUSimulator.o
-
 $(CUDADIR)/FClassOfCategory_cuda.o: $(COMMDIR)/FClassOfCategory.cpp $(COMMDIR)/FClassOfCategory.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/FClassOfCategory.cpp -o $(CUDADIR)/FClassOfCategory_cuda.o
 
@@ -299,9 +294,6 @@ $(COMMDIR)/Global.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
 
 $(COMMDIR)/Simulator.o: $(COMMDIR)/Simulator.cpp $(COMMDIR)/Simulator.h $(COMMDIR)/Global.h $(COMMDIR)/SimulationInfo.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Simulator.cpp -o $(COMMDIR)/Simulator.o
-
-$(COMMDIR)/SingleThreadedSim.o: $(COMMDIR)/SingleThreadedSim.cpp $(COMMDIR)/SingleThreadedSim.h $(COMMDIR)/Simulator.h $(COMMDIR)/Global.h $(COMMDIR)/SimulationInfo.h
-	$(CXX) $(CXXFLAGS) $(COMMDIR)/SingleThreadedSim.cpp -o $(COMMDIR)/SingleThreadedSim.o
 
 $(COMMDIR)/Model.o: $(COMMDIR)/Model.cpp $(COMMDIR)/Model.h $(COMMDIR)/IModel.h $(COMMDIR)/ParseParamError.h $(COMMDIR)/Util.h $(XMLDIR)/tinyxml.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Model.cpp -o $(COMMDIR)/Model.o

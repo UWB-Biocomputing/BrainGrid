@@ -39,6 +39,7 @@ public:
 	SingleThreadedSpikingModel(Connections *conns, IAllNeurons *neurons, IAllSynapses *synapses, Layout *layout);
 	virtual ~SingleThreadedSpikingModel();
 
+        virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder);
 	virtual void advance(const SimulationInfo *sim_info);
 	virtual void updateConnections(const SimulationInfo *sim_info);
 
