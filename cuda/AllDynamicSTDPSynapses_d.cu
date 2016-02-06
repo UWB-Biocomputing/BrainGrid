@@ -185,39 +185,6 @@ void AllDynamicSTDPSynapses::copyDeviceToHost( AllDynamicSTDPSynapses& allSynaps
 }
 
 /*
- *  Get synapse_counts in AllSynapses struct on device memory.
- *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
- *  @param  sim_info           SimulationInfo to refer from.
- */
-void AllDynamicSTDPSynapses::copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const SimulationInfo *sim_info)
-{
-        AllDynamicSTDPSynapses allSynapses;
-        int neuron_count = sim_info->totalNeurons;
-
-        HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllDynamicSTDPSynapses ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( synapse_counts, allSynapses.synapse_counts, neuron_count * sizeof( size_t ), cudaMemcpyDeviceToHost ) );
-}
-
-/* 
- *  Get summationCoord and in_use in AllSynapses struct on device memory.
- *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
- *  @param  sim_info           SimulationInfo to refer from.
- */
-void AllDynamicSTDPSynapses::copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info)
-{
-        AllDynamicSTDPSynapses allSynapses;
-	uint32_t max_total_synapses = sim_info->maxSynapsesPerNeuron * sim_info->totalNeurons;
-
-        HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllDynamicSTDPSynapses ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( destNeuronIndex, allSynapses.destNeuronIndex,
-                max_total_synapses * sizeof( int ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( in_use, allSynapses.in_use,
-                max_total_synapses * sizeof( bool ), cudaMemcpyDeviceToHost ) );
-}
-
-/*
  *  Get a pointer to the device function createDynamicSTDPSSynapse.
  *  The function will be called from updateSynapsesWeightsDevice device function.
  *  Because we cannot use virtual function (Polymorphism) in device functions,

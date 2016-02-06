@@ -188,22 +188,6 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
         virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info );
 
         /**
-         *  Get synapse_counts in AllSynapses struct on device memory.
-         *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         */
-        virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const SimulationInfo *sim_info);
-
-        /** 
-         *  Get summationCoord and in_use in AllSynapses struct on device memory.
-         *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         */
-        virtual void copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info);
-
-        /**
          *  Get a pointer to the device function createSynapse.
          *  The function will be called from updateSynapsesWeightsDevice device function.
          *  Because we cannot use virtual function (Polymorphism) in device functions,

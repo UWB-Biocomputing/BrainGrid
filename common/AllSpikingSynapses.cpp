@@ -111,6 +111,26 @@ void AllSpikingSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
 }
 
 /*
+ *  Attempts to read parameters from a XML file.
+ *
+ *  @param  element TiXmlElement to examine.
+ *  @return true if successful, false otherwise.
+ */
+bool AllSpikingSynapses::readParameters(const TiXmlElement& element)
+{
+    return true;
+}
+
+/*
+ *  Prints out all parameters of the neurons to ostream.
+ *
+ *  @param  output  ostream to send output to.
+ */
+void AllSpikingSynapses::printParameters(ostream &output) const
+{
+}
+
+/*
  *  Sets the data for Synapse to input's data.
  *
  *  @param  input  istream to read from.

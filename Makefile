@@ -341,7 +341,7 @@ $(COMMDIR)/Hdf5Recorder.o: $(COMMDIR)/Hdf5Recorder.cpp $(COMMDIR)/Hdf5Recorder.h
 endif
 
 $(COMMDIR)/FClassOfCategory.o: $(COMMDIR)/FClassOfCategory.cpp $(COMMDIR)/FClassOfCategory.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/FClassOfCategory.cpp -o $(COMMDIR)/FClassOfCategory.o
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/FClassOfCategory.cpp -o $(COMMDIR)/FClassOfCategory.o
 
 
 # Matrix
