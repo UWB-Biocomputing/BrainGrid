@@ -286,7 +286,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        virtual void allocDeviceStruct( AllSpikingSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void allocDeviceStruct( AllSpikingSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
          *  Delete GPU memories.
@@ -294,7 +294,7 @@ class AllSpikingSynapses : public AllSynapses
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          */
-        virtual void deleteDeviceStruct( AllSpikingSynapses& allSynapses );
+        void deleteDeviceStruct( AllSpikingSynapses& allSynapses );
 
         /**
          *  Copy all synapses' data from host to device.
@@ -304,7 +304,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        virtual void copyHostToDevice( void* allSynapsesDevice, AllSpikingSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void copyHostToDevice( void* allSynapsesDevice, AllSpikingSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
          *  Copy all synapses' data from device to host.
@@ -314,7 +314,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        virtual void copyDeviceToHost( AllSpikingSynapses& allSynapses, const SimulationInfo *sim_info );
+        void copyDeviceToHost( AllSpikingSynapses& allSynapses, const SimulationInfo *sim_info );
 #else  // !defined(USE_GPU)
 public:
         /**
