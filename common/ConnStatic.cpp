@@ -70,6 +70,7 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
             added++;
 
             // set synapse weight
+            // TODO: we need another synaptic weight distibution mode (normal distribution)
             if (synapses->synSign(type) > 0) {
                 dynamic_cast<AllSynapses*>(synapses)->W[iSyn] = rng.inRange(m_excWeight[0], m_excWeight[1]);
             }

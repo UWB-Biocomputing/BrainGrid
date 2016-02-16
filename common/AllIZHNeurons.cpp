@@ -84,59 +84,113 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
     AllIFNeurons::readParameters(element);
 
     if (element.ValueStr().compare("Aconst") == 0) {
-        if (element.QueryFLOATAttribute("min", &m_Aconst[0]) != TIXML_SUCCESS) {
-            throw ParseParamError("Aconst min", "Aconst missing minimum value in XML.");
+        // Min/max values of Aconst for excitatory neurons.
+        if (element.QueryFLOATAttribute("minExc", &m_excAconst[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("Aconst minExc", "Aconst missing minimum value in XML.");
         }
-        if (m_Aconst[0] < 0) {
-            throw ParseParamError("Aconst min", "Invalid negative Aconst value.");
+        if (m_excAconst[0] < 0) {
+            throw ParseParamError("Aconst minExc", "Invalid negative Aconst value.");
         }
-        if (element.QueryFLOATAttribute("max", &m_Aconst[1]) != TIXML_SUCCESS) {
-            throw ParseParamError("Aconst max", "Aconst missing maximum value in XML.");
+        if (element.QueryFLOATAttribute("maxExc", &m_excAconst[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("Aconst maxExc", "Aconst missing maximum value in XML.");
         }
-        if (m_Aconst[0] > m_Aconst[1]) {
-            throw ParseParamError("Aconst max", "Invalid range for Aconst value.");
+        if (m_excAconst[0] > m_excAconst[1]) {
+            throw ParseParamError("Aconst maxExc", "Invalid range for Aconst value.");
+        }
+
+        // Min/max values of Aconst for inhibitory neurons.
+        if (element.QueryFLOATAttribute("minInh", &m_inhAconst[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("Aconst minInh", "Aconst missing minimum value in XML.");
+        }
+        if (m_inhAconst[0] < 0) {
+            throw ParseParamError("Aconst minInh", "Invalid negative Aconst value.");
+        }
+        if (element.QueryFLOATAttribute("maxInh", &m_inhAconst[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("Aconst maxInh", "Aconst missing maximum value in XML.");
+        }
+        if (m_inhAconst[0] > m_inhAconst[1]) {
+            throw ParseParamError("Aconst maxInh", "Invalid range for Aconst value.");
         }
         return true;
     }
 
     if (element.ValueStr().compare("Bconst") == 0) {
-        if (element.QueryFLOATAttribute("min", &m_Bconst[0]) != TIXML_SUCCESS) {
-            throw ParseParamError("Bconst min", "Bconst missing minimum value in XML.");
+        // Min/max values of Bconst for excitatory neurons.
+        if (element.QueryFLOATAttribute("minExc", &m_excBconst[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("Bconst minExc", "Bconst missing minimum value in XML.");
         }
-        if (element.QueryFLOATAttribute("max", &m_Bconst[1]) != TIXML_SUCCESS) {
-            throw ParseParamError("Bconst max", "Bconst missing maximum value in XML.");
+        if (element.QueryFLOATAttribute("maxExc", &m_excBconst[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("Bconst maxExc", "Bconst missing maximum value in XML.");
         }
-        if (m_Bconst[0] > m_Bconst[1]) {
-            throw ParseParamError("Bconst max", "Invalid range for Bconst value.");
+        if (m_excBconst[0] > m_excBconst[1]) {
+            throw ParseParamError("Bconst maxExc", "Invalid range for Bconst value.");
+        }
+
+        // Min/max values of Bconst for inhibitory neurons.
+        if (element.QueryFLOATAttribute("minInh", &m_inhBconst[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("Bconst minInh", "Bconst missing minimum value in XML.");
+        }
+        if (element.QueryFLOATAttribute("maxInh", &m_inhBconst[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("Bconst maxInh", "Bconst missing maximum value in XML.");
+        }
+        if (m_inhBconst[0] > m_inhBconst[1]) {
+            throw ParseParamError("Bconst maxInh", "Invalid range for Bconst value.");
         }
         return true;
     }
 
     if (element.ValueStr().compare("Cconst") == 0) {
-        if (element.QueryFLOATAttribute("min", &m_Cconst[0]) != TIXML_SUCCESS) {
-            throw ParseParamError("Cconst min", "Cconst missing minimum value in XML.");
+        // Min/max values of Cconst for excitatory neurons. 
+        if (element.QueryFLOATAttribute("minExc", &m_excCconst[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("Cconst minExc", "Cconst missing minimum value in XML.");
         }
-        if (element.QueryFLOATAttribute("max", &m_Cconst[1]) != TIXML_SUCCESS) {
-            throw ParseParamError("Cconst max", "Cconst missing maximum value in XML.");
+        if (element.QueryFLOATAttribute("maxExc", &m_excCconst[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("Cconst maxExc", "Cconst missing maximum value in XML.");
         }
-        if (m_Cconst[0] > m_Cconst[1]) {
-            throw ParseParamError("Cconst max", "Invalid range for Cconst value.");
+        if (m_excCconst[0] > m_excCconst[1]) {
+            throw ParseParamError("Cconst maxExc", "Invalid range for Cconst value.");
+        }
+
+        // Min/max values of Cconst for inhibitory neurons.
+        if (element.QueryFLOATAttribute("minInh", &m_inhCconst[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("Cconst minInh", "Cconst missing minimum value in XML.");
+        }
+        if (element.QueryFLOATAttribute("maxInh", &m_inhCconst[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("Cconst maxInh", "Cconst missing maximum value in XML.");
+        }
+        if (m_inhCconst[0] > m_inhCconst[1]) {
+            throw ParseParamError("Cconst maxInh", "Invalid range for Cconst value.");
         }
         return true;
     }
 
     if (element.ValueStr().compare("Dconst") == 0) {
-        if (element.QueryFLOATAttribute("min", &m_Dconst[0]) != TIXML_SUCCESS) {
-            throw ParseParamError("Dconst min", "Dconst missing minimum value in XML.");
+        // Min/max values of Dconst for excitatory neurons.
+        if (element.QueryFLOATAttribute("minExc", &m_excDconst[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("Dconst minExc", "Dconst missing minimum value in XML.");
         }
-        if (m_Dconst[0] < 0) {
-            throw ParseParamError("Dconst min", "Invalid negative Dconst value.");
+        if (m_excDconst[0] < 0) {
+            throw ParseParamError("Dconst minExc", "Invalid negative Dconst value.");
         }
-        if (element.QueryFLOATAttribute("max", &m_Dconst[1]) != TIXML_SUCCESS) {
-            throw ParseParamError("Dconst max", "Dconst missing maximum value in XML.");
+        if (element.QueryFLOATAttribute("maxExc", &m_excDconst[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("Dconst maxExc", "Dconst missing maximum value in XML.");
         }
-        if (m_Dconst[0] > m_Dconst[1]) {
-            throw ParseParamError("Dconst max", "Invalid range for Dconst value.");
+        if (m_excDconst[0] > m_excDconst[1]) {
+            throw ParseParamError("Dconst maxExc", "Invalid range for Dconst value.");
+        }
+
+        // Min/max values of Dconst for inhibitory neurons.
+        if (element.QueryFLOATAttribute("minInh", &m_inhDconst[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("Dconst minInh", "Dconst missing minimum value in XML.");
+        }
+        if (m_inhDconst[0] < 0) {
+            throw ParseParamError("Dconst minInh", "Invalid negative Dconst value.");
+        }
+        if (element.QueryFLOATAttribute("maxInh", &m_inhDconst[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("Dconst maxInh", "Dconst missing maximum value in XML.");
+        }
+        if (m_inhDconst[0] > m_inhDconst[1]) {
+            throw ParseParamError("Dconst maxInh", "Invalid range for Dconst value.");
         }
         return true;
     }
@@ -153,17 +207,29 @@ void AllIZHNeurons::printParameters(ostream &output) const
 {
     AllIFNeurons::printParameters(output);
 
-    output << "Interval of A constant: ["
-           << m_Aconst[0] << ", " << m_Aconst[1] << "]"
+    output << "Interval of A constant for excitatory neurons: ["
+           << m_excAconst[0] << ", " << m_excAconst[1] << "]"
            << endl;
-    output << "Interval of B constant: ["
-           << m_Bconst[0] << ", " << m_Bconst[1] << "]"
+    output << "Interval of A constant for inhibitory neurons: ["
+           << m_inhAconst[0] << ", " << m_inhAconst[1] << "]"
            << endl;
-    output << "Interval of C constant: ["
-           << m_Cconst[0] << ", "<< m_Cconst[1] << "]"
+    output << "Interval of B constant for excitatory neurons: ["
+           << m_excBconst[0] << ", " << m_excBconst[1] << "]"
            << endl;
-    output << "Interval of D constant: ["
-           << m_Dconst[0] << ", "<< m_Dconst[1] << "]"
+    output << "Interval of B constant for inhibitory neurons: ["
+           << m_inhBconst[0] << ", " << m_inhBconst[1] << "]"
+           << endl;
+    output << "Interval of C constant for excitatory neurons: ["
+           << m_excCconst[0] << ", "<< m_excCconst[1] << "]"
+           << endl;
+    output << "Interval of C constant for inhibitory neurons: ["
+           << m_inhCconst[0] << ", "<< m_inhCconst[1] << "]"
+           << endl;
+    output << "Interval of D constant for excitatory neurons: ["
+           << m_excDconst[0] << ", "<< m_excDconst[1] << "]"
+           << endl;
+    output << "Interval of D constant for inhibitory neurons: ["
+           << m_inhDconst[0] << ", "<< m_inhDconst[1] << "]"
            << endl;
 }
 
@@ -196,10 +262,21 @@ void AllIZHNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Lay
     // set the neuron info for neurons
     AllIFNeurons::createNeuron(sim_info, neuron_index, layout);
 
-    Aconst[neuron_index] = rng.inRange(m_Aconst[0], m_Aconst[1]); 
-    Bconst[neuron_index] = rng.inRange(m_Bconst[0], m_Bconst[1]); 
-    Cconst[neuron_index] = rng.inRange(m_Cconst[0], m_Cconst[1]); 
-    Dconst[neuron_index] = rng.inRange(m_Dconst[0], m_Dconst[1]); 
+    // TODO: we may need another distribution mode besides flat distribution
+    if (layout->neuron_type_map[neuron_index] == EXC) {
+        // excitatory neuron
+        Aconst[neuron_index] = rng.inRange(m_excAconst[0], m_excAconst[1]); 
+        Bconst[neuron_index] = rng.inRange(m_excBconst[0], m_excBconst[1]); 
+        Cconst[neuron_index] = rng.inRange(m_excCconst[0], m_excCconst[1]); 
+        Dconst[neuron_index] = rng.inRange(m_excDconst[0], m_excDconst[1]); 
+    } else {
+        // inhibitory neuron
+        Aconst[neuron_index] = rng.inRange(m_inhAconst[0], m_inhAconst[1]); 
+        Bconst[neuron_index] = rng.inRange(m_inhBconst[0], m_inhBconst[1]); 
+        Cconst[neuron_index] = rng.inRange(m_inhCconst[0], m_inhCconst[1]); 
+        Dconst[neuron_index] = rng.inRange(m_inhDconst[0], m_inhDconst[1]); 
+    }
+ 
     u[neuron_index] = 0;
 
     DEBUG_HI(cout << "CREATE NEURON[" << neuron_index << "] {" << endl
