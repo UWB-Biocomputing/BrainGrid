@@ -10,7 +10,12 @@
 #include "Simulator.h"
 
 /*
- * Constructor
+ *  Constructor
+ *
+ *  @param  network
+ *          pointer to a neural network implementation to be simulated by BrainGrid. (It would be
+ *          nice if this was a parameter to #simulate). Note: this reference will not be deleted.
+ *  @param  sim_info    parameters for the simulation.
  */
 Simulator::Simulator(Network *network, SimulationInfo *sim_info) : network(network), m_sim_info(sim_info)
 {

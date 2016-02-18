@@ -18,6 +18,20 @@ SingleThreadedSpikingModel::~SingleThreadedSpikingModel()
 }
 
 /*
+ *  Sets up the Simulation.
+ *
+ *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  simRecorder Pointer to the simulation recordig object.
+ */
+void SingleThreadedSpikingModel::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
+{
+    Model::setupSim(sim_info, simRecorder);
+
+    // Create a normalized random number generator
+    rgNormrnd.push_back(new Norm(0, 1, sim_info->seed));
+}
+
+/*
  *  Advance everything in the model one time step. In this case, that
  *  means advancing just the Neurons and Synapses.
  *

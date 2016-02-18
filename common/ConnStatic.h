@@ -48,28 +48,88 @@ using namespace std;
 class ConnStatic : public Connections
 {
     public:
-        // TODO
         ConnStatic();
         virtual ~ConnStatic();
 
         static Connections* Create() { return new ConnStatic(); }
 
+        /**
+         *  Setup the internal structure of the class (allocate memories and initialize them).
+         *  Initialize the small world network characterized by parameters: 
+         *  number of maximum connections per neurons, connection radius threshold, and
+         *  small-world rewiring probability.
+         *
+         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  layout    Layout information of the neunal network.
+         *  @param  neurons   The Neuron list to search from.
+         *  @param  synapses  The Synapse list to search from.
+         */
         virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, IAllNeurons *neurons, IAllSynapses *synapses);
+
+        /**
+         *  Cleanup the class.
+         */
         virtual void cleanupConnections();
+
+        /**
+         *  Attempts to read parameters from a XML file.
+         *
+         *  @param  element TiXmlElement to examine.
+         *  @return true if successful, false otherwise.
+         */
         virtual bool readParameters(const TiXmlElement& element);
+
+        /**
+         *  Prints out all parameters of the connections to ostream.
+         *
+         *  @param  output  ostream to send output to.
+         */
         virtual void printParameters(ostream &output) const;
+
+        /**
+         *  Reads the intermediate connection status from istream.
+         *
+         *  @param  input    istream to read status from.
+         *  @param  sim_info SimulationInfo class to read information from.
+         */
         virtual void readConns(istream& input, const SimulationInfo *sim_info);
+
+        /**
+         *  Writes the intermediate connection status to ostream.
+         *
+         *  @param  output   ostream to write status to.
+         *  @param  sim_info SimulationInfo class to read information from.
+         */
         virtual void writeConns(ostream& output, const SimulationInfo *sim_info);
+
+        /**
+         *  Creates a recorder class object for the connection.
+         *
+         *  @param  stateOutputFileName  Name of the state output file.
+         *                               This function tries to create either Xml recorder or
+         *                               Hdf5 recorder based on the extension of the file name.
+         *  @param  model                Poiner to the model class object.
+         *  @param  simInfo              SimulationInfo to refer from.
+         *  @return Pointer to the recorder class object.
+         */
         virtual IRecorder* createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *sim_info);
 
     private:
-        // number of maximum connections per neurons
-        int nConnsPerNeuron;
-        // Connection radius threshold
-        BGFLOAT threshConnsRadius;
-        // Small-world rewiring probability
-        BGFLOAT pRewiring;
+        //! number of maximum connections per neurons
+        int m_nConnsPerNeuron;
 
+        //! Connection radius threshold
+        BGFLOAT m_threshConnsRadius;
+
+        //! Small-world rewiring probability
+        BGFLOAT m_pRewiring;
+
+        //! Min/max values of excitatory neuron's synapse weight
+        BGFLOAT m_excWeight[2];
+
+        //! Min/max values of inhibitory neuron's synapse weight
+        BGFLOAT m_inhWeight[2];
+ 
         struct DistDestNeuron
         {
             BGFLOAT dist;

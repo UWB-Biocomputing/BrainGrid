@@ -30,6 +30,7 @@ FClassOfCategory::FClassOfCategory() :
     registerNeurons("AllIZHNeurons", &AllIZHNeurons::Create);
 
     // register synapses classes
+    registerSynapses("AllSpikingSynapses", &AllSpikingSynapses::Create);
     registerSynapses("AllDSSynapses", &AllDSSynapses::Create);
     registerSynapses("AllSTDPSynapses", &AllSTDPSynapses::Create);
     registerSynapses("AllDynamicSTDPSynapses", &AllDynamicSTDPSynapses::Create);

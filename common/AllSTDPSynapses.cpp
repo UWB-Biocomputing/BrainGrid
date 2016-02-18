@@ -288,7 +288,7 @@ void AllSTDPSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInfo *
         // pre and post neurons index
         int idxPre = sourceNeuronIndex[iSyn];
         int idxPost = destNeuronIndex[iSyn];
-        int64_t spikeHistory, spikeHistory2;
+        uint64_t spikeHistory, spikeHistory2;
         BGFLOAT delta;
         BGFLOAT epre, epost;
 

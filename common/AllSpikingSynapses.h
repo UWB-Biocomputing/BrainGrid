@@ -47,6 +47,8 @@ class AllSpikingSynapses : public AllSynapses
         AllSpikingSynapses(const int num_neurons, const int max_synapses);
         virtual ~AllSpikingSynapses();
 
+        static IAllSynapses* Create() { return new AllSpikingSynapses(); }
+
         /**
          *  Setup the internal structure of the class (allocate memories and initialize them).
          *
@@ -66,6 +68,21 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  deltaT   Inner simulation step duration
          */
         virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT);
+
+        /**
+         *  Attempts to read parameters from a XML file.
+         *
+         *  @param  element TiXmlElement to examine.
+         *  @return true if successful, false otherwise.
+         */
+        virtual bool readParameters(const TiXmlElement& element);
+
+        /**
+         *  Prints out all parameters of the neurons to ostream.
+         *
+         *  @param  output  ostream to send output to.
+         */
+        virtual void printParameters(ostream &output) const;
 
         /**
          *  Create a Synapse and connect it to the model.
@@ -132,6 +149,84 @@ class AllSpikingSynapses : public AllSynapses
 #if defined(USE_GPU)
     public:
         /**
+         *  Allocate GPU memories to store all synapses' states,
+         *  and copy them from host to GPU memory.
+         *
+         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  sim_info           SimulationInfo to refer from.
+         */
+        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info );
+
+        /**
+         *  Allocate GPU memories to store all synapses' states,
+         *  and copy them from host to GPU memory.
+         *
+         *  @param  allSynapsesDevice     Reference to the allSynapses struct on device memory.
+         *  @param  num_neurons           Number of neurons.
+         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         */
+        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron );
+
+        /**
+         *  Delete GPU memories.
+         *
+         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  sim_info           SimulationInfo to refer from.
+         */
+        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice );
+
+        /**
+         *  Copy all synapses' data from host to device.
+         *
+         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  sim_info           SimulationInfo to refer from.
+         */
+        virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info );
+
+        /**
+         *  Copy all synapses' data from host to device.
+         *
+         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  num_neurons           Number of neurons.
+         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         */
+        virtual void copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron );
+        /**
+         *  Copy all synapses' data from device to host.
+         *
+         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  sim_info           SimulationInfo to refer from.
+         */
+        virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info );
+
+        /**
+         *  Get synapse_counts in AllSynapses struct on device memory.
+         *
+         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  sim_info           SimulationInfo to refer from.
+         */
+        virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const SimulationInfo *sim_info);
+
+        /** 
+         *  Get summationCoord and in_use in AllSynapses struct on device memory.
+         *
+         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  sim_info           SimulationInfo to refer from.
+         */
+        virtual void copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info);
+
+        /**
+         *  Get a pointer to the device function createSynapse.
+         *  The function will be called from updateSynapsesWeightsDevice device function.
+         *  Because we cannot use virtual function (Polymorphism) in device functions,
+         *  we use this scheme.
+         *
+         *  @param  fpCreateSynapse_h     Reference to the memory location 
+         *                                where the function pointer will be set.
+         */
+        virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h);
+
+        /**
          *  Advance all the Synapses in the simulation.
          *  Update the state of all synapses for a time step.
          *
@@ -180,6 +275,46 @@ class AllSpikingSynapses : public AllSynapses
          *                                where the function pointer will be set.
          */
         virtual void getFpChangePSR(unsigned long long& fpChangePSR_h);
+
+    protected:
+        /**
+         *  Allocate GPU memories to store all synapses' states,
+         *  and copy them from host to GPU memory.
+         *  (Helper function of allocSynapseDeviceStruct)
+         *
+         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  num_neurons           Number of neurons.
+         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         */
+        void allocDeviceStruct( AllSpikingSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+
+        /**
+         *  Delete GPU memories.
+         *  (Helper function of deleteSynapseDeviceStruct)
+         *
+         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         */
+        void deleteDeviceStruct( AllSpikingSynapses& allSynapses );
+
+        /**
+         *  Copy all synapses' data from host to device.
+         *  (Helper function of copySynapseHostToDevice)
+         *
+         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  num_neurons           Number of neurons.
+         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         */
+        void copyHostToDevice( void* allSynapsesDevice, AllSpikingSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+
+        /**
+         *  Copy all synapses' data from device to host.
+         *  (Helper function of copySynapseDeviceToHost)
+         *
+         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  num_neurons           Number of neurons.
+         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         */
+        void copyDeviceToHost( AllSpikingSynapses& allSynapses, const SimulationInfo *sim_info );
 #else  // !defined(USE_GPU)
 public:
         /**
@@ -270,6 +405,15 @@ public:
 
 #if defined(__CUDACC__)
 /**
+ *  Get a pointer to the device function createSynapse.
+ *  (CUDA helper function for AllSpikingSynapses::getFpCreateSynapse())
+ *
+ *  @param  fpCreateSynapse_d     Reference to the device memory location 
+ *                                where the function pointer will be set.
+ */
+extern __global__ void getFpCreateSpikingSynapseDevice(void (**fpCreateSynapse_d)(AllSpikingSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType));
+
+/**
  *  CUDA code for advancing spiking synapses.
  *  Perform updating synapses for one time step.
  *
@@ -308,6 +452,22 @@ extern __global__ void getFpSpikingSynapsesPostSpikeHitDevice(void (**fpPostSpik
  *                                where the function pointer will be set.
  */
 extern __global__ void getFpSpikingSynapsesChangePSRDevice(void (**fpChangePSR_d)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT));
+
+/**
+ *  Create a Spiking Synapse and connect it to the model.
+ *
+ *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
+ *  @param neuron_index         Index of the source neuron.
+ *  @param synapse_index        Index of the Synapse to create.
+ *  @param source_x             X location of source.
+ *  @param source_y             Y location of source.
+ *  @param dest_x               X location of destination.
+ *  @param dest_y               Y location of destination.
+ *  @param sum_point            Pointer to the summation point.
+ *  @param deltaT               The time step size.
+ *  @param type                 Type of the Synapse to create.
+ */
+__device__ void createSpikingSynapse(AllSpikingSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
 
 /**
  *  Checks if there is an input spike in the queue.

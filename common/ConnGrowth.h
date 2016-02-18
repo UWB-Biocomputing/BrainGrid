@@ -86,66 +86,185 @@ using namespace std;
 class ConnGrowth : public Connections
 {
     public:
-        // TODO
-        int *spikeCounts;
-
-        //! synapse weight
-        CompleteMatrix *W;
-        //! neuron radii
-        VectorMatrix *radii;
-        //! spiking rate
-        VectorMatrix *rates;
-        //! distance between connection frontiers
-        CompleteMatrix *delta;
-        //! areas of overlap
-        CompleteMatrix *area;
-        //! neuron's outgrowth
-        VectorMatrix *outgrowth;
-        //! displacement of neuron radii
-        VectorMatrix *deltaR;
-
-        // TODO
         ConnGrowth();
         virtual ~ConnGrowth();
 
         static Connections* Create() { return new ConnGrowth(); }
 
+        /**
+         *  Setup the internal structure of the class (allocate memories and initialize them).
+         *
+         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  layout    Layout information of the neunal network.
+         *  @param  neurons   The Neuron list to search from.
+         *  @param  synapses  The Synapse list to search from.
+         */
         virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, IAllNeurons *neurons, IAllSynapses *synapses);
+
+        /**
+         *  Cleanup the class (deallocate memories).
+         */
         virtual void cleanupConnections();
+
+        /**
+         *  Attempts to read parameters from a XML file.
+         *
+         *  @param  element TiXmlElement to examine.
+         *  @return true if successful, false otherwise.
+         */
         virtual bool readParameters(const TiXmlElement& element);
+
+        /**
+         *  Prints out all parameters of the connections to ostream.
+         *
+         *  @param  output  ostream to send output to.
+         */
         virtual void printParameters(ostream &output) const;
+
+        /**
+         *  Reads the intermediate connection status from istream.
+         *
+         *  @param  input    istream to read status from.
+         *  @param  sim_info SimulationInfo class to read information from.
+         */
         virtual void readConns(istream& input, const SimulationInfo *sim_info);
+
+        /**
+         *  Writes the intermediate connection status to ostream.
+         *
+         *  @param  output   ostream to write status to.
+         *  @param  sim_info SimulationInfo class to read information from.
+         */
         virtual void writeConns(ostream& output, const SimulationInfo *sim_info);
+
+        /**
+         *  Update the connections status in every epoch.
+         *
+         *  @param  neurons  The Neuron list to search from.
+         *  @param  sim_info SimulationInfo class to read information from.
+         *  @param  layout   Layout information of the neunal network.
+         *  @return true if successful, false otherwise.
+         */
         virtual bool updateConnections(IAllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout);
+
+        /**
+         *  Creates a recorder class object for the connection.
+         *
+         *  @param  stateOutputFileName  Name of the state output file.
+         *                               This function tries to create either Xml recorder or
+         *                               Hdf5 recorder based on the extension of the file name.
+         *  @param  model                Poiner to the model class object. 
+         *  @param  simInfo              SimulationInfo to refer from.
+         *  @return Pointer to the recorder class object.
+         */
         virtual IRecorder* createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *sim_info);
 #if defined(USE_GPU)
+    public:
+        /**
+         *  Update the weight of the Synapses in the simulation.
+         *  Note: Platform Dependent.
+         *
+         *  @param  num_neurons         number of neurons to update.
+         *  @param  neurons             the Neuron list to search from.
+         *  @param  synapses            the Synapse list to search from.
+         *  @param  sim_info            SimulationInfo to refer from.
+         *  @param  m_allNeuronsDevice  Reference to the allNeurons struct on device memory. 
+         *  @param  m_allSynapsesDevice Reference to the allSynapses struct on device memory.
+         *  @param  layout              Layout information of the neunal network.
+         */
         virtual void updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice, Layout *layout);
 #else
+    public:
+        /**
+         *  Update the weight of the Synapses in the simulation.
+         *  Note: Platform Dependent.
+         *
+         *  @param  num_neurons Number of neurons to update.
+         *  @param  ineurons    The Neuron list to search from.
+         *  @param  isynapses   The Synapse list to search from.
+         *  @param  sim_info    SimulationInfo to refer from.
+         */
         virtual void updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, Layout *layout);
 #endif
+    private:
+        /**
+         *  Calculates firing rates, neuron radii change and assign new values.
+         *
+         *  @param  neurons  The Neuron list to search from.
+         *  @param  sim_info SimulationInfo class to read information from.
+         */
+        void updateConns(IAllNeurons &neurons, const SimulationInfo *sim_info);
 
+        /**
+         *  Update the distance between frontiers of Neurons.
+         *
+         *  @param  num_neurons Number of neurons to update.
+         *  @param  layout      Layout information of the neunal network.
+         */
+        void updateFrontiers(const int num_neurons, Layout *layout);
+
+        /**
+         *  Update the areas of overlap in between Neurons.
+         *
+         *  @param  num_neurons Number of Neurons to update.
+         *  @param  layout      Layout information of the neunal network.
+         */
+        void updateOverlap(BGFLOAT num_neurons, Layout *layout);
+
+    public:
         struct GrowthParams
         {
-            BGFLOAT epsilon; //null firing rate(zero outgrowth)
-            BGFLOAT beta;  //sensitivity of outgrowth to firing rate
-            BGFLOAT rho;  //outgrowth rate constant
+            BGFLOAT epsilon;   //null firing rate(zero outgrowth)
+            BGFLOAT beta;      //sensitivity of outgrowth to firing rate
+            BGFLOAT rho;       //outgrowth rate constant
             BGFLOAT targetRate; // Spikes/second
-            BGFLOAT maxRate; // = targetRate / epsilon;
+            BGFLOAT maxRate;   // = targetRate / epsilon;
             BGFLOAT minRadius; // To ensure that even rapidly-firing neurons will connect to
                                // other neurons, when within their RFS.
             BGFLOAT startRadius; // No need to wait a long time before RFs start to overlap
         };
 
-        // TODO
+        //! structure to keep growth parameters
         GrowthParams m_growth;
 
-    private:
-        void updateConns(IAllNeurons &neurons, const SimulationInfo *sim_info);
-        void updateFrontiers(const int num_neurons, Layout *layout);
-        void updateOverlap(BGFLOAT num_neurons, Layout *layout);
+        //! spike count for each epoch
+        int *spikeCounts;
+
+        //! synapse weight
+        CompleteMatrix *W;
+
+        //! neuron radii
+        VectorMatrix *radii;
+
+        //! spiking rate
+        VectorMatrix *rates;
+
+        //! distance between connection frontiers
+        CompleteMatrix *delta;
+
+        //! areas of overlap
+        CompleteMatrix *area;
+
+        //! neuron's outgrowth
+        VectorMatrix *outgrowth;
+
+        //! displacement of neuron radii
+        VectorMatrix *deltaR;
+
 };
 
 #if defined(__CUDACC__)
-//! Update the network.
+/**
+ * Adjust the strength of the synapse or remove it from the synapse map if it has gone below
+ * zero.
+ *
+ * @param[in] num_neurons        Number of neurons.
+ * @param[in] deltaT             The time step size.
+ * @param[in] W_d                Array of synapse weight.
+ * @param[in] maxSynapses        Maximum number of synapses per neuron.
+ * @param[in] allNeuronsDevice   Pointer to the Neuron structures in device memory.
+ * @param[in] allSynapsesDevice  Pointer to the Synapse structures in device memory.
+ * @param[in] fpCreateSynapse    Function pointer to the createSynapse device function.
+ */
 extern __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, void (*fpCreateSynapse)(AllSpikingSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType), neuronType* neuron_type_map_d );
 #endif

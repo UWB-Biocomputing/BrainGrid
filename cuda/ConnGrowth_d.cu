@@ -5,10 +5,14 @@
 /*
  *  Update the weight of the Synapses in the simulation.
  *  Note: Platform Dependent.
- *  @param  num_neurons number of neurons to update.
- *  @param  neurons the Neuron list to search from.
- *  @param  synapses    the Synapse list to search from.
- *  @param  sim_info    SimulationInfo to refer from.
+ *
+ *  @param  num_neurons         number of neurons to update.
+ *  @param  neurons             the Neuron list to search from.
+ *  @param  synapses            the Synapse list to search from.
+ *  @param  sim_info            SimulationInfo to refer from.
+ *  @param  m_allNeuronsDevice  Reference to the allNeurons struct on device memory. 
+ *  @param  m_allSynapsesDevice Reference to the allSynapses struct on device memory.
+ *  @param  layout              Layout information of the neunal network.
  */
 void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice, Layout *layout)
 {
@@ -61,12 +65,14 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neuro
 /*
  * Adjust the strength of the synapse or remove it from the synapse map if it has gone below
  * zero.
+ *
  * @param[in] num_neurons        Number of neurons.
  * @param[in] deltaT             The time step size.
  * @param[in] W_d                Array of synapse weight.
  * @param[in] maxSynapses        Maximum number of synapses per neuron.
- * @param[in] allNeuronsDevice          Pointer to the Neuron structures in device memory.
- * @param[in] allSynapsesDevice         Pointer to the Synapse structures in device memory.
+ * @param[in] allNeuronsDevice   Pointer to the Neuron structures in device memory.
+ * @param[in] allSynapsesDevice  Pointer to the Synapse structures in device memory.
+ * @param[in] fpCreateSynapse    Function pointer to the createSynapse device function.
  */
 __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, void (*fpCreateSynapse)(AllSpikingSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType), neuronType* neuron_type_map_d )
 {

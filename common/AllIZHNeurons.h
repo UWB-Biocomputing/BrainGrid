@@ -382,24 +382,44 @@ class AllIZHNeurons : public AllIFNeurons
         static const BGFLOAT DEFAULT_d = 2;
 
         /**
-         *  Min/max values of Aconst.
+         *  Min/max values of Aconst for excitatory neurons.
          */
-        BGFLOAT m_Aconst[2];
+        BGFLOAT m_excAconst[2];
 
         /**
-         *  Min/max values of Bconst.
+         *  Min/max values of Aconst for inhibitory neurons.
          */
-        BGFLOAT m_Bconst[2];
+        BGFLOAT m_inhAconst[2];
 
         /**
-         *  Min/max values of Cconst.
+         *  Min/max values of Bconst for excitatory neurons.
          */
-        BGFLOAT m_Cconst[2];
+        BGFLOAT m_excBconst[2];
 
         /**
-         *  Min/max values of Dconst.
+         *  Min/max values of Bconst for inhibitory neurons.
          */
-        BGFLOAT m_Dconst[2];
+        BGFLOAT m_inhBconst[2];
+
+        /**
+         *  Min/max values of Cconst for excitatory neurons.
+         */
+        BGFLOAT m_excCconst[2];
+
+        /**
+         *  Min/max values of Cconst for inhibitory neurons.
+         */
+        BGFLOAT m_inhCconst[2];
+
+        /**
+         *  Min/max values of Dconst for excitatory neurons.
+         */
+        BGFLOAT m_excDconst[2];
+
+        /**
+         *  Min/max values of Dconst for inhibitory neurons.
+         */
+        BGFLOAT m_inhDconst[2];
 };
 
 #if defined(__CUDACC__)

@@ -9,9 +9,9 @@
 
 ConnStatic::ConnStatic() : Connections()
 {
-    threshConnsRadius = 0;
-    nConnsPerNeuron = 0;
-    pRewiring = 0;
+    m_threshConnsRadius = 0;
+    m_nConnsPerNeuron = 0;
+    m_pRewiring = 0;
 }
 
 ConnStatic::~ConnStatic()
@@ -46,7 +46,7 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
         for (int dest_neuron = 0; dest_neuron < num_neurons; dest_neuron++) {
             if (src_neuron != dest_neuron) {
                 BGFLOAT dist = (*layout->dist)(src_neuron, dest_neuron);
-                if (dist <= threshConnsRadius) {
+                if (dist <= m_threshConnsRadius) {
                     DistDestNeuron distDestNeuron;
                     distDestNeuron.dist = dist;
                     distDestNeuron.dest_neuron = dest_neuron;
@@ -57,9 +57,8 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
 
         // sort ascendant
         sort(distDestNeurons[src_neuron].begin(), distDestNeurons[src_neuron].end());
-
-        // pick the shortest nConnsPerNeuron connections
-        for (int i = 0; i < distDestNeurons[src_neuron].size() && i < nConnsPerNeuron; i++) {
+        // pick the shortest m_nConnsPerNeuron connections
+        for (int i = 0; i < distDestNeurons[src_neuron].size() && i < m_nConnsPerNeuron; i++) {
             int dest_neuron = distDestNeurons[src_neuron][i].dest_neuron;
             synapseType type = layout->synType(src_neuron, dest_neuron);
             BGFLOAT* sum_point = &( dynamic_cast<AllNeurons*>(neurons)->summation_map[dest_neuron] );
@@ -69,10 +68,19 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
             uint32_t iSyn;
             synapses->addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT);
             added++;
+
+            // set synapse weight
+            // TODO: we need another synaptic weight distibution mode (normal distribution)
+            if (synapses->synSign(type) > 0) {
+                dynamic_cast<AllSynapses*>(synapses)->W[iSyn] = rng.inRange(m_excWeight[0], m_excWeight[1]);
+            }
+            else {
+                dynamic_cast<AllSynapses*>(synapses)->W[iSyn] = rng.inRange(m_inhWeight[0], m_inhWeight[1]);
+            } 
         }
     }
 
-    int nRewiring = added * pRewiring;
+    int nRewiring = added * m_pRewiring;
 
     DEBUG(cout << "Rewiring connections: " << nRewiring << endl;)
 
@@ -88,34 +96,58 @@ void ConnStatic::cleanupConnections()
 
 /*
  *  Attempts to read parameters from a XML file.
+ *
  *  @param  element TiXmlElement to examine.
  *  @return true if successful, false otherwise.
  */
 bool ConnStatic::readParameters(const TiXmlElement& element)
 {
+    // Connections parameters
     if (element.ValueStr().compare("ConnectionsParams") == 0) {
         // number of maximum connections per neurons
-        if (element.QueryIntAttribute("nConnsPerNeuron", &nConnsPerNeuron) != TIXML_SUCCESS) {
+        if (element.QueryIntAttribute("nConnsPerNeuron", &m_nConnsPerNeuron) != TIXML_SUCCESS) {
                 throw ParseParamError("nConnsPerNeuron", "Static Connections param 'nConnsPerNeuron' missing in XML.");
         }
-        if (nConnsPerNeuron < 0) {
+        if (m_nConnsPerNeuron < 0) {
                 throw ParseParamError("nConnsPerNeuron", "Invalid negative Growth param 'nConnsPerNeuron' value.");
         }
 
         // Connection radius threshold
-        if (element.QueryFLOATAttribute("threshConnsRadius", &threshConnsRadius) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("threshConnsRadius", &m_threshConnsRadius) != TIXML_SUCCESS) {
                 throw ParseParamError("threshConnsRadius", "Static Connections param 'threshConnsRadius' missing in XML.");
         }
-        if (threshConnsRadius < 0) {
+        if (m_threshConnsRadius < 0) {
                 throw ParseParamError("threshConnsRadius", "Invalid negative Growth param 'threshConnsRadius' value.");
         }
 
         // Small-world rewiring probability
-        if (element.QueryFLOATAttribute("pRewiring", &pRewiring) != TIXML_SUCCESS) {
+        if (element.QueryFLOATAttribute("pRewiring", &m_pRewiring) != TIXML_SUCCESS) {
                 throw ParseParamError("pRewiring", "Static Connections param 'pRewiring' missing in XML.");
         }
-        if (pRewiring < 0 || pRewiring > 1.0) {
+        if (m_pRewiring < 0 || m_pRewiring > 1.0) {
                 throw ParseParamError("pRewiring", "Invalid negative Growth param 'pRewiring' value.");
+        }
+    }
+
+    // Connections weight parameters
+    if (element.ValueStr().compare("ConnectionsWeight") == 0) {
+        if (element.QueryFLOATAttribute("minExc", &m_excWeight[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("ConnectionsWeight minExc", "ConnectionsWeight missing minimum values of excitatory neuron's synapse weight in XML.");
+        }
+        if (element.QueryFLOATAttribute("maxExc", &m_excWeight[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("ConnectionsWeight maxExc", "ConnectionsWeight missing maximum values of excitatory neuron's synapse weight in XML.");
+        }
+        if (element.QueryFLOATAttribute("minInh", &m_inhWeight[0]) != TIXML_SUCCESS) {
+            throw ParseParamError("ConnectionsWeight minInh", "ConnectionsWeight missing minimum values of inhibitory neuron's synapse weight in XML.");
+        }
+        if (element.QueryFLOATAttribute("maxInh", &m_inhWeight[1]) != TIXML_SUCCESS) {
+            throw ParseParamError("ConnectionsWeight maxInh", "ConnectionsWeight missing maximum values of inhibitory neuron's synapse weight in XML.");
+        }
+        if (m_excWeight[0] < 0 || m_excWeight[0] > m_excWeight[1]) {
+            throw ParseParamError("ConnectionsWeight maxExc", "Invalid range for ConnectionsWeight excitatory neuron's synapse weight.");
+        }
+        if (m_inhWeight[1] > 0 || m_inhWeight[0] > m_inhWeight[1]) {
+            throw ParseParamError("ConnectionsWeight maxInh", "Invalid range for ConnectionsWeight inhibitory neuron's synapse weight.");
         }
     }
 

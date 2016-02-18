@@ -52,24 +52,103 @@ class IModel;
 class Connections
 {
     public:
-        // TODO
         Connections();
         virtual ~Connections();
 
+        /**
+         *  Setup the internal structure of the class (allocate memories and initialize them).
+         *
+         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  layout    Layout information of the neunal network.
+         *  @param  neurons   The Neuron list to search from.
+         *  @param  synapses  The Synapse list to search from.
+         */
         virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, IAllNeurons *neurons, IAllSynapses *synapses) = 0;
+
+        /**
+         *  Cleanup the class (deallocate memories).
+         */
         virtual void cleanupConnections() = 0;
+
+        /**
+         *  Attempts to read parameters from a XML file.
+         *
+         *  @param  element TiXmlElement to examine.
+         *  @return true if successful, false otherwise.
+         */
         virtual bool readParameters(const TiXmlElement& element) = 0;
+
+        /**
+         *  Prints out all parameters of the connections to ostream.
+         *
+         *  @param  output  ostream to send output to.
+         */
         virtual void printParameters(ostream &output) const = 0;
+
+        /**
+         *  Reads the intermediate connection status from istream.
+         *
+         *  @param  input    istream to read status from.
+         *  @param  sim_info SimulationInfo class to read information from.
+         */
         virtual void readConns(istream& input, const SimulationInfo *sim_info) = 0;
+
+        /**
+         *  Writes the intermediate connection status to ostream.
+         *
+         *  @param  output   ostream to write status to.
+         *  @param  sim_info SimulationInfo class to read information from.
+         */
         virtual void writeConns(ostream& output, const SimulationInfo *sim_info) = 0;
+
+        /**
+         *  Update the connections status in every epoch.
+         *
+         *  @param  neurons  The Neuron list to search from.
+         *  @param  sim_info SimulationInfo class to read information from.
+         *  @param  layout   Layout information of the neunal network.
+         *  @return true if successful, false otherwise.
+         */
         virtual bool updateConnections(IAllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout);
+
+        /**
+         *  Creates a recorder class object for the connection.
+         *
+         *  @param  stateOutputFileName  Name of the state output file.
+         *                               This function tries to create either Xml recorder or
+         *                               Hdf5 recorder based on the extension of the file name.
+         *  @param  model                Poiner to the model class object. 
+         *  @param  simInfo              SimulationInfo to refer from.
+         *  @return Pointer to the recorder class object.
+         */
         virtual IRecorder* createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *sim_info) = 0;
 #if defined(USE_GPU)
+    public:
+        /**
+         *  Update the weight of the Synapses in the simulation.
+         *  Note: Platform Dependent.
+         *
+         *  @param  num_neurons         number of neurons to update.
+         *  @param  neurons             the Neuron list to search from.
+         *  @param  synapses            the Synapse list to search from.
+         *  @param  sim_info            SimulationInfo to refer from.
+         *  @param  m_allNeuronsDevice  Reference to the allNeurons struct on device memory. 
+         *  @param  m_allSynapsesDevice Reference to the allSynapses struct on device memory.
+         *  @param  layout              Layout information of the neunal network.
+         */
         virtual void updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice, Layout *layout);
 #else
+    public:
+        /**
+         *  Update the weight of the Synapses in the simulation.
+         *  Note: Platform Dependent.
+         *
+         *  @param  num_neurons Number of neurons to update.
+         *  @param  ineurons    The Neuron list to search from.
+         *  @param  isynapses   The Synapse list to search from.
+         *  @param  sim_info    SimulationInfo to refer from.
+         */
         virtual void updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, Layout *layout);
 #endif
-
-    private:
 };
 

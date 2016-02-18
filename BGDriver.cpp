@@ -17,18 +17,16 @@
 #include "FClassOfCategory.h"
 #include "IRecorder.h"
 #include "FSInput.h"
-
+#include "Simulator.h"
 
 // Uncomment to use visual leak detector (Visual Studios Plugin)
 // #include <vld.h>
 
 #if defined(USE_GPU)
     #include "GPUSpikingModel.h"
-    #include "GPUSimulator.h"
 #elif defined(USE_OMP)
 //    #include "MultiThreadedSim.h"
 #else 
-    #include "SingleThreadedSim.h"
     #include "SingleThreadedSpikingModel.h"
 #endif
 
@@ -120,20 +118,9 @@ int main(int argc, char* argv[]) {
     time_t start_time, end_time;
     time(&start_time);
 
+    // create the simulator
     Simulator *simulator;
-    // It might be possible to do away with virtual function calls
-    // by having simulator be a reference to a auto allocated derived class 
-    // similar to the below code:
-    //SingleThreadedSim test(&network, si);
-    //simulator = &test;
-
-    #if defined(USE_GPU)
-        simulator = new GPUSimulator(&network, simInfo);
-    #elif defined(USE_OMP)
-        simulator = new SingleThreadedSim(&network, simInfo);
-    #else
-        simulator = new SingleThreadedSim(&network, simInfo);
-    #endif
+    simulator = new Simulator(&network, simInfo);
 	
     // setup simulation
     DEBUG(cout << "Setup simulation." << endl;);

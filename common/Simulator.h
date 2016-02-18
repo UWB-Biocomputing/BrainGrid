@@ -34,7 +34,7 @@ class Simulator
 
 	 Simulator(Network *network, SimulationInfo *sim_info);
         /** Destructor */
-        virtual ~Simulator() = 0;
+        virtual ~Simulator();
 
         /**
          * Performs the simulation.
