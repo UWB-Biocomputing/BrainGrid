@@ -396,20 +396,22 @@ __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeuron
  * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
  */
 __global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapses* allSynapsesDevice ) {
-        int idx = blockIdx.x * blockDim.x + threadIdx.x;
+        int idx = blockIdx.x * blockDim.x + threadIdx.x; //determine which neuron this thread is
         if ( idx >= totalNeurons )
                 return;
 
-        uint32_t iCount = synapseIndexMapDevice->synapseCount[idx];
+        uint32_t iCount = synapseIndexMapDevice->synapseCount[idx]; //get the number of active synapses this neuron has
+        //if the neuron doesn't have any synapses, then there is nothing to process 
         if (iCount != 0) {
-                int beginIndex = synapseIndexMapDevice->incomingSynapse_begin[idx];
-                uint32_t* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] );
+        
+                int beginIndex = synapseIndexMapDevice->incomingSynapse_begin[idx]; //get the index of where in the array of synapse indices this partiular neuron's set of indices begins
+                uint32_t* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] ); //translate the index into a pointer, so we can treat this sergment of the inverse map as a zero-based array
                 BGFLOAT sum = 0.0;
-                uint32_t syn_i = inverseMap_begin[0];
-                BGFLOAT &summationPoint = *( allSynapsesDevice->summationPoint[syn_i] );
+                uint32_t syn_i = inverseMap_begin[0]; //get the index of the first synapse of this neuron
+                BGFLOAT &summationPoint = *( allSynapsesDevice->summationPoint[syn_i] ); // this sets the summationPoint as the same summation point that the first synapse points to. Since the neuron represented by this thread is the post synaptic neuron, all the synapses should have the same summation point
                 for ( uint32_t i = 0; i < iCount; i++ ) {
-                        syn_i = inverseMap_begin[i];
-                        sum += allSynapsesDevice->psr[syn_i];
+                        syn_i = inverseMap_begin[i]; //get which synapse this is
+                        sum += allSynapsesDevice->psr[syn_i]; //add this synapse's psr to the sum
                 }
                 summationPoint = sum;
         }
