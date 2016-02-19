@@ -79,7 +79,7 @@ void FClassOfCategory::registerLayout(const string &layoutClassName, CreateLayou
  */
 IAllNeurons* FClassOfCategory::createNeurons(TiXmlElement* parms)
 {
-    string neuronsClassName = "AllLIFNeurons";
+    string neuronsClassName = "AllIZHNeurons";
 
     m_neurons = createNeuronsWithName(neuronsClassName);
     return m_neurons;
@@ -87,7 +87,7 @@ IAllNeurons* FClassOfCategory::createNeurons(TiXmlElement* parms)
 
 IAllSynapses* FClassOfCategory::createSynapses(TiXmlElement* parms)
 {
-    string synapsesClassName = "AllDSSynapses";
+    string synapsesClassName = "AllSpikingSynapses";
 
     m_synapses = createSynapsesWithName(synapsesClassName);
     return m_synapses;
@@ -95,7 +95,7 @@ IAllSynapses* FClassOfCategory::createSynapses(TiXmlElement* parms)
 
 Connections* FClassOfCategory::createConnections(TiXmlElement* parms)
 {
-    string connsClassName = "ConnGrowth";
+    string connsClassName = "ConnStatic";
 
     m_conns = createConnsWithName(connsClassName);
     return m_conns;
