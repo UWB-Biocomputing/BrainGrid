@@ -216,7 +216,7 @@ void AllSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const
 /*
  *  Create a synapse index map.
  *
- *  @param  synapseIndexMap   Reference to thw pointer to SynapseIndexMap structure.
+ *  @param  synapseIndexMap   Reference to the pointer to SynapseIndexMap structure.
  *  @param  sim_info          Pointer to the simulation information.
  */
 void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const SimulationInfo* sim_info)
@@ -239,7 +239,7 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
                 return;
         }
 
-        // allocate memories for inverse map
+        // allocate memories for forward map
         vector<uint32_t>* rgSynapseSynapseIndexMap = new vector<uint32_t>[neuron_count];
 
         uint32_t syn_i = 0;
@@ -251,7 +251,7 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
             synapseIndexMap = NULL;
         }
 
-        // create synapse inverse map
+        // create synapse forward map
         synapseIndexMap = new SynapseIndexMap(neuron_count, total_synapse_counts);
         for (int i = 0; i < neuron_count; i++)
         {
@@ -260,7 +260,7 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
                         uint32_t iSyn = sim_info->maxSynapsesPerNeuron * i + j;
                         if ( in_use[iSyn] == true )
                         {
-                                int idx = destNeuronIndex[iSyn];
+                                int idx = sourceNeuronIndex[iSyn];
                                 rgSynapseSynapseIndexMap[idx].push_back(syn_i);
 
                                 synapseIndexMap->activeSynapseIndex[n_inUse] = syn_i;
@@ -275,12 +275,12 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
         syn_i = 0;
         for (int i = 0; i < neuron_count; i++)
         {
-                synapseIndexMap->incomingSynapse_begin[i] = syn_i;
+                synapseIndexMap->outgoingSynapse_begin[i] = syn_i;
                 synapseIndexMap->synapseCount[i] = rgSynapseSynapseIndexMap[i].size();
 
                 for ( int j = 0; j < rgSynapseSynapseIndexMap[i].size(); j++, syn_i++)
                 {
-                        synapseIndexMap->inverseIndex[syn_i] = rgSynapseSynapseIndexMap[i][j];
+                        synapseIndexMap->forwardIndex[syn_i] = rgSynapseSynapseIndexMap[i][j];
                 }
         }
 

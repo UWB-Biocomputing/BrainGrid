@@ -10,12 +10,12 @@
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
  **
- ** The strcuture maintains incoming synapses list (inverse map) and active synapses list.
+ ** The strcuture maintains a list of outgoing synapses (forward map) and active synapses list.
  **
- ** The incoming synapses list stores all incoming synapse indexes relevant to a neuron.
- ** Synapse indexes are stored in the synapse inverse map (inverseIndex), and
- ** the pointer and length of the neuron i's incomming synapse indexes are specified 
- ** by incomingSynapse_begin[i] and synapseCount[i] respectively. 
+ ** The outgoing synapses list stores all outgoing synapse indexes relevant to a neuron.
+ ** Synapse indexes are stored in the synapse forward map (forwardIndex), and
+ ** the pointer and length of the neuron i's outgoing synapse indexes are specified 
+ ** by outgoingSynapse_begin[i] and synapseCount[i] respectively. 
  ** The incoming synapses list is used in calcSummationMapDevice() device function to
  ** calculate sum of PSRs for each neuron simultaneously. 
  ** The list also used in AllSpikingNeurons::advanceNeurons() function to allow back propagation. 
@@ -38,41 +38,41 @@
         struct SynapseIndexMap
         {
                 //! The beginning index of the incoming dynamic spiking synapse array.
-                int* incomingSynapse_begin;
+                int* outgoingSynapse_begin;
 
                 //! The array of number of active synapses of each neuron.
                 int* synapseCount;
 
                 //! Pointer to the synapse inverse map.
-                uint32_t* inverseIndex;
+                uint32_t* forwardIndex;
 
                 //! Pointer to the active synapse map.
                 uint32_t* activeSynapseIndex;
 
                 SynapseIndexMap() : num_neurons(0), num_synapses(0)
                 {
-                        incomingSynapse_begin = NULL;
+                        outgoingSynapse_begin = NULL;
                         synapseCount = NULL;
-                        inverseIndex = NULL;
+                        forwardIndex = NULL;
                         activeSynapseIndex = NULL;
                 };
 
                 SynapseIndexMap(int neuron_count, int synapse_count) : num_neurons(neuron_count), num_synapses(synapse_count)
                 {
-                        incomingSynapse_begin = new int[neuron_count];
+                        outgoingSynapse_begin = new int[neuron_count];
                         synapseCount = new int[neuron_count];
-                        inverseIndex = new uint32_t[synapse_count];
+                        forwardIndex = new uint32_t[synapse_count];
                         activeSynapseIndex = new uint32_t[synapse_count];
                 };
 
                 ~SynapseIndexMap()
                 {
                         if (num_neurons != 0) {
-                                delete[] incomingSynapse_begin;
+                                delete[] outgoingSynapse_begin;
                                 delete[] synapseCount;
                         }
                         if (num_synapses != 0) {
-                                delete[] inverseIndex;
+                                delete[] forwardIndex;
                                 delete[] activeSynapseIndex;
                         }
                 }

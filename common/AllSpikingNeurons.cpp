@@ -114,29 +114,32 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
             // notify outgoing synapses
             size_t synapse_counts = spSynapses.synapse_counts[idx];
             int synapse_notified = 0;
-            for (int z = 0; synapse_notified < synapse_counts; z++) {
-                uint32_t iSyn = sim_info->maxSynapsesPerNeuron * idx + z;
-                if (spSynapses.in_use[iSyn] == true) {
-                    spSynapses.preSpikeHit(iSyn);
-                    synapse_notified++;
+            if(synapseIndexMap != NULL){
+                synapse_counts = synapseIndexMap->synapseCount[idx];
+                if (synapse_counts != 0) {
+                   int beginIndex = synapseIndexMap->outgoingSynapse_begin[idx];
+                   uint32_t* forwardMap_begin = &( synapseIndexMap->forwardIndex[beginIndex] );
+                   uint32_t iSyn;
+                   for ( uint32_t i = 0; i < synapse_counts; i++ ) {
+                      iSyn = forwardMap_begin[i];
+                      spSynapses.preSpikeHit(iSyn);
+                      synapse_notified++;
+                   }
                 }
             }
 
             // notify incomming synapses
-            if (spSynapses.allowBackPropagation() && synapseIndexMap != NULL) {
-                synapse_counts = synapseIndexMap->synapseCount[idx];
-                if (synapse_counts != 0) {
-                        int beginIndex = synapseIndexMap->incomingSynapse_begin[idx];
-                        uint32_t* inverseMap_begin = &( synapseIndexMap->inverseIndex[beginIndex] );
-                        uint32_t iSyn;
-                        for ( uint32_t i = 0; i < synapse_counts; i++ ) {
-                            iSyn = inverseMap_begin[i];
-                            spSynapses.postSpikeHit(iSyn);
-                            synapse_notified++;
-                        }
-                }
+            if (spSynapses.allowBackPropagation()) {
+               for (int z = 0; synapse_notified < synapse_counts; z++) {
+                   uint32_t iSyn = sim_info->maxSynapsesPerNeuron * idx + z;
+                   if (spSynapses.in_use[iSyn] == true) {
+                       spSynapses.postSpikeHit(iSyn);
+                       synapse_notified++;
+                   }
+               }
             }
 
+            
             hasFired[idx] = false;
         }
     }
