@@ -222,12 +222,16 @@ void Hdf5Recorder::compileHistories(IAllNeurons &neurons)
                 - ( (m_sim_info->currentStep - 1) * m_sim_info->epochDuration * 100 ) );
             assert(idx2 >= 0 && idx2 < m_sim_info->epochDuration * 100);
             spikesHistory[idx2]++;
+
+            // compile spikes time of the probed neuron (append spikes time)
+            if (fProbe)
+            {
+                spikesProbedNeurons[iProbe].insert(spikesProbedNeurons[iProbe].end(), pSpikes[idxSp]);
+            }
         }
 
         if (fProbe)
         {
-            // compile spikes time of the probed neuron (append spikes time)
-            spikesProbedNeurons[iProbe].insert(spikesProbedNeurons[iProbe].end(), pSpikes, pSpikes + spike_count);
             iProbe++;
         }
     }
