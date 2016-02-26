@@ -270,7 +270,7 @@ bool LoadAllParameters(const string &sim_param_filename)
     try {
         LoadSimulationParameters(parms);
         model->readParameters(parms);
-    } catch (KII_exception &e) {
+    } catch (MatrixException &e) {
         cerr << "Failure loading simulation parameters from file "
              << sim_param_filename << ":\n\t" << e.what()
              << endl;
@@ -372,7 +372,7 @@ void LoadSimulationParameters(TiXmlElement* parms)
 
     // Ideally, an error message would be output for each failed Query
     // above, but that's just too much code for me right now.
-    if (!fSet) throw KII_exception("Failed to initialize one or more simulation parameters; check XML");
+    if (!fSet) throw MatrixException("Failed to initialize one or more simulation parameters; check XML");
 
     simInfo = new SimulationInfo(makeSimulationInfo(poolsize[0], poolsize[1],Tsim, numSims,
             maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed));

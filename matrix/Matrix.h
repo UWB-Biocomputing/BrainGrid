@@ -122,7 +122,7 @@ protected:
   @param os the output stream
   @param obj the Matrix object to send to the output stream
  */
-ostream& operator<<(ostream& os, const Matrix& obj) = 0;
+ostream& operator<<(ostream& os, const Matrix& obj);
 
 
 #endif
