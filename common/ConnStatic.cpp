@@ -169,7 +169,7 @@ void ConnStatic::printParameters(ostream &output) const
  *  @param  input    istream to read status from.
  *  @param  sim_info SimulationInfo class to read information from.
  */
-void ConnStatic::readConns(istream& input, const SimulationInfo *sim_info)
+void ConnStatic::deserialize(istream& input, const SimulationInfo *sim_info)
 {
 }
 
@@ -179,7 +179,7 @@ void ConnStatic::readConns(istream& input, const SimulationInfo *sim_info)
  *  @param  output   ostream to write status to.
  *  @param  sim_info SimulationInfo class to read information from.
  */
-void ConnStatic::writeConns(ostream& output, const SimulationInfo *sim_info)
+void ConnStatic::serialize(ostream& output, const SimulationInfo *sim_info)
 {
 }
 

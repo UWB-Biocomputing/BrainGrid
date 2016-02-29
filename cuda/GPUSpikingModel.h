@@ -80,10 +80,43 @@ public:
 	GPUSpikingModel(Connections *conns, IAllNeurons *neurons, IAllSynapses *synapses, Layout *layout);
 	virtual ~GPUSpikingModel();
  
+        /**
+         * Set up model state, if anym for a specific simulation run.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         * @param simRecorder    Pointer to the simulation recordig object.
+         */
 	virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder);
+
+        /**
+         * Performs any finalization tasks on network following a simulation.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         */
 	virtual void cleanupSim(SimulationInfo *sim_info);
-        virtual void loadMemory(istream& input, const SimulationInfo *sim_info);
+
+        /**
+         *  Loads the simulation based on istream input.
+         *
+         *  @param  input       istream to read from.
+         *  @param  sim_info    used as a reference to set info for neurons and synapses.
+         */
+        virtual void deserialize(istream& input, const SimulationInfo *sim_info);
+
+        /**
+         * Advances network state one simulation step.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         */
 	virtual void advance(const SimulationInfo *sim_info);
+
+        /**
+         * Modifies connections between neurons based on current state of the network and behavior
+         * over the past epoch. Should be called once every epoch.
+         *
+         * @param currentStep - The epoch step in which the connections are being updated.
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         */
 	virtual void updateConnections(const SimulationInfo *sim_info);
 
 protected:

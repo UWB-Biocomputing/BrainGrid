@@ -65,7 +65,7 @@ struct SimulationInfo
 	int totalNeurons;
 
 	//! Current simulation step
-	// Main loop in simulator modifies this, and is being used by the LIFModel::saveMemory methods.
+	// Main loop in simulator modifies this, and is being used by the LIFModel::serialize methods.
 	// Those methods are not currently functional.
 	int currentStep;
 

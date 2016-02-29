@@ -43,20 +43,75 @@ class Model : public IModel, TiXmlVisitor
         Model(Connections *conns, IAllNeurons *neurons, IAllSynapses *synapses, Layout *layout);
         virtual ~Model();
 
-        /*
-         * Declarations of concrete implementations of Model interface for an 
-         * Leaky-Integrate-and-Fire * model.
+        /**
+         * Deserializes internal state from a prior run of the simulation.
+         * This allows simulations to be continued from a particular point, to be restarted, or to be
+         * started from a known state.
          *
-         * @see Model.h
+         *  @param  input       istream to read from.
+         *  @param  sim_info    used as a reference to set info for neurons and synapses.
          */
-        virtual void loadMemory(istream& input, const SimulationInfo *sim_info);
-        virtual void saveMemory(ostream& output, const SimulationInfo *sim_info);
-        virtual void saveState(IRecorder* simRecorder);
+        virtual void deserialize(istream& input, const SimulationInfo *sim_info);
+
+        /**
+         * Serializes internal state for the current simulation.
+         * This allows simulations to be continued from a particular point, to be restarted, or to be
+         * started from a known state.
+         *
+         *  @param  output          The filestream to write.
+         *  @param  simulation_step The step of the simulation at the current time.
+         */
+        virtual void serialize(ostream& output, const SimulationInfo *sim_info);
+
+        /**
+         * Writes simulation results to an output destination.
+         *
+         * @param simRecorder    Pointer to the simulation recordig object.
+         */
+        virtual void saveData(IRecorder* simRecorder);
+
+        /**
+         * Set up model state, if anym for a specific simulation run.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         * @param simRecorder    Pointer to the simulation recordig object.
+         */
         virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder);
+
+        /**
+         * Performs any finalization tasks on network following a simulation.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         */
         virtual void cleanupSim(SimulationInfo *sim_info);
+
+        /**
+         *  Get the IAllNeurons class object.
+         *
+         *  @return Pointer to the AllNeurons class object.
+         */
         virtual IAllNeurons* getNeurons();
+
+        /**
+         *  Get the Connections class object.
+         *
+         *  @return Pointer to the Connections class object.
+         */
         virtual Connections* getConnections();
+
+        /**
+         *  Get the Layout class object.
+         *
+         *  @return Pointer to the Layout class object.
+         */
         virtual Layout* getLayout();
+
+        /**
+         *  Update the simulation history of every epoch.
+         *
+         *  @param  sim_info    SimulationInfo to refer from.
+         *  @param  simRecorder Pointer to the simulation recordig object.
+         */
         virtual void updateHistory(const SimulationInfo *sim_info, IRecorder* simRecorder);
 
     protected:

@@ -124,38 +124,41 @@ void Network::reset()
 }
 
 /*
- * Save current simulation state to XML.
+ * Writes simulation results to an output destination.
  */
-void Network::saveState()
+void Network::saveData()
 {
-    m_model->saveState(m_simRecorder);
+    m_model->saveData(m_simRecorder);
 }
 
 /*
- *  Write the simulation memory image.
- *  This needs to be debugged and verified to be working.
+ * Serializes internal state for the current simulation.
+ * This allows simulations to be continued from a particular point, to be restarted, or to be
+ * started from a known state.
  *
  *  @param  os  The filestream to write.
  */
-void Network::writeSimMemory(ostream& os)
+void Network::serialize(ostream& os)
 {
     cerr << "Network::writeSimMemory was called. " << endl;
     // get history matrices with current values
     m_simRecorder->getValues();
 
-    m_model->saveMemory(os, m_sim_info);
+    m_model->serialize(os, m_sim_info);
 }
 
 /*
- *  Read the simulation memory image.
+ * Deserializes internal state from a prior run of the simulation.
+ * This allows simulations to be continued from a particular point, to be restarted, or to be
+ * started from a known state.
  *
  *  @param  is  the filestream to read.
  */
-void Network::readSimMemory(istream& is)
+void Network::deserialize(istream& is)
 {
     // read the neuron data
     is >> m_sim_info->totalNeurons; is.ignore();
-    m_model->loadMemory(is, m_sim_info);
+    m_model->deserialize(is, m_sim_info);
 
     // Init history matrices with current values
     m_simRecorder->initValues();

@@ -121,9 +121,9 @@ void Simulator::advanceUntilGrowth(const int currentStep, ISInput* pInput)
 /*
  * Writes simulation results to an output destination.
  */
-void Simulator::saveState() const
+void Simulator::saveData() const
 {
-    network->saveState();
+    network->saveData();
 }
 
 /*
@@ -133,9 +133,9 @@ void Simulator::saveState() const
  *
  * @param memory_in - where to read the state from.
  */
-void Simulator::readMemory(istream &memory_in)
+void Simulator::deserialize(istream &memory_in)
 {
-    network->readSimMemory(memory_in);
+    network->deserialize(memory_in);
 }
 
 /*
@@ -146,7 +146,7 @@ void Simulator::readMemory(istream &memory_in)
  * @param memory_out - where to write the state to.
  * This method needs to be debugged to verify that it works.
  */
-void Simulator::saveMemory(ostream &memory_out) const
+void Simulator::serialize(ostream &memory_out) const
 {
-    network->writeSimMemory(memory_out);
+    network->serialize(memory_out);
 }

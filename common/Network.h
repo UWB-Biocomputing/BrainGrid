@@ -60,14 +60,27 @@ class Network
         //! Reset simulation objects
         void reset();
 
-        //! Write the network state to an ostream.
-        void saveState();
+        //! Writes simulation results to an output destination.
+        void saveData();
 
-        //! Write the simulation memory image to an ostream
-        void writeSimMemory(ostream& os);
+        /**
+         * Serializes internal state for the current simulation.
+         * This allows simulations to be continued from a particular point, to be restarted, or to be
+         * started from a known state.
+         *
+         * @param  os  The filestream to write.
+         * This method needs to be debugged to verify that it works.
+         */
+        void serialize(ostream& os);
 
-        //! Read the simulation memory image from an istream
-        void readSimMemory(istream& is);
+        /**
+         * Deserializes internal state from a prior run of the simulation.
+         * This allows simulations to be continued from a particular point, to be restarted, or to be
+         * started from a known state.
+         *
+         * @param  is  the filestream to read.
+         */
+        void deserialize(istream& is);
 
         // Setup simulation
         void setup(ISInput* pInput);

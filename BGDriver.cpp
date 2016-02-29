@@ -126,10 +126,11 @@ int main(int argc, char* argv[]) {
     DEBUG(cout << "Setup simulation." << endl;);
     network.setup(pInput);
 
+    // Deserializes internal state from a prior run of the simulation
     if (fReadMemImage) {
         ifstream memory_in;
         memory_in.open(memInputFileName.c_str(), ofstream::binary | ofstream::in);
-        simulator->readMemory(memory_in);
+        simulator->deserialize(memory_in);
         memory_in.close();
     }
 
@@ -143,14 +144,14 @@ int main(int argc, char* argv[]) {
         delete pInput;
     }
 
-    // writes simulation results to an output destination
-    simulator->saveState();
+    // Writes simulation results to an output destination
+    simulator->saveData();
 
-    // write the simulation memory image
+    // Serializes internal state for the current simulation
     ofstream memory_out;
     if (fWriteMemImage) {
         memory_out.open(memOutputFileName.c_str(),ofstream::binary | ofstream::trunc);
-        simulator->saveMemory(memory_out);
+        simulator->serialize(memory_out);
         memory_out.close();
     }
 

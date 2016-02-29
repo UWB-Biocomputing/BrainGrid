@@ -47,18 +47,28 @@ class Simulator
         void advanceUntilGrowth(const int currentStep, ISInput* pInput);
 
         /**
-         * Write the result of the simulation.
+         * Writes simulation results to an output destination.
          */
-        void saveState() const;
+        void saveData() const;
 
         /**
          * Read serialized internal state from a previous run of the simulator.
+         * This allows simulations to be continued from a particular point, to be restarted, or to be
+         * started from a known state.
+         *
+         * @param memory_in - where to read the state from.
          */
-        void readMemory(istream &memory_in);
+        void deserialize(istream &memory_in);
+
         /**
-         * Write current internal state of the simulator.
+         * Serializes internal state for the current simulation.
+         * This allows simulations to be continued from a particular point, to be restarted, or to be
+         * started from a known state.
+         *
+         * @param memory_out - where to write the state to.
+         * This method needs to be debugged to verify that it works.
          */
-        void saveMemory(ostream &memory_out) const;
+        void serialize(ostream &memory_out) const;
 
     protected:
         /**

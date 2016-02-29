@@ -81,7 +81,7 @@ class AllSynapses : public IAllSynapses
          *  @param  input  istream to read from.
          *  @param  sim_info  SimulationInfo class to read information from.
          */
-        virtual void readSynapses(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info);
+        virtual void deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info);
 
         /**
          *  Write the synapses data to the stream.
@@ -89,7 +89,7 @@ class AllSynapses : public IAllSynapses
          *  @param  output  stream to print out to.
          *  @param  sim_info  SimulationInfo class to read information from.
          */
-        virtual void writeSynapses(ostream& output, const SimulationInfo *sim_info);
+        virtual void serialize(ostream& output, const SimulationInfo *sim_info);
 
         /**
          *  Adds a Synapse to the model, connecting two Neurons.
