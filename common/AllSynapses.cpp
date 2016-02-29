@@ -360,20 +360,20 @@ void AllSynapses::eraseSynapse(const int neuron_index, const uint32_t iSyn)
  */
 void AllSynapses::addSynapse(uint32_t &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT)
 {
-    if (synapse_counts[src_neuron] >= maxSynapsesPerNeuron) {
+    if (synapse_counts[dest_neuron] >= maxSynapsesPerNeuron) {
         return; // TODO: ERROR!
     }
 
     // add it to the list
     size_t synapse_index;
     for (synapse_index = 0; synapse_index < maxSynapsesPerNeuron; synapse_index++) {
-        iSyn = maxSynapsesPerNeuron * src_neuron + synapse_index;
+        iSyn = maxSynapsesPerNeuron * dest_neuron + synapse_index;
         if (!in_use[iSyn]) {
             break;
         }
     }
 
-    synapse_counts[src_neuron]++;
+    synapse_counts[dest_neuron]++;
 
     // create a synapse
     createSynapse(iSyn, src_neuron, dest_neuron, sum_point, deltaT, type );

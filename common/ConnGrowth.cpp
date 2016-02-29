@@ -369,13 +369,13 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &ineur
             synapseType type = layout->synType(src_neuron, dest_neuron);
 
             // for each existing synapse
-            size_t synapse_counts = synapses.synapse_counts[src_neuron];
+            size_t synapse_counts = synapses.synapse_counts[dest_neuron];
             int synapse_adjusted = 0;
-            for (size_t synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++) {
-                uint32_t iSyn = sim_info->maxSynapsesPerNeuron * src_neuron + synapse_index;
+            uint32_t iSyn = sim_info->maxSynapsesPerNeuron * dest_neuron;
+            for (size_t synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++, iSyn++) {
                 if (synapses.in_use[iSyn] == true) {
                     // if there is a synapse between a and b
-                    if (synapses.destNeuronIndex[iSyn] == dest_neuron) {
+                    if (synapses.sourceNeuronIndex[iSyn] == src_neuron) {
                         connected = true;
                         adjusted++;
                         // adjust the strength of the synapse or remove
@@ -383,7 +383,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &ineur
                         // zero.
                         if ((*W)(src_neuron, dest_neuron) < 0) {
                             removed++;
-                            synapses.eraseSynapse(src_neuron, iSyn);
+                            synapses.eraseSynapse(dest_neuron, iSyn);
                         } else {
                             // adjust
                             // SYNAPSE_STRENGTH_ADJUSTMENT is 1.0e-8;
