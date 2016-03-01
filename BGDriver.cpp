@@ -116,11 +116,11 @@ int main(int argc, char* argv[]) {
 
     // create the simulator
     Simulator *simulator;
-    simulator = new Simulator(model, simRecorder, simInfo);
+    simulator = new Simulator(model, simRecorder, pInput, simInfo);
 	
     // setup simulation
     DEBUG(cout << "Setup simulation." << endl;);
-    simulator->setup(pInput);
+    simulator->setup();
 
     // Deserializes internal state from a prior run of the simulation
     if (fReadMemImage) {
@@ -131,7 +131,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Run simulation
-    simulator->simulate(pInput);
+    simulator->simulate();
 
     // Terminate the stimulus input 
     if (pInput != NULL)

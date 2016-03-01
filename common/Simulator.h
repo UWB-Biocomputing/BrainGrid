@@ -32,8 +32,17 @@ class Simulator
 {
     public:
 
-        /** The constructor for simulator  */       
-	Simulator(IModel *model, IRecorder* simRecorder, SimulationInfo *sim_info);
+       /**
+        *  Constructor
+        *
+        *  @param  model
+        *          pointer to a neural network implementation to be simulated by BrainGrid. (It would be
+        *          nice if this was a parameter to #simulate). Note: this reference will not be deleted.
+        *  @simRecorder        Pointer to the simulation recordig object.
+        *  @sInput             Pointer to the stimulus input object.
+        *  @param  sim_info    parameters for the simulation.
+        */
+	Simulator(IModel *model, IRecorder* simRecorder, ISInput *sInput, SimulationInfo *sim_info);
 
         /** Destructor */
         virtual ~Simulator();
@@ -41,7 +50,7 @@ class Simulator
         /**
          * Setup simulation.
          */
-        void setup(ISInput* pInput);
+        void setup();
 
         /**
          * Cleanup after simulation.
@@ -56,12 +65,14 @@ class Simulator
         /**
          * Performs the simulation.
          */
-        void simulate(ISInput* pInput);
+        void simulate();
 
         /**
          * Advance simulation to next growth cycle. Helper for #simulate().
+         *
+         * @param currentStep the current epoch in which the network is being simulated.
          */
-        void advanceUntilGrowth(const int currentStep, ISInput* pInput);
+        void advanceUntilGrowth(const int currentStep);
 
         /**
          * Writes simulation results to an output destination.
@@ -116,6 +127,11 @@ class Simulator
          * Pointer to the simulation recordig object.
          */
         IRecorder* m_simRecorder;
+
+        /**
+         * Pointer to the stimulus input object.
+         */
+        ISInput* m_sInput;
 };
 
 #endif /* _SIMULATOR_H_ */

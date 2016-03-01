@@ -16,11 +16,13 @@
  *          pointer to a neural network implementation to be simulated by BrainGrid. (It would be
  *          nice if this was a parameter to #simulate). Note: this reference will not be deleted.
  *  @simRecorder        Pointer to the simulation recordig object.
+ *  @sInput             Pointer to the stimulus input object.
  *  @param  sim_info    parameters for the simulation.
  */
-Simulator::Simulator(IModel *model, IRecorder *simRecorder, SimulationInfo *sim_info) : 
+Simulator::Simulator(IModel *model, IRecorder *simRecorder, ISInput *sInput, SimulationInfo *sim_info) : 
     m_model(model), 
     m_simRecorder(simRecorder),
+    m_sInput(sInput),
     m_sim_info(sim_info)
 {
     cout << "Neuron count: " << sim_info->totalNeurons << endl;
@@ -37,17 +39,15 @@ Simulator::~Simulator()
 
 /*
  *  Initialize and prepare network for simulation.
- *
- *  @param pInput    Pointer to the stimulus input object.
  */
-void Simulator::setup(ISInput* pInput)
+void Simulator::setup()
 {
     cout << "Initializing models in network." << endl;
     m_model->setupSim(m_sim_info, m_simRecorder);
 
     // init stimulus input object
-    if (pInput != NULL)
-        pInput->init(m_model, *(m_model->getNeurons()), m_sim_info);
+    if (m_sInput != NULL)
+        m_sInput->init(m_model, *(m_model->getNeurons()), m_sim_info);
 }
 
 /*
@@ -91,10 +91,8 @@ void Simulator::freeResources()
 
 /*
  * Run simulation
- *
- * @param[in] pInput    Pointer to the stimulus input object.
  */
-void Simulator::simulate(ISInput* pInput)
+void Simulator::simulate()
 {
     // Main simulation loop - execute maxGrowthSteps
     for (int currentStep = 1; currentStep <= m_sim_info->maxSteps; currentStep++) {
@@ -107,7 +105,7 @@ void Simulator::simulate(ISInput* pInput)
         m_sim_info->currentStep = currentStep;
 
         // Advance simulation to next growth cycle
-        advanceUntilGrowth(currentStep, pInput);
+        advanceUntilGrowth(currentStep);
 
         DEBUG(cout << endl << endl;)
         DEBUG(
@@ -145,9 +143,8 @@ void Simulator::simulate(ISInput* pInput)
  * synapse activity for one epoch.
  *
  * @param currentStep the current epoch in which the network is being simulated.
- * @param[in] pInput    Pointer to the stimulus input object.
  */
-void Simulator::advanceUntilGrowth(const int currentStep, ISInput* pInput)
+void Simulator::advanceUntilGrowth(const int currentStep)
 {
     uint64_t count = 0;
     // Compute step number at end of this simulation epoch
@@ -170,8 +167,8 @@ void Simulator::advanceUntilGrowth(const int currentStep, ISInput* pInput)
         )
 
         // input stimulus
-        if (pInput != NULL)
-            pInput->inputStimulus(m_model, m_sim_info, m_sim_info->pSummationMap);
+        if (m_sInput != NULL)
+            m_sInput->inputStimulus(m_model, m_sim_info, m_sim_info->pSummationMap);
 
 	// Advance the Network one time step
         m_model->advance(m_sim_info);
