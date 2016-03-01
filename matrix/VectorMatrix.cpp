@@ -1,9 +1,9 @@
-/*!
+/**
  @file VectorMatrix.cpp
  @brief  An efficient implementation of a dynamically-allocated 1D array
  @author Michael Stiber
- @date $Date: 2006/11/18 04:42:32 $
- @version $Revision: 1.1.1.1 $
+ @date January 2016
+ @version 2
  */
 
 // VectorMatrix.cpp 1D Matrix with all elements present
@@ -39,19 +39,33 @@
 #include <sstream>
 
 #include "Global.h"
-#include "KIIexceptions.h"
 #include "VectorMatrix.h"
 
 // Classwide normal RNG
 Norm VectorMatrix::nRng;
 
+/*
+ Allocate storage and initialize attributes. Either
+ "rows" or "columns" must be equal to 1. If "v" is not empty, it
+ will be used as a source of data for initializing the vector (and
+ must be a list of whitespace separated textual numeric data with the
+ same number of elements as this VectorMatrix).
+ @throws Matrix_bad_alloc
+ @throws Matrix_invalid_argument
+ @param t Matrix type
+ @param i Matrix initialization
+ @param r rows in Matrix
+ @param c columns in Matrix
+ @param m multiplier used for initialization
+ @param v values for initializing VectorMatrix
+ */
 VectorMatrix::VectorMatrix(string t, string i, int r, int c, BGFLOAT m, string values) :
 	Matrix(t, i, r, c, m), theVector(NULL) {
 	DEBUG_VECTOR(cerr << "Creating VectorMatrix, size: ";)
 
 	// Bail out if we're being asked to create nonsense
 	if (!((rows == 1) || (columns == 1)) || (rows == 0) || (columns == 0))
-		throw KII_invalid_argument("VectorMatrix: Asked to create 2D or zero-size");
+		throw Matrix_invalid_argument("VectorMatrix: Asked to create 2D or zero-size");
 
 	// We're a 1D Matrix
 	dimensions = 1;
@@ -70,7 +84,7 @@ VectorMatrix::VectorMatrix(string t, string i, int r, int c, BGFLOAT m, string v
 			}
 		} else {
 			clear();
-			throw KII_invalid_argument("Illegal type for VectorMatrix with 'none' init: " + type);
+			throw Matrix_invalid_argument("Illegal type for VectorMatrix with 'none' init: " + type);
 		}
 	} else if (init == "const") {
 		if (type == "complete") { // complete matrix with constant values
@@ -78,7 +92,7 @@ VectorMatrix::VectorMatrix(string t, string i, int r, int c, BGFLOAT m, string v
 				theVector[i] = multiplier;
 		} else {
 			clear();
-			throw KII_invalid_argument("Illegal type for VectorMatrix with 'none' init: " + type);
+			throw Matrix_invalid_argument("Illegal type for VectorMatrix with 'none' init: " + type);
 		}
 	} else if (init == "random") {
 		// Initialize with normally distributed random numbers with zero
@@ -88,7 +102,7 @@ VectorMatrix::VectorMatrix(string t, string i, int r, int c, BGFLOAT m, string v
 		}
 	} else {
 		clear();
-		throw KII_invalid_argument("Illegal initialization for VectorMatrix: " + init);
+		throw Matrix_invalid_argument("Illegal initialization for VectorMatrix: " + init);
 	}
 	DEBUG_VECTOR(cerr << "\tInitialized " << type << " vector to " << *this << endl;)
 }
@@ -145,10 +159,10 @@ void VectorMatrix::copy(const VectorMatrix& source) {
 // Allocate internal storage
 void VectorMatrix::alloc(int size) {
 	if (theVector != NULL)
-		throw KII_exception("Attempt to allocate storage for non-cleared Vector.");
+		throw MatrixException("Attempt to allocate storage for non-cleared Vector.");
 
 	if ((theVector = new BGFLOAT[size]) == NULL) {
-		throw KII_bad_alloc("Failed allocating storage of Vector copy.");
+		throw Matrix_bad_alloc("Failed allocating storage of Vector copy.");
 	}
 
 	DEBUG_VECTOR(cerr << "\tStorage allocated for "<< size << " element Vector." << endl;)
@@ -179,7 +193,7 @@ string VectorMatrix::toXML(string name) const {
 
 const VectorMatrix VectorMatrix::operator+(const VectorMatrix& rhs) const {
 	if (rhs.size != size) {
-		throw KII_domain_error("Illegal vector sum. Vectors must be equal length.");
+		throw Matrix_domain_error("Illegal vector sum. Vectors must be equal length.");
 	}
 
 	// Start with this
@@ -206,7 +220,7 @@ const VectorMatrix VectorMatrix::operator+(BGFLOAT c) const {
 // There are two possible products. This is an inner product.
 const BGFLOAT VectorMatrix::operator*(const VectorMatrix& rhs) const {
 	if (rhs.size != size) {
-		throw KII_domain_error("Illegal vector inner product. Vectors must be equal length.");
+		throw Matrix_domain_error("Illegal vector inner product. Vectors must be equal length.");
 	}
 
 	// the result is scalar
@@ -223,7 +237,7 @@ const BGFLOAT VectorMatrix::operator*(const VectorMatrix& rhs) const {
 // Vector times a Complete matrix
 const VectorMatrix VectorMatrix::operator*(const CompleteMatrix& rhs) const {
 	if (rhs.rows != size) {
-		throw KII_domain_error(
+		throw Matrix_domain_error(
 				"Illegal vector/matrix product. Rows of matrix must equal vector size.");
 	}
 
@@ -240,7 +254,7 @@ const VectorMatrix VectorMatrix::operator*(const CompleteMatrix& rhs) const {
 
 const VectorMatrix VectorMatrix::ArrayMultiply(const VectorMatrix& rhs) const {
 	if (rhs.size != size) {
-		throw KII_domain_error("Illegal array product. Vectors must be equal length.");
+		throw Matrix_domain_error("Illegal array product. Vectors must be equal length.");
 	}
 
 	// Start with this
@@ -358,7 +372,7 @@ const VectorMatrix exp(const VectorMatrix& v) {
 
 const VectorMatrix& VectorMatrix::operator+=(const VectorMatrix& rhs) {
 	if (rhs.size != size) {
-		throw KII_domain_error("Illegal vector sum. Vectors must be equal length.");
+		throw Matrix_domain_error("Illegal vector sum. Vectors must be equal length.");
 	}
 
 	// Add in rhs
