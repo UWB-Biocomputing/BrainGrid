@@ -12,7 +12,6 @@
 #include "Global.h"
 #include "paramcontainer/ParamContainer.h"
 
-#include "Network.h"
 #include "IModel.h"
 #include "FClassOfCategory.h"
 #include "IRecorder.h"
@@ -112,19 +111,16 @@ int main(int argc, char* argv[]) {
     ISInput* pInput = NULL;     // pointer to a stimulus input object
     pInput = FSInput::get()->CreateInstance(model, simInfo, stimulusInputFileName);
 
-    // create the network
-    Network network(model, simInfo, simRecorder);
-
     time_t start_time, end_time;
     time(&start_time);
 
     // create the simulator
     Simulator *simulator;
-    simulator = new Simulator(&network, simInfo);
+    simulator = new Simulator(model, simRecorder, simInfo);
 	
     // setup simulation
     DEBUG(cout << "Setup simulation." << endl;);
-    network.setup(pInput);
+    simulator->setup(pInput);
 
     // Deserializes internal state from a prior run of the simulation
     if (fReadMemImage) {
@@ -155,8 +151,8 @@ int main(int argc, char* argv[]) {
         memory_out.close();
     }
 
-    // Tell network to clean-up and run any post-simulation logic.
-    network.finish();
+    // Tell simulation to clean-up and run any post-simulation logic.
+    simulator->finish();
 
     // terminates the simulation recorder
     if (simRecorder != NULL) {

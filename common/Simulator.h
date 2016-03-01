@@ -11,7 +11,7 @@
 
 #include "Global.h"
 #include "SimulationInfo.h"
-#include "Network.h"
+#include "IModel.h"
 #include "ISInput.h"
 
 #include "Timer.h"
@@ -32,9 +32,26 @@ class Simulator
 {
     public:
 
-	 Simulator(Network *network, SimulationInfo *sim_info);
+        /** The constructor for simulator  */       
+	Simulator(IModel *model, IRecorder* simRecorder, SimulationInfo *sim_info);
+
         /** Destructor */
         virtual ~Simulator();
+
+        /**
+         * Setup simulation.
+         */
+        void setup(ISInput* pInput);
+
+        /**
+         * Cleanup after simulation.
+         */
+        void finish();
+
+        /** 
+         * Reset simulation objects.
+         */
+        void reset();
 
         /**
          * Performs the simulation.
@@ -70,7 +87,12 @@ class Simulator
          */
         void serialize(ostream &memory_out) const;
 
-    protected:
+    private:
+        /**
+         * Frees dynamically allocated memory associated with the maps.
+         */
+        void freeResources();
+
         /**
          * Timer for measuring performance of an epoch.
          */
@@ -81,14 +103,19 @@ class Simulator
         Timer short_timer;
 
         /**
-         * The network being simulated.
-         */
-        Network *network;
-
-        /**
          * Parameters for the simulation.
          */
         SimulationInfo *m_sim_info;
+
+        /**
+         * Pointer to the Neural Network Model interface.
+         */
+        IModel *m_model;
+
+        /**
+         * Pointer to the simulation recordig object.
+         */
+        IRecorder* m_simRecorder;
 };
 
 #endif /* _SIMULATOR_H_ */

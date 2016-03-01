@@ -12,11 +12,29 @@
  * \htmlonly   <h3>Implementation</h3> \endhtmlonly
  *
  * The Model class maintains and manages classes of objects that make up
- * essential components of the spiking neunal networks.
+ * essential components of the spiking neunal network.
  *    -# IAllNeurons: A class to define a list of partiular type of neurons.
  *    -# IAllSynapses: A class to define a list of partiular type of synapses.
  *    -# Connections: A class to define connections of the neunal network.
  *    -# Layout: A class to define neurons' layout information in the network.
+ *
+ * \image html bg_data_layout.png
+ *
+ * The network is composed of 3 superimposed 2-d arrays: neurons, synapses, and
+ * summation points.
+ *
+ * Synapses in the synapse map are located at the coordinates of the neuron
+ * from which they receive output.  Each synapse stores a pointer into a
+ * summation point. 
+ * 
+ * If, during an advance cycle, a neuron \f$A\f$ at coordinates \f$x,y\f$ fires, every synapse
+ * which receives output is notified of the spike. Those synapses then hold
+ * the spike until their delay period is completed.  At a later advance cycle, once the delay
+ * period has been completed, the synapses apply their PSRs (Post-Synaptic-Response) to 
+ * the summation points.  
+ * Finally, on the next advance cycle, each neuron \f$B\f$ adds the value stored
+ * in their corresponding summation points to their \f$V_m\f$ and resets the summation points to
+ * zero.
  *
  * \latexonly  \subsubsection*{Credits} \endlatexonly
  * \htmlonly   <h3>Credits</h3> \endhtmlonly
