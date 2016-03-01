@@ -300,11 +300,11 @@ void Hdf5Recorder::compileHistories(IAllNeurons &neurons)
 }
 
 /*
- * Save current simulation state to the hdf5 file.
+ * Writes simulation results to an output destination.
  *
  * @param  neurons the Neuron list to search from.
  **/
-void Hdf5Recorder::saveSimState(const IAllNeurons &neurons)
+void Hdf5Recorder::saveSimData(const IAllNeurons &neurons)
 {
     try
     {

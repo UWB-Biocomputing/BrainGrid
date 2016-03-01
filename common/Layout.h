@@ -59,26 +59,13 @@ class Layout
         // TODO
         BGFLOAT m_frac_starter_neurons;
 
-        /** The neuron type map (INH, EXC).
-         *  
-         *  Usage: LOCAL CONSTANT
-         *  - LIFModel::generateNeuronTypeMap --- Initialized
-         *  - LIFModel::logSimStep() --- Accessed
-         *  - SingleThreadedSpikingModel::synType() --- Accessed
-         *  - GpuSim_struct.cu::synType() --- Accessed
-         *  - Hdf5Recorder::saveSimState() --- Accessed
+        /** 
+         * The neuron type map (INH, EXC).
          */
         neuronType *neuron_type_map;
 
-        /** The starter existence map (T/F).
-         *  
-         *  Usage: LOCAL CONSTANT
-         *  - LIFModel::initStarterMap() --- Initialized
-         *  - LIFModel::createAllNeurons() --- Accessed
-         *  - LIFModel::logSimStep() --- Accessed
-         *  - LIFModel::getStarterNeuronMatrix() --- Accessed
-         *  - Hdf5Recorder::saveSimState() --- Accessed
-         *  - XmlRecorder::saveSimState() --- Accessed
+        /** 
+         * The starter existence map (T/F).
          */
         bool *starter_map;
 

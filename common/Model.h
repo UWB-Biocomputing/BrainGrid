@@ -12,11 +12,29 @@
  * \htmlonly   <h3>Implementation</h3> \endhtmlonly
  *
  * The Model class maintains and manages classes of objects that make up
- * essential components of the spiking neunal networks.
+ * essential components of the spiking neunal network.
  *    -# IAllNeurons: A class to define a list of partiular type of neurons.
  *    -# IAllSynapses: A class to define a list of partiular type of synapses.
  *    -# Connections: A class to define connections of the neunal network.
  *    -# Layout: A class to define neurons' layout information in the network.
+ *
+ * \image html bg_data_layout.png
+ *
+ * The network is composed of 3 superimposed 2-d arrays: neurons, synapses, and
+ * summation points.
+ *
+ * Synapses in the synapse map are located at the coordinates of the neuron
+ * from which they receive output.  Each synapse stores a pointer into a
+ * summation point. 
+ * 
+ * If, during an advance cycle, a neuron \f$A\f$ at coordinates \f$x,y\f$ fires, every synapse
+ * which receives output is notified of the spike. Those synapses then hold
+ * the spike until their delay period is completed.  At a later advance cycle, once the delay
+ * period has been completed, the synapses apply their PSRs (Post-Synaptic-Response) to 
+ * the summation points.  
+ * Finally, on the next advance cycle, each neuron \f$B\f$ adds the value stored
+ * in their corresponding summation points to their \f$V_m\f$ and resets the summation points to
+ * zero.
  *
  * \latexonly  \subsubsection*{Credits} \endlatexonly
  * \htmlonly   <h3>Credits</h3> \endhtmlonly
@@ -43,20 +61,75 @@ class Model : public IModel, TiXmlVisitor
         Model(Connections *conns, IAllNeurons *neurons, IAllSynapses *synapses, Layout *layout);
         virtual ~Model();
 
-        /*
-         * Declarations of concrete implementations of Model interface for an 
-         * Leaky-Integrate-and-Fire * model.
+        /**
+         * Deserializes internal state from a prior run of the simulation.
+         * This allows simulations to be continued from a particular point, to be restarted, or to be
+         * started from a known state.
          *
-         * @see Model.h
+         *  @param  input       istream to read from.
+         *  @param  sim_info    used as a reference to set info for neurons and synapses.
          */
-        virtual void loadMemory(istream& input, const SimulationInfo *sim_info);
-        virtual void saveMemory(ostream& output, const SimulationInfo *sim_info);
-        virtual void saveState(IRecorder* simRecorder);
+        virtual void deserialize(istream& input, const SimulationInfo *sim_info);
+
+        /**
+         * Serializes internal state for the current simulation.
+         * This allows simulations to be continued from a particular point, to be restarted, or to be
+         * started from a known state.
+         *
+         *  @param  output          The filestream to write.
+         *  @param  simulation_step The step of the simulation at the current time.
+         */
+        virtual void serialize(ostream& output, const SimulationInfo *sim_info);
+
+        /**
+         * Writes simulation results to an output destination.
+         *
+         * @param simRecorder    Pointer to the simulation recordig object.
+         */
+        virtual void saveData(IRecorder* simRecorder);
+
+        /**
+         * Set up model state, if anym for a specific simulation run.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         * @param simRecorder    Pointer to the simulation recordig object.
+         */
         virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder);
+
+        /**
+         * Performs any finalization tasks on network following a simulation.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         */
         virtual void cleanupSim(SimulationInfo *sim_info);
+
+        /**
+         *  Get the IAllNeurons class object.
+         *
+         *  @return Pointer to the AllNeurons class object.
+         */
         virtual IAllNeurons* getNeurons();
+
+        /**
+         *  Get the Connections class object.
+         *
+         *  @return Pointer to the Connections class object.
+         */
         virtual Connections* getConnections();
+
+        /**
+         *  Get the Layout class object.
+         *
+         *  @return Pointer to the Layout class object.
+         */
         virtual Layout* getLayout();
+
+        /**
+         *  Update the simulation history of every epoch.
+         *
+         *  @param  sim_info    SimulationInfo to refer from.
+         *  @param  simRecorder Pointer to the simulation recordig object.
+         */
         virtual void updateHistory(const SimulationInfo *sim_info, IRecorder* simRecorder);
 
     protected:

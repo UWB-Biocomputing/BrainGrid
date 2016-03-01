@@ -69,15 +69,17 @@ public:
 
     /**
      * Compile history information in every epoch
+     *
      * @param[in] neurons   The entire list of neurons.
      */
     virtual void compileHistories(IAllNeurons &neurons);
 
     /**
-     * Save current simulation state to XML
+     * Writes simulation results to an output destination.
+     *
      * @param  neurons the Neuron list to search from.
      **/
-    virtual void saveSimState(const IAllNeurons &neurons);
+    virtual void saveSimData(const IAllNeurons &neurons);
 
 protected:
     void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info);

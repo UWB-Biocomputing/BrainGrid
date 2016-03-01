@@ -119,7 +119,7 @@ void AllSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
  *  @param  input  istream to read from.
  *  @param  sim_info  SimulationInfo class to read information from.
  */
-void AllSynapses::readSynapses(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info)
+void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info)
 {
         // read the synapse data & create synapses
         int* read_synapses_counts= new int[sim_info->totalNeurons];
@@ -159,7 +159,7 @@ void AllSynapses::readSynapses(istream& input, IAllNeurons &neurons, const Simul
  *  @param  output  stream to print out to.
  *  @param  sim_info  SimulationInfo class to read information from.
  */
-void AllSynapses::writeSynapses(ostream& output, const SimulationInfo *sim_info)
+void AllSynapses::serialize(ostream& output, const SimulationInfo *sim_info)
 {
     // write the synapse data
     int synapse_count = 0;

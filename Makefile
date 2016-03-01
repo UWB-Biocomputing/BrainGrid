@@ -94,7 +94,6 @@ LIBOBJS =               \
 			$(COMMDIR)/Simulator.o \
 			$(COMMDIR)/Model.o \
 			$(COMMDIR)/Layout.o \
-			$(COMMDIR)/Network.o \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
 			$(COMMDIR)/Util.o \
@@ -107,7 +106,6 @@ LIBOBJS =               \
 			$(COMMDIR)/Simulator.o \
 			$(COMMDIR)/Model.o \
 			$(COMMDIR)/Layout.o \
-			$(COMMDIR)/Network.o \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
 			$(COMMDIR)/Util.o \
@@ -207,7 +205,7 @@ $(CUDADIR)/AllDynamicSTDPSynapses_d.o: $(CUDADIR)/AllDynamicSTDPSynapses_d.cu $(
 $(CUDADIR)/ConnGrowth_d.o: $(CUDADIR)/ConnGrowth_d.cu $(COMMDIR)/Global.h $(COMMDIR)/ConnGrowth.h
 	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/ConnGrowth_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/ConnGrowth_d.o
 
-$(CUDADIR)/BGDriver_cuda.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/IModel.h $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Network.h
+$(CUDADIR)/BGDriver_cuda.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/IModel.h $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/AllSynapses.h 
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -I$(CUDADIR) -c $(MAIN)/BGDriver.cpp -o $(CUDADIR)/BGDriver_cuda.o
 
 $(CUDADIR)/AllNeurons_cuda.o: $(COMMDIR)/AllNeurons.cpp $(COMMDIR)/AllNeurons.h $(COMMDIR)/Global.h
@@ -313,9 +311,6 @@ $(COMMDIR)/Layout.o: $(COMMDIR)/Layout.cpp $(COMMDIR)/Layout.h
 $(COMMDIR)/SingleThreadedSpikingModel.o: $(COMMDIR)/SingleThreadedSpikingModel.cpp $(COMMDIR)/SingleThreadedSpikingModel.h $(COMMDIR)/Model.h 
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/SingleThreadedSpikingModel.cpp -o $(COMMDIR)/SingleThreadedSpikingModel.o
 
-$(COMMDIR)/Network.o: $(COMMDIR)/Network.cpp $(COMMDIR)/Network.h
-	$(CXX) $(CXXFLAGS) $(COMMDIR)/Network.cpp -o $(COMMDIR)/Network.o
-
 $(COMMDIR)/ParseParamError.o: $(COMMDIR)/ParseParamError.cpp $(COMMDIR)/ParseParamError.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/ParseParamError.cpp -o $(COMMDIR)/ParseParamError.o
 
@@ -417,7 +412,7 @@ $(SINPUTDIR)/GpuSInputPoisson.o: $(SINPUTDIR)/GpuSInputPoisson.cu $(SINPUTDIR)/I
 # Single Threaded
 # ------------------------------------------------------------------------------
 
-$(MAIN)/BGDriver.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/Network.h
+$(MAIN)/BGDriver.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h 
 	$(CXX) $(CXXFLAGS) $(MAIN)/BGDriver.cpp -o $(MAIN)/BGDriver.o
 
 

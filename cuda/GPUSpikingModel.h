@@ -32,6 +32,24 @@
  *    -# Connections: A class to define connections of the neunal network.
  *    -# Layout: A class to define neurons' layout information in the network.
  *
+ * \image html bg_data_layout.png
+ *
+ * The network is composed of 3 superimposed 2-d arrays: neurons, synapses, and
+ * summation points.
+ *
+ * Synapses in the synapse map are located at the coordinates of the neuron
+ * from which they receive output.  Each synapse stores a pointer into a
+ * summation point.
+ *
+ * If, during an advance cycle, a neuron \f$A\f$ at coordinates \f$x,y\f$ fires, every synapse
+ * which receives output is notified of the spike. Those synapses then hold
+ * the spike until their delay period is completed.  At a later advance cycle, once the delay
+ * period has been completed, the synapses apply their PSRs (Post-Synaptic-Response) to
+ * the summation points.
+ * Finally, on the next advance cycle, each neuron \f$B\f$ adds the value stored
+ * in their corresponding summation points to their \f$V_m\f$ and resets the summation points to
+ * zero.
+ *
  * The model runs on multi-threaded on a GPU.
  *
  * \latexonly  \subsubsection*{Credits} \endlatexonly
@@ -80,10 +98,43 @@ public:
 	GPUSpikingModel(Connections *conns, IAllNeurons *neurons, IAllSynapses *synapses, Layout *layout);
 	virtual ~GPUSpikingModel();
  
+        /**
+         * Set up model state, if anym for a specific simulation run.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         * @param simRecorder    Pointer to the simulation recordig object.
+         */
 	virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder);
+
+        /**
+         * Performs any finalization tasks on network following a simulation.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         */
 	virtual void cleanupSim(SimulationInfo *sim_info);
-        virtual void loadMemory(istream& input, const SimulationInfo *sim_info);
+
+        /**
+         *  Loads the simulation based on istream input.
+         *
+         *  @param  input       istream to read from.
+         *  @param  sim_info    used as a reference to set info for neurons and synapses.
+         */
+        virtual void deserialize(istream& input, const SimulationInfo *sim_info);
+
+        /**
+         * Advances network state one simulation step.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         */
 	virtual void advance(const SimulationInfo *sim_info);
+
+        /**
+         * Modifies connections between neurons based on current state of the network and behavior
+         * over the past epoch. Should be called once every epoch.
+         *
+         * @param currentStep - The epoch step in which the connections are being updated.
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         */
 	virtual void updateConnections(const SimulationInfo *sim_info);
 
 protected:

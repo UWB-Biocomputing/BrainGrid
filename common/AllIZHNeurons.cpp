@@ -346,7 +346,7 @@ string AllIZHNeurons::toString(const int i) const
  *  @param  input       istream to read from.
  *  @param  sim_info    used as a reference to set info for neurons.
  */
-void AllIZHNeurons::readNeurons(istream &input, const SimulationInfo *sim_info)
+void AllIZHNeurons::deserialize(istream &input, const SimulationInfo *sim_info)
 {
     for (int i = 0; i < sim_info->totalNeurons; i++) {
         readNeuron(input, sim_info, i);
@@ -378,7 +378,7 @@ void AllIZHNeurons::readNeuron(istream &input, const SimulationInfo *sim_info, i
  *  @param  output      stream to write out to.
  *  @param  sim_info    used as a reference to set info for neuronss.
  */
-void AllIZHNeurons::writeNeurons(ostream& output, const SimulationInfo *sim_info) const 
+void AllIZHNeurons::serialize(ostream& output, const SimulationInfo *sim_info) const 
 {
     for (int i = 0; i < sim_info->totalNeurons; i++) {
         writeNeuron(output, sim_info, i);

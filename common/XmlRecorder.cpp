@@ -106,11 +106,11 @@ void XmlRecorder::compileHistories(IAllNeurons &neurons)
 }
 
 /*
- * Save current simulation state to XML
+ * Writes simulation results to an output destination.
  *
  * @param  neurons the Neuron list to search from.
  **/
-void XmlRecorder::saveSimState(const IAllNeurons &neurons)
+void XmlRecorder::saveSimData(const IAllNeurons &neurons)
 {
     // create Neuron Types matrix
     VectorMatrix neuronTypes(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, EXC);

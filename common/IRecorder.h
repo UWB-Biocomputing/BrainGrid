@@ -39,6 +39,7 @@ public:
 
     /**
      * Initialize data
+     *
      * @param[in] stateOutputFileName       File name to save histories
      */
     virtual void init(const string& stateOutputFileName) = 0;
@@ -65,15 +66,17 @@ public:
 
     /**
      * Compile history information in every epoch
+     *
      * @param[in] neurons   The entire list of neurons.
      */
     virtual void compileHistories(IAllNeurons &neurons) = 0;
 
     /**
-     * Save current simulation state to XML
+     * Writes simulation results to an output destination.
+     *
      * @param[in] neurons   The entire list of neurons.
      **/
-    virtual void saveSimState(const IAllNeurons &neurons) = 0;
+    virtual void saveSimData(const IAllNeurons &neurons) = 0;
 };
 
 #endif // _IRECORDER_H_

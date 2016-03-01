@@ -97,11 +97,11 @@ void XmlGrowthRecorder::compileHistories(IAllNeurons &neurons)
 }
 
 /*
- * Save current simulation state to XML
+ * Writes simulation results to an output destination.
  *
  * @param  neurons the Neuron list to search from.
  **/
-void XmlGrowthRecorder::saveSimState(const IAllNeurons &neurons)
+void XmlGrowthRecorder::saveSimData(const IAllNeurons &neurons)
 {
     // create Neuron Types matrix
     VectorMatrix neuronTypes(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, EXC);

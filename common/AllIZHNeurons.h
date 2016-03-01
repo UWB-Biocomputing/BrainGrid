@@ -140,7 +140,7 @@ class AllIZHNeurons : public AllIFNeurons
          *  @param  input       istream to read from.
          *  @param  sim_info    used as a reference to set info for neuronss.
          */
-        virtual void readNeurons(istream &input, const SimulationInfo *sim_info);
+        virtual void deserialize(istream &input, const SimulationInfo *sim_info);
 
         /**
          *  Writes out the data in all neurons to output stream.
@@ -148,7 +148,7 @@ class AllIZHNeurons : public AllIFNeurons
          *  @param  output      stream to write out to.
          *  @param  sim_info    used as a reference to set info for neuronss.
          */
-        virtual void writeNeurons(ostream& output, const SimulationInfo *sim_info) const;
+        virtual void serialize(ostream& output, const SimulationInfo *sim_info) const;
 
 #if defined(USE_GPU)
     public:
