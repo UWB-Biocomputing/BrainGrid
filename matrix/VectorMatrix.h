@@ -205,7 +205,7 @@ public:
     @param rhs right-hand argument to the inner product.
     @return A scalar of type BGFLOAT
    */
-  virtual const BGFLOAT operator*(const VectorMatrix& rhs) const;
+  virtual BGFLOAT operator*(const VectorMatrix& rhs) const;
 
   /**
     @brief Vector times a Complete Matrix.
@@ -257,13 +257,13 @@ public:
     @brief Find minimum value of vector
     @return A scalar
   */
-  virtual const BGFLOAT Min(void) const;
+  virtual BGFLOAT Min(void) const;
 
   /**
     @brief Find maximum value of vector
     @return A scalar
   */
-  virtual const BGFLOAT Max(void) const;
+  virtual BGFLOAT Max(void) const;
 
   /**
     @brief Compute and assign the sum of two VectorMatrices of the same length.
