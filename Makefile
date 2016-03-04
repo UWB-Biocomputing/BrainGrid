@@ -9,6 +9,21 @@ all: growth growth_cuda
 CUSEHDF5 = yes
 CPMETRICS = no
 
+# Stopgap approach for selecting model types, until parameter file selection
+# is implemented. Uncomment each of NEURONTYPE, SYNAPSETYPE, and CONNTYPE
+NEURONTYPE = "AllIZHNeurons"
+# NEURONTYPE = "AllLIFNeurons"
+
+SYNAPSETYPE = "AllSpikingSynapses"
+#SYNAPSETYPE = "AllDSSynapses"
+#SYNAPSETYPE = "AllSTDPSynapses"
+#SYNAPSETYPE = "AllDynamicSTDPSynapses"
+
+CONNTYPE = "ConnStatic"
+#CONNTYPE = "ConnGrowth"
+
+MODELFLAGS = -DNEURONTYPE=$(NEURONTYPE) -DSYNAPSETYPE=$(SYNAPSETYPE) -DCONNTYPE=$(CONNTYPE)
+
 ################################################################################
 # Source Directories
 ################################################################################
@@ -48,7 +63,7 @@ else
 	LH5FLAGS =
 	H5FLAGS = 
 endif
-CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(H5INCDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -I$(SINPUTDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(PMFLAGS) $(H5FLAGS)
+CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(H5INCDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -I$(SINPUTDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(PMFLAGS) $(H5FLAGS) $(MODELFLAGS)
 CGPUFLAGS = -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
