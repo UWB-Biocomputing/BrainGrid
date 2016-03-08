@@ -1,9 +1,9 @@
-/*!
+/**
   @file CompleteMatrix.h
   @brief An efficient implementation of a dynamically-allocated 2D array.
   @author Michael Stiber
-  @date $Date: 2006/11/22 07:07:34 $
-  @version $Revision: 1.2 $
+  @date January 2016
+  @version 2
 */
 
 // Written December 2004 by Michael Stiber
@@ -26,8 +26,7 @@
 //
 
 
-#ifndef _COMPLETEMATRIX_H_
-#define _COMPLETEMATRIX_H_
+#pragma once
 
 #include <string>
 
@@ -41,7 +40,7 @@ class CompleteMatrix;
 
 const CompleteMatrix sqrt(const CompleteMatrix& m);
 
-/*!
+/**
   @class CompleteMatrix
   @brief An efficient implementation of a dynamically-allocated 2D array
 
@@ -62,43 +61,49 @@ class CompleteMatrix : public Matrix
 
 public:
 
-  /*!
-    Allocate storage and initialize attributes. If "v" is
+  /**
+    Allocate storage and initialize attributes. If "v" (values) is
     not empty, it will be used as a source of data for initializing
     the matrix (and must be a list of whitespace separated textual
-    numeric data with rows * columns elements, if "t" is
+    numeric data with rows * columns elements, if "t" (type) is
     "complete", or number of elements in diagonal, if "t" is "diag").
-    @throws KII_bad_alloc
-    @throws KII_invalid_argument
-    @param t Matrix type
-    @param i Matrix initialization
-    @param r rows in Matrix
-    @param c columns in Matrix
-    @param m multiplier used for initialization
-    @param v values for initializing CompleteMatrix
+    
+    If "i" (initialization) is "const", then "m" will be used to initialize either all
+    elements (for a "complete" matrix) or diagonal elements (for "diag").
+   
+    "random" initialization is not yet implemented.
+   
+    @throws Matrix_bad_alloc
+    @throws Matrix_invalid_argument
+    @param t Matrix type (defaults to "complete")
+    @param i Matrix initialization (defaults to "const")
+    @param r rows in Matrix (defaults to 2)
+    @param c columns in Matrix (defaults to 2)
+    @param m multiplier used for initialization (defaults to zero)
+    @param v values for initializing CompleteMatrix (this string is parsed as a list of floating point numbers)
   */
   CompleteMatrix(string t = "complete", string i = "const", int r = 2,
 		 int c = 2, BGFLOAT m = 0.0, string v = "");
 
-  /*!
+  /**
     @brief Copy constructor. Performs a deep copy.
     @param oldM The source CompleteMatrix
   */
   CompleteMatrix(const CompleteMatrix& oldM);
 
-  /*!
+  /**
     @brief De-allocate storage
   */
   virtual ~CompleteMatrix();
 
-  /*!
+  /**
     @brief Assignment operator
     @param rhs right-hand side of assignment
     @return returns reference to this CompleteMatrix (after assignment)
   */
   CompleteMatrix& operator=(const CompleteMatrix& rhs);
 
-  /*!
+  /**
     @brief access element at (row, column) -- mutator
     @param row element row
     @param column element column
@@ -107,19 +112,19 @@ public:
   inline BGFLOAT& operator()(int row, int column)
   { return theMatrix[row][column]; }
 
-  /*!
-    @brief Polymorphic output. Produces text output on stream os
+  /**
+    @brief Polymorphic output. Produces text output on stream os. Used by operator<<()
     @param os stream to output to
   */
   virtual void Print(ostream& os) const;
 
-  /*!
+  /**
     @brief Produce XML representation of Matrix in string return value.
     @param name name attribute for XML
   */
   virtual string toXML(string name="") const;
 
-  /*! @name Math operations
+  /** @name Math operations
 
     For efficiency's sake, these methods will be
     implemented as being "aware" of each other (i.e., using "friend"
@@ -127,9 +132,9 @@ public:
   */
   //@{
 
-  /*!
+  /**
     @brief Compute the sum of two CompleteMatrices of the same rows and columns.
-    @throws KII_domain_error
+    @throws Matrix_domain_error
     @param rhs right-hand argument to the addition. Must have same
     dimensions as this.
     @return A new CompleteMatrix, with value equal to the sum of this
@@ -137,10 +142,10 @@ public:
    */
   virtual const CompleteMatrix operator+(const CompleteMatrix& rhs) const;
 
-  /*!
+  /**
     Matrix product. Number of rows of "rhs" must equal to
     number of columns of this.
-    @throws KII_domain_error
+    @throws Matrix_domain_error
     @param rhs right-hand argument to the product.
     @return A CompleteMatrix with number of rows equal to this and
     number of columns equal to "rhs".
@@ -153,26 +158,26 @@ public:
 
 protected:
 
-  /*! @name Internal Utilities
+  /** @name Internal Utilities
    */
   //@{
 
-  /*!
+  /**
     @brief Frees up all dynamically allocated storage
    */
   void clear(void);
 
-  /*!
+  /**
     Performs a deep copy. It is assumed that the storage
     allocate to theMatrix has already been deleted.
     @param source VectorMatrix to copy from
    */
   void copy(const CompleteMatrix& source);
 
-  /*!
+  /**
     @brief Allocates storage for internal Matrix storage
-    @throws KII_bad_alloc
-    @throws KII_exception
+    @throws Matrix_bad_alloc
+    @throws MatrixException
     @param rows number of Matrix rows
     @param cols number of Matrix cols
    */
@@ -188,10 +193,9 @@ protected:
 
 private:
 
-  /*! Pointer to dynamically allocated 2D array */
+  /** Pointer to dynamically allocated 2D array */
   BGFLOAT **theMatrix;
 
 };
 
 
-#endif

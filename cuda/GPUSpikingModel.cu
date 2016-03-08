@@ -173,9 +173,9 @@ void GPUSpikingModel::cleanupSim(SimulationInfo *sim_info)
  *  @param  input   istream to read from.
  *  @param  sim_info    used as a reference to set info for neurons and synapses.
  */
-void GPUSpikingModel::loadMemory(istream& input, const SimulationInfo *sim_info)
+void GPUSpikingModel::deserialize(istream& input, const SimulationInfo *sim_info)
 {
-    Model::loadMemory(input, sim_info);
+    Model::deserialize(input, sim_info);
 
     // copy inverse map to the device memory
     copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
@@ -396,22 +396,20 @@ __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeuron
  * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
  */
 __global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapses* allSynapsesDevice ) {
-        int idx = blockIdx.x * blockDim.x + threadIdx.x; //determine which neuron this thread is
+        int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )
                 return;
 
-        uint32_t iCount = synapseIndexMapDevice->synapseCount[idx]; //get the number of active synapses this neuron has
-        //if the neuron doesn't have any synapses, then there is nothing to process 
+        uint32_t iCount = synapseIndexMapDevice->synapseCount[idx];
         if (iCount != 0) {
-        
-                int beginIndex = synapseIndexMapDevice->incomingSynapse_begin[idx]; //get the index of where in the array of synapse indices this partiular neuron's set of indices begins
-                uint32_t* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] ); //translate the index into a pointer, so we can treat this sergment of the inverse map as a zero-based array
+                int beginIndex = synapseIndexMapDevice->incomingSynapse_begin[idx];
+                uint32_t* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] );
                 BGFLOAT sum = 0.0;
-                uint32_t syn_i = inverseMap_begin[0]; //get the index of the first synapse of this neuron
-                BGFLOAT &summationPoint = *( allSynapsesDevice->summationPoint[syn_i] ); // this sets the summationPoint as the same summation point that the first synapse points to. Since the neuron represented by this thread is the post synaptic neuron, all the synapses should have the same summation point
+                uint32_t syn_i = inverseMap_begin[0];
+                BGFLOAT &summationPoint = *( allSynapsesDevice->summationPoint[syn_i] );
                 for ( uint32_t i = 0; i < iCount; i++ ) {
-                        syn_i = inverseMap_begin[i]; //get which synapse this is
-                        sum += allSynapsesDevice->psr[syn_i]; //add this synapse's psr to the sum
+                        syn_i = inverseMap_begin[i];
+                        sum += allSynapsesDevice->psr[syn_i];
                 }
                 summationPoint = sum;
         }

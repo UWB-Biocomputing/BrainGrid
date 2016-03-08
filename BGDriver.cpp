@@ -12,7 +12,6 @@
 #include "Global.h"
 #include "paramcontainer/ParamContainer.h"
 
-#include "Network.h"
 #include "IModel.h"
 #include "FClassOfCategory.h"
 #include "IRecorder.h"
@@ -112,29 +111,27 @@ int main(int argc, char* argv[]) {
     ISInput* pInput = NULL;     // pointer to a stimulus input object
     pInput = FSInput::get()->CreateInstance(model, simInfo, stimulusInputFileName);
 
-    // create the network
-    Network network(model, simInfo, simRecorder);
-
     time_t start_time, end_time;
     time(&start_time);
 
     // create the simulator
     Simulator *simulator;
-    simulator = new Simulator(&network, simInfo);
+    simulator = new Simulator(model, simRecorder, pInput, simInfo);
 	
     // setup simulation
     DEBUG(cout << "Setup simulation." << endl;);
-    network.setup(pInput);
+    simulator->setup();
 
+    // Deserializes internal state from a prior run of the simulation
     if (fReadMemImage) {
         ifstream memory_in;
         memory_in.open(memInputFileName.c_str(), ofstream::binary | ofstream::in);
-        simulator->readMemory(memory_in);
+        simulator->deserialize(memory_in);
         memory_in.close();
     }
 
     // Run simulation
-    simulator->simulate(pInput);
+    simulator->simulate();
 
     // Terminate the stimulus input 
     if (pInput != NULL)
@@ -143,19 +140,19 @@ int main(int argc, char* argv[]) {
         delete pInput;
     }
 
-    // writes simulation results to an output destination
-    simulator->saveState();
+    // Writes simulation results to an output destination
+    simulator->saveData();
 
-    // write the simulation memory image
+    // Serializes internal state for the current simulation
     ofstream memory_out;
     if (fWriteMemImage) {
         memory_out.open(memOutputFileName.c_str(),ofstream::binary | ofstream::trunc);
-        simulator->saveMemory(memory_out);
+        simulator->serialize(memory_out);
         memory_out.close();
     }
 
-    // Tell network to clean-up and run any post-simulation logic.
-    network.finish();
+    // Tell simulation to clean-up and run any post-simulation logic.
+    simulator->finish();
 
     // terminates the simulation recorder
     if (simRecorder != NULL) {
@@ -296,7 +293,7 @@ bool LoadAllParameters(const string &sim_param_filename)
 
     try {
         LoadSimulationParameters(parms);
-    } catch (KII_exception &e) {
+    } catch (MatrixException &e) {
         cerr << "Failure loading simulation parameters from file "
              << sim_param_filename << ":\n\t" << e.what()
              << endl;
@@ -405,7 +402,7 @@ void LoadSimulationParameters(TiXmlElement* parms)
 
     // Ideally, an error message would be output for each failed Query
     // above, but that's just too much code for me right now.
-    if (!fSet) throw KII_exception("Failed to initialize one or more simulation parameters; check XML");
+    if (!fSet) throw MatrixException("Failed to initialize one or more simulation parameters; check XML");
 
     simInfo = new SimulationInfo(makeSimulationInfo(poolsize[0], poolsize[1],Tsim, numSims,
             maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed));

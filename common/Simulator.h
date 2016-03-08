@@ -11,7 +11,7 @@
 
 #include "Global.h"
 #include "SimulationInfo.h"
-#include "Network.h"
+#include "IModel.h"
 #include "ISInput.h"
 
 #include "Timer.h"
@@ -32,35 +32,78 @@ class Simulator
 {
     public:
 
-	 Simulator(Network *network, SimulationInfo *sim_info);
+       /**
+        *  Constructor
+        *
+        *  @param  model
+        *          pointer to a neural network implementation to be simulated by BrainGrid. (It would be
+        *          nice if this was a parameter to #simulate). Note: this reference will not be deleted.
+        *  @simRecorder        Pointer to the simulation recordig object.
+        *  @sInput             Pointer to the stimulus input object.
+        *  @param  sim_info    parameters for the simulation.
+        */
+	Simulator(IModel *model, IRecorder* simRecorder, ISInput *sInput, SimulationInfo *sim_info);
+
         /** Destructor */
         virtual ~Simulator();
 
         /**
+         * Setup simulation.
+         */
+        void setup();
+
+        /**
+         * Cleanup after simulation.
+         */
+        void finish();
+
+        /** 
+         * Reset simulation objects.
+         */
+        void reset();
+
+        /**
          * Performs the simulation.
          */
-        void simulate(ISInput* pInput);
+        void simulate();
 
         /**
          * Advance simulation to next growth cycle. Helper for #simulate().
+         *
+         * @param currentStep the current epoch in which the network is being simulated.
          */
-        void advanceUntilGrowth(const int currentStep, ISInput* pInput);
+        void advanceUntilGrowth(const int currentStep);
 
         /**
-         * Write the result of the simulation.
+         * Writes simulation results to an output destination.
          */
-        void saveState() const;
+        void saveData() const;
 
         /**
          * Read serialized internal state from a previous run of the simulator.
+         * This allows simulations to be continued from a particular point, to be restarted, or to be
+         * started from a known state.
+         *
+         * @param memory_in - where to read the state from.
          */
-        void readMemory(istream &memory_in);
-        /**
-         * Write current internal state of the simulator.
-         */
-        void saveMemory(ostream &memory_out) const;
+        void deserialize(istream &memory_in);
 
-    protected:
+        /**
+         * Serializes internal state for the current simulation.
+         * This allows simulations to be continued from a particular point, to be restarted, or to be
+         * started from a known state.
+         *
+         * @param memory_out - where to write the state to.
+         * This method needs to be debugged to verify that it works.
+         */
+        void serialize(ostream &memory_out) const;
+
+    private:
+        /**
+         * Frees dynamically allocated memory associated with the maps.
+         */
+        void freeResources();
+
         /**
          * Timer for measuring performance of an epoch.
          */
@@ -71,14 +114,24 @@ class Simulator
         Timer short_timer;
 
         /**
-         * The network being simulated.
-         */
-        Network *network;
-
-        /**
          * Parameters for the simulation.
          */
         SimulationInfo *m_sim_info;
+
+        /**
+         * Pointer to the Neural Network Model interface.
+         */
+        IModel *m_model;
+
+        /**
+         * Pointer to the simulation recordig object.
+         */
+        IRecorder* m_simRecorder;
+
+        /**
+         * Pointer to the stimulus input object.
+         */
+        ISInput* m_sInput;
 };
 
 #endif /* _SIMULATOR_H_ */

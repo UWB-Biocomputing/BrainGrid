@@ -16,6 +16,12 @@
 #include "ConnStatic.h"
 #include "ParseParamError.h"
 
+// Part of the stopgap approach for selecting model types, until parameter file selection
+// is implemented. Used to convert a preprocessor defined symbol into a C string (i.e.,
+// put quotes around it).
+#define xstr(s) str(s)
+#define str(s) #s
+
 /*
  * constructor
  */
@@ -79,7 +85,9 @@ void FClassOfCategory::registerLayout(const string &layoutClassName, CreateLayou
  */
 IAllNeurons* FClassOfCategory::createNeurons(TiXmlElement* parms)
 {
-    string neuronsClassName = "AllLIFNeurons";
+    // Stopgap approach for selecting model types, until parameter file selection
+    // is implemented.
+    string neuronsClassName = xstr(NEURONTYPE);
 
     m_neurons = createNeuronsWithName(neuronsClassName);
     return m_neurons;
@@ -87,7 +95,11 @@ IAllNeurons* FClassOfCategory::createNeurons(TiXmlElement* parms)
 
 IAllSynapses* FClassOfCategory::createSynapses(TiXmlElement* parms)
 {
-    string synapsesClassName = "AllDSSynapses";
+
+    // Stopgap approach for selecting model types, until parameter file selection
+    // is implemented.
+    string synapsesClassName = xstr(SYNAPSETYPE);
+
 
     m_synapses = createSynapsesWithName(synapsesClassName);
     return m_synapses;
@@ -95,7 +107,9 @@ IAllSynapses* FClassOfCategory::createSynapses(TiXmlElement* parms)
 
 Connections* FClassOfCategory::createConnections(TiXmlElement* parms)
 {
-    string connsClassName = "ConnGrowth";
+    // Stopgap approach for selecting model types, until parameter file selection
+    // is implemented.
+    string connsClassName = xstr(CONNTYPE);
 
     m_conns = createConnsWithName(connsClassName);
     return m_conns;

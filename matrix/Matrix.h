@@ -1,9 +1,9 @@
-/*!
+/**
  @file Matrix.h
  @brief Abstract base class for Matrices
  @author Michael Stiber
- @date $Date: 2006/11/18 04:42:31 $
- @version $Revision: 1.1.1.1 $
+ @date August 2014
+ @version 2
 */
 
 // Written December 2004 by Michael Stiber
@@ -27,14 +27,14 @@
 
 #include <string>
 
-#include "KIIexceptions.h"
+#include "MatrixExceptions.h"
 
 // The tinyXML library, for deserialization via a MatrixFactory
 #include "../tinyxml/tinyxml.h"
 
 using namespace std;
 
-/*!
+/**
  @class Matrix
  @brief Abstract base class for Matrices
 
@@ -51,13 +51,13 @@ class Matrix
 {
 public:
 
-  /*!
+  /**
     Purely here to make the destructor virtual; no need
     for base class destructor to do anything.
   */
   virtual ~Matrix() { }
 
-  /*!
+  /**
     @brief Generate text representation of the Matrix to a stream
     @param os Output stream.
   */
@@ -65,18 +65,24 @@ public:
 
 protected:
 
-  /*!
+  /**
     Initialize attributes at construction time. This is protected to
     prevent construction of Matrix objects themselves. Would be nice
     if C++ just allowed one to declare a class abstract. Really
     obsoleted since the Print() method is pure virtual now.
+   
+   @param t Matrix type (subclasses add legal values; basically, cheapo reflection)
+   @param i Matrix initialization (subclasses can also add legal values to this)
+   @param r rows in Matrix
+   @param c columns in Matrix
+   @param m multiplier used for initialization
   */
   Matrix(string t = "", string i = "", int r = 0, int c = 0, BGFLOAT m = 0.0);
 
-  /*!
+  /**
     @brief Convenience mutator
-    @param t Matrix type
-    @param i Matrix initialization
+    @param t Matrix type (subclasses add legal values; basically, cheapo reflection)
+    @param i Matrix initialization (subclasses can also add legal values to this)
     @param r rows in Matrix
     @param c columns in Matrix
     @param m multiplier used for initialization
@@ -84,32 +90,32 @@ protected:
   */
   void SetAttributes(string t, string i, int r, int c, BGFLOAT m, int d);
 
-  /*! @name Attributes from XML files */
+  /** @name Attributes from XML files */
   //@{
 
-  /*! "complete", "diag", or "sparse" */
+  /** "complete" == all locations nonzero, "diag" == only diagonal elements nonzero, or "sparse" == nonzero values may be anywhere */
   string type;
 
-  /*! "const", "random", or "implementation" */
+  /** "const" == nonzero values with a fixed constant, "random" == nonzero values with random numbers, or "implementation" == uses a built-in function of the specific subclass */
   string init;
 
-  /*! Number of rows in Matrix (>0) */
+  /** Number of rows in Matrix (>0) */
   int rows;
 
-  /*! Number of columns in Matrix (>0) */
+  /** Number of columns in Matrix (>0) */
   int columns;
 
-  /*! Constant used for initialization  */
+  /** Constant used for initialization  */
   BGFLOAT multiplier;
 
   //@}
 
   // Other common attributes
-  /*! One or two dimensional */
+  /** One or two dimensional */
   int dimensions;
 };
 
-/*!
+/**
   Stream output operator for the Matrix class
   hierarchy. Subclasses must implement the Print() method
   to take advantage of this.

@@ -9,6 +9,21 @@ all: growth growth_cuda
 CUSEHDF5 = no
 CPMETRICS = no
 
+# Stopgap approach for selecting model types, until parameter file selection
+# is implemented. Uncomment each of NEURONTYPE, SYNAPSETYPE, and CONNTYPE
+NEURONTYPE = "AllIZHNeurons"
+# NEURONTYPE = "AllLIFNeurons"
+
+SYNAPSETYPE = "AllSpikingSynapses"
+#SYNAPSETYPE = "AllDSSynapses"
+#SYNAPSETYPE = "AllSTDPSynapses"
+#SYNAPSETYPE = "AllDynamicSTDPSynapses"
+
+CONNTYPE = "ConnStatic"
+#CONNTYPE = "ConnGrowth"
+
+MODELFLAGS = -DNEURONTYPE=$(NEURONTYPE) -DSYNAPSETYPE=$(SYNAPSETYPE) -DCONNTYPE=$(CONNTYPE)
+
 ################################################################################
 # Source Directories
 ################################################################################
@@ -48,7 +63,7 @@ else
 	LH5FLAGS =
 	H5FLAGS = 
 endif
-CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(H5INCDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -I$(SINPUTDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(PMFLAGS) $(H5FLAGS)
+CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(H5INCDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -I$(SINPUTDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(PMFLAGS) $(H5FLAGS) $(MODELFLAGS)
 CGPUFLAGS = -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
@@ -94,7 +109,6 @@ LIBOBJS =               \
 			$(COMMDIR)/Simulator.o \
 			$(COMMDIR)/Model.o \
 			$(COMMDIR)/Layout.o \
-			$(COMMDIR)/Network.o \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
 			$(COMMDIR)/Util.o \
@@ -107,7 +121,6 @@ LIBOBJS =               \
 			$(COMMDIR)/Simulator.o \
 			$(COMMDIR)/Model.o \
 			$(COMMDIR)/Layout.o \
-			$(COMMDIR)/Network.o \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
 			$(COMMDIR)/Util.o \
@@ -207,7 +220,7 @@ $(CUDADIR)/AllDynamicSTDPSynapses_d.o: $(CUDADIR)/AllDynamicSTDPSynapses_d.cu $(
 $(CUDADIR)/ConnGrowth_d.o: $(CUDADIR)/ConnGrowth_d.cu $(COMMDIR)/Global.h $(COMMDIR)/ConnGrowth.h
 	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/ConnGrowth_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/ConnGrowth_d.o
 
-$(CUDADIR)/BGDriver_cuda.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/IModel.h $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/AllSynapses.h $(COMMDIR)/Network.h
+$(CUDADIR)/BGDriver_cuda.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/IModel.h $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/AllSynapses.h 
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -I$(CUDADIR) -c $(MAIN)/BGDriver.cpp -o $(CUDADIR)/BGDriver_cuda.o
 
 $(CUDADIR)/AllNeurons_cuda.o: $(COMMDIR)/AllNeurons.cpp $(COMMDIR)/AllNeurons.h $(COMMDIR)/Global.h
@@ -313,9 +326,6 @@ $(COMMDIR)/Layout.o: $(COMMDIR)/Layout.cpp $(COMMDIR)/Layout.h
 $(COMMDIR)/SingleThreadedSpikingModel.o: $(COMMDIR)/SingleThreadedSpikingModel.cpp $(COMMDIR)/SingleThreadedSpikingModel.h $(COMMDIR)/Model.h 
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/SingleThreadedSpikingModel.cpp -o $(COMMDIR)/SingleThreadedSpikingModel.o
 
-$(COMMDIR)/Network.o: $(COMMDIR)/Network.cpp $(COMMDIR)/Network.h
-	$(CXX) $(CXXFLAGS) $(COMMDIR)/Network.cpp -o $(COMMDIR)/Network.o
-
 $(COMMDIR)/ParseParamError.o: $(COMMDIR)/ParseParamError.cpp $(COMMDIR)/ParseParamError.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/ParseParamError.cpp -o $(COMMDIR)/ParseParamError.o
 
@@ -347,13 +357,13 @@ $(COMMDIR)/FClassOfCategory.o: $(COMMDIR)/FClassOfCategory.cpp $(COMMDIR)/FClass
 # Matrix
 # ------------------------------------------------------------------------------
 
-$(MATRIXDIR)/CompleteMatrix.o: $(MATRIXDIR)/CompleteMatrix.cpp  $(MATRIXDIR)/CompleteMatrix.h $(MATRIXDIR)/KIIexceptions.h $(MATRIXDIR)/Matrix.h $(MATRIXDIR)/VectorMatrix.h
+$(MATRIXDIR)/CompleteMatrix.o: $(MATRIXDIR)/CompleteMatrix.cpp  $(MATRIXDIR)/CompleteMatrix.h $(MATRIXDIR)/MatrixExceptions.h $(MATRIXDIR)/Matrix.h $(MATRIXDIR)/VectorMatrix.h
 	$(CXX) $(CXXFLAGS) $(MATRIXDIR)/CompleteMatrix.cpp -o $(MATRIXDIR)/CompleteMatrix.o
 
-$(MATRIXDIR)/Matrix.o: $(MATRIXDIR)/Matrix.cpp $(MATRIXDIR)/Matrix.h  $(MATRIXDIR)/KIIexceptions.h  $(XMLDIR)/tinyxml.h
+$(MATRIXDIR)/Matrix.o: $(MATRIXDIR)/Matrix.cpp $(MATRIXDIR)/Matrix.h  $(MATRIXDIR)/MatrixExceptions.h  $(XMLDIR)/tinyxml.h
 	$(CXX) $(CXXFLAGS) $(MATRIXDIR)/Matrix.cpp -o $(MATRIXDIR)/Matrix.o
 
-$(MATRIXDIR)/SparseMatrix.o: $(MATRIXDIR)/SparseMatrix.cpp $(MATRIXDIR)/SparseMatrix.h  $(MATRIXDIR)/KIIexceptions.h $(MATRIXDIR)/Matrix.h $(MATRIXDIR)/VectorMatrix.h
+$(MATRIXDIR)/SparseMatrix.o: $(MATRIXDIR)/SparseMatrix.cpp $(MATRIXDIR)/SparseMatrix.h  $(MATRIXDIR)/MatrixExceptions.h $(MATRIXDIR)/Matrix.h $(MATRIXDIR)/VectorMatrix.h
 	$(CXX) $(CXXFLAGS) $(MATRIXDIR)/SparseMatrix.cpp -o $(MATRIXDIR)/SparseMatrix.o
 
 $(MATRIXDIR)/VectorMatrix.o: $(MATRIXDIR)/VectorMatrix.cpp $(MATRIXDIR)/VectorMatrix.h $(MATRIXDIR)/CompleteMatrix.h $(MATRIXDIR)/SparseMatrix.h $(MATRIXDIR)/
@@ -417,7 +427,7 @@ $(SINPUTDIR)/GpuSInputPoisson.o: $(SINPUTDIR)/GpuSInputPoisson.cu $(SINPUTDIR)/I
 # Single Threaded
 # ------------------------------------------------------------------------------
 
-$(MAIN)/BGDriver.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/Network.h
+$(MAIN)/BGDriver.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h 
 	$(CXX) $(CXXFLAGS) $(MAIN)/BGDriver.cpp -o $(MAIN)/BGDriver.o
 
 

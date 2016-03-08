@@ -49,19 +49,31 @@ class IModel {
          */
 
         /**
-         * TODO(derek) comment.
+         * Deserializes internal state from a prior run of the simulation.
+         * This allows simulations to be continued from a particular point, to be restarted, or to be
+         * started from a known state.
+         *
+         *  @param  input       istream to read from.
+         *  @param  sim_info    used as a reference to set info for neurons and synapses.
          */
-        virtual void loadMemory(istream& input, const SimulationInfo *sim_info) =0;
+        virtual void deserialize(istream& input, const SimulationInfo *sim_info) = 0;
 
         /**
-         * TODO(derek) comment.
+         * Serializes internal state for the current simulation.
+         * This allows simulations to be continued from a particular point, to be restarted, or to be
+         * started from a known state.
+         *
+         *  @param  output          The filestream to write.
+         *  @param  simulation_step The step of the simulation at the current time.
          */
-        virtual void saveMemory(ostream& output, const SimulationInfo *sim_info) =0;
+        virtual void serialize(ostream& output, const SimulationInfo *sim_info) = 0;
 
         /**
-         * TODO(derek) comment.
+         * Writes simulation results to an output destination.
+         *
+         * @param simRecorder    Pointer to the simulation recordig object.
          */
-        virtual void saveState(IRecorder* simRecorder) =0;
+        virtual void saveData(IRecorder* simRecorder) = 0;
 
         /* ----------------
          * Network Creation
@@ -77,15 +89,16 @@ class IModel {
          * Set up model state, if anym for a specific simulation run.
          *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         * @param simRecorder    Pointer to the simulation recordig object.
          */
-        virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder) =0;
+        virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder) = 0;
 
         /**
          * Advances network state one simulation step.
          *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void advance(const SimulationInfo *sim_info) =0;
+        virtual void advance(const SimulationInfo *sim_info) = 0;
 
         /**
          * Modifies connections between neurons based on current state of the network and behavior
@@ -94,27 +107,49 @@ class IModel {
          * @param currentStep - The epoch step in which the connections are being updated.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void updateConnections(const SimulationInfo *sim_info) =0;
+        virtual void updateConnections(const SimulationInfo *sim_info) = 0;
 
         /**
          * Performs any finalization tasks on network following a simulation.
+         *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void cleanupSim(SimulationInfo *sim_info) =0;
+        virtual void cleanupSim(SimulationInfo *sim_info) = 0;
 
         /**
          * Prints debug information about the current state of the network.
          *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        virtual void logSimStep(const SimulationInfo *sim_info) const =0;
+        virtual void logSimStep(const SimulationInfo *sim_info) const = 0;
 
+        /**
+         *  Get the IAllNeurons class object.
+         *
+         *  @return Pointer to the AllNeurons class object.
+         */
         virtual IAllNeurons* getNeurons() = 0;
 
+        /**
+         *  Get the Connections class object.
+         *
+         *  @return Pointer to the Connections class object.
+         */
         virtual Connections* getConnections() = 0;
 
+        /**
+         *  Get the Layout class object.
+         *
+         *  @return Pointer to the Layout class object.
+         */
         virtual Layout* getLayout() = 0;
 
+        /**
+         *  Update the simulation history of every epoch.
+         *
+         *  @param  sim_info    SimulationInfo to refer from.
+         *  @param  simRecorder Pointer to the simulation recordig object.
+         */
         virtual void updateHistory(const SimulationInfo *sim_info, IRecorder* simRecorder) = 0;
 };
 

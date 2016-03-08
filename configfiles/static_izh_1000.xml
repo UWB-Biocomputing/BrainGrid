@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<SimParams>
+   <!-- Parameters for LSM -->
+   <LsmParams frac_EXC="0.80" starter_neurons="0"/>
+   <!-- size of pool of neurons [x y z] -->
+   <PoolSize x="40" y="25" z="1"/>
+   <!-- Interval of constant injected current -->
+   <Iinject max="13.5e-09" min="13.5e-09"/>
+   <!-- Interval of STD of (gaussian) noise current -->
+   <!--Inoise max="1.5e-09" min="1.0e-09"/-->
+   <Inoise max="0.7329e-06" min="0.5e-06"/>
+   <!-- Interval of firing threshold -->
+   <Vthresh max="30.0e-03" min="30.0e-03"/>
+   <!-- Interval of asymptotic voltage -->
+   <Vresting max="0.0" min="0.0"/>
+   <!-- Interval of reset voltage -->
+   <Vreset max="-0.065" min="-0.065"/>
+   <!-- Interval of initial membrance voltage -->
+   <Vinit max="-0.065" min="-0.065"/>
+   <!-- Starter firing threshold -->
+   <starter_vthresh max="13.655e-3" min="13.565e-3"/>
+   <!-- Starter reset voltage -->
+   <starter_vreset max="13.0e-3" min="13.0e-3"/>
+   <!-- Izhikevich neuron parameters -->
+   <Aconst maxExc="0.02" minExc="0.02" maxInh="0.1" minInh="0.02"/>
+   <Bconst maxExc="0.2" minExc="0.2" maxInh="0.25" minInh="0.2"/>
+   <Cconst maxExc="-50" minExc="-65" maxInh="-65" minInh="-65"/>
+   <Dconst maxExc="8" minExc="2" maxInh="2" minInh="2"/>
+   <!-- Connection parameters -->
+   <ConnectionsParams nConnsPerNeuron="999" threshConnsRadius="50" pRewiring="0"/>
+   <!-- Connections weight -->
+   <ConnectionsWeight minExc="0" maxExc="0.5e-7" minInh="-0.5e-7" maxInh="0" />
+   <!-- Simulation Parameters -->
+   <SimParams Tsim="1" maxFiringRate="1000" maxSynapsesPerNeuron="1000" numSims="1"/>
+   <OutputParams stateOutputFileName="results/static_izh_historyDump.h5"/>
+   <!-- Random seed - set to zero to use /dev/random -->
+   <Seed value="777"/>
+   <!-- If FixedLayout is present, the grid will be laid out according to the positions below, rather than randomly based on LsmParams -->
+   <FixedLayout>
+      <LayoutFiles inhNListFileName="configfiles/NList/inhNList__1000.xml" probedNListFileName="configfiles/NList/probedNList_1000.xml"/>
+   </FixedLayout>
+</SimParams>
