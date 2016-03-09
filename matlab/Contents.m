@@ -1,27 +1,16 @@
 	     MATLAB functions for BrainGrid data analysis
 
-These files include scripts, functions, and .cpp files for
-BrainGrid data analysis. For MATLAB help compatibility, this file
-contains a summary of each file's purpose.
+These files include scripts, functions, and .cpp files for BrainGrid
+data analysis. We have attempted to divide these files into two
+categories: those that are likely to be widely applicable, perhaps
+with modest modification (in this directory) and those (in the
+"examples" subdirectory) that can serve as examples of using the
+general functions, but are unlikely to be usable "off the shelf".
 
 ------------------------------------------------------------
 
-batch.m		Reads a bunch of simulation XML files and generates a
-		wide selection of graphs. This was originally written
-		as a function that would iterate over a 2D range of
-		parameters (tR, tE), where tR is target rate and tE is
-		the fraction of excitatory cells. it would then
-		produce figures for each simulation result in that
-		range. Uses growth2() to produce the figures.
 
-burstiness2.m	Burstiness index computation and plot.
-
-ca100_batch.m	like ca_batch, but computes more statistics and only
-		returns values; no plotting.
-
-ca_batch.m	Reads a set of XML files and generates comparative
-		graphs of firing rate statistics ("bifurcation
-		diagrams").
+burstiness.m	Burstiness index computation and plot.
 
 calc_aburst.m	Calculate average burstiness index (script) for
 		20,000-25,000 seconds and 25,000-30,000
@@ -46,29 +35,14 @@ calc_mradii.m	Function that calculates the mean and variance of the
 		radii of connectivity of inhibitory and endogenously
 		active (starter) cells.
 
-cb100_batch.m	Script that calculates burstiness statistics for
-		overall network for a range of the parameters (tR,
-		tE). Uses calc_aburst.
+examples/	Directory containing example code that uses functions
+		in this directory to do analysis and plotting specific
+		to BraingGrid simulations of dissociated cortical
+		tissue development.
 
-cb_batch.m	Script that uses calc_aburst to generate 2D
-		parameter response diagrams.
+hist_nconnect.m	Compute and plot a histogram of connections (number of
+		other neurons connected to) as of the end of a
+		simulation.
 
-growth2.m	Main function that creates useful single-simulation
-		graphs:
-		1. raster plot (using plot_channels)
-		2. triple plot of connectivity radii history, change
-		   in radii history (first difference), and firing
-		   rate history. Lines are colorized as red
-		   (inhibitory cells), blue (endogenously active
-		   cells), green (edge neurons), and black (all other
-		   neurons -- interior excitatory cells that don't
-		   fire on their own).
-		3. final radii, plotted as circles on a 2D spatial
-		   grid (using plotradii)
-		4. final firing rates, plotted as filled circles on a
-		   2D spatial grid (using plotrates)
-		5. plot of burstiness index history (using
-		   burstiness2)
-
-
+plot_channels.m	Raster plot
 

@@ -1,42 +1,36 @@
-function f15 = burstiness(R, simlength)
-% BURSTINESS   Plot burstiness index vs. time for spike records
+function f15 = burstiness(hist)
+% BURSTINESS    Plot burstiness index vs. time for spike records
+%   f15 = burstiness(hist) plots burstiness and returns f15 values
 %
+%   hist - Burstiness history computed during simulator run
 
-numchannels = length(R.channel);
-numbins = floor(simlength);
+global now;
+
+numbins = length(hist);
 seglength = 300;
-
-% Compute the 1s bin counts for each channel; sum them into a aggregate
-% set of counts for the entire net
-tot = zeros(1, numbins);
-fprintf('Processing channel: ');
-for n = 1:numchannels,
-    fprintf('%d ', n);
-    if mod(n,15)==0,
-        fprintf('\n');
-    end;
-    [N, X] = hist(R.channel(n).data, numbins);
-    tot = tot + N;
-end;
 
 f15 = zeros(1, numbins-seglength+1);
 fprintf('\nComputing f15 at offset: ');
 for n = 1:numbins-seglength+1,
-    if mod(n,1000)==0,
-        fprintf('%d ', n);
+    if mod(n, 1000)==0,
+        fprintf('%d', n);
     end;
-    if mod(n,10000)==0,
+    if mod(n, 10000)==0,
         fprintf('\n');
     end;
-    bins = sort(tot(n:n+seglength-1)); % bin values; smallest to largest
-    spikes = sum(bins);   % total number of spikes in window
-    sp15 = sum(bins(round(0.85*seglength):seglength)); % spikes in largest 15%
-    f15(n) = sp15/spikes;
+    bins = sort(hist(n:n+seglength-1)); % bin values; smallest to largest
+    spikes = sum(bins); % total number of spikes in window
+    sp15 = sum(bins(round(0.85*seglength):seglength));  % spikes in largest 15%
+    if (sp15 == 0) && (spikes == 0),
+        f15(n) = 0;
+    else 
+        f15(n) = sp15/spikes;
+    end;
 end;
 
-plot(X(1:numbins-seglength+1)', (f15'-0.15)/0.85);
+plot((f15'-0.15)/0.85);
+set(gca,'FontSize',18,'LineWidth',2)
 xlabel('Time (s)');
 ylabel('Burstiness Index');
+xlim([0 now])
 fprintf('\n');
-
-
