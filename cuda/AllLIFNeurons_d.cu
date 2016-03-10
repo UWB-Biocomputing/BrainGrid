@@ -83,28 +83,29 @@ __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int 
                 // reset to 'Vreset'
                 vm = allNeuronsDevice->Vreset[idx];
 
-                // notify outgoing synapses of spike
+                //notify incomming synapses of spike
                 size_t synapse_counts = allSynapsesDevice->synapse_counts[idx];
-                int synapse_notified = 0;
-                for (int i = 0; synapse_notified < synapse_counts; i++) {
-                        uint32_t iSyn = maxSynapses * idx + i;
-                        if (allSynapsesDevice->in_use[iSyn] == true) {
-                                fpPreSpikeHit(iSyn, allSynapsesDevice); 
-                                synapse_notified++;
-                        }
+                uint32_t synapse_notified = 0;
+                if(fAllowBackPropagation && synapse_counts != 0){
+                   for(uint32_t synapse_index = maxSynapses * idx ; synapse_notified < synapse_counts; synapse_index++){
+                      if (allSynapsesDevice->in_use[synapse_index] == true) {
+                         fpPreSpikeHit(synapse_index, allSynapsesDevice); 
+                         synapse_notified++;
+                      }
+                   }
                 }
 
-                // notify incomming synapses of spike
+                // notify outgoing synapses of spike
                 synapse_counts = synapseIndexMapDevice->synapseCount[idx];
-                if (fAllowBackPropagation && synapse_counts != 0) {
-                        int beginIndex = synapseIndexMapDevice->incomingSynapse_begin[idx];
-                        uint32_t* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] );
-                        uint32_t iSyn = inverseMap_begin[0];
-                        for ( uint32_t i = 0; i < synapse_counts; i++ ) {
-                                iSyn = inverseMap_begin[i];
-                                fpPostSpikeHit(iSyn, allSynapsesDevice);
-                                synapse_notified++;
-                        }
+                if(synapse_counts != 0){
+                   int beginIndex = synapseIndexMapDevice->outgoingSynapse_begin[idx]; //get the index of where this neuron's list of synapses are 
+                   uint32_t * forwardMap_begin = &(synapseIndexMapDevice->forwardIndex[beginIndex]); //get the memory location of where that list begins
+                   
+                   //for each synapse, let them know we have fired
+                   for(uint32_t i = 0; i < synapse_counts; i++){
+                      fpPreSpikeHit(forwardMap_begin[i], allSynapsesDevice);
+                   }
+                   //synapse_notified += synapse_counts; //we could increment this every time we notified a synapse, but we know how many we are going to notify, and there currently isn't a way notification could fail so this seems better
                 }
         } else {
                 r_sp += allNeuronsDevice->I0[idx]; // add IO
