@@ -71,6 +71,13 @@ class Connections
         virtual void cleanupConnections() = 0;
 
         /**
+         *  Checks the number of required parameters to read.
+         *
+         * @return true if all required parameters were successfully read, false otherwise.
+         */
+        virtual bool checkNumParameters() = 0;
+
+        /**
          *  Attempts to read parameters from a XML file.
          *
          *  @param  element TiXmlElement to examine.
@@ -150,5 +157,9 @@ class Connections
          */
         virtual void updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, Layout *layout);
 #endif
+
+    protected:
+        //!  Number of parameters read.
+        int nParams;
 };
 

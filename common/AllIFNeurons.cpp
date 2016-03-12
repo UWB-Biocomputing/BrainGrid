@@ -111,11 +111,13 @@ void AllIFNeurons::freeResources()
 }
 
 /*
- *  Returns the number of required parameters.
+ *  Checks the number of required parameters.
+ *
+ * @return true if all required parameters were successfully read, false otherwise.
  */
-int AllIFNeurons::numParameters()
+bool AllIFNeurons::checkNumParameters()
 {
-    return 8;
+    return (nParams >= 8);
 }
 
 /*
@@ -139,6 +141,7 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_Iinject[0] > m_Iinject[1]) {
             throw ParseParamError("Iinject max", "Invalid range for Iinject value.");
         }
+        nParams++;
         return true;
     }
 
@@ -155,6 +158,7 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_Inoise[0] > m_Inoise[1]) {
             throw ParseParamError("Inoise max", "Invalid range for Inoise value.");
         }
+        nParams++;
         return true;
     }
 
@@ -171,6 +175,7 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_Vthresh[0] > m_Vthresh[1]) {
             throw ParseParamError("Vthresh max", "Invalid range for Vthresh value.");
         }
+        nParams++;
         return true;
     }
 
@@ -184,6 +189,7 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_Vresting[0] > m_Vresting[1]) {
             throw ParseParamError("Vresting max", "Invalid range for Vresting value.");
         }
+        nParams++;
         return true;
     }
 
@@ -197,6 +203,7 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_Vreset[0] > m_Vreset[1]) {
             throw ParseParamError("Vreset max", "Invalid range for Vreset value.");
         }
+        nParams++;
         return true;
     }
 
@@ -210,6 +217,7 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_Vinit[0] > m_Vinit[1]) {
             throw ParseParamError("Vinit max", "Invalid range for Vinit value.");
         }
+        nParams++;
         return true;
     }
 
@@ -227,6 +235,7 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_starter_Vthresh[0] > m_starter_Vthresh[1]) {
             throw ParseParamError("starter_vthresh max", "Invalid range for starter_vthresh value.");
         }
+        nParams++;
         return true;
     }
 
@@ -243,10 +252,11 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_starter_Vreset[0] > m_starter_Vreset[1]) {
             throw ParseParamError("starter_vreset max", "Invalid range for starter_vreset value.");
         }
+        nParams++;
         return true;
     }
 
-    return true;
+    return false;
 }
 
 /*

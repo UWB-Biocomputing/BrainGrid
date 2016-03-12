@@ -113,7 +113,7 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
 
             // notify outgoing synapses
             size_t synapse_counts = spSynapses.synapse_counts[idx];
-            int synapse_notified = 0;
+            size_t synapse_notified = 0;
             for (int z = 0; synapse_notified < synapse_counts; z++) {
                 uint32_t iSyn = sim_info->maxSynapsesPerNeuron * idx + z;
                 if (spSynapses.in_use[iSyn] == true) {
@@ -150,7 +150,6 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
  */
 void AllSpikingNeurons::fire(const int index, const SimulationInfo *sim_info) const
 {
-    const BGFLOAT deltaT = sim_info->deltaT;
     // Note that the neuron has fired!
     hasFired[index] = true;
     

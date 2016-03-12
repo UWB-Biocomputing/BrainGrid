@@ -107,6 +107,13 @@ class ConnGrowth : public Connections
         virtual void cleanupConnections();
 
         /**
+         *  Checks the number of required parameters to read.
+         *
+         * @return true if all required parameters were successfully read, false otherwise.
+         */
+        virtual bool checkNumParameters();
+
+        /**
          *  Attempts to read parameters from a XML file.
          *
          *  @param  element TiXmlElement to examine.

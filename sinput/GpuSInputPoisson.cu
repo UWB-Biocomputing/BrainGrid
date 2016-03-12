@@ -162,8 +162,6 @@ void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int
  */
 void GpuSInputPoisson::deleteDeviceValues(IModel* model, SimulationInfo* psi )
 {
-    int neuron_count = psi->totalNeurons;
-
     HANDLE_ERROR( cudaFree( nISIs_d ) );
     HANDLE_ERROR( cudaFree( devStates_d ) );
     HANDLE_ERROR( cudaFree( masks_d ) );

@@ -36,6 +36,14 @@ class Layout
         static Layout* Create() { return new Layout(); }
 
         virtual void setupLayout(const SimulationInfo *sim_info);
+
+        /**
+         *  Checks the number of required parameters to read.
+         *
+         * @return true if all required parameters were successfully read, false otherwise.
+         */
+        virtual bool checkNumParameters();
+
         virtual bool readParameters(const TiXmlElement& element);
         virtual void printParameters(ostream &output) const;
         virtual void generateNeuronTypeMap(int num_neurons);
@@ -73,6 +81,11 @@ class Layout
         virtual void initNeuronsLocs(const SimulationInfo *sim_info);
 
         static const bool STARTER_FLAG; // = true; // true = use endogenously active neurons in simulation
+
+        /**
+         *  Number of parameters read.
+         */
+        int nParams;
 
     private:
         //! True if a fixed layout has been provided

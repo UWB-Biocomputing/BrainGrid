@@ -20,10 +20,10 @@
  *  @param  sim_info    parameters for the simulation.
  */
 Simulator::Simulator(IModel *model, IRecorder *simRecorder, ISInput *sInput, SimulationInfo *sim_info) : 
+    m_sim_info(sim_info),
     m_model(model), 
     m_simRecorder(simRecorder),
-    m_sInput(sInput),
-    m_sim_info(sim_info)
+    m_sInput(sInput)
 {
     cout << "Neuron count: " << sim_info->totalNeurons << endl;
     g_simulationStep = 0;

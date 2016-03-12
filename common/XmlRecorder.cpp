@@ -13,8 +13,8 @@
 XmlRecorder::XmlRecorder(IModel *model, const SimulationInfo* sim_info) :
         burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps), 0),
         spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps * 100), 0),
-        m_model(dynamic_cast<Model*> (model)),
-        m_sim_info(sim_info)
+        m_sim_info(sim_info),
+        m_model(dynamic_cast<Model*> (model))
 {
 }
 
@@ -70,8 +70,6 @@ void XmlRecorder::term()
  */
 void XmlRecorder::compileHistories(IAllNeurons &neurons)
 {
-    Connections* pConn = m_model->getConnections();
-
     AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
     int max_spikes = (int) ((m_sim_info->epochDuration * m_sim_info->maxFiringRate));
 

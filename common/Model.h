@@ -55,7 +55,7 @@
 
 using namespace std;
 
-class Model : public IModel, TiXmlVisitor
+class Model : public IModel
 {
     public:
         Model(Connections *conns, IAllNeurons *neurons, IAllSynapses *synapses, Layout *layout);

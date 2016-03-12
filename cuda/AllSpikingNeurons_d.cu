@@ -70,8 +70,8 @@ void AllSpikingNeurons::setAdvanceNeuronsDeviceParams(IAllSynapses &synapses)
     AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
     m_fAllowBackPropagation = spSynapses.allowBackPropagation();
 
-    m_fpPreSpikeHit_h = NULL;
-    m_fpPostSpikeHit_h = NULL;
+    m_fpPreSpikeHit_h = static_cast<unsigned long long>(NULL);
+    m_fpPostSpikeHit_h = static_cast<unsigned long long>(NULL);
     spSynapses.getFpPreSpikeHit(m_fpPreSpikeHit_h);
     if (m_fAllowBackPropagation) {
         spSynapses.getFpPostSpikeHit(m_fpPostSpikeHit_h);

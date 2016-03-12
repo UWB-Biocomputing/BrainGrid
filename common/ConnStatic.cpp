@@ -58,7 +58,7 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
         // sort ascendant
         sort(distDestNeurons[src_neuron].begin(), distDestNeurons[src_neuron].end());
         // pick the shortest m_nConnsPerNeuron connections
-        for (int i = 0; i < distDestNeurons[src_neuron].size() && i < m_nConnsPerNeuron; i++) {
+        for (size_t i = 0; i < distDestNeurons[src_neuron].size() && (int)i < m_nConnsPerNeuron; i++) {
             int dest_neuron = distDestNeurons[src_neuron][i].dest_neuron;
             synapseType type = layout->synType(src_neuron, dest_neuron);
             BGFLOAT* sum_point = &( dynamic_cast<AllNeurons*>(neurons)->summation_map[dest_neuron] );
@@ -95,6 +95,16 @@ void ConnStatic::cleanupConnections()
 }
 
 /*
+ *  Checks the number of required parameters.
+ *
+ * @return true if all required parameters were successfully read, false otherwise.
+ */
+bool ConnStatic::checkNumParameters()
+{
+    return (nParams >= 2);
+}
+
+/*
  *  Attempts to read parameters from a XML file.
  *
  *  @param  element TiXmlElement to examine.
@@ -127,6 +137,8 @@ bool ConnStatic::readParameters(const TiXmlElement& element)
         if (m_pRewiring < 0 || m_pRewiring > 1.0) {
                 throw ParseParamError("pRewiring", "Invalid negative Growth param 'pRewiring' value.");
         }
+        nParams++;
+        return true;
     }
 
     // Connections weight parameters
@@ -149,9 +161,11 @@ bool ConnStatic::readParameters(const TiXmlElement& element)
         if (m_inhWeight[1] > 0 || m_inhWeight[0] > m_inhWeight[1]) {
             throw ParseParamError("ConnectionsWeight maxInh", "Invalid range for ConnectionsWeight inhibitory neuron's synapse weight.");
         }
+        nParams++;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 /*

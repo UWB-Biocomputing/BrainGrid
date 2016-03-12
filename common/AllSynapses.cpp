@@ -2,9 +2,10 @@
 #include "AllNeurons.h"
 
 AllSynapses::AllSynapses() :
-        maxSynapsesPerNeuron(0),
         total_synapse_counts(0),
-        count_neurons(0)
+        maxSynapsesPerNeuron(0),
+        count_neurons(0),
+        nParams(0)
 {
     destNeuronIndex = NULL;
     W = NULL;
@@ -60,7 +61,7 @@ void AllSynapses::setupSynapses(const int num_neurons, const int max_synapses)
         in_use = new bool[max_total_synapses];
         synapse_counts = new size_t[num_neurons];
 
-        for (int i = 0; i < max_total_synapses; i++) {
+        for (uint32_t i = 0; i < max_total_synapses; i++) {
             summationPoint[i] = NULL;
             in_use[i] = false;
         }
@@ -222,13 +223,12 @@ void AllSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const
 void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const SimulationInfo* sim_info)
 {
         int neuron_count = sim_info->totalNeurons;
-        int width = sim_info->width;
         int total_synapse_counts = 0;
 
         // count the total synapses
         for ( int i = 0; i < neuron_count; i++ )
         {
-                assert( synapse_counts[i] < sim_info->maxSynapsesPerNeuron );
+                assert( static_cast<int>(synapse_counts[i]) < sim_info->maxSynapsesPerNeuron );
                 total_synapse_counts += synapse_counts[i];
         }
 
@@ -278,7 +278,7 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
                 synapseIndexMap->incomingSynapse_begin[i] = syn_i;
                 synapseIndexMap->synapseCount[i] = rgSynapseSynapseIndexMap[i].size();
 
-                for ( int j = 0; j < rgSynapseSynapseIndexMap[i].size(); j++, syn_i++)
+                for ( size_t j = 0; j < rgSynapseSynapseIndexMap[i].size(); j++, syn_i++)
                 {
                         synapseIndexMap->inverseIndex[syn_i] = rgSynapseSynapseIndexMap[i][j];
                 }
@@ -320,12 +320,11 @@ synapseType AllSynapses::synapseOrdinalToType(const int type_ordinal)
 void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons)
 {
     int num_neurons = sim_info->totalNeurons;
-    BGFLOAT deltaT = sim_info->deltaT;
 
     for (int i = 0; i < num_neurons; i++) {
         size_t synapse_counts = this->synapse_counts[i];
         int synapse_advanced = 0;
-        for (int z = 0; z < synapse_counts; z++) {
+        for (size_t z = 0; z < synapse_counts; z++) {
             // Advance Synapse
             uint32_t iSyn = maxSynapsesPerNeuron * i + z;
             advanceSynapse(iSyn, sim_info, neurons);

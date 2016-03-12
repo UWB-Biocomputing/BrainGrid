@@ -107,6 +107,16 @@ void ConnGrowth::cleanupConnections()
 }
 
 /*
+ *  Checks the number of required parameters.
+ *
+ * @return true if all required parameters were successfully read, false otherwise.
+ */
+bool ConnGrowth::checkNumParameters()
+{
+    return (nParams >= 1);
+}
+
+/*
  *  Attempts to read parameters from a XML file.
  *
  *  @param  element TiXmlElement to examine.
@@ -160,10 +170,12 @@ bool ConnGrowth::readParameters(const TiXmlElement& element)
 
         // initial maximum firing rate
         m_growth.maxRate = m_growth.targetRate / m_growth.epsilon;
+
+        nParams++;
+        return true;
     }
 
-        
-    return true;
+    return false;
 }
 
 /*
@@ -370,7 +382,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &ineur
 
             // for each existing synapse
             size_t synapse_counts = synapses.synapse_counts[src_neuron];
-            int synapse_adjusted = 0;
+            size_t synapse_adjusted = 0;
             for (size_t synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++) {
                 uint32_t iSyn = sim_info->maxSynapsesPerNeuron * src_neuron + synapse_index;
                 if (synapses.in_use[iSyn] == true) {

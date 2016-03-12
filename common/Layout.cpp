@@ -5,6 +5,7 @@
 const bool Layout::STARTER_FLAG(true);
 
 Layout::Layout() :
+    nParams(0),
     m_fixed_layout(false),
     m_grid_layout(true)
 {
@@ -68,12 +69,27 @@ void Layout::setupLayout(const SimulationInfo *sim_info)
 }
 
 /*
+ *  Checks the number of required parameters.
+ *
+ * @return true if all required parameters were successfully read, false otherwise.
+ */
+bool Layout::checkNumParameters()
+{
+    return (nParams >= 1);
+}
+
+/*
  *  Attempts to read parameters from a XML file.
- *  @param  @param  element TiXmlElement to examine.
+ *
+ *  @param  element TiXmlElement to examine.
  *  @return true if successful, false otherwise.
  */
 bool Layout::readParameters(const TiXmlElement& element)
 {
+    if (element.ValueStr().compare("LayoutFiles") == 0) {
+        return true;
+    }
+
     if (element.ValueStr().compare("LsmParams") == 0) {
         if (element.QueryFLOATAttribute("frac_EXC", &m_frac_excititory_neurons) != TIXML_SUCCESS) {
             throw ParseParamError("frac_EXC", "Fraction Excitatory missing in XML.");
@@ -88,10 +104,11 @@ bool Layout::readParameters(const TiXmlElement& element)
         if (m_frac_starter_neurons < 0 || m_frac_starter_neurons > 1) {
             throw ParseParamError("starter_neurons", "Invalid range for a fraction.");
         }
+        nParams++;
+        return true;
     }
 
     // Parse fixed layout (overrides random layouts)
-    bool fRet = true;
     if (element.ValueStr().compare("FixedLayout") == 0) {
         m_fixed_layout = true;
 
@@ -116,15 +133,13 @@ bool Layout::readParameters(const TiXmlElement& element)
                         cerr << "Failed loading positions of inhibitory neurons list file " << inhNListFileName << ":" << "\n\t"
                             << simDoc.ErrorDesc( ) << endl;
                         cerr << " error: " << simDoc.ErrorRow( ) << ", " << simDoc.ErrorCol( ) << endl;
-                        fRet = false;
-                        break;
+                        return false;
                     }
                     TiXmlNode* temp2 = NULL;
                     if (( temp2 = simDoc.FirstChildElement( "I" ) ) == NULL)
                     {
                         cerr << "Could not find <I> in positons of inhibitory neurons list file " << inhNListFileName << endl;
-                        fRet = false;
-                        break;
+                        return false;
                     }
                     getValueList(temp2->ToElement()->GetText(), &m_inhibitory_neuron_layout);
                 }
@@ -136,15 +151,13 @@ bool Layout::readParameters(const TiXmlElement& element)
                         cerr << "Failed loading positions of endogenously active neurons list file " << activeNListFileName << ":" << "\n\t"
                             << simDoc.ErrorDesc( ) << endl;
                         cerr << " error: " << simDoc.ErrorRow( ) << ", " << simDoc.ErrorCol( ) << endl;
-                        fRet = false;
-                        break;
+                        return false;
                     }
                     TiXmlNode* temp2 = NULL;
                     if (( temp2 = simDoc.FirstChildElement( "A" ) ) == NULL)
                     {
                         cerr << "Could not find <A> in positons of endogenously active neurons list file " << activeNListFileName << endl;
-                        fRet = false;
-                        break;
+                        return false;
                     }
                     getValueList(temp2->ToElement()->GetText(), &m_endogenously_active_neuron_list);
                 }
@@ -156,23 +169,23 @@ bool Layout::readParameters(const TiXmlElement& element)
                         cerr << "Failed loading positions of probed neurons list file " << probedNListFileName << ":" << "\n\t"
                             << simDoc.ErrorDesc( ) << endl;
                         cerr << " error: " << simDoc.ErrorRow( ) << ", " << simDoc.ErrorCol( ) << endl;
-                        fRet = false;
-                        break;
+                        return false;
                     }
                     TiXmlNode* temp2 = NULL;
                     if (( temp2 = simDoc.FirstChildElement( "P" ) ) == NULL)
                     {
                         cerr << "Could not find <P> in positions of probed neurons list file " << probedNListFileName << endl;
-                        fRet = false;
-                        break;
+                        return false;
                     }
                     getValueList(temp2->ToElement()->GetText(), &m_probed_neuron_list);
                }
             }
         }
+        // this is an optional parameter, so we don't increment nParams.
+        return true;
     }
 
-    return fRet;
+    return false;
 }
 
 /*

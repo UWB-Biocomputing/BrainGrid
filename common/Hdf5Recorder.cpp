@@ -26,8 +26,8 @@ const H5std_string  nameProbedNeurons("probedNeurons");
 
 //! THe constructor and destructor
 Hdf5Recorder::Hdf5Recorder(IModel *model, const SimulationInfo* sim_info) :
-    m_model(dynamic_cast<Model*> (model)),
-    m_sim_info(sim_info)
+    m_sim_info(sim_info),
+    m_model(dynamic_cast<Model*> (model))
 {
 }
 
@@ -184,8 +184,6 @@ void Hdf5Recorder::term()
  */
 void Hdf5Recorder::compileHistories(IAllNeurons &neurons)
 {
-    Connections* pConn = m_model->getConnections();
-
     AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
     int max_spikes = (int) ((m_sim_info->epochDuration * m_sim_info->maxFiringRate));
 

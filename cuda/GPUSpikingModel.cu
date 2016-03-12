@@ -200,12 +200,6 @@ void GPUSpikingModel::deserialize(istream& input, const SimulationInfo *sim_info
  */
 void GPUSpikingModel::advance(const SimulationInfo *sim_info)
 {
-	size_t total_synapse_counts = dynamic_cast<AllSynapses*>(m_synapses)->total_synapse_counts;
-
-	// CUDA parameters
-	const int threadsPerBlock = 256;
-	int blocksPerGrid;
-
 #ifdef PERFORMANCE_METRICS
 	startTimer();
 #endif // PERFORMANCE_METRICS

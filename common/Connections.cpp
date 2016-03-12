@@ -39,7 +39,7 @@
  * problematic matricies mentioned above will use
  * only 1/250 of their current space.
 \* --------------------------------------------- */
-Connections::Connections()
+Connections::Connections() : nParams(0)
 {
 }
 
@@ -68,6 +68,7 @@ void Connections::updateSynapsesWeights(const int num_neurons, IAllNeurons &neur
 /*
  *  Update the weight of the Synapses in the simulation.
  *  Note: Platform Dependent.
+ *
  *  @param  num_neurons Number of neurons to update.
  *  @param  neurons     The Neuron list to search from.
  *  @param  synapses    The Synapse list to search from.

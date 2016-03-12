@@ -72,10 +72,10 @@ public:
     virtual void saveSimData(const IAllNeurons &neurons);
 
 private:
-    // track radii
-    CompleteMatrix radiiHistory;
-
     // track firing rate
     CompleteMatrix ratesHistory;
+
+    // track radii
+    CompleteMatrix radiiHistory;
 };
 

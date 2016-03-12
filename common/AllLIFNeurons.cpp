@@ -19,7 +19,6 @@ AllLIFNeurons::~AllLIFNeurons()
  */
 void AllLIFNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info)
 {
-    const BGFLOAT deltaT = sim_info->deltaT;
     BGFLOAT &Vm = this->Vm[index];
     BGFLOAT &Vthresh = this->Vthresh[index];
     BGFLOAT &summationPoint = this->summation_map[index];

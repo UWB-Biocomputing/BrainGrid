@@ -11,16 +11,16 @@ CPMETRICS = no
 
 # Stopgap approach for selecting model types, until parameter file selection
 # is implemented. Uncomment each of NEURONTYPE, SYNAPSETYPE, and CONNTYPE
-NEURONTYPE = "AllIZHNeurons"
-# NEURONTYPE = "AllLIFNeurons"
+#NEURONTYPE = "AllIZHNeurons"
+NEURONTYPE = "AllLIFNeurons"
 
-SYNAPSETYPE = "AllSpikingSynapses"
-#SYNAPSETYPE = "AllDSSynapses"
+#SYNAPSETYPE = "AllSpikingSynapses"
+SYNAPSETYPE = "AllDSSynapses"
 #SYNAPSETYPE = "AllSTDPSynapses"
 #SYNAPSETYPE = "AllDynamicSTDPSynapses"
 
-CONNTYPE = "ConnStatic"
-#CONNTYPE = "ConnGrowth"
+#CONNTYPE = "ConnStatic"
+CONNTYPE = "ConnGrowth"
 
 MODELFLAGS = -DNEURONTYPE=$(NEURONTYPE) -DSYNAPSETYPE=$(SYNAPSETYPE) -DCONNTYPE=$(CONNTYPE)
 
@@ -107,6 +107,7 @@ CUDAOBJS =   \
 ifeq ($(CUSEHDF5), yes)
 LIBOBJS =               \
 			$(COMMDIR)/Simulator.o \
+			$(COMMDIR)/SimulationInfo.o \
 			$(COMMDIR)/Model.o \
 			$(COMMDIR)/Layout.o \
 			$(COMMDIR)/ParseParamError.o \
@@ -119,6 +120,7 @@ LIBOBJS =               \
 else
 LIBOBJS =               \
 			$(COMMDIR)/Simulator.o \
+			$(COMMDIR)/SimulationInfo.o \
 			$(COMMDIR)/Model.o \
 			$(COMMDIR)/Layout.o \
 			$(COMMDIR)/ParseParamError.o \
@@ -307,6 +309,9 @@ $(COMMDIR)/Global.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
 
 $(COMMDIR)/Simulator.o: $(COMMDIR)/Simulator.cpp $(COMMDIR)/Simulator.h $(COMMDIR)/Global.h $(COMMDIR)/SimulationInfo.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Simulator.cpp -o $(COMMDIR)/Simulator.o
+
+$(COMMDIR)/SimulationInfo.o: $(COMMDIR)/SimulationInfo.cpp $(COMMDIR)/SimulationInfo.h $(COMMDIR)/Global.h 
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/SimulationInfo.cpp -o $(COMMDIR)/SimulationInfo.o
 
 $(COMMDIR)/Model.o: $(COMMDIR)/Model.cpp $(COMMDIR)/Model.h $(COMMDIR)/IModel.h $(COMMDIR)/ParseParamError.h $(COMMDIR)/Util.h $(XMLDIR)/tinyxml.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Model.cpp -o $(COMMDIR)/Model.o

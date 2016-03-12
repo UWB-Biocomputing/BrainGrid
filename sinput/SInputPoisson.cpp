@@ -68,7 +68,7 @@ SInputPoisson::SInputPoisson(SimulationInfo* psi, TiXmlElement* parms) :
                 getValueList(pNode->ToElement()->GetText(), &maskIndex);
 
                 memset(masks, false, sizeof(bool) * psi->totalNeurons);
-                for (int i = 0; i < maskIndex.size(); i++)
+                for (size_t i = 0; i < maskIndex.size(); i++)
                     masks[static_cast<int> ( maskIndex[i] )] = true;
             }
             else if (strcmp(pNode->Value(), "LayoutFiles") == 0)
@@ -94,7 +94,7 @@ SInputPoisson::SInputPoisson(SimulationInfo* psi, TiXmlElement* parms) :
                     getValueList(temp2->ToElement()->GetText(), &maskIndex);
 
                     memset(masks, false, sizeof(bool) * psi->totalNeurons);
-                    for (int i = 0; i < maskIndex.size(); i++)
+                    for (size_t i = 0; i < maskIndex.size(); i++)
                         masks[static_cast<int> ( maskIndex[i] )] = true;
                 }
             }

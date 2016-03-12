@@ -33,9 +33,11 @@ class IAllNeurons
         virtual void cleanupNeurons() = 0;
 
         /**
-         *  Returns the number of required parameters to read.
+         *  Checks the number of required parameters to read.
+         *
+         * @return true if all required parameters were successfully read, false otherwise.
          */
-        virtual int numParameters() = 0;
+        virtual bool checkNumParameters() = 0;
 
         /**
          *  Attempts to read parameters from a XML file.
