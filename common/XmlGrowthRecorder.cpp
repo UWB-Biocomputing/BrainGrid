@@ -130,7 +130,7 @@ void XmlGrowthRecorder::saveSimData(const IAllNeurons &neurons)
     stateOut << "   " << neuronTypes.toXML("neuronTypes") << endl;
 
     // create starter nuerons matrix
-    int num_starter_neurons = static_cast<int>(m_model->getLayout()->m_frac_starter_neurons * m_sim_info->totalNeurons);
+    int num_starter_neurons = static_cast<int>(m_model->getLayout()->num_endogenously_active_neurons);
     if (num_starter_neurons > 0)
     {
         VectorMatrix starterNeurons(MATRIX_TYPE, MATRIX_INIT, 1, num_starter_neurons);

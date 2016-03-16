@@ -8,7 +8,7 @@
  */
 bool SimulationInfo::checkNumParameters()
 {
-    return (nParams >= 4);
+    return (nParams >= 5);
 }
 
 /*
@@ -80,14 +80,22 @@ bool SimulationInfo::VisitEnter(const TiXmlElement& element, const TiXmlAttribut
         if (element.QueryIntAttribute("numSims", &maxSteps) != TIXML_SUCCESS) {
             throw ParseParamError("SimParams numSims", "SimParams missing numSims value in XML.");
         }
+        if (epochDuration < 0 || maxSteps < 0) {
+            throw ParseParamError("SimParams", "Invalid negative SimParams value.");
+        }
+        nParams++;
+        return true;
+    }
+
+    if (element.ValueStr().compare("SimConfig") == 0) {
         if (element.QueryIntAttribute("maxFiringRate", &maxFiringRate) != TIXML_SUCCESS) {
-            throw ParseParamError("SimParams maxFiringRate", "SimParams missing maxFiringRate value in XML.");
+            throw ParseParamError("SimConfig maxFiringRate", "SimConfig missing maxFiringRate value in XML.");
         }
         if (element.QueryIntAttribute("maxSynapsesPerNeuron", &maxSynapsesPerNeuron) != TIXML_SUCCESS) {
-            throw ParseParamError("SimParams maxSynapsesPerNeuron", "SimParams missing maxSynapsesPerNeuron value in XML.");
+            throw ParseParamError("SimConfig maxSynapsesPerNeuron", "SimConfig missing maxSynapsesPerNeuron value in XML.");
         }
-        if (epochDuration < 0 || maxSteps < 0 || maxFiringRate < 0 || maxSynapsesPerNeuron < 0) {
-            throw ParseParamError("SimParams", "Invalid negative SimParams value.");
+        if (maxFiringRate < 0 || maxSynapsesPerNeuron < 0) {
+            throw ParseParamError("SimConfig", "Invalid negative SimConfig value.");
         }
         nParams++;
         return true;

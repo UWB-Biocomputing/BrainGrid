@@ -14,6 +14,8 @@
 #include "AllDynamicSTDPSynapses.h"
 #include "ConnGrowth.h"
 #include "ConnStatic.h"
+#include "FixedLayout.h"
+#include "DynamicLayout.h"
 #include "ParseParamError.h"
 
 // Part of the stopgap approach for selecting model types, until parameter file selection
@@ -46,7 +48,8 @@ FClassOfCategory::FClassOfCategory() :
     registerConns("ConnStatic", &ConnStatic::Create);
 
     // register layout classes    
-    registerLayout("Layout", &Layout::Create);
+    registerLayout("FixedLayout", &FixedLayout::Create);
+    registerLayout("DynamicLayout", &DynamicLayout::Create);
 }
 
 /*
@@ -160,7 +163,7 @@ Connections* FClassOfCategory::createConnections(TiXmlElement* parms)
  */
 Layout* FClassOfCategory::createLayout(TiXmlElement* parms)
 {
-    string layoutClassName = "Layout";
+    string layoutClassName = "FixedLayout";
 
     m_layout = createLayoutWithName(layoutClassName);
     return m_layout;

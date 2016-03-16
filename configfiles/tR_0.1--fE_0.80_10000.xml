@@ -6,7 +6,9 @@
     <!-- size of pool of neurons [x y z] -->
     <PoolSize x="100" y="100" z="1"/>
     <!-- Simulation Parameters -->
-    <SimParams Tsim="100.0" numSims="600" maxFiringRate="200" maxSynapsesPerNeuron="200"/>
+    <SimParams Tsim="100.0" numSims="600"/>
+    <!-- Simulation Configuration Parameters -->
+    <SimConfig maxFiringRate="200" maxSynapsesPerNeuron="200"/>
     <!-- Random seed - set to zero to use /dev/random -->
     <Seed value="777" />
     <!-- State output file name, this name will be overwritten if -o option is specified -->
@@ -45,13 +47,13 @@
     <!-- /ConnectionsParams -->
 
     <!-- LayoutParams -->
-        <!-- Class name="Layout" /-->
-        <!-- Parameters for LSM -->
-        <LsmParams frac_EXC="0.80" starter_neurons="0.10"/>
-        <!-- If FixedLayout is present, the grid will be laid out according to the positions below, rather than randomly based on LsmParams -->
-        <FixedLayout>
-            <LayoutFiles activeNListFileName="NList/activeNList_0.10_10000_2.xml" inhNListFileName="NList/inhNList_0.80_10000.xml"/>
-        </FixedLayout>
+        <!-- Class name="DynammicLayout" /-->
+            <!-- DynamicLayoutParams frac_EXC="0.80" starter_neurons="0.10"/>
+        <!-- Class name="FixedLayout" /-->
+            <!-- If FixedLayout is present, the grid will be laid out according to the positions below, rather than randomly based on LsmParams -->
+            <FixedLayoutParams>
+                <LayoutFiles activeNListFileName="NList/activeNList_0.10_10000_2.xml" inhNListFileName="NList/inhNList_0.80_10000.xml"/>
+            </FixedLayoutParams>
     <!-- /LayoutParams -->
 </ModelParams>
 
