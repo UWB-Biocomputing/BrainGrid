@@ -56,34 +56,34 @@ public:
     /**
      * Create an instance of the neurons class, which is specified in the parameter file.
      *
-     * @param  element TiXmlElement to examine.
+     * @param  element TiXmlNode to examine.
      * @return Poiner to the neurons object.
      */
-    IAllNeurons* createNeurons(TiXmlElement* parms);
+    IAllNeurons* createNeurons(const TiXmlNode* parms);
 
     /**
      * Create an instance of the synapses class, which is specified in the parameter file.
      *
-     * @param  element TiXmlElement to examine.
+     * @param  element TiXmlNode to examine.
      * @return Poiner to the synapses object.
      */
-    IAllSynapses* createSynapses(TiXmlElement* parms);
+    IAllSynapses* createSynapses(const TiXmlNode* parms);
 
     /**
      * Create an instance of the connections class, which is specified in the parameter file.
      *
-     * @param  element TiXmlElement to examine.
+     * @param  element TiXmlNode to examine.
      * @return Poiner to the connections object.
      */
-    Connections* createConnections(TiXmlElement* parms);
+    Connections* createConnections(const TiXmlNode* parms);
 
     /**
      * Create an instance of the layout class, which is specified in the parameter file.
      *
-     * @param  element TiXmlElement to examine.
+     * @param  element TiXmlNode to examine.
      * @return Poiner to the layout object.
      */
-    Layout* createLayout(TiXmlElement* parms);
+    Layout* createLayout(const TiXmlNode* parms);
 
     /**
      *  Attempts to read parameters from a XML file.

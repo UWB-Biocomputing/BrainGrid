@@ -170,10 +170,23 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
     }
 
     // create neurons, synapses, connections, and layout objects specified in the description file
-    IAllNeurons *neurons = FClassOfCategory::get()->createNeurons(parms);
-    IAllSynapses *synapses = FClassOfCategory::get()->createSynapses(parms);
-    Connections *conns = FClassOfCategory::get()->createConnections(parms);
-    Layout *layout = FClassOfCategory::get()->createLayout(parms);
+    IAllNeurons *neurons = NULL;
+    IAllSynapses *synapses = NULL;
+    Connections *conns = NULL;
+    Layout *layout = NULL;
+    const TiXmlNode* pNode = NULL;
+
+    while ((pNode = parms->IterateChildren(pNode)) != NULL) {
+        if (strcmp(pNode->Value(), "NeuronsParams") == 0) {
+            neurons = FClassOfCategory::get()->createNeurons(pNode);
+        } else if (strcmp(pNode->Value(), "SynapsesParams") == 0) {
+            synapses = FClassOfCategory::get()->createSynapses(pNode);
+        } else if (strcmp(pNode->Value(), "ConnectionsParams") == 0) {
+            conns = FClassOfCategory::get()->createConnections(pNode);
+        } else if (strcmp(pNode->Value(), "LayoutParams") == 0) {
+            layout = FClassOfCategory::get()->createLayout(pNode);
+        }
+    }
 
     if (neurons == NULL || synapses == NULL || conns == NULL || layout == NULL) {
         cerr << "!ERROR: failed to create classes" << endl;

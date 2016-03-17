@@ -110,63 +110,73 @@ void FClassOfCategory::registerLayout(const string &layoutClassName, CreateLayou
 /*
  * Create an instance of the neurons class, which is specified in the parameter file.
  *
- * @param  element TiXmlElement to examine.
+ * @param  element TiXmlNode to examine.
  * @return Poiner to the neurons object.
  */
-IAllNeurons* FClassOfCategory::createNeurons(TiXmlElement* parms)
+IAllNeurons* FClassOfCategory::createNeurons(const TiXmlNode* parms)
 {
-    // Stopgap approach for selecting model types, until parameter file selection
-    // is implemented.
-    string neuronsClassName = xstr(NEURONTYPE);
+    string neuronsClassName;
+ 
+    if (parms->ToElement()->QueryValueAttribute("class", &neuronsClassName) == TIXML_SUCCESS) {
+        m_neurons = createNeuronsWithName(neuronsClassName);
+        return m_neurons;
+    }
 
-    m_neurons = createNeuronsWithName(neuronsClassName);
-    return m_neurons;
+    return NULL;
 }
 
 /*
  * Create an instance of the synapses class, which is specified in the parameter file.
  *
- * @param  element TiXmlElement to examine.
+ * @param  element TiXmlNode to examine.
  * @return Poiner to the synapses object.
  */
-IAllSynapses* FClassOfCategory::createSynapses(TiXmlElement* parms)
+IAllSynapses* FClassOfCategory::createSynapses(const TiXmlNode* parms)
 {
-    // Stopgap approach for selecting model types, until parameter file selection
-    // is implemented.
-    string synapsesClassName = xstr(SYNAPSETYPE);
+    string synapsesClassName;
 
-    m_synapses = createSynapsesWithName(synapsesClassName);
-    return m_synapses;
+    if (parms->ToElement()->QueryValueAttribute("class", &synapsesClassName) == TIXML_SUCCESS) {
+        m_synapses = createSynapsesWithName(synapsesClassName);
+        return m_synapses;
+    }
+
+    return NULL;
 }
 
 /*
  * Create an instance of the connections class, which is specified in the parameter file.
  *
- * @param  element TiXmlElement to examine.
+ * @param  element TiXmlNode to examine.
  * @return Poiner to the connections object.
  */
-Connections* FClassOfCategory::createConnections(TiXmlElement* parms)
+Connections* FClassOfCategory::createConnections(const TiXmlNode* parms)
 {
-    // Stopgap approach for selecting model types, until parameter file selection
-    // is implemented.
-    string connsClassName = xstr(CONNTYPE);
+    string connsClassName;
 
-    m_conns = createConnsWithName(connsClassName);
-    return m_conns;
+    if (parms->ToElement()->QueryValueAttribute("class", &connsClassName) == TIXML_SUCCESS) {
+        m_conns = createConnsWithName(connsClassName);
+        return m_conns;
+    }
+
+    return NULL;
 }
 
 /*
  * Create an instance of the layout class, which is specified in the parameter file.
  *
- * @param  element TiXmlElement to examine.
+ * @param  element TiXmlNode to examine.
  * @return Poiner to the layout object.
  */
-Layout* FClassOfCategory::createLayout(TiXmlElement* parms)
+Layout* FClassOfCategory::createLayout(const TiXmlNode* parms)
 {
-    string layoutClassName = "FixedLayout";
+    string layoutClassName;
 
-    m_layout = createLayoutWithName(layoutClassName);
-    return m_layout;
+    if (parms->ToElement()->QueryValueAttribute("class", &layoutClassName) == TIXML_SUCCESS) {
+        m_layout = createLayoutWithName(layoutClassName);
+        return m_layout;
+    }
+
+    return NULL;
 }
 
 /*
@@ -271,7 +281,12 @@ bool FClassOfCategory::readParameters(TiXmlDocument* simDoc)
 bool FClassOfCategory::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute)
 //TODO: firstAttribute does not seem to be used! Delete?
 {
-    if (element.ValueStr().compare("ModelParams") == 0) {
+    // TODO: consider the duplication of element name
+    if ((element.ValueStr().compare("ModelParams") == 0) ||
+            (element.ValueStr().compare("NeuronsParams") == 0) ||
+            (element.ValueStr().compare("SynapsesParams") == 0) ||
+            (element.ValueStr().compare("ConnectionsParams") == 0) ||
+            (element.ValueStr().compare("LayoutParams") == 0)) {
         return true;
     }
 

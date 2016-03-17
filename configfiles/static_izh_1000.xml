@@ -13,8 +13,7 @@
 </SimInfoParams>
 
 <ModelParams>
-    <!-- NeuronsParams -->
-        <!-- Class name="AllIZHNeurons" /-->
+    <NeuronsParams class="AllIZHNeurons">
         <!-- Interval of constant injected current -->
         <Iinject max="13.5e-09" min="13.5e-09"/>
         <!-- Interval of STD of (gaussian) noise current -->
@@ -37,28 +36,24 @@
         <Bconst maxExc="0.2" minExc="0.2" maxInh="0.25" minInh="0.2"/>
         <Cconst maxExc="-50" minExc="-65" maxInh="-65" minInh="-65"/>
         <Dconst maxExc="8" minExc="2" maxInh="2" minInh="2"/>
-    <!-- /NeuronsParams -->
+    </NeuronsParams>
 
-    <!-- SynapsesParams -->
-        <!-- Class name="AllSpikingSynapses" /-->
-    <!-- /SynapsesParams -->
+    <SynapsesParams class="AllSpikingSynapses">
+    </SynapsesParams>
 
-    <!-- ConnectionsParams -->
-        <!-- Class name="ConnStatic" /-->
+    <ConnectionsParams class="ConnStatic">
         <!-- Connection parameters -->
         <ConnectionsParams nConnsPerNeuron="999" threshConnsRadius="50" pRewiring="0"/>
         <!-- Connections weight -->
         <ConnectionsWeight minExc="0" maxExc="0.5e-7" minInh="-0.5e-7" maxInh="0" />
-    <!-- /ConnectionsParams -->
+    </ConnectionsParams>
 
-    <!-- LayoutParams -->
-        <!-- Class name="DynamicLayout" /-->
+    <LayoutParams class="FixedLayout">
             <!-- Parameters for Dynamic Layout -->
             <!-- DynamicLayoutParamsLsmParams frac_EXC="0.80" starter_neurons="0"/-->
-        <!-- Class name="FixedLayout" /-->
         <!-- If FixedLayout is present, the grid will be laid out according to the positions below, rather than randomly based on LsmParams -->
             <FixedLayoutParams>
                 <LayoutFiles inhNListFileName="configfiles/NList/inhNList__1000.xml" probedNListFileName="configfiles/NList/probedNList_1000.xml"/>
             </FixedLayoutParams>
-    <!-- /LayoutParams -->
+    </LayoutParams>
 </ModelParams>
