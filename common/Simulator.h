@@ -34,69 +34,75 @@ class Simulator
 
        /**
         *  Constructor
-        *
-        *  @param  model
-        *          pointer to a neural network implementation to be simulated by BrainGrid. (It would be
-        *          nice if this was a parameter to #simulate). Note: this reference will not be deleted.
-        *  @simRecorder        Pointer to the simulation recordig object.
-        *  @sInput             Pointer to the stimulus input object.
-        *  @param  sim_info    parameters for the simulation.
         */
-	Simulator(IModel *model, IRecorder* simRecorder, ISInput *sInput, SimulationInfo *sim_info);
+	Simulator();
 
         /** Destructor */
         virtual ~Simulator();
 
         /**
          * Setup simulation.
+         *
+         *  @param  sim_info    parameters for the simulation.
          */
-        void setup();
+        void setup(SimulationInfo *sim_info);
 
         /**
          * Cleanup after simulation.
+         *
+         *  @param  sim_info    parameters for the simulation.
          */
-        void finish();
+        void finish(SimulationInfo *sim_info);
 
         /** 
          * Reset simulation objects.
+         *
+         *  @param  sim_info    parameters for the simulation.
          */
-        void reset();
+        void reset(SimulationInfo *sim_info);
 
         /**
          * Performs the simulation.
+         *
+         *  @param  sim_info    parameters for the simulation.
          */
-        void simulate();
+        void simulate(SimulationInfo *sim_info);
 
         /**
          * Advance simulation to next growth cycle. Helper for #simulate().
          *
-         * @param currentStep the current epoch in which the network is being simulated.
+         *  @param currentStep the current epoch in which the network is being simulated.
+         *  @param  sim_info    parameters for the simulation.
          */
-        void advanceUntilGrowth(const int currentStep);
+        void advanceUntilGrowth(const int currentStep, SimulationInfo *sim_info);
 
         /**
          * Writes simulation results to an output destination.
+         *
+         *  @param  sim_info    parameters for the simulation.
          */
-        void saveData() const;
+        void saveData(SimulationInfo *sim_info) const;
 
         /**
          * Read serialized internal state from a previous run of the simulator.
          * This allows simulations to be continued from a particular point, to be restarted, or to be
          * started from a known state.
          *
-         * @param memory_in - where to read the state from.
+         *  @param memory_in - where to read the state from.
+         *  @param  sim_info    parameters for the simulation.
          */
-        void deserialize(istream &memory_in);
+        void deserialize(istream &memory_inn, SimulationInfo *sim_info);
 
         /**
          * Serializes internal state for the current simulation.
          * This allows simulations to be continued from a particular point, to be restarted, or to be
          * started from a known state.
-         *
-         * @param memory_out - where to write the state to.
          * This method needs to be debugged to verify that it works.
+         *
+         *  @param memory_out - where to write the state to.
+         *  @param  sim_info    parameters for the simulation.
          */
-        void serialize(ostream &memory_out) const;
+        void serialize(ostream &memory_out, SimulationInfo *sim_info) const;
 
     private:
         /**
@@ -112,26 +118,6 @@ class Simulator
          * Timer for measuring performance of connection update.
          */
         Timer short_timer;
-
-        /**
-         * Parameters for the simulation.
-         */
-        SimulationInfo *m_sim_info;
-
-        /**
-         * Pointer to the Neural Network Model interface.
-         */
-        IModel *m_model;
-
-        /**
-         * Pointer to the simulation recordig object.
-         */
-        IRecorder* m_simRecorder;
-
-        /**
-         * Pointer to the stimulus input object.
-         */
-        ISInput* m_sInput;
 };
 
 #endif /* _SIMULATOR_H_ */

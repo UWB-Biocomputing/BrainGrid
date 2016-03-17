@@ -435,31 +435,29 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &ineur
 
 /*
  *  Creates a recorder class object for the connection.
+ *  This function tries to create either Xml recorder or
+ *  Hdf5 recorder based on the extension of the file name.
  *
- *  @param  stateOutputFileName  Name of the state output file.
- *                               This function tries to create either Xml recorder or
- *                               Hdf5 recorder based on the extension of the file name.
- *  @param  model                Poiner to the model class object. 
  *  @param  simInfo              SimulationInfo to refer from.
  *  @return Pointer to the recorder class object.
  */
-IRecorder* ConnGrowth::createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *simInfo)
+IRecorder* ConnGrowth::createRecorder(const SimulationInfo *simInfo)
 {
     // create & init simulation recorder
     IRecorder* simRecorder = NULL;
-    if (stateOutputFileName.find(".xml") != string::npos) {
-        simRecorder = new XmlGrowthRecorder(model, simInfo);
+    if (simInfo->stateOutputFileName.find(".xml") != string::npos) {
+        simRecorder = new XmlGrowthRecorder(simInfo);
     }
 #ifdef USE_HDF5
-    else if (stateOutputFileName.find(".h5") != string::npos) {
-        simRecorder = new Hdf5GrowthRecorder(model, simInfo);
+    else if (simInfo->stateOutputFileName.find(".h5") != string::npos) {
+        simRecorder = new Hdf5GrowthRecorder(simInfo);
     }
 #endif // USE_HDF5
     else {
         return NULL;
     }
     if (simRecorder != NULL) {
-        simRecorder->init(stateOutputFileName);
+        simRecorder->init(simInfo->stateOutputFileName);
     }
 
     return simRecorder;

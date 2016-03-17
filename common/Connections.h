@@ -120,15 +120,13 @@ class Connections
 
         /**
          *  Creates a recorder class object for the connection.
+         *  This function tries to create either Xml recorder or
+         *  Hdf5 recorder based on the extension of the file name.
          *
-         *  @param  stateOutputFileName  Name of the state output file.
-         *                               This function tries to create either Xml recorder or
-         *                               Hdf5 recorder based on the extension of the file name.
-         *  @param  model                Poiner to the model class object. 
          *  @param  simInfo              SimulationInfo to refer from.
          *  @return Pointer to the recorder class object.
          */
-        virtual IRecorder* createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *sim_info) = 0;
+        virtual IRecorder* createRecorder(const SimulationInfo *sim_info) = 0;
 #if defined(USE_GPU)
     public:
         /**

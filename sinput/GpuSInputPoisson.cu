@@ -33,19 +33,17 @@ GpuSInputPoisson::~GpuSInputPoisson()
 /*
  * Initialize data.
  *
- * @param[in] model     Pointer to the Neural Network Model object.
- * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
  */
-void GpuSInputPoisson::init(IModel* model, IAllNeurons &neurons, SimulationInfo* psi)
+void GpuSInputPoisson::init(SimulationInfo* psi)
 {
-    SInputPoisson::init(model, neurons, psi);
+    SInputPoisson::init(psi);
 
     if (fSInput == false)
         return;
 
     // allocate GPU device memory and copy values
-    allocDeviceValues(model, psi, nISIs);
+    allocDeviceValues(psi->model, psi, nISIs);
 
     // CUDA parameters
     int neuron_count = psi->totalNeurons;
@@ -59,26 +57,23 @@ void GpuSInputPoisson::init(IModel* model, IAllNeurons &neurons, SimulationInfo*
 /*
  * Terminate process.
  *
- * @param[in] model              Pointer to the Neural Network Model object.
  * @param[in] psi                Pointer to the simulation information.
  */
-void GpuSInputPoisson::term(IModel* model, SimulationInfo* psi)
+void GpuSInputPoisson::term(SimulationInfo* psi)
 {
-    SInputPoisson::term(model, psi);
+    SInputPoisson::term(psi);
 
     if (fSInput)
-        deleteDeviceValues(model, psi);
+        deleteDeviceValues(psi->model, psi);
 }
 
 /*
  * Process input stimulus for each time step.
  * Apply inputs on summationPoint.
  *
- * @param[in] model              Pointer to the Neural Network Model object.
  * @param[in] psi                Pointer to the simulation information.
- * @param[in] summationPoint_d   Poiner to the summation point.
  */
-void GpuSInputPoisson::inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint_d)
+void GpuSInputPoisson::inputStimulus(SimulationInfo* psi)
 {
     if (fSInput == false)
         return;
@@ -100,7 +95,7 @@ void GpuSInputPoisson::inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT
     advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, synapseIndexMapDevice, g_simulationStep, psi->deltaT, (AllSpikingSynapses*)allSynapsesDevice, (void (*)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT))fpChangePSR_h );
 
     // update summation point
-    applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, summationPoint_d, allSynapsesDevice );
+    applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, psi->pSummationMap, allSynapsesDevice );
 }
 
 /*

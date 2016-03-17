@@ -39,7 +39,7 @@ class XmlGrowthRecorder : public XmlRecorder
 {
 public:
     //! THe constructor and destructor
-    XmlGrowthRecorder(IModel *model, const SimulationInfo* sim_info);
+    XmlGrowthRecorder(const SimulationInfo* sim_info);
     ~XmlGrowthRecorder();
 
     /**

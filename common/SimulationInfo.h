@@ -30,6 +30,10 @@
 
 #include "Global.h"
 
+class IModel;
+class IRecorder;
+class ISInput;
+
 //! Class design to hold all of the parameters of the simulation.
 class SimulationInfo : public TiXmlVisitor
 {
@@ -46,7 +50,10 @@ public:
             deltaT(DEFAULT_dt),
             maxRate(0),
             pSummationMap(NULL),
-	    seed(0)
+	    seed(0),
+            model(NULL),
+            simRecorder(NULL),
+            pInput(NULL)
         {
         }
 
@@ -117,14 +124,35 @@ public:
 	//! growth variable (m_targetRate / m_epsilon) TODO: more detail here
 	BGFLOAT maxRate;
 
-	//! List of summation points
+	//! List of summation points (either host or device memory)
 	BGFLOAT* pSummationMap;
 
 	//! Seed used for the simulation random SINGLE THREADED
 	long seed;
 
-        //! File name of of the simulation results.
+        //! File name of the simulation results.
         string stateOutputFileName;
+
+        //! File name of the parameter description file.
+        string stateInputFileName;
+
+        //! File name of the memory dump output file.
+        string memOutputFileName;
+
+        //! File name of the memory dump input file.
+        string memInputFileName;
+
+        //! File name of the stimulus input file.
+        string stimulusInputFileName;
+
+        //! Neural Network Model interface.
+        IModel *model;
+
+        //! Recorder object.
+        IRecorder* simRecorder;
+
+        //! Stimulus input object.
+        ISInput* pInput;
     
     private:
         /**

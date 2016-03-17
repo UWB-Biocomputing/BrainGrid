@@ -58,7 +58,7 @@ public:
     }
  
     //! Create an instance.
-    ISInput* CreateInstance(IModel* model, SimulationInfo* psi, string stimulusInputFileName);
+    ISInput* CreateInstance(SimulationInfo* psi);
 
 protected:
 };

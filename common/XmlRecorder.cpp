@@ -10,11 +10,11 @@
 #include "ConnGrowth.h"
 
 //! THe constructor and destructor
-XmlRecorder::XmlRecorder(IModel *model, const SimulationInfo* sim_info) :
+XmlRecorder::XmlRecorder(const SimulationInfo* sim_info) :
         burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps), 0),
         spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps * 100), 0),
         m_sim_info(sim_info),
-        m_model(dynamic_cast<Model*> (model))
+        m_model(dynamic_cast<Model*> (sim_info->model))
 {
 }
 

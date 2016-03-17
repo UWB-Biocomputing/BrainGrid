@@ -118,11 +118,10 @@ SInputPoisson::~SInputPoisson()
 
 /*
  * Initialize data.
- * @param[in] model	Pointer to the Neural Network Model object.
- * @param[in] neurons  	The Neuron list to search from.
- * @param[in] psi       Pointer to the simulation information.
+ *
+ *  @param[in] psi       Pointer to the simulation information.
  */
-void SInputPoisson::init(IModel* model, IAllNeurons &neurons, SimulationInfo* psi)
+void SInputPoisson::init(SimulationInfo* psi)
 {
     if (fSInput == false)
         return;
@@ -133,7 +132,7 @@ void SInputPoisson::init(IModel* model, IAllNeurons &neurons, SimulationInfo* ps
     for (int neuron_index = 0; neuron_index < psi->totalNeurons; neuron_index++)
     {
         synapseType type;
-        if (model->getLayout()->neuron_type_map[neuron_index] == INH)
+        if (psi->model->getLayout()->neuron_type_map[neuron_index] == INH)
             type = EI;
         else
             type = EE;
@@ -148,10 +147,10 @@ void SInputPoisson::init(IModel* model, IAllNeurons &neurons, SimulationInfo* ps
 
 /*
  * Terminate process.
- * @param[in] model     Pointer to the Neural Network Model object.
- * @param[in] psi       Pointer to the simulation information.
+ *
+ *  @param[in] psi       Pointer to the simulation information.
  */
-void SInputPoisson::term(IModel* model, SimulationInfo* psi)
+void SInputPoisson::term(SimulationInfo* psi)
 {
     // clear memory for interval counter
     if (nISIs != NULL)

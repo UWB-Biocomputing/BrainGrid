@@ -40,13 +40,13 @@ public:
     ~GpuSInputRegular();
 
     //! Initialize data.
-    virtual void init(IModel* model, IAllNeurons &neurons, SimulationInfo* psi);
+    virtual void init(SimulationInfo* psi);
 
     //! Terminate process.
-    virtual void term(IModel* model, SimulationInfo* psi);
+    virtual void term(SimulationInfo* psi);
 
     //! Process input stimulus for each time step.
-    virtual void inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint);
+    virtual void inputStimulus(SimulationInfo* psi);
 };
 
 //! Device function that processes input stimulus for each time step.

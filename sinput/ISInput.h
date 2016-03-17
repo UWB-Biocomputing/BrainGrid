@@ -40,25 +40,21 @@ public:
     /**
      * Initialize data
      *
-     * @param[in] model     Pointer to the Neural Network Model object.
-     * @param[in] neurons   The Neuron list to search from.
      * @param[in] psi       Pointer to the simulation information.
      */
-    virtual void init(IModel* model, IAllNeurons &neurons, SimulationInfo* psi) = 0;
+    virtual void init(SimulationInfo* psi) = 0;
 
     /**
      * Terminate process
      */
-    virtual void term(IModel* model, SimulationInfo* psi) = 0;
+    virtual void term(SimulationInfo* psi) = 0;
 
     /**
      * Process input stimulus for each time step
      *
-     * @param[in] model     Pointer to the Neural Network Model object.
      * @param[in] psi       Pointer to the simulation information.
-     * @param[in] summationPoint
      */
-    virtual void inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint) = 0;
+    virtual void inputStimulus(SimulationInfo* psi) = 0;
 };
 
 #endif // _ISINPUT_H_

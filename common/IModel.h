@@ -71,9 +71,9 @@ class IModel {
         /**
          * Writes simulation results to an output destination.
          *
-         * @param simRecorder    Pointer to the simulation recordig object.
+         *  @param  sim_info    parameters for the simulation. 
          */
-        virtual void saveData(IRecorder* simRecorder) = 0;
+        virtual void saveData(SimulationInfo *sim_info) = 0;
 
         /* ----------------
          * Network Creation
@@ -89,9 +89,8 @@ class IModel {
          * Set up model state, if anym for a specific simulation run.
          *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
-         * @param simRecorder    Pointer to the simulation recordig object.
          */
-        virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder) = 0;
+        virtual void setupSim(SimulationInfo *sim_info) = 0;
 
         /**
          * Advances network state one simulation step.
@@ -148,9 +147,8 @@ class IModel {
          *  Update the simulation history of every epoch.
          *
          *  @param  sim_info    SimulationInfo to refer from.
-         *  @param  simRecorder Pointer to the simulation recordig object.
          */
-        virtual void updateHistory(const SimulationInfo *sim_info, IRecorder* simRecorder) = 0;
+        virtual void updateHistory(const SimulationInfo *sim_info) = 0;
 };
 
 #endif

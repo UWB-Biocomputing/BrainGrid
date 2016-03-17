@@ -63,7 +63,7 @@ public:
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          * @param simRecorder    Pointer to the simulation recordig object.
          */
-        virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder);
+        virtual void setupSim(SimulationInfo *sim_info);
 
         /**
          * Advances network state one simulation step.

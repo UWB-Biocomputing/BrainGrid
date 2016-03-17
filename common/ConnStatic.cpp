@@ -199,31 +199,29 @@ void ConnStatic::serialize(ostream& output, const SimulationInfo *sim_info)
 
 /*
  *  Creates a recorder class object for the connection.
+ *  This function tries to create either Xml recorder or
+ *  Hdf5 recorder based on the extension of the file name.
  *
- *  @param  stateOutputFileName  Name of the state output file.
- *                               This function tries to create either Xml recorder or
- *                               Hdf5 recorder based on the extension of the file name.
- *  @param  model                Poiner to the model class object.
  *  @param  simInfo              SimulationInfo to refer from.
  *  @return Pointer to the recorder class object.
  */
-IRecorder* ConnStatic::createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *simInfo)
+IRecorder* ConnStatic::createRecorder(const SimulationInfo *simInfo)
 {
     // create & init simulation recorder
     IRecorder* simRecorder = NULL;
-    if (stateOutputFileName.find(".xml") != string::npos) {
-        simRecorder = new XmlRecorder(model, simInfo);
+    if (simInfo->stateOutputFileName.find(".xml") != string::npos) {
+        simRecorder = new XmlRecorder(simInfo);
     }
 #ifdef USE_HDF5
-    else if (stateOutputFileName.find(".h5") != string::npos) {
-        simRecorder = new Hdf5Recorder(model, simInfo);
+    else if (simInfo->stateOutputFileName.find(".h5") != string::npos) {
+        simRecorder = new Hdf5Recorder(simInfo);
     }
 #endif // USE_HDF5
     else {
         return NULL;
     }
     if (simRecorder != NULL) {
-        simRecorder->init(stateOutputFileName);
+        simRecorder->init(simInfo->stateOutputFileName);
     }
 
     return simRecorder;

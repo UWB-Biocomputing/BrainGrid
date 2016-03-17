@@ -25,9 +25,9 @@ const H5std_string  nameAttrPNUnit("attrPNUint");
 const H5std_string  nameProbedNeurons("probedNeurons");
 
 //! THe constructor and destructor
-Hdf5Recorder::Hdf5Recorder(IModel *model, const SimulationInfo* sim_info) :
+Hdf5Recorder::Hdf5Recorder(const SimulationInfo* sim_info) :
     m_sim_info(sim_info),
-    m_model(dynamic_cast<Model*> (model))
+    m_model(dynamic_cast<Model*> (sim_info->model))
 {
 }
 

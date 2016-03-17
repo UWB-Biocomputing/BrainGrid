@@ -31,35 +31,11 @@
 
 using namespace std;
 
-// state file name
-string stateOutputFileName;
-string stateInputFileName;
-
-// memory dump file name
-string memOutputFileName;
-string memInputFileName;
-bool fReadMemImage = false;  // True if dumped memory image is read before
-                             // starting simulation
-bool fWriteMemImage = false;  // True if dumped memory image is written after
-                              // simulation
-
-// stimulus input file name
-string stimulusInputFileName;
-
-IModel *model = NULL;
-IAllNeurons *neurons = NULL;
-IAllSynapses *synapses = NULL;
-Connections *conns = NULL;
-Layout *layout = NULL;
-
-SimulationInfo *simInfo = NULL;
-
-
 // functions
-bool LoadAllParameters(const string &sim_param_filename);
-void printParams();
-bool parseCommandLine(int argc, char* argv[]);
-bool createAllClassInstances(TiXmlDocument* simDoc);
+bool LoadAllParameters(SimulationInfo *simInfo);
+void printParams(SimulationInfo *simInfo);
+bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo);
+bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo);
 
 /*
  *  Main for Simulator. Handles command line arguments and loads parameters
@@ -71,94 +47,80 @@ bool createAllClassInstances(TiXmlDocument* simDoc);
  *  @return -1 if error, else if success.
  */
 int main(int argc, char* argv[]) {
-    if (!parseCommandLine(argc, argv)) {
+    SimulationInfo *simInfo = NULL;    // simulation information
+    Simulator *simulator = NULL;       // Simulator object
+
+    // create simulation info object
+    simInfo = new SimulationInfo();
+
+    // Handles parsing of the command line
+    if (!parseCommandLine(argc, argv, simInfo)) {
         cerr << "! ERROR: failed during command line parse" << endl;
         return -1;
     }
 
-    if (!LoadAllParameters(stateInputFileName)) {
+    // Create all model instances and load parameters from a file.
+    if (!LoadAllParameters(simInfo)) {
         cerr << "! ERROR: failed while parsing simulation parameters." << endl;
         return -1;
     }
 
-    if (stateOutputFileName.empty()) {
-        if (!simInfo->stateOutputFileName.empty()) {
-            stateOutputFileName = simInfo->stateOutputFileName;
-        }
-        else {
-            cerr << "! ERROR: no stateOutputFileName is specified." << endl;
-            return -1;
-        }
-    }
-
-    /*    verify that params were read correctly */
-    DEBUG(printParams();)
-
-    // create the model
-    #if defined(USE_GPU)
-	 model = new GPUSpikingModel(conns, neurons, synapses, layout);
-    #else
-	 model = new SingleThreadedSpikingModel(conns, neurons, synapses, layout);
-    #endif
-    
-    // create & init simulation recorder
-    IRecorder* simRecorder = conns->createRecorder(stateOutputFileName, model, simInfo);
-
-    if (simRecorder == NULL) {
-        cerr << "! ERROR: invalid state output file name extension." << endl;
+    if (simInfo->stateOutputFileName.empty()) {
+        cerr << "! ERROR: no stateOutputFileName is specified." << endl;
         return -1;
     }
 
+    /*    verify that params were read correctly */
+    DEBUG(printParams(simInfo);)
+
     // Create a stimulus input object
-    ISInput* pInput = NULL;     // pointer to a stimulus input object
-    pInput = FSInput::get()->CreateInstance(model, simInfo, stimulusInputFileName);
+    simInfo->pInput = FSInput::get()->CreateInstance(simInfo);
 
     time_t start_time, end_time;
     time(&start_time);
 
     // create the simulator
-    Simulator *simulator;
-    simulator = new Simulator(model, simRecorder, pInput, simInfo);
+    simulator = new Simulator();
 	
     // setup simulation
     DEBUG(cout << "Setup simulation." << endl;);
-    simulator->setup();
+    simulator->setup(simInfo);
 
     // Deserializes internal state from a prior run of the simulation
-    if (fReadMemImage) {
+    if (!simInfo->memInputFileName.empty()) {
         ifstream memory_in;
-        memory_in.open(memInputFileName.c_str(), ofstream::binary | ofstream::in);
-        simulator->deserialize(memory_in);
+        memory_in.open(simInfo->memInputFileName.c_str(), ofstream::binary | ofstream::in);
+        simulator->deserialize(memory_in, simInfo);
         memory_in.close();
     }
 
     // Run simulation
-    simulator->simulate();
+    simulator->simulate(simInfo);
 
     // Terminate the stimulus input 
-    if (pInput != NULL)
+    if (simInfo->pInput != NULL)
     {
-        pInput->term(model, simInfo);
-        delete pInput;
+        simInfo->pInput->term(simInfo);
+        delete simInfo->pInput;
     }
 
     // Writes simulation results to an output destination
-    simulator->saveData();
+    simulator->saveData(simInfo);
 
     // Serializes internal state for the current simulation
     ofstream memory_out;
-    if (fWriteMemImage) {
-        memory_out.open(memOutputFileName.c_str(),ofstream::binary | ofstream::trunc);
-        simulator->serialize(memory_out);
+    if (!simInfo->memOutputFileName.empty()) {
+        memory_out.open(simInfo->memOutputFileName.c_str(),ofstream::binary | ofstream::trunc);
+        simulator->serialize(memory_out, simInfo);
         memory_out.close();
     }
 
     // Tell simulation to clean-up and run any post-simulation logic.
-    simulator->finish();
+    simulator->finish(simInfo);
 
     // terminates the simulation recorder
-    if (simRecorder != NULL) {
-        simRecorder->term();
+    if (simInfo->simRecorder != NULL) {
+        simInfo->simRecorder->term();
     }
 
     for(unsigned int i = 0; i < rgNormrnd.size(); ++i) {
@@ -174,12 +136,12 @@ int main(int argc, char* argv[]) {
     cout << "time elapsed: " << time_elapsed << endl;
     cout << "ssps (simulation seconds / real time seconds): " << ssps << endl;
     
-    delete model;
-    model = NULL;
+    delete simInfo->model;
+    simInfo->model = NULL;
     
-    if (simRecorder != NULL) {
-        delete simRecorder;
-        simRecorder = NULL;
+    if (simInfo->simRecorder != NULL) {
+        delete simInfo->simRecorder;
+        simInfo->simRecorder = NULL;
     }
 
     delete simInfo;
@@ -191,7 +153,14 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-bool createAllClassInstances(TiXmlDocument* simDoc)
+/*
+ *  Create instances of all model classes.
+ *
+ *  @param  simDoc  the TiXmlDocument to read from.
+ *  @param  simInfo   SimulationInfo class to read information from.
+ *  @retrun true if successful, false if not
+ */
+bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo)
 {
     TiXmlElement* parms = NULL;
 
@@ -201,13 +170,27 @@ bool createAllClassInstances(TiXmlDocument* simDoc)
     }
 
     // create neurons, synapses, connections, and layout objects specified in the description file
-    neurons = FClassOfCategory::get()->createNeurons(parms);
-    synapses = FClassOfCategory::get()->createSynapses(parms);
-    conns = FClassOfCategory::get()->createConnections(parms);
-    layout = FClassOfCategory::get()->createLayout(parms);
+    IAllNeurons *neurons = FClassOfCategory::get()->createNeurons(parms);
+    IAllSynapses *synapses = FClassOfCategory::get()->createSynapses(parms);
+    Connections *conns = FClassOfCategory::get()->createConnections(parms);
+    Layout *layout = FClassOfCategory::get()->createLayout(parms);
 
     if (neurons == NULL || synapses == NULL || conns == NULL || layout == NULL) {
         cerr << "!ERROR: failed to create classes" << endl;
+        return false;
+    }
+
+    // create the model
+    #if defined(USE_GPU)
+         simInfo->model = new GPUSpikingModel(conns, neurons, synapses, layout);
+    #else
+         simInfo->model = new SingleThreadedSpikingModel(conns, neurons, synapses, layout);
+    #endif
+
+    // create & init simulation recorder
+    simInfo->simRecorder = conns->createRecorder(simInfo);
+    if (simInfo->simRecorder == NULL) {
+        cerr << "! ERROR: invalid state output file name extension." << endl;
         return false;
     }
 
@@ -217,25 +200,22 @@ bool createAllClassInstances(TiXmlDocument* simDoc)
 /*
  *  Load parameters from a file.
  *
- *  @param  sim_param_filename  filename of file to read from
+ *  @param  simInfo   SimulationInfo class to read information from.
  *  @return true if successful, false if not
  */
-bool LoadAllParameters(const string &sim_param_filename)
+bool LoadAllParameters(SimulationInfo *simInfo)
 {
     DEBUG(cout << "reading parameters from xml file" << endl;)
 
-    TiXmlDocument simDoc(sim_param_filename.c_str());
+    TiXmlDocument simDoc(simInfo->stateInputFileName.c_str());
     if (!simDoc.LoadFile()) {
         cerr << "Failed loading simulation parameter file "
-             << sim_param_filename << ":" << "\n\t" << simDoc.ErrorDesc()
+             << simInfo->stateInputFileName << ":" << "\n\t" << simDoc.ErrorDesc()
              << endl;
         cerr << " error: " << simDoc.ErrorRow() << ", " << simDoc.ErrorCol()
              << endl;
         return false;
     }
-
-    // create simulation info object
-    simInfo = new SimulationInfo();
 
     // load simulation parameters
     if (simInfo->readParameters(&simDoc) != true) {
@@ -244,7 +224,7 @@ bool LoadAllParameters(const string &sim_param_filename)
 
     // create instances of all model classes
     DEBUG(cout << "creating instances of all classes" << endl;)
-    if (createAllClassInstances(&simDoc) != true) {
+    if (createAllModelClassInstances(&simDoc, simInfo) != true) {
         return false;
     }
 
@@ -254,8 +234,10 @@ bool LoadAllParameters(const string &sim_param_filename)
 
 /*
  *  Prints loaded parameters out to console.
+ *
+ *  @param  simInfo   SimulationInfo class to read information from.
  */
-void printParams() {
+void printParams(SimulationInfo *simInfo) {
     cout << "\nPrinting simulation parameters...\n";
     simInfo->printParameters(cout);
 
@@ -267,11 +249,12 @@ void printParams() {
 /*
  *  Handles parsing of the command line
  *
- *  @param  argc    argument count.
- *  @param  argv    arguments.
+ *  @param  argc      argument count.
+ *  @param  argv      arguments.
+ *  @param  simInfo   SimulationInfo class to read information from.
  *  @returns    true if successful, false otherwise.
  */
-bool parseCommandLine(int argc, char* argv[])
+bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo)
 {
     ParamContainer cl;
     cl.initOptions(false);  // don't allow unknown parameters
@@ -305,19 +288,11 @@ bool parseCommandLine(int argc, char* argv[])
     }
 
     // Get the values
-    stateOutputFileName = cl["stateoutfile"];
-    stateInputFileName = cl["stateinfile"];
-    memInputFileName = cl["meminfile"];
-    memOutputFileName = cl["memoutfile"];
-    stimulusInputFileName = cl["stiminfile"];
-
-    if (!memInputFileName.empty()) {
-        fReadMemImage = true;
-    }
-
-    if (!memOutputFileName.empty()) {
-        fWriteMemImage = true;
-    }
+    simInfo->stateOutputFileName = cl["stateoutfile"];
+    simInfo->stateInputFileName = cl["stateinfile"];
+    simInfo->memInputFileName = cl["meminfile"];
+    simInfo->memOutputFileName = cl["memoutfile"];
+    simInfo->stimulusInputFileName = cl["stiminfile"];
 
 #if defined(USE_GPU)
     if (EOF == sscanf(cl["deviceid"].c_str(), "%d", &g_deviceId)) {

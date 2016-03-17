@@ -34,23 +34,21 @@ FSInput::~FSInput()
  * Create an instance of the stimulus input class based on the method
  * specified in the stimulus input file.
  *
- * @param[in] model                 Pointer to the Neural Network Model object.
  * @param[in] psi                   Pointer to the simulation information
- * @param[in] stimulusInputFileName Stimulus input file name
  * @return a pointer to a SInput object
  */
-ISInput* FSInput::CreateInstance(IModel* model, SimulationInfo* psi, string stimulusInputFileName)
+ISInput* FSInput::CreateInstance(SimulationInfo* psi)
 {
-    if (stimulusInputFileName.empty())
+    if (psi->stimulusInputFileName.empty())
     {
         return NULL;
     }
 
     // load stimulus input file
-    TiXmlDocument siDoc( stimulusInputFileName.c_str( ) );
+    TiXmlDocument siDoc( psi->stimulusInputFileName.c_str( ) );
     if (!siDoc.LoadFile( )) 
     {
-        cerr << "Failed loading stimulus input file " << stimulusInputFileName << ":" << "\n\t"
+        cerr << "Failed loading stimulus input file " << psi->stimulusInputFileName << ":" << "\n\t"
                 << siDoc.ErrorDesc( ) << endl;
         cerr << " error: " << siDoc.ErrorRow( ) << ", " << siDoc.ErrorCol( ) << endl;
         return NULL;
@@ -60,7 +58,7 @@ ISInput* FSInput::CreateInstance(IModel* model, SimulationInfo* psi, string stim
     TiXmlElement* parms = NULL;
     if (( parms = siDoc.FirstChildElement( "InputParams" ) ) == NULL) 
     {
-        cerr << "Could not find <InputParms> in stimulus input file " << stimulusInputFileName << endl;
+        cerr << "Could not find <InputParms> in stimulus input file " << psi->stimulusInputFileName << endl;
         return NULL;
     }
 

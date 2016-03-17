@@ -110,8 +110,11 @@ bool SimulationInfo::VisitEnter(const TiXmlElement& element, const TiXmlAttribut
     }
 
     if (element.ValueStr().compare("OutputParams") == 0) {
-        if (element.QueryValueAttribute("stateOutputFileName", &stateOutputFileName) != TIXML_SUCCESS) {
-            throw ParseParamError("OutputParams stateOutputFileName", "OutputParams missing stateOutputFileName value in XML.");
+        // file name specified in commond line is higher priority
+        if (stateOutputFileName.empty()) {
+            if (element.QueryValueAttribute("stateOutputFileName", &stateOutputFileName) != TIXML_SUCCESS) {
+                throw ParseParamError("OutputParams stateOutputFileName", "OutputParams missing stateOutputFileName value in XML.");
+            }
         }
         nParams++;
         return true;
