@@ -3,6 +3,7 @@
 #include "Util.h"
 
 Layout::Layout() :
+    num_endogenously_active_neurons(0),
     nParams(0),
     m_grid_layout(true)
 {

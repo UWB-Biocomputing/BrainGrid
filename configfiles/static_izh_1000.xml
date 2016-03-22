@@ -3,7 +3,7 @@
     <!-- size of pool of neurons [x y z] -->
     <PoolSize x="40" y="25" z="1"/>
     <!-- Simulation Parameters -->
-    <SimParams Tsim="1" maxFiringRate="1000"/>
+    <SimParams Tsim="1" numSims="1"/>
     <!-- Simulation Configuration Parameters -->
     <SimConfig maxFiringRate="1000" maxSynapsesPerNeuron="1"/>
     <!-- Random seed - set to zero to use /dev/random -->
@@ -43,9 +43,9 @@
 
     <ConnectionsParams class="ConnStatic">
         <!-- Connection parameters -->
-        <ConnectionsParams nConnsPerNeuron="999" threshConnsRadius="50" pRewiring="0"/>
+        <StaticConnectionsParams nConnsPerNeuron="999" threshConnsRadius="50" pRewiring="0"/>
         <!-- Connections weight -->
-        <ConnectionsWeight minExc="0" maxExc="0.5e-7" minInh="-0.5e-7" maxInh="0" />
+        <StaticConnectionsWeight minExc="0" maxExc="0.5e-7" minInh="-0.5e-7" maxInh="0" />
     </ConnectionsParams>
 
     <LayoutParams class="FixedLayout">

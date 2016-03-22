@@ -65,13 +65,12 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    if (simInfo->stateOutputFileName.empty()) {
-        cerr << "! ERROR: no stateOutputFileName is specified." << endl;
+    // create & init simulation recorder
+    simInfo->simRecorder = simInfo->model->getConnections()->createRecorder(simInfo);
+    if (simInfo->simRecorder == NULL) {
+        cerr << "! ERROR: invalid state output file name extension." << endl;
         return -1;
     }
-
-    /*    verify that params were read correctly */
-    DEBUG(printParams(simInfo);)
 
     // Create a stimulus input object
     simInfo->pInput = FSInput::get()->CreateInstance(simInfo);
@@ -200,13 +199,6 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
          simInfo->model = new SingleThreadedSpikingModel(conns, neurons, synapses, layout);
     #endif
 
-    // create & init simulation recorder
-    simInfo->simRecorder = conns->createRecorder(simInfo);
-    if (simInfo->simRecorder == NULL) {
-        cerr << "! ERROR: invalid state output file name extension." << endl;
-        return false;
-    }
-
     return true;
 }
 
@@ -242,7 +234,19 @@ bool LoadAllParameters(SimulationInfo *simInfo)
     }
 
     // load parameters for all models
-    return FClassOfCategory::get()->readParameters(&simDoc);
+    if (FClassOfCategory::get()->readParameters(&simDoc) != true) {
+        return false;
+    }
+
+    if (simInfo->stateOutputFileName.empty()) {
+        cerr << "! ERROR: no stateOutputFileName is specified." << endl;
+        return -1;
+    }
+
+    /*    verify that params were read correctly */
+    DEBUG(printParams(simInfo);)
+
+    return true;
 }
 
 /*

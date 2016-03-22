@@ -259,11 +259,20 @@ bool FClassOfCategory::readParameters(TiXmlDocument* simDoc)
     }
 
     // check to see if all required parameters were successfully read
-    if ((m_neurons->checkNumParameters() != true) ||
-            (m_synapses->checkNumParameters() != true) ||
-            (m_conns->checkNumParameters() != true) ||
-            (m_layout->checkNumParameters() != true)) {
-        cerr << "Some parameters are missing in <ModelParams> in simulation parameter file " << endl;
+    if (m_neurons->checkNumParameters() != true) {
+        cerr << "Some parameters are missing in <NeuronsParams> in simulation parameter file " << endl;
+        return false;
+    }
+    if (m_synapses->checkNumParameters() != true) {
+        cerr << "Some parameters are missing in <SynapsesParams> in simulation parameter file " << endl;
+        return false;
+    }
+    if (m_conns->checkNumParameters() != true) {
+        cerr << "Some parameters are missing in <ConnectionsParams> in simulation parameter file " << endl;
+        return false;
+    }
+    if (m_layout->checkNumParameters() != true) {
+        cerr << "Some parameters are missing in <LayoutParams> in simulation parameter file " << endl;
         return false;
     }
 
@@ -281,21 +290,52 @@ bool FClassOfCategory::readParameters(TiXmlDocument* simDoc)
 bool FClassOfCategory::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute)
 //TODO: firstAttribute does not seem to be used! Delete?
 {
-    // TODO: consider the duplication of element name
-    if ((element.ValueStr().compare("ModelParams") == 0) ||
-            (element.ValueStr().compare("NeuronsParams") == 0) ||
-            (element.ValueStr().compare("SynapsesParams") == 0) ||
-            (element.ValueStr().compare("ConnectionsParams") == 0) ||
-            (element.ValueStr().compare("LayoutParams") == 0)) {
+    enum modelParams {neuronsParams = 1, synapsesParams = 2, connectionsParams = 3, layoutParams = 4, undefParams = 0};
+    static modelParams paramsType;
+
+    if (element.ValueStr().compare("ModelParams") == 0) {
+        paramsType = undefParams;
+        return true;
+    }
+    if (element.ValueStr().compare("NeuronsParams") == 0) {
+        paramsType = neuronsParams;
+        return true;
+    }
+    if (element.ValueStr().compare("SynapsesParams") == 0) {
+        paramsType = synapsesParams;
+        return true;
+    }
+    if (element.ValueStr().compare("ConnectionsParams") == 0) {
+        paramsType = connectionsParams;
+        return true;
+    }
+    if (element.ValueStr().compare("LayoutParams") == 0) {
+        paramsType = layoutParams;
         return true;
     }
 
-    if ((m_neurons->readParameters(element) != true) &&      // Read neurons parameters
-            (m_synapses->readParameters(element) != true) && // Read synapses parameters
-            (m_conns->readParameters(element) != true) &&    // Read connections parameters 
-            (m_layout->readParameters(element) != true)) {   // Read layout parameters
-        // If all failed, we have unrecognized parameters.
-        throw ParseParamError("FClassOfCategory", "Unrecognized parameter '" + element.ValueStr() + "' was detected.");
+    // Considering the duplication of element name between different model categories,
+    // so we call readParameters separately based on the current parameters type.
+
+    // Read neurons parameters
+    if ((paramsType == neuronsParams) && (m_neurons->readParameters(element) != true)) {
+        // If failed, we have unrecognized parameters.
+        throw ParseParamError("FClassOfCategory", "Unrecognized neurons parameter '" + element.ValueStr() + "' was detected.");
+    }
+    // Read synapses parameters
+    if ((paramsType == synapsesParams) && (m_synapses->readParameters(element) != true)) {
+        // If failed, we have unrecognized parameters.
+        throw ParseParamError("FClassOfCategory", "Unrecognized synapses parameter '" + element.ValueStr() + "' was detected.");
+    } 
+    // Read connections parameters
+    if ((paramsType == connectionsParams) && (m_conns->readParameters(element) != true)) {
+        // If failed, we have unrecognized parameters.
+        throw ParseParamError("FClassOfCategory", "Unrecognized connections parameter '" + element.ValueStr() + "' was detected.");
+    }
+    // Read layout parameters
+    if ((paramsType == layoutParams) && (m_layout->readParameters(element) != true)) {
+        // If failed, we have unrecognized parameters.
+        throw ParseParamError("FClassOfCategory", "Unrecognized layout parameter '" + element.ValueStr() + "' was detected.");
     }
 
     return true;

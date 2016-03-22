@@ -113,7 +113,7 @@ bool ConnStatic::checkNumParameters()
 bool ConnStatic::readParameters(const TiXmlElement& element)
 {
     // Connections parameters
-    if (element.ValueStr().compare("ConnectionsParams") == 0) {
+    if (element.ValueStr().compare("StaticConnectionsParams") == 0) {
         // number of maximum connections per neurons
         if (element.QueryIntAttribute("nConnsPerNeuron", &m_nConnsPerNeuron) != TIXML_SUCCESS) {
                 throw ParseParamError("nConnsPerNeuron", "Static Connections param 'nConnsPerNeuron' missing in XML.");
@@ -142,7 +142,7 @@ bool ConnStatic::readParameters(const TiXmlElement& element)
     }
 
     // Connections weight parameters
-    if (element.ValueStr().compare("ConnectionsWeight") == 0) {
+    if (element.ValueStr().compare("StaticConnectionsWeight") == 0) {
         if (element.QueryFLOATAttribute("minExc", &m_excWeight[0]) != TIXML_SUCCESS) {
             throw ParseParamError("ConnectionsWeight minExc", "ConnectionsWeight missing minimum values of excitatory neuron's synapse weight in XML.");
         }
