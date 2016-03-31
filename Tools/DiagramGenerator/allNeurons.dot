@@ -1,0 +1,29 @@
+//BrainGrid Overview
+//Written in the Dot language (See Graphviz
+
+digraph {
+node [
+shape = "record"
+]
+
+//###########################
+//Layout
+//###########################
+rankdir = TB; // Rank Direction Top to Bottom
+nodesep = 0.25; // Node Separation
+ranksep = 0.25; // Rank Separation
+AllNeurons -> IAllNeurons [arrowhead=empty];
+AllNeurons -> Global [arrowhead=ediamond];
+AllNeurons -> SimulationInfo [arrowhead=ediamond];
+AllNeurons -> SynapseIndexMap [arrowhead=ediamond];
+AllNeurons -> Layout [arrowhead=ediamond];
+Global -> Coordinate [arrowhead=ediamond];
+Global -> BGTypes [arrowhead=ediamond];
+Global -> bgtypes [arrowhead=ediamond];
+Layout -> Util [arrowhead=ediamond];
+Layout -> ParseParamError [arrowhead=ediamond];
+Layout -> Global [arrowhead=ediamond];
+Layout -> SimulationInfo [arrowhead=ediamond];
+IAllNeurons -> Layout [arrowhead=ediamond];
+IAllNeurons -> SynapseIndexMap [arrowhead=ediamond];
+}//End digraph declaration
