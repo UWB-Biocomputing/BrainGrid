@@ -1,0 +1,42 @@
+digraph{
+
+	subgraph clusterC {
+		node [shape = record];
+
+		color = mediumseagreen
+		H5Cpp[label = H5Cpp, style = filled, color = mediumseagreen];
+		Hdf5GrowthRecorder[label = Hdf5GrowthRecorder, style = filled, color = mediumseagreen];
+		Hdf5Recorder[label = Hdf5Recorder, style = filled, color = mediumseagreen];
+		IRecorder[label = IRecorder, style = filled, color = mediumseagreen];
+		XmlGrowthRecorder[label = XmlGrowthRecorder, style = filled, color = mediumseagreen];
+		XmlRecorder[label = XmlRecorder, style = filled, color = mediumseagreen];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Top to Bottom
+		nodesep = 0.98; // Node Separation
+		ranksep = 0.98; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+		Hdf5GrowthRecorder -> Hdf5Recorder [arrowhead=empty];
+
+		Hdf5Recorder -> IRecorder [arrowhead=empty];
+
+		XmlGrowthRecorder -> XmlRecorder [arrowhead=empty];
+
+		XmlRecorder -> IRecorder [arrowhead=empty];
+
+
+		//COMPOSITION//
+
+
+		Hdf5GrowthRecorder -> H5Cpp [arrowhead=ediamond];
+
+		Hdf5Recorder -> H5Cpp [arrowhead=ediamond];
+	}//end subgraph C
+}//end digraph
