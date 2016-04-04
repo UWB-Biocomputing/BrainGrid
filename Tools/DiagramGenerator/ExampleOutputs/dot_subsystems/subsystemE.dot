@@ -1,0 +1,46 @@
+digraph{
+
+	subgraph clusterE {
+		node [shape = record];
+
+		color = darkgoldenrod
+		GpuSInputPoisson[label = GpuSInputPoisson, style = filled, color = darkgoldenrod];
+		GpuSInputRegular[label = GpuSInputRegular, style = filled, color = darkgoldenrod];
+		HostSInputPoisson[label = HostSInputPoisson, style = filled, color = darkgoldenrod];
+		HostSInputRegular[label = HostSInputRegular, style = filled, color = darkgoldenrod];
+		ISInput[label = ISInput, style = filled, color = darkgoldenrod];
+		SInputPoisson[label = SInputPoisson, style = filled, color = darkgoldenrod];
+		SInputRegular[label = SInputRegular, style = filled, color = darkgoldenrod];
+		curand_kernel[label = curand_kernel, style = filled, color = darkgoldenrod];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.98; // Node Separation
+		ranksep = 0.98; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+		GpuSInputPoisson -> SInputPoisson [arrowhead=empty];
+
+		GpuSInputRegular -> SInputRegular [arrowhead=empty];
+
+		HostSInputPoisson -> SInputPoisson [arrowhead=empty];
+
+		HostSInputRegular -> SInputRegular [arrowhead=empty];
+
+		SInputPoisson -> ISInput [arrowhead=empty];
+
+		SInputRegular -> ISInput [arrowhead=empty];
+
+
+		//COMPOSITION//
+
+
+		GpuSInputPoisson -> curand_kernel [arrowhead=ediamond];
+	}//end subgraph E
+}//end digraph

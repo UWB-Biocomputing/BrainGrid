@@ -1,0 +1,31 @@
+digraph{
+
+	subgraph clusterD {
+		node [shape = record];
+
+		color = darkturquoise
+		DynamicLayout[label = DynamicLayout, style = filled, color = darkturquoise];
+		FixedLayout[label = FixedLayout, style = filled, color = darkturquoise];
+		Layout[label = Layout, style = filled, color = darkturquoise];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.98; // Node Separation
+		ranksep = 0.98; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+		DynamicLayout -> Layout [arrowhead=empty];
+
+		FixedLayout -> Layout [arrowhead=empty];
+
+
+		//COMPOSITION//
+
+	}//end subgraph D
+}//end digraph

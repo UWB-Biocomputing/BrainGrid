@@ -3,35 +3,35 @@ digraph{
 	subgraph clusterB {
 		node [shape = record];
 
-		color = chartreuse
-		AllDSSynapses[label = AllDSSynapses, style = filled, color = chartreuse];
-		AllDynamicSTDPSynapses[label = AllDynamicSTDPSynapses, style = filled, color = chartreuse];
-		AllIFNeurons[label = AllIFNeurons, style = filled, color = chartreuse];
-		AllIZHNeurons[label = AllIZHNeurons, style = filled, color = chartreuse];
-		AllLIFNeurons[label = AllLIFNeurons, style = filled, color = chartreuse];
-		AllNeurons[label = AllNeurons, style = filled, color = chartreuse];
-		AllSTDPSynapses[label = AllSTDPSynapses, style = filled, color = chartreuse];
-		AllSpikingNeurons[label = AllSpikingNeurons, style = filled, color = chartreuse];
-		AllSpikingSynapses[label = AllSpikingSynapses, style = filled, color = chartreuse];
-		AllSynapses[label = AllSynapses, style = filled, color = chartreuse];
-		ConnGrowth[label = ConnGrowth, style = filled, color = chartreuse];
-		ConnStatic[label = ConnStatic, style = filled, color = chartreuse];
-		Connections[label = Connections, style = filled, color = chartreuse];
-		Coordinate[label = Coordinate, style = filled, color = chartreuse];
-		GPUSpikingModel[label = GPUSpikingModel, style = filled, color = chartreuse];
-		IAllNeurons[label = IAllNeurons, style = filled, color = chartreuse];
-		IAllSynapses[label = IAllSynapses, style = filled, color = chartreuse];
-		IModel[label = IModel, style = filled, color = chartreuse];
-		Model[label = Model, style = filled, color = chartreuse];
-		SimulationInfo[label = SimulationInfo, style = filled, color = chartreuse];
-		SingleThreadedSpikingModel[label = SingleThreadedSpikingModel, style = filled, color = chartreuse];
-		SynapseIndexMap[label = SynapseIndexMap, style = filled, color = chartreuse];
+		color = blueviolet
+		AllDSSynapses[label = AllDSSynapses, style = filled, color = blueviolet];
+		AllDynamicSTDPSynapses[label = AllDynamicSTDPSynapses, style = filled, color = blueviolet];
+		AllIFNeurons[label = AllIFNeurons, style = filled, color = blueviolet];
+		AllIZHNeurons[label = AllIZHNeurons, style = filled, color = blueviolet];
+		AllLIFNeurons[label = AllLIFNeurons, style = filled, color = blueviolet];
+		AllNeurons[label = AllNeurons, style = filled, color = blueviolet];
+		AllSTDPSynapses[label = AllSTDPSynapses, style = filled, color = blueviolet];
+		AllSpikingNeurons[label = AllSpikingNeurons, style = filled, color = blueviolet];
+		AllSpikingSynapses[label = AllSpikingSynapses, style = filled, color = blueviolet];
+		AllSynapses[label = AllSynapses, style = filled, color = blueviolet];
+		ConnGrowth[label = ConnGrowth, style = filled, color = blueviolet];
+		ConnStatic[label = ConnStatic, style = filled, color = blueviolet];
+		Connections[label = Connections, style = filled, color = blueviolet];
+		Coordinate[label = Coordinate, style = filled, color = blueviolet];
+		GPUSpikingModel[label = GPUSpikingModel, style = filled, color = blueviolet];
+		IAllNeurons[label = IAllNeurons, style = filled, color = blueviolet];
+		IAllSynapses[label = IAllSynapses, style = filled, color = blueviolet];
+		IModel[label = IModel, style = filled, color = blueviolet];
+		Model[label = Model, style = filled, color = blueviolet];
+		SimulationInfo[label = SimulationInfo, style = filled, color = blueviolet];
+		SingleThreadedSpikingModel[label = SingleThreadedSpikingModel, style = filled, color = blueviolet];
+		SynapseIndexMap[label = SynapseIndexMap, style = filled, color = blueviolet];
 
 
 		//------LAYOUT FOR SUBGRAPH------
 
 
-		rankdir = BT; // Rank Direction Top to Bottom
+		rankdir = BT; // Rank Direction Bottom to Top
 		nodesep = 0.98; // Node Separation
 		ranksep = 0.98; // Rank Separation
 
