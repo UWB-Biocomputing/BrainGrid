@@ -37,7 +37,28 @@ subgraph_totals = []
 # to make all the subsystem files if requested by the user.
 subgraph_texts = []
 
+# There are lots of allowable colors in dot - you can also specify them by their RGB values, e.g. (#0FA23C)
+SUBSYSTEM_COLORS = [
+    "coral",
+    "darkgoldenrod",
+    "chartreuse",
+    "blueviolet",
+    "aquamarine",
+    "darkorange",
+    "darkturquoise",
+    "forestgreen",
+    "mediumseagreen",
+    "steelblue"
+]
+
+# A dictionary of subsystem_names to subsystem_colors; populated during the execution of the script
+subsystem_color_map = {}
+
+# A reverse dictionary for subsystem_color_map
+subsystem_color_map_inverse = {}
+
 #########FUNCTIONS#########
+
 
 def print_all_subsystems():
     dir_name = "dot_subsystems"
@@ -74,17 +95,24 @@ def find_file(name, open_mode):
         return open(matches[0], open_mode)
 
 
-def print_opening(dot_file):
+def print_opening(dot_file, sys_overview_file, block_file):
     opening_blurb = "//BrainGrid Overview" + os.linesep + "//Written in the Dot language (See Graphviz)" + os.linesep
     opening_digraph = "" + os.linesep + "digraph {" + os.linesep + os.linesep + os.linesep
+
     dot_file.write(opening_blurb)
     dot_file.write(opening_digraph)
 
+    sys_overview_file.write(opening_blurb)
+    sys_overview_file.write(opening_digraph)
 
-def print_subgraph_layout(subgraph_inheritance, subraph_includes):
+    block_file.write(opening_blurb)
+    block_file.write(opening_digraph)
+
+
+def print_subgraph_layout(subgraph_inheritance, subraph_includes, behavior='d'):
     header = \
         "" + os.linesep + os.linesep + "\t\t//------LAYOUT FOR SUBGRAPH------" + os.linesep + os.linesep + os.linesep
-    rankdir = "\t\trankdir = BT; // Rank Direction Top to Bottom" + os.linesep
+    rankdir = "\t\trankdir = BT; // Rank Direction Bottom to Top" + os.linesep
     nodesep = ranksep = 0.02 * len(classes)
     nodesep = "\t\tnodesep = " + str(nodesep) + "; // Node Separation" + os.linesep
     ranksep = "\t\tranksep = " + str(ranksep) + "; // Rank Separation" + os.linesep + os.linesep
@@ -107,7 +135,10 @@ def print_subgraph_layout(subgraph_inheritance, subraph_includes):
         if last_c is None or last_c[0] != c[0]:
             to_print += "" + os.linesep
         last_c = c
-        to_print += "\t\t" + c[0] + " -> " + c[1] + " [arrowhead=empty];" + os.linesep
+        if behavior == 'd':
+            to_print += "\t\t" + c[0] + " -> " + c[1] + " [arrowhead=empty];" + os.linesep
+        else:
+            to_print += "\t\t" + c[0] + " -> " + c[1] + " [style=invis];" + os.linesep
 
     to_print += "" + os.linesep + os.linesep + "\t\t//COMPOSITION//" + os.linesep + os.linesep
 
@@ -117,12 +148,24 @@ def print_subgraph_layout(subgraph_inheritance, subraph_includes):
         if last_c is None or last_c[0] != c[0]:
             to_print += "" + os.linesep
         last_c = c
-        to_print += "\t\t" + c[0] + " -> " + c[1] + " [arrowhead=ediamond];" + os.linesep
+        if behavior == 'd':
+            to_print += "\t\t" + c[0] + " -> " + c[1] + " [arrowhead=ediamond];" + os.linesep
+        else:
+            to_print += "\t\t" + c[0] + " -> " + c[1] + " [style=invis];" + os.linesep
 
     return to_print
 
 
-def print_subgraph(dot_file, sub, sub_name_index):
+def print_subgraph(dot_file, sub_name_index, sub, behavior='d'):
+    """
+    Writes the given subgraph to the given file.
+    :param dot_file: The file to write to
+    :param sub_name_index: The index into sub_names for this subgraph
+    :param sub: The subgraph to print
+    :param behavior: 'd' = dot_file; 'o' = sys_overview; 'b' = block_file
+    :return: Nothing
+    """
+
     to_print = "" + os.linesep + os.linesep
 
     if len(sub) is 1:
@@ -133,6 +176,11 @@ def print_subgraph(dot_file, sub, sub_name_index):
     to_print += "\t\tnode [shape = record];" + os.linesep + os.linesep
 
     color = sub[0].get("color")
+
+    # Update the dictionary
+    subsystem_color_map[sub_names[sub_name_index]] = color
+    subsystem_color_map_inverse[color] = sub_names[sub_name_index]
+
     if color is not None:
         to_print += "\t\tcolor = " + sub[0].get("color") + os.linesep
 
@@ -147,6 +195,13 @@ def print_subgraph(dot_file, sub, sub_name_index):
             to_print += ", color = " + color
         to_print += "];" + os.linesep
 
+    # If block diagram, print the master node for the subgraph
+    if behavior == 'b' and len(sub) > 1:
+        to_print += "\t\t" + sub_names[sub_name_index] + "[label = " + sub_names[sub_name_index] + ", style = filled"
+        if sub[0].get("color") is not None:
+            to_print += ", color = " + sub[0].get("color")
+        to_print += "];" + os.linesep
+
     # Print the subgraph's layout
     names_in_this_subgraph = [d.get("name") for d in sub]
     subgraph_inheritance = \
@@ -154,17 +209,24 @@ def print_subgraph(dot_file, sub, sub_name_index):
     subgraph_includes = \
         [tup for tup in includes
          if tup[0] in names_in_this_subgraph and tup[1] in names_in_this_subgraph and tup not in subgraph_inheritance]
-    layout = print_subgraph_layout(subgraph_inheritance, subgraph_includes)
+    layout = print_subgraph_layout(subgraph_inheritance, subgraph_includes, behavior)
+
     to_print += layout
+
     to_print += "\t}//end subgraph " + sub_names[sub_name_index] + os.linesep
 
     dot_file.write(to_print)
 
-    if len(sub) > 1:
-        subgraph_texts.append(to_print)
+    if behavior == 'd':
+        if len(sub) > 1:
+            subgraph_texts.append(to_print)
 
 
-def print_classes(dot_file):
+def get_subgraphs():
+    """
+    Returns a list of lists. Each list is a subgraph (represented as a list of dictionaries).
+    :return: A list of lists of dictionaries.
+    """
     subgraph_list = [c.get("color") for c in classes if c.get("color") is not None]
     subgraphs = []
 
@@ -180,48 +242,133 @@ def print_classes(dot_file):
             sub = [c]
             subgraphs.append(sub)
 
+    return subgraphs
+
+
+def print_classes(dot_file, sys_overview_file, block_file):
+    subgraphs = get_subgraphs()
+
     # Now actually write the information to the file
     sub_name_index = 0
     for sub in subgraphs:
-        print_subgraph(dot_file, sub, sub_name_index)
+        print_subgraph(dot_file, sub_name_index, sub, 'd')
+        print_subgraph(sys_overview_file, sub_name_index, sub, 'o')
+        print_subgraph(block_file, sub_name_index, sub, 'b')
 
         sub_name_index += 1
         if sub_name_index >= len(sub_names):
             sub_name_index = 0
 
 
-def print_layout(dot_file):
+def print_layout_boilerplate(dot_file, behavior='d'):
     header = "//-------LAYOUT OF RELATIONSHIPS BETWEEN SUBGRAPHS------//" + os.linesep
     rankdir = "rankdir = BT; // Rank Direction Top to Bottom" + os.linesep
-    nodesep = ranksep = 0.02 * len(classes)
+    if behavior == 'd':
+        nodesep = ranksep = 0.02 * len(classes)
+    elif behavior == 'b':
+        nodesep = ranksep = 0.005 * len(classes)
+    else:
+        nodesep = 0.005 * len(classes)
+        ranksep = 0.02 * len(classes)
     nodesep = "nodesep = " + str(nodesep) + "; // Node Separation" + os.linesep
     ranksep = "ranksep = " + str(ranksep) + "; // Rank Separation" + os.linesep
+
+    concentrate = "concentrate = true;" + os.linesep
 
     dot_file.write(header)
     dot_file.write(rankdir)
     dot_file.write(nodesep)
     dot_file.write(ranksep)
+    dot_file.write(concentrate)
+    dot_file.write(os.linesep)
+
+
+def find_system_from_name(name):
+    sub_systems = get_subgraphs()
+    for sub in sub_systems:
+        for d in sub:
+            if d.get("name") == name:
+                return d.get("color")
+    return None
+
+
+def print_block_layout(block_file):
+    # Form all the inter-system relationships
+    all_relationships = inheritance + includes
+    inter_system_relationships = []
+    for relationship in all_relationships:
+        tup0_system = find_system_from_name(relationship[0])
+        tup1_system = find_system_from_name(relationship[1])
+        if tup0_system != tup1_system:
+            inter_system_relationships.append(relationship)
+
+    temp = []
+    # For each inter-system relationship,
+    for relationship in inter_system_relationships:
+        inter_system_relationships.remove(relationship)
+
+        # Replace the first item in that relationship with the master node for the subsystem it belongs to
+        r0 = relationship[0]
+        color = find_system_from_name(r0)
+        if color is None:
+            node_name0 = r0
+        else:
+            node_name0 = subsystem_color_map_inverse.get(color)
+
+        # Replace the second item in that relationship with the master node for the subsystem it belongs to
+        r1 = relationship[1]
+        color = find_system_from_name(r1)
+        if color is None:
+            node_name1 = r1
+        else:
+            node_name1 = subsystem_color_map_inverse.get(color)
+
+        inter_relationship = (node_name0, node_name1)
+        temp.append(inter_relationship)
+
+    # Remove any duplicate tuples
+    inter_system_relationships = list(set(temp))
+
+    # Now Formulate the string for each subgraph and print it to the file
+    print_layout_boilerplate(block_file, 'b')
+
+    for r in inter_system_relationships:
+        line = r[0] + " -> " + r[1] + " [arrowhead=ediamond];" + os.linesep
+        block_file.write(line)
+
+
+def print_layout(dot_file, sys_overview_file, block_file):
+    print_layout_boilerplate(dot_file, 'd')
+    print_layout_boilerplate(sys_overview_file, 'o')
+
     for c in inheritance:
         if c not in subgraph_totals:
             line = c[0] + " -> " + c[1] + " [arrowhead=empty];" + os.linesep
             dot_file.write(line)
+            sys_overview_file.write(line)
 
     for c in includes:
         if c not in subgraph_totals:
             line = c[0] + " -> " + c[1] + " [arrowhead=ediamond];" + os.linesep
             dot_file.write(line)
+            sys_overview_file.write(line)
+
+    print_block_layout(block_file)
 
 
-def print_end(dot_file):
-    dot_file.write("}//End digraph declaration" + os.linesep)
+def print_end(dot_file, sys_overview_file, block_file):
+    line = "}//End digraph declaration" + os.linesep
+    dot_file.write(line)
+    sys_overview_file.write(line)
+    block_file.write(line)
 
 
-def print_file(dot_file):
-    print "Generating dot file..."
-    print_opening(dot_file)
-    print_classes(dot_file)
-    print_layout(dot_file)
-    print_end(dot_file)
+def print_file(dot_file, sys_overview_file, block_file):
+    print "Generating dot files..."
+    print_opening(dot_file, sys_overview_file, block_file)
+    print_classes(dot_file, sys_overview_file, block_file)
+    print_layout(dot_file, sys_overview_file, block_file)
+    print_end(dot_file, sys_overview_file, block_file)
 
 
 def get_top_files():
@@ -347,8 +494,6 @@ def crawl_web(center_file_as_list, center_file_name):
     """
 
     center_file_name = center_file_name.split("\\")[-1].split('.')[0]  # Strip the extension from the name: BGDriver.cpp -> BGDriver
-
-    # TODO : Redo this whole algorithm so that it works...
 
     to_ret = []
     stack = []
@@ -525,20 +670,6 @@ def color_subsystems(subsystems):
     :param subsystems: A list of all the files lumped into lists ('subsystems')
     :return: Nothing
     """
-    # There are lots of allowable colors in dot - you can also specify them by their RGB values, e.g. (0.3 0.4 0.8)
-    SUBSYSTEM_COLORS = [
-        "coral",
-        "darkgoldenrod",
-        "chartreuse",
-        "aliceblue",
-        "blueviolet",
-        "aquamarine",
-        "darkorange",
-        "darkturquoise",
-        "forestgreen",
-        "mediumseagreen",
-        "steelblue"
-    ]
     sys_index = 0
     for sys in subsystems:
         if len(sys) > 1:
@@ -621,7 +752,7 @@ def map_inheritance_and_composition(list_of_include_groups):
                 if is_inheritance(parent_name, item) and not relationship in inheritance:
                     print parent_name + " INHERITS from " + item
                     inheritance.append(relationship)
-                elif relationship not in includes and not relationship in inheritance:      # Don't include if already in inheritance
+                elif relationship not in includes and not relationship in inheritance:  # Don't include if already in inheritance
                     print parent_name + " DEPENDS on " + item
                     includes.append(relationship)
     # At this point, the "classes" list is filled with all the files that this script has examined, and the
@@ -652,9 +783,11 @@ def main(center_file_names, dot_file_name, print_sub_systems=False):
     # Walk through each list of includings and decide what relationship exists amongst them
     map_inheritance_and_composition(files_to_map)
 
-    # Print the dot file for the overview
+    # Print the dot files for the overview
     dot_file = open(dot_file_name + ".dot", 'wb')
-    print_file(dot_file)
+    overview_file = open(dot_file_name + "_sys_overview.dot", 'wb')
+    block_file = open(dot_file_name + "_block_overview.dot", 'wb')
+    print_file(dot_file, overview_file, block_file)
     dot_file.close()
 
     if print_sub_systems:

@@ -32,11 +32,11 @@ digraph {
 		//COMPOSITION//
 
 
-		BGDriver -> FClassOfCategory [arrowhead=ediamond];
-		BGDriver -> MultiThreadedSim [arrowhead=ediamond];
-		BGDriver -> Simulator [arrowhead=ediamond];
+		BGDriver -> FClassOfCategory [style=invis];
+		BGDriver -> MultiThreadedSim [style=invis];
+		BGDriver -> Simulator [style=invis];
 
-		Simulator -> Timer [arrowhead=ediamond];
+		Simulator -> Timer [style=invis];
 	}//end subgraph A
 
 
@@ -79,80 +79,80 @@ digraph {
 		//INHERITANCE//
 
 
-		AllDSSynapses -> AllSpikingSynapses [arrowhead=empty];
+		AllDSSynapses -> AllSpikingSynapses [style=invis];
 
-		AllDynamicSTDPSynapses -> AllSTDPSynapses [arrowhead=empty];
+		AllDynamicSTDPSynapses -> AllSTDPSynapses [style=invis];
 
-		AllIFNeurons -> AllSpikingNeurons [arrowhead=empty];
+		AllIFNeurons -> AllSpikingNeurons [style=invis];
 
-		AllIZHNeurons -> AllIFNeurons [arrowhead=empty];
+		AllIZHNeurons -> AllIFNeurons [style=invis];
 
-		AllLIFNeurons -> AllIFNeurons [arrowhead=empty];
+		AllLIFNeurons -> AllIFNeurons [style=invis];
 
-		AllNeurons -> IAllNeurons [arrowhead=empty];
+		AllNeurons -> IAllNeurons [style=invis];
 
-		AllSTDPSynapses -> AllSpikingSynapses [arrowhead=empty];
-		AllSTDPSynapses -> IAllNeurons [arrowhead=empty];
+		AllSTDPSynapses -> AllSpikingSynapses [style=invis];
+		AllSTDPSynapses -> IAllNeurons [style=invis];
 
-		AllSpikingNeurons -> AllNeurons [arrowhead=empty];
+		AllSpikingNeurons -> AllNeurons [style=invis];
 
-		AllSpikingSynapses -> AllSynapses [arrowhead=empty];
+		AllSpikingSynapses -> AllSynapses [style=invis];
 
-		AllSynapses -> IAllSynapses [arrowhead=empty];
+		AllSynapses -> IAllSynapses [style=invis];
 
-		ConnGrowth -> Connections [arrowhead=empty];
-		ConnGrowth -> IAllSynapses [arrowhead=empty];
-		ConnGrowth -> SimulationInfo [arrowhead=empty];
+		ConnGrowth -> Connections [style=invis];
+		ConnGrowth -> IAllSynapses [style=invis];
+		ConnGrowth -> SimulationInfo [style=invis];
 
-		ConnStatic -> Connections [arrowhead=empty];
-		ConnStatic -> IAllSynapses [arrowhead=empty];
-		ConnStatic -> SimulationInfo [arrowhead=empty];
+		ConnStatic -> Connections [style=invis];
+		ConnStatic -> IAllSynapses [style=invis];
+		ConnStatic -> SimulationInfo [style=invis];
 
-		GPUSpikingModel -> AllSpikingNeurons [arrowhead=empty];
-		GPUSpikingModel -> AllSpikingSynapses [arrowhead=empty];
-		GPUSpikingModel -> Model [arrowhead=empty];
+		GPUSpikingModel -> AllSpikingNeurons [style=invis];
+		GPUSpikingModel -> AllSpikingSynapses [style=invis];
+		GPUSpikingModel -> Model [style=invis];
 
-		Model -> IModel [arrowhead=empty];
+		Model -> IModel [style=invis];
 
-		SingleThreadedSpikingModel -> Model [arrowhead=empty];
+		SingleThreadedSpikingModel -> Model [style=invis];
 
 
 		//COMPOSITION//
 
 
-		AllLIFNeurons -> AllSpikingSynapses [arrowhead=ediamond];
+		AllLIFNeurons -> AllSpikingSynapses [style=invis];
 
-		AllNeurons -> SimulationInfo [arrowhead=ediamond];
-		AllNeurons -> SynapseIndexMap [arrowhead=ediamond];
+		AllNeurons -> SimulationInfo [style=invis];
+		AllNeurons -> SynapseIndexMap [style=invis];
 
-		AllSpikingNeurons -> AllSpikingSynapses [arrowhead=ediamond];
-		AllSpikingNeurons -> SimulationInfo [arrowhead=ediamond];
+		AllSpikingNeurons -> AllSpikingSynapses [style=invis];
+		AllSpikingNeurons -> SimulationInfo [style=invis];
 
-		AllSpikingSynapses -> AllSpikingNeurons [arrowhead=ediamond];
+		AllSpikingSynapses -> AllSpikingNeurons [style=invis];
 
-		AllSynapses -> AllNeurons [arrowhead=ediamond];
-		AllSynapses -> SimulationInfo [arrowhead=ediamond];
+		AllSynapses -> AllNeurons [style=invis];
+		AllSynapses -> SimulationInfo [style=invis];
 
-		Connections -> AllSpikingNeurons [arrowhead=ediamond];
-		Connections -> AllSpikingSynapses [arrowhead=ediamond];
-		Connections -> IAllSynapses [arrowhead=ediamond];
-		Connections -> SimulationInfo [arrowhead=ediamond];
+		Connections -> AllSpikingNeurons [style=invis];
+		Connections -> AllSpikingSynapses [style=invis];
+		Connections -> IAllSynapses [style=invis];
+		Connections -> SimulationInfo [style=invis];
 
-		IAllNeurons -> SynapseIndexMap [arrowhead=ediamond];
+		IAllNeurons -> SynapseIndexMap [style=invis];
 
-		IAllSynapses -> SimulationInfo [arrowhead=ediamond];
-		IAllSynapses -> SynapseIndexMap [arrowhead=ediamond];
+		IAllSynapses -> SimulationInfo [style=invis];
+		IAllSynapses -> SynapseIndexMap [style=invis];
 
-		IModel -> Connections [arrowhead=ediamond];
-		IModel -> IAllNeurons [arrowhead=ediamond];
-		IModel -> IAllSynapses [arrowhead=ediamond];
-		IModel -> SimulationInfo [arrowhead=ediamond];
+		IModel -> Connections [style=invis];
+		IModel -> IAllNeurons [style=invis];
+		IModel -> IAllSynapses [style=invis];
+		IModel -> SimulationInfo [style=invis];
 
-		Model -> ConnGrowth [arrowhead=ediamond];
-		Model -> Coordinate [arrowhead=ediamond];
-		Model -> SynapseIndexMap [arrowhead=ediamond];
+		Model -> ConnGrowth [style=invis];
+		Model -> Coordinate [style=invis];
+		Model -> SynapseIndexMap [style=invis];
 
-		SingleThreadedSpikingModel -> AllDSSynapses [arrowhead=ediamond];
+		SingleThreadedSpikingModel -> AllDSSynapses [style=invis];
 	}//end subgraph B
 
 
@@ -179,21 +179,21 @@ digraph {
 		//INHERITANCE//
 
 
-		Hdf5GrowthRecorder -> Hdf5Recorder [arrowhead=empty];
+		Hdf5GrowthRecorder -> Hdf5Recorder [style=invis];
 
-		Hdf5Recorder -> IRecorder [arrowhead=empty];
+		Hdf5Recorder -> IRecorder [style=invis];
 
-		XmlGrowthRecorder -> XmlRecorder [arrowhead=empty];
+		XmlGrowthRecorder -> XmlRecorder [style=invis];
 
-		XmlRecorder -> IRecorder [arrowhead=empty];
+		XmlRecorder -> IRecorder [style=invis];
 
 
 		//COMPOSITION//
 
 
-		Hdf5GrowthRecorder -> H5Cpp [arrowhead=ediamond];
+		Hdf5GrowthRecorder -> H5Cpp [style=invis];
 
-		Hdf5Recorder -> H5Cpp [arrowhead=ediamond];
+		Hdf5Recorder -> H5Cpp [style=invis];
 	}//end subgraph C
 
 
@@ -217,9 +217,9 @@ digraph {
 		//INHERITANCE//
 
 
-		DynamicLayout -> Layout [arrowhead=empty];
+		DynamicLayout -> Layout [style=invis];
 
-		FixedLayout -> Layout [arrowhead=empty];
+		FixedLayout -> Layout [style=invis];
 
 
 		//COMPOSITION//
@@ -252,23 +252,23 @@ digraph {
 		//INHERITANCE//
 
 
-		GpuSInputPoisson -> SInputPoisson [arrowhead=empty];
+		GpuSInputPoisson -> SInputPoisson [style=invis];
 
-		GpuSInputRegular -> SInputRegular [arrowhead=empty];
+		GpuSInputRegular -> SInputRegular [style=invis];
 
-		HostSInputPoisson -> SInputPoisson [arrowhead=empty];
+		HostSInputPoisson -> SInputPoisson [style=invis];
 
-		HostSInputRegular -> SInputRegular [arrowhead=empty];
+		HostSInputRegular -> SInputRegular [style=invis];
 
-		SInputPoisson -> ISInput [arrowhead=empty];
+		SInputPoisson -> ISInput [style=invis];
 
-		SInputRegular -> ISInput [arrowhead=empty];
+		SInputRegular -> ISInput [style=invis];
 
 
 		//COMPOSITION//
 
 
-		GpuSInputPoisson -> curand_kernel [arrowhead=ediamond];
+		GpuSInputPoisson -> curand_kernel [style=invis];
 	}//end subgraph E
 
 
@@ -296,8 +296,8 @@ digraph {
 		//COMPOSITION//
 
 
-		tinyxml -> BGTypes [arrowhead=ediamond];
-		tinyxml -> tinystr [arrowhead=ediamond];
+		tinyxml -> BGTypes [style=invis];
+		tinyxml -> tinystr [style=invis];
 	}//end subgraph F
 
 
@@ -347,7 +347,7 @@ digraph {
 	}//end subgraph H
 //-------LAYOUT OF RELATIONSHIPS BETWEEN SUBGRAPHS------//
 rankdir = BT; // Rank Direction Top to Bottom
-nodesep = 0.98; // Node Separation
+nodesep = 0.245; // Node Separation
 ranksep = 0.98; // Rank Separation
 concentrate = true;
 

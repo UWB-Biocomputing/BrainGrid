@@ -3,19 +3,19 @@ digraph{
 	subgraph clusterC {
 		node [shape = record];
 
-		color = mediumseagreen
-		H5Cpp[label = H5Cpp, style = filled, color = mediumseagreen];
-		Hdf5GrowthRecorder[label = Hdf5GrowthRecorder, style = filled, color = mediumseagreen];
-		Hdf5Recorder[label = Hdf5Recorder, style = filled, color = mediumseagreen];
-		IRecorder[label = IRecorder, style = filled, color = mediumseagreen];
-		XmlGrowthRecorder[label = XmlGrowthRecorder, style = filled, color = mediumseagreen];
-		XmlRecorder[label = XmlRecorder, style = filled, color = mediumseagreen];
+		color = steelblue
+		H5Cpp[label = H5Cpp, style = filled, color = steelblue];
+		Hdf5GrowthRecorder[label = Hdf5GrowthRecorder, style = filled, color = steelblue];
+		Hdf5Recorder[label = Hdf5Recorder, style = filled, color = steelblue];
+		IRecorder[label = IRecorder, style = filled, color = steelblue];
+		XmlGrowthRecorder[label = XmlGrowthRecorder, style = filled, color = steelblue];
+		XmlRecorder[label = XmlRecorder, style = filled, color = steelblue];
 
 
 		//------LAYOUT FOR SUBGRAPH------
 
 
-		rankdir = BT; // Rank Direction Top to Bottom
+		rankdir = BT; // Rank Direction Bottom to Top
 		nodesep = 0.98; // Node Separation
 		ranksep = 0.98; // Rank Separation
 
