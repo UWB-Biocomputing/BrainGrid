@@ -1,0 +1,30 @@
+digraph{
+
+	subgraph clusterF {
+		node [shape = record];
+
+		color = aquamarine
+		BGTypes[label = BGTypes, style = filled, color = aquamarine];
+		tinystr[label = tinystr, style = filled, color = aquamarine];
+		tinyxml[label = tinyxml, style = filled, color = aquamarine];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.98; // Node Separation
+		ranksep = 0.98; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+
+		//COMPOSITION//
+
+
+		tinyxml -> BGTypes [arrowhead=ediamond];
+		tinyxml -> tinystr [arrowhead=ediamond];
+	}//end subgraph F
+}//end digraph

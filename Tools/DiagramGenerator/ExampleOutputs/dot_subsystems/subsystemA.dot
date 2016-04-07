@@ -1,0 +1,35 @@
+digraph{
+
+	subgraph clusterA {
+		node [shape = record];
+
+		color = forestgreen
+		BGDriver[label = BGDriver, style = filled, color = forestgreen];
+		FClassOfCategory[label = FClassOfCategory, style = filled, color = forestgreen];
+		MultiThreadedSim[label = MultiThreadedSim, style = filled, color = forestgreen];
+		Simulator[label = Simulator, style = filled, color = forestgreen];
+		Timer[label = Timer, style = filled, color = forestgreen];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.98; // Node Separation
+		ranksep = 0.98; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+
+		//COMPOSITION//
+
+
+		BGDriver -> FClassOfCategory [arrowhead=ediamond];
+		BGDriver -> MultiThreadedSim [arrowhead=ediamond];
+		BGDriver -> Simulator [arrowhead=ediamond];
+
+		Simulator -> Timer [arrowhead=ediamond];
+	}//end subgraph A
+}//end digraph
