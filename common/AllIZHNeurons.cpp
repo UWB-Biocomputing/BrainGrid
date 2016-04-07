@@ -66,11 +66,13 @@ void AllIZHNeurons::freeResources()
 }
 
 /*
- *  Returns the number of required parameters.
+ *  Checks the number of required parameters.
+ *
+ * @return true if all required parameters were successfully read, false otherwise.
  */
-int AllIZHNeurons::numParameters()
+bool AllIZHNeurons::checkNumParameters()
 {
-    return AllIFNeurons::numParameters() + 4;
+    return (nParams >= 12);
 }
 
 /*
@@ -81,7 +83,10 @@ int AllIZHNeurons::numParameters()
  */
 bool AllIZHNeurons::readParameters(const TiXmlElement& element)
 {
-    AllIFNeurons::readParameters(element);
+    if (AllIFNeurons::readParameters(element)) {
+        // this parameter was already handled
+        return true;
+    }
 
     if (element.ValueStr().compare("Aconst") == 0) {
         // Min/max values of Aconst for excitatory neurons.
@@ -111,6 +116,7 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         if (m_inhAconst[0] > m_inhAconst[1]) {
             throw ParseParamError("Aconst maxInh", "Invalid range for Aconst value.");
         }
+        nParams++;
         return true;
     }
 
@@ -136,6 +142,7 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         if (m_inhBconst[0] > m_inhBconst[1]) {
             throw ParseParamError("Bconst maxInh", "Invalid range for Bconst value.");
         }
+        nParams++;
         return true;
     }
 
@@ -161,6 +168,7 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         if (m_inhCconst[0] > m_inhCconst[1]) {
             throw ParseParamError("Cconst maxInh", "Invalid range for Cconst value.");
         }
+        nParams++;
         return true;
     }
 
@@ -192,10 +200,11 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         if (m_inhDconst[0] > m_inhDconst[1]) {
             throw ParseParamError("Dconst maxInh", "Invalid range for Dconst value.");
         }
+        nParams++;
         return true;
     }
 
-    return true;
+    return false;
 }
 
 /*
@@ -413,7 +422,6 @@ void AllIZHNeurons::writeNeuron(ostream& output, const SimulationInfo *sim_info,
  */
 void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info)
 {
-    const BGFLOAT deltaT = sim_info->deltaT;
     BGFLOAT &Vm = this->Vm[index];
     BGFLOAT &Vthresh = this->Vthresh[index];
     BGFLOAT &summationPoint = this->summation_map[index];

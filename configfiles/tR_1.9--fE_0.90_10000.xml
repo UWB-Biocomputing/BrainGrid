@@ -1,41 +1,54 @@
 <?xml version="1.0" standalone=no?>
 <!-- Parameter file for for the DCT growth modeling -->
 <!-- This file holds constants, not state information -->
-<SimParams>
-   <!-- Parameters for LSM -->
-   <LsmParams frac_EXC="0.90" starter_neurons="0.10"/>
-   <!-- size of pool of neurons [x y z] -->
-   <PoolSize x="100" y="100" z="1"/>
-   <!-- Interval of constant injected current -->
-   <Iinject min="13.5e-09" max="13.5e-09"/>
-   <!-- Interval of STD of (gaussian) noise current -->
-   <Inoise min="1.0e-09" max="1.5e-09"/>
-   <!-- Interval of firing threshold -->
-   <Vthresh min="15.0e-03" max="15.0e-03"/>
-   <!-- Interval of asymptotic voltage -->
-   <Vresting min="0.0" max="0.0"/>
-   <!-- Interval of reset voltage -->
-   <Vreset min="13.5e-03" max="13.5e-03"/>
-   <!-- Interval of initial membrance voltage -->
-   <Vinit min="13.0e-03" max="13.0e-03"/>
-   <!-- Starter firing threshold -->
-   <starter_vthresh min="13.565e-3" max="13.655e-3"/>
-   <!-- Starter reset voltage -->
-   <starter_vreset min="13.0e-3" max="13.0e-3"/>
-   <!-- Growth parameters -->
-   <GrowthParams epsilon="0.60" beta="0.10" rho="0.0001" targetRate="1.9" minRadius="0.1" startRadius="0.4"/>
-   <!-- Simulation Parameters -->
-   <SimParams Tsim="100.0" numSims="600" maxFiringRate="200" maxSynapsesPerNeuron="200"/>
-  
-  <OutputParams stateOutputFileName="results/tR_1.9--fE_0.90_10000_historyDump.h5"/>
 
-  <!-- Random seed - set to zero to use /dev/random -->
-  <!-- TODO: implement support for this -->
-  <Seed value="777" />
+<SimInfoParams>
+    <!-- size of pool of neurons [x y z] -->
+    <PoolSize x="100" y="100" z="1"/>
+    <!-- Simulation Parameters -->
+    <SimParams Tsim="100.0" numSims="600"/>
+    <!-- Simulation Configuration Parameters -->
+    <SimConfig maxFiringRate="200" maxSynapsesPerNeuron="200"/>
+    <!-- Random seed - set to zero to use /dev/random -->
+    <Seed value="777" />
+    <!-- State output file name, this name will be overwritten if -o option is specified -->
+    <OutputParams stateOutputFileName="results/tR_1.9--fE_0.90_10000_historyDump.h5"/>
+</SimInfoParams>
 
-  <!-- If FixedLayout is present, the grid will be laid out according to the positions below, rather than randomly based on LsmParams -->
-  <FixedLayout>
-    <LayoutFiles activeNListFileName="NList/activeNList_0.10_10000.xml" inhNListFileName="NList/inhNList_0.90_10000.xml"/>
-  </FixedLayout>
+<ModelParams>
+    <NeuronsParams class="AllLIFNeurons">
+        <!-- Interval of constant injected current -->
+        <Iinject min="13.5e-09" max="13.5e-09"/>
+        <!-- Interval of STD of (gaussian) noise current -->
+        <Inoise min="1.0e-09" max="1.5e-09"/>
+        <!-- Interval of firing threshold -->
+        <Vthresh min="15.0e-03" max="15.0e-03"/>
+        <!-- Interval of asymptotic voltage -->
+        <Vresting min="0.0" max="0.0"/>
+        <!-- Interval of reset voltage -->
+        <Vreset min="13.5e-03" max="13.5e-03"/>
+        <!-- Interval of initial membrance voltage -->
+        <Vinit min="13.0e-03" max="13.0e-03"/>
+        <!-- Starter firing threshold -->
+        <starter_vthresh min="13.565e-3" max="13.655e-3"/>
+        <!-- Starter reset voltage -->
+        <starter_vreset min="13.0e-3" max="13.0e-3"/>
+    </NeuronsParams>
 
-</SimParams>
+    <SynapsesParams class="AllDSSynapses">
+    </SynapsesParams>
+
+    <ConnectionsParams class="ConnGrowth">
+       <!-- Growth parameters -->
+        <GrowthParams epsilon="0.60" beta="0.10" rho="0.0001" targetRate="1.9" minRadius="0.1" startRadius="0.4"/>
+    </ConnectionsParams>
+
+    <LayoutParams class="FixedLayout">
+            <!-- Parameters for Dynamic Layout -->
+            <!-- DynamicLayoutParams frac_EXC="0.90" starter_neurons="0.10"/-->
+            <!-- If FixedLayout is present, the grid will be laid out according to the positions below, rather than randomly based on LsmParams -->
+            <FixedLayoutParams>
+                <LayoutFiles activeNListFileName="NList/activeNList_0.10_10000.xml" inhNListFileName="NList/inhNList_0.90_10000.xml"/>
+            </FixedLayoutParams>
+    </LayoutParams>
+</ModelParams>

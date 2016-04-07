@@ -102,9 +102,8 @@ public:
          * Set up model state, if anym for a specific simulation run.
          *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
-         * @param simRecorder    Pointer to the simulation recordig object.
          */
-	virtual void setupSim(SimulationInfo *sim_info, IRecorder* simRecorder);
+	virtual void setupSim(SimulationInfo *sim_info);
 
         /**
          * Performs any finalization tasks on network following a simulation.
@@ -203,7 +202,7 @@ private:
 	// # Update Connections
 	// --------------------
 
-        void updateHistory(const SimulationInfo *sim_infos, IRecorder* simRecorder);
+        void updateHistory(const SimulationInfo *sim_infos);
 
 	// TODO
 	void eraseSynapse(IAllSynapses &synapses, const int neuron_index, const int synapse_index);

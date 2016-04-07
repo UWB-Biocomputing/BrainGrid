@@ -31,41 +31,11 @@
 
 using namespace std;
 
-// state file name
-string stateOutputFileName;
-string stateInputFileName;
-
-// memory dump file name
-string memOutputFileName;
-string memInputFileName;
-bool fReadMemImage = false;  // True if dumped memory image is read before
-                             // starting simulation
-bool fWriteMemImage = false;  // True if dumped memory image is written after
-                              // simulation
-
-// stimulus input file name
-string stimulusInputFileName;
-
-IModel *model = NULL;
-IAllNeurons *neurons = NULL;
-IAllSynapses *synapses = NULL;
-Connections *conns = NULL;
-Layout *layout = NULL;
-
-SimulationInfo *simInfo = NULL;
-
-
 // functions
-SimulationInfo makeSimulationInfo(int cols, int rows,
-    BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps,
-    int maxFiringRate, int maxSynapsesPerNeuron, BGFLOAT new_deltaT,
-    long seed);
-bool LoadAllParameters(const string &sim_param_filename);
-void LoadSimulationParameters(TiXmlElement*);
-//void SaveSimState(ostream &);
-void printParams();
-bool parseCommandLine(int argc, char* argv[]);
-bool createAllClassInstances(TiXmlElement*);
+bool LoadAllParameters(SimulationInfo *simInfo);
+void printParams(SimulationInfo *simInfo);
+bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo);
+bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo);
 
 /*
  *  Main for Simulator. Handles command line arguments and loads parameters
@@ -77,86 +47,79 @@ bool createAllClassInstances(TiXmlElement*);
  *  @return -1 if error, else if success.
  */
 int main(int argc, char* argv[]) {
-    if (!parseCommandLine(argc, argv)) {
+    SimulationInfo *simInfo = NULL;    // simulation information
+    Simulator *simulator = NULL;       // Simulator object
+
+    // create simulation info object
+    simInfo = new SimulationInfo();
+
+    // Handles parsing of the command line
+    if (!parseCommandLine(argc, argv, simInfo)) {
         cerr << "! ERROR: failed during command line parse" << endl;
         return -1;
     }
 
-    DEBUG(cout << "reading parameters from xml file" << endl;)
-
-    if (!LoadAllParameters(stateInputFileName)) {
+    // Create all model instances and load parameters from a file.
+    if (!LoadAllParameters(simInfo)) {
         cerr << "! ERROR: failed while parsing simulation parameters." << endl;
         return -1;
     }
 
-    /*    verify that params were read correctly */
-    DEBUG(printParams();)
-
-    // create the model
-    #if defined(USE_GPU)
-	 model = new GPUSpikingModel(conns, neurons, synapses, layout);
-    #else
-	 model = new SingleThreadedSpikingModel(conns, neurons, synapses, layout);
-    #endif
-    
     // create & init simulation recorder
-    IRecorder* simRecorder = conns->createRecorder(stateOutputFileName, model, simInfo);
-
-    if (simRecorder == NULL) {
+    simInfo->simRecorder = simInfo->model->getConnections()->createRecorder(simInfo);
+    if (simInfo->simRecorder == NULL) {
         cerr << "! ERROR: invalid state output file name extension." << endl;
         return -1;
     }
 
     // Create a stimulus input object
-    ISInput* pInput = NULL;     // pointer to a stimulus input object
-    pInput = FSInput::get()->CreateInstance(model, simInfo, stimulusInputFileName);
+    simInfo->pInput = FSInput::get()->CreateInstance(simInfo);
 
     time_t start_time, end_time;
     time(&start_time);
 
     // create the simulator
-    Simulator *simulator;
-    simulator = new Simulator(model, simRecorder, pInput, simInfo);
+    simulator = new Simulator();
 	
     // setup simulation
     DEBUG(cout << "Setup simulation." << endl;);
-    simulator->setup();
+    simulator->setup(simInfo);
 
     // Deserializes internal state from a prior run of the simulation
-    if (fReadMemImage) {
+    if (!simInfo->memInputFileName.empty()) {
         ifstream memory_in;
-        memory_in.open(memInputFileName.c_str(), ofstream::binary | ofstream::in);
-        simulator->deserialize(memory_in);
+        memory_in.open(simInfo->memInputFileName.c_str(), ofstream::binary | ofstream::in);
+        simulator->deserialize(memory_in, simInfo);
         memory_in.close();
     }
 
     // Run simulation
-    simulator->simulate();
+    simulator->simulate(simInfo);
 
     // Terminate the stimulus input 
-    if (pInput != NULL)
+    if (simInfo->pInput != NULL)
     {
-        pInput->term(model, simInfo);
-        delete pInput;
+        simInfo->pInput->term(simInfo);
+        delete simInfo->pInput;
     }
 
     // Writes simulation results to an output destination
-    simulator->saveData();
+    simulator->saveData(simInfo);
 
     // Serializes internal state for the current simulation
     ofstream memory_out;
-    if (fWriteMemImage) {
-        memory_out.open(memOutputFileName.c_str(),ofstream::binary | ofstream::trunc);
-        simulator->serialize(memory_out);
+    if (!simInfo->memOutputFileName.empty()) {
+        memory_out.open(simInfo->memOutputFileName.c_str(),ofstream::binary | ofstream::trunc);
+        simulator->serialize(memory_out, simInfo);
         memory_out.close();
     }
 
     // Tell simulation to clean-up and run any post-simulation logic.
-    simulator->finish();
+    simulator->finish(simInfo);
 
     // terminates the simulation recorder
-    if (simRecorder != NULL) {
-        simRecorder->term();
+    if (simInfo->simRecorder != NULL) {
+        simInfo->simRecorder->term();
     }
 
     for(unsigned int i = 0; i < rgNormrnd.size(); ++i) {
@@ -172,12 +135,12 @@ int main(int argc, char* argv[]) {
     cout << "time elapsed: " << time_elapsed << endl;
     cout << "ssps (simulation seconds / real time seconds): " << ssps << endl;
     
-    delete model;
-    model = NULL;
+    delete simInfo->model;
+    simInfo->model = NULL;
     
-    if (simRecorder != NULL) {
-        delete simRecorder;
-        simRecorder = NULL;
+    if (simInfo->simRecorder != NULL) {
+        delete simInfo->simRecorder;
+        simInfo->simRecorder = NULL;
     }
 
     delete simInfo;
@@ -190,232 +153,125 @@ int main(int argc, char* argv[]) {
 }
 
 /*
- *  Init SimulationInfo parameters.
+ *  Create instances of all model classes.
  *
- *  @param  cols    number of columns for the simulation.
- *  @param  rows    number of rows for the simulation.
- *  @param  growthEpochDuration  duration in between each growth.
- *  @param  maxGrowthSteps  TODO
- *  @param  maxFiringRate   maximum firing rate for the simulation.
- *  @param  maxSynapsesPerNeuron    cap limit for the number of Synapses each Neuron can have.
- *  @param  new_deltaT  TODO (model independent)
- *  @param  seed    seeding for random numbers.
- *  @return SimulationInfo object encapsulating info given.
+ *  @param  simDoc  the TiXmlDocument to read from.
+ *  @param  simInfo   SimulationInfo class to read information from.
+ *  @retrun true if successful, false if not
  */
-SimulationInfo makeSimulationInfo(int cols, int rows,
-        BGFLOAT growthEpochDuration, BGFLOAT maxGrowthSteps,
-        int maxFiringRate, int maxSynapsesPerNeuron, BGFLOAT new_deltaT,
-        long seed)
+bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo)
 {
-    SimulationInfo simInfo;
-    // Init SimulationInfo parameters
-    int max_neurons = cols * rows;
+    TiXmlElement* parms = NULL;
 
-    simInfo.totalNeurons = max_neurons;
-    simInfo.epochDuration = growthEpochDuration;
-    simInfo.maxSteps = (int)maxGrowthSteps;
+    if ((parms = simDoc->FirstChildElement("ModelParams")) == NULL) {
+        cerr << "Could not find <MoelParms> in simulation parameter file " << endl;
+        return false;
+    }
 
-    // May be model-dependent
-    simInfo.maxFiringRate = maxFiringRate;
-    simInfo.maxSynapsesPerNeuron = maxSynapsesPerNeuron;
-
-// NETWORK MODEL VARIABLES NMV-BEGIN {
-    simInfo.width = cols;
-    simInfo.height = rows;
-// } NMV-END
-
-    simInfo.deltaT = new_deltaT;  // Model Independent
-    simInfo.seed = seed;  // Model Independent
-
-    return simInfo;
-}
-
-/*
- *  Prints loaded parameters out to console.
- */
-void printParams() {
-    cout << "\nPrinting parameters...\n";
-    cout << "poolsize x:" << simInfo->width
-         << " y:" << simInfo->height
-         //z dimmension is for future expansion and not currently supported
-         //<< " z:" <<
-         << endl;
-    cout << "Simulation Parameters:\n";
-    cout << "\tTime between growth updates (in seconds): " << simInfo->epochDuration << endl;
-    cout << "\tNumber of simulations to run: " << simInfo->maxSteps << endl;
-
-    cout << "Model Parameters:" << endl;
-    FClassOfCategory::get()->printParameters(cout);
-    cout << "Done printing parameters" << endl;
-}
-
-bool createAllClassInstances(TiXmlElement* parms)
-{
     // create neurons, synapses, connections, and layout objects specified in the description file
-    neurons = FClassOfCategory::get()->createNeurons(parms);
-    synapses = FClassOfCategory::get()->createSynapses(parms);
-    conns = FClassOfCategory::get()->createConnections(parms);
-    layout = FClassOfCategory::get()->createLayout(parms);
+    IAllNeurons *neurons = NULL;
+    IAllSynapses *synapses = NULL;
+    Connections *conns = NULL;
+    Layout *layout = NULL;
+    const TiXmlNode* pNode = NULL;
+
+    while ((pNode = parms->IterateChildren(pNode)) != NULL) {
+        if (strcmp(pNode->Value(), "NeuronsParams") == 0) {
+            neurons = FClassOfCategory::get()->createNeurons(pNode);
+        } else if (strcmp(pNode->Value(), "SynapsesParams") == 0) {
+            synapses = FClassOfCategory::get()->createSynapses(pNode);
+        } else if (strcmp(pNode->Value(), "ConnectionsParams") == 0) {
+            conns = FClassOfCategory::get()->createConnections(pNode);
+        } else if (strcmp(pNode->Value(), "LayoutParams") == 0) {
+            layout = FClassOfCategory::get()->createLayout(pNode);
+        }
+    }
 
     if (neurons == NULL || synapses == NULL || conns == NULL || layout == NULL) {
         cerr << "!ERROR: failed to create classes" << endl;
         return false;
     }
 
-    return FClassOfCategory::get()->readParameters(parms);
+    // create the model
+    #if defined(USE_GPU)
+         simInfo->model = new GPUSpikingModel(conns, neurons, synapses, layout);
+    #else
+         simInfo->model = new SingleThreadedSpikingModel(conns, neurons, synapses, layout);
+    #endif
+
+    return true;
 }
 
 /*
  *  Load parameters from a file.
  *
- *  @param  sim_param_filename  filename of file to read from
+ *  @param  simInfo   SimulationInfo class to read information from.
  *  @return true if successful, false if not
  */
-bool LoadAllParameters(const string &sim_param_filename)
+bool LoadAllParameters(SimulationInfo *simInfo)
 {
-    TiXmlDocument simDoc(sim_param_filename.c_str());
+    DEBUG(cout << "reading parameters from xml file" << endl;)
+
+    TiXmlDocument simDoc(simInfo->stateInputFileName.c_str());
     if (!simDoc.LoadFile()) {
         cerr << "Failed loading simulation parameter file "
-             << sim_param_filename << ":" << "\n\t" << simDoc.ErrorDesc()
+             << simInfo->stateInputFileName << ":" << "\n\t" << simDoc.ErrorDesc()
              << endl;
         cerr << " error: " << simDoc.ErrorRow() << ", " << simDoc.ErrorCol()
              << endl;
         return false;
     }
 
-    TiXmlElement* parms = NULL;
-
-    if ((parms = simDoc.FirstChildElement("SimParams")) == NULL) {
-        cerr << "Could not find <SimParms> in simulation parameter file "
-             << sim_param_filename << endl;
+    // load simulation parameters
+    if (simInfo->readParameters(&simDoc) != true) {
         return false;
     }
 
-    try {
-        LoadSimulationParameters(parms);
-    } catch (MatrixException &e) {
-        cerr << "Failure loading simulation parameters from file "
-             << sim_param_filename << ":\n\t" << e.what()
-             << endl;
+    // create instances of all model classes
+    DEBUG(cout << "creating instances of all classes" << endl;)
+    if (createAllModelClassInstances(&simDoc, simInfo) != true) {
         return false;
     }
 
-    if (createAllClassInstances(parms) != true) {
+    // load parameters for all models
+    if (FClassOfCategory::get()->readParameters(&simDoc) != true) {
         return false;
     }
- 
+
+    if (simInfo->stateOutputFileName.empty()) {
+        cerr << "! ERROR: no stateOutputFileName is specified." << endl;
+        return -1;
+    }
+
+    /*    verify that params were read correctly */
+    DEBUG(printParams(simInfo);)
+
     return true;
 }
 
 /*
- *  Handles loading of parameters using tinyxml from the parameter file.
+ *  Prints loaded parameters out to console.
  *
- *  @param  parms   tinyxml element to load from.
+ *  @param  simInfo   SimulationInfo class to read information from.
  */
-void LoadSimulationParameters(TiXmlElement* parms)
-{
-    
-    TiXmlElement* temp = NULL;
+void printParams(SimulationInfo *simInfo) {
+    cout << "\nPrinting simulation parameters...\n";
+    simInfo->printParameters(cout);
 
-    // Simulation Parameters
-    int poolsize[2];  // size of pool of neurons [x y z]
-                      //z currently not supported
-    BGFLOAT Tsim;  // Simulation time (s) (between growth updates) rename: epochLength
-    int numSims;  // Number of Tsim simulation to run
-    int maxFiringRate;  // Maximum firing rate (only used by GPU version)
-    int maxSynapsesPerNeuron;  // Maximum number of synapses per neuron
-                               // (only used by GPU version)
-    long seed;  // Seed for random generator (single-threaded)
-
-
-    // Flag indicating that the variables were correctly read
-    bool fSet = true;
-
-    // Note that we just grab the first child with the right value;
-    // multiple children with the same values are ignored. This might
-    // not be as quick as iterating through the children and setting the
-    // parameters as each one's element is found, but the code is
-    // simpler this way and the performance penalty is insignificant.
-
-    if ((temp = parms->FirstChildElement("PoolSize")) != NULL) {
-        if (temp->QueryIntAttribute("x", &poolsize[0]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error x" << endl;
-        }
-        if (temp->QueryIntAttribute("y", &poolsize[1]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error y" << endl;
-        }
-
-        //z dimmension is for future expansion and not currently supported
-        /*if (temp->QueryIntAttribute("z", &poolsize[2]) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error z" << endl;
-        }*/
-    } else {
-        fSet = false;
-        cerr << "missing PoolSize" << endl;
-    }
-
-    if ((temp = parms->FirstChildElement("SimParams")) != NULL) {
-        if (temp->QueryFLOATAttribute("Tsim", &Tsim) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error Tsim" << endl;
-        }
-        if (temp->QueryIntAttribute("numSims", &numSims) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error numSims" << endl;
-        }
-        if (temp->QueryIntAttribute("maxFiringRate", &maxFiringRate) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error maxFiringRate" << endl;
-        }
-        if (temp->QueryIntAttribute("maxSynapsesPerNeuron", &maxSynapsesPerNeuron) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error maxSynapsesPerNeuron" << endl;
-        }
-    } else {
-        fSet = false;
-        cerr << "missing SimParams" << endl;
-    }
-
-    if ((temp = parms->FirstChildElement("OutputParams")) != NULL) {
-        if (stateOutputFileName.empty() 
-            && (temp->QueryValueAttribute("stateOutputFileName", &stateOutputFileName) != TIXML_SUCCESS)) {
-            fSet = false;
-            cerr << "error stateOutputFileName" << endl;
-        }
-    } else {
-        fSet = false;
-        cerr << "missing OutputParams" << endl;
-    }
-
-    if ((temp = parms->FirstChildElement("Seed")) != NULL) {
-        if (temp->QueryValueAttribute("value", &seed) != TIXML_SUCCESS) {
-            fSet = false;
-            cerr << "error value" << endl;
-        }
-    } else {
-        fSet = false;
-        cerr << "missing Seed" << endl;
-    }
-
-    // Ideally, an error message would be output for each failed Query
-    // above, but that's just too much code for me right now.
-    if (!fSet) throw MatrixException("Failed to initialize one or more simulation parameters; check XML");
-
-    simInfo = new SimulationInfo(makeSimulationInfo(poolsize[0], poolsize[1],Tsim, numSims,
-            maxFiringRate, maxSynapsesPerNeuron, DEFAULT_dt, seed));
+    cout << "Model Parameters:" << endl;
+    FClassOfCategory::get()->printParameters(cout);
+    cout << "Done printing parameters" << endl;
 }
 
 /*
  *  Handles parsing of the command line
  *
- *  @param  argc    argument count.
- *  @param  argv    arguments.
+ *  @param  argc      argument count.
+ *  @param  argv      arguments.
+ *  @param  simInfo   SimulationInfo class to read information from.
  *  @returns    true if successful, false otherwise.
  */
-bool parseCommandLine(int argc, char* argv[])
+bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo)
 {
     ParamContainer cl;
     cl.initOptions(false);  // don't allow unknown parameters
@@ -449,19 +305,17 @@ bool parseCommandLine(int argc, char* argv[])
     }
 
     // Get the values
-    stateOutputFileName = cl["stateoutfile"];
-    stateInputFileName = cl["stateinfile"];
-    memInputFileName = cl["meminfile"];
-    memOutputFileName = cl["memoutfile"];
-    stimulusInputFileName = cl["stiminfile"];
+    simInfo->stateOutputFileName = cl["stateoutfile"];
+    simInfo->stateInputFileName = cl["stateinfile"];
+    simInfo->memInputFileName = cl["meminfile"];
+    simInfo->memOutputFileName = cl["memoutfile"];
+    simInfo->stimulusInputFileName = cl["stiminfile"];
 
-    if (!memInputFileName.empty())
-        fReadMemImage = true;
-    if (!memOutputFileName.empty())
-        fWriteMemImage = true;
 #if defined(USE_GPU)
-    if (EOF == sscanf(cl["deviceid"].c_str(), "%d", &g_deviceId))
+    if (EOF == sscanf(cl["deviceid"].c_str(), "%d", &g_deviceId)) {
         g_deviceId = 0;
+    }
 #endif  // USE_GPU
+
     return true;
 }

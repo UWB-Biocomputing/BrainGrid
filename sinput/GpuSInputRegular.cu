@@ -37,13 +37,11 @@ GpuSInputRegular::~GpuSInputRegular()
 /*
  * Initialize data.
  *
- * @param[in] model     Pointer to the Neural Network Model object.
- * @param[in] neurons   The Neuron list to search from.
  * @param[in] psi       Pointer to the simulation information.
  */
-void GpuSInputRegular::init(IModel* model, IAllNeurons &neurons, SimulationInfo* psi)
+void GpuSInputRegular::init(SimulationInfo* psi)
 {
-    SInputRegular::init(model, neurons, psi);
+    SInputRegular::init(psi);
 
     if (fSInput == false)
         return;
@@ -58,10 +56,9 @@ void GpuSInputRegular::init(IModel* model, IAllNeurons &neurons, SimulationInfo*
 /*
  * Terminate process.
  *
- * @param[in] model     Pointer to the Neural Network Model object.
  * @param[in] psi       Pointer to the simulation information.
  */
-void GpuSInputRegular::term(IModel* model, SimulationInfo* psi)
+void GpuSInputRegular::term(SimulationInfo* psi)
 {
     if (fSInput)
         deleteDeviceValues( );
@@ -70,11 +67,9 @@ void GpuSInputRegular::term(IModel* model, SimulationInfo* psi)
 /*
  * Process input stimulus for each time step on GPU.
  *
- * @param[in] model     	Pointer to the Neural Network Model object.
  * @param[in] psi               Pointer to the simulation information.
- * @param[in] summationPoint_d  Pointer to the summation map.
  */
-void GpuSInputRegular::inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT* summationPoint_d )
+void GpuSInputRegular::inputStimulus(SimulationInfo* psi)
 {
     if (fSInput == false)
         return;
@@ -87,7 +82,7 @@ void GpuSInputRegular::inputStimulus(IModel* model, SimulationInfo* psi, BGFLOAT
 
     // add input to each summation point
     blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-    inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, summationPoint_d, initValues_d, nShiftValues_d, nStepsInCycle, nStepsCycle, nStepsDuration );
+    inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, psi->pSummationMap, initValues_d, nShiftValues_d, nStepsInCycle, nStepsCycle, nStepsDuration );
     // update cycle count
     nStepsInCycle = (nStepsInCycle + 1) % nStepsCycle;
 }

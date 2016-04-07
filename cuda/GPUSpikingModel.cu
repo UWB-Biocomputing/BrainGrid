@@ -102,9 +102,8 @@ void GPUSpikingModel::deleteDeviceStruct(void** allNeuronsDevice, void** allSyna
  *  Sets up the Simulation.
  *
  *  @param  sim_info    SimulationInfo class to read information from.
- *  @param  simRecorder Pointer to the simulation recordig object.
  */
-void GPUSpikingModel::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
+void GPUSpikingModel::setupSim(SimulationInfo *sim_info)
 {
     // Set device ID
     HANDLE_ERROR( cudaSetDevice( g_deviceId ) );
@@ -112,7 +111,7 @@ void GPUSpikingModel::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
     // Set DEBUG flag
     HANDLE_ERROR( cudaMemcpyToSymbol (d_debug_mask, &g_debug_mask, sizeof(int) ) );
 
-    Model::setupSim(sim_info, simRecorder);
+    Model::setupSim(sim_info);
 
     //initialize Mersenne Twister
     //assuming neuron_count >= 100 and is a multiple of 100. Note rng_mt_rng_count must be <= MT_RNG_COUNT
@@ -200,12 +199,6 @@ void GPUSpikingModel::deserialize(istream& input, const SimulationInfo *sim_info
  */
 void GPUSpikingModel::advance(const SimulationInfo *sim_info)
 {
-	size_t total_synapse_counts = dynamic_cast<AllSynapses*>(m_synapses)->total_synapse_counts;
-
-	// CUDA parameters
-	const int threadsPerBlock = 256;
-	int blocksPerGrid;
-
 #ifdef PERFORMANCE_METRICS
 	startTimer();
 #endif // PERFORMANCE_METRICS
@@ -279,11 +272,10 @@ void GPUSpikingModel::updateConnections(const SimulationInfo *sim_info)
  *  Update the Neuron's history.
  *
  *  @param  sim_info    SimulationInfo to refer from.
- *  @param  simRecorder Pointer to the simulation recordig object.
  */
-void GPUSpikingModel::updateHistory(const SimulationInfo *sim_info, IRecorder* simRecorder)
+void GPUSpikingModel::updateHistory(const SimulationInfo *sim_info)
 {
-    Model::updateHistory(sim_info, simRecorder);
+    Model::updateHistory(sim_info);
 
     // clear spike count
     dynamic_cast<AllSpikingNeurons*>(m_neurons)->clearNeuronSpikeCounts(m_allNeuronsDevice, sim_info);
@@ -397,14 +389,17 @@ __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeuron
  */
 __global__ void calcSummationMapDevice( int totalNeurons, AllNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, int max_synapses) {
         int idx = blockIdx.x * blockDim.x + threadIdx.x; //calculate neuron index
-        if ( idx >= totalNeurons ) //don't do anything if this thread would be mapped to a non-existant neuron
-                return;
+        if ( idx >= totalNeurons ){ //don't do anything if this thread would be mapped to a non-existant neuron
+           return;
+		}
 
+		size_t synapseCount = allSynapsesDevice->synapse_counts[idx];
         BGFLOAT sum = 0.0;
         int syn_index = max_synapses * idx; //get the index of this neuron's first synapse in the array of all synapses
-        for (int i = 0; i < max_synapses; i++) {
+        for (int i = 0; (synapseCount > 0) && (i < max_synapses); i++) {
            if (allSynapsesDevice->in_use[syn_index + i] == true) {
               sum += allSynapsesDevice->psr[syn_index + i];
+			  synapseCount--;
            }
         }
         

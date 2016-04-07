@@ -77,6 +77,11 @@ class AllNeurons : public IAllNeurons
          *  Total number of neurons.
          */
         int size;
+
+        /**
+         *  Number of parameters read.
+         */
+        int nParams;
  
     private:
         /**

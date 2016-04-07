@@ -9,21 +9,6 @@ all: growth growth_cuda
 CUSEHDF5 = no
 CPMETRICS = no
 
-# Stopgap approach for selecting model types, until parameter file selection
-# is implemented. Uncomment each of NEURONTYPE, SYNAPSETYPE, and CONNTYPE
-NEURONTYPE = "AllIZHNeurons"
-# NEURONTYPE = "AllLIFNeurons"
-
-SYNAPSETYPE = "AllSpikingSynapses"
-#SYNAPSETYPE = "AllDSSynapses"
-#SYNAPSETYPE = "AllSTDPSynapses"
-#SYNAPSETYPE = "AllDynamicSTDPSynapses"
-
-CONNTYPE = "ConnStatic"
-#CONNTYPE = "ConnGrowth"
-
-MODELFLAGS = -DNEURONTYPE=$(NEURONTYPE) -DSYNAPSETYPE=$(SYNAPSETYPE) -DCONNTYPE=$(CONNTYPE)
-
 ################################################################################
 # Source Directories
 ################################################################################
@@ -63,7 +48,7 @@ else
 	LH5FLAGS =
 	H5FLAGS = 
 endif
-CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(H5INCDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -I$(SINPUTDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(PMFLAGS) $(H5FLAGS) $(MODELFLAGS)
+CXXFLAGS = -O2 -s -I$(COMMDIR) -I$(H5INCDIR) -I$(MATRIXDIR) -I$(PARAMDIR) -I$(RNGDIR) -I$(XMLDIR) -I$(SINPUTDIR) -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(PMFLAGS) $(H5FLAGS) 
 CGPUFLAGS = -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
@@ -107,8 +92,11 @@ CUDAOBJS =   \
 ifeq ($(CUSEHDF5), yes)
 LIBOBJS =               \
 			$(COMMDIR)/Simulator.o \
+			$(COMMDIR)/SimulationInfo.o \
 			$(COMMDIR)/Model.o \
 			$(COMMDIR)/Layout.o \
+			$(COMMDIR)/FixedLayout.o \
+			$(COMMDIR)/DynamicLayout.o \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
 			$(COMMDIR)/Util.o \
@@ -119,8 +107,11 @@ LIBOBJS =               \
 else
 LIBOBJS =               \
 			$(COMMDIR)/Simulator.o \
+			$(COMMDIR)/SimulationInfo.o \
 			$(COMMDIR)/Model.o \
 			$(COMMDIR)/Layout.o \
+			$(COMMDIR)/FixedLayout.o \
+			$(COMMDIR)/DynamicLayout.o \
 			$(COMMDIR)/ParseParamError.o \
 			$(COMMDIR)/Timer.o \
 			$(COMMDIR)/Util.o \
@@ -308,6 +299,9 @@ $(COMMDIR)/Global.o: $(COMMDIR)/Global.cpp $(COMMDIR)/Global.h
 $(COMMDIR)/Simulator.o: $(COMMDIR)/Simulator.cpp $(COMMDIR)/Simulator.h $(COMMDIR)/Global.h $(COMMDIR)/SimulationInfo.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Simulator.cpp -o $(COMMDIR)/Simulator.o
 
+$(COMMDIR)/SimulationInfo.o: $(COMMDIR)/SimulationInfo.cpp $(COMMDIR)/SimulationInfo.h $(COMMDIR)/Global.h 
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/SimulationInfo.cpp -o $(COMMDIR)/SimulationInfo.o
+
 $(COMMDIR)/Model.o: $(COMMDIR)/Model.cpp $(COMMDIR)/Model.h $(COMMDIR)/IModel.h $(COMMDIR)/ParseParamError.h $(COMMDIR)/Util.h $(XMLDIR)/tinyxml.h
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Model.cpp -o $(COMMDIR)/Model.o
 
@@ -322,6 +316,12 @@ $(COMMDIR)/ConnGrowth.o: $(COMMDIR)/ConnGrowth.cpp $(COMMDIR)/ConnGrowth.h
 
 $(COMMDIR)/Layout.o: $(COMMDIR)/Layout.cpp $(COMMDIR)/Layout.h 
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/Layout.cpp -o $(COMMDIR)/Layout.o
+
+$(COMMDIR)/FixedLayout.o: $(COMMDIR)/FixedLayout.cpp $(COMMDIR)/FixedLayout.h 
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/FixedLayout.cpp -o $(COMMDIR)/FixedLayout.o
+
+$(COMMDIR)/DynamicLayout.o: $(COMMDIR)/DynamicLayout.cpp $(COMMDIR)/DynamicLayout.h 
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/DynamicLayout.cpp -o $(COMMDIR)/DynamicLayout.o
 
 $(COMMDIR)/SingleThreadedSpikingModel.o: $(COMMDIR)/SingleThreadedSpikingModel.cpp $(COMMDIR)/SingleThreadedSpikingModel.h $(COMMDIR)/Model.h 
 	$(CXX) $(CXXFLAGS) $(COMMDIR)/SingleThreadedSpikingModel.cpp -o $(COMMDIR)/SingleThreadedSpikingModel.o

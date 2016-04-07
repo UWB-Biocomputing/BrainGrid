@@ -1,6 +1,8 @@
 #include "AllNeurons.h"
 // Default constructor
-AllNeurons::AllNeurons() : size(0)
+AllNeurons::AllNeurons() : 
+        size(0), 
+        nParams(0)
 {
     summation_map = NULL;
 }

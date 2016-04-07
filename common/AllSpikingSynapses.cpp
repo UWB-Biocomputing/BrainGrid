@@ -111,6 +111,16 @@ void AllSpikingSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
 }
 
 /*
+ *  Checks the number of required parameters.
+ *
+ * @return true if all required parameters were successfully read, false otherwise.
+ */
+bool AllSpikingSynapses::checkNumParameters()
+{
+    return (nParams >= 0);
+}
+
+/*
  *  Attempts to read parameters from a XML file.
  *
  *  @param  element TiXmlElement to examine.
@@ -118,7 +128,7 @@ void AllSpikingSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
  */
 bool AllSpikingSynapses::readParameters(const TiXmlElement& element)
 {
-    return true;
+    return false;
 }
 
 /*

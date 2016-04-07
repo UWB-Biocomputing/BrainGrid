@@ -39,7 +39,7 @@ class XmlGrowthRecorder : public XmlRecorder
 {
 public:
     //! THe constructor and destructor
-    XmlGrowthRecorder(IModel *model, const SimulationInfo* sim_info);
+    XmlGrowthRecorder(const SimulationInfo* sim_info);
     ~XmlGrowthRecorder();
 
     /**
@@ -72,10 +72,10 @@ public:
     virtual void saveSimData(const IAllNeurons &neurons);
 
 private:
-    // track radii
-    CompleteMatrix radiiHistory;
-
     // track firing rate
     CompleteMatrix ratesHistory;
+
+    // track radii
+    CompleteMatrix radiiHistory;
 };
 

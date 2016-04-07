@@ -43,7 +43,7 @@
                 //! The array of number of active synapses of each neuron.
                 int* synapseCount;
 
-                //! Pointer to the synapse inverse map.
+                //! Pointer to the synapse forward map.
                 uint32_t* forwardIndex;
 
                 //! Pointer to the active synapse map.

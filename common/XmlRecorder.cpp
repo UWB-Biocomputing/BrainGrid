@@ -10,11 +10,11 @@
 #include "ConnGrowth.h"
 
 //! THe constructor and destructor
-XmlRecorder::XmlRecorder(IModel *model, const SimulationInfo* sim_info) :
+XmlRecorder::XmlRecorder(const SimulationInfo* sim_info) :
         burstinessHist(MATRIX_TYPE, MATRIX_INIT, 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps), 0),
         spikesHistory(MATRIX_TYPE, MATRIX_INIT, 1, static_cast<int>(sim_info->epochDuration * sim_info->maxSteps * 100), 0),
-        m_model(dynamic_cast<Model*> (model)),
-        m_sim_info(sim_info)
+        m_sim_info(sim_info),
+        m_model(dynamic_cast<Model*> (sim_info->model))
 {
 }
 
@@ -70,8 +70,6 @@ void XmlRecorder::term()
  */
 void XmlRecorder::compileHistories(IAllNeurons &neurons)
 {
-    Connections* pConn = m_model->getConnections();
-
     AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
     int max_spikes = (int) ((m_sim_info->epochDuration * m_sim_info->maxFiringRate));
 
@@ -137,7 +135,7 @@ void XmlRecorder::saveSimData(const IAllNeurons &neurons)
     stateOut << "   " << neuronTypes.toXML("neuronTypes") << endl;
 
     // create starter nuerons matrix
-    int num_starter_neurons = static_cast<int>(m_model->getLayout()->m_frac_starter_neurons * m_sim_info->totalNeurons);
+    int num_starter_neurons = static_cast<int>(m_model->getLayout()->num_endogenously_active_neurons);
     if (num_starter_neurons > 0)
     {
         VectorMatrix starterNeurons(MATRIX_TYPE, MATRIX_INIT, 1, num_starter_neurons);

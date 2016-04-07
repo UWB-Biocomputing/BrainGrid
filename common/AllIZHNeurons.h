@@ -45,7 +45,12 @@
  * a given variance noise (Izhikevich. 2003).
  *
  * The simple Euler method combined with the exponential Euler method is used for 
- * numerical integration. The main idea behind the exponential Euler rule is 
+ * numerical integration. 
+ * 
+ * One step of the simple Euler method from \f$y(t)\f$ to \f$y(t + \Delta t)\f$ is:
+ *  \f$y(t + \Delta t) = y(t) + \Delta t \cdot y(t)\f$
+ *
+ * The main idea behind the exponential Euler rule is 
  * that many biological processes are governed by an exponential decay function. 
  * For an equation of the form:
  * \f[
@@ -57,12 +62,17 @@
  * \f]
  * After appropriate substituting all variables, we obtain the Euler step:
  * \f[
- *  v(t+\Delta t)=v(t)+\Delta t \cdot (0.04v(t)^2+5v(t)+140-u(t))+R_{m} \cdot (I_{syn}(t)+I_{inject}+I_{noise}+\frac{V_{resting}}{R_{m}}) \cdot (1-\mathrm{e}^{-\frac{\Delta t}{\tau_{m}}})
+ *  v(t+\Delta t)=v(t)+ C3 \cdot (0.04v(t)^2+5v(t)+140-u(t))+C2 \cdot (I_{syn}(t)+I_{inject}+I_{noise}+\frac{V_{resting}}{R_{m}})
  * \f]
  * \f[
- *  u(t+ \Delta t)=u(t) + \Delta t \cdot a \cdot (bv(t)-u(t))
+ *  u(t+ \Delta t)=u(t) + C3 \cdot a \cdot (bv(t)-u(t))
  * \f]
- * where \f$\tau_{m}=C_{m} \cdot R_{m}\f$ is the membrane time constant, \f$R_{m}\f$ is the membrane resistance.
+ * where \f$\tau_{m}=C_{m} \cdot R_{m}\f$ is the membrane time constant, \f$R_{m}\f$ is the membrane resistance,
+ * \f$C2 = R_m \cdot (1 - \mathrm{e}^{-\frac{\Delta t}{\tau_m}})\f$,
+ * and \f$C3 = \Delta t\f$.
+ *
+ * Because the time scale \f$t\f$ of the Izhikevich model is \f$ms\f$ scale, 
+ *  so \f$C3\f$ is : \f$C3 = \Delta t = 1000 \cdot deltaT\f$ (\f$deltaT\f$ is the simulation time step in second) \f$ms\f$.
  *
  * \latexonly  \subsubsection*{Credits} \endlatexonly
  * \htmlonly   <h3>Credits</h3> \endhtmlonly
@@ -99,9 +109,11 @@ class AllIZHNeurons : public AllIFNeurons
         virtual void cleanupNeurons();  
 
         /**
-         *  Returns the number of required parameters to read.
+         *  Checks the number of required parameters to read.
+         *
+         * @return true if all required parameters were successfully read, false otherwise.
          */
-        virtual int numParameters();
+        virtual bool checkNumParameters();
 
         /**
          *  Attempts to read parameters from a XML file.

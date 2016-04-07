@@ -248,4 +248,9 @@ class AllSynapses : public IAllSynapses
          *  Usage: Used by destructor
          */
         int count_neurons;
+
+        /**
+         *  Number of parameters read.
+         */
+        int nParams;
 };

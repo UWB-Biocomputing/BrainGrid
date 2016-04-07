@@ -11,21 +11,9 @@
 
 /*
  *  Constructor
- *
- *  @param  model
- *          pointer to a neural network implementation to be simulated by BrainGrid. (It would be
- *          nice if this was a parameter to #simulate). Note: this reference will not be deleted.
- *  @simRecorder        Pointer to the simulation recordig object.
- *  @sInput             Pointer to the stimulus input object.
- *  @param  sim_info    parameters for the simulation.
  */
-Simulator::Simulator(IModel *model, IRecorder *simRecorder, ISInput *sInput, SimulationInfo *sim_info) : 
-    m_model(model), 
-    m_simRecorder(simRecorder),
-    m_sInput(sInput),
-    m_sim_info(sim_info)
+Simulator::Simulator() 
 {
-    cout << "Neuron count: " << sim_info->totalNeurons << endl;
     g_simulationStep = 0;
 }
 
@@ -39,36 +27,42 @@ Simulator::~Simulator()
 
 /*
  *  Initialize and prepare network for simulation.
+ *
+ *  @param  sim_info    parameters for the simulation.
  */
-void Simulator::setup()
+void Simulator::setup(SimulationInfo *sim_info)
 {
     cout << "Initializing models in network." << endl;
-    m_model->setupSim(m_sim_info, m_simRecorder);
+    sim_info->model->setupSim(sim_info);
 
     // init stimulus input object
-    if (m_sInput != NULL)
-        m_sInput->init(m_model, *(m_model->getNeurons()), m_sim_info);
+    if (sim_info->pInput != NULL)
+        sim_info->pInput->init(sim_info);
 }
 
 /*
  *  Begin terminating the simulator.
+ *
+ *  @param  sim_info    parameters for the simulation.
  */
-void Simulator::finish()
+void Simulator::finish(SimulationInfo *sim_info)
 {
     // Terminate the simulator
-    m_model->cleanupSim(m_sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
+    sim_info->model->cleanupSim(sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
 }
 
 /*
  * Resets all of the maps.
  * Releases and re-allocates memory for each map, clearing them as necessary.
+ *
+ *  @param  sim_info    parameters for the simulation.
  */
-void Simulator::reset()
+void Simulator::reset(SimulationInfo *sim_info)
 {
     DEBUG(cout << "\nEntering Simulator::reset()" << endl;)
 
     // Terminate the simulator
-    m_model->cleanupSim(m_sim_info);
+    sim_info->model->cleanupSim(sim_info);
 
     // Clean up objects
     freeResources();
@@ -77,7 +71,7 @@ void Simulator::reset()
     g_simulationStep = 0;
 
     // Initialize and prepare network for simulation
-    m_model->setupSim(m_sim_info, m_simRecorder);
+    sim_info->model->setupSim(sim_info);
 
     DEBUG(cout << "\nExiting Simulator::reset()" << endl;)
 }
@@ -91,21 +85,23 @@ void Simulator::freeResources()
 
 /*
  * Run simulation
+ *
+ *  @param  sim_info    parameters for the simulation.
  */
-void Simulator::simulate()
+void Simulator::simulate(SimulationInfo *sim_info)
 {
     // Main simulation loop - execute maxGrowthSteps
-    for (int currentStep = 1; currentStep <= m_sim_info->maxSteps; currentStep++) {
+    for (int currentStep = 1; currentStep <= sim_info->maxSteps; currentStep++) {
 
         DEBUG(cout << endl << endl;)
         DEBUG(cout << "Performing simulation number " << currentStep << endl;)
         DEBUG(cout << "Begin network state:" << endl;)
 
         // Init SimulationInfo parameters
-        m_sim_info->currentStep = currentStep;
+        sim_info->currentStep = currentStep;
 
         // Advance simulation to next growth cycle
-        advanceUntilGrowth(currentStep);
+        advanceUntilGrowth(currentStep, sim_info);
 
         DEBUG(cout << endl << endl;)
         DEBUG(
@@ -117,9 +113,9 @@ void Simulator::simulate()
 #ifdef PERFORMANCE_METRICS
         short_timer.start();
 #endif
-        m_model->updateConnections(m_sim_info);
+        sim_info->model->updateConnections(sim_info);
 
-        m_model->updateHistory(m_sim_info, m_simRecorder);
+        sim_info->model->updateHistory(sim_info);
 
 #ifdef PERFORMANCE_METRICS
         t_host_adjustSynapses = short_timer.lap() / 1000.0f;
@@ -142,36 +138,37 @@ void Simulator::simulate()
  * Advance simulation until it's ready for the next growth cycle. This should simulate all neuron and
  * synapse activity for one epoch.
  *
- * @param currentStep the current epoch in which the network is being simulated.
+ *  @param currentStep the current epoch in which the network is being simulated.
+ *  @param  sim_info    parameters for the simulation.
  */
-void Simulator::advanceUntilGrowth(const int currentStep)
+void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_info)
 {
     uint64_t count = 0;
     // Compute step number at end of this simulation epoch
     uint64_t endStep = g_simulationStep
-            + static_cast<uint64_t>(m_sim_info->epochDuration / m_sim_info->deltaT);
+            + static_cast<uint64_t>(sim_info->epochDuration / sim_info->deltaT);
 
-    DEBUG_MID(m_model->logSimStep(m_sim_info);) // Generic model debug call
+    DEBUG_MID(sim_info->model->logSimStep(sim_info);) // Generic model debug call
 
     while (g_simulationStep < endStep) {
         DEBUG_LOW(
 		  // Output status once every 10,000 steps
             if (count % 10000 == 0)
             {
-                cout << currentStep << "/" << m_sim_info->maxSteps
+                cout << currentStep << "/" << sim_info->maxSteps
                      << " simulating time: "
-                     << g_simulationStep * m_sim_info->deltaT << endl;
+                     << g_simulationStep * sim_info->deltaT << endl;
                 count = 0;
             }
             count++;
         )
 
         // input stimulus
-        if (m_sInput != NULL)
-            m_sInput->inputStimulus(m_model, m_sim_info, m_sim_info->pSummationMap);
+        if (sim_info->pInput != NULL)
+            sim_info->pInput->inputStimulus(sim_info);
 
 	// Advance the Network one time step
-        m_model->advance(m_sim_info);
+        sim_info->model->advance(sim_info);
 
         g_simulationStep++;
     }
@@ -179,10 +176,12 @@ void Simulator::advanceUntilGrowth(const int currentStep)
 
 /*
  * Writes simulation results to an output destination.
+ * 
+ *  @param  sim_info    parameters for the simulation. 
  */
-void Simulator::saveData() const
+void Simulator::saveData(SimulationInfo *sim_info) const
 {
-    m_model->saveData(m_simRecorder);
+    sim_info->model->saveData(sim_info);
 }
 
 /*
@@ -190,31 +189,33 @@ void Simulator::saveData() const
  * This allows simulations to be continued from a particular point, to be restarted, or to be
  * started from a known state.
  *
- * @param memory_in - where to read the state from.
+ *  @param memory_in - where to read the state from.
+ *  @param  sim_info    parameters for the simulation. 
  */
-void Simulator::deserialize(istream &memory_in)
+void Simulator::deserialize(istream &memory_in, SimulationInfo *sim_info)
 {
     // read the neuron data
-    memory_in >> m_sim_info->totalNeurons; memory_in.ignore();
-    m_model->deserialize(memory_in, m_sim_info);
+    memory_in >> sim_info->totalNeurons; memory_in.ignore();
+    sim_info->model->deserialize(memory_in, sim_info);
 
     // Init history matrices with current values
-    m_simRecorder->initValues();
+    sim_info->simRecorder->initValues();
 }
 
 /*
  * Serializes internal state for the current simulation.
  * This allows simulations to be continued from a particular point, to be restarted, or to be
  * started from a known state.
- *
- * @param memory_out - where to write the state to.
  * This method needs to be debugged to verify that it works.
+ *
+ *  @param memory_out - where to write the state to.
+ *  @param  sim_info    parameters for the simulation. 
  */
-void Simulator::serialize(ostream &memory_out) const
+void Simulator::serialize(ostream &memory_out, SimulationInfo *sim_info) const
 {
     cerr << "Simulator::writeSimMemory was called. " << endl;
     // get history matrices with current values
-    m_simRecorder->getValues();
+    sim_info->simRecorder->getValues();
 
-    m_model->serialize(memory_out, m_sim_info);
+    sim_info->model->serialize(memory_out, sim_info);
 }

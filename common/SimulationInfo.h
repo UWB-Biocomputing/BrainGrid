@@ -28,33 +28,66 @@
 #ifndef _SIMULATIONINFO_H_
 #define _SIMULATIONINFO_H_
 
+#include "Global.h"
 
-//! Structure design to hold all of the parameters of the simulation.
-struct SimulationInfo
+class IModel;
+class IRecorder;
+class ISInput;
+
+//! Class design to hold all of the parameters of the simulation.
+class SimulationInfo : public TiXmlVisitor
 {
-    SimulationInfo() :
-        width(0),
-        height(0),
-        totalNeurons(0),
-        currentStep(0),
-        maxSteps(0),
-        epochDuration(0),
-        deltaT(0),
-        maxRate(0),
-        pSummationMap(NULL),
-		seed(0)
-    {
-    }
+public:
+        SimulationInfo() :
+            width(0),
+            height(0),
+            totalNeurons(0),
+            currentStep(0),
+            maxSteps(0),
+            epochDuration(0),
+            maxFiringRate(0),
+            maxSynapsesPerNeuron(0),
+            deltaT(DEFAULT_dt),
+            maxRate(0),
+            pSummationMap(NULL),
+	    seed(0),
+            model(NULL),
+            simRecorder(NULL),
+            pInput(NULL)
+        {
+        }
 
-/* NOT NEEDED?
-	void reset(int neurons, vector<INeuron*>* neronList, vector<ISynapse*>* synapseList, BGFLOAT* sumMap, BGFLOAT delta) {
-		cNeurons = neurons;
-		pNeuronList = neronList;
-		rgSynapseMap = synapseList;
-		pSummationMap = sumMap;
-		deltaT = delta;
-	}
-*/
+        virtual ~SimulationInfo() {}
+
+        /**
+         *  Attempts to read parameters from a XML file.
+         *
+         *  @param  simDoc  the TiXmlDocument to read from.
+         *  @return true if successful, false otherwise.
+         */
+        bool readParameters(TiXmlDocument* simDoc);
+
+        /**
+         *  Prints out loaded parameters to ostream.
+         *
+         *  @param  output  ostream to send output to.
+         */
+        void printParameters(ostream &output) const;
+
+    protected:
+        using TiXmlVisitor::VisitEnter;
+
+        /*
+         *  Handles loading of parameters using tinyxml from the parameter file.
+         *
+         *  @param  element TiXmlElement to examine.
+         *  @param  firstAttribute  ***NOT USED***.
+         *  @return true if method finishes without errors.
+         */
+        virtual bool VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute);
+
+    public:
+
 	//! Width of neuron map (assumes square)
 	int width;
 
@@ -65,8 +98,6 @@ struct SimulationInfo
 	int totalNeurons;
 
 	//! Current simulation step
-	// Main loop in simulator modifies this, and is being used by the LIFModel::serialize methods.
-	// Those methods are not currently functional.
 	int currentStep;
 
 	//! Maximum number of simulation steps
@@ -75,13 +106,11 @@ struct SimulationInfo
 	//! The length of each step in simulation time
 	BGFLOAT epochDuration; // Epoch duration !!!!!!!!
 
-// NETWORK MODEL VARIABLES NMV-BEGIN {
 	//! Maximum firing rate. **Only used by GPU simulation.**
 	int maxFiringRate;
 
 	//! Maximum number of synapses per neuron. **Only used by GPU simulation.**
 	int maxSynapsesPerNeuron;
-// } NMV-END
 
 	//! Time elapsed between the beginning and end of the simulation step
 	BGFLOAT deltaT; // Inner Simulation Step Duration !!!!!!!!
@@ -92,21 +121,49 @@ struct SimulationInfo
 	//! The starter existence map (T/F).
 	bool* rgEndogenouslyActiveNeuronMap;
 
-// NETWORK MODEL VARIABLES NMV-BEGIN {
-
 	//! growth variable (m_targetRate / m_epsilon) TODO: more detail here
 	BGFLOAT maxRate;
 
-// } NMV-END
-
-	//! List of lists of synapses (3d array)
-	//vector<ISynapse*>* rgSynapseMap; // NOT NEEDED?
-
-	//! List of summation points
+	//! List of summation points (either host or device memory)
 	BGFLOAT* pSummationMap;
 
 	//! Seed used for the simulation random SINGLE THREADED
 	long seed;
+
+        //! File name of the simulation results.
+        string stateOutputFileName;
+
+        //! File name of the parameter description file.
+        string stateInputFileName;
+
+        //! File name of the memory dump output file.
+        string memOutputFileName;
+
+        //! File name of the memory dump input file.
+        string memInputFileName;
+
+        //! File name of the stimulus input file.
+        string stimulusInputFileName;
+
+        //! Neural Network Model interface.
+        IModel *model;
+
+        //! Recorder object.
+        IRecorder* simRecorder;
+
+        //! Stimulus input object.
+        ISInput* pInput;
+    
+    private:
+        /**
+         *  Checks the number of required parameters to read.
+         *
+         *  @return true if all required parameters were successfully read, false otherwise.
+         */
+        virtual bool checkNumParameters();
+
+        //! Number of parameters read.
+        int nParams;
 };
 
 #endif // _SIMULATIONINFO_H_

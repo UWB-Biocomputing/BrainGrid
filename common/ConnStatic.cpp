@@ -58,7 +58,7 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
         // sort ascendant
         sort(distDestNeurons[src_neuron].begin(), distDestNeurons[src_neuron].end());
         // pick the shortest m_nConnsPerNeuron connections
-        for (int i = 0; i < distDestNeurons[src_neuron].size() && i < m_nConnsPerNeuron; i++) {
+        for (size_t i = 0; i < distDestNeurons[src_neuron].size() && (int)i < m_nConnsPerNeuron; i++) {
             int dest_neuron = distDestNeurons[src_neuron][i].dest_neuron;
             synapseType type = layout->synType(src_neuron, dest_neuron);
             BGFLOAT* sum_point = &( dynamic_cast<AllNeurons*>(neurons)->summation_map[dest_neuron] );
@@ -95,6 +95,16 @@ void ConnStatic::cleanupConnections()
 }
 
 /*
+ *  Checks the number of required parameters.
+ *
+ * @return true if all required parameters were successfully read, false otherwise.
+ */
+bool ConnStatic::checkNumParameters()
+{
+    return (nParams >= 2);
+}
+
+/*
  *  Attempts to read parameters from a XML file.
  *
  *  @param  element TiXmlElement to examine.
@@ -103,7 +113,7 @@ void ConnStatic::cleanupConnections()
 bool ConnStatic::readParameters(const TiXmlElement& element)
 {
     // Connections parameters
-    if (element.ValueStr().compare("ConnectionsParams") == 0) {
+    if (element.ValueStr().compare("StaticConnectionsParams") == 0) {
         // number of maximum connections per neurons
         if (element.QueryIntAttribute("nConnsPerNeuron", &m_nConnsPerNeuron) != TIXML_SUCCESS) {
                 throw ParseParamError("nConnsPerNeuron", "Static Connections param 'nConnsPerNeuron' missing in XML.");
@@ -127,10 +137,12 @@ bool ConnStatic::readParameters(const TiXmlElement& element)
         if (m_pRewiring < 0 || m_pRewiring > 1.0) {
                 throw ParseParamError("pRewiring", "Invalid negative Growth param 'pRewiring' value.");
         }
+        nParams++;
+        return true;
     }
 
     // Connections weight parameters
-    if (element.ValueStr().compare("ConnectionsWeight") == 0) {
+    if (element.ValueStr().compare("StaticConnectionsWeight") == 0) {
         if (element.QueryFLOATAttribute("minExc", &m_excWeight[0]) != TIXML_SUCCESS) {
             throw ParseParamError("ConnectionsWeight minExc", "ConnectionsWeight missing minimum values of excitatory neuron's synapse weight in XML.");
         }
@@ -149,9 +161,11 @@ bool ConnStatic::readParameters(const TiXmlElement& element)
         if (m_inhWeight[1] > 0 || m_inhWeight[0] > m_inhWeight[1]) {
             throw ParseParamError("ConnectionsWeight maxInh", "Invalid range for ConnectionsWeight inhibitory neuron's synapse weight.");
         }
+        nParams++;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 /*
@@ -185,31 +199,29 @@ void ConnStatic::serialize(ostream& output, const SimulationInfo *sim_info)
 
 /*
  *  Creates a recorder class object for the connection.
+ *  This function tries to create either Xml recorder or
+ *  Hdf5 recorder based on the extension of the file name.
  *
- *  @param  stateOutputFileName  Name of the state output file.
- *                               This function tries to create either Xml recorder or
- *                               Hdf5 recorder based on the extension of the file name.
- *  @param  model                Poiner to the model class object.
  *  @param  simInfo              SimulationInfo to refer from.
  *  @return Pointer to the recorder class object.
  */
-IRecorder* ConnStatic::createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *simInfo)
+IRecorder* ConnStatic::createRecorder(const SimulationInfo *simInfo)
 {
     // create & init simulation recorder
     IRecorder* simRecorder = NULL;
-    if (stateOutputFileName.find(".xml") != string::npos) {
-        simRecorder = new XmlRecorder(model, simInfo);
+    if (simInfo->stateOutputFileName.find(".xml") != string::npos) {
+        simRecorder = new XmlRecorder(simInfo);
     }
 #ifdef USE_HDF5
-    else if (stateOutputFileName.find(".h5") != string::npos) {
-        simRecorder = new Hdf5Recorder(model, simInfo);
+    else if (simInfo->stateOutputFileName.find(".h5") != string::npos) {
+        simRecorder = new Hdf5Recorder(simInfo);
     }
 #endif // USE_HDF5
     else {
         return NULL;
     }
     if (simRecorder != NULL) {
-        simRecorder->init(stateOutputFileName);
+        simRecorder->init(simInfo->stateOutputFileName);
     }
 
     return simRecorder;

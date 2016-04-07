@@ -38,7 +38,7 @@ class XmlRecorder : public IRecorder
 {
 public:
     //! THe constructor and destructor
-    XmlRecorder(IModel *model, const SimulationInfo* sim_info);
+    XmlRecorder(const SimulationInfo* sim_info);
     ~XmlRecorder();
 
     /**

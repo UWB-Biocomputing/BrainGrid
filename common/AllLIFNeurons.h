@@ -47,7 +47,7 @@
  *
  * The exponential Euler method is used for numerical integration.
  * The main idea behind the exponential Euler rule is that many biological 
- * processes are governed by an exponential decay function.
+ *mprocesses are governed by an exponential decay function.
  * For an equation of the form:
  * \f[
  *  \frac{d y}{dt} = A - By
@@ -58,12 +58,25 @@
  *  y(t+\Delta t) = y(t) \cdot \mathrm{e}^{-B \Delta t} + \frac{A}{B} \cdot (1 - \mathrm{e}^{-B \Delta t})
  * \f]
  *
- * After appropriate substituting all variables, we obtain the exponential Euler step:
+ * After appropriate substituting all variables:
  * \f[
- *  V_m(t+\Delta t) = V_m(t) \cdot \mathrm{e}^{-\frac{\Delta t}{\tau_m}} + 
- *  R_m \cdot (I_{syn}(t)+I_{inject}+I_{noise}+\frac{V_{resting}}{R_m}) 
- *  \cdot (1 - \mathrm{e}^{-\frac{\Delta t}{\tau_m}})
+ *  y(t) = V_m(t)
  * \f]
+ * \f[
+ *  A = \frac{1}{\tau_m} \cdot (R_m \cdot (I_{syn}(t)+I_{inject}+I_{noise}) + V_{resting})
+ * \f]
+ * and
+ * \f[
+ *  B = \frac{1}{\tau_m}
+ * \f]
+ * 
+ * we obtain the exponential Euler step:
+ * \f[
+ *  V_m(t+\Delta t) = C1 \cdot V_m(t) + 
+ *  C2 \cdot (I_{syn}(t)+I_{inject}+I_{noise}+\frac{V_{resting}}{R_m}) 
+ * \f]
+ * where \f$C1 = \mathrm{e}^{-\frac{\Delta t}{\tau_m}}\f$ and 
+ * \f$C2 = R_m \cdot (1 - \mathrm{e}^{-\frac{\Delta t}{\tau_m}})\f$.
  *
  * \latexonly  \subsubsection*{Credits} \endlatexonly
  * \htmlonly   <h3>Credits</h3> \endhtmlonly

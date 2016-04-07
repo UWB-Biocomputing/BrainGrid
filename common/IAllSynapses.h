@@ -38,6 +38,13 @@ class IAllSynapses
         virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT) = 0;
 
         /**
+         *  Checks the number of required parameters to read.
+         *
+         * @return true if all required parameters were successfully read, false otherwise.
+         */
+        virtual bool checkNumParameters() = 0;
+
+        /**
          *  Attempts to read parameters from a XML file.
          *
          *  @param  element TiXmlElement to examine.

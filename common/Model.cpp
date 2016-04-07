@@ -100,13 +100,12 @@ void Model::serialize(ostream& output, const SimulationInfo *sim_info)
 /*
  *  Save simulation results to an output destination.
  *
- *  @param simRecorder    Pointer to the simulation recordig object.
- *
+ *  @param  sim_info    parameters for the simulation. 
  */
-void Model::saveData(IRecorder* simRecorder)
+void Model::saveData(SimulationInfo *sim_info)
 {
-    if (simRecorder != NULL) {
-        simRecorder->saveSimData(*m_neurons);
+    if (sim_info->simRecorder != NULL) {
+        sim_info->simRecorder->saveSimData(*m_neurons);
     }
 }
 
@@ -133,17 +132,16 @@ void Model::createAllNeurons(SimulationInfo *sim_info)
  *  Sets up the Simulation.
  *
  *  @param  sim_info    SimulationInfo class to read information from.
- *  @param  simRecorder Pointer to the simulation recordig object.
  */
-void Model::setupSim(SimulationInfo *sim_info, IRecorder* simRecorder)
+void Model::setupSim(SimulationInfo *sim_info)
 {
     m_neurons->setupNeurons(sim_info);
     m_synapses->setupSynapses(sim_info);
     m_layout->setupLayout(sim_info);
 
     // Init radii and rates history matrices with default values
-    if (simRecorder != NULL) {
-        simRecorder->initDefaultValues();
+    if (sim_info->simRecorder != NULL) {
+        sim_info->simRecorder->initDefaultValues();
     }
 
     // Creates all the Neurons and generates data for them.
@@ -225,13 +223,12 @@ void Model::logSimStep(const SimulationInfo *sim_info) const
  *  Update the simulation history of every epoch.
  *
  *  @param  sim_info    SimulationInfo to refer from.
- *  @param  simRecorder	Pointer to the simulation recordig object.
  */
-void Model::updateHistory(const SimulationInfo *sim_info, IRecorder* simRecorder)
+void Model::updateHistory(const SimulationInfo *sim_info)
 {
     // Compile history information in every epoch
-    if (simRecorder != NULL) {
-        simRecorder->compileHistories(*m_neurons);
+    if (sim_info->simRecorder != NULL) {
+        sim_info->simRecorder->compileHistories(*m_neurons);
     }
 }
 

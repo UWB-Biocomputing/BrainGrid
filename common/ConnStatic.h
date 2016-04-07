@@ -72,6 +72,13 @@ class ConnStatic : public Connections
         virtual void cleanupConnections();
 
         /**
+         *  Checks the number of required parameters to read.
+         *
+         * @return true if all required parameters were successfully read, false otherwise.
+         */
+        virtual bool checkNumParameters();
+
+        /**
          *  Attempts to read parameters from a XML file.
          *
          *  @param  element TiXmlElement to examine.
@@ -104,15 +111,13 @@ class ConnStatic : public Connections
 
         /**
          *  Creates a recorder class object for the connection.
+         *  This function tries to create either Xml recorder or
+         *  Hdf5 recorder based on the extension of the file name.
          *
-         *  @param  stateOutputFileName  Name of the state output file.
-         *                               This function tries to create either Xml recorder or
-         *                               Hdf5 recorder based on the extension of the file name.
-         *  @param  model                Poiner to the model class object.
          *  @param  simInfo              SimulationInfo to refer from.
          *  @return Pointer to the recorder class object.
          */
-        virtual IRecorder* createRecorder(const string &stateOutputFileName, IModel *model, const SimulationInfo *sim_info);
+        virtual IRecorder* createRecorder(const SimulationInfo *sim_info);
 
     private:
         //! number of maximum connections per neurons
@@ -132,8 +137,8 @@ class ConnStatic : public Connections
  
         struct DistDestNeuron
         {
-            BGFLOAT dist;
-            int dest_neuron;
+            BGFLOAT dist;     // destance to the destination neuron
+            int dest_neuron;  // index of the destination neuron
 
             bool operator<(const DistDestNeuron& other) const
             {

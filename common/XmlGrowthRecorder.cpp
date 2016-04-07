@@ -10,8 +10,8 @@
 #include "ConnGrowth.h"
 
 //! THe constructor and destructor
-XmlGrowthRecorder::XmlGrowthRecorder(IModel *model, const SimulationInfo* sim_info) :
-        XmlRecorder(model, sim_info),
+XmlGrowthRecorder::XmlGrowthRecorder(const SimulationInfo* sim_info) :
+        XmlRecorder(sim_info),
         ratesHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(sim_info->maxSteps + 1), sim_info->totalNeurons),
         radiiHistory(MATRIX_TYPE, MATRIX_INIT, static_cast<int>(sim_info->maxSteps + 1), sim_info->totalNeurons)
 {
@@ -130,7 +130,7 @@ void XmlGrowthRecorder::saveSimData(const IAllNeurons &neurons)
     stateOut << "   " << neuronTypes.toXML("neuronTypes") << endl;
 
     // create starter nuerons matrix
-    int num_starter_neurons = static_cast<int>(m_model->getLayout()->m_frac_starter_neurons * m_sim_info->totalNeurons);
+    int num_starter_neurons = static_cast<int>(m_model->getLayout()->num_endogenously_active_neurons);
     if (num_starter_neurons > 0)
     {
         VectorMatrix starterNeurons(MATRIX_TYPE, MATRIX_INIT, 1, num_starter_neurons);

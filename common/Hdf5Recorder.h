@@ -51,7 +51,7 @@ class Hdf5Recorder : public IRecorder
 {
 public:
     //! THe constructor and destructor
-    Hdf5Recorder(IModel *model, const SimulationInfo* sim_info);
+    Hdf5Recorder(const SimulationInfo* sim_info);
     ~Hdf5Recorder();
 
     /**

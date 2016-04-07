@@ -44,10 +44,10 @@ public:
     ~SInputPoisson();
 
     //! Initialize data.
-    virtual void init(IModel* model, IAllNeurons &neurons, SimulationInfo* psi);
+    virtual void init(SimulationInfo* psi);
 
     //! Terminate process.
-    virtual void term(IModel* model, SimulationInfo* psi);
+    virtual void term(SimulationInfo* psi);
 
 protected:
     //! True if stimuls input is on.

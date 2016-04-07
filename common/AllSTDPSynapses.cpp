@@ -138,6 +138,16 @@ void AllSTDPSynapses::initSpikeQueue(const uint32_t iSyn)
 }
 
 /*
+ *  Checks the number of required parameters.
+ *
+ * @return true if all required parameters were successfully read, false otherwise.
+ */
+bool AllSTDPSynapses::checkNumParameters()
+{
+    return (nParams >= 0);
+}
+
+/*
  *  Attempts to read parameters from a XML file.
  *
  *  @param  element TiXmlElement to examine.
@@ -145,7 +155,12 @@ void AllSTDPSynapses::initSpikeQueue(const uint32_t iSyn)
  */
 bool AllSTDPSynapses::readParameters(const TiXmlElement& element)
 {
-    return true;
+    if (AllSpikingSynapses::readParameters(element)) {
+        // this parameter was already handled
+        return true;
+    }
+
+    return false;
 }
 
 /*

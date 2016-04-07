@@ -80,6 +80,16 @@ void AllDynamicSTDPSynapses::cleanupSynapses()
 }
 
 /*
+ *  Checks the number of required parameters.
+ *
+ * @return true if all required parameters were successfully read, false otherwise.
+ */
+bool AllDynamicSTDPSynapses::checkNumParameters()
+{
+    return (nParams >= 0);
+}
+
+/*
  *  Attempts to read parameters from a XML file.
  *
  *  @param  element TiXmlElement to examine.
@@ -87,7 +97,12 @@ void AllDynamicSTDPSynapses::cleanupSynapses()
  */
 bool AllDynamicSTDPSynapses::readParameters(const TiXmlElement& element)
 {
-    return true;
+    if (AllSTDPSynapses::readParameters(element)) {
+        // this parameter was already handled
+        return true;
+    }
+
+    return false;
 }
 
 /*
