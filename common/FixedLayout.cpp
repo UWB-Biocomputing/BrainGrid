@@ -28,6 +28,7 @@ bool FixedLayout::checkNumParameters()
  */
 bool FixedLayout::readParameters(const TiXmlElement& element)
 {
+	cerr << "Attempting to parse a layout param" << endl;
     if (Layout::readParameters(element)) {
         // this parameter was already handled
         return true;
@@ -36,6 +37,22 @@ bool FixedLayout::readParameters(const TiXmlElement& element)
     if (element.ValueStr().compare("LayoutFiles") == 0) {
         return true;
     }
+	
+	/*
+	*  Following statements exist because although the logic for reading the parameters
+    *  contained in these elements is later in this function, the traversal of nodes
+    *  causes this function to be called to handle the each of the elements individually. 
+	*/
+	if (element.ValueStr().compare("A") == 0){
+		if(element.Parent()->ValueStr().compare("FixedLayoutParams") == 0){
+			return true;
+		}
+	}
+	if (element.ValueStr().compare("I") == 0){
+		if(element.Parent()->ValueStr().compare("FixedLayoutParams") == 0){
+			return true;
+		}
+	}
 
     // Parse fixed layout (overrides random layouts)
     if (element.ValueStr().compare("FixedLayoutParams") == 0) {
@@ -113,7 +130,6 @@ bool FixedLayout::readParameters(const TiXmlElement& element)
         nParams++;
         return true;
     }
-
     return false;
 }
 

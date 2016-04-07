@@ -17,6 +17,7 @@
 #include "FixedLayout.h"
 #include "DynamicLayout.h"
 #include "ParseParamError.h"
+#include <typeinfo>
 
 // Part of the stopgap approach for selecting model types, until parameter file selection
 // is implemented. Used to convert a preprocessor defined symbol into a C string (i.e.,
@@ -294,22 +295,27 @@ bool FClassOfCategory::VisitEnter(const TiXmlElement& element, const TiXmlAttrib
     static modelParams paramsType;
 
     if (element.ValueStr().compare("ModelParams") == 0) {
-        paramsType = undefParams;
+        cerr << "Looking at ModelParams" << endl;
+		paramsType = undefParams;
         return true;
     }
     if (element.ValueStr().compare("NeuronsParams") == 0) {
+		cerr << "Looking at NeuronsParams" << endl;
         paramsType = neuronsParams;
         return true;
     }
     if (element.ValueStr().compare("SynapsesParams") == 0) {
+		cerr << "Looking at SynapsesParams" << endl;
         paramsType = synapsesParams;
         return true;
     }
     if (element.ValueStr().compare("ConnectionsParams") == 0) {
+		cerr << "Looking at ConnectionsParams" << endl;
         paramsType = connectionsParams;
         return true;
     }
     if (element.ValueStr().compare("LayoutParams") == 0) {
+		cerr << "Looking at LayoutParams" << endl;
         paramsType = layoutParams;
         return true;
     }
@@ -333,7 +339,8 @@ bool FClassOfCategory::VisitEnter(const TiXmlElement& element, const TiXmlAttrib
         throw ParseParamError("FClassOfCategory", "Unrecognized connections parameter '" + element.ValueStr() + "' was detected.");
     }
     // Read layout parameters
-    if ((paramsType == layoutParams) && (m_layout->readParameters(element) != true)) {
+    if ((paramsType == layoutParams) && (m_layout->readParameters(element) != true)) { 
+        cerr << "We end up throwing a layout error anyway" << endl;	
         // If failed, we have unrecognized parameters.
         throw ParseParamError("FClassOfCategory", "Unrecognized layout parameter '" + element.ValueStr() + "' was detected.");
     }
