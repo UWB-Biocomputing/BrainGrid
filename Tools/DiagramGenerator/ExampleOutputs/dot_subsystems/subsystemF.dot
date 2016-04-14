@@ -1,12 +1,12 @@
 digraph{
 
 	subgraph clusterF {
-		node [shape = record];
+		color = limegreen
+		node [shape = record, color = limegreen];
 
-		color = aquamarine
-		BGTypes[label = BGTypes, style = filled, color = aquamarine];
-		tinystr[label = tinystr, style = filled, color = aquamarine];
-		tinyxml[label = tinyxml, style = filled, color = aquamarine];
+		BGTypes[label = BGTypes, style = filled];
+		tinystr[label = tinystr, style = filled];
+		tinyxml[label = tinyxml, style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------

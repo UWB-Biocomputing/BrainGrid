@@ -1,14 +1,14 @@
 digraph{
 
 	subgraph clusterA {
-		node [shape = record];
+		color = orange
+		node [shape = record, color = orange];
 
-		color = forestgreen
-		BGDriver[label = BGDriver, style = filled, color = forestgreen];
-		FClassOfCategory[label = FClassOfCategory, style = filled, color = forestgreen];
-		MultiThreadedSim[label = MultiThreadedSim, style = filled, color = forestgreen];
-		Simulator[label = Simulator, style = filled, color = forestgreen];
-		Timer[label = Timer, style = filled, color = forestgreen];
+		BGDriver[label = BGDriver, style = filled];
+		FClassOfCategory[label = FClassOfCategory, style = filled];
+		MultiThreadedSim[label = MultiThreadedSim, style = filled];
+		Simulator[label = Simulator, style = filled];
+		Timer[label = Timer, style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------
