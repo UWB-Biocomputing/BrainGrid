@@ -1,15 +1,15 @@
 digraph{
 
 	subgraph clusterC {
-		node [shape = record];
+		color = gold
+		node [shape = record, color = gold];
 
-		color = steelblue
-		H5Cpp[label = H5Cpp, style = filled, color = steelblue];
-		Hdf5GrowthRecorder[label = Hdf5GrowthRecorder, style = filled, color = steelblue];
-		Hdf5Recorder[label = Hdf5Recorder, style = filled, color = steelblue];
-		IRecorder[label = IRecorder, style = filled, color = steelblue];
-		XmlGrowthRecorder[label = XmlGrowthRecorder, style = filled, color = steelblue];
-		XmlRecorder[label = XmlRecorder, style = filled, color = steelblue];
+		H5Cpp[label = H5Cpp, style = filled];
+		Hdf5GrowthRecorder[label = Hdf5GrowthRecorder, style = filled];
+		Hdf5Recorder[label = Hdf5Recorder, style = filled];
+		IRecorder[label = IRecorder, style = filled];
+		XmlGrowthRecorder[label = XmlGrowthRecorder, style = filled];
+		XmlRecorder[label = XmlRecorder, style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------
