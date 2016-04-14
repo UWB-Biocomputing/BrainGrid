@@ -5,7 +5,7 @@
     <!-- Simulation Parameters -->
     <SimParams Tsim="1" numSims="1"/>
     <!-- Simulation Configuration Parameters -->
-    <SimConfig maxFiringRate="1000" maxSynapsesPerNeuron="1"/>
+    <SimConfig maxFiringRate="1000" maxSynapsesPerNeuron="1000"/>
     <!-- Random seed - set to zero to use /dev/random -->
     <Seed value="777"/>
     <!-- State output file name, this name will be overwritten if -o option is specified -->
