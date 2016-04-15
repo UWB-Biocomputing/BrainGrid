@@ -539,7 +539,7 @@ def crawl_web(center_file_as_list, center_file_name):
     and BookStore includes HashTable, Book, Customer, and Transaction, etc.
     """
 
-    center_file_name = center_file_name.split("\\")[-1].split('.')[0]  # Strip the extension from the name: BGDriver.cpp -> BGDriver
+    center_file_name = center_file_name.split(os.sep)[-1].split('.')[0]  # Strip the extension from the name: BGDriver.cpp -> BGDriver
 
     to_ret = []
     stack = []
@@ -814,7 +814,7 @@ def main(center_file_names, dot_file_name, print_sub_systems=False):
             center_file = find_file(center_file_name, 'rb')
 
             # Crawl through the web and find all the includes and inheritance
-            center_as_lines = combine_cpp_and_h_files(center_file_name.split("\\")[-1].split('.')[0])
+            center_as_lines = combine_cpp_and_h_files(center_file_name.split(os.sep)[-1].split('.')[0])
 
             # files_to_check is a list of lists, each of the form [file, included by file, also included by file, etc.]
             files_to_check = crawl_web(center_as_lines, center_file.name)
