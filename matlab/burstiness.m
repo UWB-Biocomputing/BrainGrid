@@ -1,5 +1,9 @@
-function f15 = burstiness2(hist)
+function f15 = burstiness(hist)
 % BURSTINESS    Plot burstiness index vs. time for spike records
+%   f15 = burstiness(hist) plots burstiness and returns f15 values
+%
+%   hist - Burstiness history computed during simulator run
+
 global now;
 
 numbins = length(hist);
