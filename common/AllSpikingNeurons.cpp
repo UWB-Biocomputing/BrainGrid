@@ -129,7 +129,8 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
             }
 
             // notify incomming synapses
-			synapse_counts = synapseIndexMap->synapseCount[idx];
+			   synapse_counts = spSynapses.synapse_counts[idx];
+            synapse_notified = 0;
             if (spSynapses.allowBackPropagation()) {
                for (int z = 0; synapse_notified < synapse_counts; z++) {
                    uint32_t iSyn = sim_info->maxSynapsesPerNeuron * idx + z;
