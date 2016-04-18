@@ -1,31 +1,31 @@
 digraph{
 
 	subgraph clusterB {
-		node [shape = record];
+		color = lightgoldenrod
+		node [shape = record, color = lightgoldenrod];
 
-		color = blueviolet
-		AllDSSynapses[label = AllDSSynapses, style = filled, color = blueviolet];
-		AllDynamicSTDPSynapses[label = AllDynamicSTDPSynapses, style = filled, color = blueviolet];
-		AllIFNeurons[label = AllIFNeurons, style = filled, color = blueviolet];
-		AllIZHNeurons[label = AllIZHNeurons, style = filled, color = blueviolet];
-		AllLIFNeurons[label = AllLIFNeurons, style = filled, color = blueviolet];
-		AllNeurons[label = AllNeurons, style = filled, color = blueviolet];
-		AllSTDPSynapses[label = AllSTDPSynapses, style = filled, color = blueviolet];
-		AllSpikingNeurons[label = AllSpikingNeurons, style = filled, color = blueviolet];
-		AllSpikingSynapses[label = AllSpikingSynapses, style = filled, color = blueviolet];
-		AllSynapses[label = AllSynapses, style = filled, color = blueviolet];
-		ConnGrowth[label = ConnGrowth, style = filled, color = blueviolet];
-		ConnStatic[label = ConnStatic, style = filled, color = blueviolet];
-		Connections[label = Connections, style = filled, color = blueviolet];
-		Coordinate[label = Coordinate, style = filled, color = blueviolet];
-		GPUSpikingModel[label = GPUSpikingModel, style = filled, color = blueviolet];
-		IAllNeurons[label = IAllNeurons, style = filled, color = blueviolet];
-		IAllSynapses[label = IAllSynapses, style = filled, color = blueviolet];
-		IModel[label = IModel, style = filled, color = blueviolet];
-		Model[label = Model, style = filled, color = blueviolet];
-		SimulationInfo[label = SimulationInfo, style = filled, color = blueviolet];
-		SingleThreadedSpikingModel[label = SingleThreadedSpikingModel, style = filled, color = blueviolet];
-		SynapseIndexMap[label = SynapseIndexMap, style = filled, color = blueviolet];
+		AllDSSynapses[label = AllDSSynapses, style = filled];
+		AllDynamicSTDPSynapses[label = AllDynamicSTDPSynapses, style = filled];
+		AllIFNeurons[label = AllIFNeurons, style = filled];
+		AllIZHNeurons[label = AllIZHNeurons, style = filled];
+		AllLIFNeurons[label = AllLIFNeurons, style = filled];
+		AllNeurons[label = AllNeurons, style = filled];
+		AllSTDPSynapses[label = AllSTDPSynapses, style = filled];
+		AllSpikingNeurons[label = AllSpikingNeurons, style = filled];
+		AllSpikingSynapses[label = AllSpikingSynapses, style = filled];
+		AllSynapses[label = AllSynapses, style = filled];
+		ConnGrowth[label = ConnGrowth, style = filled];
+		ConnStatic[label = ConnStatic, style = filled];
+		Connections[label = Connections, style = filled];
+		Coordinate[label = Coordinate, style = filled];
+		GPUSpikingModel[label = GPUSpikingModel, style = filled];
+		IAllNeurons[label = IAllNeurons, style = filled];
+		IAllSynapses[label = IAllSynapses, style = filled];
+		IModel[label = IModel, style = filled];
+		Model[label = Model, style = filled];
+		SimulationInfo[label = SimulationInfo, style = filled];
+		SingleThreadedSpikingModel[label = SingleThreadedSpikingModel, style = filled];
+		SynapseIndexMap[label = SynapseIndexMap, style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------

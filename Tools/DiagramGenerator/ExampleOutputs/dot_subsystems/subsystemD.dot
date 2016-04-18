@@ -1,12 +1,12 @@
 digraph{
 
 	subgraph clusterD {
-		node [shape = record];
+		color = darksalmon
+		node [shape = record, color = darksalmon];
 
-		color = darkturquoise
-		DynamicLayout[label = DynamicLayout, style = filled, color = darkturquoise];
-		FixedLayout[label = FixedLayout, style = filled, color = darkturquoise];
-		Layout[label = Layout, style = filled, color = darkturquoise];
+		DynamicLayout[label = DynamicLayout, style = filled];
+		FixedLayout[label = FixedLayout, style = filled];
+		Layout[label = Layout, style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------

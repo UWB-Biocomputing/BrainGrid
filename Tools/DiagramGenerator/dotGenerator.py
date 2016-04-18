@@ -1,9 +1,30 @@
-# Python script for generating dot diagram for BrainGrid
-# Pass in the file you want to "center" on and the script will create
-# a dot file to generate a graph of all the files that the center recursively
-# includes.
+#USAGE: python dotGenerator.py input_file_name.cpp output_file_name
+#
+#Put this script into the same directory as the file you want to pass it
+#and run it by passing in the file you want to start with and a name for the
+#output. It will then start with that file and recursively look through
+#directories from that location down for files that that file includes.
+#
+#For example, if you pass in BGDriver.cpp, it will look for all the files that
+#BGDriver.cpp includes (including BGDriver.h, if it existed). It will map the
+#relationships between those included files and BGDriver as either composition
+#or inheritance, and then it will look through all the files that are included
+#for their includes recursively. It will then generate several dot diagrams.
+#
+#It generates three dot diagrams based on the name you passed it: a top-level
+#overview file which shows all the connections between all the files not
+#included in the ignore list; an overview broken down into subsystems that it
+#has attempted to identify, where the connections inside of the subsystems
+#have been removed; and a subsystem diagram that shows only connections between
+#subsystems at the system level (so no connections between individual files).
+#
+#It also generates a folder and places all the subsystems that it has identified
+#into it. It has no good way of naming those, so it currently just goes through
+#the alphabet and numbers, so the outputs will be A.dot, B.dot, etc.
+#
+#To ignore certain files - simply modify the ignore list near the top of this
+#script.
 
-# TODO : Make sure all the colors are nice and pretty
 
 import os, sys, re, fnmatch, shutil
 
@@ -39,16 +60,42 @@ subgraph_texts = []
 
 # There are lots of allowable colors in dot - you can also specify them by their RGB values, e.g. (#0FA23C)
 SUBSYSTEM_COLORS = [
-    "coral",
-    "darkgoldenrod",
-    "chartreuse",
-    "blueviolet",
     "aquamarine",
+    # "blue",  # Too dark
+    "chartreuse",
+    "coral",
+    "cyan",
+    "darkgoldenrod",
     "darkorange",
+    "darksalmon",
     "darkturquoise",
+    # "deeppink",  # Way too bright
+    # "firebrick",  # A little too dark
     "forestgreen",
+    "gold",
+    "hotpink",
+    "indianred",
+    "khaki",
+    # "lightcyan",  # A little too light
+    "lightgoldenrod",
+    "limegreen",
     "mediumseagreen",
-    "steelblue"
+    "mediumturquoise"
+    # "navyblue",  # Way too dark
+    "olivedrab",
+    "orange",
+    "orangered",
+    "palegreen",
+    "paleturquoise",
+    # "red",  # A little too intense
+    "seagreen",
+    "springgreen",
+    "steelblue",
+    "skyblue",
+    "tomato",
+    "violetred",
+    "wheat",
+    "yellowgreen"
 ]
 
 # A dictionary of subsystem_names to subsystem_colors; populated during the execution of the script
@@ -173,8 +220,6 @@ def print_subgraph(dot_file, sub_name_index, sub, behavior='d'):
     else:
         to_print += "\tsubgraph cluster" + sub_names[sub_name_index] + " {" + os.linesep
 
-    to_print += "\t\tnode [shape = record];" + os.linesep + os.linesep
-
     color = sub[0].get("color")
 
     # Update the dictionary
@@ -182,7 +227,10 @@ def print_subgraph(dot_file, sub_name_index, sub, behavior='d'):
     subsystem_color_map_inverse[color] = sub_names[sub_name_index]
 
     if color is not None:
-        to_print += "\t\tcolor = " + sub[0].get("color") + os.linesep
+        to_print += "\t\tcolor = " + color + os.linesep
+        to_print += "\t\tnode [shape = record, color = " + color + "];" + os.linesep + os.linesep
+    else:
+        to_print += "\t\tnode [shape = record];" + os.linesep + os.linesep + os.linesep
 
     # Alphabetize the subgraph's nodes for human-readability of the DOT file
     sub = sorted(sub)
@@ -190,16 +238,14 @@ def print_subgraph(dot_file, sub_name_index, sub, behavior='d'):
     # Print the subgraph's nodes
     for c in sub:
         to_print += "\t\t" + c.get("name") + "[label = " + c.get("name") + ", style = filled"
-        if c.get("color") is not None:
-            color = c.get("color")
-            to_print += ", color = " + color
         to_print += "];" + os.linesep
 
     # If block diagram, print the master node for the subgraph
     if behavior == 'b' and len(sub) > 1:
-        to_print += "\t\t" + sub_names[sub_name_index] + "[label = " + sub_names[sub_name_index] + ", style = filled"
         if sub[0].get("color") is not None:
-            to_print += ", color = " + sub[0].get("color")
+            to_print += "\t\t" + sub_names[sub_name_index] + "[label = \"" + sub_names[sub_name_index] + " (" + color + ")\"" + ", style = filled"
+        else:
+            to_print += "\t\t" + sub_names[sub_name_index] + "[label = " + sub_names[sub_name_index] + ", style = filled"
         to_print += "];" + os.linesep
 
     # Print the subgraph's layout
@@ -209,8 +255,8 @@ def print_subgraph(dot_file, sub_name_index, sub, behavior='d'):
     subgraph_includes = \
         [tup for tup in includes
          if tup[0] in names_in_this_subgraph and tup[1] in names_in_this_subgraph and tup not in subgraph_inheritance]
-    layout = print_subgraph_layout(subgraph_inheritance, subgraph_includes, behavior)
 
+    layout = print_subgraph_layout(subgraph_inheritance, subgraph_includes, behavior)
     to_print += layout
 
     to_print += "\t}//end subgraph " + sub_names[sub_name_index] + os.linesep
@@ -493,7 +539,7 @@ def crawl_web(center_file_as_list, center_file_name):
     and BookStore includes HashTable, Book, Customer, and Transaction, etc.
     """
 
-    center_file_name = center_file_name.split("\\")[-1].split('.')[0]  # Strip the extension from the name: BGDriver.cpp -> BGDriver
+    center_file_name = center_file_name.split(os.sep)[-1].split('.')[0]  # Strip the extension from the name: BGDriver.cpp -> BGDriver
 
     to_ret = []
     stack = []
@@ -768,7 +814,7 @@ def main(center_file_names, dot_file_name, print_sub_systems=False):
             center_file = find_file(center_file_name, 'rb')
 
             # Crawl through the web and find all the includes and inheritance
-            center_as_lines = combine_cpp_and_h_files(center_file_name.split("\\")[-1].split('.')[0])
+            center_as_lines = combine_cpp_and_h_files(center_file_name.split(os.sep)[-1].split('.')[0])
 
             # files_to_check is a list of lists, each of the form [file, included by file, also included by file, etc.]
             files_to_check = crawl_web(center_as_lines, center_file.name)
@@ -789,6 +835,8 @@ def main(center_file_names, dot_file_name, print_sub_systems=False):
     block_file = open(dot_file_name + "_block_overview.dot", 'wb')
     print_file(dot_file, overview_file, block_file)
     dot_file.close()
+    overview_file.close()
+    block_file.close()
 
     if print_sub_systems:
         print_all_subsystems()
@@ -804,7 +852,7 @@ else:
     center_file_name = sys.argv[1]
     dot_file_name = sys.argv[2]
 
-#Find the given "center" file
+# Find the given "center" file
 try:
     center_file = find_file(center_file_name, 'rb')
     extension = center_file.name.split('.')[-1]

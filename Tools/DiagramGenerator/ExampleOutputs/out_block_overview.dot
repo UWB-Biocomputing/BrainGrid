@@ -7,15 +7,15 @@ digraph {
 
 
 	subgraph clusterA {
-		node [shape = record];
+		color = orange
+		node [shape = record, color = orange];
 
-		color = forestgreen
-		BGDriver[label = BGDriver, style = filled, color = forestgreen];
-		FClassOfCategory[label = FClassOfCategory, style = filled, color = forestgreen];
-		MultiThreadedSim[label = MultiThreadedSim, style = filled, color = forestgreen];
-		Simulator[label = Simulator, style = filled, color = forestgreen];
-		Timer[label = Timer, style = filled, color = forestgreen];
-		A[label = A, style = filled, color = forestgreen];
+		BGDriver[label = BGDriver, style = filled];
+		FClassOfCategory[label = FClassOfCategory, style = filled];
+		MultiThreadedSim[label = MultiThreadedSim, style = filled];
+		Simulator[label = Simulator, style = filled];
+		Timer[label = Timer, style = filled];
+		A[label = "A (orange)", style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------
@@ -42,32 +42,32 @@ digraph {
 
 
 	subgraph clusterB {
-		node [shape = record];
+		color = lightgoldenrod
+		node [shape = record, color = lightgoldenrod];
 
-		color = blueviolet
-		AllDSSynapses[label = AllDSSynapses, style = filled, color = blueviolet];
-		AllDynamicSTDPSynapses[label = AllDynamicSTDPSynapses, style = filled, color = blueviolet];
-		AllIFNeurons[label = AllIFNeurons, style = filled, color = blueviolet];
-		AllIZHNeurons[label = AllIZHNeurons, style = filled, color = blueviolet];
-		AllLIFNeurons[label = AllLIFNeurons, style = filled, color = blueviolet];
-		AllNeurons[label = AllNeurons, style = filled, color = blueviolet];
-		AllSTDPSynapses[label = AllSTDPSynapses, style = filled, color = blueviolet];
-		AllSpikingNeurons[label = AllSpikingNeurons, style = filled, color = blueviolet];
-		AllSpikingSynapses[label = AllSpikingSynapses, style = filled, color = blueviolet];
-		AllSynapses[label = AllSynapses, style = filled, color = blueviolet];
-		ConnGrowth[label = ConnGrowth, style = filled, color = blueviolet];
-		ConnStatic[label = ConnStatic, style = filled, color = blueviolet];
-		Connections[label = Connections, style = filled, color = blueviolet];
-		Coordinate[label = Coordinate, style = filled, color = blueviolet];
-		GPUSpikingModel[label = GPUSpikingModel, style = filled, color = blueviolet];
-		IAllNeurons[label = IAllNeurons, style = filled, color = blueviolet];
-		IAllSynapses[label = IAllSynapses, style = filled, color = blueviolet];
-		IModel[label = IModel, style = filled, color = blueviolet];
-		Model[label = Model, style = filled, color = blueviolet];
-		SimulationInfo[label = SimulationInfo, style = filled, color = blueviolet];
-		SingleThreadedSpikingModel[label = SingleThreadedSpikingModel, style = filled, color = blueviolet];
-		SynapseIndexMap[label = SynapseIndexMap, style = filled, color = blueviolet];
-		B[label = B, style = filled, color = blueviolet];
+		AllDSSynapses[label = AllDSSynapses, style = filled];
+		AllDynamicSTDPSynapses[label = AllDynamicSTDPSynapses, style = filled];
+		AllIFNeurons[label = AllIFNeurons, style = filled];
+		AllIZHNeurons[label = AllIZHNeurons, style = filled];
+		AllLIFNeurons[label = AllLIFNeurons, style = filled];
+		AllNeurons[label = AllNeurons, style = filled];
+		AllSTDPSynapses[label = AllSTDPSynapses, style = filled];
+		AllSpikingNeurons[label = AllSpikingNeurons, style = filled];
+		AllSpikingSynapses[label = AllSpikingSynapses, style = filled];
+		AllSynapses[label = AllSynapses, style = filled];
+		ConnGrowth[label = ConnGrowth, style = filled];
+		ConnStatic[label = ConnStatic, style = filled];
+		Connections[label = Connections, style = filled];
+		Coordinate[label = Coordinate, style = filled];
+		GPUSpikingModel[label = GPUSpikingModel, style = filled];
+		IAllNeurons[label = IAllNeurons, style = filled];
+		IAllSynapses[label = IAllSynapses, style = filled];
+		IModel[label = IModel, style = filled];
+		Model[label = Model, style = filled];
+		SimulationInfo[label = SimulationInfo, style = filled];
+		SingleThreadedSpikingModel[label = SingleThreadedSpikingModel, style = filled];
+		SynapseIndexMap[label = SynapseIndexMap, style = filled];
+		B[label = "B (lightgoldenrod)", style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------
@@ -159,16 +159,16 @@ digraph {
 
 
 	subgraph clusterC {
-		node [shape = record];
+		color = gold
+		node [shape = record, color = gold];
 
-		color = steelblue
-		H5Cpp[label = H5Cpp, style = filled, color = steelblue];
-		Hdf5GrowthRecorder[label = Hdf5GrowthRecorder, style = filled, color = steelblue];
-		Hdf5Recorder[label = Hdf5Recorder, style = filled, color = steelblue];
-		IRecorder[label = IRecorder, style = filled, color = steelblue];
-		XmlGrowthRecorder[label = XmlGrowthRecorder, style = filled, color = steelblue];
-		XmlRecorder[label = XmlRecorder, style = filled, color = steelblue];
-		C[label = C, style = filled, color = steelblue];
+		H5Cpp[label = H5Cpp, style = filled];
+		Hdf5GrowthRecorder[label = Hdf5GrowthRecorder, style = filled];
+		Hdf5Recorder[label = Hdf5Recorder, style = filled];
+		IRecorder[label = IRecorder, style = filled];
+		XmlGrowthRecorder[label = XmlGrowthRecorder, style = filled];
+		XmlRecorder[label = XmlRecorder, style = filled];
+		C[label = "C (gold)", style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------
@@ -201,13 +201,13 @@ digraph {
 
 
 	subgraph clusterD {
-		node [shape = record];
+		color = darksalmon
+		node [shape = record, color = darksalmon];
 
-		color = darkturquoise
-		DynamicLayout[label = DynamicLayout, style = filled, color = darkturquoise];
-		FixedLayout[label = FixedLayout, style = filled, color = darkturquoise];
-		Layout[label = Layout, style = filled, color = darkturquoise];
-		D[label = D, style = filled, color = darkturquoise];
+		DynamicLayout[label = DynamicLayout, style = filled];
+		FixedLayout[label = FixedLayout, style = filled];
+		Layout[label = Layout, style = filled];
+		D[label = "D (darksalmon)", style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------
@@ -232,18 +232,18 @@ digraph {
 
 
 	subgraph clusterE {
-		node [shape = record];
+		color = indianred
+		node [shape = record, color = indianred];
 
-		color = darkgoldenrod
-		GpuSInputPoisson[label = GpuSInputPoisson, style = filled, color = darkgoldenrod];
-		GpuSInputRegular[label = GpuSInputRegular, style = filled, color = darkgoldenrod];
-		HostSInputPoisson[label = HostSInputPoisson, style = filled, color = darkgoldenrod];
-		HostSInputRegular[label = HostSInputRegular, style = filled, color = darkgoldenrod];
-		ISInput[label = ISInput, style = filled, color = darkgoldenrod];
-		SInputPoisson[label = SInputPoisson, style = filled, color = darkgoldenrod];
-		SInputRegular[label = SInputRegular, style = filled, color = darkgoldenrod];
-		curand_kernel[label = curand_kernel, style = filled, color = darkgoldenrod];
-		E[label = E, style = filled, color = darkgoldenrod];
+		GpuSInputPoisson[label = GpuSInputPoisson, style = filled];
+		GpuSInputRegular[label = GpuSInputRegular, style = filled];
+		HostSInputPoisson[label = HostSInputPoisson, style = filled];
+		HostSInputRegular[label = HostSInputRegular, style = filled];
+		ISInput[label = ISInput, style = filled];
+		SInputPoisson[label = SInputPoisson, style = filled];
+		SInputRegular[label = SInputRegular, style = filled];
+		curand_kernel[label = curand_kernel, style = filled];
+		E[label = "E (indianred)", style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------
@@ -278,13 +278,13 @@ digraph {
 
 
 	subgraph clusterF {
-		node [shape = record];
+		color = limegreen
+		node [shape = record, color = limegreen];
 
-		color = aquamarine
-		BGTypes[label = BGTypes, style = filled, color = aquamarine];
-		tinystr[label = tinystr, style = filled, color = aquamarine];
-		tinyxml[label = tinyxml, style = filled, color = aquamarine];
-		F[label = F, style = filled, color = aquamarine];
+		BGTypes[label = BGTypes, style = filled];
+		tinystr[label = tinystr, style = filled];
+		tinyxml[label = tinyxml, style = filled];
+		F[label = "F (limegreen)", style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------
@@ -310,6 +310,7 @@ digraph {
 	subgraph G {
 		node [shape = record];
 
+
 		FSInput[label = FSInput, style = filled];
 
 
@@ -332,6 +333,7 @@ digraph {
 
 	subgraph H {
 		node [shape = record];
+
 
 		Book[label = Book, style = filled];
 

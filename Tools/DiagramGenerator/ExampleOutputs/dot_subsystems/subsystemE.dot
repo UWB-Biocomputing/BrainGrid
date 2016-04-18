@@ -1,17 +1,17 @@
 digraph{
 
 	subgraph clusterE {
-		node [shape = record];
+		color = indianred
+		node [shape = record, color = indianred];
 
-		color = darkgoldenrod
-		GpuSInputPoisson[label = GpuSInputPoisson, style = filled, color = darkgoldenrod];
-		GpuSInputRegular[label = GpuSInputRegular, style = filled, color = darkgoldenrod];
-		HostSInputPoisson[label = HostSInputPoisson, style = filled, color = darkgoldenrod];
-		HostSInputRegular[label = HostSInputRegular, style = filled, color = darkgoldenrod];
-		ISInput[label = ISInput, style = filled, color = darkgoldenrod];
-		SInputPoisson[label = SInputPoisson, style = filled, color = darkgoldenrod];
-		SInputRegular[label = SInputRegular, style = filled, color = darkgoldenrod];
-		curand_kernel[label = curand_kernel, style = filled, color = darkgoldenrod];
+		GpuSInputPoisson[label = GpuSInputPoisson, style = filled];
+		GpuSInputRegular[label = GpuSInputRegular, style = filled];
+		HostSInputPoisson[label = HostSInputPoisson, style = filled];
+		HostSInputRegular[label = HostSInputRegular, style = filled];
+		ISInput[label = ISInput, style = filled];
+		SInputPoisson[label = SInputPoisson, style = filled];
+		SInputRegular[label = SInputRegular, style = filled];
+		curand_kernel[label = curand_kernel, style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------
