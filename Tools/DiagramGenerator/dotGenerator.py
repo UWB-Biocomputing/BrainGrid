@@ -104,6 +104,10 @@ subsystem_color_map = {}
 # A reverse dictionary for subsystem_color_map
 subsystem_color_map_inverse = {}
 
+# A dictionary of subsystem directory names to their actual systems
+# (that is, {'common' : [file_A, file_B], 'etc.' : etc }
+global_dict_subsystems = {}
+
 #########FUNCTIONS#########
 
 
@@ -203,11 +207,11 @@ def print_subgraph_layout(subgraph_inheritance, subraph_includes, behavior='d'):
     return to_print
 
 
-def print_subgraph(dot_file, sub_name_index, sub, behavior='d'):
+def print_subgraph(dot_file, sub_name, sub, behavior='d'):
     """
     Writes the given subgraph to the given file.
     :param dot_file: The file to write to
-    :param sub_name_index: The index into sub_names for this subgraph
+    :param sub_name: The subgraph's name
     :param sub: The subgraph to print
     :param behavior: 'd' = dot_file; 'o' = sys_overview; 'b' = block_file
     :return: Nothing
@@ -216,15 +220,15 @@ def print_subgraph(dot_file, sub_name_index, sub, behavior='d'):
     to_print = "" + os.linesep + os.linesep
 
     if len(sub) is 1:
-        to_print += "\tsubgraph " + sub_names[sub_name_index] + " {" + os.linesep
+        to_print += "\tsubgraph " + sub_name + " {" + os.linesep
     else:
-        to_print += "\tsubgraph cluster" + sub_names[sub_name_index] + " {" + os.linesep
+        to_print += "\tsubgraph cluster" + sub_name + " {" + os.linesep
 
     color = sub[0].get("color")
 
     # Update the dictionary
-    subsystem_color_map[sub_names[sub_name_index]] = color
-    subsystem_color_map_inverse[color] = sub_names[sub_name_index]
+    subsystem_color_map[sub_name] = color
+    subsystem_color_map_inverse[color] = sub_name
 
     if color is not None:
         to_print += "\t\tcolor = " + color + os.linesep
@@ -243,9 +247,9 @@ def print_subgraph(dot_file, sub_name_index, sub, behavior='d'):
     # If block diagram, print the master node for the subgraph
     if behavior == 'b' and len(sub) > 1:
         if sub[0].get("color") is not None:
-            to_print += "\t\t" + sub_names[sub_name_index] + "[label = \"" + sub_names[sub_name_index] + " (" + color + ")\"" + ", style = filled"
+            to_print += "\t\t" + sub_name + "[label = \"" + sub_name + " (" + color + ")\"" + ", style = filled"
         else:
-            to_print += "\t\t" + sub_names[sub_name_index] + "[label = " + sub_names[sub_name_index] + ", style = filled"
+            to_print += "\t\t" + sub_name + "[label = " + sub_name + ", style = filled"
         to_print += "];" + os.linesep
 
     # Print the subgraph's layout
@@ -259,7 +263,7 @@ def print_subgraph(dot_file, sub_name_index, sub, behavior='d'):
     layout = print_subgraph_layout(subgraph_inheritance, subgraph_includes, behavior)
     to_print += layout
 
-    to_print += "\t}//end subgraph " + sub_names[sub_name_index] + os.linesep
+    to_print += "\t}//end subgraph " + sub_name + os.linesep
 
     dot_file.write(to_print)
 
@@ -291,19 +295,31 @@ def get_subgraphs():
     return subgraphs
 
 
-def print_classes(dot_file, sys_overview_file, block_file):
+def get_sub_name_new_style(sub):
+    """
+    Gets the name of the passed in subgraph. The subgraph that is passed in is a list of names.
+    :param sub:
+    :return: The name of the passed in subgraph.
+    """
+    for name in global_dict_subsystems.iterkeys():
+        system = global_dict_subsystems[name]
+        if set(system) == set(sub):
+            return name
+    return "NAME_ERROR"
+
+def print_classes(dot_file, sys_overview_file, block_file, use_old_style_systems=False):
     subgraphs = get_subgraphs()
 
     # Now actually write the information to the file
     sub_name_index = 0
     for sub in subgraphs:
-        print_subgraph(dot_file, sub_name_index, sub, 'd')
-        print_subgraph(sys_overview_file, sub_name_index, sub, 'o')
-        print_subgraph(block_file, sub_name_index, sub, 'b')
+        sub_name = sub_names[sub_name_index] if use_old_style_systems else get_sub_name_new_style([item['name'] for item in sub])
 
-        sub_name_index += 1
-        if sub_name_index >= len(sub_names):
-            sub_name_index = 0
+        print_subgraph(dot_file, sub_name, sub, 'd')
+        print_subgraph(sys_overview_file, sub_name, sub, 'o')
+        print_subgraph(block_file, sub_name, sub, 'b')
+
+        sub_name_index = 0 if sub_name_index >= (len(sub_names) - 1) else sub_name_index + 1
 
 
 def print_layout_boilerplate(dot_file, behavior='d'):
@@ -409,10 +425,10 @@ def print_end(dot_file, sys_overview_file, block_file):
     block_file.write(line)
 
 
-def print_file(dot_file, sys_overview_file, block_file):
+def print_file(dot_file, sys_overview_file, block_file, use_old_style_systems=False):
     print "Generating dot files..."
     print_opening(dot_file, sys_overview_file, block_file)
-    print_classes(dot_file, sys_overview_file, block_file)
+    print_classes(dot_file, sys_overview_file, block_file, use_old_style_systems)
     print_layout(dot_file, sys_overview_file, block_file)
     print_end(dot_file, sys_overview_file, block_file)
 
@@ -489,18 +505,19 @@ def find_includes(includer):
     return found_list
 
 
-def combine_cpp_and_h_files(file_name):
+def combine_cpp_and_h_files(file_name, map_subsystems_too=False):
     """
     Finds the .cpp/.cu and .h files that correspond to the given name (name
     is given without a file extension) and combines their contents into a list
     of lines.
     """
     lines = []
+    file_paths = []
     try:
         h = find_file(file_name + ".h", 'rb')
         h_lines = [line for line in h]
+        file_paths.append(h.name)
         h.close()
-
         for line in h_lines:
             lines.append(line)
     except IOError as ex:
@@ -509,6 +526,7 @@ def combine_cpp_and_h_files(file_name):
     try:
         cpp = find_file(file_name + ".cpp", 'rb')
         cpp_lines = [line for line in cpp]
+        file_paths.append(cpp.name)
         cpp.close()
 
         for line in cpp_lines:
@@ -519,6 +537,7 @@ def combine_cpp_and_h_files(file_name):
     try:
         cu = find_file(file_name + ".cu", 'rb')
         cu_lines = [line for line in cu]
+        file_paths.append(cu.name)
         cu.close()
 
         for line in cu_lines:
@@ -526,10 +545,41 @@ def combine_cpp_and_h_files(file_name):
     except IOError as ex:
         pass
 
+    if map_subsystems_too and len(file_paths) > 0:
+        map_directories(file_paths)
+
     return lines
 
 
-def crawl_web(center_file_as_list, center_file_name):
+def map_directories(file_paths):
+    """
+    Maps the subsystems globally using the new method of system detection (directory structures).
+    :param file_paths: The file paths of each file that corresponds to this class/module.
+    :return:
+    """
+    # The module can only be a part of a single subsystem, so decide by majority vote which path makes the most sense
+    votes = {}
+    for path in file_paths:
+        path_minus_name = os.sep.join(path.strip().split(os.sep)[0:-1])
+        votes[path_minus_name] = votes[path_minus_name] + 1 if votes.has_key(path_minus_name) else 1
+
+    # Get the path that is used the majority of the files in the module or the last one if tied
+    item_path = ""
+    total_votes = 0
+    for key in votes.iterkeys():
+        if votes[key] >= total_votes:
+            total_votes = votes[key]
+            item_path = key
+
+    folder = item_path.split(os.sep)[-1]
+    file_name = file_paths[0].split(os.sep)[-1].split('.')[0]
+    if global_dict_subsystems.has_key(folder):
+        global_dict_subsystems[folder].append(file_name)
+    else:
+        global_dict_subsystems[folder] = [file_name]
+
+
+def crawl_web(center_file_as_list, center_file_name, map_systems_too=False):
     """
     This function returns a list of lists. Each list being
     all the files that the first item in that list includes, not including .h files (which are
@@ -567,8 +617,8 @@ def crawl_web(center_file_as_list, center_file_name):
             lists_that_e_is_first_item_in = \
                 [group for group in to_ret if len(group) > 0 and group[0] == e]
             if len(lists_that_e_is_first_item_in) is 0:
-                # create e's list
-                e_as_lines = combine_cpp_and_h_files(e)
+                # create e's list (and maybe map e to its subsystem, depending on settings)
+                e_as_lines = combine_cpp_and_h_files(e, map_systems_too)
                 e_list = find_includes(e_as_lines)
 
                 # put e at front of e's list
@@ -579,7 +629,6 @@ def crawl_web(center_file_as_list, center_file_name):
                 # stack.push(e's list)
                 stack.append(e_list)
 
-    # return to_ret
     return to_ret
 
 
@@ -710,90 +759,111 @@ def form_subsystems_from_inclusions_in_other_subsystems(subsystems):
     return subsystems
 
 
-def color_subsystems(subsystems):
+def color_subsystems(subsystems, use_old_discover_mode=False):
     """
     Colors the subsystems that are bigger than a single item by modifying the "classes" global.
-    :param subsystems: A list of all the files lumped into lists ('subsystems')
+    :param subsystems: A list of all the file names lumped into subsystems. The exact nature of this piece of data
+    depends on use_old_discover_mode -> if true, this argument should be a list of the form:
+    [[file_A, file_B, file_C], [file_D, file_E], etc.] where files A through C are one subsystem etc.
+    If use_old_discover_mode is false, this argument should be a dictionary of the form:
+    {(system_A_'s_name: [file A, file B, file C]), (system_B_'s_name: [file_D, file_E]), etc.}
+    :param use_old_discover_mode: Whether or not subsystems was generated using the old-style generation method.
     :return: Nothing
     """
     sys_index = 0
-    for sys in subsystems:
-        if len(sys) > 1:
-            list_of_each_dictionary = [item for item in classes if item.get("name") in sys] # Each item in the subsystem as a dictionary
+    iterable = subsystems if use_old_discover_mode else subsystems.itervalues()
+    for sys in iterable:
+        if (len(sys) > 1 and use_old_discover_mode) or (len(sys) > 0 and not use_old_discover_mode):
+            list_of_each_dictionary = [item for item in classes if item.get("name") in sys]
             # update each dictionary with the new color
             for dic in list_of_each_dictionary:
                 dic["color"] = SUBSYSTEM_COLORS[sys_index]
-        sys_index += 1
-        if sys_index >= len(SUBSYSTEM_COLORS):
-            sys_index = 0
+            sys_index = 0 if sys_index >= (len(SUBSYSTEM_COLORS) - 1) else sys_index + 1
 
 
-def create_subgraphs(subsystems):
+def create_subgraphs(subsystems, use_old_discover_mode=False):
     """
     Changes the layout of the graph to lump all the subsystems together by modifying the "classes" global.
-    :param subsystems:
-    :return:
+    :param subsystems: A list of all the file names lumped into subsystems. The exact nature of this piece of data
+    depends on use_old_discover_mode -> if true, this argument should be a list of the form:
+    [[file_A, file_B, file_C], [file_D, file_E], etc.] where files A through C are one subsystem etc.
+    If use_old_discover_mode is false, this argument should be a dictionary of the form:
+    {(system_A_'s_name: [file A, file B, file C]), (system_B_'s_name: [file_D, file_E]), etc.}
+    :param use_old_discover_mode: Whether or not subsystems was generated using the old-style generation method.
+    :return: Nothing
     """
-    j = 0
-    for sub in subsystems:
-        list_of_each_dictionary = [item for item in classes if item.get("name" in sub)]
+    iterable = subsystems if use_old_discover_mode else subsystems.itervalues()
+    for j, sub in enumerate(iterable):
+        list_of_each_dictionary = [item for item in classes if item.get("name") in sub]
         for dic in list_of_each_dictionary:
             dic["subgraph"] = j
-        j += 1
 
 
-def map_subsystems():
+def map_subsystems(use_old_discovery_mode=False):
     """
     Walks through the three global lists (inheritance, includes, and classes) and determines what subsystem each
     item belongs to. Adds that information to the "classes" list.
+    :param use_old_discovery_mode: Whether or not the subgraphs should be made by the old way of discovering them.
     """
-    # For each item in "classes", make a group
-    subsystems = [[item.get("name")] for item in classes]
+    if use_old_discovery_mode:
+        # For each item in "classes", make a group
+        subsystems = [[item.get("name")] for item in classes]
 
-    # Now merge some of those groups into others to form the various subsystems
+        # Now merge some of those groups into others to form the various subsystems
 
-    # All inheritance hierarchies form a subsystem
-    subsystems = form_subsystems_from_inheritance(subsystems)
+        # All inheritance hierarchies form a subsystem
+        subsystems = form_subsystems_from_inheritance(subsystems)
 
-    # For each item, if that item does not include anything, check if it is only included by one file.
-    # If so, it should be lumped with that file.
-    subsystems = form_subsystems_from_single_includers(subsystems)
+        # For each item, if that item does not include anything, check if it is only included by one file.
+        # If so, it should be lumped with that file.
+        subsystems = form_subsystems_from_single_includers(subsystems)
 
-    # Check each subsystem A to see if any other subsystem B includes items from A,
-    # if B includes any items from A and it is the ONLY subsystem that includes any items from A,
-    # merge A and B.
-    # Coordinate should therefore be included in that subsystem.
-    # Do it several times.. Should figure out how to make this recursive or something so that it does it only as many
-    # times as is necessary... but whatever.
-    for i in range(0, 10):
-        subsystems = form_subsystems_from_inclusions_in_other_subsystems(subsystems)
+        # Check each subsystem A to see if any other subsystem B includes items from A,
+        # if B includes any items from A and it is the ONLY subsystem that includes any items from A,
+        # merge A and B.
+        # Coordinate should therefore be included in that subsystem.
+        # Do it several times.. Should figure out how to make this recursive or something so that it does it only as many
+        # times as is necessary... but whatever.
+        for i in range(0, 10):
+            subsystems = form_subsystems_from_inclusions_in_other_subsystems(subsystems)
 
-    color_subsystems(subsystems)
-    create_subgraphs(subsystems)
+        color_subsystems(subsystems, use_old_discovery_mode)
+        create_subgraphs(subsystems, use_old_discovery_mode)
+
+    else:
+        color_subsystems(global_dict_subsystems)
+        create_subgraphs(global_dict_subsystems)
 
 
-def map_inheritance_and_composition(list_of_include_groups):
+def map_inheritance_and_composition(list_of_include_groups, use_old_discovery_mode):
     """
     This function maps the relationships between the files which are related and fills the global
     "includes" and "inheritance" lists with tuples of the form: (includer, included).
     This function also populates the "classes" list.
 
-    :param list_of_include_groups A list of lists, each of the form [file_name_A, file_name_B, file_name_C, etc.] where
+    :param list_of_include_groups: A list of lists, each of the form [file_name_A, file_name_B, file_name_C, etc.] where
     file_name_B and file_name_C, etc. are all included BY file A.
+    :param use_old_discovery_mode: Whether or not to use the old way of discovering subsystems (heuristics). The new
+    way uses the directory structure to determine subsystems.
     """
     print "Mapping relationships and identifying subsystems..."
     for include_group in list_of_include_groups:
         # For each include_group, determine the type of relationship it is
         if len(include_group) > 1:
             parent_name = include_group[0]
+
+            # Add this group's head to the list of classes already found
             if {"name": parent_name} not in classes:
                 classes.append({"name": parent_name})
-            index = 0
+
             rest_of_layer = include_group[1:]
             print "Mapping relationships for " + parent_name
             for item in rest_of_layer:
+                # If the item is not in the list of classes, add it
                 if {"name": item} not in classes:
                     classes.append({"name": item})
+
+                # Determine the type of relationship between the parent and this item
                 relationship = (parent_name, item)
                 if is_inheritance(parent_name, item) and not relationship in inheritance:
                     print parent_name + " INHERITS from " + item
@@ -801,13 +871,14 @@ def map_inheritance_and_composition(list_of_include_groups):
                 elif relationship not in includes and not relationship in inheritance:  # Don't include if already in inheritance
                     print parent_name + " DEPENDS on " + item
                     includes.append(relationship)
+
     # At this point, the "classes" list is filled with all the files that this script has examined, and the
     # "inheritance" and "includes" lists are also filled with the correct relationships. Use them to determine
     # subsystems and provide them with the correct colors accordingly.
-    map_subsystems()
+    map_subsystems(use_old_discovery_mode)
 
 
-def main(center_file_names, dot_file_name, print_sub_systems=False):
+def main(center_file_names, dot_file_name, old_style_sub_discovery=False):
     files_to_map = []
     for center_file_name in center_file_names:
         try:
@@ -817,7 +888,8 @@ def main(center_file_names, dot_file_name, print_sub_systems=False):
             center_as_lines = combine_cpp_and_h_files(center_file_name.split(os.sep)[-1].split('.')[0])
 
             # files_to_check is a list of lists, each of the form [file, included by file, also included by file, etc.]
-            files_to_check = crawl_web(center_as_lines, center_file.name)
+            map_subsystems_too = not old_style_sub_discovery
+            files_to_check = crawl_web(center_as_lines, center_file.name, map_subsystems_too)
 
             files_to_map += files_to_check
 
@@ -827,30 +899,37 @@ def main(center_file_names, dot_file_name, print_sub_systems=False):
             print "No file " + center_file_name
 
     # Walk through each list of includings and decide what relationship exists amongst them
-    map_inheritance_and_composition(files_to_map)
+    map_inheritance_and_composition(files_to_map, old_style_sub_discovery)
 
     # Print the dot files for the overview
     dot_file = open(dot_file_name + ".dot", 'wb')
     overview_file = open(dot_file_name + "_sys_overview.dot", 'wb')
     block_file = open(dot_file_name + "_block_overview.dot", 'wb')
-    print_file(dot_file, overview_file, block_file)
+
+    print_file(dot_file, overview_file, block_file, old_style_sub_discovery)
+
     dot_file.close()
     overview_file.close()
     block_file.close()
 
-    if print_sub_systems:
-        print_all_subsystems()
+    # Print the subsystems
+    print_all_subsystems()
 
 
 #############MAIN SCRIPT#############
 
-# Get the input arg as the "center" file
-if len(sys.argv) is not 3:
-    print "USAGE: dotGenerator.py <FILE_NAME> <OUTPUT_NAME_WO_EXTENSION>"
+#Get the input arg as the "center" file
+if len(sys.argv) is not 3 and len(sys.argv) is not 4:
+    help_str = "USAGE: " + sys.argv[0] + "<FILE_NAME> <OUTPUT_NAME_WO_EXTENSION> <ARGS>"
+    help_str += ", where <ARGS> is currently just -sub for the old-style sub-system generation. Use -sub if you want"
+    help_str += " to have this script attempt to generate subsystems for you, otherwise it will do so based on"
+    help_str += " directory structures."
+    print help_str
     exit(0)
 else:
     center_file_name = sys.argv[1]
     dot_file_name = sys.argv[2]
+    old_style_subsystem_discovery = (len(sys.argv) is 4 and sys.argv[3].lower() == "-sub".lower())
 
 # Find the given "center" file
 try:
@@ -863,4 +942,4 @@ except IOError as ex:
     print "File not found or some other IO error."
     exit(-1)
 
-main([center_file_name], dot_file_name, True)
+main([center_file_name], dot_file_name, old_style_subsystem_discovery)
