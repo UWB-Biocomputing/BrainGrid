@@ -9,7 +9,7 @@
 /************************************************************
    norm.cpp -- normally distibuted random numbers
 
-   The following class allows you to create RNG objects that are
+   The following class allows you to create MTRand objects that are
    independently seeded upon construction and return normally
    distributed random numbers.
 
@@ -69,8 +69,8 @@ BGFLOAT Norm::operator() ()
   // Do the computation step 1 (until W <= 1)
   do {
 
-    U1 = RNG::operator()();  /* Generate U(0,1) */
-    U2 = RNG::operator()();
+    U1 = MTRand::operator()();  /* Generate U(0,1) */
+    U2 = MTRand::operator()();
     V1 = 2 * U1 - 1;
     V2 = 2 * U2 - 1;
     W = V1 * V1 + V2 * V2;

@@ -58,9 +58,9 @@ typedef unsigned long long int uint64_t;	//included in inttypes.h, which is not 
 #include <inttypes.h>	//used for uint64_t, unavailable in WIN32
 #endif
 #include "BGTypes.h"
-#include "../rng/Norm.h"
+#include "../RNG/Norm.h"
 #include "Coordinate.h"
-#include "../matrix/VectorMatrix.h"
+#include "../Matrix/VectorMatrix.h"
 
 using namespace std;
 
@@ -76,7 +76,7 @@ extern int g_deviceId;
 extern const BGFLOAT pi;
 
 //! A random number generator.
-extern RNG rng;
+extern MTRand rng;
 
 //! A normalized random number generator.
 extern vector<Norm *> rgNormrnd;
