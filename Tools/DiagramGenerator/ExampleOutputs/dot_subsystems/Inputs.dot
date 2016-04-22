@@ -1,9 +1,10 @@
 digraph{
 
-	subgraph clusterE {
-		color = indianred
-		node [shape = record, color = indianred];
+	subgraph clusterInputs {
+		color = coral
+		node [shape = record, color = coral];
 
+		FSInput[label = FSInput, style = filled];
 		GpuSInputPoisson[label = GpuSInputPoisson, style = filled];
 		GpuSInputRegular[label = GpuSInputRegular, style = filled];
 		HostSInputPoisson[label = HostSInputPoisson, style = filled];
@@ -11,15 +12,14 @@ digraph{
 		ISInput[label = ISInput, style = filled];
 		SInputPoisson[label = SInputPoisson, style = filled];
 		SInputRegular[label = SInputRegular, style = filled];
-		curand_kernel[label = curand_kernel, style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 0.98; // Node Separation
-		ranksep = 0.98; // Rank Separation
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
 
 
 		//INHERITANCE//
@@ -41,6 +41,10 @@ digraph{
 		//COMPOSITION//
 
 
-		GpuSInputPoisson -> curand_kernel [arrowhead=ediamond];
-	}//end subgraph E
+		FSInput -> GpuSInputPoisson [arrowhead=ediamond];
+		FSInput -> GpuSInputRegular [arrowhead=ediamond];
+		FSInput -> HostSInputPoisson [arrowhead=ediamond];
+		FSInput -> HostSInputRegular [arrowhead=ediamond];
+		FSInput -> ISInput [arrowhead=ediamond];
+	}//end subgraph Inputs
 }//end digraph
