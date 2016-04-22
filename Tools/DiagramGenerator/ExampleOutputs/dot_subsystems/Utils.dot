@@ -1,0 +1,28 @@
+digraph{
+
+	subgraph clusterUtils {
+		color = cyan
+		node [shape = record, color = cyan];
+
+		BGTypes[label = BGTypes, style = filled];
+		Book[label = Book, style = filled];
+		Coordinate[label = Coordinate, style = filled];
+		Timer[label = Timer, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+
+		//COMPOSITION//
+
+	}//end subgraph Utils
+}//end digraph

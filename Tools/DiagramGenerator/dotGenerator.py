@@ -26,9 +26,17 @@
 #script.
 
 
-import os, sys, re, fnmatch, shutil
+import os
+import sys
+import re
+import fnmatch
+import shutil
+
 
 ##########GLOBALS##########
+
+# List of allowable file types.
+allowable_file_types = [".cpp", ".cc", ".cu", ".h", ".c"]
 
 # List of classes and structs - populated by crawling the include web -> a list of dictionaries
 # of the form: {"name":<name>, "style":"filled", "color":"0.1 0.3 0.8" etc.}
@@ -44,6 +52,9 @@ includes = []
 # NOTE : Adding directories to this list will make it so that ANY directories with that name are skipped. So
 # ./Blah/Foo/old will be skipped AND ./old will be skipped if "old" is added to this list.
 ignores = ["Global.cpp", "Global.h", "old", "ParseParamError.cpp", "ParseParamError.h", "Util.cpp", "Util.h"]
+
+# List of file extensions to ignore - modified by the script itself
+extension_ignores = []
 
 # Names for subsystem - defaults to these characters, one at a time. Change to a real list of names if you want.
 # But probably you just want to manually edit the DOT file to use reasonable subsystem names. The script has no real
@@ -62,7 +73,7 @@ subgraph_texts = []
 SUBSYSTEM_COLORS = [
     "aquamarine",
     # "blue",  # Too dark
-    "chartreuse",
+    # "chartreuse", # Too bright
     "coral",
     "cyan",
     "darkgoldenrod",
@@ -71,7 +82,7 @@ SUBSYSTEM_COLORS = [
     "darkturquoise",
     # "deeppink",  # Way too bright
     # "firebrick",  # A little too dark
-    "forestgreen",
+    # "forestgreen", # Too dark
     "gold",
     "hotpink",
     "indianred",
@@ -108,42 +119,179 @@ subsystem_color_map_inverse = {}
 # (that is, {'common' : [file_A, file_B], 'etc.' : etc }
 global_dict_subsystems = {}
 
+# A dictionary (used as a hash table) for storing files we have already looked up.
+__file_hash = {}
+
 #########FUNCTIONS#########
 
+
+# Printing functions
 
 def print_all_subsystems():
     dir_name = "dot_subsystems"
     if os.path.isdir(dir_name):
         shutil.rmtree(dir_name)
     os.makedirs(dir_name)
-    i = 0
     for graph_text in subgraph_texts:
-        f_name = os.path.join(dir_name, "subsystem" + sub_names[i] + ".dot")
-        f = open(f_name, 'wb')
-        i += 1
+        f_name = graph_text.strip().split(os.linesep)[0].split(' ')[1][7:]      # This is a bit of a hack...
+        f_name_with_dir = os.path.join(dir_name, f_name + ".dot")
+        f = open(f_name_with_dir, 'wb')
         f.write("digraph{")
         f.write(graph_text)
         f.write("}//end digraph")
         f.close()
 
 
-def find_file(name, open_mode):
-    print "Locating file: " + name
-    matches = []
-    dir_tree = os.walk('.')
-    for root, dirnames, filenames in dir_tree:
-        d = os.path.basename(root)
-        if d in ignores:
-            continue
+def print_block_layout(block_file):
+    # Form all the inter-system relationships
+    all_relationships = inheritance + includes
+    inter_system_relationships = []
+    for relationship in all_relationships:
+        tup0_system = get_color_from_name(relationship[0])
+        tup1_system = get_color_from_name(relationship[1])
+        if tup0_system != tup1_system:
+#            inter_system_relationships.append((relationship[0], relationship[1], tup0_system))
+            inter_system_relationships.append(relationship)
+
+    temp = []
+    # For each inter-system relationship,
+    for relationship in inter_system_relationships:
+        inter_system_relationships.remove(relationship)
+
+        # Replace the first item in that relationship with the master node for the subsystem it belongs to
+        r0 = relationship[0]
+        color = get_color_from_name(r0)
+        if color is None:
+            node_name0 = r0
         else:
-            for filename in fnmatch.filter(filenames, name):
-                matches.append(os.path.join(root, filename))
-    if len(matches) is 0:
-        print "No such file. Potentially not a problem."
-        raise IOError
+            node_name0 = subsystem_color_map_inverse.get(color)
+
+        # Replace the second item in that relationship with the master node for the subsystem it belongs to
+        r1 = relationship[1]
+        color = get_color_from_name(r1)
+        if color is None:
+            node_name1 = r1
+        else:
+            node_name1 = subsystem_color_map_inverse.get(color)
+
+        inter_relationship = (node_name0, node_name1, get_color_from_name(r0))
+        temp.append(inter_relationship)
+
+    # Remove any duplicate tuples
+    inter_system_relationships = list(set(temp))
+
+    # Now Formulate the string for each subgraph and print it to the file
+    print_layout_boilerplate(block_file, 'b')
+
+    current_color = None
+    for r in inter_system_relationships:
+        color = r[2]
+        if not color and current_color != "black":
+            current_color = "black"
+            block_file.write(os.linesep + "edge [color=black];" + os.linesep)
+        elif color and current_color != color:
+            current_color = color
+            block_file.write(os.linesep + "edge [color=" + color + "];" + os.linesep)
+        line = r[0] + " -> " + r[1] + " [arrowhead=ediamond];" + os.linesep
+        block_file.write(line)
+
+
+def print_classes(dot_file, sys_overview_file, block_file, use_old_style_systems=False):
+    subgraphs = get_subgraphs()
+
+    # Now actually write the information to the file
+    sub_name_index = 0
+    for sub in subgraphs:
+        sub_name = sub_names[sub_name_index] if use_old_style_systems else get_sub_name_new_style([item['name'] for item in sub])
+
+        print_subgraph(dot_file, sub_name, sub, 'd')
+        print_subgraph(sys_overview_file, sub_name, sub, 'o')
+        print_subgraph(block_file, sub_name, sub, 'b')
+
+        sub_name_index = 0 if sub_name_index >= (len(sub_names) - 1) else sub_name_index + 1
+
+
+def print_end(dot_file, sys_overview_file, block_file):
+    line = "}//End digraph declaration" + os.linesep
+    dot_file.write(line)
+    sys_overview_file.write(line)
+    block_file.write(line)
+
+
+def print_file(dot_file, sys_overview_file, block_file, use_old_style_systems=False):
+    print "Generating dot files..."
+    print_opening(dot_file, sys_overview_file, block_file)
+    print_classes(dot_file, sys_overview_file, block_file, use_old_style_systems)
+    print_layout(dot_file, sys_overview_file, block_file)
+    print_end(dot_file, sys_overview_file, block_file)
+
+
+def print_layout(dot_file, sys_overview_file, block_file):
+    print_layout_boilerplate(dot_file, 'd')
+    print_layout_boilerplate(sys_overview_file, 'o')
+
+    current_color = None
+
+    for c in inheritance:
+        if c not in subgraph_totals:
+            # Print the edge color if it isn't already that color
+            color = get_color_from_name(c[0])
+            if not color and current_color != "black":
+                current_color = "black"
+                dot_file.write(os.linesep + "edge [color=black];" + os.linesep)
+                sys_overview_file.write(os.linesep + "edge [color=black];" + os.linesep)
+            elif color and current_color != color:
+                current_color = color
+                color_line = os.linesep + "edge [color=" + color + "];" + os.linesep
+                dot_file.write(color_line)
+                sys_overview_file.write(color_line)
+
+            line = c[0] + " -> " + c[1] + " [arrowhead=empty];" + os.linesep
+            dot_file.write(line)
+            sys_overview_file.write(line)
+
+    for c in includes:
+        if c not in subgraph_totals:
+            # Print the edge color if it isn't already that color
+            color = get_color_from_name(c[0])
+            if not color and current_color != "black":
+                current_color = "black"
+                dot_file.write(os.linesep + "edge [color=black];" + os.linesep)
+                sys_overview_file.write(os.linesep + "edge [color=black];" + os.linesep)
+            elif color and current_color != color:
+                current_color = color
+                color_line = os.linesep + "edge [color=" + color + "];" + os.linesep
+                dot_file.write(color_line)
+                sys_overview_file.write(color_line)
+
+            line = c[0] + " -> " + c[1] + " [arrowhead=ediamond];" + os.linesep
+            dot_file.write(line)
+            sys_overview_file.write(line)
+
+    print_block_layout(block_file)
+
+
+def print_layout_boilerplate(dot_file, behavior='d'):
+    header = "//-------LAYOUT OF RELATIONSHIPS BETWEEN SUBGRAPHS------//" + os.linesep
+    rankdir = "rankdir = BT; // Rank Direction Top to Bottom" + os.linesep
+    if behavior == 'd':
+        nodesep = ranksep = 0.02 * len(classes)
+    elif behavior == 'b':
+        nodesep = ranksep = 0.005 * len(classes)
     else:
-        print "Found it."
-        return open(matches[0], open_mode)
+        nodesep = 0.005 * len(classes)
+        ranksep = 0.02 * len(classes)
+    nodesep = "nodesep = " + str(nodesep) + "; // Node Separation" + os.linesep
+    ranksep = "ranksep = " + str(ranksep) + "; // Rank Separation" + os.linesep
+
+    concentrate = "concentrate = true;" + os.linesep
+
+    dot_file.write(header)
+    dot_file.write(rankdir)
+    dot_file.write(nodesep)
+    dot_file.write(ranksep)
+    dot_file.write(concentrate)
+    dot_file.write(os.linesep)
 
 
 def print_opening(dot_file, sys_overview_file, block_file):
@@ -160,7 +308,7 @@ def print_opening(dot_file, sys_overview_file, block_file):
     block_file.write(opening_digraph)
 
 
-def print_subgraph_layout(subgraph_inheritance, subraph_includes, behavior='d'):
+def print_subgraph_layout(subgraph_inheritance, subgraph_includes, behavior='d'):
     header = \
         "" + os.linesep + os.linesep + "\t\t//------LAYOUT FOR SUBGRAPH------" + os.linesep + os.linesep + os.linesep
     rankdir = "\t\trankdir = BT; // Rank Direction Bottom to Top" + os.linesep
@@ -174,10 +322,10 @@ def print_subgraph_layout(subgraph_inheritance, subraph_includes, behavior='d'):
 
     # Sort for human readability of the DOT file
     subgraph_inheritance = sorted(subgraph_inheritance)
-    subraph_includes = sorted(subraph_includes)
+    subgraph_includes = sorted(subgraph_includes)
 
     # Add each relationship tuple to the subgraph_totals so that we don't print them again later on.
-    for s in (subgraph_inheritance + subraph_includes):
+    for s in (subgraph_inheritance + subgraph_includes):
         subgraph_totals.append(s)
 
     # Print each tuple in subgraph_inheritance, and add a line between groups of them
@@ -195,7 +343,7 @@ def print_subgraph_layout(subgraph_inheritance, subraph_includes, behavior='d'):
 
     # Print each tuple in subgraph_includes, and add a line between groups of them
     last_c = None
-    for c in subraph_includes:
+    for c in subgraph_includes:
         if last_c is None or last_c[0] != c[0]:
             to_print += "" + os.linesep
         last_c = c
@@ -272,237 +420,29 @@ def print_subgraph(dot_file, sub_name, sub, behavior='d'):
             subgraph_texts.append(to_print)
 
 
-def get_subgraphs():
+# Other Functions
+
+
+def color_subsystems(subsystems, use_old_discover_mode=False):
     """
-    Returns a list of lists. Each list is a subgraph (represented as a list of dictionaries).
-    :return: A list of lists of dictionaries.
+    Colors the subsystems that are bigger than a single item by modifying the "classes" global.
+    :param subsystems: A list of all the file names lumped into subsystems. The exact nature of this piece of data
+    depends on use_old_discover_mode -> if true, this argument should be a list of the form:
+    [[file_A, file_B, file_C], [file_D, file_E], etc.] where files A through C are one subsystem etc.
+    If use_old_discover_mode is false, this argument should be a dictionary of the form:
+    {(system_A_'s_name: [file A, file B, file C]), (system_B_'s_name: [file_D, file_E]), etc.}
+    :param use_old_discover_mode: Whether or not subsystems was generated using the old-style generation method.
+    :return: Nothing
     """
-    subgraph_list = [c.get("color") for c in classes if c.get("color") is not None]
-    subgraphs = []
-
-    # Add to subgraphs all the lists of actual subgraphs
-    for c in subgraph_list:
-        sub = [cl for cl in classes if cl.get("color") == c and cl]
-        if sub not in subgraphs:
-            subgraphs.append(sub)
-
-    # Now add to subgraphs all the items (as lists) that don't belong to a subsystem
-    for c in classes:
-        if c.get("color") is None:
-            sub = [c]
-            subgraphs.append(sub)
-
-    return subgraphs
-
-
-def get_sub_name_new_style(sub):
-    """
-    Gets the name of the passed in subgraph. The subgraph that is passed in is a list of names.
-    :param sub:
-    :return: The name of the passed in subgraph.
-    """
-    for name in global_dict_subsystems.iterkeys():
-        system = global_dict_subsystems[name]
-        if set(system) == set(sub):
-            return name
-    return "NAME_ERROR"
-
-def print_classes(dot_file, sys_overview_file, block_file, use_old_style_systems=False):
-    subgraphs = get_subgraphs()
-
-    # Now actually write the information to the file
-    sub_name_index = 0
-    for sub in subgraphs:
-        sub_name = sub_names[sub_name_index] if use_old_style_systems else get_sub_name_new_style([item['name'] for item in sub])
-
-        print_subgraph(dot_file, sub_name, sub, 'd')
-        print_subgraph(sys_overview_file, sub_name, sub, 'o')
-        print_subgraph(block_file, sub_name, sub, 'b')
-
-        sub_name_index = 0 if sub_name_index >= (len(sub_names) - 1) else sub_name_index + 1
-
-
-def print_layout_boilerplate(dot_file, behavior='d'):
-    header = "//-------LAYOUT OF RELATIONSHIPS BETWEEN SUBGRAPHS------//" + os.linesep
-    rankdir = "rankdir = BT; // Rank Direction Top to Bottom" + os.linesep
-    if behavior == 'd':
-        nodesep = ranksep = 0.02 * len(classes)
-    elif behavior == 'b':
-        nodesep = ranksep = 0.005 * len(classes)
-    else:
-        nodesep = 0.005 * len(classes)
-        ranksep = 0.02 * len(classes)
-    nodesep = "nodesep = " + str(nodesep) + "; // Node Separation" + os.linesep
-    ranksep = "ranksep = " + str(ranksep) + "; // Rank Separation" + os.linesep
-
-    concentrate = "concentrate = true;" + os.linesep
-
-    dot_file.write(header)
-    dot_file.write(rankdir)
-    dot_file.write(nodesep)
-    dot_file.write(ranksep)
-    dot_file.write(concentrate)
-    dot_file.write(os.linesep)
-
-
-def find_system_from_name(name):
-    sub_systems = get_subgraphs()
-    for sub in sub_systems:
-        for d in sub:
-            if d.get("name") == name:
-                return d.get("color")
-    return None
-
-
-def print_block_layout(block_file):
-    # Form all the inter-system relationships
-    all_relationships = inheritance + includes
-    inter_system_relationships = []
-    for relationship in all_relationships:
-        tup0_system = find_system_from_name(relationship[0])
-        tup1_system = find_system_from_name(relationship[1])
-        if tup0_system != tup1_system:
-            inter_system_relationships.append(relationship)
-
-    temp = []
-    # For each inter-system relationship,
-    for relationship in inter_system_relationships:
-        inter_system_relationships.remove(relationship)
-
-        # Replace the first item in that relationship with the master node for the subsystem it belongs to
-        r0 = relationship[0]
-        color = find_system_from_name(r0)
-        if color is None:
-            node_name0 = r0
-        else:
-            node_name0 = subsystem_color_map_inverse.get(color)
-
-        # Replace the second item in that relationship with the master node for the subsystem it belongs to
-        r1 = relationship[1]
-        color = find_system_from_name(r1)
-        if color is None:
-            node_name1 = r1
-        else:
-            node_name1 = subsystem_color_map_inverse.get(color)
-
-        inter_relationship = (node_name0, node_name1)
-        temp.append(inter_relationship)
-
-    # Remove any duplicate tuples
-    inter_system_relationships = list(set(temp))
-
-    # Now Formulate the string for each subgraph and print it to the file
-    print_layout_boilerplate(block_file, 'b')
-
-    for r in inter_system_relationships:
-        line = r[0] + " -> " + r[1] + " [arrowhead=ediamond];" + os.linesep
-        block_file.write(line)
-
-
-def print_layout(dot_file, sys_overview_file, block_file):
-    print_layout_boilerplate(dot_file, 'd')
-    print_layout_boilerplate(sys_overview_file, 'o')
-
-    for c in inheritance:
-        if c not in subgraph_totals:
-            line = c[0] + " -> " + c[1] + " [arrowhead=empty];" + os.linesep
-            dot_file.write(line)
-            sys_overview_file.write(line)
-
-    for c in includes:
-        if c not in subgraph_totals:
-            line = c[0] + " -> " + c[1] + " [arrowhead=ediamond];" + os.linesep
-            dot_file.write(line)
-            sys_overview_file.write(line)
-
-    print_block_layout(block_file)
-
-
-def print_end(dot_file, sys_overview_file, block_file):
-    line = "}//End digraph declaration" + os.linesep
-    dot_file.write(line)
-    sys_overview_file.write(line)
-    block_file.write(line)
-
-
-def print_file(dot_file, sys_overview_file, block_file, use_old_style_systems=False):
-    print "Generating dot files..."
-    print_opening(dot_file, sys_overview_file, block_file)
-    print_classes(dot_file, sys_overview_file, block_file, use_old_style_systems)
-    print_layout(dot_file, sys_overview_file, block_file)
-    print_end(dot_file, sys_overview_file, block_file)
-
-
-def get_top_files():
-    """
-    Returns a list of lists. Each list is all the top files from a subsystem, where a top file is defined as one which
-    is included by nothing else in its own subsystem.
-    :return:
-    """
-    top_levels = []
-    subsystems = list(set([d.get("color") for d in classes if d.get("color") is not None]))
-    relationships = includes + inheritance
-    f = lambda tup, sub: tup[0] in sub and tup[1] in sub    # lambda for filtering out relationships based on subsystem
-    for s in subsystems:
-        subsystem = [c.get("name") for c in classes if c.get("color") == s]
-
-        # The top level files from a subsystem are what we are trying to find here. Those are files which are not
-        # included by any other files in their subsystem.
-
-        # so filter out all the relationships that include items from other subsystems
-        subsystem_relationships = [t for t in relationships if f(t, subsystem)]
-
-        # then filter out of the subsystem all the items that are included by other items in the subsystem
-        # that is, for each item in the subsystem, if that item appears in the second position of a relationship
-        # of items in the subsystem, it is out.
-        top_lambda = lambda c, sub_rel: len([t for t in sub_rel if t[1] == c]) is 0
-        top_files = [c for c in subsystem if top_lambda(c, subsystem_relationships)]
-
-        # the remaining items are top level items for the subsystem.
-        top_levels.append(top_files)
-    return top_levels
-
-
-def is_inheritance(derived, base):
-    """
-    This function determines if the argument "derived" is inherited from the argument "base".
-    """
-    try:
-        derived_file = find_file(derived + ".h", 'rb')
-    except IOError as ex:
-        return False
-    # decide if the "derived" class actually derives from base
-    # read file in line by line into a string.
-    lines = [line for line in derived_file]
-    derived_file.close()
-    contents = ""
-    for line in lines:
-        contents += line
-
-    # match the string's first occurrence of this: .*"class" <whitespace>+ <derived's name> <whitespace>+ ":" .* <base's name> .* "{"
-    regex = '(class)(\s)+(' + derived + ')(\s)+(:)(.)*(' + base + ')(.)*\{'
-    pattern = re.compile(regex, re.DOTALL)
-    match_obj = pattern.search(contents)
-    if match_obj:
-        return True
-    else:
-        return False
-
-
-def find_includes(includer):
-    found_list = []
-    for line in includer:
-        pattern = re.compile('(\s)*#(\s)*include(\s)*"_*(\w)+\.h"')
-        match_obj = pattern.search(line)
-        if match_obj:
-            matched_string = match_obj.group()  # # include   "BookStore.h"
-            name_pattern = re.compile('"_*(\w)+\.h"')
-            name = name_pattern.search(matched_string).group()  # "BookStore.h"
-            name_split = name.split('"')
-            if name_split[1] not in ignores:
-                name = name_split[1].split('.')[0]  # BookStore
-                found_list.append(name)
-    return found_list
+    sys_index = 0
+    iterable = subsystems if use_old_discover_mode else subsystems.itervalues()
+    for sys in iterable:
+        if (len(sys) > 1 and use_old_discover_mode) or (len(sys) > 0 and not use_old_discover_mode):
+            list_of_each_dictionary = [item for item in classes if item.get("name") in sys]
+            # update each dictionary with the new color
+            for dic in list_of_each_dictionary:
+                dic["color"] = SUBSYSTEM_COLORS[sys_index]
+            sys_index = 0 if sys_index >= (len(SUBSYSTEM_COLORS) - 1) else sys_index + 1
 
 
 def combine_cpp_and_h_files(file_name, map_subsystems_too=False):
@@ -513,70 +453,25 @@ def combine_cpp_and_h_files(file_name, map_subsystems_too=False):
     """
     lines = []
     file_paths = []
-    try:
-        h = find_file(file_name + ".h", 'rb')
-        h_lines = [line for line in h]
-        file_paths.append(h.name)
-        h.close()
-        for line in h_lines:
-            lines.append(line)
-    except IOError as ex:
-        pass
 
-    try:
-        cpp = find_file(file_name + ".cpp", 'rb')
-        cpp_lines = [line for line in cpp]
-        file_paths.append(cpp.name)
-        cpp.close()
+    for extension in allowable_file_types:
+        if extension in extension_ignores:
+            continue
 
-        for line in cpp_lines:
-            lines.append(line)
-    except IOError as ex:
-        pass
-
-    try:
-        cu = find_file(file_name + ".cu", 'rb')
-        cu_lines = [line for line in cu]
-        file_paths.append(cu.name)
-        cu.close()
-
-        for line in cu_lines:
-            lines.append(line)
-    except IOError as ex:
-        pass
+        try:
+            f = find_file(file_name + extension, 'rb')
+            f_lines = [line for line in f]
+            file_paths.append(f.name)
+            f.close()
+            for line in f_lines:
+                lines.append(line)
+        except IOError as ex:
+            pass
 
     if map_subsystems_too and len(file_paths) > 0:
         map_directories(file_paths)
 
     return lines
-
-
-def map_directories(file_paths):
-    """
-    Maps the subsystems globally using the new method of system detection (directory structures).
-    :param file_paths: The file paths of each file that corresponds to this class/module.
-    :return:
-    """
-    # The module can only be a part of a single subsystem, so decide by majority vote which path makes the most sense
-    votes = {}
-    for path in file_paths:
-        path_minus_name = os.sep.join(path.strip().split(os.sep)[0:-1])
-        votes[path_minus_name] = votes[path_minus_name] + 1 if votes.has_key(path_minus_name) else 1
-
-    # Get the path that is used the majority of the files in the module or the last one if tied
-    item_path = ""
-    total_votes = 0
-    for key in votes.iterkeys():
-        if votes[key] >= total_votes:
-            total_votes = votes[key]
-            item_path = key
-
-    folder = item_path.split(os.sep)[-1]
-    file_name = file_paths[0].split(os.sep)[-1].split('.')[0]
-    if global_dict_subsystems.has_key(folder):
-        global_dict_subsystems[folder].append(file_name)
-    else:
-        global_dict_subsystems[folder] = [file_name]
 
 
 def crawl_web(center_file_as_list, center_file_name, map_systems_too=False):
@@ -632,25 +527,66 @@ def crawl_web(center_file_as_list, center_file_name, map_systems_too=False):
     return to_ret
 
 
-def list_includes_any_items_from_other_list(list_a, list_b):
+def create_subgraphs(subsystems, use_old_discover_mode=False):
     """
-    This method doesn't do at all what it sounds like.
+    Changes the layout of the graph to lump all the subsystems together by modifying the "classes" global.
+    :param subsystems: A list of all the file names lumped into subsystems. The exact nature of this piece of data
+    depends on use_old_discover_mode -> if true, this argument should be a list of the form:
+    [[file_A, file_B, file_C], [file_D, file_E], etc.] where files A through C are one subsystem etc.
+    If use_old_discover_mode is false, this argument should be a dictionary of the form:
+    {(system_A_'s_name: [file A, file B, file C]), (system_B_'s_name: [file_D, file_E]), etc.}
+    :param use_old_discover_mode: Whether or not subsystems was generated using the old-style generation method.
+    :return: Nothing
+    """
+    iterable = subsystems if use_old_discover_mode else subsystems.itervalues()
+    for j, sub in enumerate(iterable):
+        list_of_each_dictionary = [item for item in classes if item.get("name") in sub]
+        for dic in list_of_each_dictionary:
+            dic["subgraph"] = j
 
-    It checks list_a and returns True if any of the items in it include any of the items in list b.
-    That is, if any item in list_a inherits from or includes any item in list_b, this method returns True.
-    False otherwise.
-    :param list_a:
-    :param list_b:
+
+def find_file(name, open_mode):
+    """
+    Searches from the script's current directory down recursively through all files under it until it finds
+    the given file.
+    :param name:
+    :param open_mode:
     :return:
     """
-    all_includes = includes + inheritance
+    # All useful files have already been hashed. So just check the hash.
+    if __file_hash.get(name):
+        return open(__file_hash[name], open_mode)
+    else:
+        raise IOError
 
-    for a in list_a:
-        for b in list_b:
-            tup = (a, b)
-            if tup in all_includes:
-                return True
-    return False
+
+def find_includes(includer):
+    found_list = []
+    inside_multi_line_comment = False
+    for line in includer:
+        if re.compile('.*(/\*).*').search(line):
+            inside_multi_line_comment = True
+        if re.compile('.*(\*).*').search(line):
+            inside_multi_line_comment = False
+
+        if inside_multi_line_comment:
+            continue
+
+        pattern_exp = '(\s)*#(\s)*include(\s)*"_*(\w)+\.h"'
+        pattern = re.compile(pattern_exp)
+        exclude = re.compile('.*//' + pattern_exp)
+        include = re.compile(pattern_exp + '.*//' + pattern_exp)
+        match_obj = pattern.search(line)
+        if (match_obj and not exclude.search(line)) or include.search(line):
+            matched_string = match_obj.group()  # # include   "BookStore.h"
+            name_pattern = re.compile('"_*(\w)+\.h"')
+            name = name_pattern.search(matched_string).group()  # "BookStore.h"
+            name_split = name.split('"')
+            if name_split[1] not in ignores:
+                name = name_split[1].split('.')[0]  # BookStore
+                found_list.append(name)
+
+    return found_list
 
 
 def form_subsystems_from_inheritance(subsystems):
@@ -687,37 +623,6 @@ def form_subsystems_from_inheritance(subsystems):
         to_merge = list(set(to_merge))
         subsystems.append(to_merge)
 
-    return subsystems
-
-
-def form_subsystems_from_single_includers(subsystems):
-    """
-    For each item, if that item does not include anything, check if it is only included by one file.
-    :param subsystems:
-    :return:
-    """
-    relationships = includes + inheritance
-
-    for sys in subsystems:
-        if len(sys) is not 1:
-            continue
-        else:
-            item = sys[0]
-
-        item_includes_anything = False
-        for tup in relationships:
-            if tup[0] is item:
-                item_includes_anything = True
-
-        if item_includes_anything:
-            continue
-        else:
-            all_files_that_include_this_one = [r[0] for r in relationships if r[1] == item]
-            if len(all_files_that_include_this_one) is 1:
-                # There is only one file that includes item - lump item with that one file
-                for system in subsystems:
-                    if all_files_that_include_this_one[0] in system:
-                        system.append(item)
     return subsystems
 
 
@@ -759,80 +664,203 @@ def form_subsystems_from_inclusions_in_other_subsystems(subsystems):
     return subsystems
 
 
-def color_subsystems(subsystems, use_old_discover_mode=False):
+def form_subsystems_from_single_includers(subsystems):
     """
-    Colors the subsystems that are bigger than a single item by modifying the "classes" global.
-    :param subsystems: A list of all the file names lumped into subsystems. The exact nature of this piece of data
-    depends on use_old_discover_mode -> if true, this argument should be a list of the form:
-    [[file_A, file_B, file_C], [file_D, file_E], etc.] where files A through C are one subsystem etc.
-    If use_old_discover_mode is false, this argument should be a dictionary of the form:
-    {(system_A_'s_name: [file A, file B, file C]), (system_B_'s_name: [file_D, file_E]), etc.}
-    :param use_old_discover_mode: Whether or not subsystems was generated using the old-style generation method.
+    For each item, if that item does not include anything, check if it is only included by one file.
+    :param subsystems:
+    :return:
+    """
+    relationships = includes + inheritance
+
+    for sys in subsystems:
+        if len(sys) is not 1:
+            continue
+        else:
+            item = sys[0]
+
+        item_includes_anything = False
+        for tup in relationships:
+            if tup[0] is item:
+                item_includes_anything = True
+
+        if item_includes_anything:
+            continue
+        else:
+            all_files_that_include_this_one = [r[0] for r in relationships if r[1] == item]
+            if len(all_files_that_include_this_one) is 1:
+                # There is only one file that includes item - lump item with that one file
+                for system in subsystems:
+                    if all_files_that_include_this_one[0] in system:
+                        system.append(item)
+    return subsystems
+
+
+def get_color_from_name(name):
+    sub_systems = get_subgraphs()
+    for sub in sub_systems:
+        for d in sub:
+            if d.get("name") == name:
+                return d.get("color")
+    return None
+
+
+def get_subgraphs():
+    """
+    Returns a list of lists. Each list is a subgraph (represented as a list of dictionaries).
+    :return: A list of lists of dictionaries.
+    """
+    subgraph_list = [c.get("color") for c in classes if c.get("color") is not None]
+    subgraphs = []
+
+    # Add to subgraphs all the lists of actual subgraphs
+    for c in subgraph_list:
+        sub = [cl for cl in classes if cl.get("color") == c and cl]
+        if sub not in subgraphs:
+            subgraphs.append(sub)
+
+    # Now add to subgraphs all the items (as lists) that don't belong to a subsystem
+    for c in classes:
+        if c.get("color") is None:
+            sub = [c]
+            subgraphs.append(sub)
+
+    return subgraphs
+
+
+def get_sub_name_new_style(sub):
+    """
+    Gets the name of the passed in subgraph. The subgraph that is passed in is a list of names.
+    :param sub:
+    :return: The name of the passed in subgraph.
+    """
+    for name in global_dict_subsystems.iterkeys():
+        system = global_dict_subsystems[name]
+        if set(system) == set(sub):
+            return name
+    return "NAME_ERROR"
+
+
+def get_top_files():
+    """
+    Returns a list of lists. Each list is all the top files from a subsystem, where a top file is defined as one which
+    is included by nothing else in its own subsystem.
+    :return:
+    """
+    top_levels = []
+    subsystems = list(set([d.get("color") for d in classes if d.get("color") is not None]))
+    relationships = includes + inheritance
+    f = lambda tup, sub: tup[0] in sub and tup[1] in sub    # lambda for filtering out relationships based on subsystem
+    for s in subsystems:
+        subsystem = [c.get("name") for c in classes if c.get("color") == s]
+
+        # The top level files from a subsystem are what we are trying to find here. Those are files which are not
+        # included by any other files in their subsystem.
+
+        # so filter out all the relationships that include items from other subsystems
+        subsystem_relationships = [t for t in relationships if f(t, subsystem)]
+
+        # then filter out of the subsystem all the items that are included by other items in the subsystem
+        # that is, for each item in the subsystem, if that item appears in the second position of a relationship
+        # of items in the subsystem, it is out.
+        top_lambda = lambda c, sub_rel: len([t for t in sub_rel if t[1] == c]) is 0
+        top_files = [c for c in subsystem if top_lambda(c, subsystem_relationships)]
+
+        # the remaining items are top level items for the subsystem.
+        top_levels.append(top_files)
+    return top_levels
+
+
+def hash_all_files():
+    """
+    Walks through all the directories from working one down and hashes those files that exist.
     :return: Nothing
     """
-    sys_index = 0
-    iterable = subsystems if use_old_discover_mode else subsystems.itervalues()
-    for sys in iterable:
-        if (len(sys) > 1 and use_old_discover_mode) or (len(sys) > 0 and not use_old_discover_mode):
-            list_of_each_dictionary = [item for item in classes if item.get("name") in sys]
-            # update each dictionary with the new color
-            for dic in list_of_each_dictionary:
-                dic["color"] = SUBSYSTEM_COLORS[sys_index]
-            sys_index = 0 if sys_index >= (len(SUBSYSTEM_COLORS) - 1) else sys_index + 1
+    dir_tree = os.walk('.')
+    for root, dirnames, filenames in dir_tree:
+        d = os.path.basename(root)
+        if d in ignores:
+            continue
+        else:
+            # Hash all the useful files in this directory
+            files_to_hash = [f_name for f_name in filenames if '.' + f_name.split('.')[-1] in allowable_file_types]
+
+            for f_name in files_to_hash:
+                __file_hash[f_name] = os.path.join(root, f_name)
 
 
-def create_subgraphs(subsystems, use_old_discover_mode=False):
+def is_inheritance(derived, base):
     """
-    Changes the layout of the graph to lump all the subsystems together by modifying the "classes" global.
-    :param subsystems: A list of all the file names lumped into subsystems. The exact nature of this piece of data
-    depends on use_old_discover_mode -> if true, this argument should be a list of the form:
-    [[file_A, file_B, file_C], [file_D, file_E], etc.] where files A through C are one subsystem etc.
-    If use_old_discover_mode is false, this argument should be a dictionary of the form:
-    {(system_A_'s_name: [file A, file B, file C]), (system_B_'s_name: [file_D, file_E]), etc.}
-    :param use_old_discover_mode: Whether or not subsystems was generated using the old-style generation method.
-    :return: Nothing
+    This function determines if the argument "derived" is inherited from the argument "base".
     """
-    iterable = subsystems if use_old_discover_mode else subsystems.itervalues()
-    for j, sub in enumerate(iterable):
-        list_of_each_dictionary = [item for item in classes if item.get("name") in sub]
-        for dic in list_of_each_dictionary:
-            dic["subgraph"] = j
+    try:
+        derived_file = find_file(derived + ".h", 'rb')
+    except IOError as ex:
+        return False
+    # decide if the "derived" class actually derives from base
+    # read file in line by line into a string.
+    lines = [line for line in derived_file]
+    derived_file.close()
+    contents = ""
+    for line in lines:
+        contents += line
 
-
-def map_subsystems(use_old_discovery_mode=False):
-    """
-    Walks through the three global lists (inheritance, includes, and classes) and determines what subsystem each
-    item belongs to. Adds that information to the "classes" list.
-    :param use_old_discovery_mode: Whether or not the subgraphs should be made by the old way of discovering them.
-    """
-    if use_old_discovery_mode:
-        # For each item in "classes", make a group
-        subsystems = [[item.get("name")] for item in classes]
-
-        # Now merge some of those groups into others to form the various subsystems
-
-        # All inheritance hierarchies form a subsystem
-        subsystems = form_subsystems_from_inheritance(subsystems)
-
-        # For each item, if that item does not include anything, check if it is only included by one file.
-        # If so, it should be lumped with that file.
-        subsystems = form_subsystems_from_single_includers(subsystems)
-
-        # Check each subsystem A to see if any other subsystem B includes items from A,
-        # if B includes any items from A and it is the ONLY subsystem that includes any items from A,
-        # merge A and B.
-        # Coordinate should therefore be included in that subsystem.
-        # Do it several times.. Should figure out how to make this recursive or something so that it does it only as many
-        # times as is necessary... but whatever.
-        for i in range(0, 10):
-            subsystems = form_subsystems_from_inclusions_in_other_subsystems(subsystems)
-
-        color_subsystems(subsystems, use_old_discovery_mode)
-        create_subgraphs(subsystems, use_old_discovery_mode)
-
+    # match the string's first occurrence of this: .*"class" <whitespace>+ <derived's name> <whitespace>+ ":" .* <base's name> .* "{"
+    regex = '(class)(\s)+(' + derived + ')(\s)+(:)(.)*(' + base + ')(.)*\{'
+    pattern = re.compile(regex, re.DOTALL)
+    match_obj = pattern.search(contents)
+    if match_obj:
+        return True
     else:
-        color_subsystems(global_dict_subsystems)
-        create_subgraphs(global_dict_subsystems)
+        return False
+
+
+def list_includes_any_items_from_other_list(list_a, list_b):
+    """
+    This method doesn't do at all what it sounds like.
+
+    It checks list_a and returns True if any of the items in it include any of the items in list b.
+    That is, if any item in list_a inherits from or includes any item in list_b, this method returns True.
+    False otherwise.
+    :param list_a:
+    :param list_b:
+    :return:
+    """
+    all_includes = includes + inheritance
+
+    for a in list_a:
+        for b in list_b:
+            tup = (a, b)
+            if tup in all_includes:
+                return True
+    return False
+
+
+def map_directories(file_paths):
+    """
+    Maps the subsystems globally using the new method of system detection (directory structures).
+    :param file_paths: The file paths of each file that corresponds to this class/module.
+    :return:
+    """
+    # The module can only be a part of a single subsystem, so decide by majority vote which path makes the most sense
+    votes = {}
+    for path in file_paths:
+        path_minus_name = os.sep.join(path.strip().split(os.sep)[0:-1])
+        votes[path_minus_name] = votes[path_minus_name] + 1 if votes.has_key(path_minus_name) else 1
+
+    # Get the path that is used the majority of the files in the module or the last one if tied
+    item_path = ""
+    total_votes = 0
+    for key in votes.iterkeys():
+        if votes[key] >= total_votes:
+            total_votes = votes[key]
+            item_path = key
+
+    folder = item_path.split(os.sep)[-1]
+    file_name = file_paths[0].split(os.sep)[-1].split('.')[0]
+    if global_dict_subsystems.has_key(folder):
+        global_dict_subsystems[folder].append(file_name)
+    else:
+        global_dict_subsystems[folder] = [file_name]
 
 
 def map_inheritance_and_composition(list_of_include_groups, use_old_discovery_mode):
@@ -878,6 +906,83 @@ def map_inheritance_and_composition(list_of_include_groups, use_old_discovery_mo
     map_subsystems(use_old_discovery_mode)
 
 
+def map_subsystems(use_old_discovery_mode=False):
+    """
+    Walks through the three global lists (inheritance, includes, and classes) and determines what subsystem each
+    item belongs to. Adds that information to the "classes" list.
+    :param use_old_discovery_mode: Whether or not the subgraphs should be made by the old way of discovering them.
+    """
+    if use_old_discovery_mode:
+        # For each item in "classes", make a group
+        subsystems = [[item.get("name")] for item in classes]
+
+        # Now merge some of those groups into others to form the various subsystems
+
+        # All inheritance hierarchies form a subsystem
+        subsystems = form_subsystems_from_inheritance(subsystems)
+
+        # For each item, if that item does not include anything, check if it is only included by one file.
+        # If so, it should be lumped with that file.
+        subsystems = form_subsystems_from_single_includers(subsystems)
+
+        # Check each subsystem A to see if any other subsystem B includes items from A,
+        # if B includes any items from A and it is the ONLY subsystem that includes any items from A,
+        # merge A and B.
+        # Coordinate should therefore be included in that subsystem.
+        # Do it several times.. Should figure out how to make this recursive or something so that it does it only as many
+        # times as is necessary... but whatever.
+        for i in range(0, 10):
+            subsystems = form_subsystems_from_inclusions_in_other_subsystems(subsystems)
+
+        color_subsystems(subsystems, use_old_discovery_mode)
+        create_subgraphs(subsystems, use_old_discovery_mode)
+
+    else:
+        color_subsystems(global_dict_subsystems)
+        create_subgraphs(global_dict_subsystems)
+
+
+def remove_extensions():
+    """
+    Removes all the file extensions from allowables which don't actually exist for this project.
+    :return: Nothing
+    """
+    for i in extension_ignores:
+        if i in allowable_file_types:
+            allowable_file_types.remove(i)
+
+
+def trim_directory():
+    """
+    Searches from the working directory down recursively, adding any directories it finds which don't have any
+    files with .cpp, .h, .cu, etc extensions in them to the ignore list.
+    Also, if it never finds any .cc or .cu (or .c, .cpp, etc) files, it adds those extensions to the ignore list.
+    :return: Nothing
+    """
+    # Set up a dictionary of extensions to keep track of whether or not you have seen each type
+    exts = {}
+    for t in allowable_file_types:
+        exts[t] = False
+
+    dir_tree = os.walk('.')
+    for root, dirnames, filenames in dir_tree:
+        d = os.path.basename(root)
+        if d in ignores:
+            continue
+        else:
+            ignore_dir = True
+            for extension in allowable_file_types:
+                if fnmatch.filter(filenames, '*' + extension):
+                    exts[extension] = True
+                    ignore_dir = False
+            if ignore_dir:
+                ignores.append(d)
+
+    for extension in exts.iterkeys():
+        if not exts[extension]:
+            extension_ignores.append(extension)
+
+
 def main(center_file_names, dot_file_name, old_style_sub_discovery=False):
     files_to_map = []
     for center_file_name in center_file_names:
@@ -918,12 +1023,17 @@ def main(center_file_names, dot_file_name, old_style_sub_discovery=False):
 
 #############MAIN SCRIPT#############
 
-#Get the input arg as the "center" file
+
+# Get the input arg as the "center" file
 if len(sys.argv) is not 3 and len(sys.argv) is not 4:
     help_str = "USAGE: " + sys.argv[0] + "<FILE_NAME> <OUTPUT_NAME_WO_EXTENSION> <ARGS>"
     help_str += ", where <ARGS> is currently just -sub for the old-style sub-system generation. Use -sub if you want"
     help_str += " to have this script attempt to generate subsystems for you, otherwise it will do so based on"
     help_str += " directory structures."
+    help_str += os.linesep + "----------------" + os.linesep
+    help_str += "EXAMPLE USAGE: python " + sys.argv[0] + " ./Core/BGDriver.cpp output" + os.linesep
+    help_str += "In this example, the script would look for BGDriver.cpp in ./Core/ then it would glean its includes,"
+    help_str += " and look for them from the directory that the script is currently in on down."
     print help_str
     exit(0)
 else:
@@ -931,13 +1041,29 @@ else:
     dot_file_name = sys.argv[2]
     old_style_subsystem_discovery = (len(sys.argv) is 4 and sys.argv[3].lower() == "-sub".lower())
 
+
+# Before we do anything else, let's trim the directory to only those folders that actually have useful files
+print "Optimizing directory search..."
+trim_directory()
+
+# Remove those file extensions from allowables that don't exist
+remove_extensions()
+
+# Now hash all of the files so that finding them is super fast later
+print "Hashing files...."
+hash_all_files()
+
 # Find the given "center" file
 try:
-    center_file = find_file(center_file_name, 'rb')
-    extension = center_file.name.split('.')[-1]
-    if extension != "cpp" and extension != "h" and extension != "cu":
-        print "This only works for .cpp/.cu and .h files. Please pass me one of those."
+    extension = '.' + center_file_name.split('.')[-1]
+    if extension not in allowable_file_types:
+        print "This will only work in this directory on files of type:"
+        for ext in allowable_file_types:
+            print " " + ext
+        print ".....Please give me one of those."
         exit(-1)
+    else:
+        center_file = find_file(center_file_name, 'rb')
 except IOError as ex:
     print "File not found or some other IO error."
     exit(-1)
