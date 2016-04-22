@@ -1,0 +1,45 @@
+digraph{
+
+	subgraph clusterCore {
+		color = aquamarine
+		node [shape = record, color = aquamarine];
+
+		FClassOfCategory[label = FClassOfCategory, style = filled];
+		GPUSpikingModel[label = GPUSpikingModel, style = filled];
+		IModel[label = IModel, style = filled];
+		Model[label = Model, style = filled];
+		SimulationInfo[label = SimulationInfo, style = filled];
+		Simulator[label = Simulator, style = filled];
+		SingleThreadedSpikingModel[label = SingleThreadedSpikingModel, style = filled];
+		SynapseIndexMap[label = SynapseIndexMap, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+		GPUSpikingModel -> Model [arrowhead=empty];
+
+		Model -> IModel [arrowhead=empty];
+
+		SingleThreadedSpikingModel -> Model [arrowhead=empty];
+
+
+		//COMPOSITION//
+
+
+		IModel -> SimulationInfo [arrowhead=ediamond];
+
+		Model -> SynapseIndexMap [arrowhead=ediamond];
+
+		Simulator -> IModel [arrowhead=ediamond];
+		Simulator -> SimulationInfo [arrowhead=ediamond];
+	}//end subgraph Core
+}//end digraph
