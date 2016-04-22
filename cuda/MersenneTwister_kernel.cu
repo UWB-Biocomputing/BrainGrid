@@ -86,7 +86,7 @@ void seedMTGPU(unsigned int seed){
 		MT[i].iState = i*MT_NN;
     }
 
-//seed does need to be used to initialize mt[] elements.
+   //seed does need to be used to initialize mt[] elements.
 	int threadsPerBlock = 256;
 	//get ceil of MT_RNG_COUNT/threadsPerBlock
 	int blocksPerGrid = (mt_rng_count+threadsPerBlock-1)/threadsPerBlock; 
