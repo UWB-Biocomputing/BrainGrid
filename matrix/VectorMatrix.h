@@ -37,7 +37,7 @@
 #include "Matrix.h"
 #include "CompleteMatrix.h"
 #include "SparseMatrix.h"
-#include "../rng/Norm.h"
+#include "Norm.h"
 
 using namespace std;
 

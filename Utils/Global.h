@@ -58,9 +58,9 @@ typedef unsigned long long int uint64_t;	//included in inttypes.h, which is not 
 #include <inttypes.h>	//used for uint64_t, unavailable in WIN32
 #endif
 #include "BGTypes.h"
-#include "../RNG/Norm.h"
+#include "Norm.h"
 #include "Coordinate.h"
-#include "../Matrix/VectorMatrix.h"
+#include "VectorMatrix.h"
 
 using namespace std;
 

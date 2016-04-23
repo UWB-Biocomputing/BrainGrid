@@ -1,6 +1,6 @@
 #include "Model.h"
 
-#include "../tinyxml/tinyxml.h"
+#include "tinyxml.h"
 
 #include "ParseParamError.h"
 #include "Util.h"
