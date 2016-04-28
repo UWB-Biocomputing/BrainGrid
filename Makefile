@@ -132,9 +132,10 @@ MATRIXOBJS =	$(MATRIXDIR)/CompleteMatrix.o \
 		$(MATRIXDIR)/SparseMatrix.o \
 		$(MATRIXDIR)/VectorMatrix.o 
 
-PARAMOBJS = $(PARAMDIR)/ParamContainer.o
+PARAMOBJS =	$(PARAMDIR)/ParamContainer.o
 
-RNGOBJS = $(RNGDIR)/Norm.o
+RNGOBJS =	$(RNGDIR)/Norm.o \
+		$(RNGDIR)/MersenneTwister.o
 
 SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
 		$(COREDIR)/SingleThreadedSpikingModel.o \
@@ -153,7 +154,7 @@ SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
 		$(CONNDIR)/Connections.o \
 		$(CONNDIR)/ConnGrowth.o \
 		$(CONNDIR)/ConnStatic.o \
-		$(CONNDIR)/Global.o 
+		$(UTILDIR)/Global.o 
 
 XMLOBJS =	$(XMLDIR)/tinyxml.o \
 		$(XMLDIR)/tinyxmlparser.o \
@@ -169,7 +170,7 @@ INPUTOBJS =	$(INPUTDIR)/HostSInputRegular.o \
 # Targets
 ################################################################################
 growth: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(INPUTOBJS)
-	$(LD) -o growth -g $(LDFLAGS) $(LIBOBJS) $(LH5FLAGS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(INPUTOBJS)
+	$(LD) -o growth -g $(LDFLAGS) $(LH5FLAGS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(INPUTOBJS) $(LIBOBJS) 
 
 growth_cuda:$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS) $(INPUTOBJS)
 	nvcc -o growth_cuda -g -arch=sm_20 -rdc=true $(LDFLAGS) $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(INPUTOBJS)
@@ -389,11 +390,14 @@ $(PARAMDIR)/ParamContainer.o: $(PARAMDIR)/ParamContainer.cpp $(PARAMDIR)/ParamCo
 $(RNGDIR)/Norm.o: $(RNGDIR)/Norm.cpp $(RNGDIR)/Norm.h $(RNGDIR)/MersenneTwister.h $(UTILDIR)/BGTypes.h
 	$(CXX) $(CXXFLAGS) $(RNGDIR)/Norm.cpp -o $(RNGDIR)/Norm.o
 
+$(RNGDIR)/MersenneTwister.o: $(RNGDIR)/MersenneTwister.cpp $(RNGDIR)/MersenneTwister.h $(UTILDIR)/BGTypes.h
+	$(CXX) $(CXXFLAGS) $(RNGDIR)/MersenneTwister.cpp -o $(RNGDIR)/MersenneTwister.o
+
 
 # XML
 # ------------------------------------------------------------------------------
 
-$(XMLDIR)/tinyxml.o: $(XMLDIR)/tinyxml.cpp $(XMLDIR)/tinyxml.h $(XMLDIR)/tinystr.h $(COMMDIR)/BGTypes.h
+$(XMLDIR)/tinyxml.o: $(XMLDIR)/tinyxml.cpp $(XMLDIR)/tinyxml.h $(XMLDIR)/tinystr.h $(UTILDIR)/BGTypes.h
 	$(CXX) $(CXXFLAGS) $(XMLDIR)/tinyxml.cpp -o $(XMLDIR)/tinyxml.o
 
 $(XMLDIR)/tinyxmlparser.o: $(XMLDIR)/tinyxmlparser.cpp $(XMLDIR)/tinyxml.h

@@ -58,87 +58,86 @@
 // It would be nice to CC: rjwagner@writeme.com and Cokus@math.washington.edu
 // when you write.
 
-#ifndef MERSENNETWISTER_H
-#define MERSENNETWISTER_H
 // Not thread safe (unless auto-initialization is avoided and each thread has
 // its own MTRand object)
 
+#pragma once
+
 #include <iostream>
-#include <limits.h>
-#include <stdio.h>
-#include <time.h>
-#include <math.h>
+#include <climits>
+#include <cstdio>
+#include <ctime>
+#include <cmath>
+#include <stdint.h>
 #include "BGTypes.h" // for BGFLOAT
 
 class MTRand {
-// Data
-public:
-	typedef unsigned long uint32;  // unsigned integer type, at least 32 bits
+  // Data
+ public:
 
-	enum { N = 624 };       // length of state vector
-	enum { SAVE = N + 1 };  // length of array for save()
+  enum { N = 624 };       // length of state vector
+  enum { SAVE = N + 1 };  // length of array for save()
 
-protected:
-	enum { M = 397 };  // period parameter
+ protected:
+  enum { M = 397 };  // period parameter
 
-	uint32 state[N];   // internal state
-	uint32 *pNext;     // next value to get from state
-	int left;          // number of values left before reload needed
+  uint64_t state[N];   // internal state
+  uint64_t *pNext;     // next value to get from state
+  int left;          // number of values left before reload needed
 
 
-//Methods
-public:
-	MTRand( const uint32& oneSeed );  // initialize with a simple uint32
-	MTRand( uint32 *const bigSeed, uint32 const seedLength = N );  // or an array
-	MTRand();  // auto-initialize with /dev/urandom or time() and clock()
+  //Methods
+ public:
+  MTRand( uint64_t oneSeed );  // initialize with a simple uint64_t
+  MTRand( uint64_t *const bigSeed, uint64_t seedLength = N );  // or an array
+  MTRand();  // auto-initialize with /dev/urandom or time() and clock()
 
-	// Do NOT use for CRYPTOGRAPHY without securely hashing several returned
-	// values together, otherwise the generator state can be learned after
-	// reading 624 consecutive values.
+  // Do NOT use for CRYPTOGRAPHY without securely hashing several returned
+  // values together, otherwise the generator state can be learned after
+  // reading 624 consecutive values.
 
-	// Access to 32-bit random numbers
-	BGFLOAT rand();                          // real number in [0,1]
-	BGFLOAT rand( const BGFLOAT& n );         // real number in [0,n]
-	BGFLOAT randExc();                       // real number in [0,1)
-	BGFLOAT randExc( const BGFLOAT& n );      // real number in [0,n)
-	BGFLOAT randDblExc();                    // real number in (0,1)
-	BGFLOAT randDblExc( const BGFLOAT& n );   // real number in (0,n)
-	uint32 randInt();                       // integer in [0,2^32-1]
-	uint32 randInt( const uint32& n );      // integer in [0,n] for n < 2^32
-	BGFLOAT operator()() { return rand(); }  // same as rand()
-	BGFLOAT inRange(BGFLOAT min, BGFLOAT max); // real number in [min, max]
+  // Access to 32-bit random numbers
+  BGFLOAT rand();                          // real number in [0,1]
+  BGFLOAT rand( BGFLOAT n );         // real number in [0,n]
+  BGFLOAT randExc();                       // real number in [0,1)
+  BGFLOAT randExc( BGFLOAT n );      // real number in [0,n)
+  BGFLOAT randDblExc();                    // real number in (0,1)
+  BGFLOAT randDblExc( BGFLOAT n );   // real number in (0,n)
+  uint64_t randInt();                       // integer in [0,2^32-1]
+  uint64_t randInt( uint64_t n );      // integer in [0,n] for n < 2^32
+  BGFLOAT operator()() { return rand(); }  // same as rand()
+  BGFLOAT inRange(BGFLOAT min, BGFLOAT max); // real number in [min, max]
 
-	// Access to 53-bit random numbers (capacity of IEEE BGFLOAT precision)
-	BGFLOAT rand53();  // real number in [0,1)
+  // Access to 53-bit random numbers (capacity of IEEE BGFLOAT precision)
+  BGFLOAT rand53();  // real number in [0,1)
 
-	// Access to nonuniform random number distributions
-	BGFLOAT randNorm( const BGFLOAT& mean = 0.0, const BGFLOAT& variance = 0.0 );
+  // Access to nonuniform random number distributions
+  BGFLOAT randNorm( BGFLOAT mean = 0.0, BGFLOAT variance = 0.0 );
 
-	// Re-seeding functions with same behavior as initializers
-	void seed( const uint32 oneSeed );
-	void seed( uint32 *const bigSeed, const uint32 seedLength = N );
-	void seed();
+  // Re-seeding functions with same behavior as initializers
+  void seed( uint64_t oneSeed );
+  void seed( uint64_t *const bigSeed, uint64_t seedLength = N );
+  void seed();
 
-	// Saving and loading generator state
-	void save( uint32* saveArray ) const;  // to array of size SAVE
-	void load( uint32 *const loadArray );  // from such array
-	friend std::ostream& operator<<( std::ostream& os, const MTRand& mtrand );
-	friend std::istream& operator>>( std::istream& is, MTRand& mtrand );
+  // Saving and loading generator state
+  void save( uint64_t* saveArray ) const;  // to array of size SAVE
+  void load( uint64_t *const loadArray );  // from such array
+  friend std::ostream& operator<<( std::ostream& os, const MTRand& mtrand );
+  friend std::istream& operator>>( std::istream& is, MTRand& mtrand );
 
-protected:
-	void initialize( const uint32 oneSeed );
-	void reload();
-	uint32 hiBit( const uint32& u ) const { return u & 0x80000000UL; }
-	uint32 loBit( const uint32& u ) const { return u & 0x00000001UL; }
-	uint32 loBits( const uint32& u ) const { return u & 0x7fffffffUL; }
-	uint32 mixBits( const uint32& u, const uint32& v ) const
-		{ return hiBit(u) | loBits(v); }
-	uint32 twist( const uint32& m, const uint32& s0, const uint32& s1 ) const
-		{ return m ^ (mixBits(s0,s1)>>1) ^ (-loBit(s1) & 0x9908b0dfUL); }
-	static uint32 hash( time_t t, clock_t c );
+ protected:
+  void initialize( uint64_t oneSeed );
+  void reload();
+  uint64_t hiBit( uint64_t u ) const { return u & 0x80000000UL; }
+  uint64_t loBit( uint64_t u ) const { return u & 0x00000001UL; }
+  uint64_t loBits( uint64_t u ) const { return u & 0x7fffffffUL; }
+  uint64_t mixBits( uint64_t u, uint64_t v ) const
+  { return hiBit(u) | loBits(v); }
+  uint64_t twist( uint64_t m, uint64_t s0, uint64_t s1 ) const
+  { return m ^ (mixBits(s0,s1)>>1) ^ (-loBit(s1) & 0x9908b0dfUL); }
+  static uint64_t hash( time_t t, clock_t c );
 };
 
-#endif  // MERSENNETWISTER_H
 
 // Change log:
 //

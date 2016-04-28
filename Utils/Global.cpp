@@ -76,7 +76,7 @@ int g_deviceId = 0;
 #endif // USE_GPU
 
 //! A random number generator.
-RNG rng(1);
+MTRand rng(1);
 
 //! A normalized random number generator.
 vector<Norm *> rgNormrnd;
