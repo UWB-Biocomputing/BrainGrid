@@ -295,7 +295,7 @@ mean(radiiHistory_inh(numSims,:))
 std(radiiHistory_inh(numSims,:))
 range(radiiHistory_inh(numSims,:))
 bin_size_hist=0.1;
-n_bin=(range(radiiHistory_other(numSims,:)))/bin_size_hist;
+n_bin=(range(radiiHistory_other(numSims,:)))/bin_size_hist
 [n,xout]=hist(radiiHistory_other(numSims,:),n_bin);
 bar(xout,n/length(radiiHistory_other(numSims,:)),1);
 set(gca,'FontSize',18,'LineWidth',2)

@@ -91,7 +91,7 @@ set(0, 'DefaultAxesColorOrder', defColorOrder);
 fprintf('Plotting burstiness evolution');
 % and burstiness index
 fig5 = figure(5); clf;
-burstiness2(burstinessHist);
+burstiness(burstinessHist);
 %title(['Burstiness evolution: ', [stateoutfile '.xml']])
 
 
