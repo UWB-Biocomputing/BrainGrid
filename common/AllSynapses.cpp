@@ -257,12 +257,10 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
         {
                 for ( int j = 0; j < sim_info->maxSynapsesPerNeuron; j++, syn_i++ )
                 {
-                        uint32_t iSyn = sim_info->maxSynapsesPerNeuron * i + j;
-                        if ( in_use[iSyn] == true )
+                        if ( in_use[syn_i] == true )
                         {
-                                int idx = sourceNeuronIndex[iSyn];
+                                int idx = sourceNeuronIndex[syn_i];
                                 rgSynapseSynapseIndexMap[idx].push_back(syn_i);
-
                                 synapseIndexMap->activeSynapseIndex[n_inUse] = syn_i;
                                 n_inUse++;
                         }

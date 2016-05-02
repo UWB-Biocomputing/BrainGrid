@@ -384,7 +384,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &ineur
             size_t synapse_counts = synapses.synapse_counts[dest_neuron];
             size_t synapse_adjusted = 0;
             for (size_t synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++) {
-               uint32_t iSyn = sim_info->maxSynapsesPerNeuron * dest_neuron + synapse_index++;
+               uint32_t iSyn = sim_info->maxSynapsesPerNeuron * dest_neuron + synapse_index;
                 if (synapses.in_use[iSyn] == true) {
                     // if there is a synapse between a and b
                     if (synapses.sourceNeuronIndex[iSyn] == src_neuron) {

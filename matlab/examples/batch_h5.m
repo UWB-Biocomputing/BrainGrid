@@ -68,7 +68,7 @@ end
 	%tR = 1.9;
 	%fE = 0.90;
 %       stateoutfile = ['tR_', num2str(tR, '%0.1f'),'--fE_', num2str(fE, '%1.2f')];
-        [fig1, fig2, fig3, fig4, fig5, fig6] = growth2();
+        [fig1, fig2, fig3, fig4, fig5] = growth2();
         [fig2a, fig2b, fig2c, fig2d, fig2e, fig2f, fig2g] = growth2a();
         [fig3a, fig3b, fig3c] = growth3();
         [fig4a, fig4b, fig4c, fig4d, fig4f, fig4g, fig4h, fig4i] = growth4();

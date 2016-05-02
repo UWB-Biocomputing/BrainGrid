@@ -89,7 +89,7 @@ __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int 
                 if(fAllowBackPropagation && synapse_counts != 0){
                    for(uint32_t synapse_index = maxSynapses * idx ; synapse_notified < synapse_counts; synapse_index++){
                       if (allSynapsesDevice->in_use[synapse_index] == true) {
-                         fpPreSpikeHit(synapse_index, allSynapsesDevice); 
+                         fpPostSpikeHit(synapse_index, allSynapsesDevice); 
                          synapse_notified++;
                       }
                    }
