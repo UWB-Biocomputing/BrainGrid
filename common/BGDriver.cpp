@@ -10,7 +10,7 @@
 
 #include <fstream>
 #include "Global.h"
-#include "paramcontainer/ParamContainer.h"
+#include "../paramcontainer/ParamContainer.h"
 
 #include "IModel.h"
 #include "FClassOfCategory.h"
