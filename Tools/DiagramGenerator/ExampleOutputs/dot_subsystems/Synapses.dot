@@ -1,0 +1,40 @@
+digraph{
+
+	subgraph clusterSynapses {
+		color = gold
+		node [shape = record, color = gold];
+
+		AllDSSynapses[label = AllDSSynapses, style = filled];
+		AllDynamicSTDPSynapses[label = AllDynamicSTDPSynapses, style = filled];
+		AllSTDPSynapses[label = AllSTDPSynapses, style = filled];
+		AllSpikingSynapses[label = AllSpikingSynapses, style = filled];
+		AllSynapses[label = AllSynapses, style = filled];
+		IAllSynapses[label = IAllSynapses, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+		AllDSSynapses -> AllSpikingSynapses [arrowhead=empty];
+
+		AllDynamicSTDPSynapses -> AllSTDPSynapses [arrowhead=empty];
+
+		AllSTDPSynapses -> AllSpikingSynapses [arrowhead=empty];
+
+		AllSpikingSynapses -> AllSynapses [arrowhead=empty];
+
+		AllSynapses -> IAllSynapses [arrowhead=empty];
+
+
+		//COMPOSITION//
+
+	}//end subgraph Synapses
+}//end digraph

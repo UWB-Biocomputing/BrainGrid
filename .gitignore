@@ -194,6 +194,5 @@ pip-log.txt
 *.o
 make/growth # Consider using an extension like .run
 make/growth*
-growth
-growth*
+/growth*
 .gitignore

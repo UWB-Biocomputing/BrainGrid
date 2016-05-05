@@ -1,0 +1,40 @@
+digraph{
+
+	subgraph clusterNeurons {
+		color = darkturquoise
+		node [shape = record, color = darkturquoise];
+
+		AllIFNeurons[label = AllIFNeurons, style = filled];
+		AllIZHNeurons[label = AllIZHNeurons, style = filled];
+		AllLIFNeurons[label = AllLIFNeurons, style = filled];
+		AllNeurons[label = AllNeurons, style = filled];
+		AllSpikingNeurons[label = AllSpikingNeurons, style = filled];
+		IAllNeurons[label = IAllNeurons, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+		AllIFNeurons -> AllSpikingNeurons [arrowhead=empty];
+
+		AllIZHNeurons -> AllIFNeurons [arrowhead=empty];
+
+		AllLIFNeurons -> AllIFNeurons [arrowhead=empty];
+
+		AllNeurons -> IAllNeurons [arrowhead=empty];
+
+		AllSpikingNeurons -> AllNeurons [arrowhead=empty];
+
+
+		//COMPOSITION//
+
+	}//end subgraph Neurons
+}//end digraph

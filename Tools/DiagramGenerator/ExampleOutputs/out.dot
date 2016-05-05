@@ -6,64 +6,16 @@ digraph {
 
 
 
-	subgraph clusterA {
-		color = orange
-		node [shape = record, color = orange];
+	subgraph clusterCore {
+		color = aquamarine
+		node [shape = record, color = aquamarine];
 
-		BGDriver[label = BGDriver, style = filled];
 		FClassOfCategory[label = FClassOfCategory, style = filled];
-		MultiThreadedSim[label = MultiThreadedSim, style = filled];
-		Simulator[label = Simulator, style = filled];
-		Timer[label = Timer, style = filled];
-
-
-		//------LAYOUT FOR SUBGRAPH------
-
-
-		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 0.98; // Node Separation
-		ranksep = 0.98; // Rank Separation
-
-
-		//INHERITANCE//
-
-
-
-		//COMPOSITION//
-
-
-		BGDriver -> FClassOfCategory [arrowhead=ediamond];
-		BGDriver -> MultiThreadedSim [arrowhead=ediamond];
-		BGDriver -> Simulator [arrowhead=ediamond];
-
-		Simulator -> Timer [arrowhead=ediamond];
-	}//end subgraph A
-
-
-	subgraph clusterB {
-		color = lightgoldenrod
-		node [shape = record, color = lightgoldenrod];
-
-		AllDSSynapses[label = AllDSSynapses, style = filled];
-		AllDynamicSTDPSynapses[label = AllDynamicSTDPSynapses, style = filled];
-		AllIFNeurons[label = AllIFNeurons, style = filled];
-		AllIZHNeurons[label = AllIZHNeurons, style = filled];
-		AllLIFNeurons[label = AllLIFNeurons, style = filled];
-		AllNeurons[label = AllNeurons, style = filled];
-		AllSTDPSynapses[label = AllSTDPSynapses, style = filled];
-		AllSpikingNeurons[label = AllSpikingNeurons, style = filled];
-		AllSpikingSynapses[label = AllSpikingSynapses, style = filled];
-		AllSynapses[label = AllSynapses, style = filled];
-		ConnGrowth[label = ConnGrowth, style = filled];
-		ConnStatic[label = ConnStatic, style = filled];
-		Connections[label = Connections, style = filled];
-		Coordinate[label = Coordinate, style = filled];
 		GPUSpikingModel[label = GPUSpikingModel, style = filled];
-		IAllNeurons[label = IAllNeurons, style = filled];
-		IAllSynapses[label = IAllSynapses, style = filled];
 		IModel[label = IModel, style = filled];
 		Model[label = Model, style = filled];
 		SimulationInfo[label = SimulationInfo, style = filled];
+		Simulator[label = Simulator, style = filled];
 		SingleThreadedSpikingModel[label = SingleThreadedSpikingModel, style = filled];
 		SynapseIndexMap[label = SynapseIndexMap, style = filled];
 
@@ -72,44 +24,13 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 0.98; // Node Separation
-		ranksep = 0.98; // Rank Separation
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
 
 
 		//INHERITANCE//
 
 
-		AllDSSynapses -> AllSpikingSynapses [arrowhead=empty];
-
-		AllDynamicSTDPSynapses -> AllSTDPSynapses [arrowhead=empty];
-
-		AllIFNeurons -> AllSpikingNeurons [arrowhead=empty];
-
-		AllIZHNeurons -> AllIFNeurons [arrowhead=empty];
-
-		AllLIFNeurons -> AllIFNeurons [arrowhead=empty];
-
-		AllNeurons -> IAllNeurons [arrowhead=empty];
-
-		AllSTDPSynapses -> AllSpikingSynapses [arrowhead=empty];
-		AllSTDPSynapses -> IAllNeurons [arrowhead=empty];
-
-		AllSpikingNeurons -> AllNeurons [arrowhead=empty];
-
-		AllSpikingSynapses -> AllSynapses [arrowhead=empty];
-
-		AllSynapses -> IAllSynapses [arrowhead=empty];
-
-		ConnGrowth -> Connections [arrowhead=empty];
-		ConnGrowth -> IAllSynapses [arrowhead=empty];
-		ConnGrowth -> SimulationInfo [arrowhead=empty];
-
-		ConnStatic -> Connections [arrowhead=empty];
-		ConnStatic -> IAllSynapses [arrowhead=empty];
-		ConnStatic -> SimulationInfo [arrowhead=empty];
-
-		GPUSpikingModel -> AllSpikingNeurons [arrowhead=empty];
-		GPUSpikingModel -> AllSpikingSynapses [arrowhead=empty];
 		GPUSpikingModel -> Model [arrowhead=empty];
 
 		Model -> IModel [arrowhead=empty];
@@ -120,47 +41,19 @@ digraph {
 		//COMPOSITION//
 
 
-		AllLIFNeurons -> AllSpikingSynapses [arrowhead=ediamond];
-
-		AllNeurons -> SimulationInfo [arrowhead=ediamond];
-		AllNeurons -> SynapseIndexMap [arrowhead=ediamond];
-
-		AllSpikingNeurons -> AllSpikingSynapses [arrowhead=ediamond];
-		AllSpikingNeurons -> SimulationInfo [arrowhead=ediamond];
-
-		AllSpikingSynapses -> AllSpikingNeurons [arrowhead=ediamond];
-
-		AllSynapses -> AllNeurons [arrowhead=ediamond];
-		AllSynapses -> SimulationInfo [arrowhead=ediamond];
-
-		Connections -> AllSpikingNeurons [arrowhead=ediamond];
-		Connections -> AllSpikingSynapses [arrowhead=ediamond];
-		Connections -> IAllSynapses [arrowhead=ediamond];
-		Connections -> SimulationInfo [arrowhead=ediamond];
-
-		IAllNeurons -> SynapseIndexMap [arrowhead=ediamond];
-
-		IAllSynapses -> SimulationInfo [arrowhead=ediamond];
-		IAllSynapses -> SynapseIndexMap [arrowhead=ediamond];
-
-		IModel -> Connections [arrowhead=ediamond];
-		IModel -> IAllNeurons [arrowhead=ediamond];
-		IModel -> IAllSynapses [arrowhead=ediamond];
 		IModel -> SimulationInfo [arrowhead=ediamond];
 
-		Model -> ConnGrowth [arrowhead=ediamond];
-		Model -> Coordinate [arrowhead=ediamond];
 		Model -> SynapseIndexMap [arrowhead=ediamond];
 
-		SingleThreadedSpikingModel -> AllDSSynapses [arrowhead=ediamond];
-	}//end subgraph B
+		Simulator -> IModel [arrowhead=ediamond];
+		Simulator -> SimulationInfo [arrowhead=ediamond];
+	}//end subgraph Core
 
 
-	subgraph clusterC {
-		color = gold
-		node [shape = record, color = gold];
+	subgraph clusterRecorders {
+		color = darkgoldenrod
+		node [shape = record, color = darkgoldenrod];
 
-		H5Cpp[label = H5Cpp, style = filled];
 		Hdf5GrowthRecorder[label = Hdf5GrowthRecorder, style = filled];
 		Hdf5Recorder[label = Hdf5Recorder, style = filled];
 		IRecorder[label = IRecorder, style = filled];
@@ -172,8 +65,8 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 0.98; // Node Separation
-		ranksep = 0.98; // Rank Separation
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
 
 
 		//INHERITANCE//
@@ -190,47 +83,14 @@ digraph {
 
 		//COMPOSITION//
 
-
-		Hdf5GrowthRecorder -> H5Cpp [arrowhead=ediamond];
-
-		Hdf5Recorder -> H5Cpp [arrowhead=ediamond];
-	}//end subgraph C
+	}//end subgraph Recorders
 
 
-	subgraph clusterD {
-		color = darksalmon
-		node [shape = record, color = darksalmon];
+	subgraph clusterInputs {
+		color = coral
+		node [shape = record, color = coral];
 
-		DynamicLayout[label = DynamicLayout, style = filled];
-		FixedLayout[label = FixedLayout, style = filled];
-		Layout[label = Layout, style = filled];
-
-
-		//------LAYOUT FOR SUBGRAPH------
-
-
-		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 0.98; // Node Separation
-		ranksep = 0.98; // Rank Separation
-
-
-		//INHERITANCE//
-
-
-		DynamicLayout -> Layout [arrowhead=empty];
-
-		FixedLayout -> Layout [arrowhead=empty];
-
-
-		//COMPOSITION//
-
-	}//end subgraph D
-
-
-	subgraph clusterE {
-		color = indianred
-		node [shape = record, color = indianred];
-
+		FSInput[label = FSInput, style = filled];
 		GpuSInputPoisson[label = GpuSInputPoisson, style = filled];
 		GpuSInputRegular[label = GpuSInputRegular, style = filled];
 		HostSInputPoisson[label = HostSInputPoisson, style = filled];
@@ -238,15 +98,14 @@ digraph {
 		ISInput[label = ISInput, style = filled];
 		SInputPoisson[label = SInputPoisson, style = filled];
 		SInputRegular[label = SInputRegular, style = filled];
-		curand_kernel[label = curand_kernel, style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 0.98; // Node Separation
-		ranksep = 0.98; // Rank Separation
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
 
 
 		//INHERITANCE//
@@ -268,15 +127,183 @@ digraph {
 		//COMPOSITION//
 
 
-		GpuSInputPoisson -> curand_kernel [arrowhead=ediamond];
-	}//end subgraph E
+		FSInput -> GpuSInputPoisson [arrowhead=ediamond];
+		FSInput -> GpuSInputRegular [arrowhead=ediamond];
+		FSInput -> HostSInputPoisson [arrowhead=ediamond];
+		FSInput -> HostSInputRegular [arrowhead=ediamond];
+		FSInput -> ISInput [arrowhead=ediamond];
+	}//end subgraph Inputs
 
 
-	subgraph clusterF {
-		color = limegreen
-		node [shape = record, color = limegreen];
+	subgraph clusterSynapses {
+		color = gold
+		node [shape = record, color = gold];
+
+		AllDSSynapses[label = AllDSSynapses, style = filled];
+		AllDynamicSTDPSynapses[label = AllDynamicSTDPSynapses, style = filled];
+		AllSTDPSynapses[label = AllSTDPSynapses, style = filled];
+		AllSpikingSynapses[label = AllSpikingSynapses, style = filled];
+		AllSynapses[label = AllSynapses, style = filled];
+		IAllSynapses[label = IAllSynapses, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+		AllDSSynapses -> AllSpikingSynapses [arrowhead=empty];
+
+		AllDynamicSTDPSynapses -> AllSTDPSynapses [arrowhead=empty];
+
+		AllSTDPSynapses -> AllSpikingSynapses [arrowhead=empty];
+
+		AllSpikingSynapses -> AllSynapses [arrowhead=empty];
+
+		AllSynapses -> IAllSynapses [arrowhead=empty];
+
+
+		//COMPOSITION//
+
+	}//end subgraph Synapses
+
+
+	subgraph clusterConnections {
+		color = darkorange
+		node [shape = record, color = darkorange];
+
+		ConnGrowth[label = ConnGrowth, style = filled];
+		ConnStatic[label = ConnStatic, style = filled];
+		Connections[label = Connections, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+		ConnGrowth -> Connections [arrowhead=empty];
+
+		ConnStatic -> Connections [arrowhead=empty];
+
+
+		//COMPOSITION//
+
+	}//end subgraph Connections
+
+
+	subgraph clusterUtils {
+		color = cyan
+		node [shape = record, color = cyan];
 
 		BGTypes[label = BGTypes, style = filled];
+		Book[label = Book, style = filled];
+		Coordinate[label = Coordinate, style = filled];
+		Timer[label = Timer, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+
+		//COMPOSITION//
+
+	}//end subgraph Utils
+
+
+	subgraph clusterLayouts {
+		color = darksalmon
+		node [shape = record, color = darksalmon];
+
+		DynamicLayout[label = DynamicLayout, style = filled];
+		FixedLayout[label = FixedLayout, style = filled];
+		Layout[label = Layout, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+		DynamicLayout -> Layout [arrowhead=empty];
+
+		FixedLayout -> Layout [arrowhead=empty];
+
+
+		//COMPOSITION//
+
+	}//end subgraph Layouts
+
+
+	subgraph clusterNeurons {
+		color = darkturquoise
+		node [shape = record, color = darkturquoise];
+
+		AllIFNeurons[label = AllIFNeurons, style = filled];
+		AllIZHNeurons[label = AllIZHNeurons, style = filled];
+		AllLIFNeurons[label = AllLIFNeurons, style = filled];
+		AllNeurons[label = AllNeurons, style = filled];
+		AllSpikingNeurons[label = AllSpikingNeurons, style = filled];
+		IAllNeurons[label = IAllNeurons, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+		AllIFNeurons -> AllSpikingNeurons [arrowhead=empty];
+
+		AllIZHNeurons -> AllIFNeurons [arrowhead=empty];
+
+		AllLIFNeurons -> AllIFNeurons [arrowhead=empty];
+
+		AllNeurons -> IAllNeurons [arrowhead=empty];
+
+		AllSpikingNeurons -> AllNeurons [arrowhead=empty];
+
+
+		//COMPOSITION//
+
+	}//end subgraph Neurons
+
+
+	subgraph clustertinyxml {
+		color = hotpink
+		node [shape = record, color = hotpink];
+
 		tinystr[label = tinystr, style = filled];
 		tinyxml[label = tinyxml, style = filled];
 
@@ -285,8 +312,8 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 0.98; // Node Separation
-		ranksep = 0.98; // Rank Separation
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
 
 
 		//INHERITANCE//
@@ -296,24 +323,23 @@ digraph {
 		//COMPOSITION//
 
 
-		tinyxml -> BGTypes [arrowhead=ediamond];
 		tinyxml -> tinystr [arrowhead=ediamond];
-	}//end subgraph F
+	}//end subgraph tinyxml
 
 
-	subgraph G {
+	subgraph NAME_ERROR {
 		node [shape = record];
 
 
-		FSInput[label = FSInput, style = filled];
+		BGDriver[label = BGDriver, style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 0.98; // Node Separation
-		ranksep = 0.98; // Rank Separation
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
 
 
 		//INHERITANCE//
@@ -322,22 +348,22 @@ digraph {
 
 		//COMPOSITION//
 
-	}//end subgraph G
+	}//end subgraph NAME_ERROR
 
 
-	subgraph H {
+	subgraph NAME_ERROR {
 		node [shape = record];
 
 
-		Book[label = Book, style = filled];
+		H5Cpp[label = H5Cpp, style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 0.98; // Node Separation
-		ranksep = 0.98; // Rank Separation
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
 
 
 		//INHERITANCE//
@@ -346,66 +372,151 @@ digraph {
 
 		//COMPOSITION//
 
-	}//end subgraph H
+	}//end subgraph NAME_ERROR
+
+
+	subgraph NAME_ERROR {
+		node [shape = record];
+
+
+		curand_kernel[label = curand_kernel, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+
+		//COMPOSITION//
+
+	}//end subgraph NAME_ERROR
 //-------LAYOUT OF RELATIONSHIPS BETWEEN SUBGRAPHS------//
 rankdir = BT; // Rank Direction Top to Bottom
-nodesep = 0.98; // Node Separation
-ranksep = 0.98; // Rank Separation
+nodesep = 0.96; // Node Separation
+ranksep = 0.96; // Rank Separation
 concentrate = true;
 
+
+edge [color=darkorange];
+ConnGrowth -> IAllSynapses [arrowhead=empty];
+ConnGrowth -> SimulationInfo [arrowhead=empty];
+
+edge [color=aquamarine];
+GPUSpikingModel -> AllSpikingNeurons [arrowhead=empty];
+GPUSpikingModel -> AllSpikingSynapses [arrowhead=empty];
+
+edge [color=darkorange];
+ConnStatic -> IAllSynapses [arrowhead=empty];
+ConnStatic -> SimulationInfo [arrowhead=empty];
+
+edge [color=gold];
+AllSTDPSynapses -> IAllNeurons [arrowhead=empty];
+
+edge [color=black];
 BGDriver -> IModel [arrowhead=ediamond];
+BGDriver -> FClassOfCategory [arrowhead=ediamond];
 BGDriver -> IRecorder [arrowhead=ediamond];
 BGDriver -> FSInput [arrowhead=ediamond];
+BGDriver -> Simulator [arrowhead=ediamond];
 BGDriver -> GPUSpikingModel [arrowhead=ediamond];
 BGDriver -> SingleThreadedSpikingModel [arrowhead=ediamond];
-AllNeurons -> Layout [arrowhead=ediamond];
-IAllNeurons -> Layout [arrowhead=ediamond];
-Layout -> SimulationInfo [arrowhead=ediamond];
+
+edge [color=aquamarine];
+SingleThreadedSpikingModel -> AllDSSynapses [arrowhead=ediamond];
+Model -> ConnGrowth [arrowhead=ediamond];
+Model -> Coordinate [arrowhead=ediamond];
 Model -> Layout [arrowhead=ediamond];
-ConnGrowth -> XmlGrowthRecorder [arrowhead=ediamond];
-ConnGrowth -> Hdf5GrowthRecorder [arrowhead=ediamond];
-Hdf5GrowthRecorder -> Model [arrowhead=ediamond];
-Hdf5GrowthRecorder -> AllIFNeurons [arrowhead=ediamond];
-Hdf5GrowthRecorder -> ConnGrowth [arrowhead=ediamond];
-Hdf5Recorder -> Model [arrowhead=ediamond];
-Hdf5Recorder -> AllIFNeurons [arrowhead=ediamond];
-IRecorder -> SimulationInfo [arrowhead=ediamond];
-IRecorder -> AllSpikingNeurons [arrowhead=ediamond];
-XmlGrowthRecorder -> Model [arrowhead=ediamond];
-XmlGrowthRecorder -> AllIFNeurons [arrowhead=ediamond];
-XmlGrowthRecorder -> ConnGrowth [arrowhead=ediamond];
-XmlRecorder -> Model [arrowhead=ediamond];
-XmlRecorder -> AllIFNeurons [arrowhead=ediamond];
-XmlRecorder -> ConnGrowth [arrowhead=ediamond];
+
+edge [color=darksalmon];
+Layout -> SimulationInfo [arrowhead=ediamond];
+
+edge [color=aquamarine];
+IModel -> IAllNeurons [arrowhead=ediamond];
+IModel -> IAllSynapses [arrowhead=ediamond];
+IModel -> IRecorder [arrowhead=ediamond];
+IModel -> Connections [arrowhead=ediamond];
+IModel -> Layout [arrowhead=ediamond];
+
+edge [color=darkorange];
+Connections -> IAllSynapses [arrowhead=ediamond];
+Connections -> SimulationInfo [arrowhead=ediamond];
+Connections -> AllSpikingNeurons [arrowhead=ediamond];
+Connections -> AllSpikingSynapses [arrowhead=ediamond];
 Connections -> Layout [arrowhead=ediamond];
 Connections -> IRecorder [arrowhead=ediamond];
-IModel -> IRecorder [arrowhead=ediamond];
-IModel -> Layout [arrowhead=ediamond];
+
+edge [color=darkgoldenrod];
+IRecorder -> SimulationInfo [arrowhead=ediamond];
+IRecorder -> AllSpikingNeurons [arrowhead=ediamond];
+
+edge [color=darkturquoise];
+AllSpikingNeurons -> AllSpikingSynapses [arrowhead=ediamond];
+AllSpikingNeurons -> SimulationInfo [arrowhead=ediamond];
+AllNeurons -> SimulationInfo [arrowhead=ediamond];
+AllNeurons -> SynapseIndexMap [arrowhead=ediamond];
+AllNeurons -> Layout [arrowhead=ediamond];
+IAllNeurons -> SynapseIndexMap [arrowhead=ediamond];
+IAllNeurons -> Layout [arrowhead=ediamond];
+
+edge [color=gold];
+AllSpikingSynapses -> AllSpikingNeurons [arrowhead=ediamond];
+AllSynapses -> AllNeurons [arrowhead=ediamond];
+AllSynapses -> SimulationInfo [arrowhead=ediamond];
+IAllSynapses -> SimulationInfo [arrowhead=ediamond];
+IAllSynapses -> SynapseIndexMap [arrowhead=ediamond];
+
+edge [color=darkorange];
+ConnGrowth -> XmlGrowthRecorder [arrowhead=ediamond];
+ConnGrowth -> Hdf5GrowthRecorder [arrowhead=ediamond];
+
+edge [color=darkgoldenrod];
+Hdf5GrowthRecorder -> AllIFNeurons [arrowhead=ediamond];
+Hdf5GrowthRecorder -> ConnGrowth [arrowhead=ediamond];
+Hdf5GrowthRecorder -> Model [arrowhead=ediamond];
+Hdf5GrowthRecorder -> H5Cpp [arrowhead=ediamond];
+Hdf5Recorder -> AllIFNeurons [arrowhead=ediamond];
+Hdf5Recorder -> Model [arrowhead=ediamond];
+Hdf5Recorder -> H5Cpp [arrowhead=ediamond];
+XmlGrowthRecorder -> AllIFNeurons [arrowhead=ediamond];
+XmlGrowthRecorder -> ConnGrowth [arrowhead=ediamond];
+XmlGrowthRecorder -> Model [arrowhead=ediamond];
+XmlRecorder -> AllIFNeurons [arrowhead=ediamond];
+XmlRecorder -> ConnGrowth [arrowhead=ediamond];
+XmlRecorder -> Model [arrowhead=ediamond];
+
+edge [color=aquamarine];
 GPUSpikingModel -> Book [arrowhead=ediamond];
-Simulator -> SimulationInfo [arrowhead=ediamond];
-Simulator -> IModel [arrowhead=ediamond];
 Simulator -> ISInput [arrowhead=ediamond];
+Simulator -> Timer [arrowhead=ediamond];
+
+edge [color=coral];
 ISInput -> SimulationInfo [arrowhead=ediamond];
 ISInput -> IModel [arrowhead=ediamond];
 ISInput -> tinyxml [arrowhead=ediamond];
-FSInput -> ISInput [arrowhead=ediamond];
-FSInput -> HostSInputRegular [arrowhead=ediamond];
-FSInput -> HostSInputPoisson [arrowhead=ediamond];
-FSInput -> GpuSInputRegular [arrowhead=ediamond];
-FSInput -> GpuSInputPoisson [arrowhead=ediamond];
+
+edge [color=hotpink];
+tinyxml -> BGTypes [arrowhead=ediamond];
+
+edge [color=coral];
 FSInput -> tinyxml [arrowhead=ediamond];
-GpuSInputPoisson -> GPUSpikingModel [arrowhead=ediamond];
+GpuSInputPoisson -> curand_kernel [arrowhead=ediamond];
 GpuSInputPoisson -> Book [arrowhead=ediamond];
-SInputPoisson -> AllDSSynapses [arrowhead=ediamond];
+GpuSInputPoisson -> GPUSpikingModel [arrowhead=ediamond];
 SInputPoisson -> tinyxml [arrowhead=ediamond];
+SInputPoisson -> AllDSSynapses [arrowhead=ediamond];
 GpuSInputRegular -> Book [arrowhead=ediamond];
 SInputRegular -> tinyxml [arrowhead=ediamond];
 HostSInputPoisson -> SingleThreadedSpikingModel [arrowhead=ediamond];
 HostSInputPoisson -> tinyxml [arrowhead=ediamond];
-FClassOfCategory -> IAllNeurons [arrowhead=ediamond];
-FClassOfCategory -> IAllSynapses [arrowhead=ediamond];
-FClassOfCategory -> Connections [arrowhead=ediamond];
-FClassOfCategory -> Layout [arrowhead=ediamond];
+
+edge [color=aquamarine];
 FClassOfCategory -> AllLIFNeurons [arrowhead=ediamond];
 FClassOfCategory -> AllIZHNeurons [arrowhead=ediamond];
 FClassOfCategory -> AllDSSynapses [arrowhead=ediamond];
@@ -415,6 +526,15 @@ FClassOfCategory -> ConnGrowth [arrowhead=ediamond];
 FClassOfCategory -> ConnStatic [arrowhead=ediamond];
 FClassOfCategory -> FixedLayout [arrowhead=ediamond];
 FClassOfCategory -> DynamicLayout [arrowhead=ediamond];
+FClassOfCategory -> IAllNeurons [arrowhead=ediamond];
+FClassOfCategory -> IAllSynapses [arrowhead=ediamond];
+FClassOfCategory -> Connections [arrowhead=ediamond];
+FClassOfCategory -> Layout [arrowhead=ediamond];
+
+edge [color=darkorange];
 ConnStatic -> XmlRecorder [arrowhead=ediamond];
 ConnStatic -> Hdf5Recorder [arrowhead=ediamond];
+
+edge [color=darkturquoise];
+AllLIFNeurons -> AllSpikingSynapses [arrowhead=ediamond];
 }//End digraph declaration

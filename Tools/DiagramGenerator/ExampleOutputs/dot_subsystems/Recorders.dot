@@ -1,10 +1,9 @@
 digraph{
 
-	subgraph clusterC {
-		color = gold
-		node [shape = record, color = gold];
+	subgraph clusterRecorders {
+		color = darkgoldenrod
+		node [shape = record, color = darkgoldenrod];
 
-		H5Cpp[label = H5Cpp, style = filled];
 		Hdf5GrowthRecorder[label = Hdf5GrowthRecorder, style = filled];
 		Hdf5Recorder[label = Hdf5Recorder, style = filled];
 		IRecorder[label = IRecorder, style = filled];
@@ -16,8 +15,8 @@ digraph{
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 0.98; // Node Separation
-		ranksep = 0.98; // Rank Separation
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
 
 
 		//INHERITANCE//
@@ -34,9 +33,5 @@ digraph{
 
 		//COMPOSITION//
 
-
-		Hdf5GrowthRecorder -> H5Cpp [arrowhead=ediamond];
-
-		Hdf5Recorder -> H5Cpp [arrowhead=ediamond];
-	}//end subgraph C
+	}//end subgraph Recorders
 }//end digraph

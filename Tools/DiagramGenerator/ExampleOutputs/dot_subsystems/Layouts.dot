@@ -1,6 +1,6 @@
 digraph{
 
-	subgraph clusterD {
+	subgraph clusterLayouts {
 		color = darksalmon
 		node [shape = record, color = darksalmon];
 
@@ -13,8 +13,8 @@ digraph{
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 0.98; // Node Separation
-		ranksep = 0.98; // Rank Separation
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
 
 
 		//INHERITANCE//
@@ -27,5 +27,5 @@ digraph{
 
 		//COMPOSITION//
 
-	}//end subgraph D
+	}//end subgraph Layouts
 }//end digraph
