@@ -11,6 +11,7 @@
    <!-- Random seed - set to zero to use /dev/random -->
    <!-- TODO: implement support for this -->
    <Seed value="1"/>
+   <GPUParams numGPU="2" />
    <!-- State output file name, this name will be overwritten if -o option is specified -->
    <OutputParams stateOutputFileName="test-small-out.xml"/>
 </SimInfoParams>

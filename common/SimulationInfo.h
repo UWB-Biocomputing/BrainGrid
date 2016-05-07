@@ -38,24 +38,26 @@ class ISInput;
 class SimulationInfo : public TiXmlVisitor
 {
 public:
-        SimulationInfo() :
-            width(0),
-            height(0),
-            totalNeurons(0),
-            currentStep(0),
-            maxSteps(0),
-            epochDuration(0),
-            maxFiringRate(0),
-            maxSynapsesPerNeuron(0),
-            deltaT(DEFAULT_dt),
-            maxRate(0),
-            pSummationMap(NULL),
-	    seed(0),
-            model(NULL),
-            simRecorder(NULL),
-            pInput(NULL)
-        {
-        }
+   SimulationInfo() :
+      numGPU(0),
+      individualGPUInfo(NULL),
+      width(0),
+      height(0),
+      totalNeurons(0),
+      currentStep(0),
+      maxSteps(0),
+      epochDuration(0),
+      maxFiringRate(0),
+      maxSynapsesPerNeuron(0),
+      deltaT(DEFAULT_dt),
+      maxRate(0),
+      pSummationMap(NULL),
+      seed(0),
+      model(NULL),
+      simRecorder(NULL),
+      pInput(NULL)
+      {
+      }
 
         virtual ~SimulationInfo() {}
 
@@ -88,47 +90,53 @@ public:
 
     public:
 
-	//! Width of neuron map (assumes square)
-	int width;
+   //! Number of GPUs to use .
+   int numGPU;
+   
+   //! Information for the part of the network each GPU will simulate
+   SimulationInfo * individualGPUInfo;
+    
+   //! Width of neuron map (assumes square)
+   int width;
 
-	//! Height of neuron map
-	int height;
+   //! Height of neuron map
+   int height;
 
-	//! Count of neurons in the simulation
-	int totalNeurons;
+   //! Count of neurons in the simulation
+   int totalNeurons;
 
-	//! Current simulation step
-	int currentStep;
+   //! Current simulation step
+   int currentStep;
 
-	//! Maximum number of simulation steps
-	int maxSteps; // TODO: delete
+   //! Maximum number of simulation steps
+   int maxSteps; // TODO: delete
 
-	//! The length of each step in simulation time
-	BGFLOAT epochDuration; // Epoch duration !!!!!!!!
+   //! The length of each step in simulation time
+   BGFLOAT epochDuration; // Epoch duration !!!!!!!!
 
-	//! Maximum firing rate. **Only used by GPU simulation.**
-	int maxFiringRate;
+   //! Maximum firing rate. **Only used by GPU simulation.**
+   int maxFiringRate;
 
-	//! Maximum number of synapses per neuron. **Only used by GPU simulation.**
-	int maxSynapsesPerNeuron;
+   //! Maximum number of synapses per neuron. **Only used by GPU simulation.**
+   int maxSynapsesPerNeuron;
 
-	//! Time elapsed between the beginning and end of the simulation step
-	BGFLOAT deltaT; // Inner Simulation Step Duration !!!!!!!!
+   //! Time elapsed between the beginning and end of the simulation step
+   BGFLOAT deltaT; // Inner Simulation Step Duration !!!!!!!!
 
-	//! The neuron type map (INH, EXC).
-	neuronType* rgNeuronTypeMap;
+   //! The neuron type map (INH, EXC).
+   neuronType* rgNeuronTypeMap;
 
-	//! The starter existence map (T/F).
-	bool* rgEndogenouslyActiveNeuronMap;
+   //! The starter existence map (T/F).
+   bool* rgEndogenouslyActiveNeuronMap;
 
-	//! growth variable (m_targetRate / m_epsilon) TODO: more detail here
-	BGFLOAT maxRate;
+   //! growth variable (m_targetRate / m_epsilon) TODO: more detail here
+   BGFLOAT maxRate;
 
-	//! List of summation points (either host or device memory)
-	BGFLOAT* pSummationMap;
+   //! List of summation points (either host or device memory)
+   BGFLOAT* pSummationMap;
 
-	//! Seed used for the simulation random SINGLE THREADED
-	long seed;
+   //! Seed used for the simulation random SINGLE THREADED
+   long seed;
 
         //! File name of the simulation results.
         string stateOutputFileName;
@@ -153,6 +161,8 @@ public:
 
         //! Stimulus input object.
         ISInput* pInput;
+        
+        
     
     private:
         /**
