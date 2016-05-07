@@ -129,7 +129,7 @@ PARAMOBJS = $(PARAMDIR)/ParamContainer.o
 		
 RNGOBJS = $(RNGDIR)/Norm.o
 
-SINGLEOBJS = $(MAIN)/BGDriver.o  \
+SINGLEOBJS = $(COMMDIR)/BGDriver.o  \
 			$(COMMDIR)/SingleThreadedSpikingModel.o \
 			$(SINPUTDIR)/FSInput.o \
 			$(COMMDIR)/FClassOfCategory.o \
@@ -211,8 +211,8 @@ $(CUDADIR)/AllDynamicSTDPSynapses_d.o: $(CUDADIR)/AllDynamicSTDPSynapses_d.cu $(
 $(CUDADIR)/ConnGrowth_d.o: $(CUDADIR)/ConnGrowth_d.cu $(COMMDIR)/Global.h $(COMMDIR)/ConnGrowth.h
 	nvcc -c -g -arch=sm_20 -rdc=true $(CUDADIR)/ConnGrowth_d.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(MATRIXDIR) -o $(CUDADIR)/ConnGrowth_d.o
 
-$(CUDADIR)/BGDriver_cuda.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/IModel.h $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/AllSynapses.h 
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -I$(CUDADIR) -c $(MAIN)/BGDriver.cpp -o $(CUDADIR)/BGDriver_cuda.o
+$(CUDADIR)/BGDriver_cuda.o: $(COMMDIR)/BGDriver.cpp $(COMMDIR)/Global.h $(COMMDIR)/IModel.h $(COMMDIR)/AllIFNeurons.h $(COMMDIR)/AllSynapses.h 
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -I$(CUDADIR) -c $(COMMDIR)/BGDriver.cpp -o $(CUDADIR)/BGDriver_cuda.o
 
 $(CUDADIR)/AllNeurons_cuda.o: $(COMMDIR)/AllNeurons.cpp $(COMMDIR)/AllNeurons.h $(COMMDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COMMDIR)/AllNeurons.cpp -o $(CUDADIR)/AllNeurons_cuda.o
@@ -427,8 +427,8 @@ $(SINPUTDIR)/GpuSInputPoisson.o: $(SINPUTDIR)/GpuSInputPoisson.cu $(SINPUTDIR)/I
 # Single Threaded
 # ------------------------------------------------------------------------------
 
-$(MAIN)/BGDriver.o: $(MAIN)/BGDriver.cpp $(COMMDIR)/Global.h 
-	$(CXX) $(CXXFLAGS) $(MAIN)/BGDriver.cpp -o $(MAIN)/BGDriver.o
+$(MAIN)/BGDriver.o: $(COMMDIR)/BGDriver.cpp $(COMMDIR)/Global.h 
+	$(CXX) $(CXXFLAGS) $(COMMDIR)/BGDriver.cpp -o $(COMMDIR)/BGDriver.o
 
 
 
