@@ -51,7 +51,7 @@ includes = []
 # List of items to ignore, including directories
 # NOTE : Adding directories to this list will make it so that ANY directories with that name are skipped. So
 # ./Blah/Foo/old will be skipped AND ./old will be skipped if "old" is added to this list.
-ignores = ["Global.cpp", "Global.h", "old", "ParseParamError.cpp", "ParseParamError.h", "Util.cpp", "Util.h"]
+ignores = ["old"]
 
 # List of file extensions to ignore - modified by the script itself
 extension_ignores = []

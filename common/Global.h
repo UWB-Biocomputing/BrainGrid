@@ -58,9 +58,9 @@ typedef unsigned long long int uint64_t;	//included in inttypes.h, which is not 
 #include <inttypes.h>	//used for uint64_t, unavailable in WIN32
 #endif
 #include "BGTypes.h"
-#include "../rng/Norm.h"
+#include "Norm.h"
 #include "Coordinate.h"
-#include "../matrix/VectorMatrix.h"
+#include "VectorMatrix.h"
 
 using namespace std;
 
@@ -88,7 +88,7 @@ const int g_nMaxChunkSize = 100;
 
 // NETWORK MODEL VARIABLES NMV-BEGIN {
 //! Neuron types.
-//!	INH - Inhibitory neuron 
+//!	INH - Inhibitory neuron
 //!	EXC - Excitory neuron
 enum neuronType { INH = 1, EXC = 2, NTYPE_UNDEF = 0 };
 

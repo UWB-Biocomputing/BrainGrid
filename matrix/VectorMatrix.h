@@ -37,7 +37,7 @@
 #include "Matrix.h"
 #include "CompleteMatrix.h"
 #include "SparseMatrix.h"
-#include "../rng/Norm.h"
+#include "Norm.h"
 
 using namespace std;
 
@@ -283,7 +283,7 @@ public:
     @param rhs The vector
     @return A vector the same size as the rhs
   */
-  friend 
+  friend
   inline const VectorMatrix operator*(BGFLOAT c, const VectorMatrix& rhs)
   {
     return rhs * c;
