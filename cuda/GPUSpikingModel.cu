@@ -370,16 +370,18 @@ __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeuron
     if ( idx >= num_neurons )
         return;
 
-    #define src_neuron idx //maybe save a register
+    #define dest_neuron idx //maybe save a register
     int n_inUse = 0;
-    for (int syn_index = 0; n_inUse < allSynapsesDevice->synapse_counts[src_neuron]; syn_index++) {
-        if (allSynapsesDevice->in_use[max_synapses * src_neuron + syn_index] == true) {
-            int dest_neuron = allSynapsesDevice->destNeuronIndex[max_synapses * src_neuron + syn_index];
-            allSynapsesDevice->summationPoint[max_synapses * src_neuron + syn_index] = &( allNeuronsDevice->summation_map[dest_neuron] );
+    
+    //set the summationPoint for every synapse this neuron has to the destination neuron. Since each
+    //neuron stores the synapses that input into it, this neuron is the destination neuron.
+    for (int syn_index = 0; n_inUse < allSynapsesDevice->synapse_counts[dest_neuron]; syn_index++) {
+        if (allSynapsesDevice->in_use[max_synapses * dest_neuron + syn_index] == true) {
+            allSynapsesDevice->summationPoint[max_synapses * dest_neuron + syn_index] = &( allNeuronsDevice->summation_map[dest_neuron] );
             n_inUse++;
         }
     }
-    #undef src_neuron
+    #undef dest_neuron
 }
 
 /* 

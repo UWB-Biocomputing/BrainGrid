@@ -225,7 +225,7 @@ class AllSynapses : public IAllSynapses
         bool *in_use;
 
         /**
-         *  The number of synapses for each neuron.
+         *  The number of synapses for each neuron. Specifically, the number of incoming synapses.
          *  Note: Likely under a different name in GpuSim_struct, see synapse_count. -Aaron
          */
         size_t *synapse_counts;
