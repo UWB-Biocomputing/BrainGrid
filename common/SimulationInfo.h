@@ -37,130 +37,141 @@ class ISInput;
 //! Class design to hold all of the parameters of the simulation.
 class SimulationInfo : public TiXmlVisitor
 {
-public:
-   SimulationInfo() :
-      numGPU(0),
-      individualGPUInfo(NULL),
-      width(0),
-      height(0),
-      totalNeurons(0),
-      currentStep(0),
-      maxSteps(0),
-      epochDuration(0),
-      maxFiringRate(0),
-      maxSynapsesPerNeuron(0),
-      deltaT(DEFAULT_dt),
-      maxRate(0),
-      pSummationMap(NULL),
-      seed(0),
-      model(NULL),
-      simRecorder(NULL),
-      pInput(NULL)
-      {
-      }
+   public:
+      SimulationInfo() :
+         numGPU(0),
+         individualGPUInfo(NULL),
+         width(0),
+         height(0),
+         totalNeurons(0),
+         currentStep(0),
+         maxSteps(0),
+         epochDuration(0),
+         maxFiringRate(0),
+         maxSynapsesPerNeuron(0),
+         deltaT(DEFAULT_dt),
+         maxRate(0),
+         pSummationMap(NULL),
+         seed(0),
+         model(NULL),
+         simRecorder(NULL),
+         pInput(NULL)
+         {
+         }
 
-        virtual ~SimulationInfo() {}
+      
+      
+      virtual ~SimulationInfo() {}
 
-        /**
-         *  Attempts to read parameters from a XML file.
-         *
-         *  @param  simDoc  the TiXmlDocument to read from.
-         *  @return true if successful, false otherwise.
-         */
-        bool readParameters(TiXmlDocument* simDoc);
+      /**
+      *  Attempts to read parameters from a XML file.
+      *
+      *  @param  simDoc  the TiXmlDocument to read from.
+      *  @return true if successful, false otherwise.
+      */
+      bool readParameters(TiXmlDocument* simDoc);
 
-        /**
-         *  Prints out loaded parameters to ostream.
-         *
-         *  @param  output  ostream to send output to.
-         */
-        void printParameters(ostream &output) const;
+      /**
+      *  Prints out loaded parameters to ostream.
+      *
+      *  @param  output  ostream to send output to.
+      */
+      void printParameters(ostream &output) const;
+      
+      /**
+      *  Checks the number of GPUs being used,
+      *  creates the relevent number of sim_infos,
+      *  copies all the data from the parent
+      *  info structure, and then calcuates and updates
+      *  the width, height, and totalNeurons as needed.
+      */
+      void setupIndividualGPUInfo();
 
-    protected:
-        using TiXmlVisitor::VisitEnter;
+   protected:
+      using TiXmlVisitor::VisitEnter;
 
-        /*
-         *  Handles loading of parameters using tinyxml from the parameter file.
-         *
-         *  @param  element TiXmlElement to examine.
-         *  @param  firstAttribute  ***NOT USED***.
-         *  @return true if method finishes without errors.
-         */
-        virtual bool VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute);
+      /*
+      *  Handles loading of parameters using tinyxml from the parameter file.
+      *
+      *  @param  element TiXmlElement to examine.
+      *  @param  firstAttribute  ***NOT USED***.
+      *  @return true if method finishes without errors.
+      */
+      virtual bool VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute);
 
-    public:
+   public:
 
-   //! Number of GPUs to use .
-   int numGPU;
-   
-   //! Information for the part of the network each GPU will simulate
-   SimulationInfo * individualGPUInfo;
-    
-   //! Width of neuron map (assumes square)
-   int width;
+      //! Number of GPUs to use .
+      int numGPU;
 
-   //! Height of neuron map
-   int height;
+      //! Information for the part of the network each GPU will simulate
+      SimulationInfo * individualGPUInfo;
+       
+      //! Width of neuron map (assumes square)
+      int width;
 
-   //! Count of neurons in the simulation
-   int totalNeurons;
+      //! Height of neuron map
+      int height;
 
-   //! Current simulation step
-   int currentStep;
+      //! Count of neurons in the simulation
+      int totalNeurons;
 
-   //! Maximum number of simulation steps
-   int maxSteps; // TODO: delete
+      //! Current simulation step
+      int currentStep;
 
-   //! The length of each step in simulation time
-   BGFLOAT epochDuration; // Epoch duration !!!!!!!!
+      //! Maximum number of simulation steps
+      int maxSteps; // TODO: delete
 
-   //! Maximum firing rate. **Only used by GPU simulation.**
-   int maxFiringRate;
+      //! The length of each step in simulation time
+      BGFLOAT epochDuration; // Epoch duration !!!!!!!!
 
-   //! Maximum number of synapses per neuron. **Only used by GPU simulation.**
-   int maxSynapsesPerNeuron;
+      //! Maximum firing rate. **Only used by GPU simulation.**
+      int maxFiringRate;
 
-   //! Time elapsed between the beginning and end of the simulation step
-   BGFLOAT deltaT; // Inner Simulation Step Duration !!!!!!!!
+      //! Maximum number of synapses per neuron. **Only used by GPU simulation.**
+      int maxSynapsesPerNeuron;
 
-   //! The neuron type map (INH, EXC).
-   neuronType* rgNeuronTypeMap;
+      //! Time elapsed between the beginning and end of the simulation step
+      BGFLOAT deltaT; // Inner Simulation Step Duration !!!!!!!!
 
-   //! The starter existence map (T/F).
-   bool* rgEndogenouslyActiveNeuronMap;
+      //! The neuron type map (INH, EXC).
+      neuronType* rgNeuronTypeMap;
 
-   //! growth variable (m_targetRate / m_epsilon) TODO: more detail here
-   BGFLOAT maxRate;
+      //! The starter existence map (T/F).
+      bool* rgEndogenouslyActiveNeuronMap;
 
-   //! List of summation points (either host or device memory)
-   BGFLOAT* pSummationMap;
+      //! growth variable (m_targetRate / m_epsilon) TODO: more detail here
+      BGFLOAT maxRate;
 
-   //! Seed used for the simulation random SINGLE THREADED
-   long seed;
+      //! List of summation points (either host or device memory)
+      BGFLOAT* pSummationMap;
 
-        //! File name of the simulation results.
-        string stateOutputFileName;
+      //! Seed used for the simulation random SINGLE THREADED
+      long seed;
 
-        //! File name of the parameter description file.
-        string stateInputFileName;
+      //! File name of the simulation results.
+      string stateOutputFileName;
 
-        //! File name of the memory dump output file.
-        string memOutputFileName;
+      //! File name of the parameter description file.
+      string stateInputFileName;
 
-        //! File name of the memory dump input file.
-        string memInputFileName;
+      //! File name of the memory dump output file.
+      string memOutputFileName;
 
-        //! File name of the stimulus input file.
-        string stimulusInputFileName;
+      //! File name of the memory dump input file.
+      string memInputFileName;
 
-        //! Neural Network Model interface.
-        IModel *model;
+      //! File name of the stimulus input file.
+      string stimulusInputFileName;
 
-        //! Recorder object.
-        IRecorder* simRecorder;
+      //! Neural Network Model interface.
+      IModel *model;
 
-        //! Stimulus input object.
-        ISInput* pInput;
+      //! Recorder object.
+      IRecorder* simRecorder;
+
+      //! Stimulus input object.
+      ISInput* pInput;
         
         
     

@@ -127,7 +127,7 @@ class AllIFNeurons : public AllSpikingNeurons
          *  @param  randNoise              Reference to the random noise array.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, IAllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
+        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons** allNeuronsDevice, IAllSynapses** allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap** synapseIndexMapDevice);
 
         /**
          *  Allocate GPU memories to store all neurons' states,
@@ -152,7 +152,7 @@ class AllIFNeurons : public AllSpikingNeurons
          *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-        virtual void copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void copyNeuronHostToDevice( void** allNeuronsDevice, const SimulationInfo *sim_info );
 
         /**
          *  Copy all neurons' data from device to host.
@@ -212,7 +212,7 @@ class AllIFNeurons : public AllSpikingNeurons
          *  @param  allNeurons         Reference to the allIFNeurons struct.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-	void copyHostToDevice( AllIFNeurons& allNeurons, const SimulationInfo *sim_info );
+	void copyHostToDevice( AllIFNeurons& allNeurons, const SimulationInfo *sim_info, const int offsetFromFirstNeuron );
 
         /**
          *  Copy all neurons' data from device to host.

@@ -170,17 +170,17 @@ protected:
 	float* randNoise_d;
 
 	//! Pointer to synapse index map in device memory.
-	SynapseIndexMap* synapseIndexMapDevice;
+	SynapseIndexMap** synapseIndexMapDevice;
 
 	/*----------------------------------------------*\
 	|  Member variables
 	\*----------------------------------------------*/
 
 	//! Synapse structures in device memory.
-	AllSpikingSynapses* m_allSynapsesDevice;
+	AllSpikingSynapses** m_allSynapsesDevice;
 
 	//! Neuron structure in device memory.
-	AllSpikingNeurons* m_allNeuronsDevice;
+	AllSpikingNeurons** m_allNeuronsDevice;
 
 private: 
 	/* ------------------*\

@@ -65,7 +65,7 @@ void GPUSpikingModel::allocDeviceStruct(void** allNeuronsDevice, void** allSynap
 	HANDLE_ERROR( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
 
 	// Copy host neuron and synapse arrays into GPU device
-	m_neurons->copyNeuronHostToDevice( *allNeuronsDevice, sim_info );
+	m_neurons->copyNeuronHostToDevice( allNeuronsDevice, sim_info );
 	m_synapses->copySynapseHostToDevice( *allSynapsesDevice, sim_info );
 
 	// allocate synapse inverse map in device memory
@@ -113,14 +113,17 @@ void GPUSpikingModel::setupSim(SimulationInfo *sim_info)
 
     Model::setupSim(sim_info);
 
-    //initialize Mersenne Twister
-    //assuming neuron_count >= 100 and is a multiple of 100. Note rng_mt_rng_count must be <= MT_RNG_COUNT
-    int rng_blocks = 25; //# of blocks the kernel will use
-    int rng_nPerRng = 4; //# of iterations per thread (thread granularity, # of rands generated per thread)
-    int rng_mt_rng_count = sim_info->totalNeurons/rng_nPerRng; //# of threads to generate for neuron_count rand #s
-    int rng_threads = rng_mt_rng_count/rng_blocks; //# threads per block needed
-    initMTGPU(sim_info->seed, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
-
+   for(int i = 0; i < sim_info->numGPU; i++){
+      cudaSetDevice(i);
+      //initialize Mersenne Twister
+      //assuming neuron_count >= 100 and is a multiple of 100. Note rng_mt_rng_count must be <= MT_RNG_COUNT
+      int rng_blocks = 25; //# of blocks the kernel will use
+      int rng_nPerRng = 4; //# of iterations per thread (thread granularity, # of rands generated per thread)
+      int rng_mt_rng_count = sim_info->individualGPUInfo[i].totalNeurons/rng_nPerRng; //# of threads to generate for neuron_count rand #s
+      int rng_threads = rng_mt_rng_count/rng_blocks; //# threads per block needed
+      initMTGPU(sim_info->seed, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
+   }
+   
 #ifdef PERFORMANCE_METRICS
     cudaEventCreate( &start );
     cudaEventCreate( &stop );
@@ -131,23 +134,30 @@ void GPUSpikingModel::setupSim(SimulationInfo *sim_info)
     t_gpu_calcSummation = 0.0f;
 #endif // PERFORMANCE_METRICS
 
-    // allocates memories on CUDA device
-    allocDeviceStruct((void **)&m_allNeuronsDevice, (void **)&m_allSynapsesDevice, sim_info);
+   m_allNeuronsDevice = new  AllSpikingNeurons*[sim_info->numGPU];
+   m_allSynapsesDevice = new AllSpikingSynapses*[sim_info->numGPU];
 
-    // set device summation points
-    int neuron_count = sim_info->totalNeurons;
-    const int threadsPerBlock = 256;
-    int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-    setSynapseSummationPointDevice <<< blocksPerGrid, threadsPerBlock >>> (neuron_count, m_allNeuronsDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron, sim_info->width);
+   for(int i = 0; i < sim_info->numGPU; i++){
+      cudaSetDevice(i);
+      
+      // allocates memories on CUDA device
+      allocDeviceStruct((void **)&m_allNeuronsDevice[i], (void **)&m_allSynapsesDevice[i], &sim_info->individualGPUInfo[i]);
 
-    // copy inverse map to the device memory
-    copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
+      // set device summation points
+      int neuron_count = sim_info->individualGPUInfo[i].totalNeurons;
+      const int threadsPerBlock = 256;
+      int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
+      setSynapseSummationPointDevice <<< blocksPerGrid, threadsPerBlock >>> (neuron_count, m_allNeuronsDevice[i], m_allSynapsesDevice[i], sim_info->maxSynapsesPerNeuron, sim_info->individualGPUInfo[i].width);
 
-    // set some parameters used for advanceNeuronsDevice
-    m_neurons->setAdvanceNeuronsDeviceParams(*m_synapses);
+      // copy inverse map to the device memory
+      copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
 
-    // set some parameters used for advanceSynapsesDevice
-    m_synapses->setAdvanceSynapsesDeviceParams();
+      // set some parameters used for advanceNeuronsDevice
+      m_neurons->setAdvanceNeuronsDeviceParams(*m_synapses);
+
+      // set some parameters used for advanceSynapsesDevice
+      m_synapses->setAdvanceSynapsesDeviceParams();
+   }
 }
 
 /* 
@@ -174,20 +184,23 @@ void GPUSpikingModel::cleanupSim(SimulationInfo *sim_info)
  */
 void GPUSpikingModel::deserialize(istream& input, const SimulationInfo *sim_info)
 {
-    Model::deserialize(input, sim_info);
+   Model::deserialize(input, sim_info);
+   
+   // copy inverse map to the device memory
+   copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
 
-    // copy inverse map to the device memory
-    copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
+   // Reinitialize device struct - Copy host neuron and synapse arrays into GPU device
+   m_neurons->copyNeuronHostToDevice( reinterpret_cast<void**>(m_allNeuronsDevice), sim_info );
+   m_synapses->copySynapseHostToDevice( m_allSynapsesDevice, sim_info );
 
-    // Reinitialize device struct - Copy host neuron and synapse arrays into GPU device
-    m_neurons->copyNeuronHostToDevice( m_allNeuronsDevice, sim_info );
-    m_synapses->copySynapseHostToDevice( m_allSynapsesDevice, sim_info );
-
-    // set summation points
-    int neuron_count = sim_info->totalNeurons;
-    const int threadsPerBlock = 256;
-    int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-    setSynapseSummationPointDevice <<< blocksPerGrid, threadsPerBlock >>> (neuron_count, m_allNeuronsDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron, sim_info->width);
+   for(int i = 0; i < sim_info->numGPU; i++){
+      cudaSetDevice(i);
+      // set device summation points
+      int neuron_count = sim_info->individualGPUInfo[i].totalNeurons;
+      const int threadsPerBlock = 256;
+      int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
+      setSynapseSummationPointDevice <<< blocksPerGrid, threadsPerBlock >>> (neuron_count, m_allNeuronsDevice[i], m_allSynapsesDevice[i], sim_info->maxSynapsesPerNeuron, sim_info->individualGPUInfo[i].width);
+   }
 }
 
 /* 
@@ -212,7 +225,7 @@ void GPUSpikingModel::advance(const SimulationInfo *sim_info)
 
 	// display running info to console
 	// Advance neurons ------------->
-	m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoise_d, synapseIndexMapDevice);
+   m_neurons->advanceNeurons(*m_synapses, reinterpret_cast<IAllNeurons **>(m_allNeuronsDevice), (IAllSynapses **)(m_allSynapsesDevice), sim_info, randNoise_d, synapseIndexMapDevice);
 
 #ifdef PERFORMANCE_METRICS
 	lapTime(t_gpu_advanceNeurons);
@@ -220,15 +233,18 @@ void GPUSpikingModel::advance(const SimulationInfo *sim_info)
 #endif // PERFORMANCE_METRICS
 
 	// Advance synapses ------------->
-	m_synapses->advanceSynapses(m_allSynapsesDevice, m_allNeuronsDevice, synapseIndexMapDevice, sim_info);
-
+   for(int i = 0; i < sim_info->numGPU; i++){
+      cudaSetDevice(i);
+	   m_synapses->advanceSynapses(m_allSynapsesDevice[i], m_allNeuronsDevice[i], synapseIndexMapDevice[i], &sim_info->individualGPUInfo[i]);
+   }
+   
 #ifdef PERFORMANCE_METRICS
 	lapTime(t_gpu_advanceSynapses);
 	startTimer();
 #endif // PERFORMANCE_METRICS
 
 	// calculate summation point
-        calcSummationMap(sim_info);
+   calcSummationMap(sim_info);
 
 #ifdef PERFORMANCE_METRICS
 	lapTime(t_gpu_calcSummation);
@@ -244,8 +260,11 @@ void GPUSpikingModel::calcSummationMap(const SimulationInfo *sim_info)
 {
     // CUDA parameters
     const int threadsPerBlock = 256;
-    int blocksPerGrid = ( sim_info->totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
-    calcSummationMapDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, m_allNeuronsDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron);
+   for(int i = 0; i < sim_info->numGPU; i++){
+      cudaSetDevice(i);
+      int blocksPerGrid = ( sim_info->individualGPUInfo[i].totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
+      calcSummationMapDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->individualGPUInfo[i].totalNeurons, m_allNeuronsDevice[i], m_allSynapsesDevice[i], sim_info->maxSynapsesPerNeuron);
+   }
 }
 
 /* 
@@ -260,7 +279,7 @@ void GPUSpikingModel::updateConnections(const SimulationInfo *sim_info)
 
         // Update Connections data
         if (m_conns->updateConnections(*m_neurons, sim_info, m_layout)) {
-	    m_conns->updateSynapsesWeights(sim_info->totalNeurons, *m_neurons, *m_synapses, sim_info, m_allNeuronsDevice, m_allSynapsesDevice, m_layout);
+	         m_conns->updateSynapsesWeights(sim_info->totalNeurons, *m_neurons, *m_synapses, sim_info, m_allNeuronsDevice, m_allSynapsesDevice, m_layout);
             // create synapse inverse map
             m_synapses->createSynapseImap(m_synapseIndexMap, sim_info);
             // copy inverse map to the device memory
@@ -322,10 +341,11 @@ void GPUSpikingModel::deleteSynapseImap(  )
  *
  *  @param  synapseIndexMapHost		Reference to the SynapseIndexMap in host memory.
  *  @param  neuron_count		The number of neurons.
+ *  GETDONE: Split and correct the synapse index map for each GPU
  */
 void GPUSpikingModel::copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIndexMapHost, int neuron_count)
 {
-        int total_synapse_counts = dynamic_cast<AllSynapses*>(m_synapses)->total_synapse_counts;
+   int total_synapse_counts = dynamic_cast<AllSynapses*>(m_synapses)->total_synapse_counts;
 
 	if (total_synapse_counts == 0)
 		return;

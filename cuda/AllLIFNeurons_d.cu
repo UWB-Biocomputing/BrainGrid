@@ -12,17 +12,23 @@
  *  @param  randNoise              Reference to the random noise array.
  *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
  */
-void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, IAllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice )
+void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, IAllNeurons** allNeuronsDevice, IAllSynapses** allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap** synapseIndexMapDevice )
 {
-    int neuron_count = sim_info->totalNeurons;
-    int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
+   int neuron_count;
+   int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
 
-    // CUDA parameters
-    const int threadsPerBlock = 256;
-    int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
+   // CUDA parameters
+   const int threadsPerBlock = 256;
+   int blocksPerGrid;
+    
+   for(int i = 0; i < sim_info->numGPU; i++){
+      cudaSetDevice(i);
+      neuron_count = sim_info->individualGPUInfo[i].totalNeurons;
+      blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
-    // Advance neurons ------------->
-    advanceLIFNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeurons *)allNeuronsDevice, (AllSpikingSynapses*)allSynapsesDevice, synapseIndexMapDevice, (void (*)(const uint32_t, AllSpikingSynapses*))m_fpPreSpikeHit_h, (void (*)(const uint32_t, AllSpikingSynapses*))m_fpPostSpikeHit_h, m_fAllowBackPropagation );
+      // Advance neurons ------------->
+      advanceLIFNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeurons *)allNeuronsDevice[i], (AllSpikingSynapses*)allSynapsesDevice[i], synapseIndexMapDevice[i], (void (*)(const uint32_t, AllSpikingSynapses*))m_fpPreSpikeHit_h, (void (*)(const uint32_t, AllSpikingSynapses*))m_fpPostSpikeHit_h, m_fAllowBackPropagation);
+   }
 }
 
 /* ------------------*\

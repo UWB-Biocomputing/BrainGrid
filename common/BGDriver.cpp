@@ -64,6 +64,7 @@ int main(int argc, char* argv[]) {
         cerr << "! ERROR: failed while parsing simulation parameters." << endl;
         return -1;
     }
+    
 
     // create & init simulation recorder
     simInfo->simRecorder = simInfo->model->getConnections()->createRecorder(simInfo);
@@ -226,6 +227,7 @@ bool LoadAllParameters(SimulationInfo *simInfo)
     if (simInfo->readParameters(&simDoc) != true) {
         return false;
     }
+    simInfo->setupIndividualGPUInfo();
 
     // create instances of all model classes
     DEBUG(cout << "creating instances of all classes" << endl;)

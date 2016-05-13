@@ -111,7 +111,7 @@ class IAllNeurons
          *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-        virtual void copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info ) = 0;
+        virtual void copyNeuronHostToDevice( void** allNeuronsDevice, const SimulationInfo *sim_info ) = 0;
 
         /**
          *  Copy all neurons' data from device to host.
@@ -132,7 +132,7 @@ class IAllNeurons
          *  @param  randNoise              Reference to the random noise array.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, IAllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice) = 0;
+        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons** allNeuronsDevice, IAllSynapses** allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap** synapseIndexMapDevice) = 0;
 
         /**
          *  Set some parameters used for advanceNeuronsDevice.

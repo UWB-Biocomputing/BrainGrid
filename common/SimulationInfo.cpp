@@ -114,16 +114,6 @@ bool SimulationInfo::VisitEnter(const TiXmlElement& element, const TiXmlAttribut
       if (element.QueryIntAttribute("numGPU", &numGPU) != TIXML_SUCCESS) {
          throw ParseParamError("GPUParams numGPU", "GPUParams missing numGPU value in XML.");
       }
-      else{
-         individualGPUInfo = new SimulationInfo[numGPU];
-         for(int i = 0; i < numGPU; i++){
-            individualGPUInfo[i].width = width/numGPU;
-            individualGPUInfo[i].height = height;
-            individualGPUInfo[i].totalNeurons =  individualGPUInfo[i].width * individualGPUInfo[i].height;
-         }
-         individualGPUInfo[numGPU - 1].width += width % numGPU;
-         individualGPUInfo[numGPU - 1].totalNeurons =  individualGPUInfo[numGPU - 1].width * individualGPUInfo[numGPU - 1].height;
-      }
    }
 
    if (element.ValueStr().compare("OutputParams") == 0) {
@@ -154,5 +144,24 @@ void SimulationInfo::printParameters(ostream &output) const
     cout << "Simulation Parameters:\n";
     cout << "\tTime between growth updates (in seconds): " << epochDuration << endl;
     cout << "\tNumber of simulations to run: " << maxSteps << endl;
+}
+
+/*
+ *  Checks the number of GPUs being used,
+ *  creates the relevent number of sim_infos,
+ *  copies all the data from the parent
+ *  info structure, and then calcuates and updates
+ *  the width, height, and totalNeurons as needed.
+ */
+void SimulationInfo::setupIndividualGPUInfo(){
+   individualGPUInfo = new SimulationInfo[numGPU];
+   for(int i = 0; i < numGPU; i++){
+      individualGPUInfo[i] = SimulationInfo(*this);
+      individualGPUInfo[i].width = width/numGPU;
+      individualGPUInfo[i].height = height;
+      individualGPUInfo[i].totalNeurons =  individualGPUInfo[i].width * individualGPUInfo[i].height;
+   }
+   individualGPUInfo[numGPU - 1].width += width % numGPU;
+   individualGPUInfo[numGPU - 1].totalNeurons =  individualGPUInfo[numGPU - 1].width * individualGPUInfo[numGPU - 1].height;
 }
 
