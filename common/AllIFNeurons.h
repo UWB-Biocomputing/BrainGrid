@@ -160,7 +160,7 @@ class AllIFNeurons : public AllSpikingNeurons
          *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-        virtual void copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void copyNeuronDeviceToHost( void** allNeuronsDevice, const SimulationInfo *sim_info, const int offsetFromFirstNeuron );
 
         /**
          *  Copy spike history data stored in device memory to host.
