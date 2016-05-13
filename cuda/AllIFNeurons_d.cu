@@ -15,11 +15,12 @@
  */
 void AllIFNeurons::allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info ) {
 	AllIFNeurons allNeurons;
-
-	allocDeviceStruct( allNeurons, sim_info );
-
-        HANDLE_ERROR( cudaMalloc( allNeuronsDevice, sizeof( AllIFNeurons ) ) );
-        HANDLE_ERROR( cudaMemcpy ( *allNeuronsDevice, &allNeurons, sizeof( AllIFNeurons ), cudaMemcpyHostToDevice ) );
+   int offsetFromFirstNeuron = 0;
+   for(int i =0; i < sim_info->numGPU; i++){
+      allocDeviceStruct( allNeurons, &sim_info->individualGPUInfo[i] );
+      HANDLE_ERROR( cudaMalloc( allNeuronsDevice, sizeof( AllIFNeurons ) ) );
+      HANDLE_ERROR( cudaMemcpy ( allNeuronsDevice[i], &allNeurons, sizeof( AllIFNeurons ), cudaMemcpyHostToDevice ) );\
+   }
 }
 
 /*
