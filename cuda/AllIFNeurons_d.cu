@@ -16,6 +16,7 @@
 void AllIFNeurons::allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info ) {
 	AllIFNeurons allNeurons;
    for(int i =0; i < sim_info->numGPU; i++){
+      cudaSetDevice(i);
       allocDeviceStruct( allNeurons, &sim_info->individualGPUInfo[i] );
       HANDLE_ERROR( cudaMalloc( allNeuronsDevice, sizeof( AllIFNeurons ) ) );
       HANDLE_ERROR( cudaMemcpy ( allNeuronsDevice[i], &allNeurons, sizeof( AllIFNeurons ), cudaMemcpyHostToDevice ) );\
@@ -74,12 +75,13 @@ void AllIFNeurons::allocDeviceStruct( AllIFNeurons &allNeurons, SimulationInfo *
  */
 void AllIFNeurons::deleteNeuronDeviceStruct( void* allNeuronsDevice, const SimulationInfo *sim_info ) {
 	AllIFNeurons allNeurons;
-
-	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
-
-	deleteDeviceStruct( allNeurons, sim_info );
-
-	HANDLE_ERROR( cudaFree( allNeuronsDevice ) );
+   
+   for(int i =0; i < sim_info->numGPU; i++){
+      cudaSetDevice(i);
+	   HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
+	   deleteDeviceStruct( allNeurons, sim_info );
+      HANDLE_ERROR( cudaFree( allNeuronsDevice ) );
+   }
 }
 
 /*
@@ -132,6 +134,7 @@ void AllIFNeurons::copyNeuronHostToDevice( void** allNeuronsDevice, const Simula
 	AllIFNeurons allNeurons;
    int offsetFromFirstNeuron = 0;
    for(int i =0; i < sim_info->numGPU; i++){
+      cudaSetDevice(i);
       //copy the base addresses for all the arrays on the device
       HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice[i], sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
       
@@ -191,6 +194,7 @@ void AllIFNeurons::copyNeuronDeviceToHost( void** allNeuronsDevice, const Simula
 
    int offsetFromFirstNeuron = 0;
    for(int i =0; i < sim_info->numGPU; i++){
+      cudaSetDevice(i);
       //get pointers to arrays on device
       HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice[i], sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
       copyDeviceToHost( allNeurons, sim_info[i],  );
