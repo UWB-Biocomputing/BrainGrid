@@ -96,9 +96,9 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BG
         synapseType type = synType(neuron_type_map_d, src_neuron, dest_neuron);
 
         // for each existing synapse
-        size_t synapse_counts = allSynapsesDevice->synapse_counts[src_neuron];
-        int synapse_adjusted = 0;
-        for (size_t synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++) {
+        size_t existing_synapses = allSynapsesDevice->synapse_counts[src_neuron];
+        int existing_synapses_checked = 0;
+        for (size_t synapse_index = 0; (existing_synapses_checked < existing_synapses) && !connected; synapse_index++) {
             uint32_t iSyn = maxSynapses * src_neuron + synapse_index;
             if (allSynapsesDevice->in_use[iSyn] == true) {
                 // if there is a synapse between a and b
@@ -119,7 +119,7 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BG
                             + dest_neuron] * synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
                     }
                 }
-                synapse_adjusted++;
+                existing_synapses_checked++;
             }
         }
 
