@@ -123,6 +123,25 @@ class AllLIFNeurons : public AllIFNeurons
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          */
         virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons** allNeuronsDevice, IAllSynapses** allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap** synapseIndexMapDevice);
+        
+   private:
+      /**
+      *  Given a global synapse index, convert it to an index
+      *  in a particular device's allSynapses.
+      *  NOTE: This should probably be placed in a class higher in
+      *  the neuron hierarchy, but the lack of support for polymorphism
+      *  in CUDA makes this easier (at least in the short term).
+      *
+      *  @param  synapse_index          Global index of the synapse.
+      *  @param  allSynapsesDeviceList  List of allSynapses structs in each device's memory.
+      *  @param  sim_info               SimulationInfo to refer from.
+      *  @param  allSynapsesDevice      Pointer to be assigned to address of allSynapses structs
+      *                                 containing synapse_index
+      *  @param  synapse_index_local    Reference to an uint32_t to be filled with the index of the synapse
+      * 
+      */      
+      void resolveSynapseIndex(const uint32_t synapse_index, IAllSynapses** allSynapsesDeviceList, const SimulationInfo *sim_info, IAllSynapses* allSynapsesDevice, uint32_t &synapse_index_local);
+
 
 #else  // !defined(USE_GPU)
     protected:
@@ -161,6 +180,7 @@ class AllLIFNeurons : public AllIFNeurons
  *  @param[in] fpPreSpikeHit         Pointer to the device function preSpikeHit() function.
  *  @param[in] fpPostSpikeHit        Pointer to the device function postSpikeHit() function.
  *  @param[in] fAllowBackPropagation True if back propagaion is allowed.
+ *  @param     allSynapsesDeviceList List of allSynapses structs in each device's memory.
  */
-extern __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const uint32_t, AllSpikingSynapses*), void (*fpPostSpikeHit)(const uint32_t, AllSpikingSynapses*), bool fAllowBackPropagation );
+extern __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const uint32_t, AllSpikingSynapses*), void (*fpPostSpikeHit)(const uint32_t, AllSpikingSynapses*), bool fAllowBackPropagation, IAllSynapses** allSynapsesDeviceList  );
 #endif // __CUDACC__

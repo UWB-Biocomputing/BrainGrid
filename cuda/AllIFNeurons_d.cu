@@ -197,7 +197,7 @@ void AllIFNeurons::copyNeuronDeviceToHost( void** allNeuronsDevice, const Simula
       cudaSetDevice(i);
       //get pointers to arrays on device
       HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice[i], sizeof( AllIFNeurons ), cudaMemcpyDeviceToHost ) );
-      copyDeviceToHost( allNeurons, sim_info[i],  );
+      copyDeviceToHost( allNeurons, &sim_info->individualGPUInfo[i], offsetFromFirstNeuron );
       offsetFromFirstNeuron += sim_info->individualGPUInfo[i].totalNeurons;
    }
 }

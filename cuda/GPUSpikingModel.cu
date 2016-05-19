@@ -81,21 +81,21 @@ void GPUSpikingModel::allocDeviceStruct(void** allNeuronsDevice, void** allSynap
  */
 void GPUSpikingModel::deleteDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info)
 {
-    // copy device synapse and neuron structs to host memory
-    m_neurons->copyNeuronDeviceToHost( *allNeuronsDevice, sim_info );
+   // copy device synapse and neuron structs to host memory
+   m_neurons->copyNeuronDeviceToHost( allNeuronsDevice, sim_info );
 
-    // Deallocate device memory
-    m_neurons->deleteNeuronDeviceStruct( *allNeuronsDevice, sim_info );
+   // Deallocate device memory
+   m_neurons->deleteNeuronDeviceStruct( *allNeuronsDevice, sim_info );
 
-    // copy device synapse and neuron structs to host memory
-    m_synapses->copySynapseDeviceToHost( *allSynapsesDevice, sim_info );
+   // copy device synapse and neuron structs to host memory
+   m_synapses->copySynapseDeviceToHost( *allSynapsesDevice, sim_info );
 
-    // Deallocate device memory
-    m_synapses->deleteSynapseDeviceStruct( *allSynapsesDevice );
+   // Deallocate device memory
+   m_synapses->deleteSynapseDeviceStruct( *allSynapsesDevice );
 
-    deleteSynapseImap();
+   deleteSynapseImap();
 
-    HANDLE_ERROR( cudaFree( randNoise_d ) );
+   HANDLE_ERROR( cudaFree( randNoise_d ) );
 }
 
 /*
@@ -369,6 +369,42 @@ void GPUSpikingModel::copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIn
 	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.activeSynapseIndex, synapseIndexMapHost.activeSynapseIndex, total_synapse_counts * sizeof( uint32_t ), cudaMemcpyHostToDevice ) );
 
 	HANDLE_ERROR( cudaMemcpy ( synapseIndexMapDevice, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
+}
+
+/*
+ *  Given a normal host side SynapseIndexMap, convert so that the
+ *  synapse indicies are actually a device and an index on that device.
+ *  This is accomplished by defining a certain number of bits in the index
+ *  data to repurpose as a device number. The index can be shifted over this
+ *  certain number of bits and then combined with a bitwise AND to produce
+ *
+ *
+ *  @param  synapse_index          Global index of the synapse.
+ *  @param  allSynapsesDeviceList  List of allSynapses structs in each device's memory.
+ *  @param  sim_info               SimulationInfo to refer from.
+ *  @param  allSynapsesDevice      Pointer to be assigned to address of allSynapses structs
+ *                                 containing synapse_index
+ *  @param  synapse_index_local    Reference to an uint32_t to be filled with the index of the synapse
+ *                                 in the allSynapses struct pointed to by allSynapsesDevice
+ */
+void GPUSpikingModel::convertSynapseIndexMap(const SynapseIndexMap &synapseIndexMapToConvert, const SimulationInfo *sim_info){
+   const int bitsForDevice = 3;
+   
+   uint32_t global_index = 0;
+   
+   for(int i = 0; i < synapseIndexMapToConvert.num_synapses; i++){
+      global_index = synapseIndexMapToConvert.forwardIndex[i];
+      
+      for(uint32_t deviceNumber = 0; deviceNumber < sim_info->numGPU; deviceNumber++){
+         if(global_index < sim_info->individualGPUInfo[deviceNumber].totalNeurons){
+            synapseIndexMapToConvert.forwardIndex[i] = (global_index << bitsForDevice) & deviceNumber
+         }
+         else{
+            global_index -= sim_info->individualGPUInfo[deviceNumber].totalNeurons;
+         }
+      }
+      
+   }
 }
 
 /* ------------------*\

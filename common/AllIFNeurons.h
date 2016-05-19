@@ -160,7 +160,7 @@ class AllIFNeurons : public AllSpikingNeurons
          *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-        virtual void copyNeuronDeviceToHost( void** allNeuronsDevice, const SimulationInfo *sim_info, const int offsetFromFirstNeuron );
+        virtual void copyNeuronDeviceToHost( void** allNeuronsDevice, const SimulationInfo *sim_info );
 
         /**
          *  Copy spike history data stored in device memory to host.
@@ -212,7 +212,7 @@ class AllIFNeurons : public AllSpikingNeurons
          *  @param  allNeurons         Reference to the allIFNeurons struct.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-	void copyHostToDevice( AllIFNeurons& allNeurons, const SimulationInfo *sim_info, const int offsetFromFirstNeuron );
+	void copyHostToDevice( AllIFNeurons& allNeurons, const SimulationInfo *sim_info, const int offsetFromFirstNeuron);
 
         /**
          *  Copy all neurons' data from device to host.
@@ -221,7 +221,7 @@ class AllIFNeurons : public AllSpikingNeurons
          *  @param  allNeurons         Reference to the allIFNeurons struct.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-	void copyDeviceToHost( AllIFNeurons& allNeurons, const SimulationInfo *sim_info );
+	void copyDeviceToHost( AllIFNeurons& allNeurons, const SimulationInfo *sim_info, const int offsetFromFirstNeuron );
 
 #endif // defined(USE_GPU)
 

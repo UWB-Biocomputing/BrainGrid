@@ -35,53 +35,61 @@
 
 #pragma once
         
-        struct SynapseIndexMap
-        {
-                //! The beginning index of the incoming dynamic spiking synapse array.
-                int* outgoingSynapse_begin;
+struct SynapseIndexMap
+{
+   public:
+   
+      //! The beginning index of the incoming dynamic spiking synapse array.
+      int* outgoingSynapse_begin;
 
-                //! The array of number of active synapses of each neuron.
-                int* synapseCount;
+      //! The array of number of active synapses of each neuron.
+      int* synapseCount;
 
-                //! Pointer to the synapse forward map.
-                uint32_t* forwardIndex;
+      //! Pointer to the synapse forward map.
+      uint32_t* forwardIndex;
 
-                //! Pointer to the active synapse map.
-                uint32_t* activeSynapseIndex;
+      //! Pointer to the active synapse map.
+      uint32_t* activeSynapseIndex;
+   
+   private:
+   
+      // Number of total neurons.
+      int num_neurons;
 
-                SynapseIndexMap() : num_neurons(0), num_synapses(0)
-                {
-                        outgoingSynapse_begin = NULL;
-                        synapseCount = NULL;
-                        forwardIndex = NULL;
-                        activeSynapseIndex = NULL;
-                };
+   public: //GETDONE: remove this hack and use better way to get total number of synapses
+   
+      // Number of total active synapses.
+      int num_synapses;
+      
+   public:
 
-                SynapseIndexMap(int neuron_count, int synapse_count) : num_neurons(neuron_count), num_synapses(synapse_count)
-                {
-                        outgoingSynapse_begin = new int[neuron_count];
-                        synapseCount = new int[neuron_count];
-                        forwardIndex = new uint32_t[synapse_count];
-                        activeSynapseIndex = new uint32_t[synapse_count];
-                };
+      SynapseIndexMap() : num_neurons(0), num_synapses(0)
+      {
+         outgoingSynapse_begin = NULL;
+         synapseCount = NULL;
+         forwardIndex = NULL;
+         activeSynapseIndex = NULL;
+      };
 
-                ~SynapseIndexMap()
-                {
-                        if (num_neurons != 0) {
-                                delete[] outgoingSynapse_begin;
-                                delete[] synapseCount;
-                        }
-                        if (num_synapses != 0) {
-                                delete[] forwardIndex;
-                                delete[] activeSynapseIndex;
-                        }
-                }
+      SynapseIndexMap(int neuron_count, int synapse_count) : num_neurons(neuron_count), num_synapses(synapse_count)
+      {
+         outgoingSynapse_begin = new int[neuron_count];
+         synapseCount = new int[neuron_count];
+         forwardIndex = new uint32_t[synapse_count];
+         activeSynapseIndex = new uint32_t[synapse_count];
+      };
 
-        private:
-                // Number of total neurons.
-                int num_neurons;
-
-                // Number of total active synapses.
-                int num_synapses;
-        };
+      ~SynapseIndexMap()
+      {
+         if (num_neurons != 0) {
+            delete[] outgoingSynapse_begin;
+            delete[] synapseCount;
+         }
+         if (num_synapses != 0) {
+            delete[] forwardIndex;
+            delete[] activeSynapseIndex;
+         }
+      }
+   
+};
 

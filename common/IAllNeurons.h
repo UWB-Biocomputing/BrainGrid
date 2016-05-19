@@ -119,7 +119,7 @@ class IAllNeurons
          *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-        virtual void copyNeuronDeviceToHost( void** allNeuronsDevice, const SimulationInfo *sim_info, const int offsetFromFirstNeuron ) = 0;
+        virtual void copyNeuronDeviceToHost( void** allNeuronsDevice, const SimulationInfo *sim_info) = 0;
 
         /**
          *  Update the state of all neurons for a time step
