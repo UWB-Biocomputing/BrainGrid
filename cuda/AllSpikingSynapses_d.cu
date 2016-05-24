@@ -99,6 +99,10 @@ void AllSpikingSynapses::deleteDeviceStruct( AllSpikingSynapses& allSynapses ) {
         HANDLE_ERROR( cudaFree( allSynapses.tau ) );
         HANDLE_ERROR( cudaFree( allSynapses.in_use ) );
         HANDLE_ERROR( cudaFree( allSynapses.synapse_counts ) );
+
+        // Set count_neurons to 0 to avoid illegal memory deallocation 
+        // at AllSpikingSynapses deconstructor.
+        allSynapses.count_neurons = 0;
 }
 
 /*
@@ -137,11 +141,17 @@ void AllSpikingSynapses::copySynapseHostToDevice( void* allSynapsesDevice, int n
 void AllSpikingSynapses::copyHostToDevice( void* allSynapsesDevice, AllSpikingSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron ) { // copy everything necessary 
         uint32_t max_total_synapses = maxSynapsesPerNeuron * num_neurons;
 
-        HANDLE_ERROR( cudaMemcpy ( allSynapses.synapse_counts, synapse_counts,
-                        num_neurons * sizeof( size_t ), cudaMemcpyHostToDevice ) );
         allSynapses.maxSynapsesPerNeuron = maxSynapsesPerNeuron;
         allSynapses.total_synapse_counts = total_synapse_counts;
+        allSynapses.count_neurons = count_neurons;
         HANDLE_ERROR( cudaMemcpy ( allSynapsesDevice, &allSynapses, sizeof( AllSpikingSynapses ), cudaMemcpyHostToDevice ) );
+
+        // Set count_neurons to 0 to avoid illegal memory deallocation 
+        // at AllSpikingSynapses deconstructor.
+        allSynapses.count_neurons = 0;
+
+        HANDLE_ERROR( cudaMemcpy ( allSynapses.synapse_counts, synapse_counts,
+                        num_neurons * sizeof( size_t ), cudaMemcpyHostToDevice ) );
         HANDLE_ERROR( cudaMemcpy ( allSynapses.destNeuronIndex, destNeuronIndex,
                 max_total_synapses * sizeof( int ),  cudaMemcpyHostToDevice ) );
         HANDLE_ERROR( cudaMemcpy ( allSynapses.W, W,
@@ -199,6 +209,11 @@ void AllSpikingSynapses::copyDeviceToHost( AllSpikingSynapses& allSynapses, cons
                 num_neurons * sizeof( size_t ), cudaMemcpyDeviceToHost ) );
         maxSynapsesPerNeuron = allSynapses.maxSynapsesPerNeuron;
         total_synapse_counts = allSynapses.total_synapse_counts;
+        count_neurons = allSynapses.count_neurons;
+
+        // Set count_neurons to 0 to avoid illegal memory deallocation 
+        // at AllSpikingSynapses deconstructor.
+        allSynapses.count_neurons = 0;
 
         HANDLE_ERROR( cudaMemcpy ( destNeuronIndex, allSynapses.destNeuronIndex,
                 max_total_synapses * sizeof( int ), cudaMemcpyDeviceToHost ) );
@@ -239,6 +254,10 @@ void AllSpikingSynapses::copyDeviceSynapseCountsToHost(void* allSynapsesDevice, 
 
         HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSpikingSynapses ), cudaMemcpyDeviceToHost ) );
         HANDLE_ERROR( cudaMemcpy ( synapse_counts, allSynapses.synapse_counts, neuron_count * sizeof( size_t ), cudaMemcpyDeviceToHost ) );
+
+        // Set count_neurons to 0 to avoid illegal memory deallocation 
+        // at AllSpikingSynapses deconstructor.
+       allSynapses.count_neurons = 0;
 }
 
 /* 
@@ -257,6 +276,10 @@ void AllSpikingSynapses::copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, 
                 max_total_synapses * sizeof( int ), cudaMemcpyDeviceToHost ) );
         HANDLE_ERROR( cudaMemcpy ( in_use, allSynapses.in_use,
                 max_total_synapses * sizeof( bool ), cudaMemcpyDeviceToHost ) );
+       
+        // Set count_neurons to 0 to avoid illegal memory deallocation 
+        // at AllSpikingSynapses deconstructor.
+       allSynapses.count_neurons = 0;
 }
 
 /*
@@ -300,6 +323,9 @@ void AllSpikingSynapses::setAdvanceSynapsesDeviceParams()
  */
 void AllSpikingSynapses::advanceSynapses(IAllSynapses* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info)
 {
+    if (total_synapse_counts == 0)
+        return;
+
     // CUDA parameters
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
@@ -406,7 +432,7 @@ __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, Synapse
                 return;
 
         uint32_t iSyn = synapseIndexMapDevice->activeSynapseIndex[idx];
-
+       
         BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
         BGFLOAT decay = allSynapsesDevice->decay[iSyn];
 

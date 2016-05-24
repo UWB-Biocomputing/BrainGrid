@@ -240,14 +240,14 @@ class AllSynapses : public IAllSynapses
          */
         size_t maxSynapsesPerNeuron;
 
-    protected:
-
         /**
          *  The number of neurons
          *  Aaron: Is this even supposed to be here?!
          *  Usage: Used by destructor
          */
         int count_neurons;
+
+    protected:
 
         /**
          *  Number of parameters read.

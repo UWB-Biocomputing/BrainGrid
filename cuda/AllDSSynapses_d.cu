@@ -111,7 +111,6 @@ void AllDSSynapses::copySynapseHostToDevice( void* allSynapsesDevice, int num_ne
 	AllDSSynapses allSynapses;
 
         HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllDSSynapses ), cudaMemcpyDeviceToHost ) );
-
 	copyHostToDevice( allSynapsesDevice, allSynapses, num_neurons, maxSynapsesPerNeuron );	
 }
 
@@ -357,6 +356,8 @@ __device__ void createDSSynapse(AllDSSynapses* allSynapsesDevice, const int neur
  */
 __device__ void changeDSSynapsePSR(AllDSSynapses* allSynapsesDevice, const uint32_t iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
 {
+    assert( iSyn < allSynapsesDevice->maxSynapsesPerNeuron * allSynapsesDevice->count_neurons );
+
     uint64_t &lastSpike = allSynapsesDevice->lastSpike[iSyn];
     BGFLOAT &r = allSynapsesDevice->r[iSyn];
     BGFLOAT &u = allSynapsesDevice->u[iSyn];
