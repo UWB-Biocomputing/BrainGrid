@@ -41,6 +41,7 @@ using namespace std;
 #include "Global.h"
 #include "SimulationInfo.h"
 #include "AllNeurons.h"
+#include "AllSpikingSynapses.h"
 
 class AllSpikingNeurons : public AllNeurons
 {
@@ -216,12 +217,12 @@ class AllSpikingNeurons : public AllNeurons
          *  Pointer to the device function preSpikeHit() function.
          *  (parameters used for advanceNeuronsDevice.)
          */
-        unsigned long long m_fpPreSpikeHit_h;
+        fpPreSynapsesSpikeHit_t m_fpPreSpikeHit_h;
 
         /**
          *  Pointer o the device function postSpikeHit().
          *  (parameters used for advanceNeuronsDevice.)
          */
-        unsigned long long m_fpPostSpikeHit_h;
+        fpPostSynapsesSpikeHit_t m_fpPostSpikeHit_h;
 
 };

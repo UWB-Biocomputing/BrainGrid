@@ -282,6 +282,8 @@ void AllSpikingSynapses::copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, 
        allSynapses.count_neurons = 0;
 }
 
+__device__ fpCreateSynapse_t fpCreateSpikingSynapse_d = (fpCreateSynapse_t)createSpikingSynapse;
+
 /*
  *  Get a pointer to the device function createSynapse.
  *  The function will be called from updateSynapsesWeightsDevice device function.
@@ -291,16 +293,9 @@ void AllSpikingSynapses::copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, 
  *  @param  fpCreateSynapse_h     Reference to the memory location 
  *                                where the function pointer will be set.
  */
-void AllSpikingSynapses::getFpCreateSynapse(unsigned long long& fpCreateSynapse_h)
+void AllSpikingSynapses::getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h)
 {
-    unsigned long long *fpCreateSynapse_d;
-
-    HANDLE_ERROR( cudaMalloc(&fpCreateSynapse_d, sizeof(unsigned long long)) );
-
-    getFpCreateSpikingSynapseDevice<<<1,1>>>((void (**)(AllSpikingSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))fpCreateSynapse_d);
-
-    HANDLE_ERROR( cudaMemcpy(&fpCreateSynapse_h, fpCreateSynapse_d, sizeof(unsigned long long), cudaMemcpyDeviceToHost) );
-    HANDLE_ERROR( cudaFree( fpCreateSynapse_d ) );
+    HANDLE_ERROR( cudaMemcpyFromSymbol(&fpCreateSynapse_h, fpCreateSpikingSynapse_d, sizeof(fpCreateSynapse_t)) );
 }
 
 /*
@@ -334,6 +329,8 @@ void AllSpikingSynapses::advanceSynapses(IAllSynapses* allSynapsesDevice, IAllNe
     advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSpikingSynapses*)allSynapsesDevice, (void (*)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT))m_fpChangePSR_h );
 }
 
+__device__ fpPreSynapsesSpikeHit_t fpPreSpikingSynapsesSpikeHit_d = (fpPreSynapsesSpikeHit_t)preSpikingSynapsesSpikeHitDevice;
+
 /*
  *  Get a pointer to the device function preSpikeHit.
  *  The function will be called from advanceNeuronsDevice device function.
@@ -343,18 +340,12 @@ void AllSpikingSynapses::advanceSynapses(IAllSynapses* allSynapsesDevice, IAllNe
  *  @param  fpPreSpikeHit_h       Reference to the memory location
  *                                where the function pointer will be set.
  */
-void AllSpikingSynapses::getFpPreSpikeHit(unsigned long long& fpPreSpikeHit_h)
+void AllSpikingSynapses::getFpPreSpikeHit(fpPreSynapsesSpikeHit_t& fpPreSpikeHit_h)
 {
-    unsigned long long *fpPreSpikeHit_d;
-
-    HANDLE_ERROR( cudaMalloc(&fpPreSpikeHit_d, sizeof(unsigned long long)) );
-
-    getFpSpikingSynapsesPreSpikeHitDevice<<<1,1>>>((void (**)(const uint32_t, AllSpikingSynapses*))fpPreSpikeHit_d);
-
-    HANDLE_ERROR( cudaMemcpy(&fpPreSpikeHit_h, fpPreSpikeHit_d, sizeof(unsigned long long), cudaMemcpyDeviceToHost) );
-
-    HANDLE_ERROR( cudaFree( fpPreSpikeHit_d ) );
+    HANDLE_ERROR( cudaMemcpyFromSymbol(&fpPreSpikeHit_h, fpPreSpikingSynapsesSpikeHit_d, sizeof(fpPreSynapsesSpikeHit_t)) );
 }
+
+__device__ fpPostSynapsesSpikeHit_t fpPostSpikingSynapsesSpikeHit_d = (fpPostSynapsesSpikeHit_t)postSpikingSynapsesSpikeHitDevice;
 
 /*
  *  Get a pointer to the device function ostSpikeHit.
@@ -365,18 +356,12 @@ void AllSpikingSynapses::getFpPreSpikeHit(unsigned long long& fpPreSpikeHit_h)
  *  @param  fpostSpikeHit_h       Reference to the memory location
  *                                where the function pointer will be set.
  */
-void AllSpikingSynapses::getFpPostSpikeHit(unsigned long long& fpPostSpikeHit_h)
+void AllSpikingSynapses::getFpPostSpikeHit(fpPostSynapsesSpikeHit_t& fpPostSpikeHit_h)
 {
-    unsigned long long *fpPostSpikeHit_d;
-
-    HANDLE_ERROR( cudaMalloc(&fpPostSpikeHit_d, sizeof(unsigned long long)) );
-
-    getFpSpikingSynapsesPostSpikeHitDevice<<<1,1>>>((void (**)(const uint32_t, AllSpikingSynapses*))fpPostSpikeHit_d);
-
-    HANDLE_ERROR( cudaMemcpy(&fpPostSpikeHit_h, fpPostSpikeHit_d, sizeof(unsigned long long), cudaMemcpyDeviceToHost) );
-
-    HANDLE_ERROR( cudaFree( fpPostSpikeHit_d ) );
+    HANDLE_ERROR( cudaMemcpyFromSymbol(&fpPostSpikeHit_h, fpPostSpikingSynapsesSpikeHit_d, sizeof(fpPostSynapsesSpikeHit_t)) );
 }
+
+__device__ fpChangeSynapsesPSR_t fpChangeSpikingSynapsesPSR_d = (fpChangeSynapsesPSR_t)changeSpikingSynapsesPSR;
 
 /*
  *  Get a pointer to the device function changeSpikingSynapsesPSR.
@@ -387,33 +372,14 @@ void AllSpikingSynapses::getFpPostSpikeHit(unsigned long long& fpPostSpikeHit_h)
  *  @param  fpChangePSR_h         Reference to the memory location
  *                                where the function pointer will be set.
  */
-void AllSpikingSynapses::getFpChangePSR(unsigned long long& fpChangePSR_h)
+void AllSpikingSynapses::getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h)
 {
-    unsigned long long *fpChangePSR_d;
-
-    HANDLE_ERROR( cudaMalloc(&fpChangePSR_d, sizeof(unsigned long long)) );
-
-    getFpSpikingSynapsesChangePSRDevice<<<1,1>>>((void (**)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT))fpChangePSR_d);
-
-    HANDLE_ERROR( cudaMemcpy(&fpChangePSR_h, fpChangePSR_d, sizeof(unsigned long long), cudaMemcpyDeviceToHost) );
-    HANDLE_ERROR( cudaFree( fpChangePSR_d ) );
+    HANDLE_ERROR( cudaMemcpyFromSymbol(&fpChangePSR_h, fpChangeSpikingSynapsesPSR_d, sizeof(fpChangeSynapsesPSR_t)) );
 }
 
 /* ------------------*\
 |* # Global Functions
 \* ------------------*/
-
-/*
- *  Get a pointer to the device function createSpikingSynapse.
- *  (CUDA helper function for AllSpikingSynapses::getFpCreateSynapse())
- *
- *  @param  fpCreateSynapse_d     Reference to the device memory location 
- *                                where the function pointer will be set.
- */
-__global__ void getFpCreateSpikingSynapseDevice(void (**fpCreateSynapse_d)(AllSpikingSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))
-{
-    *fpCreateSynapse_d = createSpikingSynapse;
-}
 
 /*
  *  CUDA code for advancing spiking synapses.
@@ -445,42 +411,6 @@ __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, Synapse
         }
         // decay the post spike response
         psr *= decay;
-}
-
-/*
- *  Get a pointer to the device function preSpikingSynapsesSpikeHitDevice.
- *  (CUDA helper function for AllSpikingSynapses::getFpPreSpikeHit())
- *
- *  @param  fpPreSpikeHit_d        Reference to the memory location
- *                                where the function pointer will be set.
- */
-__global__ void getFpSpikingSynapsesPreSpikeHitDevice(void (**fpPreSpikeHit_d)(const uint32_t, AllSpikingSynapses*))
-{
-    *fpPreSpikeHit_d = preSpikingSynapsesSpikeHitDevice;
-}
-
-/*
- *  Get a pointer to the device function postSpikingSynapsesSpikeHitDevice.
- *  (CUDA helper function for AllSpikingSynapses::getFpPostSpikeHit())
- *
- *  @param  fpPostSpikeHit_d      Reference to the memory location
- *                                where the function pointer will be set.
- */
-__global__ void getFpSpikingSynapsesPostSpikeHitDevice(void (**fpPostSpikeHit_d)(const uint32_t, AllSpikingSynapses*))
-{
-    *fpPostSpikeHit_d = postSpikingSynapsesSpikeHitDevice;
-}
-
-/*
- *  Get a pointer to the device function changeSpikingSynapsePSR.
- *  (CUDA helper function for AllSpikingSynapses::getFpChangePSR())
- *
- *  @param  fpChangePSR_d         Reference to the memory location
- *                                where the function pointer will be set.
- */
-__global__ void getFpSpikingSynapsesChangePSRDevice(void (**fpChangePSR_d)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT))
-{
-    *fpChangePSR_d = changeSpikingSynapsesPSR;
 }
 
 /* ------------------*\

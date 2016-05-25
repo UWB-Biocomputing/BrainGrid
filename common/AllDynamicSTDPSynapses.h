@@ -203,7 +203,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  fpCreateSynapse_h     Reference to the memory location 
          *                                where the function pointer will be set.
          */
-        virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h);
+        virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h);
 
         /**
          *  Get a pointer to the device function changePSR.
@@ -214,7 +214,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  fpChangePSR_h         Reference to the memory location
          *                                where the function pointer will be set.
          */
-        virtual void getFpChangePSR(unsigned long long& fpChangePSR_h);
+        virtual void getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h);
 
     protected:
         /**
@@ -298,23 +298,6 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
 };
 
 #if defined(__CUDACC__)
-/**
- *  Get a pointer to the device function createDynamicSTDPSynapse.
- *  (CUDA helper function for AllDynamicSTDPSynapses::getFpCreateSynapse())
- *
- *  @param  fpCreateSynapse_d     Reference to the device memory location 
- *                                where the function pointer will be set.
- */
-extern __global__ void getFpCreateDynamicSTDPSynapseDevice(void (**fpCreateSynapse_d)(AllDynamicSTDPSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType));
-
-/**
- *  Get a pointer to the device function changeDynamicSTDPSynapsePSR.
- *  (CUDA helper function for AllDynamicSTDPSynapses::getFpChangePSR())
- *
- *  @param  fpChangePSR_d         Reference to the memory location
- *                                where the function pointer will be set.
- */
-extern __global__ void getFpChangeDynamicSTDPSynapsePSRDevice(void (**fpChangePSR_d)(AllDynamicSTDPSynapses*, const uint32_t, const uint64_t, const BGFLOAT));
 
 /**
  *  Create a Dynamic STDP Synapse and connect it to the model.

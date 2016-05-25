@@ -184,6 +184,8 @@ void AllDSSynapses::copyDeviceToHost( AllDSSynapses& allSynapses, const Simulati
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 }
 
+__device__ fpCreateSynapse_t fpCreateDSSynapse_d = (fpCreateSynapse_t)createDSSynapse;
+
 /*
  *  Get a pointer to the device function createSynapse.
  *  The function will be called from updateSynapsesWeightsDevice device function.
@@ -193,17 +195,12 @@ void AllDSSynapses::copyDeviceToHost( AllDSSynapses& allSynapses, const Simulati
  *  @param  fpCreateSynapse_h     Reference to the memory location 
  *                                where the function pointer will be set.
  */
-void AllDSSynapses::getFpCreateSynapse(unsigned long long& fpCreateSynapse_h)
+void AllDSSynapses::getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h)
 {
-    unsigned long long *fpCreateSynapse_d;
-
-    HANDLE_ERROR( cudaMalloc(&fpCreateSynapse_d, sizeof(unsigned long long)) );
-
-    getFpCreateDSSynapseDevice<<<1,1>>>((void (**)(AllDSSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))fpCreateSynapse_d);
-
-    HANDLE_ERROR( cudaMemcpy(&fpCreateSynapse_h, fpCreateSynapse_d, sizeof(unsigned long long), cudaMemcpyDeviceToHost) );
-    HANDLE_ERROR( cudaFree( fpCreateSynapse_d ) );
+    HANDLE_ERROR( cudaMemcpyFromSymbol(&fpCreateSynapse_h, fpCreateDSSynapse_d, sizeof(fpCreateSynapse_t)) );
 }
+
+__device__ fpChangeSynapsesPSR_t fpChangeDSSynapsePSR_d = (fpChangeSynapsesPSR_t)changeDSSynapsePSR;
 
 /*
  *  Get a pointer to the device function changeDSSynapsePSR.
@@ -214,45 +211,14 @@ void AllDSSynapses::getFpCreateSynapse(unsigned long long& fpCreateSynapse_h)
  *  @param  fpChangePSR_h         Reference to the memory location
  *                                where the function pointer will be set.
  */
-void AllDSSynapses::getFpChangePSR(unsigned long long& fpChangePSR_h)
+void AllDSSynapses::getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h)
 {
-    unsigned long long *fpChangePSR_d;
-
-    HANDLE_ERROR( cudaMalloc(&fpChangePSR_d, sizeof(unsigned long long)) );
-
-    getFpChangeDSSynapsePSRDevice<<<1,1>>>((void (**)(AllDSSynapses*, const uint32_t, const uint64_t, const BGFLOAT))fpChangePSR_d);
-
-    HANDLE_ERROR( cudaMemcpy(&fpChangePSR_h, fpChangePSR_d, sizeof(unsigned long long), cudaMemcpyDeviceToHost) );
-    HANDLE_ERROR( cudaFree( fpChangePSR_d ) );
+    HANDLE_ERROR( cudaMemcpyFromSymbol(&fpChangePSR_h, fpChangeDSSynapsePSR_d, sizeof(fpChangeSynapsesPSR_t)) );
 }
 
 /* ------------------*\
 |* # Global Functions
 \* ------------------*/
-
-/*
- *  Get a pointer to the device function createDSSynapse.
- *  (CUDA helper function for AllDSSynapses::getFpCreateSynapse())
- *
- *  @param  fpCreateSynapse_d     Reference to the device memory location 
- *                                where the function pointer will be set.
- */
-__global__ void getFpCreateDSSynapseDevice(void (**fpCreateSynapse_d)(AllDSSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))
-{
-    *fpCreateSynapse_d = createDSSynapse;
-}
-
-/*
- *  Get a pointer to the device function changeDSSynapsePSR.
- *  (CUDA helper function for AllDSSynapses::getFpChangePSR())
- *
- *  @param  fpChangePSR_d         Reference to the memory location
- *                                where the function pointer will be set.
- */
-__global__ void getFpChangeDSSynapsePSRDevice(void (**fpChangePSR_d)(AllDSSynapses*, const uint32_t, const uint64_t, const BGFLOAT))
-{
-    *fpChangePSR_d = changeDSSynapsePSR;
-}
 
 /* ------------------*\
 |* # Device Functions

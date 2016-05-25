@@ -44,7 +44,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neuro
 
         HANDLE_ERROR( cudaMemcpy ( neuron_type_map_d, layout->neuron_type_map, sim_info->totalNeurons * sizeof( neuronType ), cudaMemcpyHostToDevice ) );
 
-        unsigned long long fpCreateSynapse_h;
+        fpCreateSynapse_t fpCreateSynapse_h;
         synapses.getFpCreateSynapse(fpCreateSynapse_h);
 
         blocksPerGrid = ( sim_info->totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;

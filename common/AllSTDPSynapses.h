@@ -240,7 +240,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  fpCreateSynapse_h     Reference to the memory location 
          *                                where the function pointer will be set.
          */
-        virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h);
+        virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h);
 
         /**
          *  Get a pointer to the device function ostSpikeHit.
@@ -251,7 +251,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  fpostSpikeHit_h       Reference to the memory location
          *                                where the function pointer will be set.
          */
-        virtual void getFpPostSpikeHit(unsigned long long& fpPostSpikeHit_h);
+        virtual void getFpPostSpikeHit(fpPostSynapsesSpikeHit_t& fpPostSpikeHit_h);
 
     protected:
         /**
@@ -419,14 +419,6 @@ class AllSTDPSynapses : public AllSpikingSynapses
 };
 
 #if defined(__CUDACC__)
-/**
- *  Get a pointer to the device function createSTDPSynapse.
- *  (CUDA helper function for AllSTDPSynapses::getFpCreateSynapse())
- *
- *  @param  fpCreateSynapse_d     Reference to the device memory location 
- *                                where the function pointer will be set.
- */
-extern __global__ void getFpCreateSTDPSynapseDevice(void (**fpCreateSynapse_d)(AllSTDPSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType));
 
 /**
  *  CUDA code for advancing STDP synapses.
@@ -440,15 +432,6 @@ extern __global__ void getFpCreateSTDPSynapseDevice(void (**fpCreateSynapse_d)(A
  *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
  */
 extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSTDPSynapses*, const uint32_t, const uint64_t, const BGFLOAT), AllSpikingNeurons* allNeuronsDevice, int max_spikes, int width );
-
-/**
- *  Get a pointer to the device function postSTDPSynapsesSpikeHitDevice.
- *  (CUDA helper function for AllSTDPSynapses::getFpPostSpikeHit())
- *
- *  @param  fpPostSpikeHit_d      Reference to the memory location
- *                                where the function pointer will be set.
- */
-extern __global__ void getFpSTDPSynapsePostSpikeHitDevice(void (**fpPostSpikeHit_d)(const uint32_t, AllSTDPSynapses*));
 
 /**
  *  Create a Synapse and connect it to the model.

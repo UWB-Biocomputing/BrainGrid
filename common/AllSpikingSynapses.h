@@ -38,6 +38,12 @@
 #pragma once
 
 #include "AllSynapses.h"
+
+class AllSpikingSynapses;
+
+typedef void (*fpPreSynapsesSpikeHit_t)(const uint32_t, AllSpikingSynapses*);
+typedef void (*fpPostSynapsesSpikeHit_t)(const uint32_t, AllSpikingSynapses*);
+
 #include "AllSpikingNeurons.h"
 
 class AllSpikingSynapses : public AllSynapses
@@ -231,7 +237,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  fpCreateSynapse_h     Reference to the memory location 
          *                                where the function pointer will be set.
          */
-        virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h);
+        virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h);
 
         /**
          *  Advance all the Synapses in the simulation.
@@ -253,7 +259,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  fpPreSpikeHit_h       Reference to the memory location
          *                                where the function pointer will be set.
          */
-        virtual void getFpPreSpikeHit(unsigned long long& fpPreSpikeHit_h);
+        virtual void getFpPreSpikeHit(fpPreSynapsesSpikeHit_t& fpPreSpikeHit_h);
 
         /**
          *  Get a pointer to the device function ostSpikeHit.
@@ -264,7 +270,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  fpostSpikeHit_h       Reference to the memory location
          *                                where the function pointer will be set.
          */
-        virtual void getFpPostSpikeHit(unsigned long long& fpPostSpikeHit_h);
+        virtual void getFpPostSpikeHit(fpPostSynapsesSpikeHit_t& fpPostSpikeHit_h);
 
         /**
          *  Set some parameters used for advanceSynapsesDevice.
@@ -281,7 +287,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  fpChangePSR_h         Reference to the memory location
          *                                where the function pointer will be set.
          */
-        virtual void getFpChangePSR(unsigned long long& fpChangePSR_h);
+        virtual void getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h);
 
     protected:
         /**
@@ -407,18 +413,10 @@ public:
         /**
          *  Pointer to the changePSR device function.
          */
-        unsigned long long m_fpChangePSR_h;
+        fpChangeSynapsesPSR_t m_fpChangePSR_h;
 };
 
 #if defined(__CUDACC__)
-/**
- *  Get a pointer to the device function createSynapse.
- *  (CUDA helper function for AllSpikingSynapses::getFpCreateSynapse())
- *
- *  @param  fpCreateSynapse_d     Reference to the device memory location 
- *                                where the function pointer will be set.
- */
-extern __global__ void getFpCreateSpikingSynapseDevice(void (**fpCreateSynapse_d)(AllSpikingSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType));
 
 /**
  *  CUDA code for advancing spiking synapses.
@@ -432,33 +430,6 @@ extern __global__ void getFpCreateSpikingSynapseDevice(void (**fpCreateSynapse_d
  *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
  */
 extern __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT) );
-
-/**
- *  Get a pointer to the device function preSpikingSynapsesSpikeHitDevice.
- *  (CUDA helper function for AllSpikingSynapses::getFpPreSpikeHit())
- *
- *  @param  fpPreSpikeHit_d        Reference to the memory location
- *                                where the function pointer will be set.
- */
-extern __global__ void getFpSpikingSynapsesPreSpikeHitDevice(void (**fpPreSpikeHit_d)(const uint32_t, AllSpikingSynapses*));
-
-/**
- *  Get a pointer to the device function postSpikingSynapsesSpikeHitDevice.
- *  (CUDA helper function for AllSpikingSynapses::getFpPostSpikeHit())
- *
- *  @param  fpPostSpikeHit_d      Reference to the memory location
- *                                where the function pointer will be set.
- */
-extern __global__ void getFpSpikingSynapsesPostSpikeHitDevice(void (**fpPostSpikeHit_d)(const uint32_t, AllSpikingSynapses*));
-
-/**
- *  Get a pointer to the device function changeSpikingSynapsePSR.
- *  (CUDA helper function for AllSpikingSynapses::getFpChangePSR())
- *
- *  @param  fpChangePSR_d         Reference to the memory location
- *                                where the function pointer will be set.
- */
-extern __global__ void getFpSpikingSynapsesChangePSRDevice(void (**fpChangePSR_d)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT));
 
 /**
  *  Create a Spiking Synapse and connect it to the model.

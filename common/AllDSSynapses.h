@@ -212,7 +212,7 @@ class AllDSSynapses : public AllSpikingSynapses
          *  @param  fpCreateSynapse_h     Reference to the memory location 
          *                                where the function pointer will be set.
          */
-        virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h);
+        virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h);
 
         /**
          *  Get a pointer to the device function changePSR.
@@ -223,7 +223,7 @@ class AllDSSynapses : public AllSpikingSynapses
          *  @param  fpChangePSR_h         Reference to the memory location
          *                                where the function pointer will be set.
          */
-        virtual void getFpChangePSR(unsigned long long& fpChangePSR_h);
+        virtual void getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h);
 
     protected:
         /**
@@ -308,23 +308,6 @@ class AllDSSynapses : public AllSpikingSynapses
 };
 
 #if defined(__CUDACC__)
-/**
- *  Get a pointer to the device function createSynapse.
- *  (CUDA helper function for AllDSSynapses::getFpCreateSynapse())
- *
- *  @param  fpCreateSynapse_d     Reference to the device memory location 
- *                                where the function pointer will be set.
- */
-extern __global__ void getFpCreateDSSynapseDevice(void (**fpCreateSynapse_d)(AllDSSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType));
-
-/**
- *  Get a pointer to the device function changeDSSynapsePSR.
- *  (CUDA helper function for AllDSSynapses::getFpChangePSR())
- *
- *  @param  fpChangePSR_d         Reference to the memory location
- *                                where the function pointer will be set.
- */
-extern __global__ void getFpChangeDSSynapsePSRDevice(void (**fpChangePSR_d)(AllDSSynapses*, const uint32_t, const uint64_t, const BGFLOAT));
 
 /**
  *  Create a Synapse and connect it to the model.

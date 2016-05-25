@@ -11,6 +11,10 @@
 #include "SynapseIndexMap.h"
 
 class IAllNeurons;
+class IAllSynapses;
+
+typedef void (*fpCreateSynapse_t)(IAllSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType);
+typedef void (*fpChangeSynapsesPSR_t)(IAllSynapses*, const uint32_t, const uint64_t, const BGFLOAT);
 
 class IAllSynapses
 {
@@ -206,7 +210,7 @@ class IAllSynapses
          *  @param  fpCreateSynapse_h     Reference to the memory location 
          *                                where the function pointer will be set.
          */
-        virtual void getFpCreateSynapse(unsigned long long& fpCreateSynapse_h) = 0;
+        virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h) = 0;
 
         /**
          *  Set some parameters used for advanceSynapsesDevice.
@@ -223,7 +227,7 @@ class IAllSynapses
          *  @param  fpChangePSR_h         Reference to the memory location
          *                                where the function pointer will be set.
          */
-        virtual void getFpChangePSR(unsigned long long& fpChangePSR_h) = 0;
+        virtual void getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h) = 0;
 #else // !defined(USE_GPU)
     public:
         /**

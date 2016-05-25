@@ -238,6 +238,8 @@ void AllSTDPSynapses::copyDeviceToHost( AllSTDPSynapses& allSynapses, const Simu
                 max_total_synapses * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 }
 
+__device__ fpCreateSynapse_t fpCreateSTDPSynapse_d = (fpCreateSynapse_t)createSTDPSynapse;
+
 /*
  *  Get a pointer to the device function createSTDPSynapse.
  *  The function will be called from updateSynapsesWeightsDevice device function.
@@ -247,16 +249,9 @@ void AllSTDPSynapses::copyDeviceToHost( AllSTDPSynapses& allSynapses, const Simu
  *  @param  fpCreateSynapse_h     Reference to the memory location 
  *                                where the function pointer will be set.
  */
-void AllSTDPSynapses::getFpCreateSynapse(unsigned long long& fpCreateSynapse_h)
+void AllSTDPSynapses::getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h)
 {
-    unsigned long long *fpCreateSynapse_d;
-
-    HANDLE_ERROR( cudaMalloc(&fpCreateSynapse_d, sizeof(unsigned long long)) );
-
-    getFpCreateSTDPSynapseDevice<<<1,1>>>((void (**)(AllSTDPSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))fpCreateSynapse_d);
-
-    HANDLE_ERROR( cudaMemcpy(&fpCreateSynapse_h, fpCreateSynapse_d, sizeof(unsigned long long), cudaMemcpyDeviceToHost) );
-    HANDLE_ERROR( cudaFree( fpCreateSynapse_d ) );
+    HANDLE_ERROR( cudaMemcpyFromSymbol(&fpCreateSynapse_h, fpCreateSTDPSynapse_d, sizeof(fpCreateSynapse_t)) );
 }
 
 /*
@@ -279,6 +274,8 @@ void AllSTDPSynapses::advanceSynapses(IAllSynapses* allSynapsesDevice, IAllNeuro
     advanceSTDPSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapses*)allSynapsesDevice, (void (*)(AllSTDPSynapses*, const uint32_t, const uint64_t, const BGFLOAT))m_fpChangePSR_h, (AllSpikingNeurons*)allNeuronsDevice, max_spikes, sim_info->width );
 }
 
+__device__ fpPostSynapsesSpikeHit_t fpPostSTDPSynapsesSpikeHit_d = (fpPostSynapsesSpikeHit_t)postSTDPSynapseSpikeHitDevice;
+
 /*
  *  Get a pointer to the device function ostSpikeHit.
  *  The function will be called from advanceNeuronsDevice device function.
@@ -288,34 +285,14 @@ void AllSTDPSynapses::advanceSynapses(IAllSynapses* allSynapsesDevice, IAllNeuro
  *  @param  fpostSpikeHit_h       Reference to the memory location
  *                                where the function pointer will be set.
  */
-void AllSTDPSynapses::getFpPostSpikeHit(unsigned long long& fpPostSpikeHit_h)
+void AllSTDPSynapses::getFpPostSpikeHit(fpPostSynapsesSpikeHit_t& fpPostSpikeHit_h)
 {
-    unsigned long long *fpPostSpikeHit_d;
-
-    HANDLE_ERROR( cudaMalloc(&fpPostSpikeHit_d, sizeof(unsigned long long)) );
-
-    getFpSTDPSynapsePostSpikeHitDevice<<<1,1>>>((void (**)(const uint32_t, AllSTDPSynapses*))fpPostSpikeHit_d);
-
-    HANDLE_ERROR( cudaMemcpy(&fpPostSpikeHit_h, fpPostSpikeHit_d, sizeof(unsigned long long), cudaMemcpyDeviceToHost) );
-
-    HANDLE_ERROR( cudaFree( fpPostSpikeHit_d ) );
+    HANDLE_ERROR( cudaMemcpyFromSymbol(&fpPostSpikeHit_h, fpPostSTDPSynapsesSpikeHit_d, sizeof(fpPostSynapsesSpikeHit_t)) );
 }
 
 /* ------------------*\
 |* # Global Functions
 \* ------------------*/
-
-/*
- *  Get a pointer to the device function createSTDPSynapse.
- *  (CUDA helper function for AllSTDPSynapses::getFpCreateSynapse())
- *
- *  @param  fpCreateSynapse_d     Reference to the device memory location 
- *                                where the function pointer will be set.
- */
-__global__ void getFpCreateSTDPSynapseDevice(void (**fpCreateSynapse_d)(AllSTDPSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))
-{
-    *fpCreateSynapse_d = createSTDPSynapse;
-}
 
 /*
  *  CUDA code for advancing STDP synapses.
@@ -457,18 +434,6 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
 
     // decay the post spike response
     psr *= decay;
-}
-
-/*
- *  Get a pointer to the device function postSTDPSynapsesSpikeHitDevice.
- *  (CUDA helper function for AllSTDPSynapses::getFpPostSpikeHit())
- *
- *  @param  fpPostSpikeHit_d      Reference to the memory location
- *                                where the function pointer will be set.
- */
-__global__ void getFpSTDPSynapsePostSpikeHitDevice(void (**fpPostSpikeHit_d)(const uint32_t, AllSTDPSynapses*))
-{
-    *fpPostSpikeHit_d = postSTDPSynapseSpikeHitDevice;
 }
 
 /* ------------------*\
