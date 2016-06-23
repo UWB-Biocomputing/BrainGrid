@@ -192,7 +192,7 @@ clean:
 # ------------------------------------------------------------------------------
 
 $(RNGDIR)/MersenneTwister_d.o: $(RNGDIR)/MersenneTwister_d.cu $(UTILDIR)/Global.h $(RNGDIR)/MersenneTwister_d.h
-	nvcc -c $(NVCCFLAGS) $(RNGDIR)/MersenneTwister_kernel.cu $(CGPUFLAGS) -o $(RNGDIR)/MersenneTwister_d.o
+	nvcc -c $(NVCCFLAGS) $(RNGDIR)/MersenneTwister_d.cu $(CGPUFLAGS) -o $(RNGDIR)/MersenneTwister_d.o
 
 
 $(COREDIR)/GPUSpikingModel.o: $(COREDIR)/GPUSpikingModel.cu $(UTILDIR)/Global.h $(COREDIR)/GPUSpikingModel.h $(NEURONDIR)/AllIFNeurons.h $(SYNAPSEDIR)/AllSynapses.h $(COREDIR)/IModel.h  
