@@ -53,7 +53,7 @@
 
    Modified from norm.c, from xneuron3
 */
-class Norm : public RNG {
+class Norm : public MTRand {
 public:
     inline virtual ~Norm() {}
 
@@ -66,8 +66,8 @@ public:
     @param s variance
     @param seed seed for random number generator
   */
-  Norm(BGFLOAT m = 0.0, BGFLOAT s = 1.0, unsigned long seed = 0)
-    : RNG(seed), odd(true), mu(m), sigma(s) {}
+  Norm(BGFLOAT m = 0.0, BGFLOAT s = 1.0, uint64_t seed = 0)
+    : MTRand(seed), odd(true), mu(m), sigma(s) {}
 
   /*!
     This method makes instances functors; it returns normally

@@ -51,7 +51,7 @@ includes = []
 # List of items to ignore, including directories
 # NOTE : Adding directories to this list will make it so that ANY directories with that name are skipped. So
 # ./Blah/Foo/old will be skipped AND ./old will be skipped if "old" is added to this list.
-ignores = ["Global.cpp", "Global.h", "old", "ParseParamError.cpp", "ParseParamError.h", "Util.cpp", "Util.h"]
+ignores = ["old"]
 
 # List of file extensions to ignore - modified by the script itself
 extension_ignores = []
@@ -806,7 +806,7 @@ def is_inheritance(derived, base):
 
     # match the string's first occurrence of this: .*"class" <whitespace>+ <derived's name> <whitespace>+ ":" .* <base's name> .* "{"
     regex = '(class)(\s)+(' + derived + ')(\s)+(:)(.)*(' + base + ')(.)*\{'
-    pattern = re.compile(regex, re.DOTALL)
+    pattern = re.compile(regex)
     match_obj = pattern.search(contents)
     if match_obj:
         return True
