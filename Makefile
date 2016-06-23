@@ -421,7 +421,7 @@ $(INPUTDIR)/FSInput.o: $(INPUTDIR)/FSInput.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)
 	$(CXX) $(CXXFLAGS) $(INPUTDIR)/FSInput.cpp -o $(INPUTDIR)/FSInput.o
 
 $(INPUTDIR)/FSInput_cuda.o: $(INPUTDIR)/FSInput.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)/FSInput.h $(INPUTDIR)/HostSInputRegular.h $(INPUTDIR)/GpuSInputRegular.h $(INPUTDIR)/HostSInputPoisson.h $(INPUTDIR)/GpuSInputPoisson.h $(XMLDIR)/tinyxml.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) -I$(CUDADIR) $(INPUTDIR)/FSInput.cpp -o $(INPUTDIR)/FSInput_cuda.o
+	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(INPUTDIR)/FSInput.cpp -o $(INPUTDIR)/FSInput_cuda.o
 
 $(INPUTDIR)/SInputRegular.o: $(INPUTDIR)/SInputRegular.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)/SInputRegular.h $(XMLDIR)/tinyxml.h
 	$(CXX) $(CXXFLAGS) $(INPUTDIR)/SInputRegular.cpp -o $(INPUTDIR)/SInputRegular.o
