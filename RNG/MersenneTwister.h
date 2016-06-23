@@ -2,7 +2,6 @@
 
 // This file has been modified by the UW Bothell BrainGrid group.
 
-
 // Mersenne Twister random number generator -- a C++ class MTRand
 // Based on code by Makoto Matsumoto, Takuji Nishimura, and Shawn Cokus
 // Richard J. Wagner  v1.0  15 May 2003  rjwagner@writeme.com
