@@ -56,11 +56,15 @@ else
 	H5FLAGS = 
 endif
 
-CXXFLAGS = -O2 -s -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) -I$(MATRIXDIR) -I$(NEURONDIR) -I$(PARAMDIR) -I$(RECORDERDIR) -I$(RNGDIR) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(XMLDIR)  -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(PMFLAGS) $(H5FLAGS) 
+INCDIRS = -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) \
+          -I$(MATRIXDIR) -I$(NEURONDIR) -I$(PARAMDIR) -I$(RECORDERDIR) \
+          -I$(RNGDIR) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(XMLDIR)
+
+CXXFLAGS = -O2 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) 
 CGPUFLAGS = -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
-NVCCFLAGS =  -g -arch=sm_20 -rdc=true
+NVCCFLAGS =  -g -arch=sm_20 -rdc=true $(INCDIRS)
 
 ################################################################################
 # Objects
@@ -188,38 +192,38 @@ clean:
 # ------------------------------------------------------------------------------
 
 $(RNGDIR)/MersenneTwister_d.o: $(RNGDIR)/MersenneTwister_d.cu $(UTILDIR)/Global.h $(RNGDIR)/MersenneTwister_d.h
-	nvcc -c $(NVCCFLAGS) $(RNGDIR)/MersenneTwister_kernel.cu $(CGPUFLAGS) -I$(RNGDIR) -I$(COREDIR) -I$(MATRIXDIR) -o $(RNGDIR)/MersenneTwister_d.o
+	nvcc -c $(NVCCFLAGS) $(RNGDIR)/MersenneTwister_kernel.cu $(CGPUFLAGS) -o $(RNGDIR)/MersenneTwister_d.o
 
 
 $(COREDIR)/GPUSpikingModel.o: $(COREDIR)/GPUSpikingModel.cu $(UTILDIR)/Global.h $(COREDIR)/GPUSpikingModel.h $(NEURONDIR)/AllIFNeurons.h $(SYNAPSEDIR)/AllSynapses.h $(COREDIR)/IModel.h  
-	nvcc -c $(NVCCFLAGS) $(COREDIR)/GPUSpikingModel.cu $(CGPUFLAGS) -I$(UTILDIR) -I$(COREDIR) -I$(NEURONDIR) -I$(SYNAPSEDIR) -I$(MATRIXDIR) -o $(COREDIR)/GPUSpikingModel.o
+	nvcc -c $(NVCCFLAGS) $(COREDIR)/GPUSpikingModel.cu $(CGPUFLAGS) -o $(COREDIR)/GPUSpikingModel.o
 
 $(NEURONDIR)/AllSpikingNeurons_d.o: $(NEURONDIR)/AllSpikingNeurons_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllSpikingNeurons.h
-	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllSpikingNeurons_d.cu $(CGPUFLAGS) -I$(NEURONDIR) -I$(UTILDIR) -I$(MATRIXDIR) -o $(NEURONDIR)/AllSpikingNeurons_d.o
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllSpikingNeurons_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllSpikingNeurons_d.o
 
 $(NEURONDIR)/AllIFNeurons_d.o: $(NEURONDIR)/AllIFNeurons_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllIFNeurons.h
-	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllIFNeurons_d.cu $(CGPUFLAGS) -I$(NEURONDIR) -I$(UTILDIR) -I$(MATRIXDIR) -o $(NEURONDIR)/AllIFNeurons_d.o
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllIFNeurons_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllIFNeurons_d.o
 
 $(NEURONDIR)/AllLIFNeurons_d.o: $(NEURONDIR)/AllLIFNeurons_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllLIFNeurons.h
-	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllLIFNeurons_d.cu $(CGPUFLAGS) -I$(NEURONDIR) -I$(UTILDIR) -I$(MATRIXDIR) -o $(NEURONDIR)/AllLIFNeurons_d.o
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllLIFNeurons_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllLIFNeurons_d.o
 
 $(NEURONDIR)/AllIZHNeurons_d.o: $(NEURONDIR)/AllIZHNeurons_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllIZHNeurons.h
-	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllIZHNeurons_d.cu $(CGPUFLAGS) -I$(NEURONDIR) -I$(UTILDIR) -I$(MATRIXDIR) -o $(NEURONDIR)/AllIZHNeurons_d.o
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllIZHNeurons_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllIZHNeurons_d.o
 
 $(SYNAPSEDIR)/AllSpikingSynapses_d.o: $(SYNAPSEDIR)/AllSpikingSynapses_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllSpikingSynapses.h
-	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSpikingSynapses_d.cu $(CGPUFLAGS) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(MATRIXDIR) -o $(SYNAPSEDIR)/AllSpikingSynapses_d.o
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSpikingSynapses_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSpikingSynapses_d.o
 
 $(SYNAPSEDIR)/AllDSSynapses_d.o: $(SYNAPSEDIR)/AllDSSynapses_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllDSSynapses.h
-	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllDSSynapses_d.cu $(CGPUFLAGS) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(MATRIXDIR) -o $(SYNAPSEDIR)/AllDSSynapses_d.o
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllDSSynapses_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllDSSynapses_d.o
 
 $(SYNAPSEDIR)/AllSTDPSynapses_d.o: $(SYNAPSEDIR)/AllSTDPSynapses_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllSTDPSynapses.h
-	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSTDPSynapses_d.cu $(CGPUFLAGS) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(MATRIXDIR) -o $(SYNAPSEDIR)/AllSTDPSynapses_d.o
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSTDPSynapses_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSTDPSynapses_d.o
 
 $(SYNAPSEDIR)/AllDynamicSTDPSynapses_d.o: $(SYNAPSEDIR)/AllDynamicSTDPSynapses_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllDynamicSTDPSynapses.h
-	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllDynamicSTDPSynapses_d.cu $(CGPUFLAGS) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(MATRIXDIR) -o $(SYNAPSEDIR)/AllDynamicSTDPSynapses_d.o
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllDynamicSTDPSynapses_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllDynamicSTDPSynapses_d.o
 
 $(CONNDIR)/ConnGrowth_d.o: $(CONNDIR)/ConnGrowth_d.cu $(UTILDIR)/Global.h $(CONNDIR)/ConnGrowth.h
-	nvcc -c $(NVCCFLAGS) $(CONNDIR)/ConnGrowth_d.cu $(CGPUFLAGS) -I$(CONNDIR) -I$(UTILDIR) -I$(MATRIXDIR) -o $(CONNDIR)/ConnGrowth_d.o
+	nvcc -c $(NVCCFLAGS) $(CONNDIR)/ConnGrowth_d.cu $(CGPUFLAGS) -o $(CONNDIR)/ConnGrowth_d.o
 
 $(COREDIR)/BGDriver_cuda.o: $(COREDIR)/BGDriver.cpp $(UTILDIR)/Global.h $(COREDIR)/IModel.h $(NEURONDIR)/AllIFNeurons.h $(SYNAPSEDIR)/AllSynapses.h 
 	$(CXX) -c $(CXXFLAGS) $(CGPUFLAGS) $(COREDIR)/BGDriver.cpp -o $(COREDIR)/BGDriver_cuda.o
@@ -432,10 +436,10 @@ $(INPUTDIR)/HostSInputPoisson.o: $(INPUTDIR)/HostSInputPoisson.cpp $(INPUTDIR)/I
 	$(CXX) $(CXXFLAGS) $(INPUTDIR)/HostSInputPoisson.cpp -o $(INPUTDIR)/HostSInputPoisson.o
 
 $(INPUTDIR)/GpuSInputRegular.o: $(INPUTDIR)/GpuSInputRegular.cu $(INPUTDIR)/ISInput.h $(INPUTDIR)/GpuSInputRegular.h
-	nvcc -c $(NVCCFLAGS) $(INPUTDIR)/GpuSInputRegular.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(XMLDIR) -I$(INPUTDIR) -o $(INPUTDIR)/GpuSInputRegular.o
+	nvcc -c $(NVCCFLAGS) $(INPUTDIR)/GpuSInputRegular.cu $(CGPUFLAGS) -o $(INPUTDIR)/GpuSInputRegular.o
 
 $(INPUTDIR)/GpuSInputPoisson.o: $(INPUTDIR)/GpuSInputPoisson.cu $(INPUTDIR)/ISInput.h $(INPUTDIR)/GpuSInputPoisson.h
-	nvcc -c $(NVCCFLAGS) $(INPUTDIR)/GpuSInputPoisson.cu $(CGPUFLAGS) -I$(CUDADIR) -I$(COMMDIR) -I$(XMLDIR) -I$(INPUTDIR) -o $(INPUTDIR)/GpuSInputPoisson.o
+	nvcc -c $(NVCCFLAGS) $(INPUTDIR)/GpuSInputPoisson.cu $(CGPUFLAGS) -o $(INPUTDIR)/GpuSInputPoisson.o
 
 # Single Threaded
 # ------------------------------------------------------------------------------
