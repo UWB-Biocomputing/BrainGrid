@@ -1,6 +1,10 @@
 // MersenneTwister.h
 
-// This file has been modified by the UW Bothell BrainGrid group.
+// This file has been modified by the UW Bothell BrainGrid group,
+// mostly to reorganize it and make it look more like typical C++
+// code. This includes splitting it into a .h and .cpp (instead of
+// having everything in a .h file), and replacing enums previously
+// used to define constants with consts.
 
 // Mersenne Twister random number generator -- a C++ class MTRand
 // Based on code by Makoto Matsumoto, Takuji Nishimura, and Shawn Cokus
@@ -73,17 +77,15 @@
 class MTRand {
   // Data
  public:
-
-  enum { N = 624 };       // length of state vector
-  enum { SAVE = N + 1 };  // length of array for save()
+  static const int N = 624;       // length of state vector
+  static const int SAVE = N + 1;  // length of array for save()
 
  protected:
-  enum { M = 397 };  // period parameter
+  static const int M = 397;  // period parameter
 
   uint64_t state[N];   // internal state
   uint64_t *pNext;     // next value to get from state
   int left;          // number of values left before reload needed
-
 
   //Methods
  public:
@@ -96,37 +98,38 @@ class MTRand {
   // reading 624 consecutive values.
 
   // Access to 32-bit random numbers
-  BGFLOAT rand();                          // real number in [0,1]
-  BGFLOAT rand( BGFLOAT n );         // real number in [0,n]
-  BGFLOAT randExc();                       // real number in [0,1)
-  BGFLOAT randExc( BGFLOAT n );      // real number in [0,n)
-  BGFLOAT randDblExc();                    // real number in (0,1)
-  BGFLOAT randDblExc( BGFLOAT n );   // real number in (0,n)
-  uint64_t randInt();                       // integer in [0,2^32-1]
-  uint64_t randInt( uint64_t n );      // integer in [0,n] for n < 2^32
-  BGFLOAT operator()() { return rand(); }  // same as rand()
+  BGFLOAT rand();                            // real number in [0,1]
+  inline BGFLOAT rand( BGFLOAT n );          // real number in [0,n]
+  inline BGFLOAT randExc();                  // real number in [0,1)
+  inline BGFLOAT randExc( BGFLOAT n );       // real number in [0,n)
+  inline BGFLOAT randDblExc();               // real number in (0,1)
+  inline BGFLOAT randDblExc( BGFLOAT n );    // real number in (0,n)
+  inline uint64_t randInt();                 // integer in [0,2^32-1]
+  inline uint64_t randInt( uint64_t n );     // integer in [0,n] for n < 2^32
+  BGFLOAT operator()() { return rand(); }    // same as rand()
+
   BGFLOAT inRange(BGFLOAT min, BGFLOAT max); // real number in [min, max]
 
   // Access to 53-bit random numbers (capacity of IEEE BGFLOAT precision)
-  BGFLOAT rand53();  // real number in [0,1)
+  inline BGFLOAT rand53();                   // real number in [0,1)
 
   // Access to nonuniform random number distributions
-  BGFLOAT randNorm( BGFLOAT mean = 0.0, BGFLOAT variance = 0.0 );
+  inline BGFLOAT randNorm( BGFLOAT mean = 0.0, BGFLOAT variance = 0.0 );
 
   // Re-seeding functions with same behavior as initializers
-  void seed( uint64_t oneSeed );
-  void seed( uint64_t *const bigSeed, uint64_t seedLength = N );
-  void seed();
+  inline void seed( uint64_t oneSeed );
+  inline void seed( uint64_t *const bigSeed, uint64_t seedLength = N );
+  inline void seed();
 
   // Saving and loading generator state
-  void save( uint64_t* saveArray ) const;  // to array of size SAVE
-  void load( uint64_t *const loadArray );  // from such array
+  inline void save( uint64_t* saveArray ) const;  // to array of size SAVE
+  inline void load( uint64_t *const loadArray );  // from such array
   friend std::ostream& operator<<( std::ostream& os, const MTRand& mtrand );
   friend std::istream& operator>>( std::istream& is, MTRand& mtrand );
 
  protected:
-  void initialize( uint64_t oneSeed );
-  void reload();
+  inline void initialize( uint64_t oneSeed );
+  inline void reload();
   uint64_t hiBit( uint64_t u ) const { return u & 0x80000000UL; }
   uint64_t loBit( uint64_t u ) const { return u & 0x00000001UL; }
   uint64_t loBits( uint64_t u ) const { return u & 0x7fffffffUL; }
@@ -134,7 +137,7 @@ class MTRand {
   { return hiBit(u) | loBits(v); }
   uint64_t twist( uint64_t m, uint64_t s0, uint64_t s1 ) const
   { return m ^ (mixBits(s0,s1)>>1) ^ (-loBit(s1) & 0x9908b0dfUL); }
-  static uint64_t hash( time_t t, clock_t c );
+  inline static uint64_t hash( time_t t, clock_t c );
 };
 
 
