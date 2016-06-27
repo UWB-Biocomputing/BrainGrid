@@ -1,7 +1,10 @@
 // MersenneTwister.cpp
 
-// This file has been modified by the UW Bothell BrainGrid group.
-
+// This file has been modified by the UW Bothell BrainGrid group,
+// mostly to reorganize it and make it look more like typical C++
+// code. This includes splitting it into a .h and .cpp (instead of
+// having everything in a .h file), and replacing enums previously
+// used to define constants with consts.
 
 // Mersenne Twister random number generator -- a C++ class MTRand
 // Based on code by Makoto Matsumoto, Takuji Nishimura, and Shawn Cokus
@@ -63,31 +66,31 @@
 MTRand::MTRand( uint64_t oneSeed )
 { seed(oneSeed); }
 
-inline MTRand::MTRand( uint64_t *const bigSeed, uint64_t seedLength )
+MTRand::MTRand( uint64_t *const bigSeed, uint64_t seedLength )
 { seed(bigSeed,seedLength); }
 
-inline MTRand::MTRand()
+MTRand::MTRand()
 { seed(); }
 
 BGFLOAT MTRand::rand()
 { return BGFLOAT(randInt()) * (1.0/4294967295.0); }
 
-inline BGFLOAT MTRand::rand( BGFLOAT n )
+BGFLOAT MTRand::rand( BGFLOAT n )
 { return rand() * n; }
 
-inline BGFLOAT MTRand::randExc()
+BGFLOAT MTRand::randExc()
 { return BGFLOAT(randInt()) * (1.0/4294967296.0); }
 
-inline BGFLOAT MTRand::randExc( BGFLOAT n )
+BGFLOAT MTRand::randExc( BGFLOAT n )
 { return randExc() * n; }
 
-inline BGFLOAT MTRand::randDblExc()
+BGFLOAT MTRand::randDblExc()
 { return ( BGFLOAT(randInt()) + 0.5 ) * (1.0/4294967296.0); }
 
-inline BGFLOAT MTRand::randDblExc( BGFLOAT n )
+BGFLOAT MTRand::randDblExc( BGFLOAT n )
 { return randDblExc() * n; }
 
-inline uint64_t MTRand::randInt()
+uint64_t MTRand::randInt()
 {
   // Pull a 32-bit integer from the generator state
   // Every other access function simply transforms the numbers extracted here
@@ -103,7 +106,7 @@ inline uint64_t MTRand::randInt()
   return ( s1 ^ (s1 >> 18) );
 }
 
-inline uint64_t MTRand::randInt( uint64_t n )
+uint64_t MTRand::randInt( uint64_t n )
 {
   // Find which bits are used in n
   // Optimized by Magnus Jonsson (magnus@smartelectronix.com)
@@ -130,13 +133,13 @@ BGFLOAT MTRand::inRange(BGFLOAT min, BGFLOAT max) {
   return val;
 }
 
-inline BGFLOAT MTRand::rand53()
+BGFLOAT MTRand::rand53()
 {
   uint64_t a = randInt() >> 5, b = randInt() >> 6;
   return ( a * 67108864.0 + b ) * (1.0/9007199254740992.0);  // by Isaku Wada
 }
 
-inline BGFLOAT MTRand::randNorm( BGFLOAT mean, BGFLOAT variance )
+BGFLOAT MTRand::randNorm( BGFLOAT mean, BGFLOAT variance )
 {
   // Return a real number from a normal (Gaussian) distribution with given
   // mean and variance by Box-Muller method
@@ -146,7 +149,7 @@ inline BGFLOAT MTRand::randNorm( BGFLOAT mean, BGFLOAT variance )
 }
 
 
-inline void MTRand::seed( uint64_t oneSeed )
+void MTRand::seed( uint64_t oneSeed )
 {
   // Seed the generator with a simple uint64_t
   initialize(oneSeed);
@@ -154,7 +157,7 @@ inline void MTRand::seed( uint64_t oneSeed )
 }
 
 
-inline void MTRand::seed( uint64_t *const bigSeed, uint64_t seedLength )
+void MTRand::seed( uint64_t *const bigSeed, uint64_t seedLength )
 {
   // Seed the generator with an array of uint64_t's
   // There are 2^19937-1 possible initial states.  This function allows
@@ -190,7 +193,7 @@ inline void MTRand::seed( uint64_t *const bigSeed, uint64_t seedLength )
 }
 
 
-inline void MTRand::seed()
+void MTRand::seed()
 {
   // Seed the generator with an array from /dev/urandom if available
   // Otherwise use a hash of time() and clock() values
@@ -214,7 +217,7 @@ inline void MTRand::seed()
 }
 
 
-inline void MTRand::save( uint64_t* saveArray ) const
+void MTRand::save( uint64_t* saveArray ) const
 {
   register uint64_t *sa = saveArray;
   register const uint64_t *s = state;
@@ -224,7 +227,7 @@ inline void MTRand::save( uint64_t* saveArray ) const
 }
 
 
-inline void MTRand::load( uint64_t *const loadArray )
+void MTRand::load( uint64_t *const loadArray )
 {
   register uint64_t *s = state;
   register uint64_t *la = loadArray;
@@ -254,7 +257,7 @@ std::istream& operator>>( std::istream& is, MTRand& mtrand )
   return is;
 }
 
-inline void MTRand::initialize( uint64_t seed )
+void MTRand::initialize( uint64_t seed )
 {
   // Initialize generator state with seed
   // See Knuth TAOCP Vol 2, 3rd Ed, p.106 for multiplier.
@@ -272,7 +275,7 @@ inline void MTRand::initialize( uint64_t seed )
 }
 
 
-inline void MTRand::reload()
+void MTRand::reload()
 {
   // Generate N new values in state
   // Made clearer and faster by Matthew Bellew (matthew.bellew@home.com)
@@ -288,7 +291,7 @@ inline void MTRand::reload()
 }
 
 
-inline uint64_t MTRand::hash( time_t t, clock_t c )
+uint64_t MTRand::hash( time_t t, clock_t c )
 {
   // Get a uint64_t from t and c
   // Better than uint64_t(x) in case x is floating point in [0,1]
