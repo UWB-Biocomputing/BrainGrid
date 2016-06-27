@@ -81,7 +81,7 @@ class MTRand {
   static const int SAVE = N + 1;  // length of array for save()
 
  protected:
-  static const into M = 397;  // period parameter
+  static const int M = 397;  // period parameter
 
   uint64_t state[N];   // internal state
   uint64_t *pNext;     // next value to get from state
@@ -89,9 +89,9 @@ class MTRand {
 
   //Methods
  public:
-  inline MTRand( uint64_t oneSeed );  // initialize with a simple uint64_t
-  inline MTRand( uint64_t *const bigSeed, uint64_t seedLength = N );  // or an array
-  inline MTRand();  // auto-initialize with /dev/urandom or time() and clock()
+  MTRand( uint64_t oneSeed );  // initialize with a simple uint64_t
+  MTRand( uint64_t *const bigSeed, uint64_t seedLength = N );  // or an array
+  MTRand();  // auto-initialize with /dev/urandom or time() and clock()
 
   // Do NOT use for CRYPTOGRAPHY without securely hashing several returned
   // values together, otherwise the generator state can be learned after
