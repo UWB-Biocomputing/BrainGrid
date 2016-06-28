@@ -63,34 +63,34 @@
 
 #include "MersenneTwister.h"
 
-MTRand::MTRand( uint64_t oneSeed )
+MTRand::MTRand( uint32_t oneSeed )
 { seed(oneSeed); }
 
-MTRand::MTRand( uint64_t *const bigSeed, uint64_t seedLength )
+MTRand::MTRand( uint32_t *const bigSeed, uint32_t seedLength )
 { seed(bigSeed,seedLength); }
 
 MTRand::MTRand()
 { seed(); }
 
 BGFLOAT MTRand::rand()
-{ return BGFLOAT(randInt()) * (1.0/4294967295.0); }
+{ return static_cast<BGFLOAT>(randInt()) * (1.0/4294967295.0); }
 
 BGFLOAT MTRand::rand( BGFLOAT n )
 { return rand() * n; }
 
 BGFLOAT MTRand::randExc()
-{ return BGFLOAT(randInt()) * (1.0/4294967296.0); }
+{ return static_cast<BGFLOAT>(randInt()) * (1.0/4294967296.0); }
 
 BGFLOAT MTRand::randExc( BGFLOAT n )
 { return randExc() * n; }
 
 BGFLOAT MTRand::randDblExc()
-{ return ( BGFLOAT(randInt()) + 0.5 ) * (1.0/4294967296.0); }
+{ return ( static_cast<BGFLOAT>(randInt()) + 0.5 ) * (1.0/4294967296.0); }
 
 BGFLOAT MTRand::randDblExc( BGFLOAT n )
 { return randDblExc() * n; }
 
-uint64_t MTRand::randInt()
+uint32_t MTRand::randInt()
 {
   // Pull a 32-bit integer from the generator state
   // Every other access function simply transforms the numbers extracted here
@@ -98,7 +98,7 @@ uint64_t MTRand::randInt()
   if( left == 0 ) reload();
   --left;
 
-  register uint64_t s1;
+  register uint32_t s1;
   s1 = *pNext++;
   s1 ^= (s1 >> 11);
   s1 ^= (s1 <<  7) & 0x9d2c5680UL;
@@ -106,11 +106,11 @@ uint64_t MTRand::randInt()
   return ( s1 ^ (s1 >> 18) );
 }
 
-uint64_t MTRand::randInt( uint64_t n )
+uint32_t MTRand::randInt( uint32_t n )
 {
   // Find which bits are used in n
   // Optimized by Magnus Jonsson (magnus@smartelectronix.com)
-  uint64_t used = n;
+  uint32_t used = n;
   used |= used >> 1;
   used |= used >> 2;
   used |= used >> 4;
@@ -118,10 +118,10 @@ uint64_t MTRand::randInt( uint64_t n )
   used |= used >> 16;
 
   // Draw numbers until one is found in [0,n]
-  uint64_t i;
-  do
+  uint32_t i;
+  do {
     i = randInt() & used;  // toss unused bits to shorten search
-  while( i > n );
+  } while( i > n );
   return i;
 }
 
@@ -135,7 +135,7 @@ BGFLOAT MTRand::inRange(BGFLOAT min, BGFLOAT max) {
 
 BGFLOAT MTRand::rand53()
 {
-  uint64_t a = randInt() >> 5, b = randInt() >> 6;
+  uint32_t a = randInt() >> 5, b = randInt() >> 6;
   return ( a * 67108864.0 + b ) * (1.0/9007199254740992.0);  // by Isaku Wada
 }
 
@@ -143,31 +143,31 @@ BGFLOAT MTRand::randNorm( BGFLOAT mean, BGFLOAT variance )
 {
   // Return a real number from a normal (Gaussian) distribution with given
   // mean and variance by Box-Muller method
-  BGFLOAT r = sqrt( -2.0 * log( 1.0-randDblExc()) ) * variance;
-  BGFLOAT phi = 2.0 * 3.14159265358979323846264338328 * randExc();
-  return mean + r * cos(phi);
+  double r = sqrt( -2.0 * log( 1.0-randDblExc()) ) * variance;
+  double phi = 2.0 * 3.14159265358979323846264338328 * randExc();
+  return static_cast<BGFLOAT>(mean + r * cos(phi));
 }
 
 
-void MTRand::seed( uint64_t oneSeed )
+void MTRand::seed( uint32_t oneSeed )
 {
-  // Seed the generator with a simple uint64_t
+  // Seed the generator with a simple uint32_t
   initialize(oneSeed);
   reload();
 }
 
 
-void MTRand::seed( uint64_t *const bigSeed, uint64_t seedLength )
+void MTRand::seed( uint32_t *const bigSeed, uint32_t seedLength )
 {
-  // Seed the generator with an array of uint64_t's
+  // Seed the generator with an array of uint32_t's
   // There are 2^19937-1 possible initial states.  This function allows
   // all of those to be accessed by providing at least 19937 bits (with a
-  // default seed length of N = 624 uint64_t's).  Any bits above the lower 32
+  // default seed length of N = 624 uint32_t's).  Any bits above the lower 32
   // in each element are discarded.
   // Just call seed() if you want to get array from /dev/urandom
   initialize(19650218UL);
   register int i = 1;
-  register uint64_t j = 0;
+  register uint32_t j = 0;
   register int k = ( N > seedLength ? N : seedLength );
   for( ; k; --k )
     {
@@ -202,12 +202,12 @@ void MTRand::seed()
   FILE* urandom = fopen( "/dev/urandom", "rb" );
   if( urandom )
     {
-      uint64_t bigSeed[N];
-      register uint64_t *s = bigSeed;
+      uint32_t bigSeed[N];
+      register uint32_t *s = bigSeed;
       register int i = N;
       register bool success = true;
       while( success && i-- )
-	success = fread( s++, sizeof(uint64_t), 1, urandom );
+	success = fread( s++, sizeof(uint32_t), 1, urandom );
       fclose(urandom);
       if( success ) { seed( bigSeed, N );  return; }
     }
@@ -217,20 +217,20 @@ void MTRand::seed()
 }
 
 
-void MTRand::save( uint64_t* saveArray ) const
+void MTRand::save( uint32_t* saveArray ) const
 {
-  register uint64_t *sa = saveArray;
-  register const uint64_t *s = state;
+  register uint32_t *sa = saveArray;
+  register const uint32_t *s = state;
   register int i = N;
   for( ; i--; *sa++ = *s++ ) {}
   *sa = left;
 }
 
 
-void MTRand::load( uint64_t *const loadArray )
+void MTRand::load( uint32_t *const loadArray )
 {
-  register uint64_t *s = state;
-  register uint64_t *la = loadArray;
+  register uint32_t *s = state;
+  register uint32_t *la = loadArray;
   register int i = N;
   for( ; i--; *s++ = *la++ ) {}
   left = *la;
@@ -240,7 +240,7 @@ void MTRand::load( uint64_t *const loadArray )
 
 std::ostream& operator<<( std::ostream& os, const MTRand& mtrand )
 {
-  register const uint64_t *s = mtrand.state;
+  register const uint32_t *s = mtrand.state;
   register int i = mtrand.N;
   for( ; i--; os << *s++ << "\t" ) {}
   return os << mtrand.left;
@@ -249,7 +249,7 @@ std::ostream& operator<<( std::ostream& os, const MTRand& mtrand )
 
 std::istream& operator>>( std::istream& is, MTRand& mtrand )
 {
-  register uint64_t *s = mtrand.state;
+  register uint32_t *s = mtrand.state;
   register int i = mtrand.N;
   for( ; i--; is >> *s++ ) {}
   is >> mtrand.left;
@@ -257,14 +257,14 @@ std::istream& operator>>( std::istream& is, MTRand& mtrand )
   return is;
 }
 
-void MTRand::initialize( uint64_t seed )
+void MTRand::initialize( uint32_t seed )
 {
   // Initialize generator state with seed
   // See Knuth TAOCP Vol 2, 3rd Ed, p.106 for multiplier.
   // In previous versions, most significant bits (MSBs) of the seed affect
   // only MSBs of the state array.  Modified 9 Jan 2002 by Makoto Matsumoto.
-  register uint64_t *s = state;
-  register uint64_t *r = state;
+  register uint32_t *s = state;
+  register uint32_t *r = state;
   register int i = 1;
   *s++ = seed & 0xffffffffUL;
   for( ; i < N; ++i )
@@ -279,7 +279,7 @@ void MTRand::reload()
 {
   // Generate N new values in state
   // Made clearer and faster by Matthew Bellew (matthew.bellew@home.com)
-  register uint64_t *p = state;
+  register uint32_t *p = state;
   register int i;
   for( i = N - M; i--; ++p )
     *p = twist( p[M], p[0], p[1] );
@@ -291,22 +291,22 @@ void MTRand::reload()
 }
 
 
-uint64_t MTRand::hash( time_t t, clock_t c )
+uint32_t MTRand::hash( time_t t, clock_t c )
 {
-  // Get a uint64_t from t and c
-  // Better than uint64_t(x) in case x is floating point in [0,1]
+  // Get a uint32_t from t and c
+  // Better than uint32_t(x) in case x is floating point in [0,1]
   // Based on code by Lawrence Kirby (fred@genesis.demon.co.uk)
 
-  static uint64_t differ = 0;  // guarantee time-based seeds will change
+  static uint32_t differ = 0;  // guarantee time-based seeds will change
 
-  uint64_t h1 = 0;
+  uint32_t h1 = 0;
   unsigned char *p = (unsigned char *) &t;
   for( size_t i = 0; i < sizeof(t); ++i )
     {
       h1 *= UCHAR_MAX + 2U;
       h1 += p[i];
     }
-  uint64_t h2 = 0;
+  uint32_t h2 = 0;
   p = (unsigned char *) &c;
   for( size_t j = 0; j < sizeof(c); ++j )
     {
