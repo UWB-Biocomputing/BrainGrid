@@ -66,7 +66,7 @@ public:
     @param s variance
     @param seed seed for random number generator
   */
-  Norm(BGFLOAT m = 0.0, BGFLOAT s = 1.0, uint64_t seed = 0)
+  Norm(BGFLOAT m = 0.0, BGFLOAT s = 1.0, uint32_t seed = 0)
     : MTRand(seed), odd(true), mu(m), sigma(s) {}
 
   /*!
