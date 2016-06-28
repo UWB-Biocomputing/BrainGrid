@@ -68,7 +68,7 @@ SInputPoisson::SInputPoisson(SimulationInfo* psi, TiXmlElement* parms) :
                 getValueList(pNode->ToElement()->GetText(), &maskIndex);
 
                 memset(masks, false, sizeof(bool) * psi->totalNeurons);
-                for (size_t i = 0; i < maskIndex.size(); i++)
+                for (uint32_t i = 0; i < maskIndex.size(); i++)
                     masks[static_cast<int> ( maskIndex[i] )] = true;
             }
             else if (strcmp(pNode->Value(), "LayoutFiles") == 0)
@@ -94,7 +94,7 @@ SInputPoisson::SInputPoisson(SimulationInfo* psi, TiXmlElement* parms) :
                     getValueList(temp2->ToElement()->GetText(), &maskIndex);
 
                     memset(masks, false, sizeof(bool) * psi->totalNeurons);
-                    for (size_t i = 0; i < maskIndex.size(); i++)
+                    for (uint32_t i = 0; i < maskIndex.size(); i++)
                         masks[static_cast<int> ( maskIndex[i] )] = true;
                 }
             }
@@ -138,7 +138,7 @@ void SInputPoisson::init(SimulationInfo* psi)
             type = EE;
 
         BGFLOAT* sum_point = &( psi->pSummationMap[neuron_index] );
-        uint32_t iSyn = psi->maxSynapsesPerNeuron * neuron_index;
+        BGSIZE iSyn = psi->maxSynapsesPerNeuron * neuron_index;
 
         m_synapses->createSynapse(iSyn, 0, neuron_index, sum_point, psi->deltaT, type);
         dynamic_cast<AllSynapses*>(m_synapses)->W[iSyn] = weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;

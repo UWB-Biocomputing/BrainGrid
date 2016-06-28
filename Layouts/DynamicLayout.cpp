@@ -118,8 +118,8 @@ void DynamicLayout::initStarterMap(const int num_neurons)
 {
     Layout::initStarterMap(num_neurons);
 
-    num_endogenously_active_neurons = (size_t) (m_frac_starter_neurons * num_neurons + 0.5);
-    size_t starters_allocated = 0;
+    num_endogenously_active_neurons = (BGSIZE) (m_frac_starter_neurons * num_neurons + 0.5);
+    BGSIZE starters_allocated = 0;
 
     DEBUG(cout << "\nRandomly initializing starter map\n";);
     DEBUG(cout << "Total neurons: " << num_neurons << endl;)

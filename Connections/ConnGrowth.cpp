@@ -381,10 +381,10 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &ineur
             synapseType type = layout->synType(src_neuron, dest_neuron);
 
             // for each existing synapse
-            size_t synapse_counts = synapses.synapse_counts[src_neuron];
-            size_t synapse_adjusted = 0;
-            for (size_t synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++) {
-                uint32_t iSyn = sim_info->maxSynapsesPerNeuron * src_neuron + synapse_index;
+            BGSIZE synapse_counts = synapses.synapse_counts[src_neuron];
+            BGSIZE synapse_adjusted = 0;
+            for (BGSIZE synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++) {
+                BGSIZE iSyn = sim_info->maxSynapsesPerNeuron * src_neuron + synapse_index;
                 if (synapses.in_use[iSyn] == true) {
                     // if there is a synapse between a and b
                     if (synapses.destNeuronIndex[iSyn] == dest_neuron) {
@@ -418,7 +418,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &ineur
                 BGFLOAT* sum_point = &( neurons.summation_map[dest_neuron] );
                 added++;
 
-                uint32_t iSyn;
+                BGSIZE iSyn;
                 synapses.addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT);
                 synapses.W[iSyn] = (*W)(src_neuron, dest_neuron) * synapses.synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 

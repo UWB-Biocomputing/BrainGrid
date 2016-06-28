@@ -46,7 +46,7 @@ void AllDynamicSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice,
 void AllDynamicSTDPSynapses::allocDeviceStruct( AllDynamicSTDPSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron ) {
         AllSTDPSynapses::allocDeviceStruct( allSynapses, num_neurons, maxSynapsesPerNeuron );
 
-        uint32_t max_total_synapses = maxSynapsesPerNeuron * num_neurons;
+        BGSIZE max_total_synapses = maxSynapsesPerNeuron * num_neurons;
 
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.lastSpike, max_total_synapses * sizeof( uint64_t ) ) );
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.r, max_total_synapses * sizeof( BGFLOAT ) ) );
@@ -125,7 +125,7 @@ void AllDynamicSTDPSynapses::copySynapseHostToDevice( void* allSynapsesDevice, i
 void AllDynamicSTDPSynapses::copyHostToDevice( void* allSynapsesDevice, AllDynamicSTDPSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron ) { // copy everything necessary 
         AllSTDPSynapses::copyHostToDevice( allSynapsesDevice, allSynapses, num_neurons, maxSynapsesPerNeuron );
 
-        uint32_t max_total_synapses = maxSynapsesPerNeuron * num_neurons;
+        BGSIZE max_total_synapses = maxSynapsesPerNeuron * num_neurons;
         
         HANDLE_ERROR( cudaMemcpy ( allSynapses.lastSpike, lastSpike,
                 max_total_synapses * sizeof( uint64_t ), cudaMemcpyHostToDevice ) );
@@ -168,7 +168,7 @@ void AllDynamicSTDPSynapses::copyDeviceToHost( AllDynamicSTDPSynapses& allSynaps
         AllSTDPSynapses::copyDeviceToHost( allSynapses, sim_info ) ;
 
 	int num_neurons = sim_info->totalNeurons;
-	uint32_t max_total_synapses = sim_info->maxSynapsesPerNeuron * num_neurons;
+	BGSIZE max_total_synapses = sim_info->maxSynapsesPerNeuron * num_neurons;
 
         HANDLE_ERROR( cudaMemcpy ( lastSpike, allSynapses.lastSpike,
                 max_total_synapses * sizeof( uint64_t ), cudaMemcpyDeviceToHost ) );
@@ -241,8 +241,8 @@ void AllDynamicSTDPSynapses::getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h
 __device__ void createDynamicSTDPSSynapse(AllDynamicSTDPSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
-    size_t max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
-    uint32_t iSyn = max_synapses * neuron_index + synapse_index;
+    BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
+    BGSIZE iSyn = max_synapses * neuron_index + synapse_index;
 
     allSynapsesDevice->in_use[iSyn] = true;
     allSynapsesDevice->summationPoint[iSyn] = sum_point;
@@ -308,7 +308,7 @@ __device__ void createDynamicSTDPSSynapse(AllDynamicSTDPSynapses* allSynapsesDev
     allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
-    size_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
+    uint32_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
     assert( size <= BYTES_OF_DELAYQUEUE );
 
     allSynapsesDevice->Apos[iSyn] = 0.5;
@@ -338,7 +338,7 @@ __device__ void createDynamicSTDPSSynapse(AllDynamicSTDPSynapses* allSynapsesDev
  *  @param  simulationStep     The current simulation step.
  *  @param  deltaT             Inner simulation step duration.
  */
-__device__ void changeDynamicSTDPSynapsePSR(AllDynamicSTDPSynapses* allSynapsesDevice, const uint32_t iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
+__device__ void changeDynamicSTDPSynapsePSR(AllDynamicSTDPSynapses* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
 {
     uint64_t &lastSpike = allSynapsesDevice->lastSpike[iSyn];
     BGFLOAT &r = allSynapsesDevice->r[iSyn];

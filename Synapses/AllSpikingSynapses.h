@@ -41,8 +41,8 @@
 
 class AllSpikingSynapses;
 
-typedef void (*fpPreSynapsesSpikeHit_t)(const uint32_t, AllSpikingSynapses*);
-typedef void (*fpPostSynapsesSpikeHit_t)(const uint32_t, AllSpikingSynapses*);
+typedef void (*fpPreSynapsesSpikeHit_t)(const BGSIZE, AllSpikingSynapses*);
+typedef void (*fpPostSynapsesSpikeHit_t)(const BGSIZE, AllSpikingSynapses*);
 
 #include "AllSpikingNeurons.h"
 
@@ -73,7 +73,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  iSyn     Index of the synapse to set.
          *  @param  deltaT   Inner simulation step duration
          */
-        virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT);
+        virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT);
 
         /**
          *  Checks the number of required parameters to read.
@@ -108,7 +108,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  deltaT      Inner simulation step duration.
          *  @param  type        Type of the Synapse to create.
          */
-        virtual void createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
+        virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
 
         /**
          *  Check if the back propagation (notify a spike event to the pre neuron)
@@ -132,7 +132,7 @@ class AllSpikingSynapses : public AllSynapses
          *
          *  @param  iSyn   index of the synapse to set.
          */
-        virtual void initSpikeQueue(const uint32_t iSyn);
+        virtual void initSpikeQueue(const BGSIZE iSyn);
 
         /**
          *  Updates the decay if the synapse selected.
@@ -141,7 +141,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  deltaT  Inner simulation step duration
          *  @return true is success.
          */
-        bool updateDecay(const uint32_t iSyn, const BGFLOAT deltaT);
+        bool updateDecay(const BGSIZE iSyn, const BGFLOAT deltaT);
 
         /**
          *  Sets the data for Synapse to input's data.
@@ -149,7 +149,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  input  istream to read from.
          *  @param  iSyn   Index of the synapse to set.
          */
-        virtual void readSynapse(istream &input, const uint32_t iSyn);
+        virtual void readSynapse(istream &input, const BGSIZE iSyn);
 
         /**
          *  Write the synapse data to the stream.
@@ -157,7 +157,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  output  stream to print out to.
          *  @param  iSyn    Index of the synapse to print out.
          */
-        virtual void writeSynapse(ostream& output, const uint32_t iSyn) const;
+        virtual void writeSynapse(ostream& output, const BGSIZE iSyn) const;
 
 #if defined(USE_GPU)
     public:
@@ -337,21 +337,21 @@ public:
          *  @param  sim_info  SimulationInfo class to read information from.
          *  @param  neurons   The Neuron list to search from.
          */
-        virtual void advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons);
+        virtual void advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons);
 
         /**
          *  Prepares Synapse for a spike hit.
          *
          *  @param  iSyn   Index of the Synapse to update.
          */
-        virtual void preSpikeHit(const uint32_t iSyn);
+        virtual void preSpikeHit(const BGSIZE iSyn);
 
         /**
          *  Prepares Synapse for a spike hit (for back propagation).
          *
          *  @param  iSyn   Index of the Synapse to update.
          */
-        virtual void postSpikeHit(const uint32_t iSyn);
+        virtual void postSpikeHit(const BGSIZE iSyn);
 
     protected:
         /**
@@ -360,7 +360,7 @@ public:
          *  @param  iSyn   Index of the Synapse to connect to.
          *  @return true if there is an input spike event.
          */
-        bool isSpikeQueue(const uint32_t iSyn);
+        bool isSpikeQueue(const BGSIZE iSyn);
 
         /**
          *  Calculate the post synapse response after a spike.
@@ -368,7 +368,7 @@ public:
          *  @param  iSyn        Index of the synapse to set.
          *  @param  deltaT      Inner simulation step duration.
          */
-        virtual void changePSR(const uint32_t iSyn, const BGFLOAT deltaT);
+        virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT);
 #endif
 
     public:
@@ -429,7 +429,7 @@ public:
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
  *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
  */
-extern __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT) );
+extern __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSpikingSynapses*, const BGSIZE, const uint64_t, const BGFLOAT) );
 
 /**
  *  Create a Spiking Synapse and connect it to the model.
@@ -454,7 +454,7 @@ __device__ void createSpikingSynapse(AllSpikingSynapses* allSynapsesDevice, cons
  *  @param[in] iSyn                  Index of the Synapse to check.
  *  @return true if there is an input spike event.
  */
-extern __device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapses* allSynapsesDevice, uint32_t iSyn);
+extern __device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapses* allSynapsesDevice, BGSIZE iSyn);
 
 /**
  *  Prepares Synapse for a spike hit.
@@ -462,7 +462,7 @@ extern __device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapses* all
  *  @param[in] iSyn                  Index of the Synapse to update.
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
  */
-extern __device__ void preSpikingSynapsesSpikeHitDevice( const uint32_t iSyn, AllSpikingSynapses* allSynapsesDevice );
+extern __device__ void preSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapses* allSynapsesDevice );
 
 /**
  *  Prepares Synapse for a spike hit (for back propagation).
@@ -470,7 +470,7 @@ extern __device__ void preSpikingSynapsesSpikeHitDevice( const uint32_t iSyn, Al
  *  @param[in] iSyn                  Index of the Synapse to update.
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
  */
-extern __device__ void postSpikingSynapsesSpikeHitDevice( const uint32_t iSyn, AllSpikingSynapses* allSynapsesDevice );
+extern __device__ void postSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapses* allSynapsesDevice );
 
 /**
  *  Update PSR (post synapse response)
@@ -480,7 +480,7 @@ extern __device__ void postSpikingSynapsesSpikeHitDevice( const uint32_t iSyn, A
  *  @param  simulationStep     The current simulation step.
  *  @param  deltaT             Inner simulation step duration.
  */
-extern __device__ void changeSpikingSynapsesPSR(AllSpikingSynapses* allSynapsesDevice, const uint32_t iSyn, const uint64_t simulationStep, const BGFLOAT deltaT);
+extern __device__ void changeSpikingSynapsesPSR(AllSpikingSynapses* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT);
 
 /**
  * Adds a synapse to the network.  Requires the locations of the source and

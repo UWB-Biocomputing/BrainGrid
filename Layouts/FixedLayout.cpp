@@ -144,21 +144,21 @@ void FixedLayout::printParameters(ostream &output) const
     output << "Layout parameters:" << endl;
 
     cout << "\tEndogenously active neuron positions: ";
-    for (size_t i = 0; i < num_endogenously_active_neurons; i++) {
+    for (BGSIZE i = 0; i < num_endogenously_active_neurons; i++) {
         output << m_endogenously_active_neuron_list[i] << " ";
     }
 
     cout << endl;
 
     cout << "\tInhibitory neuron positions: ";
-    for (size_t i = 0; i < m_inhibitory_neuron_layout.size(); i++) {
+    for (BGSIZE i = 0; i < m_inhibitory_neuron_layout.size(); i++) {
         output << m_inhibitory_neuron_layout[i] << " ";
     }
 
     cout << endl;
 
     cout << "\tProbed neuron positions: ";
-    for (size_t i = 0; i < m_probed_neuron_list.size(); i++) {
+    for (BGSIZE i = 0; i < m_probed_neuron_list.size(); i++) {
         output << m_probed_neuron_list[i] << " ";
     }
 
@@ -198,7 +198,7 @@ void FixedLayout::initStarterMap(const int num_neurons)
 {
    Layout::initStarterMap(num_neurons);
 
-    for (size_t i = 0; i < num_endogenously_active_neurons; i++) {
+    for (BGSIZE i = 0; i < num_endogenously_active_neurons; i++) {
         assert(m_endogenously_active_neuron_list.at(i) < num_neurons);
         starter_map[m_endogenously_active_neuron_list.at(i)] = true;
     }

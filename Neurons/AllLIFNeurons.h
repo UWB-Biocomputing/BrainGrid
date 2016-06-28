@@ -162,5 +162,5 @@ class AllLIFNeurons : public AllIFNeurons
  *  @param[in] fpPostSpikeHit        Pointer to the device function postSpikeHit() function.
  *  @param[in] fAllowBackPropagation True if back propagaion is allowed.
  */
-extern __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const uint32_t, AllSpikingSynapses*), void (*fpPostSpikeHit)(const uint32_t, AllSpikingSynapses*), bool fAllowBackPropagation );
+extern __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const BGSIZE, AllSpikingSynapses*), void (*fpPostSpikeHit)(const BGSIZE, AllSpikingSynapses*), bool fAllowBackPropagation );
 #endif // __CUDACC__

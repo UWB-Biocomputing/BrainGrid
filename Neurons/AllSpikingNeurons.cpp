@@ -101,7 +101,7 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
 
     AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
     // For each neuron in the network
-    for (int idx = sim_info->totalNeurons - 1; idx >= 0; --idx) {
+    for (BGSIZE idx = sim_info->totalNeurons - 1; idx >= 0; --idx) {
         // advance neurons
         advanceNeuron(idx, sim_info);
 
@@ -112,10 +112,10 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
             assert( spikeCount[idx] < max_spikes );
 
             // notify outgoing synapses
-            size_t synapse_counts = spSynapses.synapse_counts[idx];
-            size_t synapse_notified = 0;
-            for (int z = 0; synapse_notified < synapse_counts; z++) {
-                uint32_t iSyn = sim_info->maxSynapsesPerNeuron * idx + z;
+            BGSIZE synapse_counts = spSynapses.synapse_counts[idx];
+            BGSIZE synapse_notified = 0;
+            for (BGSIZE z = 0; synapse_notified < synapse_counts; z++) {
+                BGSIZE iSyn = sim_info->maxSynapsesPerNeuron * idx + z;
                 if (spSynapses.in_use[iSyn] == true) {
                     spSynapses.preSpikeHit(iSyn);
                     synapse_notified++;
@@ -126,10 +126,10 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
             if (spSynapses.allowBackPropagation() && synapseIndexMap != NULL) {
                 synapse_counts = synapseIndexMap->synapseCount[idx];
                 if (synapse_counts != 0) {
-                        int beginIndex = synapseIndexMap->incomingSynapse_begin[idx];
-                        uint32_t* inverseMap_begin = &( synapseIndexMap->inverseIndex[beginIndex] );
-                        uint32_t iSyn;
-                        for ( uint32_t i = 0; i < synapse_counts; i++ ) {
+                        BGSIZE beginIndex = synapseIndexMap->incomingSynapse_begin[idx];
+                        BGSIZE* inverseMap_begin = &( synapseIndexMap->inverseIndex[beginIndex] );
+                        BGSIZE iSyn;
+                        for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
                             iSyn = inverseMap_begin[i];
                             spSynapses.postSpikeHit(iSyn);
                             synapse_notified++;

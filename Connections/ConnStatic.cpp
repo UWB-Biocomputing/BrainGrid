@@ -58,14 +58,14 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
         // sort ascendant
         sort(distDestNeurons[src_neuron].begin(), distDestNeurons[src_neuron].end());
         // pick the shortest m_nConnsPerNeuron connections
-        for (size_t i = 0; i < distDestNeurons[src_neuron].size() && (int)i < m_nConnsPerNeuron; i++) {
+        for (BGSIZE i = 0; i < distDestNeurons[src_neuron].size() && (int)i < m_nConnsPerNeuron; i++) {
             int dest_neuron = distDestNeurons[src_neuron][i].dest_neuron;
             synapseType type = layout->synType(src_neuron, dest_neuron);
             BGFLOAT* sum_point = &( dynamic_cast<AllNeurons*>(neurons)->summation_map[dest_neuron] );
 
             DEBUG_MID (cout << "source: " << src_neuron << " dest: " << dest_neuron << " dist: " << distDestNeurons[src_neuron][i].dist << endl;)
 
-            uint32_t iSyn;
+            BGSIZE iSyn;
             synapses->addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT);
             added++;
 

@@ -38,16 +38,16 @@
         struct SynapseIndexMap
         {
                 //! The beginning index of the incoming dynamic spiking synapse array.
-                int* incomingSynapse_begin;
+                BGSIZE* incomingSynapse_begin;
 
                 //! The array of number of active synapses of each neuron.
-                int* synapseCount;
+                BGSIZE* synapseCount;
 
                 //! Pointer to the synapse inverse map.
-                uint32_t* inverseIndex;
+                BGSIZE* inverseIndex;
 
                 //! Pointer to the active synapse map.
-                uint32_t* activeSynapseIndex;
+                BGSIZE* activeSynapseIndex;
 
                 SynapseIndexMap() : num_neurons(0), num_synapses(0)
                 {
@@ -59,10 +59,10 @@
 
                 SynapseIndexMap(int neuron_count, int synapse_count) : num_neurons(neuron_count), num_synapses(synapse_count)
                 {
-                        incomingSynapse_begin = new int[neuron_count];
-                        synapseCount = new int[neuron_count];
-                        inverseIndex = new uint32_t[synapse_count];
-                        activeSynapseIndex = new uint32_t[synapse_count];
+                        incomingSynapse_begin = new BGSIZE[neuron_count];
+                        synapseCount = new BGSIZE[neuron_count];
+                        inverseIndex = new BGSIZE[synapse_count];
+                        activeSynapseIndex = new BGSIZE[synapse_count];
                 };
 
                 ~SynapseIndexMap()
@@ -79,9 +79,9 @@
 
         private:
                 // Number of total neurons.
-                int num_neurons;
+                BGSIZE num_neurons;
 
                 // Number of total active synapses.
-                int num_synapses;
+                BGSIZE num_synapses;
         };
 

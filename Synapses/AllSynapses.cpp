@@ -45,7 +45,7 @@ void AllSynapses::setupSynapses(SimulationInfo *sim_info)
  */
 void AllSynapses::setupSynapses(const int num_neurons, const int max_synapses)
 {
-    uint32_t max_total_synapses = max_synapses * num_neurons;
+    BGSIZE max_total_synapses = max_synapses * num_neurons;
 
     maxSynapsesPerNeuron = max_synapses;
     total_synapse_counts = 0;
@@ -59,9 +59,9 @@ void AllSynapses::setupSynapses(const int num_neurons, const int max_synapses)
         psr = new BGFLOAT[max_total_synapses];
         type = new synapseType[max_total_synapses];
         in_use = new bool[max_total_synapses];
-        synapse_counts = new size_t[num_neurons];
+        synapse_counts = new BGSIZE[num_neurons];
 
-        for (uint32_t i = 0; i < max_total_synapses; i++) {
+        for (BGSIZE i = 0; i < max_total_synapses; i++) {
             summationPoint[i] = NULL;
             in_use[i] = false;
         }
@@ -77,7 +77,7 @@ void AllSynapses::setupSynapses(const int num_neurons, const int max_synapses)
  */
 void AllSynapses::cleanupSynapses()
 {
-    uint32_t max_total_synapses = maxSynapsesPerNeuron * count_neurons;
+    BGSIZE max_total_synapses = maxSynapsesPerNeuron * count_neurons;
 
     if (max_total_synapses != 0) {
         delete[] destNeuronIndex;
@@ -109,7 +109,7 @@ void AllSynapses::cleanupSynapses()
  *  @param  iSyn     Index of the synapse to set.
  *  @param  deltaT   Inner simulation step duration
  */
-void AllSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
+void AllSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
 {
     psr[iSyn] = 0.0;
 }
@@ -137,7 +137,7 @@ void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const Simula
                 input >> neuron_index; input.ignore();
 
                 int synapse_index = read_synapses_counts[neuron_index];
-                uint32_t iSyn = maxSynapsesPerNeuron * neuron_index + synapse_index;
+                BGSIZE iSyn = maxSynapsesPerNeuron * neuron_index + synapse_index;
 
                 sourceNeuronIndex[iSyn] = neuron_index;
 
@@ -170,8 +170,8 @@ void AllSynapses::serialize(ostream& output, const SimulationInfo *sim_info)
     output << synapse_count << ends;
 
     for (int neuron_index = 0; neuron_index < sim_info->totalNeurons; neuron_index++) {
-        for (size_t synapse_index = 0; synapse_index < synapse_counts[neuron_index]; synapse_index++) {
-            uint32_t iSyn = maxSynapsesPerNeuron * neuron_index + synapse_index;
+        for (BGSIZE synapse_index = 0; synapse_index < synapse_counts[neuron_index]; synapse_index++) {
+            BGSIZE iSyn = maxSynapsesPerNeuron * neuron_index + synapse_index;
             writeSynapse(output, iSyn);
         }
     }
@@ -183,7 +183,7 @@ void AllSynapses::serialize(ostream& output, const SimulationInfo *sim_info)
  *  @param  input  istream to read from.
  *  @param  iSyn   Index of the synapse to set.
  */
-void AllSynapses::readSynapse(istream &input, const uint32_t iSyn)
+void AllSynapses::readSynapse(istream &input, const BGSIZE iSyn)
 {
     int synapse_type(0);
 
@@ -204,7 +204,7 @@ void AllSynapses::readSynapse(istream &input, const uint32_t iSyn)
  *  @param  output  stream to print out to.
  *  @param  iSyn    Index of the synapse to print out.
  */
-void AllSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const
+void AllSynapses::writeSynapse(ostream& output, const BGSIZE iSyn) const
 {
     output << sourceNeuronIndex[iSyn] << ends;
     output << destNeuronIndex[iSyn] << ends;
@@ -240,9 +240,9 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
         }
 
         // allocate memories for inverse map
-        vector<uint32_t>* rgSynapseSynapseIndexMap = new vector<uint32_t>[neuron_count];
+        vector<BGSIZE>* rgSynapseSynapseIndexMap = new vector<BGSIZE>[neuron_count];
 
-        uint32_t syn_i = 0;
+        BGSIZE syn_i = 0;
         int n_inUse = 0;
 
         if (synapseIndexMap != NULL)
@@ -257,7 +257,7 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
         {
                 for ( int j = 0; j < sim_info->maxSynapsesPerNeuron; j++, syn_i++ )
                 {
-                        uint32_t iSyn = sim_info->maxSynapsesPerNeuron * i + j;
+                        BGSIZE iSyn = sim_info->maxSynapsesPerNeuron * i + j;
                         if ( in_use[iSyn] == true )
                         {
                                 int idx = destNeuronIndex[iSyn];
@@ -278,7 +278,7 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
                 synapseIndexMap->incomingSynapse_begin[i] = syn_i;
                 synapseIndexMap->synapseCount[i] = rgSynapseSynapseIndexMap[i].size();
 
-                for ( size_t j = 0; j < rgSynapseSynapseIndexMap[i].size(); j++, syn_i++)
+                for ( BGSIZE j = 0; j < rgSynapseSynapseIndexMap[i].size(); j++, syn_i++)
                 {
                         synapseIndexMap->inverseIndex[syn_i] = rgSynapseSynapseIndexMap[i][j];
                 }
@@ -322,11 +322,11 @@ void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *n
     int num_neurons = sim_info->totalNeurons;
 
     for (int i = 0; i < num_neurons; i++) {
-        size_t synapse_counts = this->synapse_counts[i];
+        BGSIZE synapse_counts = this->synapse_counts[i];
         int synapse_advanced = 0;
-        for (size_t z = 0; z < synapse_counts; z++) {
+        for (BGSIZE z = 0; z < synapse_counts; z++) {
             // Advance Synapse
-            uint32_t iSyn = maxSynapsesPerNeuron * i + z;
+            BGSIZE iSyn = maxSynapsesPerNeuron * i + z;
             advanceSynapse(iSyn, sim_info, neurons);
             synapse_advanced++;
         }
@@ -339,7 +339,7 @@ void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *n
  *  @param  neuron_index   Index of a neuron to remove from.
  *  @param  iSyn           Index of a synapse to remove.
  */
-void AllSynapses::eraseSynapse(const int neuron_index, const uint32_t iSyn)
+void AllSynapses::eraseSynapse(const int neuron_index, const BGSIZE iSyn)
 {
     synapse_counts[neuron_index]--;
     in_use[iSyn] = false;
@@ -357,14 +357,14 @@ void AllSynapses::eraseSynapse(const int neuron_index, const uint32_t iSyn)
  *  @param  sum_point   Summation point address.
  *  @param  deltaT      Inner simulation step duration
  */
-void AllSynapses::addSynapse(uint32_t &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT)
+void AllSynapses::addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT)
 {
     if (synapse_counts[src_neuron] >= maxSynapsesPerNeuron) {
         return; // TODO: ERROR!
     }
 
     // add it to the list
-    size_t synapse_index;
+    BGSIZE synapse_index;
     for (synapse_index = 0; synapse_index < maxSynapsesPerNeuron; synapse_index++) {
         iSyn = maxSynapsesPerNeuron * src_neuron + synapse_index;
         if (!in_use[iSyn]) {

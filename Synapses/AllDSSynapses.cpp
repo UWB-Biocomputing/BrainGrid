@@ -41,7 +41,7 @@ void AllDSSynapses::setupSynapses(const int num_neurons, const int max_synapses)
 {
     AllSpikingSynapses::setupSynapses(num_neurons, max_synapses);
 
-    uint32_t max_total_synapses = max_synapses * num_neurons;
+    BGSIZE max_total_synapses = max_synapses * num_neurons;
 
     if (max_total_synapses != 0) {
         lastSpike = new uint64_t[max_total_synapses];
@@ -58,7 +58,7 @@ void AllDSSynapses::setupSynapses(const int num_neurons, const int max_synapses)
  */
 void AllDSSynapses::cleanupSynapses()
 {
-    uint32_t max_total_synapses = maxSynapsesPerNeuron * count_neurons;
+    BGSIZE max_total_synapses = maxSynapsesPerNeuron * count_neurons;
 
     if (max_total_synapses != 0) {
         delete[] lastSpike;
@@ -120,7 +120,7 @@ void AllDSSynapses::printParameters(ostream &output) const
  *  @param  input  istream to read from.
  *  @param  iSyn   Index of the synapse to set.
  */
-void AllDSSynapses::readSynapse(istream &input, const uint32_t iSyn)
+void AllDSSynapses::readSynapse(istream &input, const BGSIZE iSyn)
 {
     AllSpikingSynapses::readSynapse(input, iSyn);
 
@@ -139,7 +139,7 @@ void AllDSSynapses::readSynapse(istream &input, const uint32_t iSyn)
  *  @param  output  stream to print out to.
  *  @param  iSyn    Index of the synapse to print out.
  */
-void AllDSSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const 
+void AllDSSynapses::writeSynapse(ostream& output, const BGSIZE iSyn) const 
 {
     AllSpikingSynapses::writeSynapse(output, iSyn);
 
@@ -157,7 +157,7 @@ void AllDSSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const
  *  @param  iSyn            Index of the synapse to set.
  *  @param  deltaT          Inner simulation step duration
  */
-void AllDSSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
+void AllDSSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
 {
     AllSpikingSynapses::resetSynapse(iSyn, deltaT);
 
@@ -177,7 +177,7 @@ void AllDSSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
  *  @param  deltaT      Inner simulation step duration.
  *  @param  type        Type of the Synapse to create.
  */
-void AllDSSynapses::createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+void AllDSSynapses::createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     AllSpikingSynapses::createSynapse(iSyn, source_index, dest_index, sum_point, deltaT, type);
 
@@ -224,7 +224,7 @@ void AllDSSynapses::createSynapse(const uint32_t iSyn, int source_index, int des
  *  @param  iSyn        Index of the synapse to set.
  *  @param  deltaT      Inner simulation step duration.
  */
-void AllDSSynapses::changePSR(const uint32_t iSyn, const BGFLOAT deltaT)
+void AllDSSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT)
 {
     BGFLOAT &psr = this->psr[iSyn];
     BGFLOAT &W = this->W[iSyn];

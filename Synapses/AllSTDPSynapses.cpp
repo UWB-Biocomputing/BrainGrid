@@ -51,7 +51,7 @@ void AllSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapse
 {
     AllSpikingSynapses::setupSynapses(num_neurons, max_synapses);
 
-    uint32_t max_total_synapses = max_synapses * num_neurons;
+    BGSIZE max_total_synapses = max_synapses * num_neurons;
 
     if (max_total_synapses != 0) {
         total_delayPost = new int[max_total_synapses];
@@ -77,7 +77,7 @@ void AllSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapse
  */
 void AllSTDPSynapses::cleanupSynapses()
 {
-    uint32_t max_total_synapses = maxSynapsesPerNeuron * count_neurons;
+    BGSIZE max_total_synapses = maxSynapsesPerNeuron * count_neurons;
 
     if (max_total_synapses != 0) {
         delete[] total_delayPost;
@@ -121,7 +121,7 @@ void AllSTDPSynapses::cleanupSynapses()
  *
  *  @param  iSyn   index of the synapse to set.
  */
-void AllSTDPSynapses::initSpikeQueue(const uint32_t iSyn)
+void AllSTDPSynapses::initSpikeQueue(const BGSIZE iSyn)
 {
     AllSpikingSynapses::initSpikeQueue(iSyn);
 
@@ -130,7 +130,7 @@ void AllSTDPSynapses::initSpikeQueue(const uint32_t iSyn)
     int &delayIdx = this->delayIdxPost[iSyn];
     int &ldelayQueue = this->ldelayQueuePost[iSyn];
 
-    size_t size = total_delay / ( sizeof(uint8_t) * 8 ) + 1;
+    uint32_t size = total_delay / ( sizeof(uint8_t) * 8 ) + 1;
     assert( size <= BYTES_OF_DELAYQUEUE );
     delayQueue = 0;
     delayIdx = 0;
@@ -178,7 +178,7 @@ void AllSTDPSynapses::printParameters(ostream &output) const
  *  @param  input  istream to read from.
  *  @param  iSyn   Index of the synapse to set.
  */
-void AllSTDPSynapses::readSynapse(istream &input, const uint32_t iSyn)
+void AllSTDPSynapses::readSynapse(istream &input, const BGSIZE iSyn)
 {
     AllSpikingSynapses::readSynapse(input, iSyn);
 
@@ -206,7 +206,7 @@ void AllSTDPSynapses::readSynapse(istream &input, const uint32_t iSyn)
  *  @param  output  stream to print out to.
  *  @param  iSyn    Index of the synapse to print out.
  */
-void AllSTDPSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const 
+void AllSTDPSynapses::writeSynapse(ostream& output, const BGSIZE iSyn) const 
 {
     AllSpikingSynapses::writeSynapse(output, iSyn);
 
@@ -233,7 +233,7 @@ void AllSTDPSynapses::writeSynapse(ostream& output, const uint32_t iSyn) const
  *  @param  iSyn            Index of the synapse to set.
  *  @param  deltaT          Inner simulation step duration
  */
-void AllSTDPSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
+void AllSTDPSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
 {
     AllSpikingSynapses::resetSynapse(iSyn, deltaT);
 }
@@ -249,7 +249,7 @@ void AllSTDPSynapses::resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT)
  *  @param  deltaT      Inner simulation step duration.
  *  @param  type        Type of the Synapse to create.
  */
-void AllSTDPSynapses::createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+void AllSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     AllSpikingSynapses::createSynapse(iSyn, source_index, dest_index, sum_point, deltaT, type);
 
@@ -280,7 +280,7 @@ void AllSTDPSynapses::createSynapse(const uint32_t iSyn, int source_index, int d
  *  @param  sim_info  SimulationInfo class to read information from.
  *  @param  neurons   The Neuron list to search from.
  */
-void AllSTDPSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons)
+void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons)
 {
     BGFLOAT &decay = this->decay[iSyn];
     BGFLOAT &psr = this->psr[iSyn];
@@ -429,7 +429,7 @@ void AllSTDPSynapses::advanceSynapse(const uint32_t iSyn, const SimulationInfo *
  *  @param  epost       Params for the rule given in Froemke and Dan (2002).
  *  @param  epre        Params for the rule given in Froemke and Dan (2002).
  */
-void AllSTDPSynapses::stdpLearning(const uint32_t iSyn, double delta, double epost, double epre)
+void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost, double epre)
 {
     BGFLOAT STDPgap = this->STDPgap[iSyn];
     BGFLOAT muneg = this->muneg[iSyn];
@@ -477,7 +477,7 @@ void AllSTDPSynapses::stdpLearning(const uint32_t iSyn, double delta, double epo
  *  @param  iSyn   Index of the Synapse to connect to.
  *  @return true if there is an input spike event.
  */
-bool AllSTDPSynapses::isSpikeQueuePost(const uint32_t iSyn)
+bool AllSTDPSynapses::isSpikeQueuePost(const BGSIZE iSyn)
 {
     uint32_t &delayQueue = this->delayQueuePost[iSyn];
     int &delayIdx = this->delayIdxPost[iSyn];
@@ -496,7 +496,7 @@ bool AllSTDPSynapses::isSpikeQueuePost(const uint32_t iSyn)
  *
  *  @param  iSyn   Index of the Synapse to connect to.
  */
-void AllSTDPSynapses::postSpikeHit(const uint32_t iSyn)
+void AllSTDPSynapses::postSpikeHit(const BGSIZE iSyn)
 {
     uint32_t &delay_queue = this->delayQueuePost[iSyn];
     int &delayIdx = this->delayIdxPost[iSyn];

@@ -22,7 +22,7 @@ void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, IAllNeurons* allNeur
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance neurons ------------->
-    advanceLIFNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeurons *)allNeuronsDevice, (AllSpikingSynapses*)allSynapsesDevice, synapseIndexMapDevice, (void (*)(const uint32_t, AllSpikingSynapses*))m_fpPreSpikeHit_h, (void (*)(const uint32_t, AllSpikingSynapses*))m_fpPostSpikeHit_h, m_fAllowBackPropagation );
+    advanceLIFNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeurons *)allNeuronsDevice, (AllSpikingSynapses*)allSynapsesDevice, synapseIndexMapDevice, (void (*)(const BGSIZE, AllSpikingSynapses*))m_fpPreSpikeHit_h, (void (*)(const BGSIZE, AllSpikingSynapses*))m_fpPostSpikeHit_h, m_fAllowBackPropagation );
 }
 
 /* ------------------*\
@@ -45,7 +45,7 @@ void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, IAllNeurons* allNeur
  *  @param[in] fpPostSpikeHit        Pointer to the device function postSpikeHit() function.
  *  @param[in] fAllowBackPropagation True if back propagaion is allowed.
  */
-__global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const uint32_t, AllSpikingSynapses*), void (*fpPostSpikeHit)(const uint32_t, AllSpikingSynapses*), bool fAllowBackPropagation ) {
+__global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const BGSIZE, AllSpikingSynapses*), void (*fpPostSpikeHit)(const BGSIZE, AllSpikingSynapses*), bool fAllowBackPropagation ) {
         // determine which neuron this thread is processing
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )
@@ -84,10 +84,10 @@ __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int 
                 vm = allNeuronsDevice->Vreset[idx];
 
                 // notify outgoing synapses of spike
-                size_t synapse_counts = allSynapsesDevice->synapse_counts[idx];
+                BGSIZE synapse_counts = allSynapsesDevice->synapse_counts[idx];
                 int synapse_notified = 0;
-                for (int i = 0; synapse_notified < synapse_counts; i++) {
-                        uint32_t iSyn = maxSynapses * idx + i;
+                for (BGSIZE i = 0; synapse_notified < synapse_counts; i++) {
+                        BGSIZE iSyn = maxSynapses * idx + i;
                         if (allSynapsesDevice->in_use[iSyn] == true) {
                                 fpPreSpikeHit(iSyn, allSynapsesDevice); 
                                 synapse_notified++;
@@ -97,10 +97,10 @@ __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int 
                 // notify incomming synapses of spike
                 synapse_counts = synapseIndexMapDevice->synapseCount[idx];
                 if (fAllowBackPropagation && synapse_counts != 0) {
-                        int beginIndex = synapseIndexMapDevice->incomingSynapse_begin[idx];
-                        uint32_t* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] );
-                        uint32_t iSyn = inverseMap_begin[0];
-                        for ( uint32_t i = 0; i < synapse_counts; i++ ) {
+                        BGSIZE beginIndex = synapseIndexMapDevice->incomingSynapse_begin[idx];
+                        BGSIZE* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] );
+                        BGSIZE iSyn = inverseMap_begin[0];
+                        for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
                                 iSyn = inverseMap_begin[i];
                                 fpPostSpikeHit(iSyn, allSynapsesDevice);
                                 synapse_notified++;

@@ -55,6 +55,9 @@ typedef unsigned long long int uint64_t;
 #define GPU_COMPAT_BOOL bool
 #endif // AMP
 
+// The type for using array indexes (issue #142).
+#define BGSIZE uint32_t
+//#define BGSIZE uint64_t
 
 #endif // __BGTYPES_H_
 

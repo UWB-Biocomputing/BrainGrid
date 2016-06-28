@@ -109,7 +109,7 @@ class Layout
         bool *starter_map;
 
         //! Number of endogenously active neurons.
-        size_t num_endogenously_active_neurons;
+        BGSIZE num_endogenously_active_neurons;
 
     protected:
         //! Number of parameters read.

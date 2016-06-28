@@ -44,7 +44,7 @@ void AllSpikingSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, int
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
  */
 void AllSpikingSynapses::allocDeviceStruct( AllSpikingSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron ) {
-        uint32_t max_total_synapses = maxSynapsesPerNeuron * num_neurons;
+        BGSIZE max_total_synapses = maxSynapsesPerNeuron * num_neurons;
 
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.destNeuronIndex, max_total_synapses * sizeof( int ) ) );
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.W, max_total_synapses * sizeof( BGFLOAT ) ) );
@@ -59,7 +59,7 @@ void AllSpikingSynapses::allocDeviceStruct( AllSpikingSynapses &allSynapses, int
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.type, max_total_synapses * sizeof( synapseType ) ) );
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.tau, max_total_synapses * sizeof( BGFLOAT ) ) );
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.in_use, max_total_synapses * sizeof( bool ) ) );
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.synapse_counts, num_neurons * sizeof( size_t ) ) );
+        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.synapse_counts, num_neurons * sizeof( BGSIZE ) ) );
 }
 
 /*
@@ -139,7 +139,7 @@ void AllSpikingSynapses::copySynapseHostToDevice( void* allSynapsesDevice, int n
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
  */
 void AllSpikingSynapses::copyHostToDevice( void* allSynapsesDevice, AllSpikingSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron ) { // copy everything necessary 
-        uint32_t max_total_synapses = maxSynapsesPerNeuron * num_neurons;
+        BGSIZE max_total_synapses = maxSynapsesPerNeuron * num_neurons;
 
         allSynapses.maxSynapsesPerNeuron = maxSynapsesPerNeuron;
         allSynapses.total_synapse_counts = total_synapse_counts;
@@ -151,7 +151,7 @@ void AllSpikingSynapses::copyHostToDevice( void* allSynapsesDevice, AllSpikingSy
         allSynapses.count_neurons = 0;
 
         HANDLE_ERROR( cudaMemcpy ( allSynapses.synapse_counts, synapse_counts,
-                        num_neurons * sizeof( size_t ), cudaMemcpyHostToDevice ) );
+                        num_neurons * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
         HANDLE_ERROR( cudaMemcpy ( allSynapses.destNeuronIndex, destNeuronIndex,
                 max_total_synapses * sizeof( int ),  cudaMemcpyHostToDevice ) );
         HANDLE_ERROR( cudaMemcpy ( allSynapses.W, W,
@@ -203,10 +203,10 @@ void AllSpikingSynapses::copySynapseDeviceToHost( void* allSynapsesDevice, const
  */
 void AllSpikingSynapses::copyDeviceToHost( AllSpikingSynapses& allSynapses, const SimulationInfo *sim_info ) {
         int num_neurons = sim_info->totalNeurons;
-        uint32_t max_total_synapses = sim_info->maxSynapsesPerNeuron * num_neurons;
+        BGSIZE max_total_synapses = sim_info->maxSynapsesPerNeuron * num_neurons;
 
         HANDLE_ERROR( cudaMemcpy ( synapse_counts, allSynapses.synapse_counts,
-                num_neurons * sizeof( size_t ), cudaMemcpyDeviceToHost ) );
+                num_neurons * sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
         maxSynapsesPerNeuron = allSynapses.maxSynapsesPerNeuron;
         total_synapse_counts = allSynapses.total_synapse_counts;
         count_neurons = allSynapses.count_neurons;
@@ -253,7 +253,7 @@ void AllSpikingSynapses::copyDeviceSynapseCountsToHost(void* allSynapsesDevice, 
         int neuron_count = sim_info->totalNeurons;
 
         HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSpikingSynapses ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( synapse_counts, allSynapses.synapse_counts, neuron_count * sizeof( size_t ), cudaMemcpyDeviceToHost ) );
+        HANDLE_ERROR( cudaMemcpy ( synapse_counts, allSynapses.synapse_counts, neuron_count * sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
 
         // Set count_neurons to 0 to avoid illegal memory deallocation 
         // at AllSpikingSynapses deconstructor.
@@ -269,7 +269,7 @@ void AllSpikingSynapses::copyDeviceSynapseCountsToHost(void* allSynapsesDevice, 
 void AllSpikingSynapses::copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info)
 {
         AllSpikingSynapses allSynapses;
-        uint32_t max_total_synapses = sim_info->maxSynapsesPerNeuron * sim_info->totalNeurons;
+        BGSIZE max_total_synapses = sim_info->maxSynapsesPerNeuron * sim_info->totalNeurons;
 
         HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSpikingSynapses ), cudaMemcpyDeviceToHost ) );
         HANDLE_ERROR( cudaMemcpy ( destNeuronIndex, allSynapses.destNeuronIndex,
@@ -326,7 +326,7 @@ void AllSpikingSynapses::advanceSynapses(IAllSynapses* allSynapsesDevice, IAllNe
     int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance synapses ------------->
-    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSpikingSynapses*)allSynapsesDevice, (void (*)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT))m_fpChangePSR_h );
+    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSpikingSynapses*)allSynapsesDevice, (void (*)(AllSpikingSynapses*, const BGSIZE, const uint64_t, const BGFLOAT))m_fpChangePSR_h );
 }
 
 __device__ fpPreSynapsesSpikeHit_t fpPreSpikingSynapsesSpikeHit_d = (fpPreSynapsesSpikeHit_t)preSpikingSynapsesSpikeHitDevice;
@@ -392,12 +392,12 @@ void AllSpikingSynapses::getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h)
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
  *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
  */
-__global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT) ) {
+__global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSpikingSynapses*, const BGSIZE, const uint64_t, const BGFLOAT) ) {
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= total_synapse_counts )
                 return;
 
-        uint32_t iSyn = synapseIndexMapDevice->activeSynapseIndex[idx];
+        BGSIZE iSyn = synapseIndexMapDevice->activeSynapseIndex[idx];
        
         BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
         BGFLOAT decay = allSynapsesDevice->decay[iSyn];
@@ -434,8 +434,8 @@ __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, Synapse
 __device__ void createSpikingSynapse(AllSpikingSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
-    size_t max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
-    uint32_t iSyn = max_synapses * neuron_index + synapse_index;
+    BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
+    BGSIZE iSyn = max_synapses * neuron_index + synapse_index;
 
     allSynapsesDevice->in_use[iSyn] = true;
     allSynapsesDevice->summationPoint[iSyn] = sum_point;
@@ -478,7 +478,7 @@ __device__ void createSpikingSynapse(AllSpikingSynapses* allSynapsesDevice, cons
     allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
-    size_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
+    uint32_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
     assert( size <= BYTES_OF_DELAYQUEUE );
 }
 
@@ -489,7 +489,7 @@ __device__ void createSpikingSynapse(AllSpikingSynapses* allSynapsesDevice, cons
  *  @param[in] iSyn                  Index of the Synapse to check.
  *  @return true if there is an input spike event.
  */
-__device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapses* allSynapsesDevice, uint32_t iSyn)
+__device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapses* allSynapsesDevice, BGSIZE iSyn)
 {
     uint32_t &delay_queue = allSynapsesDevice->delayQueue[iSyn];
     int &delayIdx = allSynapsesDevice->delayIdx[iSyn];
@@ -511,7 +511,7 @@ __device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapses* allSynapse
  *  @param[in] iSyn                  Index of the Synapse to update.
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
  */
-__device__ void preSpikingSynapsesSpikeHitDevice( const uint32_t iSyn, AllSpikingSynapses* allSynapsesDevice ) {
+__device__ void preSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapses* allSynapsesDevice ) {
         uint32_t &delay_queue = allSynapsesDevice->delayQueue[iSyn];
         int delayIdx = allSynapsesDevice->delayIdx[iSyn];
         int ldelayQueue = allSynapsesDevice->ldelayQueue[iSyn];
@@ -536,7 +536,7 @@ __device__ void preSpikingSynapsesSpikeHitDevice( const uint32_t iSyn, AllSpikin
  *  @param[in] iSyn                  Index of the Synapse to update.
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
  */
-__device__ void postSpikingSynapsesSpikeHitDevice( const uint32_t iSyn, AllSpikingSynapses* allSynapsesDevice ) {
+__device__ void postSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapses* allSynapsesDevice ) {
 }
 
 /*
@@ -547,7 +547,7 @@ __device__ void postSpikingSynapsesSpikeHitDevice( const uint32_t iSyn, AllSpiki
  *  @param  simulationStep     The current simulation step.
  *  @param  deltaT             Inner simulation step duration.
  */
-__device__ void changeSpikingSynapsesPSR(AllSpikingSynapses* allSynapsesDevice, const uint32_t iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
+__device__ void changeSpikingSynapsesPSR(AllSpikingSynapses* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
 {
     BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
     BGFLOAT &W = allSynapsesDevice->W[iSyn];
@@ -580,9 +580,9 @@ __device__ void addSpikingSynapse(AllSpikingSynapses* allSynapsesDevice, synapse
     }
 
     // add it to the list
-    size_t synapse_index;
-    size_t max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
-    uint32_t iSync = max_synapses * src_neuron;
+    BGSIZE synapse_index;
+    BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
+    BGSIZE iSync = max_synapses * src_neuron;
     for (synapse_index = 0; synapse_index < max_synapses; synapse_index++) {
         if (!allSynapsesDevice->in_use[iSync + synapse_index]) {
             break;
@@ -606,7 +606,7 @@ __device__ void addSpikingSynapse(AllSpikingSynapses* allSynapsesDevice, synapse
  */
 __device__ void eraseSpikingSynapse( AllSpikingSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses )
 {
-    uint32_t iSync = maxSynapses * neuron_index + synapse_index;
+    BGSIZE iSync = maxSynapses * neuron_index + synapse_index;
     allSynapsesDevice->synapse_counts[neuron_index]--;
     allSynapsesDevice->in_use[iSync] = false;
     allSynapsesDevice->summationPoint[iSync] = NULL;

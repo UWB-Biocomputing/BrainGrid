@@ -97,8 +97,8 @@ void GpuSInputRegular::inputStimulus(SimulationInfo* psi)
 void allocDeviceValues( SimulationInfo* psi, BGFLOAT* initValues, int *nShiftValues )
 {
     int neuron_count = psi->totalNeurons;
-    size_t initValues_d_size = neuron_count * sizeof (BGFLOAT);   // size of initial values
-    size_t nShiftValues_d_size = neuron_count * sizeof (int);   // size of shift values
+    BGSIZE initValues_d_size = neuron_count * sizeof (BGFLOAT);   // size of initial values
+    BGSIZE nShiftValues_d_size = neuron_count * sizeof (int);   // size of shift values
 
     // Allocate GPU device memory
     HANDLE_ERROR( cudaMalloc ( ( void ** ) &initValues_d, initValues_d_size ) );

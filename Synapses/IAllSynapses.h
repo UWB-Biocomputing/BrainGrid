@@ -14,7 +14,7 @@ class IAllNeurons;
 class IAllSynapses;
 
 typedef void (*fpCreateSynapse_t)(IAllSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType);
-typedef void (*fpChangeSynapsesPSR_t)(IAllSynapses*, const uint32_t, const uint64_t, const BGFLOAT);
+typedef void (*fpChangeSynapsesPSR_t)(IAllSynapses*, const BGSIZE, const uint64_t, const BGFLOAT);
 
 class IAllSynapses
 {
@@ -39,7 +39,7 @@ class IAllSynapses
          *  @param  iSyn     Index of the synapse to set.
          *  @param  deltaT   Inner simulation step duration
          */
-        virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT) = 0;
+        virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT) = 0;
 
         /**
          *  Checks the number of required parameters to read.
@@ -89,7 +89,7 @@ class IAllSynapses
          *  @param  sum_point   Summation point address.
          *  @param  deltaT      Inner simulation step duration
          */
-        virtual void addSynapse(uint32_t &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT) = 0;
+        virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT) = 0;
 
         /**
          *  Create a Synapse and connect it to the model.
@@ -102,7 +102,7 @@ class IAllSynapses
          *  @param  deltaT      Inner simulation step duration.
          *  @param  type        Type of the Synapse to create.
          */
-        virtual void createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
+        virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
 
         /**
          *  Create a synapse index map.
@@ -246,7 +246,7 @@ class IAllSynapses
          *  @param  sim_info  SimulationInfo class to read information from.
          *  @param  neurons   The Neuron list to search from.
          */
-        virtual void advanceSynapse(const uint32_t iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons) = 0;
+        virtual void advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons) = 0;
 
         /**
          *  Remove a synapse from the network.
@@ -254,6 +254,6 @@ class IAllSynapses
          *  @param  neuron_index   Index of a neuron to remove from.
          *  @param  iSyn           Index of a synapse to remove.
          */
-        virtual void eraseSynapse(const int neuron_index, const uint32_t iSyn) = 0;
+        virtual void eraseSynapse(const int neuron_index, const BGSIZE iSyn) = 0;
 #endif // defined(USE_GPU)
 };

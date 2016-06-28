@@ -73,7 +73,7 @@ class AllSynapses : public IAllSynapses
          *  @param  iSyn     Index of the synapse to set.
          *  @param  deltaT   Inner simulation step duration
          */
-        virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT);
+        virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT);
 
         /**
          *  Sets the data for Synapses to input's data.
@@ -101,7 +101,7 @@ class AllSynapses : public IAllSynapses
          *  @param  sum_point   Summation point address.
          *  @param  deltaT      Inner simulation step duration
          */
-        virtual void addSynapse(uint32_t &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT);
+        virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT);
 
         /**
          *  Create a Synapse and connect it to the model.
@@ -114,7 +114,7 @@ class AllSynapses : public IAllSynapses
          *  @param  deltaT      Inner simulation step duration.
          *  @param  type        Type of the Synapse to create.
          */
-        virtual void createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
+        virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
 
         /**
          *  Create a synapse index map.
@@ -147,7 +147,7 @@ class AllSynapses : public IAllSynapses
          *  @param  input  istream to read from.
          *  @param  iSyn   Index of the synapse to set.
          */
-        virtual void readSynapse(istream &input, const uint32_t iSyn);
+        virtual void readSynapse(istream &input, const BGSIZE iSyn);
 
         /**
          *  Write the synapse data to the stream.
@@ -155,7 +155,7 @@ class AllSynapses : public IAllSynapses
          *  @param  output  stream to print out to.
          *  @param  iSyn    Index of the synapse to print out.
          */
-        virtual void writeSynapse(ostream& output, const uint32_t iSyn) const;
+        virtual void writeSynapse(ostream& output, const BGSIZE iSyn) const;
 
         /**
          *  Returns an appropriate synapseType object for the given integer.
@@ -182,7 +182,7 @@ class AllSynapses : public IAllSynapses
          *  @param  neuron_index   Index of a neuron to remove from.
          *  @param  iSyn           Index of a synapse to remove.
          */
-        virtual void eraseSynapse(const int neuron_index, const uint32_t iSyn);
+        virtual void eraseSynapse(const int neuron_index, const BGSIZE iSyn);
 #endif // !defined(USE_GPU)
     public:
         // The factor to adjust overlapping area to synapse weight.
@@ -228,17 +228,17 @@ class AllSynapses : public IAllSynapses
          *  The number of synapses for each neuron.
          *  Note: Likely under a different name in GpuSim_struct, see synapse_count. -Aaron
          */
-        size_t *synapse_counts;
+        BGSIZE *synapse_counts;
 
         /**
          *  The total number of active synapses.
          */
-        size_t total_synapse_counts;
+        BGSIZE total_synapse_counts;
 
     	/**
          *  The maximum number of synapses for each neurons.
          */
-        size_t maxSynapsesPerNeuron;
+        BGSIZE maxSynapsesPerNeuron;
 
         /**
          *  The number of neurons

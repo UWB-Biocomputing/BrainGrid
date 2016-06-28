@@ -27,7 +27,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neuro
         int blocksPerGrid;
 
         // allocate device memories
-        size_t W_d_size = sim_info->totalNeurons * sim_info->totalNeurons * sizeof (BGFLOAT);
+        BGSIZE W_d_size = sim_info->totalNeurons * sim_info->totalNeurons * sizeof (BGFLOAT);
         BGFLOAT* W_h = new BGFLOAT[W_d_size];
         BGFLOAT* W_d;
         HANDLE_ERROR( cudaMalloc ( ( void ** ) &W_d, W_d_size ) );
@@ -96,10 +96,10 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BG
         synapseType type = synType(neuron_type_map_d, src_neuron, dest_neuron);
 
         // for each existing synapse
-        size_t existing_synapses = allSynapsesDevice->synapse_counts[src_neuron];
+        BGSIZE existing_synapses = allSynapsesDevice->synapse_counts[src_neuron];
         int existing_synapses_checked = 0;
-        for (size_t synapse_index = 0; (existing_synapses_checked < existing_synapses) && !connected; synapse_index++) {
-            uint32_t iSyn = maxSynapses * src_neuron + synapse_index;
+        for (BGSIZE synapse_index = 0; (existing_synapses_checked < existing_synapses) && !connected; synapse_index++) {
+            BGSIZE iSyn = maxSynapses * src_neuron + synapse_index;
             if (allSynapsesDevice->in_use[iSyn] == true) {
                 // if there is a synapse between a and b
                 if (allSynapsesDevice->destNeuronIndex[iSyn] == dest_neuron) {

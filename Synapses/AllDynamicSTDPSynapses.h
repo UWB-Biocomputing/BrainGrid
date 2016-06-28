@@ -78,7 +78,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  iSyn     Index of the synapse to set.
          *  @param  deltaT   Inner simulation step duration
          */
-        virtual void resetSynapse(const uint32_t iSyn, const BGFLOAT deltaT);
+        virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT);
 
         /**
          *  Checks the number of required parameters to read.
@@ -113,7 +113,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  deltaT      Inner simulation step duration.
          *  @param  type        Type of the Synapse to create.
          */
-        virtual void createSynapse(const uint32_t iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
+        virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
 
     protected:
         /**
@@ -130,7 +130,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  input  istream to read from.
          *  @param  iSyn   Index of the synapse to set.
          */
-        virtual void readSynapse(istream &input, const uint32_t iSyn);
+        virtual void readSynapse(istream &input, const BGSIZE iSyn);
 
         /**
          *  Write the synapse data to the stream.
@@ -138,7 +138,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  output  stream to print out to.
          *  @param  iSyn    Index of the synapse to print out.
          */
-        virtual void writeSynapse(ostream& output, const uint32_t iSyn) const;
+        virtual void writeSynapse(ostream& output, const BGSIZE iSyn) const;
 
 #if defined(USE_GPU)
     public:
@@ -263,7 +263,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  iSyn        Index of the synapse to set.
          *  @param  deltaT      Inner simulation step duration.
          */
-        virtual void changePSR(const uint32_t iSyn, const BGFLOAT deltaT);
+        virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT);
 #endif // defined(USE_GPU)
     public:
         /**
@@ -323,5 +323,5 @@ extern __device__ void createDynamicSTDPSSynapse(AllDynamicSTDPSynapses* allSyna
  *  @param  simulationStep     The current simulation step.
  *  @param  deltaT             Inner simulation step duration.
  */
-extern __device__ void changeDynamicSTDPSynapsePSR(AllDynamicSTDPSynapses* allSynapsesDevice, const uint32_t iSyn, const uint64_t simulationStep, const BGFLOAT deltaT);
+extern __device__ void changeDynamicSTDPSynapsePSR(AllDynamicSTDPSynapses* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT);
 #endif

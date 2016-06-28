@@ -92,7 +92,7 @@ void GpuSInputPoisson::inputStimulus(SimulationInfo* psi)
     fpChangeSynapsesPSR_t fpChangePSR_h;
     m_synapses->getFpChangePSR(fpChangePSR_h);
 
-    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, synapseIndexMapDevice, g_simulationStep, psi->deltaT, (AllSpikingSynapses*)allSynapsesDevice, (void (*)(AllSpikingSynapses*, const uint32_t, const uint64_t, const BGFLOAT))fpChangePSR_h );
+    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, synapseIndexMapDevice, g_simulationStep, psi->deltaT, (AllSpikingSynapses*)allSynapsesDevice, (void (*)(AllSpikingSynapses*, const BGSIZE, const uint64_t, const BGFLOAT))fpChangePSR_h );
 
     // update summation point
     applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, psi->pSummationMap, allSynapsesDevice );
@@ -108,7 +108,7 @@ void GpuSInputPoisson::inputStimulus(SimulationInfo* psi)
 void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int *nISIs )
 {
     int neuron_count = psi->totalNeurons;
-    size_t nISIs_d_size = neuron_count * sizeof (int);   // size of shift values
+    BGSIZE nISIs_d_size = neuron_count * sizeof (int);   // size of shift values
 
     // Allocate GPU device memory
     HANDLE_ERROR( cudaMalloc ( ( void ** ) &nISIs_d, nISIs_d_size ) );
@@ -130,15 +130,15 @@ void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int
 
     // allocate memory for synapse index map and initialize it
     SynapseIndexMap synapseIndexMap;
-    uint32_t* activeSynapseIndex = new uint32_t[neuron_count];
+    BGSIZE* activeSynapseIndex = new BGSIZE[neuron_count];
 
-    uint32_t syn_i = 0;
+    BGSIZE syn_i = 0;
     for (int i = 0; i < neuron_count; i++, syn_i++)
     {
         activeSynapseIndex[i] = syn_i;
     }
-    HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.activeSynapseIndex, neuron_count * sizeof( uint32_t ) ) );
-    HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.activeSynapseIndex, activeSynapseIndex, neuron_count * sizeof( uint32_t ), cudaMemcpyHostToDevice ) ); 
+    HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.activeSynapseIndex, neuron_count * sizeof( BGSIZE ) ) );
+    HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.activeSynapseIndex, activeSynapseIndex, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) ); 
     HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMapDevice, sizeof( SynapseIndexMap ) ) );
     HANDLE_ERROR( cudaMemcpy ( synapseIndexMapDevice, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
 
@@ -215,7 +215,7 @@ __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT
     if (masks_d[idx] == false)
         return;
 
-    uint32_t iSyn = idx;
+    BGSIZE iSyn = idx;
 
     int rnISIs = nISIs_d[idx];    // load the value to a register
     if (--rnISIs <= 0)

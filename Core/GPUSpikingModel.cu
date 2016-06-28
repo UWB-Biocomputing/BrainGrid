@@ -61,7 +61,7 @@ void GPUSpikingModel::allocDeviceStruct(void** allNeuronsDevice, void** allSynap
 
 	// Allocate memory for random noise array
 	int neuron_count = sim_info->totalNeurons;
-	size_t randNoise_d_size = neuron_count * sizeof (float);	// size of random noise array
+	BGSIZE randNoise_d_size = neuron_count * sizeof (float);	// size of random noise array
 	HANDLE_ERROR( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
 
 	// Copy host neuron and synapse arrays into GPU device
@@ -340,14 +340,14 @@ void GPUSpikingModel::copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIn
 	if (synapseIndexMap.inverseIndex != NULL) {
 		HANDLE_ERROR( cudaFree( synapseIndexMap.inverseIndex ) );
 	}
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.inverseIndex, total_synapse_counts * sizeof( uint32_t ) ) );
-	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.inverseIndex, synapseIndexMapHost.inverseIndex, total_synapse_counts * sizeof( uint32_t ), cudaMemcpyHostToDevice ) );
+	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.inverseIndex, total_synapse_counts * sizeof( BGSIZE ) ) );
+	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.inverseIndex, synapseIndexMapHost.inverseIndex, total_synapse_counts * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
 
 	if (synapseIndexMap.activeSynapseIndex != NULL) {
 		HANDLE_ERROR( cudaFree( synapseIndexMap.activeSynapseIndex ) );
 	}
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.activeSynapseIndex, total_synapse_counts * sizeof( uint32_t ) ) );
-	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.activeSynapseIndex, synapseIndexMapHost.activeSynapseIndex, total_synapse_counts * sizeof( uint32_t ), cudaMemcpyHostToDevice ) );
+	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.activeSynapseIndex, total_synapse_counts * sizeof( BGSIZE ) ) );
+	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.activeSynapseIndex, synapseIndexMapHost.activeSynapseIndex, total_synapse_counts * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
 
 	HANDLE_ERROR( cudaMemcpy ( synapseIndexMapDevice, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
 }
@@ -392,14 +392,14 @@ __global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synap
         if ( idx >= totalNeurons )
                 return;
 
-        uint32_t iCount = synapseIndexMapDevice->synapseCount[idx];
+        BGSIZE iCount = synapseIndexMapDevice->synapseCount[idx];
         if (iCount != 0) {
                 int beginIndex = synapseIndexMapDevice->incomingSynapse_begin[idx];
-                uint32_t* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] );
+                BGSIZE* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] );
                 BGFLOAT sum = 0.0;
-                uint32_t syn_i = inverseMap_begin[0];
+                BGSIZE syn_i = inverseMap_begin[0];
                 BGFLOAT &summationPoint = *( allSynapsesDevice->summationPoint[syn_i] );
-                for ( uint32_t i = 0; i < iCount; i++ ) {
+                for ( BGSIZE i = 0; i < iCount; i++ ) {
                         syn_i = inverseMap_begin[i];
                         sum += allSynapsesDevice->psr[syn_i];
                 }
