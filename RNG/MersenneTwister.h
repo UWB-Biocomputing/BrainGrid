@@ -92,7 +92,7 @@ class MTRand {
 
   //Methods
  public:
-  MTRand( uint32_t oneSeed );  // initialize with a simple uint64_t
+  MTRand( uint32_t oneSeed );  // initialize with a simple uint32_t
   MTRand( uint32_t *const bigSeed, uint32_t seedLength = N );  // or an array
   MTRand();  // auto-initialize with /dev/urandom or time() and clock()
 
