@@ -101,7 +101,7 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
 
     AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
     // For each neuron in the network
-    for (BGSIZE idx = sim_info->totalNeurons - 1; idx >= 0; --idx) {
+    for (int idx = sim_info->totalNeurons - 1; idx >= 0; --idx) {
         // advance neurons
         advanceNeuron(idx, sim_info);
 
