@@ -60,6 +60,8 @@
 
 #include "AllSpikingSynapses.h"
 
+struct AllDSSynapsesDeviceProperties;
+
 class AllDSSynapses : public AllSpikingSynapses
 {
     public:
@@ -204,6 +206,17 @@ class AllDSSynapses : public AllSpikingSynapses
         virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info );
 
         /**
+         *  Advance all the Synapses in the simulation.
+         *  Update the state of all synapses for a time step.
+         *
+         *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
+         *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
+         *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
+         *  @param  sim_info               SimulationInfo class to read information from.
+         */
+        virtual void advanceSynapses(void* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
+
+        /**
          *  Get a pointer to the device function createSynapse.
          *  The function will be called from updateSynapsesWeightsDevice device function.
          *  Because we cannot use virtual function (Polymorphism) in device functions,
@@ -235,7 +248,7 @@ class AllDSSynapses : public AllSpikingSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void allocDeviceStruct( AllDSSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void allocDeviceStruct( AllDSSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
          *  Delete GPU memories.
@@ -243,7 +256,7 @@ class AllDSSynapses : public AllSpikingSynapses
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          */
-        void deleteDeviceStruct( AllDSSynapses& allSynapses );
+        void deleteDeviceStruct( AllDSSynapsesDeviceProperties& allSynapses );
 
         /**
          *  Copy all synapses' data from host to device.
@@ -253,7 +266,7 @@ class AllDSSynapses : public AllSpikingSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void copyHostToDevice( void* allSynapsesDevice, AllDSSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void copyHostToDevice( void* allSynapsesDevice, AllDSSynapsesDeviceProperties& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
          *  Copy all synapses' data from device to host.
@@ -263,7 +276,7 @@ class AllDSSynapses : public AllSpikingSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void copyDeviceToHost( AllDSSynapses& allSynapses, const SimulationInfo *sim_info );
+        void copyDeviceToHost( AllDSSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info );
 #else // !defined(USE_GPU)
     protected:
         /**
@@ -307,7 +320,55 @@ class AllDSSynapses : public AllSpikingSynapses
         BGFLOAT *F;
 };
 
+#if defined(USE_GPU)
+struct AllDSSynapsesDeviceProperties : public AllSpikingSynapsesDeviceProperties
+{
+        /**
+         *  The time of the last spike.
+         */
+        uint64_t *lastSpike;
+
+        /**
+         *  The time varying state variable \f$r\f$ for depression.
+         */
+        BGFLOAT *r;
+        
+        /**
+         *  The time varying state variable \f$u\f$ for facilitation.
+         */
+        BGFLOAT *u;
+        
+        /**
+         *  The time constant of the depression of the dynamic synapse [range=(0,10); units=sec].
+         */
+        BGFLOAT *D;
+        
+        /**
+         *  The use parameter of the dynamic synapse [range=(1e-5,1)].
+         */
+        BGFLOAT *U;
+        
+        /**
+         *  The time constant of the facilitation of the dynamic synapse [range=(0,10); units=sec].
+         */
+        BGFLOAT *F;
+};
+#endif // defined(USE_GPU)
+
 #if defined(__CUDACC__)
+
+/**
+ *  CUDA code for advancing spiking synapses.
+ *  Perform updating synapses for one time step.
+ *
+ *  @param[in] total_synapse_counts  Number of synapses.
+ *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
+ *  @param[in] simulationStep        The current simulation step.
+ *  @param[in] deltaT                Inner simulation step duration.
+ *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
+ *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
+ */
+extern __global__ void advanceDSSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapsesDeviceProperties* allSynapsesDevice, void (*fpChangePSR)(AllDSSynapsesDeviceProperties*, const BGSIZE, const uint64_t, const BGFLOAT) );
 
 /**
  *  Create a Synapse and connect it to the model.
@@ -323,7 +384,17 @@ class AllDSSynapses : public AllSpikingSynapses
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-extern __device__ void createDSSynapse(AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
+extern __device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
+
+/*     
+ *  Checks if there is an input spike in the queue.
+ *
+ *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
+ *                                   on device memory.
+ *  @param[in] iSyn                  Index of the Synapse to check.
+ *  @return true if there is an input spike event.
+ */
+__device__ bool isDSSynapsesSpikeQueueDevice(AllDSSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn);
 
 /**
  *  Update PSR (post synapse response)
@@ -333,5 +404,5 @@ extern __device__ void createDSSynapse(AllDSSynapses* allSynapsesDevice, const i
  *  @param  simulationStep      The current simulation step.
  *  @param  deltaT              Inner simulation step duration.
  */
-extern __device__ void changeDSSynapsePSR(AllDSSynapses* allSynapsesDevice, const BGSIZE, const uint64_t, const BGFLOAT deltaT);
+extern __device__ void changeDSSynapsePSR(AllDSSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE, const uint64_t, const BGFLOAT deltaT);
 #endif

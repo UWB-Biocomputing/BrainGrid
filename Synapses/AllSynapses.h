@@ -254,3 +254,67 @@ class AllSynapses : public IAllSynapses
          */
         int nParams;
 };
+
+#if defined(USE_GPU)
+struct AllSynapsesDeviceProperties 
+{
+        /**
+         *  The location of the synapse.
+         */
+        int *sourceNeuronIndex;
+
+        /** 
+         *  The coordinates of the summation point.
+         */
+        int *destNeuronIndex;
+
+        /**
+         *   The weight (scaling factor, strength, maximal amplitude) of the synapse.
+         */
+         BGFLOAT *W;
+
+        /**
+         *  This synapse's summation point's address.
+         */
+        BGFLOAT **summationPoint;
+
+    	/**
+         *  Synapse type
+         */
+        synapseType *type;
+
+        /** 
+         *  The post-synaptic response is the result of whatever computation 
+         *  is going on in the synapse.
+         */
+        BGFLOAT *psr;
+
+    	/**
+         *  The boolean value indicating the entry in the array is in use.
+         */
+        bool *in_use;
+
+        /**
+         *  The number of synapses for each neuron.
+         *  Note: Likely under a different name in GpuSim_struct, see synapse_count. -Aaron
+         */
+        BGSIZE *synapse_counts;
+
+        /**
+         *  The total number of active synapses.
+         */
+        BGSIZE total_synapse_counts;
+
+    	/**
+         *  The maximum number of synapses for each neurons.
+         */
+        BGSIZE maxSynapsesPerNeuron;
+
+        /**
+         *  The number of neurons
+         *  Aaron: Is this even supposed to be here?!
+         *  Usage: Used by destructor
+         */
+        int count_neurons;
+}; 
+#endif // defined(USE_GPU)

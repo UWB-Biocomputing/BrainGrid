@@ -132,7 +132,7 @@ class IAllNeurons
          *  @param  randNoise              Reference to the random noise array.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, IAllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice) = 0;
+        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice) = 0;
 
         /**
          *  Set some parameters used for advanceNeuronsDevice.

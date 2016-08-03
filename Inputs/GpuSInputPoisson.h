@@ -58,7 +58,7 @@ private:
     void deleteDeviceValues( IModel* model, SimulationInfo* psi );
 
     //! Synapse structures in device memory.
-    AllDSSynapses* allSynapsesDevice;
+    AllDSSynapsesDeviceProperties* allSynapsesDevice;
  
     //! Pointer to synapse index map in device memory.
     SynapseIndexMap* synapseIndexMapDevice;
@@ -72,9 +72,9 @@ private:
 
 #if defined(__CUDACC__)
 //! Device function that processes input stimulus for each time step.
-extern __global__ void initSynapsesDevice( int n, AllDSSynapses* allSynapsesDevice, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight );
-extern __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapses* allSynapsesDevice );
-extern __global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapses* allSynapsesDevice );
+extern __global__ void initSynapsesDevice( int n, AllDSSynapsesDeviceProperties* allSynapsesDevice, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight );
+extern __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapsesDeviceProperties* allSynapsesDevice );
+extern __global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapsesDeviceProperties* allSynapsesDevice );
 extern __global__ void setupSeeds( int n, curandState* devStates_d, unsigned long seed );
 #endif
 

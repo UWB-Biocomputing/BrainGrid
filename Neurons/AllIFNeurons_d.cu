@@ -274,6 +274,6 @@ void AllIFNeurons::clearNeuronSpikeCounts( void* allNeuronsDevice, const Simulat
  *  @param  randNoise              Reference to the random noise array.
  *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
  */
-void AllIFNeurons::advanceNeurons( IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, IAllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice )
+void AllIFNeurons::advanceNeurons( IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice )
 {
 }

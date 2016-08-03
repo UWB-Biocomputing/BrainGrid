@@ -13,8 +13,8 @@
 class IAllNeurons;
 class IAllSynapses;
 
-typedef void (*fpCreateSynapse_t)(IAllSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType);
-typedef void (*fpChangeSynapsesPSR_t)(IAllSynapses*, const BGSIZE, const uint64_t, const BGFLOAT);
+typedef void (*fpCreateSynapse_t)(void*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType);
+typedef void (*fpChangeSynapsesPSR_t)(void*, const BGSIZE, const uint64_t, const BGFLOAT);
 
 class IAllSynapses
 {
@@ -199,7 +199,7 @@ class IAllSynapses
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  sim_info               SimulationInfo class to read information from.
          */
-        virtual void advanceSynapses(IAllSynapses* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info) = 0;
+        virtual void advanceSynapses(void* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info) = 0;
 
         /**
          *  Get a pointer to the device function createSynapse.

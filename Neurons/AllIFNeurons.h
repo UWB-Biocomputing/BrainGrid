@@ -127,7 +127,7 @@ class AllIFNeurons : public AllSpikingNeurons
          *  @param  randNoise              Reference to the random noise array.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, IAllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
+        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
 
         /**
          *  Allocate GPU memories to store all neurons' states,

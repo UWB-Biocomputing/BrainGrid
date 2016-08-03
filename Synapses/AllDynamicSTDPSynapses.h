@@ -51,6 +51,8 @@
 
 #include "AllSTDPSynapses.h"
 
+struct AllDynamicSTDPSynapsesDeviceProperties;
+
 class AllDynamicSTDPSynapses : public AllSTDPSynapses
 {
     public:
@@ -226,7 +228,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void allocDeviceStruct( AllDynamicSTDPSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void allocDeviceStruct( AllDynamicSTDPSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
          *  Delete GPU memories.
@@ -234,7 +236,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          */
-        void deleteDeviceStruct( AllDynamicSTDPSynapses& allSynapses );
+        void deleteDeviceStruct( AllDynamicSTDPSynapsesDeviceProperties& allSynapses );
 
         /**
          *  Copy all synapses' data from host to device.
@@ -244,7 +246,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void copyHostToDevice( void* allSynapsesDevice, AllDynamicSTDPSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void copyHostToDevice( void* allSynapsesDevice, AllDynamicSTDPSynapsesDeviceProperties& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
          *  Copy all synapses' data from device to host.
@@ -254,7 +256,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void copyDeviceToHost( AllDynamicSTDPSynapses& allSynapses, const SimulationInfo *sim_info );
+        void copyDeviceToHost( AllDynamicSTDPSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info );
 #else // !defined(USE_GPU)
     protected:
         /**
@@ -297,6 +299,41 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
         BGFLOAT *F;
 };
 
+#if defined(USE_GPU)
+struct AllDynamicSTDPSynapsesDeviceProperties : public AllSTDPSynapsesDeviceProperties
+{
+        /**
+         *  The time of the last spike.
+         */
+        uint64_t *lastSpike;
+
+        /**
+         *  The time varying state variable \f$r\f$ for depression.
+         */
+        BGFLOAT *r;
+
+        /**
+         *  The time varying state variable \f$u\f$ for facilitation.
+         */
+        BGFLOAT *u;
+
+        /**
+         *  The time constant of the depression of the dynamic synapse [range=(0,10); units=sec].
+         */
+        BGFLOAT *D;
+
+        /**
+         *  The use parameter of the dynamic synapse [range=(1e-5,1)].
+         */
+        BGFLOAT *U;
+
+        /**
+         *  The time constant of the facilitation of the dynamic synapse [range=(0,10); units=sec].
+         */
+        BGFLOAT *F;
+};
+#endif // defined(USE_GPU)
+
 #if defined(__CUDACC__)
 
 /**
@@ -313,7 +350,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-extern __device__ void createDynamicSTDPSSynapse(AllDynamicSTDPSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
+extern __device__ void createDynamicSTDPSSynapse(AllDynamicSTDPSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
 
 /**
  *  Update PSR (post synapse response)
@@ -323,5 +360,5 @@ extern __device__ void createDynamicSTDPSSynapse(AllDynamicSTDPSynapses* allSyna
  *  @param  simulationStep     The current simulation step.
  *  @param  deltaT             Inner simulation step duration.
  */
-extern __device__ void changeDynamicSTDPSynapsePSR(AllDynamicSTDPSynapses* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT);
+extern __device__ void changeDynamicSTDPSynapsePSR(AllDynamicSTDPSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT);
 #endif

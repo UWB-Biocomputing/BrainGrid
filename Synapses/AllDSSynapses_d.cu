@@ -11,7 +11,8 @@
  *  Allocate GPU memories to store all synapses' states,
  *  and copy them from host to GPU memory.
  *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  allSynapsesDevice  Reference to the AllDSSynapsesDeviceProperties struct 
+ *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllDSSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info ) {
@@ -22,17 +23,18 @@ void AllDSSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const Si
  *  Allocate GPU memories to store all synapses' states,
  *  and copy them from host to GPU memory.
  *
- *  @param  allSynapsesDevice     Reference to the allSynapses struct on device memory.
+ *  @param  allSynapsesDevice     Reference to the AllDSSynapsesDeviceProperties struct 
+ *                                on device memory.
  *  @param  num_neurons           Number of neurons.
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
  */
 void AllDSSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) {
-	AllDSSynapses allSynapses;
+	AllDSSynapsesDeviceProperties allSynapses;
 
 	allocDeviceStruct( allSynapses, num_neurons, maxSynapsesPerNeuron );
 
-	HANDLE_ERROR( cudaMalloc( allSynapsesDevice, sizeof( AllDSSynapses ) ) );
-	HANDLE_ERROR( cudaMemcpy ( *allSynapsesDevice, &allSynapses, sizeof( AllDSSynapses ), cudaMemcpyHostToDevice ) );
+	HANDLE_ERROR( cudaMalloc( allSynapsesDevice, sizeof( AllDSSynapsesDeviceProperties ) ) );
+	HANDLE_ERROR( cudaMemcpy ( *allSynapsesDevice, &allSynapses, sizeof( AllDSSynapsesDeviceProperties ), cudaMemcpyHostToDevice ) );
 }
 
 /*
@@ -40,11 +42,12 @@ void AllDSSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, int num_
  *  and copy them from host to GPU memory.
  *  (Helper function of allocSynapseDeviceStruct)
  *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  allSynapsesDevice     Reference to the AllDSSynapsesDeviceProperties struct 
+ *                                on device memory.
  *  @param  num_neurons           Number of neurons.
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
  */
-void AllDSSynapses::allocDeviceStruct( AllDSSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron ) {
+void AllDSSynapses::allocDeviceStruct( AllDSSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron ) {
         AllSpikingSynapses::allocDeviceStruct( allSynapses, num_neurons, maxSynapsesPerNeuron );
 
         BGSIZE max_total_synapses = maxSynapsesPerNeuron * num_neurons;
@@ -60,13 +63,14 @@ void AllDSSynapses::allocDeviceStruct( AllDSSynapses &allSynapses, int num_neuro
 /*
  *  Delete GPU memories.
  *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  allSynapsesDevice  Reference to the AllDSSynapsesDeviceProperties struct 
+ *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllDSSynapses::deleteSynapseDeviceStruct( void* allSynapsesDevice ) {
-	AllDSSynapses allSynapses;
+	AllDSSynapsesDeviceProperties allSynapses;
 
-	HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllDSSynapses ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllDSSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
 
 	deleteDeviceStruct( allSynapses );
 
@@ -77,9 +81,10 @@ void AllDSSynapses::deleteSynapseDeviceStruct( void* allSynapsesDevice ) {
  *  Delete GPU memories.
  *  (Helper function of deleteSynapseDeviceStruct)
  *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  allSynapsesDevice  Reference to the AllDSSynapsesDeviceProperties struct 
+ *                             on device memory.
  */
-void AllDSSynapses::deleteDeviceStruct( AllDSSynapses& allSynapses ) {
+void AllDSSynapses::deleteDeviceStruct( AllDSSynapsesDeviceProperties& allSynapses ) {
         HANDLE_ERROR( cudaFree( allSynapses.lastSpike ) );
 	HANDLE_ERROR( cudaFree( allSynapses.r ) );
 	HANDLE_ERROR( cudaFree( allSynapses.u ) );
@@ -93,7 +98,8 @@ void AllDSSynapses::deleteDeviceStruct( AllDSSynapses& allSynapses ) {
 /*
  *  Copy all synapses' data from host to device.
  *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  allSynapsesDevice  Reference to the AllDSSynapsesDeviceProperties struct 
+ *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllDSSynapses::copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info ) { // copy everything necessary
@@ -103,14 +109,15 @@ void AllDSSynapses::copySynapseHostToDevice( void* allSynapsesDevice, const Simu
 /*
  *  Copy all synapses' data from host to device.
  *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  allSynapsesDevice     Reference to the AllDSSynapsesDeviceProperties struct 
+ *                                on device memory.
  *  @param  num_neurons           Number of neurons.
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
  */
 void AllDSSynapses::copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) { // copy everything necessary
-	AllDSSynapses allSynapses;
+	AllDSSynapsesDeviceProperties allSynapses;
 
-        HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllDSSynapses ), cudaMemcpyDeviceToHost ) );
+        HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllDSSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
 	copyHostToDevice( allSynapsesDevice, allSynapses, num_neurons, maxSynapsesPerNeuron );	
 }
 
@@ -118,15 +125,16 @@ void AllDSSynapses::copySynapseHostToDevice( void* allSynapsesDevice, int num_ne
  *  Copy all synapses' data from host to device.
  *  (Helper function of copySynapseHostToDevice)
  *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  allSynapsesDevice     Reference to the AllDSSynapsesDeviceProperties struct 
+ *                                on device memory.
  *  @param  num_neurons           Number of neurons.
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
  */
-void AllDSSynapses::copyHostToDevice( void* allSynapsesDevice, AllDSSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron ) { // copy everything necessary 
+void AllDSSynapses::copyHostToDevice( void* allSynapsesDevice, AllDSSynapsesDeviceProperties& allSynapses, int num_neurons, int maxSynapsesPerNeuron ) { // copy everything necessary 
         AllSpikingSynapses::copyHostToDevice( allSynapsesDevice, allSynapses, num_neurons, maxSynapsesPerNeuron );
 
         BGSIZE max_total_synapses = maxSynapsesPerNeuron * num_neurons;
-        
+
         HANDLE_ERROR( cudaMemcpy ( allSynapses.lastSpike, lastSpike,
                 max_total_synapses * sizeof( uint64_t ), cudaMemcpyHostToDevice ) );
         HANDLE_ERROR( cudaMemcpy ( allSynapses.r, r,
@@ -144,14 +152,15 @@ void AllDSSynapses::copyHostToDevice( void* allSynapsesDevice, AllDSSynapses& al
 /*
  *  Copy all synapses' data from device to host.
  *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  allSynapsesDevice  Reference to the AllDSSynapsesDeviceProperties struct 
+ *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllDSSynapses::copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info ) {
 	// copy everything necessary
-	AllDSSynapses allSynapses;
+	AllDSSynapsesDeviceProperties allSynapses;
 
-        HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllDSSynapses ), cudaMemcpyDeviceToHost ) );
+        HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllDSSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
 
 	copyDeviceToHost( allSynapses, sim_info );
 }
@@ -160,11 +169,12 @@ void AllDSSynapses::copySynapseDeviceToHost( void* allSynapsesDevice, const Simu
  *  Copy all synapses' data from device to host.
  *  (Helper function of copySynapseDeviceToHost)
  *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  allSynapsesDevice     Reference to the AllDSSynapsesDeviceProperties struct 
+ *                                on device memory.
  *  @param  num_neurons           Number of neurons.
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
  */
-void AllDSSynapses::copyDeviceToHost( AllDSSynapses& allSynapses, const SimulationInfo *sim_info ) {
+void AllDSSynapses::copyDeviceToHost( AllDSSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info ) {
         AllSpikingSynapses::copyDeviceToHost( allSynapses, sim_info ) ;
 
 	int num_neurons = sim_info->totalNeurons;
@@ -182,6 +192,29 @@ void AllDSSynapses::copyDeviceToHost( AllDSSynapses& allSynapses, const Simulati
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
         HANDLE_ERROR( cudaMemcpy ( F, allSynapses.F,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+}
+
+/*
+ *  Advance all the Synapses in the simulation.
+ *  Update the state of all synapses for a time step.
+ *
+ *  @param  allSynapsesDevice      Reference to the AllSynapsesDeviceProperties struct 
+ *                                 on device memory.
+ *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
+ *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
+ *  @param  sim_info               SimulationInfo class to read information from.
+ */
+void AllDSSynapses::advanceSynapses(void* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info)
+{
+    if (total_synapse_counts == 0)
+        return;
+
+    // CUDA parameters
+    const int threadsPerBlock = 256;
+    int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
+
+    // Advance synapses ------------->
+    advanceDSSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllDSSynapsesDeviceProperties*)allSynapsesDevice, (void (*)(AllDSSynapsesDeviceProperties*, const BGSIZE, const uint64_t, const BGFLOAT))m_fpChangePSR_h );
 }
 
 __device__ fpCreateSynapse_t fpCreateDSSynapse_d = (fpCreateSynapse_t)createDSSynapse;
@@ -220,6 +253,40 @@ void AllDSSynapses::getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h)
 |* # Global Functions
 \* ------------------*/
 
+/*
+ *  CUDA code for advancing spiking synapses.
+ *  Perform updating synapses for one time step.
+ *
+ *  @param[in] total_synapse_counts  Number of synapses.
+ *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
+ *  @param[in] simulationStep        The current simulation step.
+ *  @param[in] deltaT                Inner simulation step duration.
+ *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
+ *                                   on device memory.
+ *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
+ */
+__global__ void advanceDSSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapsesDeviceProperties* allSynapsesDevice, void (*fpChangePSR)(AllDSSynapsesDeviceProperties*, const BGSIZE, const uint64_t, const BGFLOAT) ) {
+        int idx = blockIdx.x * blockDim.x + threadIdx.x;
+        if ( idx >= total_synapse_counts )
+                return;
+
+        BGSIZE iSyn = synapseIndexMapDevice->activeSynapseIndex[idx];
+
+        BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
+        BGFLOAT decay = allSynapsesDevice->decay[iSyn];
+
+        // Checks if there is an input spike in the queue.
+        bool isFired = isDSSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn);
+
+        // is an input in the queue?
+        if (isFired) {
+                //fpChangePSR(allSynapsesDevice, iSyn, simulationStep, deltaT);
+                changeDSSynapsePSR(allSynapsesDevice, iSyn, simulationStep, deltaT);
+        }
+        // decay the post spike response
+        psr *= decay;
+}
+
 /* ------------------*\
 |* # Device Functions
 \* ------------------*/
@@ -227,7 +294,8 @@ void AllDSSynapses::getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h)
 /*
  *  Create a DS Synapse and connect it to the model.
  *
- *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
+ *  @param allSynapsesDevice    Pointer to the AllDSSynapsesDeviceProperties structures 
+ *                              on device memory.
  *  @param neuron_index         Index of the source neuron.
  *  @param synapse_index        Index of the Synapse to create.
  *  @param source_x             X location of source.
@@ -238,7 +306,7 @@ void AllDSSynapses::getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h)
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-__device__ void createDSSynapse(AllDSSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+__device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
     BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
@@ -312,17 +380,42 @@ __device__ void createDSSynapse(AllDSSynapses* allSynapsesDevice, const int neur
     assert( size <= BYTES_OF_DELAYQUEUE );
 }
 
+/*     
+ *  Checks if there is an input spike in the queue.
+ *
+ *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
+ *                                   on device memory.
+ *  @param[in] iSyn                  Index of the Synapse to check.
+ *  @return true if there is an input spike event.
+ */
+__device__ bool isDSSynapsesSpikeQueueDevice(AllDSSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn)
+{
+    uint32_t &delay_queue = allSynapsesDevice->delayQueue[iSyn];
+    int &delayIdx = allSynapsesDevice->delayIdx[iSyn];
+    int ldelayQueue = allSynapsesDevice->ldelayQueue[iSyn];
+
+    uint32_t delayMask = (0x1 << delayIdx);
+    bool isFired = delay_queue & (delayMask);
+    delay_queue &= ~(delayMask);
+    if ( ++delayIdx >= ldelayQueue ) {
+            delayIdx = 0;
+    }
+
+    return isFired;
+}
+
 /*
  *  Update PSR (post synapse response)
  *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  allSynapsesDevice  Reference to the AllDSSynapsesDeviceProperties struct 
+ *                             on device memory.
  *  @param  iSyn               Index of the synapse to set.
- *  @param  simulationStep      The current simulation step.
- *  @param  deltaT              Inner simulation step duration.
+ *  @param  simulationStep     The current simulation step.
+ *  @param  deltaT             Inner simulation step duration.
  */
-__device__ void changeDSSynapsePSR(AllDSSynapses* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
+__device__ void changeDSSynapsePSR(AllDSSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
 {
-    assert( iSyn < allSynapsesDevice->maxSynapsesPerNeuron * allSynapsesDevice->count_neurons );
+    //assert( iSyn < allSynapsesDevice->maxSynapsesPerNeuron * allSynapsesDevice->count_neurons );
 
     uint64_t &lastSpike = allSynapsesDevice->lastSpike[iSyn];
     BGFLOAT &r = allSynapsesDevice->r[iSyn];

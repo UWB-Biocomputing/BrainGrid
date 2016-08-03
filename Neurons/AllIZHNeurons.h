@@ -175,7 +175,7 @@ class AllIZHNeurons : public AllIFNeurons
          *  @param  randNoise              Reference to the random noise array.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, IAllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
+        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
 
         /**
          *  Allocate GPU memories to store all neurons' states,
@@ -451,5 +451,5 @@ class AllIZHNeurons : public AllIFNeurons
  *  @param[in] fpPostSpikeHit        Pointer to the device function postSpikeHit() function.
  *  @param[in] fAllowBackPropagation True if back propagaion is allowed.
  */
-extern __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const BGSIZE, AllSpikingSynapses*), void (*fpPostSpikeHit)(const BGSIZE, AllSpikingSynapses*), bool fAllowBackPropagation );
+extern __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeurons* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const BGSIZE, AllSpikingSynapsesDeviceProperties*), void (*fpPostSpikeHit)(const BGSIZE, AllSpikingSynapsesDeviceProperties*), bool fAllowBackPropagation );
 #endif // __CUDACC__

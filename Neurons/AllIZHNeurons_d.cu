@@ -186,7 +186,7 @@ void AllIZHNeurons::clearNeuronSpikeCounts( void* allNeuronsDevice, const Simula
  *
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void AllIZHNeurons::advanceNeurons( IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, IAllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice)
+void AllIZHNeurons::advanceNeurons( IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice)
 {
     int neuron_count = sim_info->totalNeurons;
     int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
@@ -196,7 +196,7 @@ void AllIZHNeurons::advanceNeurons( IAllSynapses &synapses, IAllNeurons* allNeur
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance neurons ------------->
-    advanceIZHNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIZHNeurons *)allNeuronsDevice, (AllSpikingSynapses*)allSynapsesDevice, synapseIndexMapDevice, (void (*)(const BGSIZE, AllSpikingSynapses*))m_fpPreSpikeHit_h, (void (*)(const BGSIZE, AllSpikingSynapses*))m_fpPostSpikeHit_h, m_fAllowBackPropagation );
+    advanceIZHNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIZHNeurons *)allNeuronsDevice, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, synapseIndexMapDevice, (void (*)(const BGSIZE, AllSpikingSynapsesDeviceProperties*))m_fpPreSpikeHit_h, (void (*)(const BGSIZE, AllSpikingSynapsesDeviceProperties*))m_fpPostSpikeHit_h, m_fAllowBackPropagation );
 }
 
 /* ------------------*\
@@ -219,7 +219,7 @@ void AllIZHNeurons::advanceNeurons( IAllSynapses &synapses, IAllNeurons* allNeur
  *  @param[in] fpPostSpikeHit        Pointer to the device function postSpikeHit() function.
  *  @param[in] fAllowBackPropagation True if back propagaion is allowed.
  */
-__global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const BGSIZE, AllSpikingSynapses*), void (*fpPostSpikeHit)(const BGSIZE, AllSpikingSynapses*), bool fAllowBackPropagation ) {
+__global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeurons* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const BGSIZE, AllSpikingSynapsesDeviceProperties*), void (*fpPostSpikeHit)(const BGSIZE, AllSpikingSynapsesDeviceProperties*), bool fAllowBackPropagation ) {
         // determine which neuron this thread is processing
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )

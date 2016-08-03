@@ -14,7 +14,7 @@
  *  @param  m_allSynapsesDevice Reference to the allSynapses struct on device memory.
  *  @param  layout              Layout information of the neunal network.
  */
-void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice, Layout *layout)
+void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapsesDeviceProperties* m_allSynapsesDevice, Layout *layout)
 {
         // For now, we just set the weights to equal the areas. We will later
         // scale it and set its sign (when we index and get its sign).
@@ -48,7 +48,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neuro
         synapses.getFpCreateSynapse(fpCreateSynapse_h);
 
         blocksPerGrid = ( sim_info->totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
-        updateSynapsesWeightsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, deltaT, W_d, sim_info->maxSynapsesPerNeuron, m_allNeuronsDevice, m_allSynapsesDevice, (void (*)(AllSpikingSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))fpCreateSynapse_h, neuron_type_map_d );
+        updateSynapsesWeightsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, deltaT, W_d, sim_info->maxSynapsesPerNeuron, m_allNeuronsDevice, m_allSynapsesDevice, (void (*)(AllSpikingSynapsesDeviceProperties*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType))fpCreateSynapse_h, neuron_type_map_d );
 
         // free memories
         HANDLE_ERROR( cudaFree( W_d ) );
@@ -74,7 +74,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neuro
  * @param[in] allSynapsesDevice  Pointer to the Synapse structures in device memory.
  * @param[in] fpCreateSynapse    Function pointer to the createSynapse device function.
  */
-__global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, void (*fpCreateSynapse)(AllSpikingSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType), neuronType* neuron_type_map_d )
+__global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeurons* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, void (*fpCreateSynapse)(AllSpikingSynapsesDeviceProperties*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType), neuronType* neuron_type_map_d )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= num_neurons )

@@ -62,6 +62,8 @@
 
 #include "AllSpikingSynapses.h"
 
+struct AllSTDPSynapsesDeviceProperties;
+
 class AllSTDPSynapses : public AllSpikingSynapses
 {
     public:
@@ -229,7 +231,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  sim_info               SimulationInfo class to read information from.
          */
-        virtual void advanceSynapses(IAllSynapses* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
+        virtual void advanceSynapses(void* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
 
         /**
          *  Get a pointer to the device function createSynapse.
@@ -263,7 +265,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void allocDeviceStruct( AllSTDPSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void allocDeviceStruct( AllSTDPSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
          *  Delete GPU memories.
@@ -271,7 +273,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          */
-        void deleteDeviceStruct( AllSTDPSynapses& allSynapses );
+        void deleteDeviceStruct( AllSTDPSynapsesDeviceProperties& allSynapses );
 
         /**
          *  Copy all synapses' data from host to device.
@@ -281,7 +283,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void copyHostToDevice( void* allSynapsesDevice, AllSTDPSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void copyHostToDevice( void* allSynapsesDevice, AllSTDPSynapsesDeviceProperties& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
          *  Copy all synapses' data from device to host.
@@ -291,7 +293,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void copyDeviceToHost( AllSTDPSynapses& allSynapses, const SimulationInfo *sim_info );
+        void copyDeviceToHost( AllSTDPSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info );
 #else // !defined(USE_GPU)
     public:
         /**
@@ -418,6 +420,94 @@ class AllSTDPSynapses : public AllSpikingSynapses
         bool *useFroemkeDanSTDP;
 };
 
+#if defined(USE_GPU)
+struct AllSTDPSynapsesDeviceProperties : public AllSpikingSynapsesDeviceProperties
+{
+        /**
+         *  The synaptic transmission delay (delay of dendritic backpropagating spike), 
+         *  descretized into time steps.
+         */
+        int *total_delayPost;
+
+        /**
+         *  Pointer to the delayed queue
+         */
+        uint32_t *delayQueuePost;
+
+        /**
+         *  The index indicating the current time slot in the delayed queue.
+         */
+        int *delayIdxPost;
+
+        /**
+         *  Length of the delayed queue.
+         */
+        int *ldelayQueuePost;
+
+        /**
+         *  Used for extended rule by Froemke and Dan. See Froemke and Dan (2002). 
+         *  Spike-timing-dependent synaptic modification induced by natural spike trains. 
+         *  Nature 416 (3/2002).
+         */
+        BGFLOAT *tauspost;
+
+        /**
+         *  sed for extended rule by Froemke and Dan.
+         */
+        BGFLOAT *tauspre;
+
+        /**
+         *  Timeconstant of exponential decay of positive learning window for STDP.
+         */
+        BGFLOAT *taupos;
+
+        /**
+         *  Timeconstant of exponential decay of negative learning window for STDP.
+         */
+        BGFLOAT *tauneg;
+
+        /**
+         *  No learning is performed if \f$|Delta| = |t_{post}-t_{pre}| < STDPgap\f$
+         */
+        BGFLOAT *STDPgap;
+
+        /**
+         *  The maximal/minimal weight of the synapse [readwrite; units=;]
+         */
+        BGFLOAT *Wex;
+
+        /**
+         *  Defines the peak of the negative exponential learning window.
+         */
+        BGFLOAT *Aneg;
+
+        /**
+         *  Defines the peak of the positive exponential learning window.
+         */
+        BGFLOAT *Apos;
+
+        /**
+         *  Extended multiplicative positive update: 
+         *  \f$dw = (Wex-W)^{mupos} * Apos * exp(-Delta/taupos)\f$. 
+         *  Set to 0 for basic update. See Guetig, Aharonov, Rotter and Sompolinsky (2003). 
+         *  Learning input correlations through non-linear asymmetric Hebbian plasticity. 
+         *  Journal of Neuroscience 23. pp.3697-3714.
+         */
+        BGFLOAT *mupos;
+
+        /**
+         *  Extended multiplicative negative update: 
+         *  \f$dw = W^{mupos} * Aneg * exp(Delta/tauneg)\f$. Set to 0 for basic update.
+         */
+        BGFLOAT *muneg;
+  
+        /**
+         *  True if use the rule given in Froemke and Dan (2002).
+         */
+        bool *useFroemkeDanSTDP;
+};
+#endif // defined(USE_GPU)
+
 #if defined(__CUDACC__)
 
 /**
@@ -431,7 +521,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
  *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
  */
-extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSTDPSynapses*, const BGSIZE, const uint64_t, const BGFLOAT), AllSpikingNeurons* allNeuronsDevice, int max_spikes, int width );
+extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapsesDeviceProperties* allSynapsesDevice, void (*fpChangePSR)(AllSTDPSynapsesDeviceProperties*, const BGSIZE, const uint64_t, const BGFLOAT), AllSpikingNeurons* allNeuronsDevice, int max_spikes, int width );
 
 /**
  *  Create a Synapse and connect it to the model.
@@ -447,7 +537,7 @@ extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, Syn
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-extern __device__ void createSTDPSynapse(AllSTDPSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
+extern __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
 
 /**
  *  Adjust synapse weight according to the Spike-timing-dependent synaptic modification
@@ -459,7 +549,7 @@ extern __device__ void createSTDPSynapse(AllSTDPSynapses* allSynapsesDevice, con
  *  @param  epost                Params for the rule given in Froemke and Dan (2002).
  *  @param  epre                 Params for the rule given in Froemke and Dan (2002).
  */
-extern __device__ void stdpLearningDevice(AllSTDPSynapses* allSynapsesDevice, const BGSIZE iSyn, double delta, double epost, double epre);
+extern __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE iSyn, double delta, double epost, double epre);
 
 /**
  *  Checks if there is an input spike in the queue.
@@ -468,7 +558,7 @@ extern __device__ void stdpLearningDevice(AllSTDPSynapses* allSynapsesDevice, co
  *  @param[in] iSyn                  Index of the Synapse to check.
  *  @return true if there is an input spike event.
  */
-extern __device__ bool isSTDPSynapseSpikeQueuePostDevice(AllSTDPSynapses* allSynapsesDevice, BGSIZE iSyn);
+extern __device__ bool isSTDPSynapseSpikeQueuePostDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn);
 
 /**
  *  Gets the spike history of the neuron.
@@ -488,5 +578,5 @@ extern __device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeurons* a
  *  @param[in] iSyn                  Index of the Synapse to update.
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
  */
-extern __device__ void postSTDPSynapseSpikeHitDevice( const BGSIZE iSyn, AllSTDPSynapses* allSynapsesDevice );
+extern __device__ void postSTDPSynapseSpikeHitDevice( const BGSIZE iSyn, AllSTDPSynapsesDeviceProperties* allSynapsesDevice );
 #endif

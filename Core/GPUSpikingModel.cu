@@ -365,7 +365,7 @@ void GPUSpikingModel::copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIn
  * @param[in] max_synapses       Maximum number of synapses per neuron.
  * @param[in] width              Width of neuron map (assumes square).
  */
-__global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, int max_synapses, int width)
+__global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeurons* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int max_synapses, int width)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= num_neurons )
@@ -387,7 +387,7 @@ __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeuron
  * @param[in] synapseIndexMap    Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
  * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
  */
-__global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapses* allSynapsesDevice ) {
+__global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )
                 return;
