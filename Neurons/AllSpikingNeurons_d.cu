@@ -10,10 +10,11 @@
 /*
  *  Copy spike history data stored in device memory to host.
  *
- *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  allNeuronsDevice   Reference to the AllSpikingNeuronsDeviceProperties struct 
+ *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  */
-void AllSpikingNeurons::copyDeviceSpikeHistoryToHost( AllSpikingNeurons& allNeurons, const SimulationInfo *sim_info ) 
+void AllSpikingNeurons::copyDeviceSpikeHistoryToHost( AllSpikingNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info ) 
 {
         int numNeurons = sim_info->totalNeurons;
         uint64_t* pSpikeHistory[numNeurons];
@@ -29,10 +30,11 @@ void AllSpikingNeurons::copyDeviceSpikeHistoryToHost( AllSpikingNeurons& allNeur
 /*
  *  Copy spike counts data stored in device memory to host.
  *
- *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  allNeuronsDevice   Reference to the AllSpikingNeuronsDeviceProperties struct 
+ *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  */
-void AllSpikingNeurons::copyDeviceSpikeCountsToHost( AllSpikingNeurons& allNeurons, const SimulationInfo *sim_info ) 
+void AllSpikingNeurons::copyDeviceSpikeCountsToHost( AllSpikingNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info ) 
 {
         int numNeurons = sim_info->totalNeurons;
 
@@ -47,7 +49,7 @@ void AllSpikingNeurons::copyDeviceSpikeCountsToHost( AllSpikingNeurons& allNeuro
  *  @param  allNeurons         Reference to the allNeurons struct.
  *  @param  sim_info           SimulationInfo to refer from.
  */
-void AllSpikingNeurons::clearDeviceSpikeCounts( AllSpikingNeurons& allNeurons, const SimulationInfo *sim_info ) 
+void AllSpikingNeurons::clearDeviceSpikeCounts( AllSpikingNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info ) 
 {
         int numNeurons = sim_info->totalNeurons;
 

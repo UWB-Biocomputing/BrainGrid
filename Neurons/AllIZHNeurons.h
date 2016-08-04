@@ -85,6 +85,8 @@
 #include "Global.h"
 #include "AllIFNeurons.h"
 
+struct AllIZHNeuronsDeviceProperties;
+
 // Class to hold all data necessary for all the Neurons.
 class AllIZHNeurons : public AllIFNeurons
 {
@@ -175,7 +177,7 @@ class AllIZHNeurons : public AllIFNeurons
          *  @param  randNoise              Reference to the random noise array.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
+        virtual void advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
 
         /**
          *  Allocate GPU memories to store all neurons' states,
@@ -240,37 +242,37 @@ class AllIZHNeurons : public AllIFNeurons
          *  Allocate GPU memories to store all neurons' states.
          *  (Helper function of allocNeuronDeviceStruct)
          *
-         *  @param  allNeurons         Reference to the allIFNeurons struct.
+         *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-        void allocDeviceStruct( AllIZHNeurons &allNeurons, SimulationInfo *sim_info );
+        void allocDeviceStruct( AllIZHNeuronsDeviceProperties &allNeurons, SimulationInfo *sim_info );
 
         /**
          *  Delete GPU memories.
          *  (Helper function of deleteNeuronDeviceStruct)
          *
-         *  @param  allNeurons         Reference to the allIFNeurons struct.
+         *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-        void deleteDeviceStruct( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
+        void deleteDeviceStruct( AllIZHNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info );
 
         /**
          *  Copy all neurons' data from host to device.
          *  (Helper function of copyNeuronHostToDevice)
          *
-         *  @param  allNeurons         Reference to the allIFNeurons struct.
+         *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-        void copyHostToDevice( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
+        void copyHostToDevice( AllIZHNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info );
 
         /**
          *  Copy all neurons' data from device to host.
          *  (Helper function of copyNeuronDeviceToHost)
          *
-         *  @param  allNeurons         Reference to the allIFNeurons struct.
+         *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-        void copyDeviceToHost( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info );
+        void copyDeviceToHost( AllIZHNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info );
 
 #else  // !defined(USE_GPU)
 
@@ -434,6 +436,41 @@ class AllIZHNeurons : public AllIFNeurons
         BGFLOAT m_inhDconst[2];
 };
 
+#if defined(USE_GPU)
+struct AllIZHNeuronsDeviceProperties : public AllIFNeuronsDeviceProperties
+{
+        /**
+         *  A constant (0.02, 01) describing the coupling of variable u to Vm.
+         */
+        BGFLOAT *Aconst;
+
+        /**
+         *  A constant controlling sensitivity of u.
+         */
+        BGFLOAT *Bconst;
+
+        /**
+         *  A constant controlling reset of Vm. 
+         */
+        BGFLOAT *Cconst;
+
+        /**
+         *  A constant controlling reset of u.
+         */
+        BGFLOAT *Dconst;
+
+        /**
+         *  internal variable.
+         */
+        BGFLOAT *u;
+
+        /**
+         *  Internal constant for the exponential Euler integration.
+         */ 
+        BGFLOAT *C3;
+};
+#endif // defined(USE_GPU)
+
 #if defined(__CUDACC__)
 /**
  *  CUDA code for advancing izhikevich neurons
@@ -451,5 +488,5 @@ class AllIZHNeurons : public AllIFNeurons
  *  @param[in] fpPostSpikeHit        Pointer to the device function postSpikeHit() function.
  *  @param[in] fAllowBackPropagation True if back propagaion is allowed.
  */
-extern __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeurons* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const BGSIZE, AllSpikingSynapsesDeviceProperties*), void (*fpPostSpikeHit)(const BGSIZE, AllSpikingSynapsesDeviceProperties*), bool fAllowBackPropagation );
+extern __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const BGSIZE, AllSpikingSynapsesDeviceProperties*), void (*fpPostSpikeHit)(const BGSIZE, AllSpikingSynapsesDeviceProperties*), bool fAllowBackPropagation );
 #endif // __CUDACC__
