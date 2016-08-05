@@ -89,10 +89,7 @@ void GpuSInputPoisson::inputStimulus(SimulationInfo* psi)
     inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, nISIs_d, masks_d, psi->deltaT, lambda, devStates_d, allSynapsesDevice );
 
     // advance synapses
-    fpChangeSynapsesPSR_t fpChangePSR_h;
-    m_synapses->getFpChangePSR(fpChangePSR_h);
-
-    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, synapseIndexMapDevice, g_simulationStep, psi->deltaT, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, (void (*)(AllSpikingSynapsesDeviceProperties*, const BGSIZE, const uint64_t, const BGFLOAT))fpChangePSR_h );
+    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, synapseIndexMapDevice, g_simulationStep, psi->deltaT, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice );
 
     // update summation point
     applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, psi->pSummationMap, allSynapsesDevice );

@@ -234,7 +234,7 @@ class AllSpikingSynapses : public AllSynapses
          *  Because we cannot use virtual function (Polymorphism) in device functions,
          *  we use this scheme.
          *
-         *  @param  fpCreateSynapse_h     Reference to the memory location 
+         *  @param  fpCreateSynapse_h     Reference to the memory location
          *                                where the function pointer will be set.
          */
         virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h);
@@ -248,7 +248,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  sim_info               SimulationInfo class to read information from.
          */
-        virtual void advanceSynapses(void* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
+        virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
 
         /**
          *  Get a pointer to the device function preSpikeHit.
@@ -277,17 +277,6 @@ class AllSpikingSynapses : public AllSynapses
          *  Currently we set a member variable: m_fpChangePSR_h.
          */
         virtual void setAdvanceSynapsesDeviceParams();
-
-        /**
-         *  Get a pointer to the device function changePSR.
-         *  The function will be called from advanceSynapsesDevice device function.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *
-         *  @param  fpChangePSR_h         Reference to the memory location
-         *                                where the function pointer will be set.
-         */
-        virtual void getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h);
 
     protected:
         /**
@@ -410,10 +399,6 @@ public:
         int *ldelayQueue;
 
     protected:
-        /**
-         *  Pointer to the changePSR device function.
-         */
-        fpChangeSynapsesPSR_t m_fpChangePSR_h;
 };
 
 #if defined(USE_GPU)
@@ -465,9 +450,8 @@ struct AllSpikingSynapsesDeviceProperties : public AllSynapsesDeviceProperties
  *  @param[in] simulationStep        The current simulation step.
  *  @param[in] deltaT                Inner simulation step duration.
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
  */
-extern __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, void (*fpChangePSR)(AllSpikingSynapsesDeviceProperties*, const BGSIZE, const uint64_t, const BGFLOAT) );
+extern __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice );
 
 /**
  *  Create a Spiking Synapse and connect it to the model.

@@ -256,7 +256,7 @@ __device__ fpCreateSynapse_t fpCreateSTDPSynapse_d = (fpCreateSynapse_t)createST
  *  Because we cannot use virtual function (Polymorphism) in device functions,
  *  we use this scheme.
  *
- *  @param  fpCreateSynapse_h     Reference to the memory location 
+ *  @param  fpCreateSynapse_h     Reference to the memory location
  *                                where the function pointer will be set.
  */
 void AllSTDPSynapses::getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h)
@@ -274,7 +274,7 @@ void AllSTDPSynapses::getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h)
  *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
  *  @param  sim_info               SimulationInfo class to read information from.
  */
-void AllSTDPSynapses::advanceSynapses(void* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info)
+void AllSTDPSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info)
 {
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
@@ -282,7 +282,7 @@ void AllSTDPSynapses::advanceSynapses(void* allSynapsesDevice, IAllNeurons* allN
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
     // Advance synapses ------------->
-    advanceSTDPSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapsesDeviceProperties*)allSynapsesDevice, (void (*)(AllSTDPSynapsesDeviceProperties*, const BGSIZE, const uint64_t, const BGFLOAT))m_fpChangePSR_h, (AllSpikingNeurons*)allNeuronsDevice, max_spikes, sim_info->width );
+    advanceSTDPSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapsesDeviceProperties*)allSynapsesDevice, (AllSpikingNeuronsDeviceProperties*)allNeuronsDevice, max_spikes, sim_info->width );
 }
 
 __device__ fpPostSynapsesSpikeHit_t fpPostSTDPSynapsesSpikeHit_d = (fpPostSynapsesSpikeHit_t)postSTDPSynapseSpikeHitDevice;
@@ -315,9 +315,8 @@ void AllSTDPSynapses::getFpPostSpikeHit(fpPostSynapsesSpikeHit_t& fpPostSpikeHit
  *  @param[in] deltaT                Inner simulation step duration.
  *  @param[in] allSynapsesDevice     Pointer to AllSTDPSynapsesDeviceProperties structures 
  *                                   on device memory.
- *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
  */
-__global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapsesDeviceProperties* allSynapsesDevice, void (*fpChangePSR)(AllSTDPSynapsesDeviceProperties*, const BGSIZE, const uint64_t, const BGFLOAT), AllSpikingNeurons* allNeuronsDevice, int max_spikes, int width ) {
+__global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapsesDeviceProperties* allSynapsesDevice, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int max_spikes, int width ) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= total_synapse_counts )
             return;
@@ -392,7 +391,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                 --offIndex;
             }
 
-            fpChangePSR(allSynapsesDevice, iSyn, simulationStep, deltaT);
+            changeSpikingSynapsesPSR(allSynapsesDevice, iSyn, simulationStep, deltaT);
         }
 
         if (fPost) {    // postSpikeHit
@@ -623,7 +622,7 @@ __device__ bool isSTDPSynapseSpikeQueuePostDevice(AllSTDPSynapsesDevicePropertie
  *  @param  max_spikes             Maximum number of spikes per neuron per epoch.
  *  @return Spike history.
  */
-__device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeurons* allNeuronsDevice, int index, int offIndex, int max_spikes)
+__device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int index, int offIndex, int max_spikes)
 {
     // offIndex is a minus offset
     int idxSp = (allNeuronsDevice->spikeCount[index] + allNeuronsDevice->spikeCountOffset[index] +  max_spikes + offIndex) % max_spikes;

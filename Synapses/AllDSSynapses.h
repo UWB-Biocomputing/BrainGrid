@@ -214,7 +214,7 @@ class AllDSSynapses : public AllSpikingSynapses
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  sim_info               SimulationInfo class to read information from.
          */
-        virtual void advanceSynapses(void* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
+        virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
 
         /**
          *  Get a pointer to the device function createSynapse.
@@ -222,21 +222,10 @@ class AllDSSynapses : public AllSpikingSynapses
          *  Because we cannot use virtual function (Polymorphism) in device functions,
          *  we use this scheme.
          *
-         *  @param  fpCreateSynapse_h     Reference to the memory location 
+         *  @param  fpCreateSynapse_h     Reference to the memory location
          *                                where the function pointer will be set.
          */
         virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h);
-
-        /**
-         *  Get a pointer to the device function changePSR.
-         *  The function will be called from advanceSynapsesDevice device function.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *
-         *  @param  fpChangePSR_h         Reference to the memory location
-         *                                where the function pointer will be set.
-         */
-        virtual void getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h);
 
     protected:
         /**
@@ -366,9 +355,8 @@ struct AllDSSynapsesDeviceProperties : public AllSpikingSynapsesDeviceProperties
  *  @param[in] simulationStep        The current simulation step.
  *  @param[in] deltaT                Inner simulation step duration.
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
  */
-extern __global__ void advanceDSSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapsesDeviceProperties* allSynapsesDevice, void (*fpChangePSR)(AllDSSynapsesDeviceProperties*, const BGSIZE, const uint64_t, const BGFLOAT) );
+extern __global__ void advanceDSSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapsesDeviceProperties* allSynapsesDevice );
 
 /**
  *  Create a Synapse and connect it to the model.
@@ -394,7 +382,7 @@ extern __device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapse
  *  @param[in] iSyn                  Index of the Synapse to check.
  *  @return true if there is an input spike event.
  */
-__device__ bool isDSSynapsesSpikeQueueDevice(AllDSSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn);
+extern __device__ bool isDSSynapsesSpikeQueueDevice(AllDSSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn);
 
 /**
  *  Update PSR (post synapse response)

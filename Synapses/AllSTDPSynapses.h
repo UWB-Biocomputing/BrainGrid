@@ -231,7 +231,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  sim_info               SimulationInfo class to read information from.
          */
-        virtual void advanceSynapses(void* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
+        virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
 
         /**
          *  Get a pointer to the device function createSynapse.
@@ -239,7 +239,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  Because we cannot use virtual function (Polymorphism) in device functions,
          *  we use this scheme.
          *
-         *  @param  fpCreateSynapse_h     Reference to the memory location 
+         *  @param  fpCreateSynapse_h     Reference to the memory location
          *                                where the function pointer will be set.
          */
         virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h);
@@ -519,9 +519,8 @@ struct AllSTDPSynapsesDeviceProperties : public AllSpikingSynapsesDeviceProperti
  *  @param[in] simulationStep        The current simulation step.
  *  @param[in] deltaT                Inner simulation step duration.
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
  */
-extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapsesDeviceProperties* allSynapsesDevice, void (*fpChangePSR)(AllSTDPSynapsesDeviceProperties*, const BGSIZE, const uint64_t, const BGFLOAT), AllSpikingNeurons* allNeuronsDevice, int max_spikes, int width );
+extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapsesDeviceProperties* allSynapsesDevice, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int max_spikes, int width );
 
 /**
  *  Create a Synapse and connect it to the model.
@@ -570,7 +569,7 @@ extern __device__ bool isSTDPSynapseSpikeQueuePostDevice(AllSTDPSynapsesDevicePr
  *  @param  max_spikes             Maximum number of spikes per neuron per epoch.
  *  @return Spike history.
  */
-extern __device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeurons* allNeuronsDevice, int index, int offIndex, int max_spikes);
+extern __device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int index, int offIndex, int max_spikes);
 
 /**
  *  Prepares Synapse for a spike hit (for back propagation).

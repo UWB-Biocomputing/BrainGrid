@@ -14,7 +14,6 @@ class IAllNeurons;
 class IAllSynapses;
 
 typedef void (*fpCreateSynapse_t)(void*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType);
-typedef void (*fpChangeSynapsesPSR_t)(void*, const BGSIZE, const uint64_t, const BGFLOAT);
 
 class IAllSynapses
 {
@@ -199,7 +198,7 @@ class IAllSynapses
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  sim_info               SimulationInfo class to read information from.
          */
-        virtual void advanceSynapses(void* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info) = 0;
+        virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info) = 0;
 
         /**
          *  Get a pointer to the device function createSynapse.
@@ -207,7 +206,7 @@ class IAllSynapses
          *  Because we cannot use virtual function (Polymorphism) in device functions,
          *  we use this scheme.
          *
-         *  @param  fpCreateSynapse_h     Reference to the memory location 
+         *  @param  fpCreateSynapse_h     Reference to the memory location
          *                                where the function pointer will be set.
          */
         virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h) = 0;
@@ -218,16 +217,6 @@ class IAllSynapses
          */
         virtual void setAdvanceSynapsesDeviceParams() = 0;
 
-        /**
-         *  Get a pointer to the device function changePSR.
-         *  The function will be called from advanceSynapsesDevice device function.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *
-         *  @param  fpChangePSR_h         Reference to the memory location
-         *                                where the function pointer will be set.
-         */
-        virtual void getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h) = 0;
 #else // !defined(USE_GPU)
     public:
         /**

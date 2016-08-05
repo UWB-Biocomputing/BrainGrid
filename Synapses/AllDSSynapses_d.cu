@@ -204,7 +204,7 @@ void AllDSSynapses::copyDeviceToHost( AllDSSynapsesDeviceProperties& allSynapses
  *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
  *  @param  sim_info               SimulationInfo class to read information from.
  */
-void AllDSSynapses::advanceSynapses(void* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info)
+void AllDSSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info)
 {
     if (total_synapse_counts == 0)
         return;
@@ -214,7 +214,7 @@ void AllDSSynapses::advanceSynapses(void* allSynapsesDevice, IAllNeurons* allNeu
     int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance synapses ------------->
-    advanceDSSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllDSSynapsesDeviceProperties*)allSynapsesDevice, (void (*)(AllDSSynapsesDeviceProperties*, const BGSIZE, const uint64_t, const BGFLOAT))m_fpChangePSR_h );
+    advanceDSSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllDSSynapsesDeviceProperties*)allSynapsesDevice );
 }
 
 __device__ fpCreateSynapse_t fpCreateDSSynapse_d = (fpCreateSynapse_t)createDSSynapse;
@@ -225,28 +225,12 @@ __device__ fpCreateSynapse_t fpCreateDSSynapse_d = (fpCreateSynapse_t)createDSSy
  *  Because we cannot use virtual function (Polymorphism) in device functions,
  *  we use this scheme.
  *
- *  @param  fpCreateSynapse_h     Reference to the memory location 
+ *  @param  fpCreateSynapse_h     Reference to the memory location
  *                                where the function pointer will be set.
  */
 void AllDSSynapses::getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h)
 {
     HANDLE_ERROR( cudaMemcpyFromSymbol(&fpCreateSynapse_h, fpCreateDSSynapse_d, sizeof(fpCreateSynapse_t)) );
-}
-
-__device__ fpChangeSynapsesPSR_t fpChangeDSSynapsePSR_d = (fpChangeSynapsesPSR_t)changeDSSynapsePSR;
-
-/*
- *  Get a pointer to the device function changeDSSynapsePSR.
- *  The function will be called from advanceSynapsesDevice device function.
- *  Because we cannot use virtual function (Polymorphism) in device functions,
- *  we use this scheme.
- *
- *  @param  fpChangePSR_h         Reference to the memory location
- *                                where the function pointer will be set.
- */
-void AllDSSynapses::getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h)
-{
-    HANDLE_ERROR( cudaMemcpyFromSymbol(&fpChangePSR_h, fpChangeDSSynapsePSR_d, sizeof(fpChangeSynapsesPSR_t)) );
 }
 
 /* ------------------*\
@@ -263,9 +247,8 @@ void AllDSSynapses::getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h)
  *  @param[in] deltaT                Inner simulation step duration.
  *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
  *                                   on device memory.
- *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
  */
-__global__ void advanceDSSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapsesDeviceProperties* allSynapsesDevice, void (*fpChangePSR)(AllDSSynapsesDeviceProperties*, const BGSIZE, const uint64_t, const BGFLOAT) ) {
+__global__ void advanceDSSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapsesDeviceProperties* allSynapsesDevice ) {
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= total_synapse_counts )
                 return;
@@ -280,7 +263,6 @@ __global__ void advanceDSSynapsesDevice ( int total_synapse_counts, SynapseIndex
 
         // is an input in the queue?
         if (isFired) {
-                //fpChangePSR(allSynapsesDevice, iSyn, simulationStep, deltaT);
                 changeDSSynapsePSR(allSynapsesDevice, iSyn, simulationStep, deltaT);
         }
         // decay the post spike response
