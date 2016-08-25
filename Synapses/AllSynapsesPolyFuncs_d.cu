@@ -1,10 +1,10 @@
 #include "AllSynapsesPolyFuncs.h"
 
-/* ------------------*\
-|* # Device Functions
-\* ------------------*/
-
 __device__ enumClassSynapses classSynapses_d = undefClassSynapses; 
+
+/* ------------------*\
+|* # Device Functions 
+\* ------------------*/
 
 /*
  *  Update PSR (post synapse response)
@@ -79,47 +79,6 @@ __device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapsesDeviceProper
     }
 
     return isFired;
-}
-
-/*
- *  CUDA code for advancing spiking synapses.
- *  Perform updating synapses for one time step.
- *
- *  @param[in] total_synapse_counts  Number of synapses.
- *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
- *  @param[in] simulationStep        The current simulation step.
- *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
- *                                   on device memory.
- */
-__global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
-        int idx = blockIdx.x * blockDim.x + threadIdx.x;
-        if ( idx >= total_synapse_counts )
-                return;
-
-        BGSIZE iSyn = synapseIndexMapDevice->activeSynapseIndex[idx];
-
-        BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
-        BGFLOAT decay = allSynapsesDevice->decay[iSyn];
-
-        // Checks if there is an input spike in the queue.
-        bool isFired = isSpikingSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn);
-
-        // is an input in the queue?
-        if (isFired) {
-                switch (classSynapses_d) {
-                case classAllSpikingSynapses:
-                       changeSpikingSynapsesPSRDevice(static_cast<AllSpikingSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
-                        break;
-                case classAllDSSynapses:
-                        changeDSSynapsePSRDevice(static_cast<AllDSSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
-                        break;
-                default:
-                        assert(false);
-                }
-        }
-        // decay the post spike response
-        psr *= decay;
 }
 
 /*     
@@ -214,6 +173,51 @@ __device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeuronsDeviceProp
     // offIndex is a minus offset
     int idxSp = (allNeuronsDevice->spikeCount[index] + allNeuronsDevice->spikeCountOffset[index] +  max_spikes + offIndex) % max_spikes;
     return allNeuronsDevice->spike_history[index][idxSp];
+}
+
+/* ------------------*\
+|* # Global Functions
+\* ------------------*/
+
+/*
+ *  CUDA code for advancing spiking synapses.
+ *  Perform updating synapses for one time step.
+ *
+ *  @param[in] total_synapse_counts  Number of synapses.
+ *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
+ *  @param[in] simulationStep        The current simulation step.
+ *  @param[in] deltaT                Inner simulation step duration.
+ *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
+ *                                   on device memory.
+ */
+__global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
+        int idx = blockIdx.x * blockDim.x + threadIdx.x;
+        if ( idx >= total_synapse_counts )
+                return;
+
+        BGSIZE iSyn = synapseIndexMapDevice->activeSynapseIndex[idx];
+
+        BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
+        BGFLOAT decay = allSynapsesDevice->decay[iSyn];
+
+        // Checks if there is an input spike in the queue.
+        bool isFired = isSpikingSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn);
+
+        // is an input in the queue?
+        if (isFired) {
+                switch (classSynapses_d) {
+                case classAllSpikingSynapses:
+                       changeSpikingSynapsesPSRDevice(static_cast<AllSpikingSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
+                        break;
+                case classAllDSSynapses:
+                        changeDSSynapsePSRDevice(static_cast<AllDSSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
+                        break;
+                default:
+                        assert(false);
+                }
+        }
+        // decay the post spike response
+        psr *= decay;
 }
 
 /*

@@ -73,6 +73,7 @@ NVCCFLAGS =  -lineinfo -g -arch=sm_20 -rdc=true $(INCDIRS)
 CUDAOBJS =   \
 		$(COREDIR)/GPUSpikingModel.o \
 		$(NEURONDIR)/AllNeurons_cuda.o \
+		$(NEURONDIR)/AllNeuronsPolyFuncs_d.o \
 		$(NEURONDIR)/AllSpikingNeurons_cuda.o \
 		$(NEURONDIR)/AllSpikingNeurons_d.o \
 		$(NEURONDIR)/AllIFNeurons_cuda.o \
@@ -198,6 +199,9 @@ $(RNGDIR)/MersenneTwister_d.o: $(RNGDIR)/MersenneTwister_d.cu $(UTILDIR)/Global.
 
 $(COREDIR)/GPUSpikingModel.o: $(COREDIR)/GPUSpikingModel.cu $(UTILDIR)/Global.h $(COREDIR)/GPUSpikingModel.h $(NEURONDIR)/AllIFNeurons.h $(SYNAPSEDIR)/AllSynapses.h $(COREDIR)/IModel.h  
 	nvcc -c $(NVCCFLAGS) $(COREDIR)/GPUSpikingModel.cu $(CGPUFLAGS) -o $(COREDIR)/GPUSpikingModel.o
+
+$(NEURONDIR)/AllNeuronsPolyFuncs_d.o: $(NEURONDIR)/AllNeuronsPolyFuncs_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllNeuronsPolyFuncs.h
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllNeuronsPolyFuncs_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllNeuronsPolyFuncs_d.o
 
 $(NEURONDIR)/AllSpikingNeurons_d.o: $(NEURONDIR)/AllSpikingNeurons_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllSpikingNeurons.h
 	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllSpikingNeurons_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllSpikingNeurons_d.o

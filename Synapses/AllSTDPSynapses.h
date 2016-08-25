@@ -245,17 +245,6 @@ class AllSTDPSynapses : public AllSpikingSynapses
         virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h);
 
         /**
-         *  Get a pointer to the device function ostSpikeHit.
-         *  The function will be called from advanceNeuronsDevice device function.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *
-         *  @param  fpostSpikeHit_h       Reference to the memory location
-         *                                where the function pointer will be set.
-         */
-        virtual void getFpPostSpikeHit(fpPostSynapsesSpikeHit_t& fpPostSpikeHit_h);
-
-        /**
          *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
          *  The class ID will be set to classSynapses_d in device memory,
          *  and the classSynapses_d will be referred to call a device function for the
@@ -538,11 +527,4 @@ struct AllSTDPSynapsesDeviceProperties : public AllSpikingSynapsesDeviceProperti
  */
 extern __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
 
-/**
- *  Prepares Synapse for a spike hit (for back propagation).
- *
- *  @param[in] iSyn                  Index of the Synapse to update.
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- */
-extern __device__ void postSTDPSynapseSpikeHitDevice( const BGSIZE iSyn, AllSTDPSynapsesDeviceProperties* allSynapsesDevice );
 #endif

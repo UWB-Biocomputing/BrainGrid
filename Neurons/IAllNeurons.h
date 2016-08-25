@@ -136,11 +136,6 @@ class IAllNeurons
 
         /**
          *  Set some parameters used for advanceNeuronsDevice.
-         *  Currently we set the two member variables: m_fpPreSpikeHit_h and m_fpPostSpikeHit_h.
-         *  These are function pointers for PreSpikeHit and PostSpikeHit device functions
-         *  respectively, and these functions are called from advanceNeuronsDevice device
-         *  function. We use this scheme because we cannot not use virtual function (Polymorphism) 
-         *  in device functions.
          *
          *  @param  synapses               Reference to the allSynapses struct on host memory.
          */

@@ -76,11 +76,6 @@ class AllSpikingNeurons : public AllNeurons
     public:
         /**
          *  Set some parameters used for advanceNeuronsDevice.
-         *  Currently we set the two member variables: m_fpPreSpikeHit_h and m_fpPostSpikeHit_h.
-         *  These are function pointers for PreSpikeHit and PostSpikeHit device functions
-         *  respectively, and these functions are called from advanceNeuronsDevice device
-         *  function. We use this scheme because we cannot not use virtual function (Polymorphism)
-         *  in device functions.
          *
          *  @param  synapses               Reference to the allSynapses struct on host memory.
          */
@@ -214,18 +209,6 @@ class AllSpikingNeurons : public AllNeurons
          *  (parameters used for advanceNeuronsDevice.)
          */
         bool m_fAllowBackPropagation;
-
-        /**
-         *  Pointer to the device function preSpikeHit() function.
-         *  (parameters used for advanceNeuronsDevice.)
-         */
-        fpPreSynapsesSpikeHit_t m_fpPreSpikeHit_h;
-
-        /**
-         *  Pointer o the device function postSpikeHit().
-         *  (parameters used for advanceNeuronsDevice.)
-         */
-        fpPostSynapsesSpikeHit_t m_fpPostSpikeHit_h;
 
 };
 

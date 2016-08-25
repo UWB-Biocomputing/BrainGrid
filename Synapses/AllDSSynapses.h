@@ -363,14 +363,4 @@ struct AllDSSynapsesDeviceProperties : public AllSpikingSynapsesDeviceProperties
  */
 extern __device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
 
-/*     
- *  Checks if there is an input spike in the queue.
- *
- *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
- *                                   on device memory.
- *  @param[in] iSyn                  Index of the Synapse to check.
- *  @return true if there is an input spike event.
- */
-extern __device__ bool isDSSynapsesSpikeQueueDevice(AllDSSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn);
-
 #endif

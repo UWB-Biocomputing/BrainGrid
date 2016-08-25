@@ -325,27 +325,3 @@ __device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice
     assert( size <= BYTES_OF_DELAYQUEUE );
 }
 
-/*     
- *  Checks if there is an input spike in the queue.
- *
- *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
- *                                   on device memory.
- *  @param[in] iSyn                  Index of the Synapse to check.
- *  @return true if there is an input spike event.
- */
-__device__ bool isDSSynapsesSpikeQueueDevice(AllDSSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn)
-{
-    uint32_t &delay_queue = allSynapsesDevice->delayQueue[iSyn];
-    int &delayIdx = allSynapsesDevice->delayIdx[iSyn];
-    int ldelayQueue = allSynapsesDevice->ldelayQueue[iSyn];
-
-    uint32_t delayMask = (0x1 << delayIdx);
-    bool isFired = delay_queue & (delayMask);
-    delay_queue &= ~(delayMask);
-    if ( ++delayIdx >= ldelayQueue ) {
-            delayIdx = 0;
-    }
-
-    return isFired;
-}
-

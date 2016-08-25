@@ -286,22 +286,6 @@ void AllSTDPSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuronsD
     advanceSTDPSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapsesDeviceProperties*)allSynapsesDevice, (AllSpikingNeuronsDeviceProperties*)allNeuronsDevice, max_spikes, sim_info->width );
 }
 
-__device__ fpPostSynapsesSpikeHit_t fpPostSTDPSynapsesSpikeHit_d = (fpPostSynapsesSpikeHit_t)postSTDPSynapseSpikeHitDevice;
-
-/*
- *  Get a pointer to the device function ostSpikeHit.
- *  The function will be called from advanceNeuronsDevice device function.
- *  Because we cannot use virtual function (Polymorphism) in device functions,
- *  we use this scheme.
- *
- *  @param  fpostSpikeHit_h       Reference to the memory location
- *                                where the function pointer will be set.
- */
-void AllSTDPSynapses::getFpPostSpikeHit(fpPostSynapsesSpikeHit_t& fpPostSpikeHit_h)
-{
-    HANDLE_ERROR( cudaMemcpyFromSymbol(&fpPostSpikeHit_h, fpPostSTDPSynapsesSpikeHit_d, sizeof(fpPostSynapsesSpikeHit_t)) );
-}
-
 /**     
  *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
  *  The class ID will be set to classSynapses_d in device memory,
@@ -409,30 +393,4 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
     allSynapsesDevice->muneg[iSyn] = 0;
 
     allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
-}
-
-/*
- *  Prepares Synapse for a spike hit (for back propagation).
- *
- *  @param[in] iSyn                  Index of the Synapse to update.
- *  @param[in] allSynapsesDevice     Pointer to AllSTDPSynapsesDeviceProperties structures 
- *                                   on device memory.
- */
-__device__ void postSTDPSynapseSpikeHitDevice( const BGSIZE iSyn, AllSTDPSynapsesDeviceProperties* allSynapsesDevice ) {
-        uint32_t &delay_queue = allSynapsesDevice->delayQueuePost[iSyn];
-        int delayIdx = allSynapsesDevice->delayIdxPost[iSyn];
-        int ldelayQueue = allSynapsesDevice->ldelayQueuePost[iSyn];
-        int total_delay = allSynapsesDevice->total_delayPost[iSyn];
-
-        // Add to spike queue
-
-        // calculate index where to insert the spike into delayQueue
-        int idx = delayIdx +  total_delay;
-        if ( idx >= ldelayQueue ) {
-                idx -= ldelayQueue;
-        }
-
-        // set a spike
-        //assert( !(delay_queue[0] & (0x1 << idx)) );
-        delay_queue |= (0x1 << idx);
 }

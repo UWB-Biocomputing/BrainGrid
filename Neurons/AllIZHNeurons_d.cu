@@ -5,6 +5,8 @@
 
 #include "AllSpikingSynapses.h"
 #include "AllIZHNeurons.h"
+#include "AllNeuronsPolyFuncs.h"
+
 #include "Book.h"
 
 /*
@@ -203,107 +205,6 @@ void AllIZHNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevi
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance neurons ------------->
-    advanceIZHNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIZHNeuronsDeviceProperties *)allNeuronsDevice, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, synapseIndexMapDevice, (void (*)(const BGSIZE, AllSpikingSynapsesDeviceProperties*))m_fpPreSpikeHit_h, (void (*)(const BGSIZE, AllSpikingSynapsesDeviceProperties*))m_fpPostSpikeHit_h, m_fAllowBackPropagation );
-}
-
-/* ------------------*\
-|* # Global Functions
-\* ------------------*/
-
-/*
- *  CUDA code for advancing izhikevich neurons
- *
- *  @param[in] totalNeurons          Number of neurons.
- *  @param[in] maxSynapses           Maximum number of synapses per neuron.
- *  @param[in] maxSpikes             Maximum number of spikes per neuron per epoch.
- *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] simulationStep        The current simulation step.
- *  @param[in] randNoise             Pointer to device random noise array.
- *  @param[in] allNeuronsDevice      Pointer to Neuron structures in device memory.
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- *  @param[in] synapseIndexMap       Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
- *  @param[in] fpPreSpikeHit         Pointer to the device function preSpikeHit() function.
- *  @param[in] fpPostSpikeHit        Pointer to the device function postSpikeHit() function.
- *  @param[in] fAllowBackPropagation True if back propagaion is allowed.
- */
-__global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const BGSIZE, AllSpikingSynapsesDeviceProperties*), void (*fpPostSpikeHit)(const BGSIZE, AllSpikingSynapsesDeviceProperties*), bool fAllowBackPropagation ) {
-        // determine which neuron this thread is processing
-        int idx = blockIdx.x * blockDim.x + threadIdx.x;
-        if ( idx >= totalNeurons )
-                return;
-
-        allNeuronsDevice->hasFired[idx] = false;
-        BGFLOAT& sp = allNeuronsDevice->summation_map[idx];
-        BGFLOAT& vm = allNeuronsDevice->Vm[idx];
-        BGFLOAT& a = allNeuronsDevice->Aconst[idx];
-        BGFLOAT& b = allNeuronsDevice->Bconst[idx];
-        BGFLOAT& u = allNeuronsDevice->u[idx];
-        BGFLOAT r_sp = sp;
-        BGFLOAT r_vm = vm;
-        BGFLOAT r_a = a;
-        BGFLOAT r_b = b;
-        BGFLOAT r_u = u;
-
-        if ( allNeuronsDevice->nStepsInRefr[idx] > 0 ) { // is neuron refractory?
-                --allNeuronsDevice->nStepsInRefr[idx];
-        } else if ( r_vm >= allNeuronsDevice->Vthresh[idx] ) { // should it fire?
-                int& spikeCount = allNeuronsDevice->spikeCount[idx];
-                int& spikeCountOffset = allNeuronsDevice->spikeCountOffset[idx];
-
-                // Note that the neuron has fired!
-                allNeuronsDevice->hasFired[idx] = true;
-
-                // record spike time
-                int idxSp = (spikeCount + spikeCountOffset) % maxSpikes;
-                allNeuronsDevice->spike_history[idx][idxSp] = simulationStep;
-                spikeCount++;
-
-                // calculate the number of steps in the absolute refractory period
-                allNeuronsDevice->nStepsInRefr[idx] = static_cast<int> ( allNeuronsDevice->Trefract[idx] / deltaT + 0.5 );
-
-                // reset to 'Vreset'
-                vm = allNeuronsDevice->Cconst[idx] * 0.001;
-                u = r_u + allNeuronsDevice->Dconst[idx];
-
-                // notify outgoing synapses of spike
-                BGSIZE synapse_counts = allSynapsesDevice->synapse_counts[idx];
-                BGSIZE synapse_notified = 0;
-                for (BGSIZE i = 0; synapse_notified < synapse_counts; i++) {
-                        BGSIZE iSyn = maxSynapses * idx + i;
-                        if (allSynapsesDevice->in_use[iSyn] == true) {
-                                fpPreSpikeHit(iSyn, allSynapsesDevice);
-                                synapse_notified++;
-                        }
-                }
-
-                // notify incomming synapses of spike
-                synapse_counts = synapseIndexMapDevice->synapseCount[idx];
-                if (fAllowBackPropagation && synapse_counts != 0) {
-                        BGSIZE beginIndex = synapseIndexMapDevice->incomingSynapse_begin[idx];
-                        BGSIZE* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] );
-                        BGSIZE iSyn = inverseMap_begin[0];
-                        for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
-                                iSyn = inverseMap_begin[i];
-                                fpPostSpikeHit(iSyn, allSynapsesDevice);
-                                synapse_notified++;
-                        }
-                }
-        } else {
-                r_sp += allNeuronsDevice->I0[idx]; // add IO
-
-                // Random number alg. goes here
-                r_sp += (randNoise[idx] * allNeuronsDevice->Inoise[idx]); // add cheap noise
-
-                BGFLOAT Vint = r_vm * 1000;
-
-                // Izhikevich model integration step
-                BGFLOAT Vb = Vint + allNeuronsDevice->C3[idx] * (0.04 * Vint * Vint + 5 * Vint + 140 - u);
-                u = r_u + allNeuronsDevice->C3[idx] * r_a * (r_b * Vint - r_u);
-
-                vm = Vb * 0.001 + allNeuronsDevice->C2[idx] * r_sp;  // add inputs
-        }
-
-        // clear synaptic input for next time step
-        sp = 0;
+    advanceIZHNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIZHNeuronsDeviceProperties *)allNeuronsDevice, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, synapseIndexMapDevice, m_fAllowBackPropagation );
 }
 

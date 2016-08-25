@@ -359,38 +359,6 @@ void AllSpikingSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuro
     advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice );
 }
 
-__device__ fpPreSynapsesSpikeHit_t fpPreSpikingSynapsesSpikeHit_d = (fpPreSynapsesSpikeHit_t)preSpikingSynapsesSpikeHitDevice;
-
-/*
- *  Get a pointer to the device function preSpikeHit.
- *  The function will be called from advanceNeuronsDevice device function.
- *  Because we cannot use virtual function (Polymorphism) in device functions,
- *  we use this scheme.
- *
- *  @param  fpPreSpikeHit_h       Reference to the memory location
- *                                where the function pointer will be set.
- */
-void AllSpikingSynapses::getFpPreSpikeHit(fpPreSynapsesSpikeHit_t& fpPreSpikeHit_h)
-{
-    HANDLE_ERROR( cudaMemcpyFromSymbol(&fpPreSpikeHit_h, fpPreSpikingSynapsesSpikeHit_d, sizeof(fpPreSynapsesSpikeHit_t)) );
-}
-
-__device__ fpPostSynapsesSpikeHit_t fpPostSpikingSynapsesSpikeHit_d = (fpPostSynapsesSpikeHit_t)postSpikingSynapsesSpikeHitDevice;
-
-/*
- *  Get a pointer to the device function ostSpikeHit.
- *  The function will be called from advanceNeuronsDevice device function.
- *  Because we cannot use virtual function (Polymorphism) in device functions,
- *  we use this scheme.
- *
- *  @param  fpostSpikeHit_h       Reference to the memory location
- *                                where the function pointer will be set.
- */
-void AllSpikingSynapses::getFpPostSpikeHit(fpPostSynapsesSpikeHit_t& fpPostSpikeHit_h)
-{
-    HANDLE_ERROR( cudaMemcpyFromSymbol(&fpPostSpikeHit_h, fpPostSpikingSynapsesSpikeHit_d, sizeof(fpPostSynapsesSpikeHit_t)) );
-}
-
 /* ------------------*\
 |* # Global Functions
 \* ------------------*/
@@ -463,42 +431,6 @@ __device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSyna
 
     uint32_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
     assert( size <= BYTES_OF_DELAYQUEUE );
-}
-
-/*
- *  Prepares Synapse for a spike hit.
- *
- *  @param[in] iSyn                  Index of the Synapse to update.
- *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
- *                                   on device memory.
- */
-__device__ void preSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
-        uint32_t &delay_queue = allSynapsesDevice->delayQueue[iSyn];
-        int delayIdx = allSynapsesDevice->delayIdx[iSyn];
-        int ldelayQueue = allSynapsesDevice->ldelayQueue[iSyn];
-        int total_delay = allSynapsesDevice->total_delay[iSyn];
-
-        // Add to spike queue
-
-        // calculate index where to insert the spike into delayQueue
-        int idx = delayIdx +  total_delay;
-        if ( idx >= ldelayQueue ) {
-                idx -= ldelayQueue;
-        }
-
-        // set a spike
-        //assert( !(delay_queue[0] & (0x1 << idx)) );
-        delay_queue |= (0x1 << idx);
-}
-
-/*
- *  Prepares Synapse for a spike hit (for back propagation).
- *
- *  @param[in] iSyn                  Index of the Synapse to update.
- *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
- *                                   on device memory.
- */
-__device__ void postSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
 }
 
 /*

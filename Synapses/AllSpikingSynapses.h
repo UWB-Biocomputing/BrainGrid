@@ -251,28 +251,6 @@ class AllSpikingSynapses : public AllSynapses
         virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
 
         /**
-         *  Get a pointer to the device function preSpikeHit.
-         *  The function will be called from advanceNeuronsDevice device function.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *
-         *  @param  fpPreSpikeHit_h       Reference to the memory location
-         *                                where the function pointer will be set.
-         */
-        virtual void getFpPreSpikeHit(fpPreSynapsesSpikeHit_t& fpPreSpikeHit_h);
-
-        /**
-         *  Get a pointer to the device function ostSpikeHit.
-         *  The function will be called from advanceNeuronsDevice device function.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *
-         *  @param  fpostSpikeHit_h       Reference to the memory location
-         *                                where the function pointer will be set.
-         */
-        virtual void getFpPostSpikeHit(fpPostSynapsesSpikeHit_t& fpPostSpikeHit_h);
-
-        /**
          *  Set some parameters used for advanceSynapsesDevice.
          *  Currently we set a member variable: m_fpChangePSR_h.
          */
@@ -468,22 +446,6 @@ struct AllSpikingSynapsesDeviceProperties : public AllSynapsesDeviceProperties
  *  @param type                 Type of the Synapse to create.
  */
 __device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
-
-/**
- *  Prepares Synapse for a spike hit.
- *
- *  @param[in] iSyn                  Index of the Synapse to update.
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- */
-extern __device__ void preSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesDeviceProperties* allSynapsesDevice );
-
-/**
- *  Prepares Synapse for a spike hit (for back propagation).
- *
- *  @param[in] iSyn                  Index of the Synapse to update.
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- */
-extern __device__ void postSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesDeviceProperties* allSynapsesDevice );
 
 /**
  * Adds a synapse to the network.  Requires the locations of the source and
