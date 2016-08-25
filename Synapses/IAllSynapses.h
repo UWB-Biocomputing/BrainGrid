@@ -15,6 +15,9 @@ class IAllSynapses;
 
 typedef void (*fpCreateSynapse_t)(void*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType);
 
+// enumerate all non-abstract synapse classes.
+enum enumClassSynapses {classAllSpikingSynapses, classAllDSSynapses, classAllSTDPSynapses, classAllDynamicSTDPSynapses, undefClassSynapses};
+
 class IAllSynapses
 {
     public:
@@ -213,9 +216,20 @@ class IAllSynapses
 
         /**
          *  Set some parameters used for advanceSynapsesDevice.
-         *  Currently we set a member variable: m_fpChangePSR_h.
          */
         virtual void setAdvanceSynapsesDeviceParams() = 0;
+
+        /**
+         *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
+         *  The class ID will be set to classSynapses_d in device memory,
+         *  and the classSynapses_d will be referred to call a device function for the
+         *  particular synapse class.
+         *  Because we cannot use virtual function (Polymorphism) in device functions,
+         *  we use this scheme.
+         *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
+         *  (see issue#137).
+         */
+        virtual void setSynapseClassID() = 0;
 
 #else // !defined(USE_GPU)
     public:

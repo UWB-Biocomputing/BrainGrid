@@ -206,17 +206,6 @@ class AllDSSynapses : public AllSpikingSynapses
         virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info );
 
         /**
-         *  Advance all the Synapses in the simulation.
-         *  Update the state of all synapses for a time step.
-         *
-         *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
-         *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
-         *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
-         *  @param  sim_info               SimulationInfo class to read information from.
-         */
-        virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
-
-        /**
          *  Get a pointer to the device function createSynapse.
          *  The function will be called from updateSynapsesWeightsDevice device function.
          *  Because we cannot use virtual function (Polymorphism) in device functions,
@@ -226,6 +215,18 @@ class AllDSSynapses : public AllSpikingSynapses
          *                                where the function pointer will be set.
          */
         virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h);
+
+        /**
+         *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
+         *  The class ID will be set to classSynapses_d in device memory,
+         *  and the classSynapses_d will be referred to call a device function for the
+         *  particular synapse class.         
+         *  Because we cannot use virtual function (Polymorphism) in device functions,
+         *  we use this scheme.         
+         *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
+         *  (see issue#137).
+         */
+        virtual void setSynapseClassID();
 
     protected:
         /**
@@ -347,18 +348,6 @@ struct AllDSSynapsesDeviceProperties : public AllSpikingSynapsesDeviceProperties
 #if defined(__CUDACC__)
 
 /**
- *  CUDA code for advancing spiking synapses.
- *  Perform updating synapses for one time step.
- *
- *  @param[in] total_synapse_counts  Number of synapses.
- *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
- *  @param[in] simulationStep        The current simulation step.
- *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- */
-extern __global__ void advanceDSSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDSSynapsesDeviceProperties* allSynapsesDevice );
-
-/**
  *  Create a Synapse and connect it to the model.
  *
  *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
@@ -384,13 +373,4 @@ extern __device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapse
  */
 extern __device__ bool isDSSynapsesSpikeQueueDevice(AllDSSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn);
 
-/**
- *  Update PSR (post synapse response)
- *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
- *  @param  iSyn               Index of the synapse to set.
- *  @param  simulationStep      The current simulation step.
- *  @param  deltaT              Inner simulation step duration.
- */
-extern __device__ void changeDSSynapsePSR(AllDSSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE, const uint64_t, const BGFLOAT deltaT);
 #endif

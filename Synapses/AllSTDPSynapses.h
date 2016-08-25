@@ -255,6 +255,18 @@ class AllSTDPSynapses : public AllSpikingSynapses
          */
         virtual void getFpPostSpikeHit(fpPostSynapsesSpikeHit_t& fpPostSpikeHit_h);
 
+        /**
+         *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
+         *  The class ID will be set to classSynapses_d in device memory,
+         *  and the classSynapses_d will be referred to call a device function for the
+         *  particular synapse class.         
+         *  Because we cannot use virtual function (Polymorphism) in device functions,
+         *  we use this scheme.         
+         *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
+         *  (see issue#137).
+         */
+        virtual void setSynapseClassID();
+
     protected:
         /**
          *  Allocate GPU memories to store all synapses' states,
@@ -511,18 +523,6 @@ struct AllSTDPSynapsesDeviceProperties : public AllSpikingSynapsesDeviceProperti
 #if defined(__CUDACC__)
 
 /**
- *  CUDA code for advancing STDP synapses.
- *  Perform updating synapses for one time step.
- *
- *  @param[in] total_synapse_counts  Number of synapses.
- *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
- *  @param[in] simulationStep        The current simulation step.
- *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- */
-extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapsesDeviceProperties* allSynapsesDevice, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int max_spikes, int width );
-
-/**
  *  Create a Synapse and connect it to the model.
  *
  *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
@@ -537,39 +537,6 @@ extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, Syn
  *  @param type                 Type of the Synapse to create.
  */
 extern __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
-
-/**
- *  Adjust synapse weight according to the Spike-timing-dependent synaptic modification
- *  induced by natural spike trains
- *
- *  @param  allSynapsesDevice    Pointer to the Synapse structures in device memory.
- *  @param  iSyn                 Index of the synapse to set.
- *  @param  delta                Pre/post synaptic spike interval.
- *  @param  epost                Params for the rule given in Froemke and Dan (2002).
- *  @param  epre                 Params for the rule given in Froemke and Dan (2002).
- */
-extern __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE iSyn, double delta, double epost, double epre);
-
-/**
- *  Checks if there is an input spike in the queue.
- *
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- *  @param[in] iSyn                  Index of the Synapse to check.
- *  @return true if there is an input spike event.
- */
-extern __device__ bool isSTDPSynapseSpikeQueuePostDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn);
-
-/**
- *  Gets the spike history of the neuron.
- *
- *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory. 
- *  @param  index                  Index of the neuron to get spike history.
- *                                 -1 will return the last spike.
- *  @param  offIndex               Offset of the history beffer to get.
- *  @param  max_spikes             Maximum number of spikes per neuron per epoch.
- *  @return Spike history.
- */
-extern __device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int index, int offIndex, int max_spikes);
 
 /**
  *  Prepares Synapse for a spike hit (for back propagation).

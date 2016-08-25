@@ -33,6 +33,7 @@
 
 #include "SInputPoisson.h"
 #include "GPUSpikingModel.h"
+#include "AllSynapsesPolyFuncs.h"
 
 class GpuSInputPoisson : public SInputPoisson
 {

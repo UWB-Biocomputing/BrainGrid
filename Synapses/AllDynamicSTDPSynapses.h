@@ -207,17 +207,17 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          */
         virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h);
 
-        /*
-         *  Advance all the Synapses in the simulation.
-         *  Update the state of all synapses for a time step.
-         *
-         *  @param  allSynapsesDevice      Reference to the AllDynamicSynapsesDeviceProperties struct
-         *                                 on device memory.
-         *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
-         *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
-         *  @param  sim_info               SimulationInfo class to read information from.
+        /**
+         *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
+         *  The class ID will be set to classSynapses_d in device memory,
+         *  and the classSynapses_d will be referred to call a device function for the
+         *  particular synapse class.         
+         *  Because we cannot use virtual function (Polymorphism) in device functions,
+         *  we use this scheme.         
+         *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
+         *  (see issue#137).
          */
-        virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
+        virtual void setSynapseClassID();
 
     protected:
         /**
@@ -353,25 +353,4 @@ struct AllDynamicSTDPSynapsesDeviceProperties : public AllSTDPSynapsesDeviceProp
  */
 extern __device__ void createDynamicSTDPSSynapse(AllDynamicSTDPSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
 
-/**
- *  CUDA code for advancing STDP synapses.
- *  Perform updating synapses for one time step.
- *
- *  @param[in] total_synapse_counts  Number of synapses.
- *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
- *  @param[in] simulationStep        The current simulation step.
- *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- */
-extern __global__ void advanceDynamicSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllDynamicSTDPSynapsesDeviceProperties* allSynapsesDevice, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int max_spikes, int width );
-
-/**
- *  Update PSR (post synapse response)
- *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
- *  @param  iSyn               Index of the synapse to set.
- *  @param  simulationStep     The current simulation step.
- *  @param  deltaT             Inner simulation step duration.
- */
-extern __device__ void changeDynamicSTDPSynapsePSR(AllDynamicSTDPSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT);
 #endif

@@ -278,6 +278,18 @@ class AllSpikingSynapses : public AllSynapses
          */
         virtual void setAdvanceSynapsesDeviceParams();
 
+        /**
+         *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
+         *  The class ID will be set to classSynapses_d in device memory,
+         *  and the classSynapses_d will be referred to call a device function for the
+         *  particular synapse class.
+         *  Because we cannot use virtual function (Polymorphism) in device functions,
+         *  we use this scheme.
+         *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
+         *  (see issue#137).
+         */
+        virtual void setSynapseClassID();
+
     protected:
         /**
          *  Allocate GPU memories to store all synapses' states,
@@ -442,18 +454,6 @@ struct AllSpikingSynapsesDeviceProperties : public AllSynapsesDeviceProperties
 #if defined(__CUDACC__)
 
 /**
- *  CUDA code for advancing spiking synapses.
- *  Perform updating synapses for one time step.
- *
- *  @param[in] total_synapse_counts  Number of synapses.
- *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
- *  @param[in] simulationStep        The current simulation step.
- *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- */
-extern __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice );
-
-/**
  *  Create a Spiking Synapse and connect it to the model.
  *
  *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
@@ -470,15 +470,6 @@ extern __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, 
 __device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
 
 /**
- *  Checks if there is an input spike in the queue.
- *
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- *  @param[in] iSyn                  Index of the Synapse to check.
- *  @return true if there is an input spike event.
- */
-extern __device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn);
-
-/**
  *  Prepares Synapse for a spike hit.
  *
  *  @param[in] iSyn                  Index of the Synapse to update.
@@ -493,16 +484,6 @@ extern __device__ void preSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllS
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
  */
 extern __device__ void postSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesDeviceProperties* allSynapsesDevice );
-
-/**
- *  Update PSR (post synapse response)
- *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
- *  @param  iSyn               Index of the synapse to set.
- *  @param  simulationStep     The current simulation step.
- *  @param  deltaT             Inner simulation step duration.
- */
-extern __device__ void changeSpikingSynapsesPSR(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT);
 
 /**
  * Adds a synapse to the network.  Requires the locations of the source and

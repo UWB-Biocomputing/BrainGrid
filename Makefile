@@ -64,7 +64,7 @@ CXXFLAGS = -O2 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLA
 CGPUFLAGS = -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
-NVCCFLAGS =  -g -arch=sm_20 -rdc=true $(INCDIRS)
+NVCCFLAGS =  -lineinfo -g -arch=sm_20 -rdc=true $(INCDIRS)
 
 ################################################################################
 # Objects
@@ -81,6 +81,7 @@ CUDAOBJS =   \
 		$(NEURONDIR)/AllLIFNeurons_d.o \
 		$(NEURONDIR)/AllIZHNeurons_cuda.o \
 		$(NEURONDIR)/AllIZHNeurons_d.o \
+		$(SYNAPSEDIR)/AllSynapsesPolyFuncs_d.o \
 		$(SYNAPSEDIR)/AllSynapses_cuda.o \
 		$(SYNAPSEDIR)/AllSpikingSynapses_cuda.o \
 		$(SYNAPSEDIR)/AllSpikingSynapses_d.o \
@@ -209,6 +210,9 @@ $(NEURONDIR)/AllLIFNeurons_d.o: $(NEURONDIR)/AllLIFNeurons_d.cu $(UTILDIR)/Globa
 
 $(NEURONDIR)/AllIZHNeurons_d.o: $(NEURONDIR)/AllIZHNeurons_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllIZHNeurons.h
 	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllIZHNeurons_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllIZHNeurons_d.o
+
+$(SYNAPSEDIR)/AllSynapsesPolyFuncs_d.o: $(SYNAPSEDIR)/AllSynapsesPolyFuncs_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllSynapsesPolyFuncs.h
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSynapsesPolyFuncs_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSynapsesPolyFuncs_d.o
 
 $(SYNAPSEDIR)/AllSpikingSynapses_d.o: $(SYNAPSEDIR)/AllSpikingSynapses_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllSpikingSynapses.h
 	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSpikingSynapses_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSpikingSynapses_d.o

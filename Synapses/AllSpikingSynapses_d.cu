@@ -4,6 +4,7 @@
  */
 
 #include "AllSpikingSynapses.h"
+#include "AllSynapsesPolyFuncs.h"
 #include "Book.h"
 
 /*
@@ -309,12 +310,30 @@ void AllSpikingSynapses::getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h
 {
     HANDLE_ERROR( cudaMemcpyFromSymbol(&fpCreateSynapse_h, fpCreateSpikingSynapse_d, sizeof(fpCreateSynapse_t)) );
 }
+
 /*
  *  Set some parameters used for advanceSynapsesDevice.
- *  Currently we set a member variable: m_fpChangePSR_h.
  */
 void AllSpikingSynapses::setAdvanceSynapsesDeviceParams()
 {
+    setSynapseClassID();
+}
+
+/**
+ *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
+ *  The class ID will be set to classSynapses_d in device memory,
+ *  and the classSynapses_d will be referred to call a device function for the
+ *  particular synapse class.
+ *  Because we cannot use virtual function (Polymorphism) in device functions,
+ *  we use this scheme.
+ *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
+ *  (see issue#137).
+ */
+void AllSpikingSynapses::setSynapseClassID()
+{
+    enumClassSynapses classSynapses_h = classAllSpikingSynapses;
+
+    HANDLE_ERROR( cudaMemcpyToSymbol(classSynapses_d, &classSynapses_h, sizeof(enumClassSynapses)) );
 }
 
 /*
@@ -375,38 +394,6 @@ void AllSpikingSynapses::getFpPostSpikeHit(fpPostSynapsesSpikeHit_t& fpPostSpike
 /* ------------------*\
 |* # Global Functions
 \* ------------------*/
-
-/*
- *  CUDA code for advancing spiking synapses.
- *  Perform updating synapses for one time step.
- *
- *  @param[in] total_synapse_counts  Number of synapses.
- *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
- *  @param[in] simulationStep        The current simulation step.
- *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
- *                                   on device memory.
- */
-__global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
-        int idx = blockIdx.x * blockDim.x + threadIdx.x;
-        if ( idx >= total_synapse_counts )
-                return;
-
-        BGSIZE iSyn = synapseIndexMapDevice->activeSynapseIndex[idx];
-       
-        BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
-        BGFLOAT decay = allSynapsesDevice->decay[iSyn];
-
-        // Checks if there is an input spike in the queue.
-        bool isFired = isSpikingSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn);
-
-        // is an input in the queue?
-        if (isFired) {
-                changeSpikingSynapsesPSR(allSynapsesDevice, iSyn, simulationStep, deltaT);
-        }
-        // decay the post spike response
-        psr *= decay;
-}
 
 /* ------------------*\
 |* # Device Functions
@@ -478,30 +465,6 @@ __device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSyna
     assert( size <= BYTES_OF_DELAYQUEUE );
 }
 
-/*     
- *  Checks if there is an input spike in the queue.
- *
- *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
- *                                   on device memory.
- *  @param[in] iSyn                  Index of the Synapse to check.
- *  @return true if there is an input spike event.
- */
-__device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn)
-{
-    uint32_t &delay_queue = allSynapsesDevice->delayQueue[iSyn];
-    int &delayIdx = allSynapsesDevice->delayIdx[iSyn];
-    int ldelayQueue = allSynapsesDevice->ldelayQueue[iSyn];
-
-    uint32_t delayMask = (0x1 << delayIdx);
-    bool isFired = delay_queue & (delayMask);
-    delay_queue &= ~(delayMask);
-    if ( ++delayIdx >= ldelayQueue ) {
-            delayIdx = 0;
-    }
-
-    return isFired;
-}
-
 /*
  *  Prepares Synapse for a spike hit.
  *
@@ -536,24 +499,6 @@ __device__ void preSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingS
  *                                   on device memory.
  */
 __device__ void postSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
-}
-
-/*
- *  Update PSR (post synapse response)
- *
- *  @param  allSynapsesDevice  Reference to the AllSpikingSynapsesDeviceProperties struct 
- *                             on device memory.
- *  @param  iSyn               Index of the synapse to set.
- *  @param  simulationStep     The current simulation step.
- *  @param  deltaT             Inner simulation step duration.
- */
-__device__ void changeSpikingSynapsesPSR(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
-{
-    BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
-    BGFLOAT &W = allSynapsesDevice->W[iSyn];
-    BGFLOAT &decay = allSynapsesDevice->decay[iSyn];
-
-    psr += ( W / decay );    // calculate psr
 }
 
 /*
