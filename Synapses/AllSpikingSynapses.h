@@ -229,17 +229,6 @@ class AllSpikingSynapses : public AllSynapses
         virtual void copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info);
 
         /**
-         *  Get a pointer to the device function createSynapse.
-         *  The function will be called from updateSynapsesWeightsDevice device function.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *
-         *  @param  fpCreateSynapse_h     Reference to the memory location
-         *                                where the function pointer will be set.
-         */
-        virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h);
-
-        /**
          *  Advance all the Synapses in the simulation.
          *  Update the state of all synapses for a time step.
          *
@@ -428,70 +417,4 @@ struct AllSpikingSynapsesDeviceProperties : public AllSynapsesDeviceProperties
         int *ldelayQueue;
 };
 #endif // defined(USE_GPU)
-
-#if defined(__CUDACC__)
-
-/**
- *  Create a Spiking Synapse and connect it to the model.
- *
- *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
- *  @param neuron_index         Index of the source neuron.
- *  @param synapse_index        Index of the Synapse to create.
- *  @param source_x             X location of source.
- *  @param source_y             Y location of source.
- *  @param dest_x               X location of destination.
- *  @param dest_y               Y location of destination.
- *  @param sum_point            Pointer to the summation point.
- *  @param deltaT               The time step size.
- *  @param type                 Type of the Synapse to create.
- */
-__device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
-
-/**
- * Adds a synapse to the network.  Requires the locations of the source and
- * destination neurons.
- *
- * @param allSynapsesDevice      Pointer to the Synapse structures in device memory.
- * @param type                   Type of the Synapse to create.
- * @param src_neuron             Index of the source neuron.
- * @param dest_neuron            Index of the destination neuron.
- * @param source_x               X location of source.
- * @param source_y               Y location of source.
- * @param dest_x                 X location of destination.
- * @param dest_y                 Y location of destination.
- * @param sum_point              Pointer to the summation point.
- * @param deltaT                 The time step size.
- * @param W_d                    Array of synapse weight.
- * @param num_neurons            The number of neurons.
- * @param fpCreateSynapse        Pointer to the createSynapse device function.
- */
-extern __device__ void addSpikingSynapse( AllSpikingSynapsesDeviceProperties* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons, void (*fpCreateSynapse)(AllSpikingSynapsesDeviceProperties*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType) );
-
-/**
- * Remove a synapse from the network.
- *
- * @param[in] allSynapsesDevice         Pointer to the Synapse structures in device memory.
- * @param neuron_index   Index of a neuron.
- * @param synapse_index  Index of a synapse.
- * @param[in] maxSynapses        Maximum number of synapses per neuron.
- */
-extern __device__ void eraseSpikingSynapse( AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses );
-
-/**
- * Returns the type of synapse at the given coordinates
- *
- * @param[in] allNeuronsDevice          Pointer to the Neuron structures in device memory.
- * @param src_neuron             Index of the source neuron.
- * @param dest_neuron            Index of the destination neuron.
- */
-extern __device__ synapseType synType( neuronType* neuron_type_map_d, const int src_neuron, const int dest_neuron );
-
-/**
- * Return 1 if originating neuron is excitatory, -1 otherwise.
- *
- * @param[in] t  synapseType I to I, I to E, E to I, or E to E
- * @return 1 or -1
- */
-extern __device__ int synSign( synapseType t );
-#endif
 

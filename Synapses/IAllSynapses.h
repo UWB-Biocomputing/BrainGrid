@@ -204,17 +204,6 @@ class IAllSynapses
         virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info) = 0;
 
         /**
-         *  Get a pointer to the device function createSynapse.
-         *  The function will be called from updateSynapsesWeightsDevice device function.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *
-         *  @param  fpCreateSynapse_h     Reference to the memory location
-         *                                where the function pointer will be set.
-         */
-        virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h) = 0;
-
-        /**
          *  Set some parameters used for advanceSynapsesDevice.
          */
         virtual void setAdvanceSynapsesDeviceParams() = 0;

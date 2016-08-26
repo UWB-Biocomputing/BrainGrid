@@ -1,5 +1,5 @@
 #include "AllLIFNeurons.h"
-#include "AllNeuronsPolyFuncs.h"
+#include "AllNeuronsDeviceFuncs.h"
 
 #include "Book.h"
 

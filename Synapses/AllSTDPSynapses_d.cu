@@ -6,7 +6,7 @@
 #include "AllSTDPSynapses.h"
 #include "AllSpikingSynapses.h"
 #include "GPUSpikingModel.h"
-#include "AllSynapsesPolyFuncs.h"
+#include "AllSynapsesDeviceFuncs.h"
 #include "Book.h"
 
 /*
@@ -249,22 +249,6 @@ void AllSTDPSynapses::copyDeviceToHost( AllSTDPSynapsesDeviceProperties& allSyna
                 max_total_synapses * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 }
 
-__device__ fpCreateSynapse_t fpCreateSTDPSynapse_d = (fpCreateSynapse_t)createSTDPSynapse;
-
-/*
- *  Get a pointer to the device function createSTDPSynapse.
- *  The function will be called from updateSynapsesWeightsDevice device function.
- *  Because we cannot use virtual function (Polymorphism) in device functions,
- *  we use this scheme.
- *
- *  @param  fpCreateSynapse_h     Reference to the memory location
- *                                where the function pointer will be set.
- */
-void AllSTDPSynapses::getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h)
-{
-    HANDLE_ERROR( cudaMemcpyFromSymbol(&fpCreateSynapse_h, fpCreateSTDPSynapse_d, sizeof(fpCreateSynapse_t)) );
-}
-
 /*
  *  Advance all the Synapses in the simulation.
  *  Update the state of all synapses for a time step.
@@ -301,96 +285,4 @@ void AllSTDPSynapses::setSynapseClassID()
     enumClassSynapses classSynapses_h = classAllSTDPSynapses;
 
     HANDLE_ERROR( cudaMemcpyToSymbol(classSynapses_d, &classSynapses_h, sizeof(enumClassSynapses)) );
-}
-
-/* ------------------*\
-|* # Global Functions
-\* ------------------*/
-
-/* ------------------*\
-|* # Device Functions
-\* ------------------*/
-
-/*
- *  Create a Synapse and connect it to the model.
- *
- *  @param allSynapsesDevice    Pointer to the AllSTDPSynapsesDeviceProperties structures 
- *                              on device memory.
- *  @param neuron_index         Index of the source neuron.
- *  @param synapse_index        Index of the Synapse to create.
- *  @param source_x             X location of source.
- *  @param source_y             Y location of source.
- *  @param dest_x               X location of destination.
- *  @param dest_y               Y location of destination.
- *  @param sum_point            Pointer to the summation point.
- *  @param deltaT               The time step size.
- *  @param type                 Type of the Synapse to create.
- */
-__device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
-{
-    BGFLOAT delay;
-    BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
-    BGSIZE iSyn = max_synapses * neuron_index + synapse_index;
-
-    allSynapsesDevice->in_use[iSyn] = true;
-    allSynapsesDevice->summationPoint[iSyn] = sum_point;
-    allSynapsesDevice->destNeuronIndex[iSyn] = dest_index;
-    allSynapsesDevice->sourceNeuronIndex[iSyn] = source_index;
-    allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
-
-    allSynapsesDevice->delayQueue[iSyn] = 0;
-    allSynapsesDevice->delayIdx[iSyn] = 0;
-    allSynapsesDevice->ldelayQueue[iSyn] = LENGTH_OF_DELAYQUEUE;
-
-    allSynapsesDevice->psr[iSyn] = 0.0;
-    allSynapsesDevice->type[iSyn] = type;
-
-    allSynapsesDevice->tau[iSyn] = DEFAULT_tau;
-
-    BGFLOAT tau;
-    switch (type) {
-        case II:
-            tau = 6e-3;
-            delay = 0.8e-3;
-            break;
-        case IE:
-            tau = 6e-3;
-            delay = 0.8e-3;
-            break;
-        case EI:
-            tau = 3e-3;
-            delay = 0.8e-3;
-            break;
-        case EE:
-            tau = 3e-3;
-            delay = 1.5e-3;
-            break;
-        default:
-            break;
-    }
-
-    allSynapsesDevice->tau[iSyn] = tau;
-    allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
-    allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
-
-    uint32_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
-    assert( size <= BYTES_OF_DELAYQUEUE );
-
-    allSynapsesDevice->Apos[iSyn] = 0.5;
-    allSynapsesDevice->Aneg[iSyn] = -0.5;
-    allSynapsesDevice->STDPgap[iSyn] = 2e-3;
-
-    allSynapsesDevice->total_delayPost[iSyn] = 0;
-
-    allSynapsesDevice->tauspost[iSyn] = 0;
-    allSynapsesDevice->tauspre[iSyn] = 0;
-
-    allSynapsesDevice->taupos[iSyn] = 15e-3;
-    allSynapsesDevice->tauneg[iSyn] = 35e-3;
-    allSynapsesDevice->Wex[iSyn] = 1.0;
-
-    allSynapsesDevice->mupos[iSyn] = 0;
-    allSynapsesDevice->muneg[iSyn] = 0;
-
-    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
 }

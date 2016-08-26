@@ -33,7 +33,7 @@
 
 #include "SInputPoisson.h"
 #include "GPUSpikingModel.h"
-#include "AllSynapsesPolyFuncs.h"
+#include "AllSynapsesDeviceFuncs.h"
 
 class GpuSInputPoisson : public SInputPoisson
 {
@@ -73,7 +73,6 @@ private:
 
 #if defined(__CUDACC__)
 //! Device function that processes input stimulus for each time step.
-extern __global__ void initSynapsesDevice( int n, AllDSSynapsesDeviceProperties* allSynapsesDevice, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight );
 extern __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapsesDeviceProperties* allSynapsesDevice );
 extern __global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapsesDeviceProperties* allSynapsesDevice );
 extern __global__ void setupSeeds( int n, curandState* devStates_d, unsigned long seed );

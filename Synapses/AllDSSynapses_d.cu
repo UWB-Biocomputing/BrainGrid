@@ -5,7 +5,7 @@
 
 #include "AllDSSynapses.h"
 #include "GPUSpikingModel.h"
-#include "AllSynapsesPolyFuncs.h"
+#include "AllSynapsesDeviceFuncs.h"
 #include "Book.h"
 
 /*
@@ -195,22 +195,6 @@ void AllDSSynapses::copyDeviceToHost( AllDSSynapsesDeviceProperties& allSynapses
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 }
 
-__device__ fpCreateSynapse_t fpCreateDSSynapse_d = (fpCreateSynapse_t)createDSSynapse;
-
-/*
- *  Get a pointer to the device function createSynapse.
- *  The function will be called from updateSynapsesWeightsDevice device function.
- *  Because we cannot use virtual function (Polymorphism) in device functions,
- *  we use this scheme.
- *
- *  @param  fpCreateSynapse_h     Reference to the memory location
- *                                where the function pointer will be set.
- */
-void AllDSSynapses::getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h)
-{
-    HANDLE_ERROR( cudaMemcpyFromSymbol(&fpCreateSynapse_h, fpCreateDSSynapse_d, sizeof(fpCreateSynapse_t)) );
-}
-
 /**     
  *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
  *  The class ID will be set to classSynapses_d in device memory,
@@ -226,102 +210,5 @@ void AllDSSynapses::setSynapseClassID()
     enumClassSynapses classSynapses_h = classAllDSSynapses;
 
     HANDLE_ERROR( cudaMemcpyToSymbol(classSynapses_d, &classSynapses_h, sizeof(enumClassSynapses)) );
-}
-
-/* ------------------*\
-|* # Global Functions
-\* ------------------*/
-
-/* ------------------*\
-|* # Device Functions
-\* ------------------*/
-
-/*
- *  Create a DS Synapse and connect it to the model.
- *
- *  @param allSynapsesDevice    Pointer to the AllDSSynapsesDeviceProperties structures 
- *                              on device memory.
- *  @param neuron_index         Index of the source neuron.
- *  @param synapse_index        Index of the Synapse to create.
- *  @param source_x             X location of source.
- *  @param source_y             Y location of source.
- *  @param dest_x               X location of destination.
- *  @param dest_y               Y location of destination.
- *  @param sum_point            Pointer to the summation point.
- *  @param deltaT               The time step size.
- *  @param type                 Type of the Synapse to create.
- */
-__device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
-{
-    BGFLOAT delay;
-    BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
-    BGSIZE iSyn = max_synapses * neuron_index + synapse_index;
-
-    allSynapsesDevice->in_use[iSyn] = true;
-    allSynapsesDevice->summationPoint[iSyn] = sum_point;
-    allSynapsesDevice->destNeuronIndex[iSyn] = dest_index;
-    allSynapsesDevice->sourceNeuronIndex[iSyn] = source_index;
-    allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
-
-    allSynapsesDevice->delayQueue[iSyn] = 0;
-    allSynapsesDevice->delayIdx[iSyn] = 0;
-    allSynapsesDevice->ldelayQueue[iSyn] = LENGTH_OF_DELAYQUEUE;
-
-    allSynapsesDevice->psr[iSyn] = 0.0;
-    allSynapsesDevice->r[iSyn] = 1.0;
-    allSynapsesDevice->u[iSyn] = 0.4;     // DEFAULT_U
-    allSynapsesDevice->lastSpike[iSyn] = ULONG_MAX;
-    allSynapsesDevice->type[iSyn] = type;
-
-    allSynapsesDevice->U[iSyn] = DEFAULT_U;
-    allSynapsesDevice->tau[iSyn] = DEFAULT_tau;
-
-    BGFLOAT U;
-    BGFLOAT D;
-    BGFLOAT F;
-    BGFLOAT tau;
-    switch (type) {
-        case II:
-            U = 0.32;
-            D = 0.144;
-            F = 0.06;
-            tau = 6e-3;
-            delay = 0.8e-3;
-            break;
-        case IE:
-            U = 0.25;
-            D = 0.7;
-            F = 0.02;
-            tau = 6e-3;
-            delay = 0.8e-3;
-            break;
-        case EI:
-            U = 0.05;
-            D = 0.125;
-            F = 1.2;
-            tau = 3e-3;
-            delay = 0.8e-3;
-            break;
-        case EE:
-            U = 0.5;
-            D = 1.1;
-            F = 0.05;
-            tau = 3e-3;
-            delay = 1.5e-3;
-            break;
-        default:
-            break;
-    }
-
-    allSynapsesDevice->U[iSyn] = U;
-    allSynapsesDevice->D[iSyn] = D;
-    allSynapsesDevice->F[iSyn] = F;
-
-    allSynapsesDevice->tau[iSyn] = tau;
-    allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
-    allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
-
-    uint32_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
-    assert( size <= BYTES_OF_DELAYQUEUE );
 }
 

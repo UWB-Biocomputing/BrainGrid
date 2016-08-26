@@ -72,8 +72,8 @@ NVCCFLAGS =  -lineinfo -g -arch=sm_20 -rdc=true $(INCDIRS)
 
 CUDAOBJS =   \
 		$(COREDIR)/GPUSpikingModel.o \
+		$(NEURONDIR)/AllNeuronsDeviceFuncs_d.o \
 		$(NEURONDIR)/AllNeurons_cuda.o \
-		$(NEURONDIR)/AllNeuronsPolyFuncs_d.o \
 		$(NEURONDIR)/AllSpikingNeurons_cuda.o \
 		$(NEURONDIR)/AllSpikingNeurons_d.o \
 		$(NEURONDIR)/AllIFNeurons_cuda.o \
@@ -82,7 +82,7 @@ CUDAOBJS =   \
 		$(NEURONDIR)/AllLIFNeurons_d.o \
 		$(NEURONDIR)/AllIZHNeurons_cuda.o \
 		$(NEURONDIR)/AllIZHNeurons_d.o \
-		$(SYNAPSEDIR)/AllSynapsesPolyFuncs_d.o \
+		$(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o \
 		$(SYNAPSEDIR)/AllSynapses_cuda.o \
 		$(SYNAPSEDIR)/AllSpikingSynapses_cuda.o \
 		$(SYNAPSEDIR)/AllSpikingSynapses_d.o \
@@ -200,8 +200,8 @@ $(RNGDIR)/MersenneTwister_d.o: $(RNGDIR)/MersenneTwister_d.cu $(UTILDIR)/Global.
 $(COREDIR)/GPUSpikingModel.o: $(COREDIR)/GPUSpikingModel.cu $(UTILDIR)/Global.h $(COREDIR)/GPUSpikingModel.h $(NEURONDIR)/AllIFNeurons.h $(SYNAPSEDIR)/AllSynapses.h $(COREDIR)/IModel.h  
 	nvcc -c $(NVCCFLAGS) $(COREDIR)/GPUSpikingModel.cu $(CGPUFLAGS) -o $(COREDIR)/GPUSpikingModel.o
 
-$(NEURONDIR)/AllNeuronsPolyFuncs_d.o: $(NEURONDIR)/AllNeuronsPolyFuncs_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllNeuronsPolyFuncs.h
-	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllNeuronsPolyFuncs_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllNeuronsPolyFuncs_d.o
+$(NEURONDIR)/AllNeuronsDeviceFuncs_d.o: $(NEURONDIR)/AllNeuronsDeviceFuncs_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllNeuronsDeviceFuncs.h
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllNeuronsDeviceFuncs_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllNeuronsDeviceFuncs_d.o
 
 $(NEURONDIR)/AllSpikingNeurons_d.o: $(NEURONDIR)/AllSpikingNeurons_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllSpikingNeurons.h
 	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllSpikingNeurons_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllSpikingNeurons_d.o
@@ -215,8 +215,8 @@ $(NEURONDIR)/AllLIFNeurons_d.o: $(NEURONDIR)/AllLIFNeurons_d.cu $(UTILDIR)/Globa
 $(NEURONDIR)/AllIZHNeurons_d.o: $(NEURONDIR)/AllIZHNeurons_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllIZHNeurons.h
 	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllIZHNeurons_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllIZHNeurons_d.o
 
-$(SYNAPSEDIR)/AllSynapsesPolyFuncs_d.o: $(SYNAPSEDIR)/AllSynapsesPolyFuncs_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllSynapsesPolyFuncs.h
-	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSynapsesPolyFuncs_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSynapsesPolyFuncs_d.o
+$(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o: $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllSynapsesDeviceFuncs.h
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o
 
 $(SYNAPSEDIR)/AllSpikingSynapses_d.o: $(SYNAPSEDIR)/AllSpikingSynapses_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllSpikingSynapses.h
 	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSpikingSynapses_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSpikingSynapses_d.o

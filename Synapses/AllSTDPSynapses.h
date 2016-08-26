@@ -234,17 +234,6 @@ class AllSTDPSynapses : public AllSpikingSynapses
         virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
 
         /**
-         *  Get a pointer to the device function createSynapse.
-         *  The function will be called from updateSynapsesWeightsDevice device function.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *
-         *  @param  fpCreateSynapse_h     Reference to the memory location
-         *                                where the function pointer will be set.
-         */
-        virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h);
-
-        /**
          *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
          *  The class ID will be set to classSynapses_d in device memory,
          *  and the classSynapses_d will be referred to call a device function for the
@@ -508,23 +497,3 @@ struct AllSTDPSynapsesDeviceProperties : public AllSpikingSynapsesDeviceProperti
         bool *useFroemkeDanSTDP;
 };
 #endif // defined(USE_GPU)
-
-#if defined(__CUDACC__)
-
-/**
- *  Create a Synapse and connect it to the model.
- *
- *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
- *  @param neuron_index         Index of the source neuron.
- *  @param synapse_index        Index of the Synapse to create.
- *  @param source_x             X location of source.
- *  @param source_y             Y location of source.
- *  @param dest_x               X location of destination.
- *  @param dest_y               Y location of destination.
- *  @param sum_point            Pointer to the summation point.
- *  @param deltaT               The time step size.
- *  @param type                 Type of the Synapse to create.
- */
-extern __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
-
-#endif

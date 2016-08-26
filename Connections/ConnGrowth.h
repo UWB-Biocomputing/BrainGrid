@@ -257,19 +257,3 @@ class ConnGrowth : public Connections
         VectorMatrix *deltaR;
 
 };
-
-#if defined(__CUDACC__)
-/**
- * Adjust the strength of the synapse or remove it from the synapse map if it has gone below
- * zero.
- *
- * @param[in] num_neurons        Number of neurons.
- * @param[in] deltaT             The time step size.
- * @param[in] W_d                Array of synapse weight.
- * @param[in] maxSynapses        Maximum number of synapses per neuron.
- * @param[in] allNeuronsDevice   Pointer to the Neuron structures in device memory.
- * @param[in] allSynapsesDevice  Pointer to the Synapse structures in device memory.
- * @param[in] fpCreateSynapse    Function pointer to the createSynapse device function.
- */
-extern __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, void (*fpCreateSynapse)(AllSpikingSynapsesDeviceProperties*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType), neuronType* neuron_type_map_d );
-#endif

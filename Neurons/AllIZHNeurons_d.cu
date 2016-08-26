@@ -5,7 +5,7 @@
 
 #include "AllSpikingSynapses.h"
 #include "AllIZHNeurons.h"
-#include "AllNeuronsPolyFuncs.h"
+#include "AllNeuronsDeviceFuncs.h"
 
 #include "Book.h"
 

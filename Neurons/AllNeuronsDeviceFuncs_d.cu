@@ -1,9 +1,9 @@
-#include "AllNeuronsPolyFuncs.h"
-#include "AllSynapsesPolyFuncs.h"
+#include "AllNeuronsDeviceFuncs.h"
+#include "AllSynapsesDeviceFuncs.h"
 
-/* ------------------*\
-|* # Device Functions
-\* ------------------*/
+/* -------------------------------------*\
+|* # Device Functions for advanceNeurons
+\* -------------------------------------*/
 
 /*
  *  Prepares Synapse for a spike hit.
@@ -67,9 +67,9 @@ __device__ void postSTDPSynapseSpikeHitDevice( const BGSIZE iSyn, AllSTDPSynapse
         delay_queue |= (0x1 << idx);
 }
 
-/* ------------------*\
-|* # Global Functions
-\* ------------------*/
+/* -------------------------------------*\
+|* # Global Functions for advanceNeurons
+\* -------------------------------------*/
 
 /*
  *  CUDA code for advancing LIF neurons
