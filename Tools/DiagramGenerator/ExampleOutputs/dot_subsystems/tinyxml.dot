@@ -1,0 +1,28 @@
+digraph{
+
+	subgraph clustertinyxml {
+		color = hotpink
+		node [shape = record, color = hotpink];
+
+		tinystr[label = tinystr, style = filled];
+		tinyxml[label = tinyxml, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+
+		//COMPOSITION//
+
+
+		tinyxml -> tinystr [arrowhead=ediamond];
+	}//end subgraph tinyxml
+}//end digraph

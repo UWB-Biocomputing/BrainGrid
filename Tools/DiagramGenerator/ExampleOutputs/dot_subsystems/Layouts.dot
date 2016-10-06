@@ -1,0 +1,31 @@
+digraph{
+
+	subgraph clusterLayouts {
+		color = darksalmon
+		node [shape = record, color = darksalmon];
+
+		DynamicLayout[label = DynamicLayout, style = filled];
+		FixedLayout[label = FixedLayout, style = filled];
+		Layout[label = Layout, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+		DynamicLayout -> Layout [arrowhead=empty];
+
+		FixedLayout -> Layout [arrowhead=empty];
+
+
+		//COMPOSITION//
+
+	}//end subgraph Layouts
+}//end digraph

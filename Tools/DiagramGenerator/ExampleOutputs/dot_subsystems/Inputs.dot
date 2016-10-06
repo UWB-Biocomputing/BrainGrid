@@ -1,0 +1,50 @@
+digraph{
+
+	subgraph clusterInputs {
+		color = coral
+		node [shape = record, color = coral];
+
+		FSInput[label = FSInput, style = filled];
+		GpuSInputPoisson[label = GpuSInputPoisson, style = filled];
+		GpuSInputRegular[label = GpuSInputRegular, style = filled];
+		HostSInputPoisson[label = HostSInputPoisson, style = filled];
+		HostSInputRegular[label = HostSInputRegular, style = filled];
+		ISInput[label = ISInput, style = filled];
+		SInputPoisson[label = SInputPoisson, style = filled];
+		SInputRegular[label = SInputRegular, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 0.96; // Node Separation
+		ranksep = 0.96; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+		GpuSInputPoisson -> SInputPoisson [arrowhead=empty];
+
+		GpuSInputRegular -> SInputRegular [arrowhead=empty];
+
+		HostSInputPoisson -> SInputPoisson [arrowhead=empty];
+
+		HostSInputRegular -> SInputRegular [arrowhead=empty];
+
+		SInputPoisson -> ISInput [arrowhead=empty];
+
+		SInputRegular -> ISInput [arrowhead=empty];
+
+
+		//COMPOSITION//
+
+
+		FSInput -> GpuSInputPoisson [arrowhead=ediamond];
+		FSInput -> GpuSInputRegular [arrowhead=ediamond];
+		FSInput -> HostSInputPoisson [arrowhead=ediamond];
+		FSInput -> HostSInputRegular [arrowhead=ediamond];
+		FSInput -> ISInput [arrowhead=ediamond];
+	}//end subgraph Inputs
+}//end digraph
