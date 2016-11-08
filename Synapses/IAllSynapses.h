@@ -13,8 +13,10 @@
 class IAllNeurons;
 class IAllSynapses;
 
-typedef void (*fpCreateSynapse_t)(IAllSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType);
-typedef void (*fpChangeSynapsesPSR_t)(IAllSynapses*, const BGSIZE, const uint64_t, const BGFLOAT);
+typedef void (*fpCreateSynapse_t)(void*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType);
+
+// enumerate all non-abstract synapse classes.
+enum enumClassSynapses {classAllSpikingSynapses, classAllDSSynapses, classAllSTDPSynapses, classAllDynamicSTDPSynapses, undefClassSynapses};
 
 class IAllSynapses
 {
@@ -199,35 +201,25 @@ class IAllSynapses
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  sim_info               SimulationInfo class to read information from.
          */
-        virtual void advanceSynapses(IAllSynapses* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info) = 0;
-
-        /**
-         *  Get a pointer to the device function createSynapse.
-         *  The function will be called from updateSynapsesWeightsDevice device function.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *
-         *  @param  fpCreateSynapse_h     Reference to the memory location 
-         *                                where the function pointer will be set.
-         */
-        virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h) = 0;
+        virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info) = 0;
 
         /**
          *  Set some parameters used for advanceSynapsesDevice.
-         *  Currently we set a member variable: m_fpChangePSR_h.
          */
         virtual void setAdvanceSynapsesDeviceParams() = 0;
 
         /**
-         *  Get a pointer to the device function changePSR.
-         *  The function will be called from advanceSynapsesDevice device function.
+         *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
+         *  The class ID will be set to classSynapses_d in device memory,
+         *  and the classSynapses_d will be referred to call a device function for the
+         *  particular synapse class.
          *  Because we cannot use virtual function (Polymorphism) in device functions,
          *  we use this scheme.
-         *
-         *  @param  fpChangePSR_h         Reference to the memory location
-         *                                where the function pointer will be set.
+         *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
+         *  (see issue#137).
          */
-        virtual void getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h) = 0;
+        virtual void setSynapseClassID() = 0;
+
 #else // !defined(USE_GPU)
     public:
         /**

@@ -122,7 +122,7 @@ class AllLIFNeurons : public AllIFNeurons
          *  @param  randNoise              Reference to the random noise array.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, IAllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
+        virtual void advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
 
 #else  // !defined(USE_GPU)
     protected:
@@ -145,22 +145,3 @@ class AllLIFNeurons : public AllIFNeurons
 #endif // defined(USE_GPU)
 };
 
-#if defined(__CUDACC__)
-/**
- *  CUDA code for advancing LIF neurons
- *
- *  @param[in] totalNeurons          Number of neurons.
- *  @param[in] maxSynapses           Maximum number of synapses per neuron.
- *  @param[in] maxSpikes             Maximum number of spikes per neuron per epoch.
- *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] simulationStep        The current simulation step.
- *  @param[in] randNoise             Pointer to device random noise array.
- *  @param[in] allNeuronsDevice      Pointer to Neuron structures in device memory.
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- *  @param[in] synapseIndexMap       Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
- *  @param[in] fpPreSpikeHit         Pointer to the device function preSpikeHit() function.
- *  @param[in] fpPostSpikeHit        Pointer to the device function postSpikeHit() function.
- *  @param[in] fAllowBackPropagation True if back propagaion is allowed.
- */
-extern __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const BGSIZE, AllSpikingSynapses*), void (*fpPostSpikeHit)(const BGSIZE, AllSpikingSynapses*), bool fAllowBackPropagation );
-#endif // __CUDACC__

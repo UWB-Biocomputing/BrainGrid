@@ -5,32 +5,35 @@
 
 #include "AllSpikingSynapses.h"
 #include "AllIZHNeurons.h"
+#include "AllNeuronsDeviceFuncs.h"
+
 #include "Book.h"
 
 /*
  *  Allocate GPU memories to store all neurons' states,
  *  and copy them from host to GPU memory.
  *
- *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  allNeuronsDevice   Reference to the AllIZHNeuronsDeviceProperties struct 
+ *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllIZHNeurons::allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info ) {
-	AllIZHNeurons allNeurons;
+	AllIZHNeuronsDeviceProperties allNeurons;
 
 	allocDeviceStruct( allNeurons, sim_info );
 
-        HANDLE_ERROR( cudaMalloc( allNeuronsDevice, sizeof( AllIZHNeurons ) ) );
-        HANDLE_ERROR( cudaMemcpy ( *allNeuronsDevice, &allNeurons, sizeof( AllIZHNeurons ), cudaMemcpyHostToDevice ) );
+        HANDLE_ERROR( cudaMalloc( allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ) ) );
+        HANDLE_ERROR( cudaMemcpy ( *allNeuronsDevice, &allNeurons, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyHostToDevice ) );
 }
 
 /*
  *  Allocate GPU memories to store all neurons' states.
  *  (Helper function of allocNeuronDeviceStruct)
  *
- *  @param  allNeurons         Reference to the allIFNeurons struct.
+ *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
  *  @param  sim_info           SimulationInfo to refer from.
  */
-void AllIZHNeurons::allocDeviceStruct( AllIZHNeurons &allNeurons, SimulationInfo *sim_info ) {
+void AllIZHNeurons::allocDeviceStruct( AllIZHNeuronsDeviceProperties &allNeurons, SimulationInfo *sim_info ) {
 	int count = sim_info->totalNeurons;
 
 	AllIFNeurons::allocDeviceStruct( allNeurons, sim_info );
@@ -46,13 +49,14 @@ void AllIZHNeurons::allocDeviceStruct( AllIZHNeurons &allNeurons, SimulationInfo
 /*
  *  Delete GPU memories.
  *
- *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  allNeuronsDevice   Reference to the AllIZHNeuronsDeviceProperties struct 
+ *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllIZHNeurons::deleteNeuronDeviceStruct( void* allNeuronsDevice, const SimulationInfo *sim_info ) {
-	AllIZHNeurons allNeurons;
+	AllIZHNeuronsDeviceProperties allNeurons;
 
-	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeurons ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
 
 	deleteDeviceStruct( allNeurons, sim_info );
 
@@ -63,10 +67,10 @@ void AllIZHNeurons::deleteNeuronDeviceStruct( void* allNeuronsDevice, const Simu
  *  Delete GPU memories.
  *  (Helper function of deleteNeuronDeviceStruct)
  *
- *  @param  allNeurons         Reference to the allIFNeurons struct.
+ *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
  *  @param  sim_info           SimulationInfo to refer from.
  */
-void AllIZHNeurons::deleteDeviceStruct( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info ) {
+void AllIZHNeurons::deleteDeviceStruct( AllIZHNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info ) {
 	HANDLE_ERROR( cudaFree( allNeurons.Aconst ) );
 	HANDLE_ERROR( cudaFree( allNeurons.Bconst ) );
 	HANDLE_ERROR( cudaFree( allNeurons.Cconst ) );
@@ -80,13 +84,14 @@ void AllIZHNeurons::deleteDeviceStruct( AllIZHNeurons& allNeurons, const Simulat
 /*
  *  Copy all neurons' data from host to device.
  *
- *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  allNeuronsDevice   Reference to the AllIZHNeuronsDeviceProperties struct 
+ *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllIZHNeurons::copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info ) { 
-	AllIZHNeurons allNeurons;
+	AllIZHNeuronsDeviceProperties allNeurons;
 
-	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeurons ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
 	copyHostToDevice( allNeurons, sim_info );
 }
 
@@ -94,10 +99,10 @@ void AllIZHNeurons::copyNeuronHostToDevice( void* allNeuronsDevice, const Simula
  *  Copy all neurons' data from host to device.
  *  (Helper function of copyNeuronHostToDevice)
  *
- *  @param  allNeurons         Reference to the allIFNeurons struct.
+ *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
  *  @param  sim_info           SimulationInfo to refer from.
  */
-void AllIZHNeurons::copyHostToDevice( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info ) { 
+void AllIZHNeurons::copyHostToDevice( AllIZHNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info ) { 
 	int count = sim_info->totalNeurons;
 
 	AllIFNeurons::copyHostToDevice( allNeurons, sim_info );
@@ -113,13 +118,14 @@ void AllIZHNeurons::copyHostToDevice( AllIZHNeurons& allNeurons, const Simulatio
 /*
  *  Copy all neurons' data from device to host.
  *
- *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  allNeuronsDevice   Reference to the AllIZHNeuronsDeviceProperties struct 
+ *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllIZHNeurons::copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info ) {
-	AllIZHNeurons allNeurons;
+	AllIZHNeuronsDeviceProperties allNeurons;
 
-	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeurons ), cudaMemcpyDeviceToHost ) );
+	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
 	copyDeviceToHost( allNeurons, sim_info );
 }
 
@@ -127,10 +133,10 @@ void AllIZHNeurons::copyNeuronDeviceToHost( void* allNeuronsDevice, const Simula
  *  Copy all neurons' data from device to host.
  *  (Helper function of copyNeuronDeviceToHost)
  *
- *  @param  allNeurons         Reference to the allIFNeurons struct.
+ *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
  *  @param  sim_info           SimulationInfo to refer from.
  */
-void AllIZHNeurons::copyDeviceToHost( AllIZHNeurons& allNeurons, const SimulationInfo *sim_info ) {
+void AllIZHNeurons::copyDeviceToHost( AllIZHNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info ) {
 	int count = sim_info->totalNeurons;
 
 	AllIFNeurons::copyDeviceToHost( allNeurons, sim_info );
@@ -146,38 +152,41 @@ void AllIZHNeurons::copyDeviceToHost( AllIZHNeurons& allNeurons, const Simulatio
 /*
  *  Copy spike history data stored in device memory to host.
  *
- *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  allNeuronsDevice   Reference to the AllIZHNeuronsDeviceProperties struct 
+ *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllIZHNeurons::copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDevice, const SimulationInfo *sim_info ) {
-        AllIZHNeurons allNeurons;
-        HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeurons ), cudaMemcpyDeviceToHost ) );
+        AllIZHNeuronsDeviceProperties allNeurons;
+        HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
         AllSpikingNeurons::copyDeviceSpikeHistoryToHost( allNeurons, sim_info );
 }
 
 /*
  *  Copy spike counts data stored in device memory to host.
  *
- *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  allNeuronsDevice   Reference to the AllIZHNeuronsDeviceProperties struct 
+ *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllIZHNeurons::copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, const SimulationInfo *sim_info )
 {
-        AllIZHNeurons allNeurons;
-        HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeurons ), cudaMemcpyDeviceToHost ) );
+        AllIZHNeuronsDeviceProperties allNeurons;
+        HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
         AllSpikingNeurons::copyDeviceSpikeCountsToHost( allNeurons, sim_info );
 }
 
 /*
  *  Clear the spike counts out of all neurons.
  *
- *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  allNeuronsDevice   Reference to the AllIZHNeuronsDeviceProperties struct 
+ *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllIZHNeurons::clearNeuronSpikeCounts( void* allNeuronsDevice, const SimulationInfo *sim_info )
 {
-        AllIZHNeurons allNeurons;
-        HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeurons ), cudaMemcpyDeviceToHost ) );
+        AllIZHNeuronsDeviceProperties allNeurons;
+        HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
         AllSpikingNeurons::clearDeviceSpikeCounts( allNeurons, sim_info );
 }
 
@@ -186,7 +195,7 @@ void AllIZHNeurons::clearNeuronSpikeCounts( void* allNeuronsDevice, const Simula
  *
  *  @param  sim_info    SimulationInfo class to read information from.
  */
-void AllIZHNeurons::advanceNeurons( IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, IAllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice)
+void AllIZHNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice)
 {
     int neuron_count = sim_info->totalNeurons;
     int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
@@ -196,107 +205,6 @@ void AllIZHNeurons::advanceNeurons( IAllSynapses &synapses, IAllNeurons* allNeur
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance neurons ------------->
-    advanceIZHNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIZHNeurons *)allNeuronsDevice, (AllSpikingSynapses*)allSynapsesDevice, synapseIndexMapDevice, (void (*)(const BGSIZE, AllSpikingSynapses*))m_fpPreSpikeHit_h, (void (*)(const BGSIZE, AllSpikingSynapses*))m_fpPostSpikeHit_h, m_fAllowBackPropagation );
-}
-
-/* ------------------*\
-|* # Global Functions
-\* ------------------*/
-
-/*
- *  CUDA code for advancing izhikevich neurons
- *
- *  @param[in] totalNeurons          Number of neurons.
- *  @param[in] maxSynapses           Maximum number of synapses per neuron.
- *  @param[in] maxSpikes             Maximum number of spikes per neuron per epoch.
- *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] simulationStep        The current simulation step.
- *  @param[in] randNoise             Pointer to device random noise array.
- *  @param[in] allNeuronsDevice      Pointer to Neuron structures in device memory.
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- *  @param[in] synapseIndexMap       Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
- *  @param[in] fpPreSpikeHit         Pointer to the device function preSpikeHit() function.
- *  @param[in] fpPostSpikeHit        Pointer to the device function postSpikeHit() function.
- *  @param[in] fAllowBackPropagation True if back propagaion is allowed.
- */
-__global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, void (*fpPreSpikeHit)(const BGSIZE, AllSpikingSynapses*), void (*fpPostSpikeHit)(const BGSIZE, AllSpikingSynapses*), bool fAllowBackPropagation ) {
-        // determine which neuron this thread is processing
-        int idx = blockIdx.x * blockDim.x + threadIdx.x;
-        if ( idx >= totalNeurons )
-                return;
-
-        allNeuronsDevice->hasFired[idx] = false;
-        BGFLOAT& sp = allNeuronsDevice->summation_map[idx];
-        BGFLOAT& vm = allNeuronsDevice->Vm[idx];
-        BGFLOAT& a = allNeuronsDevice->Aconst[idx];
-        BGFLOAT& b = allNeuronsDevice->Bconst[idx];
-        BGFLOAT& u = allNeuronsDevice->u[idx];
-        BGFLOAT r_sp = sp;
-        BGFLOAT r_vm = vm;
-        BGFLOAT r_a = a;
-        BGFLOAT r_b = b;
-        BGFLOAT r_u = u;
-
-        if ( allNeuronsDevice->nStepsInRefr[idx] > 0 ) { // is neuron refractory?
-                --allNeuronsDevice->nStepsInRefr[idx];
-        } else if ( r_vm >= allNeuronsDevice->Vthresh[idx] ) { // should it fire?
-                int& spikeCount = allNeuronsDevice->spikeCount[idx];
-                int& spikeCountOffset = allNeuronsDevice->spikeCountOffset[idx];
-
-                // Note that the neuron has fired!
-                allNeuronsDevice->hasFired[idx] = true;
-
-                // record spike time
-                int idxSp = (spikeCount + spikeCountOffset) % maxSpikes;
-                allNeuronsDevice->spike_history[idx][idxSp] = simulationStep;
-                spikeCount++;
-
-                // calculate the number of steps in the absolute refractory period
-                allNeuronsDevice->nStepsInRefr[idx] = static_cast<int> ( allNeuronsDevice->Trefract[idx] / deltaT + 0.5 );
-
-                // reset to 'Vreset'
-                vm = allNeuronsDevice->Cconst[idx] * 0.001;
-                u = r_u + allNeuronsDevice->Dconst[idx];
-
-                // notify outgoing synapses of spike
-                BGSIZE synapse_counts = allSynapsesDevice->synapse_counts[idx];
-                BGSIZE synapse_notified = 0;
-                for (BGSIZE i = 0; synapse_notified < synapse_counts; i++) {
-                        BGSIZE iSyn = maxSynapses * idx + i;
-                        if (allSynapsesDevice->in_use[iSyn] == true) {
-                                fpPreSpikeHit(iSyn, allSynapsesDevice);
-                                synapse_notified++;
-                        }
-                }
-
-                // notify incomming synapses of spike
-                synapse_counts = synapseIndexMapDevice->synapseCount[idx];
-                if (fAllowBackPropagation && synapse_counts != 0) {
-                        BGSIZE beginIndex = synapseIndexMapDevice->incomingSynapse_begin[idx];
-                        BGSIZE* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] );
-                        BGSIZE iSyn = inverseMap_begin[0];
-                        for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
-                                iSyn = inverseMap_begin[i];
-                                fpPostSpikeHit(iSyn, allSynapsesDevice);
-                                synapse_notified++;
-                        }
-                }
-        } else {
-                r_sp += allNeuronsDevice->I0[idx]; // add IO
-
-                // Random number alg. goes here
-                r_sp += (randNoise[idx] * allNeuronsDevice->Inoise[idx]); // add cheap noise
-
-                BGFLOAT Vint = r_vm * 1000;
-
-                // Izhikevich model integration step
-                BGFLOAT Vb = Vint + allNeuronsDevice->C3[idx] * (0.04 * Vint * Vint + 5 * Vint + 140 - u);
-                u = r_u + allNeuronsDevice->C3[idx] * r_a * (r_b * Vint - r_u);
-
-                vm = Vb * 0.001 + allNeuronsDevice->C2[idx] * r_sp;  // add inputs
-        }
-
-        // clear synaptic input for next time step
-        sp = 0;
+    advanceIZHNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIZHNeuronsDeviceProperties *)allNeuronsDevice, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, synapseIndexMapDevice, m_fAllowBackPropagation );
 }
 

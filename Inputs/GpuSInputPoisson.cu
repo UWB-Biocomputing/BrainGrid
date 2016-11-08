@@ -89,10 +89,7 @@ void GpuSInputPoisson::inputStimulus(SimulationInfo* psi)
     inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, nISIs_d, masks_d, psi->deltaT, lambda, devStates_d, allSynapsesDevice );
 
     // advance synapses
-    fpChangeSynapsesPSR_t fpChangePSR_h;
-    m_synapses->getFpChangePSR(fpChangePSR_h);
-
-    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, synapseIndexMapDevice, g_simulationStep, psi->deltaT, (AllSpikingSynapses*)allSynapsesDevice, (void (*)(AllSpikingSynapses*, const BGSIZE, const uint64_t, const BGFLOAT))fpChangePSR_h );
+    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, synapseIndexMapDevice, g_simulationStep, psi->deltaT, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice );
 
     // update summation point
     applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, psi->pSummationMap, allSynapsesDevice );
@@ -172,30 +169,6 @@ void GpuSInputPoisson::deleteDeviceValues(IModel* model, SimulationInfo* psi )
 
 // CUDA code for -----------------------------------------------------------------------
 
-/* 
- * Adds a synapse to the network.  Requires the locations of the source and
- * destination neurons.
- *
- * @param allSynapsesDevice      Pointer to the Synapse structures in device memory.
- * @param pSummationMap          Pointer to the summation point.
- * @param width                  Width of neuron map (assumes square).
- * @param deltaT                 The simulation time step size.
- * @param weight                 Synapse weight.
- */
-__global__ void initSynapsesDevice( int n, AllDSSynapses* allSynapsesDevice, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight )
-{
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if ( idx >= n )
-        return;
-
-    // create a synapse
-    int neuron_index = idx;
-    BGFLOAT* sum_point = &( pSummationMap[neuron_index] );
-    synapseType type = allSynapsesDevice->type[neuron_index];
-    createDSSynapse(allSynapsesDevice, neuron_index, 0, 0, neuron_index, sum_point, deltaT, type );
-    allSynapsesDevice->W[neuron_index] = weight * SYNAPSE_STRENGTH_ADJUSTMENT;
-}
-
 /*
  * Device code for adding input values to the summation map.
  *
@@ -206,7 +179,7 @@ __global__ void initSynapsesDevice( int n, AllDSSynapses* allSynapsesDevice, BGF
  * @param[in] devStates_d        Curand global state
  * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
  */
-__global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapses* allSynapsesDevice )
+__global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapsesDeviceProperties* allSynapsesDevice )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= n )
@@ -259,7 +232,7 @@ __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT
  * @param[in] summationPoint_d   SummationPoint
  * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
  */
-__global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapses* allSynapsesDevice ) {
+__global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapsesDeviceProperties* allSynapsesDevice ) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= n )
             return;

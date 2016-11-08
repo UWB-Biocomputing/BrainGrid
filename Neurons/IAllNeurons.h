@@ -132,15 +132,10 @@ class IAllNeurons
          *  @param  randNoise              Reference to the random noise array.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, IAllNeurons* allNeuronsDevice, IAllSynapses* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice) = 0;
+        virtual void advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice) = 0;
 
         /**
          *  Set some parameters used for advanceNeuronsDevice.
-         *  Currently we set the two member variables: m_fpPreSpikeHit_h and m_fpPostSpikeHit_h.
-         *  These are function pointers for PreSpikeHit and PostSpikeHit device functions
-         *  respectively, and these functions are called from advanceNeuronsDevice device
-         *  function. We use this scheme because we cannot not use virtual function (Polymorphism) 
-         *  in device functions.
          *
          *  @param  synapses               Reference to the allSynapses struct on host memory.
          */

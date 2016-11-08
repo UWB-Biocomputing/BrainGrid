@@ -51,6 +51,8 @@
 
 #include "AllSTDPSynapses.h"
 
+struct AllDynamicSTDPSynapsesDeviceProperties;
+
 class AllDynamicSTDPSynapses : public AllSTDPSynapses
 {
     public:
@@ -195,26 +197,16 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
         virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info );
 
         /**
-         *  Get a pointer to the device function createSynapse.
-         *  The function will be called from updateSynapsesWeightsDevice device function.
+         *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
+         *  The class ID will be set to classSynapses_d in device memory,
+         *  and the classSynapses_d will be referred to call a device function for the
+         *  particular synapse class.         
          *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *
-         *  @param  fpCreateSynapse_h     Reference to the memory location 
-         *                                where the function pointer will be set.
+         *  we use this scheme.         
+         *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
+         *  (see issue#137).
          */
-        virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h);
-
-        /**
-         *  Get a pointer to the device function changePSR.
-         *  The function will be called from advanceSynapsesDevice device function.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *
-         *  @param  fpChangePSR_h         Reference to the memory location
-         *                                where the function pointer will be set.
-         */
-        virtual void getFpChangePSR(fpChangeSynapsesPSR_t& fpChangePSR_h);
+        virtual void setSynapseClassID();
 
     protected:
         /**
@@ -226,7 +218,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void allocDeviceStruct( AllDynamicSTDPSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void allocDeviceStruct( AllDynamicSTDPSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
          *  Delete GPU memories.
@@ -234,7 +226,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          */
-        void deleteDeviceStruct( AllDynamicSTDPSynapses& allSynapses );
+        void deleteDeviceStruct( AllDynamicSTDPSynapsesDeviceProperties& allSynapses );
 
         /**
          *  Copy all synapses' data from host to device.
@@ -244,7 +236,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void copyHostToDevice( void* allSynapsesDevice, AllDynamicSTDPSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void copyHostToDevice( void* allSynapsesDevice, AllDynamicSTDPSynapsesDeviceProperties& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
          *  Copy all synapses' data from device to host.
@@ -254,7 +246,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void copyDeviceToHost( AllDynamicSTDPSynapses& allSynapses, const SimulationInfo *sim_info );
+        void copyDeviceToHost( AllDynamicSTDPSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info );
 #else // !defined(USE_GPU)
     protected:
         /**
@@ -297,31 +289,38 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
         BGFLOAT *F;
 };
 
-#if defined(__CUDACC__)
+#if defined(USE_GPU)
+struct AllDynamicSTDPSynapsesDeviceProperties : public AllSTDPSynapsesDeviceProperties
+{
+        /**
+         *  The time of the last spike.
+         */
+        uint64_t *lastSpike;
 
-/**
- *  Create a Dynamic STDP Synapse and connect it to the model.
- *
- *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
- *  @param neuron_index         Index of the source neuron.
- *  @param synapse_index        Index of the Synapse to create.
- *  @param source_x             X location of source.
- *  @param source_y             Y location of source.
- *  @param dest_x               X location of destination.
- *  @param dest_y               Y location of destination.
- *  @param sum_point            Pointer to the summation point.
- *  @param deltaT               The time step size.
- *  @param type                 Type of the Synapse to create.
- */
-extern __device__ void createDynamicSTDPSSynapse(AllDynamicSTDPSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
+        /**
+         *  The time varying state variable \f$r\f$ for depression.
+         */
+        BGFLOAT *r;
 
-/**
- *  Update PSR (post synapse response)
- *
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
- *  @param  iSyn               Index of the synapse to set.
- *  @param  simulationStep     The current simulation step.
- *  @param  deltaT             Inner simulation step duration.
- */
-extern __device__ void changeDynamicSTDPSynapsePSR(AllDynamicSTDPSynapses* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT);
-#endif
+        /**
+         *  The time varying state variable \f$u\f$ for facilitation.
+         */
+        BGFLOAT *u;
+
+        /**
+         *  The time constant of the depression of the dynamic synapse [range=(0,10); units=sec].
+         */
+        BGFLOAT *D;
+
+        /**
+         *  The use parameter of the dynamic synapse [range=(1e-5,1)].
+         */
+        BGFLOAT *U;
+
+        /**
+         *  The time constant of the facilitation of the dynamic synapse [range=(0,10); units=sec].
+         */
+        BGFLOAT *F;
+};
+#endif // defined(USE_GPU)
+

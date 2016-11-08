@@ -43,6 +43,8 @@ using namespace std;
 #include "AllNeurons.h"
 #include "AllSpikingSynapses.h"
 
+struct AllSpikingNeuronsDeviceProperties;
+
 class AllSpikingNeurons : public AllNeurons
 {
     public:
@@ -74,11 +76,6 @@ class AllSpikingNeurons : public AllNeurons
     public:
         /**
          *  Set some parameters used for advanceNeuronsDevice.
-         *  Currently we set the two member variables: m_fpPreSpikeHit_h and m_fpPostSpikeHit_h.
-         *  These are function pointers for PreSpikeHit and PostSpikeHit device functions
-         *  respectively, and these functions are called from advanceNeuronsDevice device
-         *  function. We use this scheme because we cannot not use virtual function (Polymorphism)
-         *  in device functions.
          *
          *  @param  synapses               Reference to the allSynapses struct on host memory.
          */
@@ -113,28 +110,28 @@ class AllSpikingNeurons : public AllNeurons
          *  Copy spike history data stored in device memory to host.
          *  (Helper function of copyNeuronDeviceSpikeHistoryToHost)
          *
-         *  @param  allNeurons        Reference to the allNeurons struct.
-         *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  allNeurons        Reference to the AllSpikingNeuronsDeviceProperties struct.
+         *  @param  sim_info          SimulationInfo to refer from.
          */
-        void copyDeviceSpikeHistoryToHost( AllSpikingNeurons& allNeurons, const SimulationInfo *sim_info );
+        void copyDeviceSpikeHistoryToHost( AllSpikingNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info );
 
         /**
          *  Copy spike counts data stored in device memory to host.
          *  (Helper function of copyNeuronDeviceSpikeCountsToHost)
          *
-         *  @param  allNeurons         Reference to the allNeurons struct.
+         *  @param  allNeurons         Reference to the AllSpikingNeuronsDeviceProperties struct.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-        void copyDeviceSpikeCountsToHost( AllSpikingNeurons& allNeurons, const SimulationInfo *sim_info );
+        void copyDeviceSpikeCountsToHost( AllSpikingNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info );
 
         /**
          *  Clear the spike counts out of all neurons in device memory.
          *  (helper function of clearNeuronSpikeCounts)
          *
-         *  @param  allNeurons         Reference to the allNeurons struct.
+         *  @param  allNeurons         Reference to the AllSpikingNeuronsDeviceProperties struct.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-        void clearDeviceSpikeCounts( AllSpikingNeurons& allNeurons, const SimulationInfo *sim_info );
+        void clearDeviceSpikeCounts( AllSpikingNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info );
 #else // !defined(USE_GPU)
 
     public:
@@ -213,16 +210,33 @@ class AllSpikingNeurons : public AllNeurons
          */
         bool m_fAllowBackPropagation;
 
-        /**
-         *  Pointer to the device function preSpikeHit() function.
-         *  (parameters used for advanceNeuronsDevice.)
-         */
-        fpPreSynapsesSpikeHit_t m_fpPreSpikeHit_h;
-
-        /**
-         *  Pointer o the device function postSpikeHit().
-         *  (parameters used for advanceNeuronsDevice.)
-         */
-        fpPostSynapsesSpikeHit_t m_fpPostSpikeHit_h;
-
 };
+
+#if defined(USE_GPU)
+struct AllSpikingNeuronsDeviceProperties : public AllNeuronsDeviceProperties
+{
+        /** 
+         *  The booleans which track whether the neuron has fired.
+         */
+        bool *hasFired;
+
+        /** 
+         *  The number of spikes since the last growth cycle.
+         */
+        int *spikeCount;
+
+        /**
+         *  Offset of the spike_history buffer.
+         */
+        int *spikeCountOffset;
+
+        /** 
+         *  Step count (history) for each spike fired by each neuron.
+         *  The step counts are stored in a buffer for each neuron, and the pointers
+         *  to the buffer are stored in a list pointed by spike_history. 
+         *  Each buffer is a circular, and offset of top location of the buffer i is
+         *  specified by spikeCountOffset[i].
+         */
+        uint64_t **spike_history;
+};
+#endif // defined(USE_GPU)

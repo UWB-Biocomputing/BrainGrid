@@ -89,3 +89,17 @@ class AllNeurons : public IAllNeurons
          */
         void freeResources();
 };
+
+#if defined(USE_GPU)
+struct AllNeuronsDeviceProperties
+{
+        /** 
+         *  The summation point for each neuron.
+         *  Summation points are places where the synapses connected to the neuron 
+         *  apply (summed up) their PSRs (Post-Synaptic-Response). 
+         *  On the next advance cycle, neurons add the values stored in their corresponding 
+         *  summation points to their Vm and resets the summation points to zero
+         */
+        BGFLOAT *summation_map;
+};
+#endif // defined(USE_GPU)

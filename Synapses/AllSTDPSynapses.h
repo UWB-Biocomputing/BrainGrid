@@ -62,6 +62,8 @@
 
 #include "AllSpikingSynapses.h"
 
+struct AllSTDPSynapsesDeviceProperties;
+
 class AllSTDPSynapses : public AllSpikingSynapses
 {
     public:
@@ -229,29 +231,19 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  sim_info               SimulationInfo class to read information from.
          */
-        virtual void advanceSynapses(IAllSynapses* allSynapsesDevice, IAllNeurons* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
+        virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info);
 
         /**
-         *  Get a pointer to the device function createSynapse.
-         *  The function will be called from updateSynapsesWeightsDevice device function.
+         *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
+         *  The class ID will be set to classSynapses_d in device memory,
+         *  and the classSynapses_d will be referred to call a device function for the
+         *  particular synapse class.         
          *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *
-         *  @param  fpCreateSynapse_h     Reference to the memory location 
-         *                                where the function pointer will be set.
+         *  we use this scheme.         
+         *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
+         *  (see issue#137).
          */
-        virtual void getFpCreateSynapse(fpCreateSynapse_t& fpCreateSynapse_h);
-
-        /**
-         *  Get a pointer to the device function ostSpikeHit.
-         *  The function will be called from advanceNeuronsDevice device function.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *
-         *  @param  fpostSpikeHit_h       Reference to the memory location
-         *                                where the function pointer will be set.
-         */
-        virtual void getFpPostSpikeHit(fpPostSynapsesSpikeHit_t& fpPostSpikeHit_h);
+        virtual void setSynapseClassID();
 
     protected:
         /**
@@ -263,7 +255,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void allocDeviceStruct( AllSTDPSynapses &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void allocDeviceStruct( AllSTDPSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
          *  Delete GPU memories.
@@ -271,7 +263,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          */
-        void deleteDeviceStruct( AllSTDPSynapses& allSynapses );
+        void deleteDeviceStruct( AllSTDPSynapsesDeviceProperties& allSynapses );
 
         /**
          *  Copy all synapses' data from host to device.
@@ -281,7 +273,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void copyHostToDevice( void* allSynapsesDevice, AllSTDPSynapses& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void copyHostToDevice( void* allSynapsesDevice, AllSTDPSynapsesDeviceProperties& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
          *  Copy all synapses' data from device to host.
@@ -291,7 +283,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void copyDeviceToHost( AllSTDPSynapses& allSynapses, const SimulationInfo *sim_info );
+        void copyDeviceToHost( AllSTDPSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info );
 #else // !defined(USE_GPU)
     public:
         /**
@@ -418,75 +410,90 @@ class AllSTDPSynapses : public AllSpikingSynapses
         bool *useFroemkeDanSTDP;
 };
 
-#if defined(__CUDACC__)
+#if defined(USE_GPU)
+struct AllSTDPSynapsesDeviceProperties : public AllSpikingSynapsesDeviceProperties
+{
+        /**
+         *  The synaptic transmission delay (delay of dendritic backpropagating spike), 
+         *  descretized into time steps.
+         */
+        int *total_delayPost;
 
-/**
- *  CUDA code for advancing STDP synapses.
- *  Perform updating synapses for one time step.
- *
- *  @param[in] total_synapse_counts  Number of synapses.
- *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
- *  @param[in] simulationStep        The current simulation step.
- *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- *  @param[in] fpChangePSR           Pointer to the device function changePSR() function.
- */
-extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapses* allSynapsesDevice, void (*fpChangePSR)(AllSTDPSynapses*, const BGSIZE, const uint64_t, const BGFLOAT), AllSpikingNeurons* allNeuronsDevice, int max_spikes, int width );
+        /**
+         *  Pointer to the delayed queue
+         */
+        uint32_t *delayQueuePost;
 
-/**
- *  Create a Synapse and connect it to the model.
- *
- *  @param allSynapsesDevice    Pointer to the Synapse structures in device memory.
- *  @param neuron_index         Index of the source neuron.
- *  @param synapse_index        Index of the Synapse to create.
- *  @param source_x             X location of source.
- *  @param source_y             Y location of source.
- *  @param dest_x               X location of destination.
- *  @param dest_y               Y location of destination.
- *  @param sum_point            Pointer to the summation point.
- *  @param deltaT               The time step size.
- *  @param type                 Type of the Synapse to create.
- */
-extern __device__ void createSTDPSynapse(AllSTDPSynapses* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type);
+        /**
+         *  The index indicating the current time slot in the delayed queue.
+         */
+        int *delayIdxPost;
 
-/**
- *  Adjust synapse weight according to the Spike-timing-dependent synaptic modification
- *  induced by natural spike trains
- *
- *  @param  allSynapsesDevice    Pointer to the Synapse structures in device memory.
- *  @param  iSyn                 Index of the synapse to set.
- *  @param  delta                Pre/post synaptic spike interval.
- *  @param  epost                Params for the rule given in Froemke and Dan (2002).
- *  @param  epre                 Params for the rule given in Froemke and Dan (2002).
- */
-extern __device__ void stdpLearningDevice(AllSTDPSynapses* allSynapsesDevice, const BGSIZE iSyn, double delta, double epost, double epre);
+        /**
+         *  Length of the delayed queue.
+         */
+        int *ldelayQueuePost;
 
-/**
- *  Checks if there is an input spike in the queue.
- *
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- *  @param[in] iSyn                  Index of the Synapse to check.
- *  @return true if there is an input spike event.
- */
-extern __device__ bool isSTDPSynapseSpikeQueuePostDevice(AllSTDPSynapses* allSynapsesDevice, BGSIZE iSyn);
+        /**
+         *  Used for extended rule by Froemke and Dan. See Froemke and Dan (2002). 
+         *  Spike-timing-dependent synaptic modification induced by natural spike trains. 
+         *  Nature 416 (3/2002).
+         */
+        BGFLOAT *tauspost;
 
-/**
- *  Gets the spike history of the neuron.
- *
- *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory. 
- *  @param  index                  Index of the neuron to get spike history.
- *                                 -1 will return the last spike.
- *  @param  offIndex               Offset of the history beffer to get.
- *  @param  max_spikes             Maximum number of spikes per neuron per epoch.
- *  @return Spike history.
- */
-extern __device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeurons* allNeuronsDevice, int index, int offIndex, int max_spikes);
+        /**
+         *  sed for extended rule by Froemke and Dan.
+         */
+        BGFLOAT *tauspre;
 
-/**
- *  Prepares Synapse for a spike hit (for back propagation).
- *
- *  @param[in] iSyn                  Index of the Synapse to update.
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- */
-extern __device__ void postSTDPSynapseSpikeHitDevice( const BGSIZE iSyn, AllSTDPSynapses* allSynapsesDevice );
-#endif
+        /**
+         *  Timeconstant of exponential decay of positive learning window for STDP.
+         */
+        BGFLOAT *taupos;
+
+        /**
+         *  Timeconstant of exponential decay of negative learning window for STDP.
+         */
+        BGFLOAT *tauneg;
+
+        /**
+         *  No learning is performed if \f$|Delta| = |t_{post}-t_{pre}| < STDPgap\f$
+         */
+        BGFLOAT *STDPgap;
+
+        /**
+         *  The maximal/minimal weight of the synapse [readwrite; units=;]
+         */
+        BGFLOAT *Wex;
+
+        /**
+         *  Defines the peak of the negative exponential learning window.
+         */
+        BGFLOAT *Aneg;
+
+        /**
+         *  Defines the peak of the positive exponential learning window.
+         */
+        BGFLOAT *Apos;
+
+        /**
+         *  Extended multiplicative positive update: 
+         *  \f$dw = (Wex-W)^{mupos} * Apos * exp(-Delta/taupos)\f$. 
+         *  Set to 0 for basic update. See Guetig, Aharonov, Rotter and Sompolinsky (2003). 
+         *  Learning input correlations through non-linear asymmetric Hebbian plasticity. 
+         *  Journal of Neuroscience 23. pp.3697-3714.
+         */
+        BGFLOAT *mupos;
+
+        /**
+         *  Extended multiplicative negative update: 
+         *  \f$dw = W^{mupos} * Aneg * exp(Delta/tauneg)\f$. Set to 0 for basic update.
+         */
+        BGFLOAT *muneg;
+  
+        /**
+         *  True if use the rule given in Froemke and Dan (2002).
+         */
+        bool *useFroemkeDanSTDP;
+};
+#endif // defined(USE_GPU)

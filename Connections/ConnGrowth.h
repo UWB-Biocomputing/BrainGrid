@@ -177,7 +177,7 @@ class ConnGrowth : public Connections
          *  @param  m_allSynapsesDevice Reference to the allSynapses struct on device memory.
          *  @param  layout              Layout information of the neunal network.
          */
-        virtual void updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeurons* m_allNeuronsDevice, AllSpikingSynapses* m_allSynapsesDevice, Layout *layout);
+        virtual void updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeuronsDeviceProperties* m_allNeuronsDevice, AllSpikingSynapsesDeviceProperties* m_allSynapsesDevice, Layout *layout);
 #else
     public:
         /**
@@ -257,19 +257,3 @@ class ConnGrowth : public Connections
         VectorMatrix *deltaR;
 
 };
-
-#if defined(__CUDACC__)
-/**
- * Adjust the strength of the synapse or remove it from the synapse map if it has gone below
- * zero.
- *
- * @param[in] num_neurons        Number of neurons.
- * @param[in] deltaT             The time step size.
- * @param[in] W_d                Array of synapse weight.
- * @param[in] maxSynapses        Maximum number of synapses per neuron.
- * @param[in] allNeuronsDevice   Pointer to the Neuron structures in device memory.
- * @param[in] allSynapsesDevice  Pointer to the Synapse structures in device memory.
- * @param[in] fpCreateSynapse    Function pointer to the createSynapse device function.
- */
-extern __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeurons* allNeuronsDevice, AllSpikingSynapses* allSynapsesDevice, void (*fpCreateSynapse)(AllSpikingSynapses*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType), neuronType* neuron_type_map_d );
-#endif
