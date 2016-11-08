@@ -1,7 +1,6 @@
 package edu.uwb.braingrid.workbench.utils;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -32,13 +31,43 @@ public class DateTime {
         String time = dateFormat.format(millisFromEpoch);
         return time;
     }
-    
-    public static void recordProvTiming(String codeLocation, Long startingMillis) {
-        long time = (System.currentTimeMillis() - startingMillis);
+
+//    public static void recordProvTiming(String className, String functionName, String codeLine, Long startingMillis) {
+//        long time = (System.currentTimeMillis() - startingMillis);
+//        try {
+//            PrintWriter out = new PrintWriter(new BufferedWriter(
+//                    new FileWriter("provPerformance.txt", true)));
+//            out.println(className + "." + functionName + ",line#" + codeLine + ";milliseconds prov overhead:" + time);
+//            out.close();
+//        } catch (IOException e) {
+//            System.err.println("Problem in writing to the prov performance file.");
+//            e.printStackTrace();
+//        }
+//    }
+    public static Long sumProvTiming(Long startingMillis, Long millisSoFar) {
+        long time = System.currentTimeMillis() - startingMillis;
+        return millisSoFar + time;
+    }
+
+    public static void recordFunctionExecutionTime(String className, String functionName, Long totalTime, boolean provEnabled) {
         try {
             PrintWriter out = new PrintWriter(new BufferedWriter(
-                    new FileWriter("provPerformance.txt", true)));            
-            out.println(codeLocation + " " + time);
+                    new FileWriter("provOverhead.txt", true)));
+            out.println(className + "." + functionName + ";provEnabled="
+                    + String.valueOf(provEnabled) + ";total milliseconds:" + totalTime);
+            out.close();
+        } catch (IOException e) {
+            System.err.println("Problem in writing to the prov performance file.");
+            e.printStackTrace();
+        }
+    }
+
+    public static void recordAccumulatedProvTiming(String className, String functionName,
+            Long totalProvTime) {
+        try {
+            PrintWriter out = new PrintWriter(new BufferedWriter(
+                    new FileWriter("provOverhead.txt", true)));
+            out.println(className + "." + functionName + ";total prov overhead:" + totalProvTime);
             out.close();
         } catch (IOException e) {
             System.err.println("Problem in writing to the prov performance file.");

@@ -893,6 +893,8 @@ public class ControlFrame extends JFrame implements ActionListener {
         ExportPanel myPanel = new ExportPanel(ImportPanel.nlistDir);
         int result = JOptionPane.showConfirmDialog(this, myPanel, "Export",
                 JOptionPane.OK_CANCEL_OPTION);
+        Long functionStartTime = System.currentTimeMillis();
+        Long accumulatedTime = 0L;
         if (result == JOptionPane.OK_OPTION) { // Afirmative
             writeNeuronListToFile(
                     myPanel.tfields[ExportPanel.idxInhList].getText(),
@@ -905,7 +907,7 @@ public class ControlFrame extends JFrame implements ActionListener {
                         "neuronListExport", "NLEdit", null, false,
                         myPanel.tfields[ExportPanel.idxInhList].getText(), null,
                         false);
-                DateTime.recordProvTiming("ControlFrame 908", startTime);
+                accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
             }
 
             writeNeuronListToFile(
@@ -919,7 +921,7 @@ public class ControlFrame extends JFrame implements ActionListener {
                         "neuronListExport", "NLEdit", null, false,
                         myPanel.tfields[ExportPanel.idxActList].getText(), null,
                         false);
-                DateTime.recordProvTiming("ControlFrame 922", startTime);
+                accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
             }
 
             writeNeuronListToFile(
@@ -933,8 +935,15 @@ public class ControlFrame extends JFrame implements ActionListener {
                         "neuronListExport", "NLEdit", null, false,
                         myPanel.tfields[ExportPanel.idxPrbList].getText(), null,
                         false);
-                DateTime.recordProvTiming("ControlFrame 936", startTime);
+                accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
             }
+        }
+        DateTime.recordFunctionExecutionTime("ControlFrame", "actionExport",
+                System.currentTimeMillis() - functionStartTime,
+                workbenchMgr.isProvEnabled());
+        if (workbenchMgr.isProvEnabled()) {
+            DateTime.recordAccumulatedProvTiming("ControlFrame", "actionExport",
+                    accumulatedTime);
         }
     }
 

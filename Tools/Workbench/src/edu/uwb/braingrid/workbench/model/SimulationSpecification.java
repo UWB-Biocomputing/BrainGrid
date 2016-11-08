@@ -1,4 +1,5 @@
 package edu.uwb.braingrid.workbench.model;
+// CLEANED
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,8 @@ public class SimulationSpecification {
     public static final String REMOTE_EXECUTION = "Remote";
     public static final String LOCAL_EXECUTION = "Local";
     public static final String SEQUENTIAL_SIMULATION = "Sequential";
+    public static final String BUILD_BUILD_OPTION = "Build";
+    public static final String PRE_BUILT_BUILD_OPTION = "Pre-built";
     public static final int SEQUENTIAL_SIMULATION_INDEX = 0;
     public static final String PARALLEL_SIMULATION = "Parallel";
     public static final int PARALLEL_SIMULATION_INDEX = 1;
@@ -49,6 +52,7 @@ public class SimulationSpecification {
     private String username;
     private String hostAddress;
     private String SHA1Key;
+    private String buildOption;
     private String sourceCodeUpdating;
     private String simulationType;
     private String simulationLocale;
@@ -88,6 +92,7 @@ public class SimulationSpecification {
         username = null;
         hostAddress = null;
         SHA1Key = null;
+        buildOption = null;
         sourceCodeUpdating = null;
         simulationType = null;
         simulationLocale = null;
@@ -213,8 +218,27 @@ public class SimulationSpecification {
         return hostAddress == null ? "" : hostAddress;
     }
 
+    /**
+     * Provides the SHA1 key used to checkout a specific version of the
+     * simulator.
+     *
+     * @return The SHA1 key for git checkout
+     */
     public String getSHA1CheckoutKey() {
         return SHA1Key == null ? "" : SHA1Key;
+    }
+
+    /**
+     * Provides the build option for the script. If this value is
+     * BUILD_BUILD_OPTION, then the script should build the simulator executable
+     * prior to starting the simulation. If this value is
+     * PRE_BUILT_BUILD_OPTION, then the script should simply start the
+     * simulation without first building the simulator.
+     *
+     * @return The build option for the script
+     */
+    public String getBuildOption() {
+        return buildOption;
     }
 
     /**
@@ -325,6 +349,16 @@ public class SimulationSpecification {
     }
 
     /**
+     * Sets the option for building the simulator prior to execution
+     *
+     * @param buildOpt - The build directive. One of the following values:
+     * BUILD_BUILD_OPTION, PRE_BUILT_BUILD_OPTION
+     */
+    public void setBuildOption(String buildOpt) {
+        buildOption = buildOpt;
+    }
+
+    /**
      * Sets the username specified for this simulation. This should only be used
      * to indicate the username, if any, that was provided during specification.
      * When a remote connection is requested, a new username is requested as
@@ -394,6 +428,22 @@ public class SimulationSpecification {
             remote = simulationLocale.equals(REMOTE_EXECUTION);
         }
         return remote;
+    }
+
+    /**
+     * Indicates whether or not the simulator should be build prior to
+     * execution. The default for this operation is an indication that the
+     * simulator should be built first.
+     *
+     * @return True if the simulator should be built prior to executing the
+     * simulation.
+     */
+    public boolean buildFirst() {
+        boolean buildFirst = false;
+        if (buildOption != null) {
+            buildFirst = buildOption.equals(BUILD_BUILD_OPTION);
+        }
+        return buildFirst;
     }
 
     /**

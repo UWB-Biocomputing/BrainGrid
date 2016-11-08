@@ -1,4 +1,5 @@
 package edu.uwb.braingrid.workbench.model;
+// CLEANED
 
 import java.util.Date;
 
@@ -27,7 +28,11 @@ public class ExecutedCommand {
      */
     public ExecutedCommand(String newCommand) {
         fullCommand = newCommand;
-        simpleCommand = fullCommand.substring(0, fullCommand.indexOf(" "));
+        int firstSpaceIndex = fullCommand.indexOf(" ");
+        if (firstSpaceIndex < 0) {
+            firstSpaceIndex = fullCommand.length();
+        }
+        simpleCommand = fullCommand.substring(0, firstSpaceIndex);
         timeStarted = null;
         timeCompleted = null;
     }
@@ -138,14 +143,5 @@ public class ExecutedCommand {
      */
     public boolean hasCompleted() {
         return timeCompleted != null;
-    }
-
-    @Override
-    public String toString() {
-        String s = "";
-        if (fullCommand != null) {
-            s = fullCommand;
-        }
-        return s;
     }
 }

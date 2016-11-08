@@ -1,4 +1,5 @@
 package edu.uwb.braingrid.workbench;
+/////////////////CLEANED
 
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
@@ -48,7 +49,6 @@ public class WorkbenchManager {
 
     /* Configuration Data */
     private final String folderDelimiter;
-    private String NLEditPath;
     private final String rootDir;
     private final String projectsDir;
     private SimulationSpecification simSpec;
@@ -74,16 +74,6 @@ public class WorkbenchManager {
         prov = null;
         projectMgr = null;
         simSpec = null;
-        try {
-            String currDir = Paths.get((new java.io.File("."))
-                    .getCanonicalPath()).toString();
-            String jarName = "NLEdit.jar";
-            String ps = folderDelimiter;
-            NLEditPath = currDir + ps + "tools" + ps + "NLEdit" + ps + jarName;
-        } catch (IOException e) {
-            NLEditPath = ": Exception occured during initialization"
-                    + " while locating parent of working directory!";
-        }
     }
     // </editor-fold>
 
@@ -98,6 +88,7 @@ public class WorkbenchManager {
     public boolean newProject() {
         boolean success;
         // Ask the user for a new project name (validation in dialogue)
+        
         NewProjectDialog npd = new NewProjectDialog(true);
 
         if (npd.getSuccess()) {
@@ -161,6 +152,8 @@ public class WorkbenchManager {
      * @see javax.swing.JFileChooser
      */
     public int openProject() {
+        Long functionStartTime = System.currentTimeMillis();
+        Long accumulatedTime = 0L;
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Select a Project Specification...");
         File projectsDirectory = getProjectsDirectory();
@@ -175,7 +168,8 @@ public class WorkbenchManager {
                 try {
                     File selectedFile = chooser.getSelectedFile();
                     try {
-                        projectMgr = new ProjectMgr(selectedFile.getName(), true);
+                        projectMgr = new ProjectMgr(FileManager.getLastNamePrefix(selectedFile.getName()), true);
+                        
                     } catch (IOException ex1) {
                         messageAccumulator += "\n"
                                 + "Unmanaged project selected.\n"
@@ -188,12 +182,13 @@ public class WorkbenchManager {
                                 + "\nFrom: " + selectedFile.getParent()
                                 + "\nTo:   "
                                 + destFolder + "\n";
-                        projectMgr = new ProjectMgr(selectedFile.getName(), true);
-
+                        projectMgr = new ProjectMgr(FileManager.getLastNamePrefix(selectedFile.getName()), true);
                     }
                     updateSimSpec();
                     if (projectMgr.isProvenanceEnabled()) {
+                        Long startTime = System.currentTimeMillis();
                         prov = new ProvMgr(projectMgr, true);
+                        accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
                     } else {
                         prov = null;
                     }
@@ -224,6 +219,15 @@ public class WorkbenchManager {
                         + "Error occurred within the open file dialog\n";
                 break;
         }
+        if (projectMgr != null) {
+            DateTime.recordFunctionExecutionTime("WorkbenchManager", "openProject",
+                    System.currentTimeMillis() - functionStartTime,
+                    projectMgr.isProvenanceEnabled());
+            if (projectMgr.isProvenanceEnabled()) {
+                DateTime.recordAccumulatedProvTiming("WorkbenchManager", "openProject",
+                        accumulatedTime);
+            }
+        }
         return choice;
     }
 
@@ -235,6 +239,8 @@ public class WorkbenchManager {
      * project or loading a project from disk</i>
      */
     public void saveProject() {
+        Long functionStartTime = System.currentTimeMillis();
+        Long accumulatedTime = 0L;
         String msg = "Unknown";
         if (projectMgr != null) {
             try {
@@ -244,7 +250,9 @@ public class WorkbenchManager {
                 msg = projectFileName + projectMgr.getName()
                         + ".xml";
                 if (projectMgr.isProvenanceEnabled()) {
+                    Long startTime = System.currentTimeMillis();
                     persistProvenance();
+                    accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
                 }
                 messageAccumulator += "\n" + "Project saved to "
                         + projectFileName
@@ -254,6 +262,13 @@ public class WorkbenchManager {
                         + " could not be created due to: " + "\n"
                         + e.getClass().toString() + "\n";
             }
+        }
+        DateTime.recordFunctionExecutionTime("WorkbenchManager", "saveProject",
+                System.currentTimeMillis() - functionStartTime,
+                projectMgr.isProvenanceEnabled());
+        if (projectMgr.isProvenanceEnabled()) {
+            DateTime.recordAccumulatedProvTiming("WorkbenchManager", "saveProject",
+                    accumulatedTime);
         }
     }
 
@@ -274,6 +289,8 @@ public class WorkbenchManager {
      * Opens input files from any reachable file system location. These files
      * are added to the project and overwrite any previously opened files of the
      * same neuron list type.
+     * 
+     * NOTE: DEAD CODE
      *
      * @return True if at least one input file was added to the project
      * successfully
@@ -349,7 +366,8 @@ public class WorkbenchManager {
                     simSpec.getCodeLocation(),
                     simSpec.getVersionAnnotation(),
                     simSpec.getSourceCodeUpdating(),
-                    simSpec.getSHA1CheckoutKey());
+                    simSpec.getSHA1CheckoutKey(),
+                    simSpec.getBuildOption());
             updateSimSpec();
             messageAccumulator += "\n" + "New simulation specified\n";
         } else {
@@ -369,26 +387,35 @@ public class WorkbenchManager {
      */
     public long analyzeScriptOutput() {
         long timeCompleted = DateTime.ERROR_TIME;
-        if (projectMgr != null && !projectMgr.scriptOutputAnalyzed()) {
-            try {
-                messageAccumulator += "\n"
-                        + "Gathering simulation provenance...\n";
-                String targetFolder = ScriptManager.getScriptFolder(
-                        projectMgr.determineProjectOutputLocation());
+        if (projectMgr != null) {
+            if (!projectMgr.scriptOutputAnalyzed()) {
                 ScriptManager scriptMgr = new ScriptManager();
-                timeCompleted
-                        = scriptMgr.analyzeScriptOutput(simSpec, projectMgr, prov, targetFolder);
-                if (timeCompleted != DateTime.ERROR_TIME) {
-                    projectMgr.setScriptCompletedAt(timeCompleted);
-                    projectMgr.setScriptAnalyzed(true);
+                try {
+                    messageAccumulator += "\n"
+                            + "Gathering simulation provenance...\n";
+                    String targetFolder = ScriptManager.getScriptFolder(
+                            projectMgr.determineProjectOutputLocation());
+                    timeCompleted = scriptMgr.analyzeScriptOutput(simSpec,
+                            projectMgr, prov, targetFolder);
+                    if (timeCompleted != DateTime.ERROR_TIME) {
+                        projectMgr.setScriptCompletedAt(timeCompleted);
+                        projectMgr.setScriptAnalyzed(true);
+                    }
+                    messageAccumulator += scriptMgr.getOutstandingMessages();
+                    messageAccumulator += "\n" + "Simulation provenance gathered\n";
+                } catch (IOException | JSchException | SftpException e) {
+                    messageAccumulator += scriptMgr.getOutstandingMessages();
+                    messageAccumulator += "\n"
+                            + "Simulation provenance could not be gathered due to "
+                            + e.getClass() + "...\n";
+                    messageAccumulator += "Exception message: " + e.getMessage();
+                    e.printStackTrace();
                 }
-                messageAccumulator += "\n" + "Simulation provenance gathered\n";
-            } catch (IOException | JSchException | SftpException e) {
+            } else {
                 messageAccumulator += "\n"
-                        + "Simulation provenance could not be gathered due to "
-                        + e.getClass() + "...\n";
-                messageAccumulator += "Exception message: " + e.getMessage();
-                //e.printStackTrace();
+                        + "Script output has already been analyzed for this simulation run"
+                        + "\nTo analyze another run, please respecify script or input and run again"
+                        + "\n";
             }
         } else {
             messageAccumulator += "\n"
@@ -487,6 +514,8 @@ public class WorkbenchManager {
      * @return
      */
     public boolean initProject(String name, boolean provEnabled) {
+        Long functionStartTime = System.currentTimeMillis();
+        Long accumulatedTime = 0L;
         boolean success = true;
         /* Create a new project */
         try {
@@ -507,7 +536,7 @@ public class WorkbenchManager {
                             + "\n";
                     throw ex;
                 }
-                DateTime.recordProvTiming("WorkbenchManager 510", startTime);
+                accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
             } else {
                 prov = null;
             }
@@ -519,6 +548,13 @@ public class WorkbenchManager {
             projectMgr = null;
             prov = null;
         }
+        DateTime.recordFunctionExecutionTime("WorkbenchManager", "initProject",
+                System.currentTimeMillis() - functionStartTime,
+                projectMgr.isProvenanceEnabled());
+        if (projectMgr.isProvenanceEnabled()) {
+            DateTime.recordAccumulatedProvTiming("WorkbenchManager", "initProject",
+                    accumulatedTime);
+        }
         return success;
     }
 
@@ -527,26 +563,28 @@ public class WorkbenchManager {
      * provenance of the file's creation is added to the provenance model.
      * InputAnalyzer filenames are also added to the existing file input label.
      *
+     * NOTE: DEAD CODE
+     * 
      * @param uri - The file location
      * @param type - The type of input file
      */
     public void addInputFile(String uri, InputAnalyzer.InputType type) {
-        /* add prov */
-        if (projectMgr.isProvenanceEnabled()) {
-            prov.addEntity(uri, type.toString(), false, false);
-        }
-        /* add to project */
-        String toRemove = projectMgr.addInputFile(uri, type);
-        messageAccumulator += "\n" + "Adding input: " + uri
-                + " to the project...\n";
-        if (toRemove != null) {
-            messageAccumulator += "\n" + type.toString() + " neuron list input"
-                    + toRemove + " replaced: \n" + toRemove
-                    + " as a project input" + "\n";
-        } else {
-            messageAccumulator += "\n" + uri
-                    + " successfully added as a project input" + "\n";
-        }
+//        /* add prov */
+//        if (projectMgr.isProvenanceEnabled()) {
+//            prov.addEntity(uri, type.toString(), false, false);
+//        }
+//        /* add to project */
+//        //String toRemove = projectMgr.addInputFile(uri, type);
+//        messageAccumulator += "\n" + "Adding input: " + uri
+//                + " to the project...\n";
+//        if (toRemove != null) {
+//            messageAccumulator += "\n" + type.toString() + " neuron list input"
+//                    + toRemove + " replaced: \n" + toRemove
+//                    + " as a project input" + "\n";
+//        } else {
+//            messageAccumulator += "\n" + uri
+//                    + " successfully added as a project input" + "\n";
+//        }
     }
     // </editor-fold>
 
@@ -572,40 +610,6 @@ public class WorkbenchManager {
     private void runInternalNLEdit(WorkbenchControlFrame workbench) {
         messageAccumulator += "\n" + "NLEdit launched...";
         ControlFrame.runNLEdit(workbench, this);
-    }
-
-    /**
-     * Launches the neuron list editor (NLEdit) from an external jar file.
-     * NLEdit provides a means to graphically specify Brain Grid simulation
-     * input files. InputAnalyzer files represent lists of neurons with regard
-     * to their position in a neuron array (e.g. position 12 is x: 1, y: 2 on a
-     * 10x10 grid)
-     *
-     * Note: Launching externally means that NLEdit will not communicate with
-     * this frame. Therefore, this method should only be called in the event
-     * that provenance support is turned off for the open project.
-     */
-    private void runExternalNLEdit() {
-        (new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String pathToJar = NLEditPath;
-                    if (new File(pathToJar).exists()) {
-                        msgFromOtherThread = pathToJar;
-                        String cmd = "java -jar " + pathToJar;
-                        Runtime.getRuntime().exec(cmd);
-                        msgFromOtherThread = "";
-                    } else {
-                        msgFromOtherThread = NLEditPath
-                                + " not found";
-                    }
-                } catch (IOException e) {
-                    msgFromOtherThread = e.toString() + "<br>"
-                            + msgFromOtherThread;
-                }
-            }
-        }).run();
     }
 
     /**
@@ -656,14 +660,33 @@ public class WorkbenchManager {
         return projectsDirectory;
     }
 
+    /**
+     * Sets the ScriptRan attribute of the Project to false. Run invalidation
+     * should occur whenever the script specification or simulation
+     * specification changes. This attribute is used by the view to update
+     * workflow state (which buttons are enabled and what text is shown to the
+     * user)
+     */
     public void invalidateScriptRan() {
         projectMgr.setScriptRan(false);
     }
 
+    /**
+     * Removes the script from the project. Invalidation should occur whenever
+     * the script specification or simulation specification changes. This is a
+     * safety measure meant to protect against utilizing an expired script (i.e.
+     * the version doesn't match, but the script gets used anyway)
+     */
     public void invalidateScriptGenerated() {
         projectMgr.removeScript();
     }
 
+    /**
+     * Sets the time when the script completed execution to an error code.
+     * Invalidation should occur whenever script specification or simulation
+     * specification occurs. This is a safety measure for the view in updating
+     * the overview of script output analysis.
+     */
     public void invalidateScriptAnalyzed() {
         projectMgr.setScriptCompletedAt(DateTime.ERROR_TIME);
     }
@@ -744,7 +767,7 @@ public class WorkbenchManager {
         if (projectMgr != null) {
             String version = projectMgr.getNextScriptVersion();
             if (version != null) {
-                name = "run_v" + version;
+                name = ScriptManager.getScriptName(projectMgr.getName(), version);
             }
         }
         return name;

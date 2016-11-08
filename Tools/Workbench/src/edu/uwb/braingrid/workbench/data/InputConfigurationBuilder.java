@@ -1,4 +1,5 @@
 package edu.uwb.braingrid.workbench.data;
+/////////////////CLEANED
 
 import edu.uwb.braingrid.workbench.model.InputConfiguration;
 import java.io.File;
@@ -16,7 +17,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
@@ -111,6 +111,11 @@ class InputConfigurationBuilder {
     private static final String layoutFilesPrbNListFileNameAttributeName
             = "prbNListFileName";
 
+    /**
+     * Responsible for initializing members and constructing this builder
+     *
+     * @throws ParserConfigurationException
+     */
     public InputConfigurationBuilder() throws ParserConfigurationException {
         /* Build New XML Document */
         doc = DocumentBuilderFactory.newInstance().
@@ -119,6 +124,14 @@ class InputConfigurationBuilder {
         doc.appendChild(root);
     }
 
+    /**
+     * Builds the XML from the parameter map.
+     *
+     * Note: This function does not persist the XML to disk.
+     *
+     * @param paramMap - A map of keys and values to use as node names and node
+     * values, respectively
+     */
     public void build(HashMap<String, String> paramMap) {
         if (root != null) {
             Element elem;
@@ -272,13 +285,24 @@ class InputConfigurationBuilder {
         t.transform(new DOMSource(doc), new StreamResult(file));
         return filename;
     }
-    
+
+    /**
+     * Provides a new input configuration based on the content of an input
+     * configuration file.
+     *
+     * @param filename - Name of the file to read
+     * @return Input configuration representing the content of the specified
+     * file
+     * @throws SAXException
+     * @throws IOException
+     * @throws ParserConfigurationException
+     */
     public InputConfiguration load(String filename) throws SAXException, IOException,
             ParserConfigurationException {
         InputConfiguration ic = new InputConfiguration();
-        
+
         File file = new File(filename);
-        
+
         doc = DocumentBuilderFactory.newInstance().
                 newDocumentBuilder().parse(file);
         doc.getDocumentElement().normalize();
@@ -286,10 +310,10 @@ class InputConfigurationBuilder {
         if (nl.getLength() > 0) {
             root = (Element) nl.item(0);
         }
-        
+
         Element elem;
         String str;
-        
+
         // <!-- Parameters for LSM -->
         elem = getElementFromDom(lsmParamsTagName);
         str = elem.getAttribute(lsmFracExcAttributeName);
@@ -357,11 +381,11 @@ class InputConfigurationBuilder {
         str = elem.getAttribute(growthParamsEpsilonAttributeName);
         ic.setValue(InputConfiguration.GROWTH_PARAMS_EPSILON, str);
         str = elem.getAttribute(growthBetaAttributeName);
-        ic.setValue(InputConfiguration.GROWTH_BETA, str);        
+        ic.setValue(InputConfiguration.GROWTH_BETA, str);
         str = elem.getAttribute(growthParamsRhoAttributeName);
-        ic.setValue(InputConfiguration.GROWTH_PARAMS_RHO, str);        
+        ic.setValue(InputConfiguration.GROWTH_PARAMS_RHO, str);
         str = elem.getAttribute(growthParamsTargetRateAttributeName);
-        ic.setValue(InputConfiguration.GROWTH_PARAMS_TARGET_RATE, str);        
+        ic.setValue(InputConfiguration.GROWTH_PARAMS_TARGET_RATE, str);
         str = elem.getAttribute(growthParamsMinRadiusAttributeName);
         ic.setValue(InputConfiguration.GROWTH_PARAMS_MIN_RADIUS, str);
         str = elem.getAttribute(growthParamsStartRadiusAttributeName);
@@ -371,11 +395,11 @@ class InputConfigurationBuilder {
         str = elem.getAttribute(simParamsTSimAttributeName);
         ic.setValue(InputConfiguration.SIM_PARAMS_T_SIM, str);
         str = elem.getAttribute(simParamsNumSimsAttributeName);
-        ic.setValue(InputConfiguration.SIM_PARAMS_NUM_SIMS, str);        
+        ic.setValue(InputConfiguration.SIM_PARAMS_NUM_SIMS, str);
         str = elem.getAttribute(simParamsMaxFiringRateAttributeName);
-        ic.setValue(InputConfiguration.SIM_PARAMS_MAX_FIRING_RATE, str);        
+        ic.setValue(InputConfiguration.SIM_PARAMS_MAX_FIRING_RATE, str);
         str = elem.getAttribute(simParamsMaxSynapsesPerNeuronAttributeName);
-        ic.setValue(InputConfiguration.SIM_PARAMS_MAX_SYNAPSES_PER_NEURON, str);        
+        ic.setValue(InputConfiguration.SIM_PARAMS_MAX_SYNAPSES_PER_NEURON, str);
         // <!-- Simulation State Ouptut File -->
         elem = getElementFromDom(outputParamsTagName);
         str = elem.getAttribute(outputParamsStateOutputFileNameAttributeName);
@@ -395,10 +419,19 @@ class InputConfigurationBuilder {
         ic.setValue(InputConfiguration.LAYOUT_FILES_INH_N_LIST_FILE_NAME, str);
         str = elem.getAttribute(layoutFilesPrbNListFileNameAttributeName);
         ic.setValue(InputConfiguration.LAYOUT_FILES_PROBED_N_LIST_FILE_NAME, str);
-        
+
         return ic;
     }
-    
+
+    /**
+     * Provides an element from the current document object model of this
+     * builder
+     *
+     * @param tagName - The tagName of the element to retrieve from the document
+     * @return The element from the document with the tag name tagName, or null
+     * if the element was not found or if the root element has not yet been
+     * assigned
+     */
     private Element getElementFromDom(String tagName) {
         Element elem = null;
         if (root != null) {

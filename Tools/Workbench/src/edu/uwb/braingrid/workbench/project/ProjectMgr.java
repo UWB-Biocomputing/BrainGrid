@@ -1,7 +1,8 @@
 package edu.uwb.braingrid.workbench.project;
+// CLEANED (but soon to be dead... recommended that the class be maintained 
+//          during testing of its replacement)
 
 import edu.uwb.braingrid.workbench.FileManager;
-import edu.uwb.braingrid.workbench.data.InputAnalyzer.InputType;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
 import edu.uwb.braingrid.workbench.utils.DateTime;
 import java.io.File;
@@ -60,10 +61,11 @@ public class ProjectMgr {
             = "executionMachine";
     private static final String hostnameTagName = "hostname";
     private static final String simFolderTagName = "simulatorFolder";
-    private static final String simulationTypeTagName = "ProcessingType";
+    private static final String simulationTypeTagName = "ProcessingTycpe";
     private static final String simulatorSourceCodeUpdatingTagName
             = "sourceCodeUpdating";
     private static final String SHA1KeyTagName = "SHA1Key";
+    private static final String buildOptionTagName = "BuildOption";
     private static final String scriptVersionTagName = "scriptVersion";
     private static final String scriptVersionVersionTagName = "version";
     private static final String simulatorVersionAnnotationTagName = "version";
@@ -367,134 +369,6 @@ public class ProjectMgr {
 
     // <editor-fold defaultstate="collapsed" desc="Data Manipulation">
     /**
-     * Adds an input file to both the project XML and the input list
-     *
-     * @param uri - The location identifier for the input file
-     * @param type - The type of input file (INHIBITORY, ACTIVE, PROBED)
-     * @return The uri of a replaced input file, or null if no input file of the
-     * same type was present
-     */
-    public String addInputFile(String uri, InputType type) {
-        //boolean success = true;
-        String removedUri = null;
-
-        /* Create Elements */
-        Element inputElement = doc.createElement(inputTagName);
-        Element typeElem = doc.createElement(inputTypeTagName);
-        Element uriElem = doc.createElement(inputUriTagName);
-
-        /* Add Values */
-        // create text nodes to add to created elements
-        if (type == null) {
-            type = InputType.INVALID;
-        }
-        Text typeText = doc.createTextNode(type.toString());
-        Text uriText = doc.createTextNode(uri);
-        // attach the text to respective elements
-        typeElem.appendChild(typeText);
-        uriElem.appendChild(uriText);
-
-        /* Attach Elements */
-        // attach the parameter elements to the input element
-        inputElement.appendChild(typeElem);
-        inputElement.appendChild(uriElem);
-
-        /* Remove Previously Defined InputAnalyzer of this Type */
-        Element inputToRemove = getInput(type);
-        if (inputToRemove != null) {
-            removedUri = getInputFile(inputToRemove);
-            removeInput(getInput(type));
-        }
-
-        /* Add the InputAnalyzer Element */
-        root.appendChild(inputElement);
-        /* Track the Element */
-        inputs.add(inputElement);
-
-        return removedUri;
-    }
-
-    /**
-     * Provides input file locations associated with the project
-     *
-     * @return - The input file locations associated with the project
-     */
-    public String[] getInputFiles() {
-        String[] inputURIs = new String[inputs.size()];
-        String testUri;
-        // Get the text content of all uri elements for each input in the list
-        for (int i = 0, im = inputURIs.length; i < im; i++) {
-            Element inputElem = inputs.get(i);
-            testUri = getInputFile(inputElem);
-            if (testUri != null) {
-                inputURIs[i] = testUri;
-            }
-        }
-        return inputURIs;
-    }
-
-    private String getInputFile(Element input) {
-        String inputUri = null;
-        Element inputElem = input;
-        if (inputElem != null) {
-            NodeList uriElements
-                    = inputElem.getElementsByTagName(inputUriTagName);
-            if (uriElements.getLength() > 0) {
-                Element uriElement = (Element) uriElements.item(0);
-                Text uriText = (Text) uriElement.getFirstChild();
-                inputUri = uriText.getTextContent();
-            }
-        }
-        return inputUri;
-    }
-
-    /**
-     * Searches for an input with the specified type.
-     *
-     * @param type - The input type to search for
-     * @return The first input element with the type specified. If no element
-     * contains a type with the text content matching the InputAnalyzerType,
-     * null is returned.
-     */
-    public Element getInput(InputType type) {
-        // to fill and return... maybe
-        Element foundInputElem = null;
-        // tests
-        Element testInputElem;
-        NodeList testTypeNodes;
-        Element testTypeElem;
-        Text testTypeText;
-        try {
-            // for all inputs
-            for (int i = 0, im = inputs.size(); i < im; i++) {
-                // get the current input
-                testInputElem = inputs.get(i);
-                // get all its child nodes
-                testTypeNodes
-                        = testInputElem.getElementsByTagName(inputTypeTagName);
-                // at least one child node?
-                if (testTypeNodes.getLength() > 0) {
-                    // get the first child node and assume it is an element
-                    testTypeElem = (Element) testTypeNodes.item(0);
-                    // get the text from the first child
-                    testTypeText = (Text) testTypeElem.getFirstChild();
-                    // if there was a first child
-                    if (testTypeText != null) {
-                        // if the text content matches the type in question
-                        if (testTypeText.getTextContent().equals(
-                                type.toString())) {
-                            foundInputElem = testInputElem;
-                        }
-                    }
-                }
-            }
-        } catch (DOMException e) {
-        }
-
-        return foundInputElem;
-    }
-
-    /**
      * Provides the current simulation specification based on the content of the
      * elements in the project XML document
      *
@@ -510,6 +384,7 @@ public class ProjectMgr {
         String folder = getSimulatorFolderLocation();
         String hostname = getSimulatorHostname();
         String sha1 = getSHA1Key();
+        String buildOption = getBuildOption();
         String updating = getSimulatorSourceCodeUpdatingType();
         String version = getSimulatorVersionAnnotation();
         String executable = null;
@@ -522,6 +397,7 @@ public class ProjectMgr {
         simSpec.setSimulatorFolder(folder);
         simSpec.setHostAddr(hostname);
         simSpec.setSHA1CheckoutKey(sha1);
+        simSpec.setBuildOption(buildOption);
         simSpec.setSourceCodeUpdating(updating);
         simSpec.setVersionAnnotation(version);
         simSpec.setSimExecutable(executable);
@@ -596,6 +472,10 @@ public class ProjectMgr {
 
     public String getSHA1Key() {
         return getFirstChildTextContent(simulator, SHA1KeyTagName);
+    }
+
+    public String getBuildOption() {
+        return getFirstChildTextContent(simulator, buildOptionTagName);
     }
 
     /**
@@ -819,6 +699,22 @@ public class ProjectMgr {
         return success && simulator != null;
     }
 
+    public boolean setBuildOption(String buildOption) {
+        boolean success = true;
+        if (simulator != null) {
+            if (!setFirstChildTextContent(simulator, buildOptionTagName,
+                    buildOption)) {
+                if (!createChildWithTextContent(simulator, buildOptionTagName,
+                        buildOption)) {
+                    success = false;
+                }
+            } else {
+                success = false;
+            }
+        }
+        return success && simulator != null;
+    }
+
     private boolean createChildWithTextContent(Element parent,
             String childTagName, String textContent) {
         boolean success = true;
@@ -915,6 +811,9 @@ public class ProjectMgr {
         }
     }
 
+    /**
+     * Removes the currently specified script from the project
+     */
     public void removeScript() {
         if (script != null) {
             script.getParentNode().removeChild(script);
@@ -950,7 +849,7 @@ public class ProjectMgr {
     public boolean addSimulator(String simulatorExecutionLocation,
             String hostname, String simFolder, String simulationType,
             String codeLocation, String versionAnnotation,
-            String sourceCodeUpdating, String SHA1Key) {
+            String sourceCodeUpdating, String SHA1Key, String buildOption) {
         boolean success = true;
         // remove previously defined simulator
         removeSimulator();
@@ -970,6 +869,7 @@ public class ProjectMgr {
             Element sourceCodeUpdatingElem
                     = doc.createElement(simulatorSourceCodeUpdatingTagName);
             Element SHA1KeyElem = doc.createElement(SHA1KeyTagName);
+            Element buildOptionElem = doc.createElement(buildOptionTagName);
 
             /* Add Values */
             // create text nodes to add to created elements
@@ -984,6 +884,7 @@ public class ProjectMgr {
             Text sourceCodeUpdatingText
                     = doc.createTextNode(sourceCodeUpdating);
             Text sha1keyText = doc.createTextNode(SHA1Key);
+            Text buildOptionText = doc.createTextNode(buildOption);
 
             // attach the text to respective elements
             simExecLocation.appendChild(simulatorExecutionLocationText);
@@ -994,6 +895,7 @@ public class ProjectMgr {
             simulationTypeElem.appendChild(simulationTypeText);
             sourceCodeUpdatingElem.appendChild(sourceCodeUpdatingText);
             SHA1KeyElem.appendChild(sha1keyText);
+            buildOptionElem.appendChild(buildOptionText);
 
             /* Attach Elements */
             // attach the parameter elements to the input element
@@ -1005,6 +907,7 @@ public class ProjectMgr {
             simulator.appendChild(simulationTypeElem);
             simulator.appendChild(sourceCodeUpdatingElem);
             simulator.appendChild(SHA1KeyElem);
+            simulator.appendChild(buildOptionElem);
             // attach the input element to the project element
             root.appendChild(simulator);
         } catch (DOMException e) {
@@ -1014,6 +917,14 @@ public class ProjectMgr {
         return success;
     }
 
+    /**
+     * Replaces the current simulation configuration file if one exists or adds
+     * the simulation configuration file to the project.
+     *
+     * @param filename The full path to the newly added configuration file
+     * @return True if the simulation configuration file was successfully added
+     * or replaced, otherwise false
+     */
     public boolean addSimConfigFile(String filename) {
         boolean success = true;
         try {
@@ -1075,15 +986,34 @@ public class ProjectMgr {
         return success;
     }
 
+    /**
+     * Provides the full path of the first simulation configuration file found.
+     *
+     * @return The full path of the first simulation configuration file found,
+     * or null if no file was specified in the project.
+     */
     public String getSimConfigFilename() {
         return getFirstChildTextContent(root,
                 simConfigFileTagName);
     }
 
+    /**
+     * Indicates whether the current script (matching the current script version
+     * number in the project) has been executed yet.
+     *
+     * @return True if the current version of the script has begun execution,
+     * otherwise false.
+     */
     public boolean scriptGenerated() {
         return script != null;
     }
 
+    /**
+     * Indicates wither the output of the current script version has been
+     * analyzed yet
+     *
+     * @return True if the script output has been analyzed, otherwise false
+     */
     public boolean scriptOutputAnalyzed() {
         String analyzedAttributeValue;
         boolean analyzed = false;
@@ -1095,6 +1025,13 @@ public class ProjectMgr {
         return analyzed;
     }
 
+    /**
+     * Sets a string representation of whether or not the output of the current
+     * script version has been analyzed
+     *
+     * @param analyzed - indication of whether or not the analysis has been
+     * completed
+     */
     public void setScriptAnalyzed(boolean analyzed) {
         if (script != null) {
             script.setAttribute(scriptAnalyzedAttributeName,
@@ -1110,6 +1047,16 @@ public class ProjectMgr {
         }
     }
 
+    /**
+     * Provides the full path to the raw output of the simulation. This is
+     * redirected standard output from the simulator executable. The filename
+     * provided is of the imported file (within the project directory in the
+     * workbench managed directories)
+     *
+     * @return The filename of the raw simulation output imported into the
+     * workbench. To be clear, this is the filename of the target of the import,
+     * not the source of the import.
+     */
     public String getSimStateOutputFile() {
         String filename = null;
         if (simulationConfigurationFile != null) {

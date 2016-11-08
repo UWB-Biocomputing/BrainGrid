@@ -1,11 +1,17 @@
 package edu.uwb.braingrid.workbench.ui;
 
+//import edu.uwb.braingrid.workbench.FileManager;
 import edu.uwb.braingrid.workbench.WorkbenchManager;
 import edu.uwb.braingrid.workbench.utils.DateTime;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+//import java.awt.event.KeyEvent;
 import java.util.Date;
+//import javax.swing.InputMap;
 import javax.swing.JFileChooser;
+//import javax.swing.KeyStroke;
+//import javax.swing.UIManager;
+//import javax.swing.text.DefaultEditorKit;
 
 /**
  * The workbench control frame is responsible for specifying BrainGrid project
@@ -571,6 +577,8 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
 
     private void initCustomMembers() {
         workbenchMgr = new WorkbenchManager();
+        //setMacCopyPaste();
+
         transferProgressBar.setVisible(false);
     }
     // </editor-fold>
@@ -693,6 +701,18 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
         analyzeOutputButton.setEnabled(workbenchMgr.scriptRan() && !workbenchMgr.scriptAnalyzed());
         viewProvenanceMenuItem.setEnabled(workbenchMgr.isProvEnabled());
     }
+
+//    private void setMacCopyPaste() {
+//        if (FileManager.getFileManager().isMacSystem()) {
+//            InputMap im = (InputMap) UIManager.get("TextField.focusInputMap");
+//            im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C,
+//                    KeyEvent.META_DOWN_MASK), DefaultEditorKit.copyAction);
+//            im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V,
+//                    KeyEvent.META_DOWN_MASK), DefaultEditorKit.pasteAction);
+//            im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X,
+//                    KeyEvent.META_DOWN_MASK), DefaultEditorKit.cutAction);
+//        }
+//    }
     //</editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="User Communication">

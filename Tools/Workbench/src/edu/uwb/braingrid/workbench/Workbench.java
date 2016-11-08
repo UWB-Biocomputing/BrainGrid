@@ -1,9 +1,10 @@
 package edu.uwb.braingrid.workbench;
+/////////////////CLEANED
 
 import edu.uwb.braingrid.workbench.ui.WorkbenchControlFrame;
 
 /**
- * <h2>Project Manager for the Brain Grid Toolbox.<h2>
+ * <h2>Project Manager for the Brain Grid Toolbox.</h2>
  *
  * <p>
  * The workbench is usable from a command line interface through runCLI or
@@ -43,19 +44,14 @@ public class Workbench {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(WorkbenchControlFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(WorkbenchControlFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(WorkbenchControlFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(WorkbenchControlFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new WorkbenchControlFrame().setVisible(true);
             }

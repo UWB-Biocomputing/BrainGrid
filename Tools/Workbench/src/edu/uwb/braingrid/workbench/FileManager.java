@@ -1,5 +1,5 @@
 package edu.uwb.braingrid.workbench;
-
+/////////////////CLEANED
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,6 +44,7 @@ public final class FileManager {
         isWindowsSystem = osName.startsWith("windows");
         folderDelimiter = isWindowsSystem ? "\\" : "/";
     }
+
     /**
      * Utility function that returns the last name of a specified path string
      * containing parent folders
@@ -69,7 +70,32 @@ public final class FileManager {
         }
         return filename;
     }
+    
+    public static String getLastNamePrefix(String longFilename) {
+        String lastNamePrefix = null;
+        if (longFilename != null) {
+            String filename = getSimpleFilename(longFilename);
+            int lastIndexOfDot = filename.lastIndexOf('.');
+            lastNamePrefix = filename.substring(0, lastIndexOfDot);
+        }
+        return lastNamePrefix;
+    }
 
+    /**
+     * Copies a whole directory to a new location preserving the file dates.
+     * This method copies the specified directory and all its child directories
+     * and files to the specified destination. The destination is the new
+     * location and name of the directory.
+     *
+     * The destination directory is created if it does not exist. If the
+     * destination directory did exist, then this method merges the source with
+     * the destination, with the source taking precedence.
+     *
+     * @param src - location of the source directory
+     * @param dst - location of the target directory to hold copies of all files
+     * and subdirectories from the source directory
+     * @throws IOException
+     */
     static void copyFolder(String src, String dst) throws IOException {
         FileUtils.copyDirectory(new File(src), new File(dst));
     }
@@ -176,10 +202,46 @@ public final class FileManager {
         return isWindowsSystem;
     }
 
+    /**
+     * Provides the canonical location of a simulation configuration file with
+     * the specified filename.
+     *
+     * @param projectName - The name of the project containing the simulation
+     * configuration file (project name is used as the main directory name for
+     * the project. e.g. if the BrainGrid working directory is folder/BrainGrid
+     * and the project name is myProject, then folder/BrainGrid/myProject/
+     * contains the simulation configuration directory, and subsequently, the
+     * simulation configuration file)
+     * @param filename - The simple name of the configuration file (e.g.
+     * mySimConfigFile.xml, not folder/mySimConfigFile.xml)
+     * @param mkdirs - Indicates whether or not to build the parent directories
+     * in the case that they do not yet exist
+     * @return The canonical location of the specified simulation configuration
+     * file.
+     * @throws IOException
+     */
     public String getSimConfigFilePath(String projectName, String filename, boolean mkdirs) throws IOException {
         return getSimConfigDirectoryPath(projectName, mkdirs) + filename;
     }
 
+    /**
+     * Provides the canonical location of a neuron list configuration file with
+     * the specified filename.
+     *
+     * @param projectName - The name of the project containing the neuron list
+     * file (project name is used as the main directory name for the project.
+     * e.g. if the BrainGrid working directory is folder/BrainGrid and the
+     * project name is myProject, then folder/BrainGrid/myProject/ contains the
+     * simulation configuration directory, and subsequently, the simulation
+     * configuration file)
+     * @param filename - The simple name of the configuration file (e.g.
+     * myActiveNeuronList.xml, not folder/myActiveNeuronList.xml)
+     * @param mkdirs - Indicates whether or not to build the parent directories
+     * in the case that they do not yet exist
+     * @return The canonical location of the specified simulation configuration
+     * file.
+     * @throws IOException
+     */
     public String getNeuronListFilePath(String projectName, String filename, boolean mkdirs) throws IOException {
         String folder = getSimConfigDirectoryPath(projectName, mkdirs)
                 + neuronListFolderName + folderDelimiter;
@@ -189,6 +251,22 @@ public final class FileManager {
         return folder + filename;
     }
 
+    /**
+     * Provides the canonical location of the parent directory for all
+     * simulation configuration related files.
+     *
+     * @param projectName - The name of the project. The project name is used as
+     * the parent directory to the sim config directory (project name is used as
+     * the main directory name for the project. e.g. if the BrainGrid working
+     * directory is folder/BrainGrid and the project name is myProject, then
+     * folder/BrainGrid/myProject/ contains the simulation configuration
+     * directory, and subsequently, the simulation configuration file)
+     * @param mkdirs - Indicates whether or not to build the parent directories
+     * in the case that they do not yet exist.
+     * @return The canonical location of the parent directory for all simulation
+     * configuration related files.
+     * @throws IOException
+     */
     public String getSimConfigDirectoryPath(String projectName, boolean mkdirs) throws IOException {
         String folder = getProjectDirectory(projectName, mkdirs)
                 + configFilesFolderName + folderDelimiter;
@@ -198,6 +276,19 @@ public final class FileManager {
         return folder;
     }
 
+    /**
+     * Provides the canonical location of the project directory with the
+     * specified name.
+     *
+     * @param projectName - The name of the project. This is used as the main
+     * folder within the BrainGrid folder for all files related to a given
+     * project.
+     * @param mkdirs - Indicates whether or not to build the parent directories
+     * in the case that they do not yet exist.
+     * @return The canonical location for the parent directory of all files and
+     * directories related to a given project.
+     * @throws IOException
+     */
     public String getProjectDirectory(String projectName, boolean mkdirs) throws IOException {
         String directory = getCanonicalProjectsDirectory() + folderDelimiter
                 + projectName + folderDelimiter;
@@ -207,7 +298,26 @@ public final class FileManager {
         return directory;
     }
 
+    /**
+     * Provides the canonical location of the home directory of the current
+     * user.
+     *
+     * @return The canonical location of the home directory of the current user.
+     */
     public String getUserDir() {
         return System.getProperty("user.home") + folderDelimiter;
+    }
+
+    /**
+     * Utility function provides for the purpose of manipulating file locations
+     * to a Posix-valid form.
+     *
+     * @param stmt - A file name or other statement that may contain characters
+     * that could be misinterpreted by Bash as parts of a filename rather than
+     * individual, but concatenated, parent directories.
+     * @return
+     */
+    public String toBashValidNotation(String stmt) {
+        return stmt.replaceAll("\\\\", "/");
     }
 }

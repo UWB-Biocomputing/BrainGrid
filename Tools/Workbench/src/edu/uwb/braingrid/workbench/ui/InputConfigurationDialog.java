@@ -947,10 +947,16 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction"> 
+    /**
+     * 
+     * @param projectName
+     * @param modal
+     * @param configFilename 
+     */
     public InputConfigurationDialog(String projectName, boolean modal,
             String configFilename) {
-        setModal(modal);
         initComponents();
+        setModal(modal);
         this.projectName = projectName;
         try {
             icm = new InputConfigurationManager(configFilename);
@@ -966,8 +972,10 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
             center();
             setVisible(true);
         }
-    }
-
+    }   
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Getters/Setters">
     public boolean getSuccess() {
         return okClicked;
     }
@@ -1038,7 +1046,9 @@ public class InputConfigurationDialog extends javax.swing.JDialog {
         // autofill config filename
         autoFillConfigFilename();
     }
-
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="UI Manipulation">
     private void center() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension frameSize = getSize();

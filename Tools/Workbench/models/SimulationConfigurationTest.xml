@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SimParams>
+  <SimConfig name="Simulator Configuration">
+    <TEST name="TEST">100</TEST>
+  </SimConfig>
+  <NeuronParams name="Neuron Configuration">
+    <starter_vthresh name="Threshold voltage">
+      <max name="max">13.655e-3</max>
+      <min name="min">13.565e-3</min>
+    </starter_vthresh>
+    <starter_vreset name="Voltage to reset Vm to after a spike">
+      <max name="max">13.0e-3</max>"
+      <min name="min">13.0e-3</min>
+    </starter_vreset>
+    <Iinject name ="Current to be injected into the LIF neuron">
+      <max name="max">13.5e-09</max>
+      <min name="min">13.5e-09</min>
+    </Iinject>
+    <Inoise name="Standard deviation of noise">
+      <max name="max">1.5e-09</max>
+      <min name="min">1.0e-09</min>
+    </Inoise>
+    <Vthresh name="Threshold voltage">
+      <max name="max">15.0e-03</max>
+      <min name="min">15.0e-03</min>
+    </Vthresh>
+    <Vresting name="Resting membrane voltage">
+      <max name="max">0.0</max>
+      <min name="min">0.0</min>
+    </Vresting>
+    <Vreset name="Voltage to reset to Vm to after a spike">
+      <max name="max">13.5e-03</max>
+      <min name="min">13.5e-03</min>
+    </Vreset>
+    <Vinit name="Initial condition for Vm at time t = 0">
+      <max name="max">13.0e-03</max>
+      <min name="min">13.0e-03</min>
+    </Vinit>
+  </NeuronParams>
+  <StimulusInput name="Stimulus Input">
+  </StimulusInput>
+  <ConnectParams name="Connection">
+    <GrowthParams name="Growth Parameters">
+      <beta name="Beta">0.10</beta>
+      <epsilon name="Epsilon">0.60</epsilon>
+      <minRadius name="Minimum radius">0.1</minRadius>
+      <rho name="Rho">0.0001</rho>
+      <startRadius name="Starting radius">0.3</startRadius>
+      <targetRate name="Target rate">1.9</targetRate>
+    </GrowthParams>
+  </ConnectParams>
+  <LayoutFiles name="Layout">
+    <PoolSize name ="Size of neurons grid">
+      <x name="x">10</x>
+      <y name="y">10</y>
+      <z name="z">1</z>
+    </PoolSize>
+    <LsmParams frac_EXC="0.98" starter_neurons="0.10"/>
+  </LayoutFiles>
+</SimParams>
