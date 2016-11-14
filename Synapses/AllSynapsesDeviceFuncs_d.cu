@@ -410,7 +410,7 @@ __device__ int synSign( synapseType t )
  *  @param allSynapsesDevice    Pointer to the AllSpikingSynapsesDeviceProperties structures 
  *                              on device memory.
  *  @param neuron_index         Index of the source neuron.
- *  @param synapse_index        Index of the Synapse to create.
+ *  @param synapse_offset       Offset (into neuron_index's) of the Synapse to create.
  *  @param source_x             X location of source.
  *  @param source_y             Y location of source.
  *  @param dest_x               X location of destination.
@@ -419,11 +419,11 @@ __device__ int synSign( synapseType t )
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-__device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+__device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_offset, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
     BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
-    BGSIZE iSyn = max_synapses * neuron_index + synapse_index;
+    BGSIZE iSyn = max_synapses * neuron_index + synapse_offset;
 
     allSynapsesDevice->in_use[iSyn] = true;
     allSynapsesDevice->summationPoint[iSyn] = sum_point;
@@ -476,7 +476,7 @@ __device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSyna
  *  @param allSynapsesDevice    Pointer to the AllDSSynapsesDeviceProperties structures 
  *                              on device memory.
  *  @param neuron_index         Index of the source neuron.
- *  @param synapse_index        Index of the Synapse to create.
+ *  @param synapse_offset       Offset (into neuron_index's) of the Synapse to create.
  *  @param source_x             X location of source.
  *  @param source_y             Y location of source.
  *  @param dest_x               X location of destination.
@@ -485,11 +485,11 @@ __device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSyna
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-__device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+__device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_offset, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
     BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
-    BGSIZE iSyn = max_synapses * neuron_index + synapse_index;
+    BGSIZE iSyn = max_synapses * neuron_index + synapse_offset;
 
     allSynapsesDevice->in_use[iSyn] = true;
     allSynapsesDevice->summationPoint[iSyn] = sum_point;
@@ -565,7 +565,7 @@ __device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice
  *  @param allSynapsesDevice    Pointer to the AllSTDPSynapsesDeviceProperties structures 
  *                              on device memory.
  *  @param neuron_index         Index of the source neuron.
- *  @param synapse_index        Index of the Synapse to create.
+ *  @param synapse_offset       Offset (into neuron_index's) of the Synapse to create.
  *  @param source_x             X location of source.
  *  @param source_y             Y location of source.
  *  @param dest_x               X location of destination.
@@ -574,11 +574,11 @@ __device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-__device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+__device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_offset, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
     BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
-    BGSIZE iSyn = max_synapses * neuron_index + synapse_index;
+    BGSIZE iSyn = max_synapses * neuron_index + synapse_offset;
 
     allSynapsesDevice->in_use[iSyn] = true;
     allSynapsesDevice->summationPoint[iSyn] = sum_point;
@@ -649,7 +649,7 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
  *  @param allSynapsesDevice    Pointer to the AllDynamicSTDPSynapsesDeviceProperties structures 
  *                              on device memory.
  *  @param neuron_index         Index of the source neuron.
- *  @param synapse_index        Index of the Synapse to create.
+ *  @param synapse_offset       Offset (into neuron_index's) of the Synapse to create.
  *  @param source_x             X location of source.
  *  @param source_y             Y location of source.
  *  @param dest_x               X location of destination.
@@ -658,11 +658,11 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-__device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+__device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_offset, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
     BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
-    BGSIZE iSyn = max_synapses * neuron_index + synapse_index;
+    BGSIZE iSyn = max_synapses * neuron_index + synapse_offset;
 
     allSynapsesDevice->in_use[iSyn] = true;
     allSynapsesDevice->summationPoint[iSyn] = sum_point;
@@ -770,40 +770,40 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
  */
 __device__ void addSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, synapseType type, const int src_neuron, const int dest_neuron, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons)
 {
-    if (allSynapsesDevice->synapse_counts[src_neuron] >= allSynapsesDevice->maxSynapsesPerNeuron) {
+    if (allSynapsesDevice->synapse_counts[dest_neuron] >= allSynapsesDevice->maxSynapsesPerNeuron) {
         return; // TODO: ERROR!
     }
 
     // add it to the list
     BGSIZE synapse_index;
     BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
-    BGSIZE iSync = max_synapses * src_neuron;
+    BGSIZE synapseBegin = max_synapses * dest_neuron;
     for (synapse_index = 0; synapse_index < max_synapses; synapse_index++) {
-        if (!allSynapsesDevice->in_use[iSync + synapse_index]) {
+        if (!allSynapsesDevice->in_use[synapseBegin + synapse_index]) {
             break;
         }
     }
 
-    allSynapsesDevice->synapse_counts[src_neuron]++;
+    allSynapsesDevice->synapse_counts[dest_neuron]++;
 
     // create a synapse
     switch (classSynapses_d) {
     case classAllSpikingSynapses:
-        createSpikingSynapse(allSynapsesDevice, src_neuron, synapse_index, source_index, dest_index, sum_point, deltaT, type );
+        createSpikingSynapse(allSynapsesDevice, dest_neuron, synapse_index, source_index, dest_index, sum_point, deltaT, type );
         break;
     case classAllDSSynapses:
-        createDSSynapse(static_cast<AllDSSynapsesDeviceProperties *>(allSynapsesDevice), src_neuron, synapse_index, source_index, dest_index, sum_point, deltaT, type );
+        createDSSynapse(static_cast<AllDSSynapsesDeviceProperties *>(allSynapsesDevice), dest_neuron, synapse_index, source_index, dest_index, sum_point, deltaT, type );
         break;
     case classAllSTDPSynapses:
-        createSTDPSynapse(static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice), src_neuron, synapse_index, source_index, dest_index, sum_point, deltaT, type );
+        createSTDPSynapse(static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice), dest_neuron, synapse_index, source_index, dest_index, sum_point, deltaT, type );
         break;
     case classAllDynamicSTDPSynapses:
-        createDynamicSTDPSynapse(static_cast<AllDynamicSTDPSynapsesDeviceProperties *>(allSynapsesDevice), src_neuron, synapse_index, source_index, dest_index, sum_point, deltaT, type );
+        createDynamicSTDPSynapse(static_cast<AllDynamicSTDPSynapsesDeviceProperties *>(allSynapsesDevice), dest_neuron, synapse_index, source_index, dest_index, sum_point, deltaT, type );
         break;
     default:
         assert(false);
     }
-    allSynapsesDevice->W[iSync + synapse_index] = W_d[src_neuron * num_neurons + dest_neuron] * synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+    allSynapsesDevice->W[synapseBegin + synapse_index] = W_d[src_neuron * num_neurons + dest_neuron] * synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 }
 
 /*
@@ -812,12 +812,12 @@ __device__ void addSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapse
  * @param[in] allSynapsesDevice      Pointer to the AllSpikingSynapsesDeviceProperties structures 
  *                                   on device memory.
  * @param neuron_index               Index of a neuron.
- * @param synapse_index              Index of a synapse.
+ * @param synapse_offset             Offset into neuron_index's synapses.
  * @param[in] maxSynapses            Maximum number of synapses per neuron.
  */
-__device__ void eraseSpikingSynapse( AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_index, int maxSynapses )
+__device__ void eraseSpikingSynapse( AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_offset, int maxSynapses )
 {
-    BGSIZE iSync = maxSynapses * neuron_index + synapse_index;
+    BGSIZE iSync = maxSynapses * neuron_index + synapse_offset;
     allSynapsesDevice->synapse_counts[neuron_index]--;
     allSynapsesDevice->in_use[iSync] = false;
     allSynapsesDevice->summationPoint[iSync] = NULL;
@@ -873,22 +873,22 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BG
 
     // Scale and add sign to the areas
     // visit each neuron 'a'
-    int src_neuron = idx;
+    int dest_neuron = idx;
 
     // and each destination neuron 'b'
-    for (int dest_neuron = 0; dest_neuron < num_neurons; dest_neuron++) {
+    for (int src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
         // visit each synapse at (xa,ya)
         bool connected = false;
         synapseType type = synType(neuron_type_map_d, src_neuron, dest_neuron);
 
         // for each existing synapse
-        BGSIZE existing_synapses = allSynapsesDevice->synapse_counts[src_neuron];
+        BGSIZE existing_synapses = allSynapsesDevice->synapse_counts[dest_neuron];
         int existing_synapses_checked = 0;
         for (BGSIZE synapse_index = 0; (existing_synapses_checked < existing_synapses) && !connected; synapse_index++) {
-            BGSIZE iSyn = maxSynapses * src_neuron + synapse_index;
+            BGSIZE iSyn = maxSynapses * dest_neuron + synapse_index;
             if (allSynapsesDevice->in_use[iSyn] == true) {
                 // if there is a synapse between a and b
-                if (allSynapsesDevice->destNeuronIndex[iSyn] == dest_neuron) {
+                if (allSynapsesDevice->sourceNeuronIndex[iSyn] == src_neuron) {
                     connected = true;
                     adjusted++;
 
@@ -897,7 +897,7 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BG
                     // zero.
                     if (W_d[src_neuron * num_neurons + dest_neuron] < 0) {
                         removed++;
-                        eraseSpikingSynapse(allSynapsesDevice, src_neuron, synapse_index, maxSynapses);
+                        eraseSpikingSynapse(allSynapsesDevice, dest_neuron, synapse_index, maxSynapses);
                     } else {
                         // adjust
                         // g_synapseStrengthAdjustmentConstant is 1.0e-8;

@@ -112,30 +112,34 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
             assert( spikeCount[idx] < max_spikes );
 
             // notify outgoing synapses
-            BGSIZE synapse_counts = spSynapses.synapse_counts[idx];
-            BGSIZE synapse_notified = 0;
-            for (BGSIZE z = 0; synapse_notified < synapse_counts; z++) {
-                BGSIZE iSyn = sim_info->maxSynapsesPerNeuron * idx + z;
-                if (spSynapses.in_use[iSyn] == true) {
-                    spSynapses.preSpikeHit(iSyn);
-                    synapse_notified++;
+            BGSIZE synapse_counts;
+
+            if(synapseIndexMap != NULL){
+                synapse_counts = synapseIndexMap->synapseCount[idx];
+                if (synapse_counts != 0) {
+                    int beginIndex = synapseIndexMap->outgoingSynapse_begin[idx];
+                    BGSIZE* forwardMap_begin = &( synapseIndexMap->forwardIndex[beginIndex] );
+                    BGSIZE iSyn;
+                    for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
+                        iSyn = forwardMap_begin[i];
+                        spSynapses.preSpikeHit(iSyn);
+                    }
                 }
             }
 
             // notify incomming synapses
-            if (spSynapses.allowBackPropagation() && synapseIndexMap != NULL) {
-                synapse_counts = synapseIndexMap->synapseCount[idx];
-                if (synapse_counts != 0) {
-                        BGSIZE beginIndex = synapseIndexMap->incomingSynapse_begin[idx];
-                        BGSIZE* inverseMap_begin = &( synapseIndexMap->inverseIndex[beginIndex] );
-                        BGSIZE iSyn;
-                        for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
-                            iSyn = inverseMap_begin[i];
-                            spSynapses.postSpikeHit(iSyn);
-                            synapse_notified++;
-                        }
-                }
-            }
+            synapse_counts = spSynapses.synapse_counts[idx];
+            BGSIZE synapse_notified = 0;
+
+            if (spSynapses.allowBackPropagation()) {
+                for (int z = 0; synapse_notified < synapse_counts; z++) {
+                     BGSIZE iSyn = sim_info->maxSynapsesPerNeuron * idx + z;
+                     if (spSynapses.in_use[iSyn] == true) {
+                         spSynapses.postSpikeHit(iSyn);
+                         synapse_notified++;
+                     }
+                 }
+             }
 
             hasFired[idx] = false;
         }

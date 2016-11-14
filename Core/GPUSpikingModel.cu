@@ -246,7 +246,7 @@ void GPUSpikingModel::calcSummationMap(const SimulationInfo *sim_info)
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( sim_info->totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
 
-    calcSummationMapDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, synapseIndexMapDevice, m_allSynapsesDevice );
+    calcSummationMapDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, m_allNeuronsDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron );
 }
 
 /* 
@@ -294,9 +294,9 @@ void GPUSpikingModel::allocSynapseImap( int count )
 {
 	SynapseIndexMap synapseIndexMap;
 
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.incomingSynapse_begin, count * sizeof( int ) ) );
+	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.outgoingSynapse_begin, count * sizeof( int ) ) );
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.synapseCount, count * sizeof( int ) ) );
-	HANDLE_ERROR( cudaMemset(synapseIndexMap.incomingSynapse_begin, 0, count * sizeof( int ) ) );
+	HANDLE_ERROR( cudaMemset(synapseIndexMap.outgoingSynapse_begin, 0, count * sizeof( int ) ) );
 	HANDLE_ERROR( cudaMemset(synapseIndexMap.synapseCount, 0, count * sizeof( int ) ) );
 
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMapDevice, sizeof( SynapseIndexMap ) ) );
@@ -311,9 +311,9 @@ void GPUSpikingModel::deleteSynapseImap(  )
 	SynapseIndexMap synapseIndexMap;
 
 	HANDLE_ERROR( cudaMemcpy ( &synapseIndexMap, synapseIndexMapDevice, sizeof( SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaFree( synapseIndexMap.incomingSynapse_begin ) );
+	HANDLE_ERROR( cudaFree( synapseIndexMap.outgoingSynapse_begin ) );
 	HANDLE_ERROR( cudaFree( synapseIndexMap.synapseCount ) );
-	HANDLE_ERROR( cudaFree( synapseIndexMap.inverseIndex ) );
+	HANDLE_ERROR( cudaFree( synapseIndexMap.forwardIndex ) );
 	HANDLE_ERROR( cudaFree( synapseIndexMap.activeSynapseIndex ) );
 	HANDLE_ERROR( cudaFree( synapseIndexMapDevice ) );
 }
@@ -334,14 +334,14 @@ void GPUSpikingModel::copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIn
 	SynapseIndexMap synapseIndexMap;
 
 	HANDLE_ERROR( cudaMemcpy ( &synapseIndexMap, synapseIndexMapDevice, sizeof( SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.incomingSynapse_begin, synapseIndexMapHost.incomingSynapse_begin, neuron_count * sizeof( int ), cudaMemcpyHostToDevice ) );
+	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.outgoingSynapse_begin, synapseIndexMapHost.outgoingSynapse_begin, neuron_count * sizeof( int ), cudaMemcpyHostToDevice ) );
 	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.synapseCount, synapseIndexMapHost.synapseCount, neuron_count * sizeof( int ), cudaMemcpyHostToDevice ) );
 	// the number of synapses may change, so we reallocate the memory
-	if (synapseIndexMap.inverseIndex != NULL) {
-		HANDLE_ERROR( cudaFree( synapseIndexMap.inverseIndex ) );
+	if (synapseIndexMap.forwardIndex != NULL) {
+		HANDLE_ERROR( cudaFree( synapseIndexMap.forwardIndex ) );
 	}
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.inverseIndex, total_synapse_counts * sizeof( BGSIZE ) ) );
-	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.inverseIndex, synapseIndexMapHost.inverseIndex, total_synapse_counts * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
+	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.forwardIndex, total_synapse_counts * sizeof( BGSIZE ) ) );
+	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.forwardIndex, synapseIndexMapHost.forwardIndex, total_synapse_counts * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
 
 	if (synapseIndexMap.activeSynapseIndex != NULL) {
 		HANDLE_ERROR( cudaFree( synapseIndexMap.activeSynapseIndex ) );
@@ -371,12 +371,15 @@ __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeuron
     if ( idx >= num_neurons )
         return;
 
-    int src_neuron = idx;
+    int dest_neuron = idx;
     int n_inUse = 0;
-    for (int syn_index = 0; n_inUse < allSynapsesDevice->synapse_counts[src_neuron]; syn_index++) {
-        if (allSynapsesDevice->in_use[max_synapses * src_neuron + syn_index] == true) {
-            int dest_neuron = allSynapsesDevice->destNeuronIndex[max_synapses * src_neuron + syn_index];
-            allSynapsesDevice->summationPoint[max_synapses * src_neuron + syn_index] = &( allNeuronsDevice->summation_map[dest_neuron] );
+
+    // set the summationPoint for every synapse this neuron has to the destination neuron. Since each
+    // neuron stores the synapses that input into it, this neuron is the destination neuron.
+    for (int syn_index = 0; n_inUse < allSynapsesDevice->synapse_counts[dest_neuron]; syn_index++) {
+        if (allSynapsesDevice->in_use[max_synapses * dest_neuron + syn_index] == true) {
+            int dest_neuron = allSynapsesDevice->destNeuronIndex[max_synapses * dest_neuron + syn_index];
+            allSynapsesDevice->summationPoint[max_synapses * dest_neuron + syn_index] = &( allNeuronsDevice->summation_map[dest_neuron] );
             n_inUse++;
         }
     }
@@ -384,26 +387,23 @@ __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeuron
 
 /* 
  * @param[in] totalNeurons       Number of neurons.
- * @param[in] synapseIndexMap    Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
+ * @param[in] allNeuronsDevice   Pointer to Neuron structures in device memory.
  * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
+ * @param[in] max_synapses       Maximum number of synapses per neuron.
  */
-__global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
-        int idx = blockIdx.x * blockDim.x + threadIdx.x;
-        if ( idx >= totalNeurons )
+__global__ void calcSummationMapDevice( int totalNeurons, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int max_synapses ) {
+        int idx = blockIdx.x * blockDim.x + threadIdx.x; // determine which neuron this thread is
+        if ( idx >= totalNeurons ) // don't do anything if this thread would be mapped to a non-existant neuron
                 return;
 
-        BGSIZE iCount = synapseIndexMapDevice->synapseCount[idx];
-        if (iCount != 0) {
-                int beginIndex = synapseIndexMapDevice->incomingSynapse_begin[idx];
-                BGSIZE* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] );
-                BGFLOAT sum = 0.0;
-                BGSIZE syn_i = inverseMap_begin[0];
-                BGFLOAT &summationPoint = *( allSynapsesDevice->summationPoint[syn_i] );
-                for ( BGSIZE i = 0; i < iCount; i++ ) {
-                        syn_i = inverseMap_begin[i];
-                        sum += allSynapsesDevice->psr[syn_i];
-                }
-                summationPoint = sum;
+        BGFLOAT sum = 0.0;
+        BGSIZE iSyn = max_synapses * idx; //get the index of this neuron's first synapse in the array of all synapses
+        for (BGSIZE i = 0; i < max_synapses; i++) {
+           if (allSynapsesDevice->in_use[iSyn + i] == true) {
+              sum += allSynapsesDevice->psr[iSyn + i];
+           }
         }
+        
+        allNeuronsDevice->summation_map[idx] = sum;
 }
 

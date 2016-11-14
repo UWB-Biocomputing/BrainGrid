@@ -217,7 +217,7 @@ void AllSynapses::writeSynapse(ostream& output, const BGSIZE iSyn) const
 /*
  *  Create a synapse index map.
  *
- *  @param  synapseIndexMap   Reference to thw pointer to SynapseIndexMap structure.
+ *  @param  synapseIndexMap   Reference to the pointer to SynapseIndexMap structure.
  *  @param  sim_info          Pointer to the simulation information.
  */
 void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const SimulationInfo* sim_info)
@@ -239,11 +239,8 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
                 return;
         }
 
-        // allocate memories for inverse map
+        // allocate memories for forward map
         vector<BGSIZE>* rgSynapseSynapseIndexMap = new vector<BGSIZE>[neuron_count];
-
-        BGSIZE syn_i = 0;
-        int n_inUse = 0;
 
         if (synapseIndexMap != NULL)
         {
@@ -251,16 +248,18 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
             synapseIndexMap = NULL;
         }
 
-        // create synapse inverse map
+        BGSIZE syn_i = 0;
+        int n_inUse = 0;
+
+        // create synapse forward map
         synapseIndexMap = new SynapseIndexMap(neuron_count, total_synapse_counts);
         for (int i = 0; i < neuron_count; i++)
         {
                 for ( int j = 0; j < sim_info->maxSynapsesPerNeuron; j++, syn_i++ )
                 {
-                        BGSIZE iSyn = sim_info->maxSynapsesPerNeuron * i + j;
-                        if ( in_use[iSyn] == true )
+                        if ( in_use[syn_i] == true )
                         {
-                                int idx = destNeuronIndex[iSyn];
+                                int idx = sourceNeuronIndex[syn_i];
                                 rgSynapseSynapseIndexMap[idx].push_back(syn_i);
 
                                 synapseIndexMap->activeSynapseIndex[n_inUse] = syn_i;
@@ -275,12 +274,12 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
         syn_i = 0;
         for (int i = 0; i < neuron_count; i++)
         {
-                synapseIndexMap->incomingSynapse_begin[i] = syn_i;
+                synapseIndexMap->outgoingSynapse_begin[i] = syn_i;
                 synapseIndexMap->synapseCount[i] = rgSynapseSynapseIndexMap[i].size();
 
                 for ( BGSIZE j = 0; j < rgSynapseSynapseIndexMap[i].size(); j++, syn_i++)
                 {
-                        synapseIndexMap->inverseIndex[syn_i] = rgSynapseSynapseIndexMap[i][j];
+                        synapseIndexMap->forwardIndex[syn_i] = rgSynapseSynapseIndexMap[i][j];
                 }
         }
 
@@ -359,20 +358,21 @@ void AllSynapses::eraseSynapse(const int neuron_index, const BGSIZE iSyn)
  */
 void AllSynapses::addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT)
 {
-    if (synapse_counts[src_neuron] >= maxSynapsesPerNeuron) {
+    if (synapse_counts[dest_neuron] >= maxSynapsesPerNeuron) {
+        DEBUG ( cout << "Neuron : " << dest_neuron << " ran out of space for new synapses." << endl; )
         return; // TODO: ERROR!
     }
 
     // add it to the list
     BGSIZE synapse_index;
     for (synapse_index = 0; synapse_index < maxSynapsesPerNeuron; synapse_index++) {
-        iSyn = maxSynapsesPerNeuron * src_neuron + synapse_index;
+        iSyn = maxSynapsesPerNeuron * dest_neuron + synapse_index;
         if (!in_use[iSyn]) {
             break;
         }
     }
 
-    synapse_counts[src_neuron]++;
+    synapse_counts[dest_neuron]++;
 
     // create a synapse
     createSynapse(iSyn, src_neuron, dest_neuron, sum_point, deltaT, type );
