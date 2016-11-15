@@ -395,12 +395,14 @@ __global__ void calcSummationMapDevice( int totalNeurons, AllSpikingNeuronsDevic
         int idx = blockIdx.x * blockDim.x + threadIdx.x; // determine which neuron this thread is
         if ( idx >= totalNeurons ) // don't do anything if this thread would be mapped to a non-existant neuron
                 return;
-
+       
+        BGSIZE synapseCount = allSynapsesDevice->synapse_counts[idx];
         BGFLOAT sum = 0.0;
         BGSIZE iSyn = max_synapses * idx; //get the index of this neuron's first synapse in the array of all synapses
-        for (BGSIZE i = 0; i < max_synapses; i++) {
+        for (BGSIZE i = 0; synapseCount > 0 && i < max_synapses; i++) {
            if (allSynapsesDevice->in_use[iSyn + i] == true) {
               sum += allSynapsesDevice->psr[iSyn + i];
+              synapseCount--;
            }
         }
         
