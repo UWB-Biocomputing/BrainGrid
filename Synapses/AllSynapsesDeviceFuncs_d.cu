@@ -200,7 +200,7 @@ __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, Synapse
         if ( idx >= total_synapse_counts )
                 return;
 
-        BGSIZE iSyn = synapseIndexMapDevice->activeSynapseIndex[idx];
+        BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
 
         BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
         BGFLOAT decay = allSynapsesDevice->decay[iSyn];
@@ -241,7 +241,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
     if ( idx >= total_synapse_counts )
             return;
 
-    BGSIZE iSyn = synapseIndexMapDevice->activeSynapseIndex[idx];
+    BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
 
     BGFLOAT &decay = allSynapsesDevice->decay[iSyn];
     BGFLOAT &psr = allSynapsesDevice->psr[iSyn];

@@ -115,13 +115,13 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
             BGSIZE synapse_counts;
 
             if(synapseIndexMap != NULL){
-                synapse_counts = synapseIndexMap->synapseCount[idx];
+                synapse_counts = synapseIndexMap->outgoingSynapseCount[idx];
                 if (synapse_counts != 0) {
-                    int beginIndex = synapseIndexMap->outgoingSynapse_begin[idx];
-                    BGSIZE* forwardMap_begin = &( synapseIndexMap->forwardIndex[beginIndex] );
+                    int beginIndex = synapseIndexMap->outgoingSynapseBegin[idx];
+                    BGSIZE* outgoingMap_begin = &( synapseIndexMap->outgoingSynapseIndexMap[beginIndex] );
                     BGSIZE iSyn;
                     for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
-                        iSyn = forwardMap_begin[i];
+                        iSyn = outgoingMap_begin[i];
                         spSynapses.preSpikeHit(iSyn);
                     }
                 }

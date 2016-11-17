@@ -251,10 +251,12 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
         BGSIZE syn_i = 0;
         int n_inUse = 0;
 
-        // create synapse forward map
+        // create synapse forward map & active synapse map
         synapseIndexMap = new SynapseIndexMap(neuron_count, total_synapse_counts);
         for (int i = 0; i < neuron_count; i++)
         {
+                BGSIZE synapse_count = 0;
+                synapseIndexMap->incomingSynapseBegin[i] = n_inUse;
                 for ( int j = 0; j < sim_info->maxSynapsesPerNeuron; j++, syn_i++ )
                 {
                         if ( in_use[syn_i] == true )
@@ -262,10 +264,12 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
                                 int idx = sourceNeuronIndex[syn_i];
                                 rgSynapseSynapseIndexMap[idx].push_back(syn_i);
 
-                                synapseIndexMap->activeSynapseIndex[n_inUse] = syn_i;
+                                synapseIndexMap->incomingSynapseIndexMap[n_inUse] = syn_i;
                                 n_inUse++;
+                                synapse_count++;
                         }
                 }
+                synapseIndexMap->incomingSynapseCount[i] = synapse_count;
         }
 
         assert( total_synapse_counts == n_inUse );
@@ -274,12 +278,12 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
         syn_i = 0;
         for (int i = 0; i < neuron_count; i++)
         {
-                synapseIndexMap->outgoingSynapse_begin[i] = syn_i;
-                synapseIndexMap->synapseCount[i] = rgSynapseSynapseIndexMap[i].size();
+                synapseIndexMap->outgoingSynapseBegin[i] = syn_i;
+                synapseIndexMap->outgoingSynapseCount[i] = rgSynapseSynapseIndexMap[i].size();
 
                 for ( BGSIZE j = 0; j < rgSynapseSynapseIndexMap[i].size(); j++, syn_i++)
                 {
-                        synapseIndexMap->forwardIndex[syn_i] = rgSynapseSynapseIndexMap[i][j];
+                        synapseIndexMap->outgoingSynapseIndexMap[syn_i] = rgSynapseSynapseIndexMap[i][j];
                 }
         }
 
