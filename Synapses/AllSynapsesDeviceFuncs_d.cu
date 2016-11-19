@@ -426,7 +426,6 @@ __device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSyna
     BGSIZE iSyn = max_synapses * neuron_index + synapse_offset;
 
     allSynapsesDevice->in_use[iSyn] = true;
-    allSynapsesDevice->summationPoint[iSyn] = sum_point;
     allSynapsesDevice->destNeuronIndex[iSyn] = dest_index;
     allSynapsesDevice->sourceNeuronIndex[iSyn] = source_index;
     allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
@@ -492,7 +491,6 @@ __device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice
     BGSIZE iSyn = max_synapses * neuron_index + synapse_offset;
 
     allSynapsesDevice->in_use[iSyn] = true;
-    allSynapsesDevice->summationPoint[iSyn] = sum_point;
     allSynapsesDevice->destNeuronIndex[iSyn] = dest_index;
     allSynapsesDevice->sourceNeuronIndex[iSyn] = source_index;
     allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
@@ -581,7 +579,6 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
     BGSIZE iSyn = max_synapses * neuron_index + synapse_offset;
 
     allSynapsesDevice->in_use[iSyn] = true;
-    allSynapsesDevice->summationPoint[iSyn] = sum_point;
     allSynapsesDevice->destNeuronIndex[iSyn] = dest_index;
     allSynapsesDevice->sourceNeuronIndex[iSyn] = source_index;
     allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
@@ -665,7 +662,6 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
     BGSIZE iSyn = max_synapses * neuron_index + synapse_offset;
 
     allSynapsesDevice->in_use[iSyn] = true;
-    allSynapsesDevice->summationPoint[iSyn] = sum_point;
     allSynapsesDevice->destNeuronIndex[iSyn] = dest_index;
     allSynapsesDevice->sourceNeuronIndex[iSyn] = source_index;
     allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
@@ -820,7 +816,6 @@ __device__ void eraseSpikingSynapse( AllSpikingSynapsesDeviceProperties* allSyna
     BGSIZE iSync = maxSynapses * neuron_index + synapse_offset;
     allSynapsesDevice->synapse_counts[neuron_index]--;
     allSynapsesDevice->in_use[iSync] = false;
-    allSynapsesDevice->summationPoint[iSync] = NULL;
 }
 
 /*

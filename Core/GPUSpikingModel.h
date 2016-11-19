@@ -222,8 +222,6 @@ void normalMTGPU(float * randNoise_d);
 void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, unsigned int nPerRng, unsigned int mt_rng_count); 
 }       
         
-extern __global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int max_synapses, int width);
-        
 //! Calculate summation point.
-extern __global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice );
+extern __global__ void calcSummationMapDevice( int totalNeurons, AllSpikingNeuronsDeviceProperties* allNeurnsDevice, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice );
 #endif

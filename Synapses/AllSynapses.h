@@ -273,11 +273,6 @@ struct AllSynapsesDeviceProperties
          */
          BGFLOAT *W;
 
-        /**
-         *  This synapse's summation point's address.
-         */
-        BGFLOAT **summationPoint;
-
     	/**
          *  Synapse type
          */

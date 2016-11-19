@@ -134,12 +134,6 @@ void GPUSpikingModel::setupSim(SimulationInfo *sim_info)
     // allocates memories on CUDA device
     allocDeviceStruct((void **)&m_allNeuronsDevice, (void **)&m_allSynapsesDevice, sim_info);
 
-    // set device summation points
-    int neuron_count = sim_info->totalNeurons;
-    const int threadsPerBlock = 256;
-    int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-    setSynapseSummationPointDevice <<< blocksPerGrid, threadsPerBlock >>> (neuron_count, m_allNeuronsDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron, sim_info->width);
-
     // copy inverse map to the device memory
     copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
 
@@ -182,12 +176,6 @@ void GPUSpikingModel::deserialize(istream& input, const SimulationInfo *sim_info
     // Reinitialize device struct - Copy host neuron and synapse arrays into GPU device
     m_neurons->copyNeuronHostToDevice( m_allNeuronsDevice, sim_info );
     m_synapses->copySynapseHostToDevice( m_allSynapsesDevice, sim_info );
-
-    // set summation points
-    int neuron_count = sim_info->totalNeurons;
-    const int threadsPerBlock = 256;
-    int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-    setSynapseSummationPointDevice <<< blocksPerGrid, threadsPerBlock >>> (neuron_count, m_allNeuronsDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron, sim_info->width);
 }
 
 /* 
@@ -246,7 +234,7 @@ void GPUSpikingModel::calcSummationMap(const SimulationInfo *sim_info)
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( sim_info->totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
 
-    calcSummationMapDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, synapseIndexMapDevice, m_allSynapsesDevice );
+    calcSummationMapDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, m_allNeuronsDevice, synapseIndexMapDevice, m_allSynapsesDevice );
 }
 
 /* 
@@ -372,40 +360,13 @@ void GPUSpikingModel::copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIn
 |* # Global Functions
 \* ------------------*/
 
-/*
- * Set the summation points in device memory
- *
- * @param[in] num_neurons        Number of neurons.
- * @param[in] allNeuronsDevice   Pointer to the Neuron structures in device memory.
- * @param[in] allSynapsesDevice  Pointer to the Synapse structures in device memory.
- * @param[in] max_synapses       Maximum number of synapses per neuron.
- * @param[in] width              Width of neuron map (assumes square).
- */
-__global__ void setSynapseSummationPointDevice(int num_neurons, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int max_synapses, int width)
-{
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if ( idx >= num_neurons )
-        return;
-
-    int dest_neuron = idx;
-    int n_inUse = 0;
-
-    // set the summationPoint for every synapse this neuron has to the destination neuron. Since each
-    // neuron stores the synapses that input into it, this neuron is the destination neuron.
-    for (int syn_index = 0; n_inUse < allSynapsesDevice->synapse_counts[dest_neuron]; syn_index++) {
-        if (allSynapsesDevice->in_use[max_synapses * dest_neuron + syn_index] == true) {
-            allSynapsesDevice->summationPoint[max_synapses * dest_neuron + syn_index] = &( allNeuronsDevice->summation_map[dest_neuron] );
-            n_inUse++;
-        }
-    }
-}
-
 /* 
  * @param[in] totalNeurons       Number of neurons.
+ * @param[in] allNeuronsDevice   Pointer to Neuron structures in device memory.
  * @param[in] synapseIndexMap    forward map.
  * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
  */
-__global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
+__global__ void calcSummationMapDevice( int totalNeurons, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )
                 return;
@@ -416,12 +377,11 @@ __global__ void calcSummationMapDevice( int totalNeurons, SynapseIndexMap* synap
                 BGSIZE* activeMap_begin = &( synapseIndexMapDevice->incomingSynapseIndexMap[beginIndex] );
                 BGFLOAT sum = 0.0;
                 BGSIZE syn_i = activeMap_begin[0];
-                BGFLOAT &summationPoint = *( allSynapsesDevice->summationPoint[syn_i] );
                 for ( BGSIZE i = 0; i < iCount; i++ ) {
                         syn_i = activeMap_begin[i];
                         sum += allSynapsesDevice->psr[syn_i];
                 }
-                summationPoint = sum;
+                allNeuronsDevice->summation_map[idx] = sum;
         }
 }
 

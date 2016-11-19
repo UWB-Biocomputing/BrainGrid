@@ -53,7 +53,6 @@ void AllSpikingSynapses::allocDeviceStruct( AllSpikingSynapsesDeviceProperties &
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.sourceNeuronIndex, max_total_synapses * sizeof( int ) ) );
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.destNeuronIndex, max_total_synapses * sizeof( int ) ) );
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.W, max_total_synapses * sizeof( BGFLOAT ) ) );
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.summationPoint, max_total_synapses * sizeof( BGFLOAT* ) ) );
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.type, max_total_synapses * sizeof( synapseType ) ) );
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.psr, max_total_synapses * sizeof( BGFLOAT ) ) );
         HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.in_use, max_total_synapses * sizeof( bool ) ) );
@@ -94,7 +93,6 @@ void AllSpikingSynapses::deleteDeviceStruct( AllSpikingSynapsesDeviceProperties&
         HANDLE_ERROR( cudaFree( allSynapses.sourceNeuronIndex ) );
         HANDLE_ERROR( cudaFree( allSynapses.destNeuronIndex ) );
         HANDLE_ERROR( cudaFree( allSynapses.W ) );
-        HANDLE_ERROR( cudaFree( allSynapses.summationPoint ) );
         HANDLE_ERROR( cudaFree( allSynapses.type ) );
         HANDLE_ERROR( cudaFree( allSynapses.psr ) );
         HANDLE_ERROR( cudaFree( allSynapses.in_use ) );
