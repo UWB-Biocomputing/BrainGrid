@@ -225,7 +225,7 @@ class AllSynapses : public IAllSynapses
         bool *in_use;
 
         /**
-         *  The number of synapses for each neuron.
+         *  The number of (incoming) synapses for each neuron.
          *  Note: Likely under a different name in GpuSim_struct, see synapse_count. -Aaron
          */
         BGSIZE *synapse_counts;
@@ -272,11 +272,6 @@ struct AllSynapsesDeviceProperties
          *   The weight (scaling factor, strength, maximal amplitude) of the synapse.
          */
          BGFLOAT *W;
-
-        /**
-         *  This synapse's summation point's address.
-         */
-        BGFLOAT **summationPoint;
 
     	/**
          *  Synapse type

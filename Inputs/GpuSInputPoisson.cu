@@ -127,19 +127,19 @@ void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int
 
     // allocate memory for synapse index map and initialize it
     SynapseIndexMap synapseIndexMap;
-    BGSIZE* activeSynapseIndex = new BGSIZE[neuron_count];
+    BGSIZE* incomingSynapseIndexMap = new BGSIZE[neuron_count];
 
     BGSIZE syn_i = 0;
     for (int i = 0; i < neuron_count; i++, syn_i++)
     {
-        activeSynapseIndex[i] = syn_i;
+        incomingSynapseIndexMap[i] = syn_i;
     }
-    HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.activeSynapseIndex, neuron_count * sizeof( BGSIZE ) ) );
-    HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.activeSynapseIndex, activeSynapseIndex, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) ); 
+    HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.incomingSynapseIndexMap, neuron_count * sizeof( BGSIZE ) ) );
+    HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.incomingSynapseIndexMap, incomingSynapseIndexMap, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) ); 
     HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMapDevice, sizeof( SynapseIndexMap ) ) );
     HANDLE_ERROR( cudaMemcpy ( synapseIndexMapDevice, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
 
-    delete[] activeSynapseIndex;
+    delete[] incomingSynapseIndexMap;
 
     // allocate memory for masks for stimulus input and initialize it
     HANDLE_ERROR( cudaMalloc ( &masks_d, neuron_count * sizeof( bool ) ) );
@@ -163,7 +163,7 @@ void GpuSInputPoisson::deleteDeviceValues(IModel* model, SimulationInfo* psi )
     // deallocate memory for synapse index map
     SynapseIndexMap synapseIndexMap;
     HANDLE_ERROR( cudaMemcpy ( &synapseIndexMap, synapseIndexMapDevice, sizeof( SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
-    HANDLE_ERROR( cudaFree( synapseIndexMap.activeSynapseIndex ) );
+    HANDLE_ERROR( cudaFree( synapseIndexMap.incomingSynapseIndexMap ) );
     HANDLE_ERROR( cudaFree( synapseIndexMapDevice ) );
 }
 

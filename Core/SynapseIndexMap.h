@@ -1,7 +1,7 @@
 /**
  *      @file SynapseIndexMap.h
  *
- *      @brief A structure maintains incoming synapses list (inverse map).
+ *      @brief A structure maintains outgoing and active  synapses list (forward map).
  */
 
 /**
@@ -10,12 +10,12 @@
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
  **
- ** The strcuture maintains incoming synapses list (inverse map) and active synapses list.
+ ** The strcuture maintains a list of outgoing synapses (forward map) and active synapses list.
  **
- ** The incoming synapses list stores all incoming synapse indexes relevant to a neuron.
- ** Synapse indexes are stored in the synapse inverse map (inverseIndex), and
- ** the pointer and length of the neuron i's incomming synapse indexes are specified 
- ** by incomingSynapse_begin[i] and synapseCount[i] respectively. 
+ ** The outgoing synapses list stores all outgoing synapse indexes relevant to a neuron.
+ ** Synapse indexes are stored in the synapse forward map (forwardIndex), and
+ ** the pointer and length of the neuron i's outgoing synapse indexes are specified 
+ ** by outgoingSynapse_begin[i] and synapseCount[i] respectively. 
  ** The incoming synapses list is used in calcSummationMapDevice() device function to
  ** calculate sum of PSRs for each neuron simultaneously. 
  ** The list also used in AllSpikingNeurons::advanceNeurons() function to allow back propagation. 
@@ -37,43 +37,61 @@
         
         struct SynapseIndexMap
         {
-                //! The beginning index of the incoming dynamic spiking synapse array.
-                BGSIZE* incomingSynapse_begin;
+                //! Pointer to the outgoing synapse index map.
+                BGSIZE* outgoingSynapseIndexMap;
 
-                //! The array of number of active synapses of each neuron.
-                BGSIZE* synapseCount;
+                //! The beginning index of the outgoing spiking synapse array of each neuron.
+                //! Indexed by a source neuron index.
+                BGSIZE* outgoingSynapseBegin;
 
-                //! Pointer to the synapse inverse map.
-                BGSIZE* inverseIndex;
+                //! The array of number of outgoing synapses of each neuron.
+                //! Indexed by a source neuron index.
+                BGSIZE* outgoingSynapseCount;
 
-                //! Pointer to the active synapse map.
-                BGSIZE* activeSynapseIndex;
+                //! Pointer to the incoming synapse index map.
+                BGSIZE* incomingSynapseIndexMap;
+
+                //! The beginning index of the incoming spiking synapse array of each neuron.
+                //! Indexed by a destination neuron index.
+                BGSIZE* incomingSynapseBegin;
+
+                //! The array of number of incoming synapses of each neuron.
+                //! Indexed by a destination neuron index.
+                BGSIZE* incomingSynapseCount;
 
                 SynapseIndexMap() : num_neurons(0), num_synapses(0)
                 {
-                        incomingSynapse_begin = NULL;
-                        synapseCount = NULL;
-                        inverseIndex = NULL;
-                        activeSynapseIndex = NULL;
+                        outgoingSynapseIndexMap = NULL;
+                        outgoingSynapseBegin = NULL;
+                        outgoingSynapseCount = NULL;
+
+                        incomingSynapseIndexMap = NULL;
+                        incomingSynapseBegin = NULL;
+                        incomingSynapseCount = NULL;
                 };
 
                 SynapseIndexMap(int neuron_count, int synapse_count) : num_neurons(neuron_count), num_synapses(synapse_count)
                 {
-                        incomingSynapse_begin = new BGSIZE[neuron_count];
-                        synapseCount = new BGSIZE[neuron_count];
-                        inverseIndex = new BGSIZE[synapse_count];
-                        activeSynapseIndex = new BGSIZE[synapse_count];
+                        outgoingSynapseIndexMap = new BGSIZE[synapse_count];
+                        outgoingSynapseBegin = new BGSIZE[neuron_count];
+                        outgoingSynapseCount = new BGSIZE[neuron_count];
+
+                        incomingSynapseIndexMap = new BGSIZE[synapse_count];
+                        incomingSynapseBegin = new BGSIZE[neuron_count];
+                        incomingSynapseCount = new BGSIZE[neuron_count];
                 };
 
                 ~SynapseIndexMap()
                 {
                         if (num_neurons != 0) {
-                                delete[] incomingSynapse_begin;
-                                delete[] synapseCount;
+                                delete[] outgoingSynapseBegin;
+                                delete[] outgoingSynapseCount;
+                                delete[] incomingSynapseBegin;
+                                delete[] incomingSynapseCount;
                         }
                         if (num_synapses != 0) {
-                                delete[] inverseIndex;
-                                delete[] activeSynapseIndex;
+                                delete[] outgoingSynapseIndexMap;
+                                delete[] incomingSynapseIndexMap;
                         }
                 }
 

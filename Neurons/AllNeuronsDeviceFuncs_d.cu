@@ -124,40 +124,46 @@ __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int 
                 vm = allNeuronsDevice->Vreset[idx];
 
                 // notify outgoing synapses of spike
-                BGSIZE synapse_counts = allSynapsesDevice->synapse_counts[idx];
-                int synapse_notified = 0;
-                for (BGSIZE i = 0; synapse_notified < synapse_counts; i++) {
-                        BGSIZE iSyn = maxSynapses * idx + i;
-                        if (allSynapsesDevice->in_use[iSyn] == true) {
-                                preSpikingSynapsesSpikeHitDevice(iSyn, allSynapsesDevice);
-                                synapse_notified++;
-                        }
+                BGSIZE synapse_counts = synapseIndexMapDevice->outgoingSynapseCount[idx];
+                if (synapse_counts != 0) {
+                    // get the index of where this neuron's list of synapses are
+                    BGSIZE beginIndex = synapseIndexMapDevice->outgoingSynapseBegin[idx];
+                    // get the memory location of where that list begins
+                    BGSIZE* outgoingMap_begin = &(synapseIndexMapDevice->outgoingSynapseIndexMap[beginIndex]);
+
+                    // for each synapse, let them know we have fired
+                    for (BGSIZE i = 0; i < synapse_counts; i++) {
+                        preSpikingSynapsesSpikeHitDevice(outgoingMap_begin[i], allSynapsesDevice);
+                    }
                 }
 
                 // notify incomming synapses of spike
-                synapse_counts = synapseIndexMapDevice->synapseCount[idx];
+                synapse_counts = synapseIndexMapDevice->incomingSynapseCount[idx];
                 if (fAllowBackPropagation && synapse_counts != 0) {
-                        BGSIZE beginIndex = synapseIndexMapDevice->incomingSynapse_begin[idx];
-                        BGSIZE* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] );
-                        BGSIZE iSyn = inverseMap_begin[0];
-                        switch (classSynapses_d) {
-                        case classAllSTDPSynapses:
-                        case classAllDynamicSTDPSynapses:
-                                for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
-                                        postSTDPSynapseSpikeHitDevice(iSyn, static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice));
-                                        synapse_notified++;
-                                }
-                                break;
-                        case classAllSpikingSynapses:
-                        case classAllDSSynapses:
-                                for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
-                                        postSpikingSynapsesSpikeHitDevice(iSyn, allSynapsesDevice);
-                                        synapse_notified++;
-                                }
-                                break;
-                        default:
-                                assert(false);
-                        }  // end switch 
+                    // get the index of where this neuron's list of synapses are
+                    BGSIZE beginIndex = synapseIndexMapDevice->incomingSynapseBegin[idx];
+                    // get the memory location of where that list begins
+                    BGSIZE* incomingMap_begin = &(synapseIndexMapDevice->incomingSynapseIndexMap[beginIndex]);
+
+                    // for each synapse, let them know we have fired
+                    switch (classSynapses_d) {
+                    case classAllSTDPSynapses:
+                    case classAllDynamicSTDPSynapses:
+                        for (BGSIZE i = 0; i < synapse_counts; i++) {
+                            postSTDPSynapseSpikeHitDevice(incomingMap_begin[i], static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice));
+                        } // end for
+                        break;
+
+                    case classAllSpikingSynapses:
+                    case classAllDSSynapses:
+                        for (BGSIZE i = 0; i < synapse_counts; i++) {
+                            postSpikingSynapsesSpikeHitDevice(incomingMap_begin[i], allSynapsesDevice);
+                        } // end for
+                        break;
+
+                    default:
+                        assert(false);
+                    } // end switch
                 }
         } else {
                 r_sp += allNeuronsDevice->I0[idx]; // add IO
@@ -225,43 +231,46 @@ __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int 
                 u = r_u + allNeuronsDevice->Dconst[idx];
 
                 // notify outgoing synapses of spike
-                BGSIZE synapse_counts = allSynapsesDevice->synapse_counts[idx];
-                BGSIZE synapse_notified = 0;
-                for (BGSIZE i = 0; synapse_notified < synapse_counts; i++) {
-                        BGSIZE iSyn = maxSynapses * idx + i;
-                        if (allSynapsesDevice->in_use[iSyn] == true) {
-                                preSpikingSynapsesSpikeHitDevice(iSyn, allSynapsesDevice);
-                                synapse_notified++;
-                        }
+                BGSIZE synapse_counts = synapseIndexMapDevice->outgoingSynapseCount[idx];
+                if (synapse_counts != 0) {
+                    // get the index of where this neuron's list of synapses are
+                    BGSIZE beginIndex = synapseIndexMapDevice->outgoingSynapseBegin[idx]; 
+                    // get the memory location of where that list begins
+                    BGSIZE* outgoingMap_begin = &(synapseIndexMapDevice->outgoingSynapseIndexMap[beginIndex]);
+                   
+                    // for each synapse, let them know we have fired
+                    for (BGSIZE i = 0; i < synapse_counts; i++) {
+                        preSpikingSynapsesSpikeHitDevice(outgoingMap_begin[i], allSynapsesDevice);
+                    }
                 }
 
                 // notify incomming synapses of spike
-                synapse_counts = synapseIndexMapDevice->synapseCount[idx];
+                synapse_counts = synapseIndexMapDevice->incomingSynapseCount[idx];
                 if (fAllowBackPropagation && synapse_counts != 0) {
-                        BGSIZE beginIndex = synapseIndexMapDevice->incomingSynapse_begin[idx];
-                        BGSIZE* inverseMap_begin = &( synapseIndexMapDevice->inverseIndex[beginIndex] );
-                        BGSIZE iSyn = inverseMap_begin[0];
-                        for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
-                                iSyn = inverseMap_begin[i];
-                                switch (classSynapses_d) {
-                                case classAllSTDPSynapses:
-                                case classAllDynamicSTDPSynapses:
-                                        for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
-                                                postSTDPSynapseSpikeHitDevice(iSyn, static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice));
-                                                synapse_notified++;
-                                        }
-                                        break;
-                                case classAllSpikingSynapses:
-                                case classAllDSSynapses:
-                                        for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
-                                                postSpikingSynapsesSpikeHitDevice(iSyn, allSynapsesDevice);
-                                                synapse_notified++;
-                                        }
-                                        break;
-                                default:
-                                        assert(false);
-                                }  // end switch 
-                        }
+                    // get the index of where this neuron's list of synapses are
+                    BGSIZE beginIndex = synapseIndexMapDevice->incomingSynapseBegin[idx];
+                    // get the memory location of where that list begins
+                    BGSIZE* incomingMap_begin = &(synapseIndexMapDevice->incomingSynapseIndexMap[beginIndex]);
+
+                    // for each synapse, let them know we have fired
+                    switch (classSynapses_d) {
+                    case classAllSTDPSynapses:
+                    case classAllDynamicSTDPSynapses:
+                        for (BGSIZE i = 0; i < synapse_counts; i++) {
+                            postSTDPSynapseSpikeHitDevice(incomingMap_begin[i], static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice));
+                        } // end for
+                        break;
+                    
+                    case classAllSpikingSynapses:
+                    case classAllDSSynapses:
+                        for (BGSIZE i = 0; i < synapse_counts; i++) {
+                            postSpikingSynapsesSpikeHitDevice(incomingMap_begin[i], allSynapsesDevice);
+                        } // end for
+                        break;
+
+                    default:
+                        assert(false);
+                    } // end switch
                 }
         } else {
                 r_sp += allNeuronsDevice->I0[idx]; // add IO
