@@ -360,28 +360,57 @@ void GPUSpikingModel::copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIn
 |* # Global Functions
 \* ------------------*/
 
-/* 
- * @param[in] totalNeurons       Number of neurons.
- * @param[in] allNeuronsDevice   Pointer to Neuron structures in device memory.
- * @param[in] synapseIndexMap    forward map.
- * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
+/**
+ * Calculate the sum of synaptic input to each neuron.
+ *
+ * Calculate the sum of synaptic input to each neuron. One thread
+ * corresponds to one neuron. Iterates sequentially through the
+ * forward synapse index map (synapseIndexMapDevice) to access only
+ * existing synapses. Using this structure eliminates the need to skip
+ * synapses that have undergone lazy deletion from the main
+ * (allSynapsesDevice) synapse structure. The forward map is
+ * re-computed during each network restructure (once per epoch) to
+ * ensure that all synapse pointers for a neuron are stored
+ * contiguously.
+ * 
+ * @param[in] totalNeurons           Number of neurons in the entire simulation.
+ * @param[in,out] allNeuronsDevice   Pointer to Neuron structures in device memory.
+ * @param[in] synapseIndexMapDevice  Pointer to forward map structures in device memory.
+ * @param[in] allSynapsesDevice      Pointer to Synapse structures in device memory.
  */
-__global__ void calcSummationMapDevice( int totalNeurons, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
-        int idx = blockIdx.x * blockDim.x + threadIdx.x;
-        if ( idx >= totalNeurons )
-                return;
+__global__ void calcSummationMapDevice(int totalNeurons, 
+             AllSpikingNeuronsDeviceProperties* __restrict__ allNeuronsDevice, 
+             const SynapseIndexMap* __restrict__ synapseIndexMapDevice, 
+             const AllSpikingSynapsesDeviceProperties* __restrict__ allSynapsesDevice)
+{
+  // The usual thread ID calculation and guard against excess threads
+  // (beyond the number of neurons, in this case).
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  if ( idx >= totalNeurons )
+    return;
 
-        BGSIZE iCount = synapseIndexMapDevice->incomingSynapseCount[idx];
-        if (iCount != 0) {
-                int beginIndex = synapseIndexMapDevice->incomingSynapseBegin[idx];
-                BGSIZE* activeMap_begin = &( synapseIndexMapDevice->incomingSynapseIndexMap[beginIndex] );
-                BGFLOAT sum = 0.0;
-                BGSIZE syn_i = activeMap_begin[0];
-                for ( BGSIZE i = 0; i < iCount; i++ ) {
-                        syn_i = activeMap_begin[i];
-                        sum += allSynapsesDevice->psr[syn_i];
-                }
-                allNeuronsDevice->summation_map[idx] = sum;
-        }
+  // Number of incoming synapses
+  const BGSIZE synCount = synapseIndexMapDevice->incomingSynapseCount[idx];
+  // Optimization: terminate thread if no incoming synapses
+  if (synCount != 0) {
+    // Index of start of this neuron's block of forward map entries
+    const int beginIndex = synapseIndexMapDevice->incomingSynapseBegin[idx];
+    // Address of the start of this neuron's block of forward map entries
+    const BGSIZE* activeMap_begin = 
+      &(synapseIndexMapDevice->incomingSynapseIndexMap[beginIndex]);
+    // Summed postsynaptic response (PSR)
+    BGFLOAT sum = 0.0;
+    // Index of the current incoming synapse
+    BGSIZE synIndex;
+    // Repeat for each incoming synapse
+    for (BGSIZE i = 0; i < synCount; i++) {
+      // Get index of current incoming synapse
+      synIndex = activeMap_begin[i];
+      // Fetch its PSR and add into sum
+      sum += allSynapsesDevice->psr[synIndex];
+    }
+    // Store summed PSR into this neuron's summation point
+    allNeuronsDevice->summation_map[idx] = sum;
+  }
 }
 
