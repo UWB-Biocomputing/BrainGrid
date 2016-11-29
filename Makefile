@@ -1,10 +1,18 @@
 ################################################################################
 # Default Target
+# -----------------------------------------------------------------------------
+# growth	 - single threaded
+# growth_cuda	 - multithreaded
 ################################################################################
 all: growth growth_cuda
 
 ################################################################################
 # Conditional Flags
+# -----------------------------------------------------------------------------
+# CUSEHDF5:	 yes - use hdf5 file format 
+#		 no  - use default xml 
+# CPMETRICS: 	 yes - see performance of large function calls  
+#		 no  - not showing performance results
 ################################################################################
 CUSEHDF5 = yes
 CPMETRICS = no
@@ -26,30 +34,45 @@ SYNAPSEDIR = $(MAIN)/Synapses
 XMLDIR = $(MAIN)/tinyxml
 UTILDIR = $(MAIN)/Utils
 
+# cuda
+CUDALIBDIR = /usr/local/cuda/lib64
+
+# hdf5
 ifeq ($(CUSEHDF5), yes)
-	H5INCDIR = /opt/hdf5/latest/include
+	H5INCDIR = /usr/include/hdf5/serial		   # include dir
+	H5LIBDIR = /usr/lib/x86_64-linux-gnu/hdf5/serial/  # library dir
+	#H5LIBDIR = /usr/lib/x86_64-linux-gnu/	 	   # another library dir
 else
 	H5INCDIR = .
 endif
 
 ################################################################################
 # Build tools
+#
+# for single-threaded version, use h5c++ instead of g++ to avoid linking bug
 ################################################################################
 CXX = g++
-LD = g++
-OPT = g++ 
+ifeq ($(CUSEHDF5), yes)
+	LD = h5c++	
+else
+	LD = g++
+endif
+LD_cuda = nvcc	# linking the compiled cuda with g++ can be troublesome 
 
 ################################################################################
 # Flags
 ################################################################################
-ifeq ($(CPMETRICS), yes)
+# BUGGY MAKE!! ---------------- our Make is buggy. Can't use ifeq in this case
+# ----------------------------- ifdef and ifneq both works.
+ifneq ($(CPMETRICS), no)
+#ifdef CPMETRICS
 	PMFLAGS = -DPERFORMANCE_METRICS
 else
 	PMFLAGS = 
 endif
-
+	
 ifeq ($(CUSEHDF5), yes)
-	LH5FLAGS =  -L/opt/hdf5/latest/lib -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5 -lsz
+	LH5FLAGS =  -L$(H5LIBDIR) -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5 -lsz
 	H5FLAGS = -DUSE_HDF5
 else
 	LH5FLAGS =
@@ -63,8 +86,13 @@ INCDIRS = -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) \
 CXXFLAGS = -O2 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) 
 CGPUFLAGS = -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 LDFLAGS = -lstdc++ 
+<<<<<<< HEAD
 LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
 NVCCFLAGS =  -lineinfo -g -arch=sm_20 -rdc=true $(INCDIRS)
+=======
+LGPUFLAGS = -L$(CUDALIBDIR) -lcuda -lcudart
+NVCCFLAGS =  -g -arch=sm_20 -rdc=true $(INCDIRS)
+>>>>>>> a641fff5e2255bbd1bdf4ba68ed4a0cdf4d4d968
 
 ################################################################################
 # Objects
@@ -105,7 +133,7 @@ CUDAOBJS =   \
 		$(UTILDIR)/Global_cuda.o
 
 ifeq ($(CUSEHDF5), yes)
-LIBOBJS =     \
+LIBOBJS =   \
 		$(COREDIR)/Simulator.o \
 		$(COREDIR)/SimulationInfo.o \
 		$(COREDIR)/Model.o \
@@ -120,7 +148,7 @@ LIBOBJS =     \
 		$(RECORDERDIR)/Hdf5Recorder.o \
 		$(RECORDERDIR)/Hdf5GrowthRecorder.o 
 else
-LIBOBJS =               \
+LIBOBJS =   \
 		$(COREDIR)/Simulator.o \
 		$(COREDIR)/SimulationInfo.o \
 		$(COREDIR)/Model.o \
@@ -176,15 +204,20 @@ INPUTOBJS =	$(INPUTDIR)/HostSInputRegular.o \
 ################################################################################
 # Targets
 ################################################################################
+# make growth (single threaded version)
+# ------------------------------------------------------------------------------
 growth: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(INPUTOBJS)
 	$(LD) -o growth -g $(LDFLAGS) $(LH5FLAGS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(INPUTOBJS) $(LIBOBJS) 
 
-growth_cuda:$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS) $(INPUTOBJS)
-	nvcc -o growth_cuda $(NVCCFLAGS) $(LDFLAGS) $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(INPUTOBJS)
+# make growth_cuda (multi-threaded version)
+# ------------------------------------------------------------------------------
+growth_cuda: 	$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS) $(INPUTOBJS)
+		$(LD_cuda) -o growth_cuda $(NVCCFLAGS) $(LDFLAGS) $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(INPUTOBJS)
 
+# make clean
+# ------------------------------------------------------------------------------
 clean:
-	rm -f $(COREDIR)/*.o $(CONNDIR)/*.o $(INPUTDIR)/*.o $(LAYOUTDIR)/*.o $(MATRIXDIR)/*.o $(NEURONDIR)/*.o $(PARAMDIR)/*.o $(RECORDERDIR)/*.o $(RNGDIR)/*.o $(SYNAPSEDIR)/*.o $(XMLDIR)/*.o $(UTILDIR)/*.o ./growth
-
+	rm -f $(COREDIR)/*.o $(CONNDIR)/*.o $(INPUTDIR)/*.o $(LAYOUTDIR)/*.o $(MATRIXDIR)/*.o $(NEURONDIR)/*.o $(PARAMDIR)/*.o $(RECORDERDIR)/*.o $(RNGDIR)/*.o $(SYNAPSEDIR)/*.o $(XMLDIR)/*.o $(UTILDIR)/*.o ./growth ./growth_cuda
 
 ################################################################################
 # Build Source Files
@@ -195,7 +228,6 @@ clean:
 
 $(RNGDIR)/MersenneTwister_d.o: $(RNGDIR)/MersenneTwister_d.cu $(UTILDIR)/Global.h $(RNGDIR)/MersenneTwister_d.h
 	nvcc -c $(NVCCFLAGS) $(RNGDIR)/MersenneTwister_d.cu $(CGPUFLAGS) -o $(RNGDIR)/MersenneTwister_d.o
-
 
 $(COREDIR)/GPUSpikingModel.o: $(COREDIR)/GPUSpikingModel.cu $(UTILDIR)/Global.h $(COREDIR)/GPUSpikingModel.h $(NEURONDIR)/AllIFNeurons.h $(SYNAPSEDIR)/AllSynapses.h $(COREDIR)/IModel.h  
 	nvcc -c $(NVCCFLAGS) $(COREDIR)/GPUSpikingModel.cu $(CGPUFLAGS) -o $(COREDIR)/GPUSpikingModel.o
