@@ -86,13 +86,8 @@ INCDIRS = -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) \
 CXXFLAGS = -O2 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) 
 CGPUFLAGS = -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 LDFLAGS = -lstdc++ 
-<<<<<<< HEAD
-LGPUFLAGS = -L/usr/local/cuda/lib64 -lcuda -lcudart
-NVCCFLAGS =  -lineinfo -g -arch=sm_20 -rdc=true $(INCDIRS)
-=======
 LGPUFLAGS = -L$(CUDALIBDIR) -lcuda -lcudart
 NVCCFLAGS =  -g -arch=sm_20 -rdc=true $(INCDIRS)
->>>>>>> a641fff5e2255bbd1bdf4ba68ed4a0cdf4d4d968
 
 ################################################################################
 # Objects
