@@ -124,6 +124,22 @@ class AllSTDPSynapses : public AllSpikingSynapses
         virtual void printParameters(ostream &output) const;
 
         /**
+         *  Sets the data for Synapses to input's data.
+         *
+         *  @param  input  istream to read from.
+         *  @param  sim_info  SimulationInfo class to read information from.
+         */
+        virtual void deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info);
+
+        /**
+         *  Write the synapses data to the stream.
+         *
+         *  @param  output  stream to print out to.
+         *  @param  sim_info  SimulationInfo class to read information from.
+         */
+        virtual void serialize(ostream& output, const SimulationInfo *sim_info);
+
+        /**
          *  Create a Synapse and connect it to the model.
          *
          *  @param  synapses    The synapse list to reference.
@@ -160,13 +176,6 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  iSyn    Index of the synapse to print out.
          */
         virtual void writeSynapse(ostream& output, const BGSIZE iSyn) const;
-
-        /**
-         *  Initializes the queues for the Synapse.
-         *
-         *  @param  iSyn   index of the synapse to set.
-         */
-        virtual void initSpikeQueue(const BGSIZE iSyn);
 
 #if defined(USE_GPU)
     public:
@@ -287,6 +296,15 @@ class AllSTDPSynapses : public AllSpikingSynapses
 #else // !defined(USE_GPU)
     public:
         /**
+         *  Advance all the Synapses in the simulation.
+         *  Update the state of all synapses for a time step.
+         *
+         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  neurons   The Neuron list to search from.
+         */
+        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons);
+
+        /**
          *  Advance one specific Synapse.
          *  Update the state of synapse for a time step
          *
@@ -331,21 +349,6 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  descretized into time steps.
          */
         int *total_delayPost;
-
-        /**
-         *  Pointer to the delayed queue
-         */
-        uint32_t *delayQueuePost;
-
-        /**
-         *  The index indicating the current time slot in the delayed queue.
-         */
-        int *delayIdxPost;
-
-        /**
-         *  Length of the delayed queue.
-         */
-        int *ldelayQueuePost;
 
         /**
          *  Used for extended rule by Froemke and Dan. See Froemke and Dan (2002). 
@@ -408,6 +411,12 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  True if use the rule given in Froemke and Dan (2002).
          */
         bool *useFroemkeDanSTDP;
+
+    private:
+        /**
+         * The collection of synaptic transmission delay queue.
+         */
+        EventQueue *postSpikeQueue;
 };
 
 #if defined(USE_GPU)

@@ -38,6 +38,7 @@
 #pragma once
 
 #include "AllSynapses.h"
+#include "EventQueue.h"
 
 struct AllSpikingSynapsesDeviceProperties;
 
@@ -98,6 +99,22 @@ class AllSpikingSynapses : public AllSynapses
         virtual void printParameters(ostream &output) const;
 
         /**
+         *  Sets the data for Synapses to input's data.
+         *
+         *  @param  input  istream to read from.
+         *  @param  sim_info  SimulationInfo class to read information from.
+         */
+        virtual void deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info);
+
+        /**
+         *  Write the synapses data to the stream.
+         *
+         *  @param  output  stream to print out to.
+         *  @param  sim_info  SimulationInfo class to read information from.
+         */
+        virtual void serialize(ostream& output, const SimulationInfo *sim_info);
+
+        /**
          *  Create a Synapse and connect it to the model.
          *
          *  @param  synapses    The synapse list to reference.
@@ -126,13 +143,6 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  max_synapses  Maximum number of synapses per neuron.
          */
         virtual void setupSynapses(const int num_neurons, const int max_synapses);
-
-        /**
-         *  Initializes the queues for the Synapse.
-         *
-         *  @param  iSyn   index of the synapse to set.
-         */
-        virtual void initSpikeQueue(const BGSIZE iSyn);
 
         /**
          *  Updates the decay if the synapse selected.
@@ -299,6 +309,15 @@ class AllSpikingSynapses : public AllSynapses
 #else  // !defined(USE_GPU)
 public:
         /**
+         *  Advance all the Synapses in the simulation.
+         *  Update the state of all synapses for a time step.
+         *
+         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  neurons   The Neuron list to search from.
+         */
+        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons);
+
+        /**
          *  Advance one specific Synapse.
          *
          *  @param  iSyn      Index of the Synapse to connect to.
@@ -351,33 +370,19 @@ public:
          */
         BGFLOAT *tau;
 
-#define BYTES_OF_DELAYQUEUE         ( sizeof(uint32_t) / sizeof(uint8_t) )
-#define LENGTH_OF_DELAYQUEUE        ( BYTES_OF_DELAYQUEUE * 8 )
-
         /**
          *  The synaptic transmission delay, descretized into time steps.
          */
         int *total_delay;
 
-        /**
-         *  Pointer to the delayed queue.
-         */
-        uint32_t *delayQueue;
-
-        /**
-         *  The index indicating the current time slot in the delayed queue
-         *  Note: This variable is used in GpuSim_struct.cu but I am not sure 
-         *  if it is actually from a synapse. Will need a little help here. -Aaron
-         *  Note: This variable can be GLOBAL VARIABLE, but need to modify the code.
-         */
-        int *delayIdx;
-
-        /**
-         *  Length of the delayed queue.
-         */
-        int *ldelayQueue;
-
     protected:
+
+    private:
+
+        /**
+         * The collection of synaptic transmission delay queue.
+         */
+        EventQueue *preSpikeQueue;
 };
 
 #if defined(USE_GPU)

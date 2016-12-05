@@ -4,9 +4,6 @@
 AllSTDPSynapses::AllSTDPSynapses() : AllSpikingSynapses()
 {
     total_delayPost = NULL;
-    delayQueuePost = NULL;
-    delayIdxPost = NULL;
-    ldelayQueuePost = NULL;
     tauspost = NULL;
     tauspre = NULL;
     taupos = NULL;
@@ -18,6 +15,7 @@ AllSTDPSynapses::AllSTDPSynapses() : AllSpikingSynapses()
     mupos = NULL;
     muneg = NULL;
     useFroemkeDanSTDP = NULL;
+    postSpikeQueue = NULL;
 }
 
 AllSTDPSynapses::AllSTDPSynapses(const int num_neurons, const int max_synapses) :
@@ -55,9 +53,6 @@ void AllSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapse
 
     if (max_total_synapses != 0) {
         total_delayPost = new int[max_total_synapses];
-        delayQueuePost = new uint32_t[max_total_synapses];
-        delayIdxPost = new int[max_total_synapses];
-        ldelayQueuePost = new int[max_total_synapses];
         tauspost = new BGFLOAT[max_total_synapses];
         tauspre = new BGFLOAT[max_total_synapses];
         taupos = new BGFLOAT[max_total_synapses];
@@ -69,6 +64,11 @@ void AllSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapse
         mupos = new BGFLOAT[max_total_synapses];
         muneg = new BGFLOAT[max_total_synapses];
         useFroemkeDanSTDP = new bool[max_total_synapses];
+
+        // create a post synapse spike queue & initialize it
+        postSpikeQueue = new EventQueue();
+        postSpikeQueue->initEventQueue(max_total_synapses);
+
     }
 }
 
@@ -81,9 +81,6 @@ void AllSTDPSynapses::cleanupSynapses()
 
     if (max_total_synapses != 0) {
         delete[] total_delayPost;
-        delete[] delayQueuePost;
-        delete[] delayIdxPost;
-        delete[] ldelayQueuePost;
         delete[] tauspost;
         delete[] tauspre;
         delete[] taupos;
@@ -98,9 +95,6 @@ void AllSTDPSynapses::cleanupSynapses()
     }
 
     total_delayPost = NULL;
-    delayQueuePost = NULL;
-    delayIdxPost = NULL;
-    ldelayQueuePost = NULL;
     tauspost = NULL;
     tauspre = NULL;
     taupos = NULL;
@@ -113,28 +107,12 @@ void AllSTDPSynapses::cleanupSynapses()
     muneg = NULL;
     useFroemkeDanSTDP = NULL;
 
+    if (postSpikeQueue != NULL) {
+        delete[] postSpikeQueue;
+        postSpikeQueue = NULL;
+    }
+
     AllSpikingSynapses::cleanupSynapses();
-}
-
-/*
- *  Initializes the queues for the Synapse.
- *
- *  @param  iSyn   index of the synapse to set.
- */
-void AllSTDPSynapses::initSpikeQueue(const BGSIZE iSyn)
-{
-    AllSpikingSynapses::initSpikeQueue(iSyn);
-
-    int &total_delay = this->total_delayPost[iSyn];
-    uint32_t &delayQueue = this->delayQueuePost[iSyn];
-    int &delayIdx = this->delayIdxPost[iSyn];
-    int &ldelayQueue = this->ldelayQueuePost[iSyn];
-
-    uint32_t size = total_delay / ( sizeof(uint8_t) * 8 ) + 1;
-    assert( size <= BYTES_OF_DELAYQUEUE );
-    delayQueue = 0;
-    delayIdx = 0;
-    ldelayQueue = LENGTH_OF_DELAYQUEUE;
 }
 
 /*
@@ -173,6 +151,30 @@ void AllSTDPSynapses::printParameters(ostream &output) const
 }
 
 /*
+ *  Sets the data for Synapses to input's data.
+ *
+ *  @param  input  istream to read from.
+ *  @param  sim_info  SimulationInfo class to read information from.
+ */
+void AllSTDPSynapses::deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info)
+{
+    AllSpikingSynapses::deserialize(input, neurons, sim_info);
+    postSpikeQueue->deserialize(input);
+}
+
+/*
+ *  Write the synapses data to the stream.
+ *
+ *  @param  output  stream to print out to.
+ *  @param  sim_info  SimulationInfo class to read information from.
+ */
+void AllSTDPSynapses::serialize(ostream& output, const SimulationInfo *sim_info)
+{
+    AllSpikingSynapses::serialize(output, sim_info);
+    postSpikeQueue->serialize(output);
+}
+
+/*
  *  Sets the data for Synapse to input's data.
  *
  *  @param  input  istream to read from.
@@ -184,9 +186,6 @@ void AllSTDPSynapses::readSynapse(istream &input, const BGSIZE iSyn)
 
     // input.ignore() so input skips over end-of-line characters.
     input >> total_delayPost[iSyn]; input.ignore();
-    input >> delayQueuePost[iSyn]; input.ignore();
-    input >> delayIdxPost[iSyn]; input.ignore();
-    input >> ldelayQueuePost[iSyn]; input.ignore();
     input >> tauspost[iSyn]; input.ignore();
     input >> tauspre[iSyn]; input.ignore();
     input >> taupos[iSyn]; input.ignore();
@@ -211,9 +210,6 @@ void AllSTDPSynapses::writeSynapse(ostream& output, const BGSIZE iSyn) const
     AllSpikingSynapses::writeSynapse(output, iSyn);
 
     output << total_delayPost[iSyn] << ends;
-    output << delayQueuePost[iSyn] << ends;
-    output << delayIdxPost[iSyn] << ends;
-    output << ldelayQueuePost[iSyn] << ends;
     output << tauspost[iSyn] << ends;
     output << tauspre[iSyn] << ends;
     output << taupos[iSyn] << ends;
@@ -270,6 +266,9 @@ void AllSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, int des
     muneg[iSyn] = 0;
 
     useFroemkeDanSTDP[iSyn] = true;
+
+    // initializes the queues for the Synapses
+    postSpikeQueue->clearAnEvent(iSyn);
 }
 
 #if !defined(USE_GPU)
@@ -479,16 +478,7 @@ void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost
  */
 bool AllSTDPSynapses::isSpikeQueuePost(const BGSIZE iSyn)
 {
-    uint32_t &delayQueue = this->delayQueuePost[iSyn];
-    int &delayIdx = this->delayIdxPost[iSyn];
-    int &ldelayQueue = this->ldelayQueuePost[iSyn];
-
-    bool r = delayQueue & (0x1 << delayIdx);
-    delayQueue &= ~(0x1 << delayIdx);
-    if ( ++delayIdx >= ldelayQueue ) {
-        delayIdx = 0;
-    }
-    return r;
+    return postSpikeQueue->checkAnEvent(iSyn);
 }
 
 /*
@@ -498,22 +488,10 @@ bool AllSTDPSynapses::isSpikeQueuePost(const BGSIZE iSyn)
  */
 void AllSTDPSynapses::postSpikeHit(const BGSIZE iSyn)
 {
-    uint32_t &delay_queue = this->delayQueuePost[iSyn];
-    int &delayIdx = this->delayIdxPost[iSyn];
-    int &ldelayQueue = this->ldelayQueuePost[iSyn];
     int &total_delay = this->total_delayPost[iSyn];
 
     // Add to spike queue
-
-    // calculate index where to insert the spike into delayQueue
-    int idx = delayIdx +  total_delay;
-    if ( idx >= ldelayQueue ) {
-        idx -= ldelayQueue;
-    }
-
-    // set a spike
-    assert( !(delay_queue & (0x1 << idx)) );
-    delay_queue |= (0x1 << idx);
+    postSpikeQueue->addAnEvent(iSyn, total_delay);
 }
 #endif // !defined(USE_GPU)
 
@@ -526,4 +504,17 @@ void AllSTDPSynapses::postSpikeHit(const BGSIZE iSyn)
 bool AllSTDPSynapses::allowBackPropagation()
 {
     return true;
+}
+
+/*
+ *  Advance all the Synapses in the simulation.
+ *
+ *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  neurons   The Neuron list to search from.
+ */
+void AllSTDPSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons)
+{
+    AllSpikingSynapses::advanceSynapses(sim_info, neurons);
+
+    postSpikeQueue->advanceEventQueue();
 }

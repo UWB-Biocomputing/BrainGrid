@@ -171,6 +171,7 @@ SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
 		$(COREDIR)/SingleThreadedSpikingModel.o \
 		$(INPUTDIR)/FSInput.o \
 		$(COREDIR)/FClassOfCategory.o \
+		$(COREDIR)/EventQueue.o \
 		$(NEURONDIR)/AllNeurons.o \
 		$(NEURONDIR)/AllSpikingNeurons.o \
 		$(NEURONDIR)/AllIFNeurons.o \
@@ -402,6 +403,9 @@ endif
 $(COREDIR)/FClassOfCategory.o: $(COREDIR)/FClassOfCategory.cpp $(COREDIR)/FClassOfCategory.h
 	$(CXX) $(CXXFLAGS) $(COREDIR)/FClassOfCategory.cpp -o $(COREDIR)/FClassOfCategory.o
 
+
+$(COREDIR)/EventQueue.o: $(COREDIR)/EventQueue.cpp $(COREDIR)/EventQueue.h
+	$(CXX) $(CXXFLAGS) $(COREDIR)/EventQueue.cpp -o $(COREDIR)/EventQueue.o
 
 # Matrix
 # ------------------------------------------------------------------------------
