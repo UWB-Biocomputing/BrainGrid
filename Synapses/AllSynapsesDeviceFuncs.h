@@ -58,4 +58,54 @@ extern __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT del
  */
 extern __global__ void initSynapsesDevice( int n, AllDSSynapsesDeviceProperties* allSynapsesDevice, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight );
 
+/**
+ * Creates a EventQueue object in device memory.
+ *
+ * @param[in] total_synapse_counts  Number of synapses.
+ * @param[in/out] pEventQueue       Pointer to the pointer to EventQueue objet
+ *                                  where the pointer EventQueue object is stored.
+ */
+extern __global__ void allocEventQueueDevice(int total_synapse_counts, EventQueue **pEventQueue);
+
+/**
+ * Delete a EventQueue object in device memory.
+ *
+ * @param[in] pEventQueue          Pointer to the EventQueue object to be deleted.
+ */
+extern __global__ void deleteEventQueueDevice(EventQueue *pEventQueue);
+
+/**
+ * Copy event queue data from the buffer to the device between device memories.
+ *
+ * @param pDstEventQueue       Pointer to the EventQueue object (destination).
+ * @param nMaxEvent            The number of event queue (source).
+ * @param idxQueue             The index indicating the current time slot in the delayed queue (source).
+ * @param pQueueBuffer         Pointer to the collection of event queue (source).
+ */
+extern __global__ void copyEventQueueDevice(EventQueue *pEventQueue, BGSIZE nMaxEvent, uint32_t idxQueue, BGQUEUE_ELEMENT* pQueueBuffer);
+
+/**
+ * Copy event queue data from the buffer to the device between device memories.
+ * 
+ * @param pSrcEventQueue       Pointer to the EventQueue object (source).
+ * @param pQueueBuffer         Pointer to the collection of event queue (destination).
+ * @param pDstEventQueue       Pointer to the EventQueue object (destination).
+ */
+extern __global__ void copyEventQueueDevice(EventQueue *pSrcEventQueue, BGQUEUE_ELEMENT* pQueueBuffer, EventQueue* pDstEventQueue);
+
+/**
+ * Perform updating preSpikeQueue for one time step.
+ *
+ *  @param  allSynapsesDevice  Reference to the AllSpikingSynapsesDeviceProperties struct
+ *                             on device memory.
+ */
+extern __global__ void advanceSpikingSynapsesEventQueueDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice);
+
+/**
+ * Perform updating postSpikeQueue for one time step.
+ *
+ *  @param  allSynapsesDevice  Reference to the AllSpikingSynapsesDeviceProperties struct
+ *                             on device memory.
+ */
+extern __global__ void advanceSTDPSynapsesEventQueueDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice);
 #endif 

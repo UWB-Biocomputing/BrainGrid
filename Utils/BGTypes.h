@@ -59,6 +59,12 @@ typedef unsigned long long int uint64_t;
 #define BGSIZE uint32_t
 //#define BGSIZE uint64_t
 
+#ifdef __CUDACC__
+#define CUDA_CALLABLE __host__ __device__
+#else
+#define CUDA_CALLABLE
+#endif 
+
 #endif // __BGTYPES_H_
 
 

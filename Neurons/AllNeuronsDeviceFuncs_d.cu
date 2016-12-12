@@ -13,22 +13,8 @@
  *                                   on device memory.
  */
 __device__ void preSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
-        uint32_t &delay_queue = allSynapsesDevice->delayQueue[iSyn];
-        int delayIdx = allSynapsesDevice->delayIdx[iSyn];
-        int ldelayQueue = allSynapsesDevice->ldelayQueue[iSyn];
         int total_delay = allSynapsesDevice->total_delay[iSyn];
-
-        // Add to spike queue
-
-        // calculate index where to insert the spike into delayQueue
-        int idx = delayIdx +  total_delay;
-        if ( idx >= ldelayQueue ) {
-                idx -= ldelayQueue;
-        }
-
-        // set a spike
-        //assert( !(delay_queue[0] & (0x1 << idx)) );
-        delay_queue |= (0x1 << idx);
+        allSynapsesDevice->preSpikeQueue->addAnEvent(iSyn, total_delay);
 }
 
 /*
@@ -49,22 +35,8 @@ __device__ void postSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpiking
  *                                   on device memory.
  */
 __device__ void postSTDPSynapseSpikeHitDevice( const BGSIZE iSyn, AllSTDPSynapsesDeviceProperties* allSynapsesDevice ) {
-        uint32_t &delay_queue = allSynapsesDevice->delayQueuePost[iSyn];
-        int delayIdx = allSynapsesDevice->delayIdxPost[iSyn];
-        int ldelayQueue = allSynapsesDevice->ldelayQueuePost[iSyn];
         int total_delay = allSynapsesDevice->total_delayPost[iSyn];
-
-        // Add to spike queue
-
-        // calculate index where to insert the spike into delayQueue
-        int idx = delayIdx +  total_delay;
-        if ( idx >= ldelayQueue ) {
-                idx -= ldelayQueue;
-        }
-
-        // set a spike
-        //assert( !(delay_queue[0] & (0x1 << idx)) );
-        delay_queue |= (0x1 << idx);
+        allSynapsesDevice->postSpikeQueue->addAnEvent(iSyn, total_delay);
 }
 
 /* -------------------------------------*\

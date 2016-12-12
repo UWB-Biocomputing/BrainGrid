@@ -1,12 +1,13 @@
 #include "EventQueue.h"
 
-EventQueue::EventQueue() :
+CUDA_CALLABLE EventQueue::EventQueue() :
     m_queueEvent(NULL),
+    m_nMaxEvent(0),
     m_idxQueue(0)
 {
 }
 
-EventQueue::~EventQueue()
+CUDA_CALLABLE EventQueue::~EventQueue()
 {
     if (m_queueEvent != NULL) {
         delete[] m_queueEvent;
@@ -19,7 +20,7 @@ EventQueue::~EventQueue()
  * 
  * @param nMaxEvent The number of event queue.
  */
-void EventQueue::initEventQueue(BGSIZE nMaxEvent)
+CUDA_CALLABLE void EventQueue::initEventQueue(BGSIZE nMaxEvent)
 {
     // allocate & initialize a memory for the event queue
     m_nMaxEvent = nMaxEvent;
@@ -32,7 +33,7 @@ void EventQueue::initEventQueue(BGSIZE nMaxEvent)
  * @param idx The queue index of the collection.
  * @param delay The delay descretized into time steps when the event will be triggered.
  */
-void EventQueue::addAnEvent(const BGSIZE idx, const int delay)
+CUDA_CALLABLE void EventQueue::addAnEvent(const BGSIZE idx, const int delay)
 {
     BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
 
@@ -55,7 +56,7 @@ void EventQueue::addAnEvent(const BGSIZE idx, const int delay)
  * @param idx The queue index of the collection.
  * @return true if there is an event.
  */
-bool EventQueue::checkAnEvent(const BGSIZE idx)
+CUDA_CALLABLE bool EventQueue::checkAnEvent(const BGSIZE idx)
 {
     BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
 
@@ -71,7 +72,7 @@ bool EventQueue::checkAnEvent(const BGSIZE idx)
  * 
  * @param idx The queue index of the collection.
  */
-void EventQueue::clearAnEvent(const BGSIZE idx)
+CUDA_CALLABLE void EventQueue::clearAnEvent(const BGSIZE idx)
 {
     BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
 
@@ -82,7 +83,7 @@ void EventQueue::clearAnEvent(const BGSIZE idx)
  * Advance one simulation step.
  * 
  */
-void EventQueue::advanceEventQueue()
+CUDA_CALLABLE void EventQueue::advanceEventQueue()
 {
     if ( ++m_idxQueue >= LENGTH_OF_DELAYQUEUE ) {
         m_idxQueue = 0;

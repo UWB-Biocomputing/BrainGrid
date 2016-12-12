@@ -70,7 +70,7 @@ void AllSpikingSynapses::cleanupSynapses()
     tau = NULL;
 
     if (preSpikeQueue != NULL) {
-        delete[] preSpikeQueue;
+        delete preSpikeQueue;
         preSpikeQueue = NULL;
     }
 

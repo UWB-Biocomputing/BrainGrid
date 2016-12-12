@@ -72,18 +72,7 @@ __device__ void changeDSSynapsePSRDevice(AllDSSynapsesDeviceProperties* allSynap
  */
 __device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn)
 {
-    uint32_t &delay_queue = allSynapsesDevice->delayQueue[iSyn];
-    int &delayIdx = allSynapsesDevice->delayIdx[iSyn];
-    int ldelayQueue = allSynapsesDevice->ldelayQueue[iSyn];
-
-    uint32_t delayMask = (0x1 << delayIdx);
-    bool isFired = delay_queue & (delayMask);
-    delay_queue &= ~(delayMask);
-    if ( ++delayIdx >= ldelayQueue ) {
-            delayIdx = 0;
-    }
-
-    return isFired;
+    return allSynapsesDevice->preSpikeQueue->checkAnEvent(iSyn);
 }
 
 /*     
@@ -149,18 +138,7 @@ __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesD
  */
 __device__ bool isSTDPSynapseSpikeQueuePostDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn)
 {
-    uint32_t &delay_queue = allSynapsesDevice->delayQueuePost[iSyn];
-    int &delayIdx = allSynapsesDevice->delayIdxPost[iSyn];
-    int ldelayQueue = allSynapsesDevice->ldelayQueuePost[iSyn];
-
-    uint32_t delayMask = (0x1 << delayIdx);
-    bool isFired = delay_queue & (delayMask);
-    delay_queue &= ~(delayMask);
-    if ( ++delayIdx >= ldelayQueue ) {
-            delayIdx = 0;
-    }
-
-    return isFired;
+    return allSynapsesDevice->postSpikeQueue->checkAnEvent(iSyn);
 }
 
 /*
@@ -430,10 +408,6 @@ __device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSyna
     allSynapsesDevice->sourceNeuronIndex[iSyn] = source_index;
     allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
     
-    allSynapsesDevice->delayQueue[iSyn] = 0;
-    allSynapsesDevice->delayIdx[iSyn] = 0;
-    allSynapsesDevice->ldelayQueue[iSyn] = LENGTH_OF_DELAYQUEUE;
-
     allSynapsesDevice->psr[iSyn] = 0.0;
     allSynapsesDevice->type[iSyn] = type;
 
@@ -465,8 +439,8 @@ __device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSyna
     allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
-    uint32_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
-    assert( size <= BYTES_OF_DELAYQUEUE );
+    // initializes the queues for the Synapses
+    allSynapsesDevice->preSpikeQueue->clearAnEvent(iSyn);
 }
 
 /*
@@ -495,10 +469,6 @@ __device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice
     allSynapsesDevice->sourceNeuronIndex[iSyn] = source_index;
     allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
 
-    allSynapsesDevice->delayQueue[iSyn] = 0;
-    allSynapsesDevice->delayIdx[iSyn] = 0;
-    allSynapsesDevice->ldelayQueue[iSyn] = LENGTH_OF_DELAYQUEUE;
-
     allSynapsesDevice->psr[iSyn] = 0.0;
     allSynapsesDevice->r[iSyn] = 1.0;
     allSynapsesDevice->u[iSyn] = 0.4;     // DEFAULT_U
@@ -553,8 +523,8 @@ __device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice
     allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
-    uint32_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
-    assert( size <= BYTES_OF_DELAYQUEUE );
+    // initializes the queues for the Synapses
+    allSynapsesDevice->preSpikeQueue->clearAnEvent(iSyn);
 }
 
 /*
@@ -583,10 +553,6 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
     allSynapsesDevice->sourceNeuronIndex[iSyn] = source_index;
     allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
 
-    allSynapsesDevice->delayQueue[iSyn] = 0;
-    allSynapsesDevice->delayIdx[iSyn] = 0;
-    allSynapsesDevice->ldelayQueue[iSyn] = LENGTH_OF_DELAYQUEUE;
-
     allSynapsesDevice->psr[iSyn] = 0.0;
     allSynapsesDevice->type[iSyn] = type;
 
@@ -618,9 +584,6 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
     allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
-    uint32_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
-    assert( size <= BYTES_OF_DELAYQUEUE );
-
     allSynapsesDevice->Apos[iSyn] = 0.5;
     allSynapsesDevice->Aneg[iSyn] = -0.5;
     allSynapsesDevice->STDPgap[iSyn] = 2e-3;
@@ -638,6 +601,9 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
     allSynapsesDevice->muneg[iSyn] = 0;
 
     allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
+
+    // initializes the queues for the Synapses
+    allSynapsesDevice->postSpikeQueue->clearAnEvent(iSyn);
 }
 
 /*
@@ -665,10 +631,6 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
     allSynapsesDevice->destNeuronIndex[iSyn] = dest_index;
     allSynapsesDevice->sourceNeuronIndex[iSyn] = source_index;
     allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
-
-    allSynapsesDevice->delayQueue[iSyn] = 0;
-    allSynapsesDevice->delayIdx[iSyn] = 0;
-    allSynapsesDevice->ldelayQueue[iSyn] = LENGTH_OF_DELAYQUEUE;
 
     allSynapsesDevice->psr[iSyn] = 0.0;
     allSynapsesDevice->r[iSyn] = 1.0;
@@ -724,9 +686,6 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
     allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
-    uint32_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
-    assert( size <= BYTES_OF_DELAYQUEUE );
-
     allSynapsesDevice->Apos[iSyn] = 0.5;
     allSynapsesDevice->Aneg[iSyn] = -0.5;
     allSynapsesDevice->STDPgap[iSyn] = 2e-3;
@@ -744,6 +703,9 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
     allSynapsesDevice->muneg[iSyn] = 0;
 
     allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
+
+    // initializes the queues for the Synapses
+    allSynapsesDevice->postSpikeQueue->clearAnEvent(iSyn);
 }
 
 /*
@@ -940,4 +902,81 @@ __global__ void initSynapsesDevice( int n, AllDSSynapsesDeviceProperties* allSyn
     allSynapsesDevice->W[neuron_index] = weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 }
 
+/*
+ * Creates a EventQueue object in device memory.
+ *
+ * @param[in] total_synapse_counts  Number of synapses.
+ * @param[in/out] pEventQueue       Pointer to the pointer to EventQueue objet
+ *                                  where the pointer EventQueue object is stored.
+ */
+__global__ void allocEventQueueDevice(int total_synapse_counts, EventQueue **pEventQueue)
+{
+    *pEventQueue = new EventQueue();
+    (*pEventQueue)->initEventQueue(total_synapse_counts);
+}
+
+/*
+ * Delete a EventQueue object in device memory.
+ *
+ * @param[in] pEventQueue          Pointer to the EventQueue object to be deleted.
+ */
+__global__ void deleteEventQueueDevice(EventQueue *pEventQueue)
+{
+    if (pEventQueue != NULL) {
+        delete pEventQueue;
+    }
+}
+
+/*
+ * Copy event queue data from the buffer to the device between device memories.
+ *
+ * @param pDstEventQueue       Pointer to the EventQueue object (destination).
+ * @param nMaxEvent            The number of event queue (source).
+ * @param idxQueue             The index indicating the current time slot in the delayed queue (source).
+ * @param pQueueBuffer         Pointer to the collection of event queue (source).
+ */
+__global__ void copyEventQueueDevice(EventQueue *pDstEventQueue, BGSIZE nMaxEvent, uint32_t idxQueue, BGQUEUE_ELEMENT* pQueueBuffer)
+{
+    pDstEventQueue->m_nMaxEvent = nMaxEvent;
+    pDstEventQueue->m_idxQueue = idxQueue;
+    memcpy(pDstEventQueue->m_queueEvent, pQueueBuffer, nMaxEvent * sizeof( BGQUEUE_ELEMENT ));
+}
+
+/*
+ * Copy event queue data from the buffer to the device between device memories.
+ * 
+ * @param pSrcEventQueue       Pointer to the EventQueue object (source).
+ * @param pQueueBuffer         Pointer to the collection of event queue (destination).
+ * @param pDstEventQueue       Pointer to the EventQueue object (destination).
+ */
+__global__ void copyEventQueueDevice(EventQueue *pSrcEventQueue, BGQUEUE_ELEMENT* pQueueBuffer, EventQueue* pDstEventQueue)
+{
+    BGSIZE nMaxEvent = pSrcEventQueue->m_nMaxEvent;
+    memcpy(pQueueBuffer, pSrcEventQueue->m_queueEvent, nMaxEvent * sizeof( BGQUEUE_ELEMENT ));
+
+    pDstEventQueue->m_nMaxEvent = pSrcEventQueue->m_nMaxEvent;
+    pDstEventQueue->m_idxQueue = pSrcEventQueue->m_idxQueue;
+}
+
+/*
+ * Perform updating preSpikeQueue for one time step.
+ *
+ *  @param  allSynapsesDevice  Reference to the AllSpikingSynapsesDeviceProperties struct
+ *                             on device memory.
+ */
+__global__ void advanceSpikingSynapsesEventQueueDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice)
+{
+    allSynapsesDevice->preSpikeQueue->advanceEventQueue();
+}
+
+/*
+ * Perform updating postSpikeQueue for one time step.
+ *
+ *  @param  allSynapsesDevice  Reference to the AllSpikingSynapsesDeviceProperties struct
+ *                             on device memory.
+ */
+__global__ void advanceSTDPSynapsesEventQueueDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice)
+{
+    allSynapsesDevice->postSpikeQueue->advanceEventQueue();
+}
 

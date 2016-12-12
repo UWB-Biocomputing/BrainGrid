@@ -81,13 +81,13 @@ endif
 
 INCDIRS = -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) \
           -I$(MATRIXDIR) -I$(NEURONDIR) -I$(PARAMDIR) -I$(RECORDERDIR) \
-          -I$(RNGDIR) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(XMLDIR)
+          -I$(RNGDIR) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(XMLDIR) 
 
 CXXFLAGS = -O2 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) 
 CGPUFLAGS = -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -L$(CUDALIBDIR) -lcuda -lcudart
-NVCCFLAGS =  -g -arch=sm_20 -rdc=true $(INCDIRS)
+NVCCFLAGS =  -g -arch=sm_30 -rdc=true $(INCDIRS) -I/usr/local/cuda/samples/common/inc
 
 ################################################################################
 # Objects
@@ -125,6 +125,7 @@ CUDAOBJS =   \
 		$(INPUTDIR)/GpuSInputPoisson.o \
 		$(INPUTDIR)/FSInput_cuda.o \
 		$(COREDIR)/FClassOfCategory_cuda.o \
+		$(COREDIR)/EventQueue_cuda.o \
 		$(UTILDIR)/Global_cuda.o
 
 ifeq ($(CUSEHDF5), yes)
@@ -403,6 +404,9 @@ endif
 $(COREDIR)/FClassOfCategory.o: $(COREDIR)/FClassOfCategory.cpp $(COREDIR)/FClassOfCategory.h
 	$(CXX) $(CXXFLAGS) $(COREDIR)/FClassOfCategory.cpp -o $(COREDIR)/FClassOfCategory.o
 
+
+$(COREDIR)/EventQueue_cuda.o: $(COREDIR)/EventQueue.cpp $(COREDIR)/EventQueue.h
+	nvcc -c $(NVCCFLAGS) $(COREDIR)/EventQueue.cpp -x cu $(CGPUFLAGS) -o $(COREDIR)/EventQueue_cuda.o 
 
 $(COREDIR)/EventQueue.o: $(COREDIR)/EventQueue.cpp $(COREDIR)/EventQueue.h
 	$(CXX) $(CXXFLAGS) $(COREDIR)/EventQueue.cpp -o $(COREDIR)/EventQueue.o

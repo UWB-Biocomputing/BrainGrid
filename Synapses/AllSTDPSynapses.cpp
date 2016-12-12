@@ -108,7 +108,7 @@ void AllSTDPSynapses::cleanupSynapses()
     useFroemkeDanSTDP = NULL;
 
     if (postSpikeQueue != NULL) {
-        delete[] postSpikeQueue;
+        delete postSpikeQueue;
         postSpikeQueue = NULL;
     }
 
@@ -493,18 +493,6 @@ void AllSTDPSynapses::postSpikeHit(const BGSIZE iSyn)
     // Add to spike queue
     postSpikeQueue->addAnEvent(iSyn, total_delay);
 }
-#endif // !defined(USE_GPU)
-
-/*
- *  Check if the back propagation (notify a spike event to the pre neuron)
- *  is allowed in the synapse class.
- *
- *  @retrun true if the back propagation is allowed.
- */
-bool AllSTDPSynapses::allowBackPropagation()
-{
-    return true;
-}
 
 /*
  *  Advance all the Synapses in the simulation.
@@ -518,3 +506,16 @@ void AllSTDPSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeuron
 
     postSpikeQueue->advanceEventQueue();
 }
+#endif // !defined(USE_GPU)
+
+/*
+ *  Check if the back propagation (notify a spike event to the pre neuron)
+ *  is allowed in the synapse class.
+ *
+ *  @retrun true if the back propagation is allowed.
+ */
+bool AllSTDPSynapses::allowBackPropagation()
+{
+    return true;
+}
+

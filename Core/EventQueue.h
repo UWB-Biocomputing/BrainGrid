@@ -40,15 +40,15 @@ class EventQueue
 
     public:
         //! The constructor for FClassOfCategory.
-        EventQueue();
-        virtual ~EventQueue();
+        CUDA_CALLABLE EventQueue();
+        CUDA_CALLABLE virtual ~EventQueue();
 
         /**
          * Initializes the collection of queue.
          *
          * @param nMaxEvent The number of event queue.
          */
-        void initEventQueue(BGSIZE nMaxEvent);
+        CUDA_CALLABLE void initEventQueue(BGSIZE nMaxEvent);
 
         /**
          * Add an event in the queue.
@@ -56,7 +56,7 @@ class EventQueue
          * @param idx The queue index of the collection.
          * @param delay The delay descretized into time steps when the event will be triggered.
          */
-        void addAnEvent(const BGSIZE idx, const int delay);
+        CUDA_CALLABLE void addAnEvent(const BGSIZE idx, const int delay);
 
         /**
          * Checks if there is an event in the queue.
@@ -64,20 +64,20 @@ class EventQueue
          * @param idx The queue index of the collection.
          * @return true if there is an event.
          */
-        bool checkAnEvent(const BGSIZE idx);
+        CUDA_CALLABLE bool checkAnEvent(const BGSIZE idx);
 
         /**
          * Clears events in the queue.
          *
          * @param idx The queue index of the collection.
          */
-        void clearAnEvent(const BGSIZE idx);
+        CUDA_CALLABLE void clearAnEvent(const BGSIZE idx);
 
         /**
          * Advance one simulation step.
          *
          */
-        void advanceEventQueue();
+        CUDA_CALLABLE void advanceEventQueue();
 
         /**
          * Writes the queue data to the stream.
@@ -93,7 +93,6 @@ class EventQueue
          */
         void deserialize(istream& input);
 
-    private:
         //! The number of event queue.
         BGSIZE m_nMaxEvent;
 

@@ -70,6 +70,9 @@ void GPUSpikingModel::allocDeviceStruct(void** allNeuronsDevice, void** allSynap
 
 	// allocate synapse inverse map in device memory
 	allocSynapseImap( neuron_count );
+
+        // copy inverse map to the device memory
+        copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
 }
 
 /*
@@ -133,9 +136,6 @@ void GPUSpikingModel::setupSim(SimulationInfo *sim_info)
 
     // allocates memories on CUDA device
     allocDeviceStruct((void **)&m_allNeuronsDevice, (void **)&m_allSynapsesDevice, sim_info);
-
-    // copy inverse map to the device memory
-    copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
 
     // set some parameters used for advanceNeuronsDevice
     m_neurons->setAdvanceNeuronsDeviceParams(*m_synapses);

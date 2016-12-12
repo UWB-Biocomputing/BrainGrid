@@ -429,21 +429,6 @@ struct AllSTDPSynapsesDeviceProperties : public AllSpikingSynapsesDeviceProperti
         int *total_delayPost;
 
         /**
-         *  Pointer to the delayed queue
-         */
-        uint32_t *delayQueuePost;
-
-        /**
-         *  The index indicating the current time slot in the delayed queue.
-         */
-        int *delayIdxPost;
-
-        /**
-         *  Length of the delayed queue.
-         */
-        int *ldelayQueuePost;
-
-        /**
          *  Used for extended rule by Froemke and Dan. See Froemke and Dan (2002). 
          *  Spike-timing-dependent synaptic modification induced by natural spike trains. 
          *  Nature 416 (3/2002).
@@ -504,5 +489,10 @@ struct AllSTDPSynapsesDeviceProperties : public AllSpikingSynapsesDeviceProperti
          *  True if use the rule given in Froemke and Dan (2002).
          */
         bool *useFroemkeDanSTDP;
+
+        /**
+         * The collection of synaptic transmission delay queue.
+         */
+        EventQueue *postSpikeQueue;
 };
 #endif // defined(USE_GPU)

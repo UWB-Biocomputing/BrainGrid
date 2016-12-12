@@ -91,6 +91,8 @@ void GpuSInputPoisson::inputStimulus(SimulationInfo* psi)
     // advance synapses
     advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, synapseIndexMapDevice, g_simulationStep, psi->deltaT, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice );
 
+    advanceSpikingSynapsesEventQueueDevice <<< 1, 1 >>> ((AllSpikingSynapsesDeviceProperties*)allSynapsesDevice);
+
     // update summation point
     applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, psi->pSummationMap, allSynapsesDevice );
 }
@@ -194,22 +196,8 @@ __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT
     if (--rnISIs <= 0)
     {
         // add a spike
-        uint32_t &delay_queue = allSynapsesDevice->delayQueue[iSyn];
-        int delayIdx = allSynapsesDevice->delayIdx[iSyn];
-        int ldelayQueue = allSynapsesDevice->ldelayQueue[iSyn];
         int total_delay = allSynapsesDevice->total_delay[iSyn];
-
-        // Add to spike queue
-
-        // calculate index where to insert the spike into delayQueue
-        int idx = delayIdx +  total_delay;
-        if ( idx >= ldelayQueue ) {
-            idx -= ldelayQueue;
-        }
-
-        // set a spike
-        //assert( !(delay_queue[0] & (0x1 << idx)) );
-        delay_queue |= (0x1 << idx);
+        allSynapsesDevice->preSpikeQueue->addAnEvent(iSyn, total_delay);
 
         // update interval counter (exponectially distribution ISIs, Poisson)
         curandState localState = devStates_d[idx];

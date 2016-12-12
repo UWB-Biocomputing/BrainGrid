@@ -404,22 +404,9 @@ struct AllSpikingSynapsesDeviceProperties : public AllSynapsesDeviceProperties
         int *total_delay;
 
         /**
-         *  Pointer to the delayed queue.
+         * The collection of synaptic transmission delay queue.
          */
-        uint32_t *delayQueue;
-
-        /**
-         *  The index indicating the current time slot in the delayed queue
-         *  Note: This variable is used in GpuSim_struct.cu but I am not sure 
-         *  if it is actually from a synapse. Will need a little help here. -Aaron
-         *  Note: This variable can be GLOBAL VARIABLE, but need to modify the code.
-         */
-        int *delayIdx;
-
-        /**
-         *  Length of the delayed queue.
-         */
-        int *ldelayQueue;
+        EventQueue *preSpikeQueue;
 };
 #endif // defined(USE_GPU)
 
