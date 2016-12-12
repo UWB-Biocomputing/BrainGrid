@@ -62,7 +62,7 @@ void GPUSpikingModel::allocDeviceStruct(void** allNeuronsDevice, void** allSynap
 	// Allocate memory for random noise array
 	int neuron_count = sim_info->totalNeurons;
 	BGSIZE randNoise_d_size = neuron_count * sizeof (float);	// size of random noise array
-	HANDLE_ERROR( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
+	checkCudaErrors( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
 
 	// Copy host neuron and synapse arrays into GPU device
 	m_neurons->copyNeuronHostToDevice( *allNeuronsDevice, sim_info );
@@ -98,7 +98,7 @@ void GPUSpikingModel::deleteDeviceStruct(void** allNeuronsDevice, void** allSyna
 
     deleteSynapseImap();
 
-    HANDLE_ERROR( cudaFree( randNoise_d ) );
+    checkCudaErrors( cudaFree( randNoise_d ) );
 }
 
 /*
@@ -109,10 +109,10 @@ void GPUSpikingModel::deleteDeviceStruct(void** allNeuronsDevice, void** allSyna
 void GPUSpikingModel::setupSim(SimulationInfo *sim_info)
 {
     // Set device ID
-    HANDLE_ERROR( cudaSetDevice( g_deviceId ) );
+    checkCudaErrors( cudaSetDevice( g_deviceId ) );
 
     // Set DEBUG flag
-    HANDLE_ERROR( cudaMemcpyToSymbol (d_debug_mask, &g_debug_mask, sizeof(int) ) );
+    checkCudaErrors( cudaMemcpyToSymbol (d_debug_mask, &g_debug_mask, sizeof(int) ) );
 
     Model::setupSim(sim_info);
 
@@ -282,18 +282,18 @@ void GPUSpikingModel::allocSynapseImap( int count )
 {
 	SynapseIndexMap synapseIndexMap;
 
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.outgoingSynapseBegin, count * sizeof( BGSIZE ) ) );
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.outgoingSynapseCount, count * sizeof( BGSIZE ) ) );
-	HANDLE_ERROR( cudaMemset(synapseIndexMap.outgoingSynapseBegin, 0, count * sizeof( BGSIZE ) ) );
-	HANDLE_ERROR( cudaMemset(synapseIndexMap.outgoingSynapseCount, 0, count * sizeof( BGSIZE ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &synapseIndexMap.outgoingSynapseBegin, count * sizeof( BGSIZE ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &synapseIndexMap.outgoingSynapseCount, count * sizeof( BGSIZE ) ) );
+	checkCudaErrors( cudaMemset(synapseIndexMap.outgoingSynapseBegin, 0, count * sizeof( BGSIZE ) ) );
+	checkCudaErrors( cudaMemset(synapseIndexMap.outgoingSynapseCount, 0, count * sizeof( BGSIZE ) ) );
 
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.incomingSynapseBegin, count * sizeof( BGSIZE ) ) );
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.incomingSynapseCount, count * sizeof( BGSIZE ) ) );
-	HANDLE_ERROR( cudaMemset(synapseIndexMap.incomingSynapseBegin, 0, count * sizeof( BGSIZE ) ) );
-	HANDLE_ERROR( cudaMemset(synapseIndexMap.incomingSynapseCount, 0, count * sizeof( BGSIZE ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &synapseIndexMap.incomingSynapseBegin, count * sizeof( BGSIZE ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &synapseIndexMap.incomingSynapseCount, count * sizeof( BGSIZE ) ) );
+	checkCudaErrors( cudaMemset(synapseIndexMap.incomingSynapseBegin, 0, count * sizeof( BGSIZE ) ) );
+	checkCudaErrors( cudaMemset(synapseIndexMap.incomingSynapseCount, 0, count * sizeof( BGSIZE ) ) );
 
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMapDevice, sizeof( SynapseIndexMap ) ) );
-	HANDLE_ERROR( cudaMemcpy( synapseIndexMapDevice, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &synapseIndexMapDevice, sizeof( SynapseIndexMap ) ) );
+	checkCudaErrors( cudaMemcpy( synapseIndexMapDevice, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
 }
 
 /*
@@ -303,17 +303,17 @@ void GPUSpikingModel::deleteSynapseImap(  )
 {
 	SynapseIndexMap synapseIndexMap;
 
-	HANDLE_ERROR( cudaMemcpy ( &synapseIndexMap, synapseIndexMapDevice, sizeof( SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( &synapseIndexMap, synapseIndexMapDevice, sizeof( SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
 
-	HANDLE_ERROR( cudaFree( synapseIndexMap.outgoingSynapseBegin ) );
-	HANDLE_ERROR( cudaFree( synapseIndexMap.outgoingSynapseCount ) );
-	HANDLE_ERROR( cudaFree( synapseIndexMap.outgoingSynapseIndexMap ) );
+	checkCudaErrors( cudaFree( synapseIndexMap.outgoingSynapseBegin ) );
+	checkCudaErrors( cudaFree( synapseIndexMap.outgoingSynapseCount ) );
+	checkCudaErrors( cudaFree( synapseIndexMap.outgoingSynapseIndexMap ) );
 
-	HANDLE_ERROR( cudaFree( synapseIndexMap.incomingSynapseBegin ) );
-	HANDLE_ERROR( cudaFree( synapseIndexMap.incomingSynapseCount ) );
-	HANDLE_ERROR( cudaFree( synapseIndexMap.incomingSynapseIndexMap ) );
+	checkCudaErrors( cudaFree( synapseIndexMap.incomingSynapseBegin ) );
+	checkCudaErrors( cudaFree( synapseIndexMap.incomingSynapseCount ) );
+	checkCudaErrors( cudaFree( synapseIndexMap.incomingSynapseIndexMap ) );
 
-	HANDLE_ERROR( cudaFree( synapseIndexMapDevice ) );
+	checkCudaErrors( cudaFree( synapseIndexMapDevice ) );
 }
 
 /* 
@@ -331,29 +331,29 @@ void GPUSpikingModel::copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIn
 
 	SynapseIndexMap synapseIndexMap;
 
-	HANDLE_ERROR( cudaMemcpy ( &synapseIndexMap, synapseIndexMapDevice, sizeof( SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( &synapseIndexMap, synapseIndexMapDevice, sizeof( SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
 
         // forward map
-	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.outgoingSynapseBegin, synapseIndexMapHost.outgoingSynapseBegin, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
-	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.outgoingSynapseCount, synapseIndexMapHost.outgoingSynapseCount, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( synapseIndexMap.outgoingSynapseBegin, synapseIndexMapHost.outgoingSynapseBegin, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( synapseIndexMap.outgoingSynapseCount, synapseIndexMapHost.outgoingSynapseCount, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
 	// the number of synapses may change, so we reallocate the memory
 	if (synapseIndexMap.outgoingSynapseIndexMap != NULL) {
-		HANDLE_ERROR( cudaFree( synapseIndexMap.outgoingSynapseIndexMap ) );
+		checkCudaErrors( cudaFree( synapseIndexMap.outgoingSynapseIndexMap ) );
 	}
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.outgoingSynapseIndexMap, total_synapse_counts * sizeof( BGSIZE ) ) );
-	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.outgoingSynapseIndexMap, synapseIndexMapHost.outgoingSynapseIndexMap, total_synapse_counts * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &synapseIndexMap.outgoingSynapseIndexMap, total_synapse_counts * sizeof( BGSIZE ) ) );
+	checkCudaErrors( cudaMemcpy ( synapseIndexMap.outgoingSynapseIndexMap, synapseIndexMapHost.outgoingSynapseIndexMap, total_synapse_counts * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
 
         // active synapse map
-	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.incomingSynapseBegin, synapseIndexMapHost.incomingSynapseBegin, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
-	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.incomingSynapseCount, synapseIndexMapHost.incomingSynapseCount, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( synapseIndexMap.incomingSynapseBegin, synapseIndexMapHost.incomingSynapseBegin, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( synapseIndexMap.incomingSynapseCount, synapseIndexMapHost.incomingSynapseCount, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
 	// the number of synapses may change, so we reallocate the memory
 	if (synapseIndexMap.incomingSynapseIndexMap != NULL) {
-		HANDLE_ERROR( cudaFree( synapseIndexMap.incomingSynapseIndexMap ) );
+		checkCudaErrors( cudaFree( synapseIndexMap.incomingSynapseIndexMap ) );
 	}
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.incomingSynapseIndexMap, total_synapse_counts * sizeof( BGSIZE ) ) );
-	HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.incomingSynapseIndexMap, synapseIndexMapHost.incomingSynapseIndexMap, total_synapse_counts * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &synapseIndexMap.incomingSynapseIndexMap, total_synapse_counts * sizeof( BGSIZE ) ) );
+	checkCudaErrors( cudaMemcpy ( synapseIndexMap.incomingSynapseIndexMap, synapseIndexMapHost.incomingSynapseIndexMap, total_synapse_counts * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
 
-	HANDLE_ERROR( cudaMemcpy ( synapseIndexMapDevice, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( synapseIndexMapDevice, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
 }
 
 /* ------------------*\

@@ -7,7 +7,7 @@
 #include "AllSpikingSynapses.h"
 #include "GPUSpikingModel.h"
 #include "AllSynapsesDeviceFuncs.h"
-#include "Book.h"
+#include <helper_cuda.h>
 
 /*
  *  Allocate GPU memories to store all synapses' states,
@@ -35,8 +35,8 @@ void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, int nu
 
 	allocDeviceStruct( allSynapses, num_neurons, maxSynapsesPerNeuron );
 
-	HANDLE_ERROR( cudaMalloc( allSynapsesDevice, sizeof( AllSTDPSynapsesDeviceProperties ) ) );
-	HANDLE_ERROR( cudaMemcpy ( *allSynapsesDevice, &allSynapses, sizeof( AllSTDPSynapsesDeviceProperties ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMalloc( allSynapsesDevice, sizeof( AllSTDPSynapsesDeviceProperties ) ) );
+	checkCudaErrors( cudaMemcpy ( *allSynapsesDevice, &allSynapses, sizeof( AllSTDPSynapsesDeviceProperties ), cudaMemcpyHostToDevice ) );
 }
 
 /*
@@ -54,33 +54,33 @@ void AllSTDPSynapses::allocDeviceStruct( AllSTDPSynapsesDeviceProperties &allSyn
 
         BGSIZE max_total_synapses = maxSynapsesPerNeuron * num_neurons;
 
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.total_delayPost, max_total_synapses * sizeof( int ) ) );
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.tauspost, max_total_synapses * sizeof( BGFLOAT ) ) );
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.tauspre, max_total_synapses * sizeof( BGFLOAT ) ) );
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.taupos, max_total_synapses * sizeof( BGFLOAT ) ) );
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.tauneg, max_total_synapses * sizeof( BGFLOAT ) ) );
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.STDPgap, max_total_synapses * sizeof( BGFLOAT ) ) );
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.Wex, max_total_synapses * sizeof( BGFLOAT ) ) );
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.Aneg, max_total_synapses * sizeof( BGFLOAT ) ) );
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.Apos, max_total_synapses * sizeof( BGFLOAT ) ) );
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.mupos, max_total_synapses * sizeof( BGFLOAT ) ) );
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.muneg, max_total_synapses * sizeof( BGFLOAT ) ) );
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &allSynapses.useFroemkeDanSTDP, max_total_synapses * sizeof( bool ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.total_delayPost, max_total_synapses * sizeof( int ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.tauspost, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.tauspre, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.taupos, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.tauneg, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.STDPgap, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.Wex, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.Aneg, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.Apos, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.mupos, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.muneg, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.useFroemkeDanSTDP, max_total_synapses * sizeof( bool ) ) );
 
         // create a EventQueue objet in device memory and set the pointer to postSpikeQueue.
         EventQueue **pEventQueue; // temporary buffer to save pointer to EventQueue object.
 
         // allocate device memory for the buffer.
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &pEventQueue, sizeof( EventQueue * ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &pEventQueue, sizeof( EventQueue * ) ) );
 
         // create a EventQueue object in device memory.
         allocEventQueueDevice <<< 1, 1 >>> ( max_total_synapses, pEventQueue );
 
         // save the pointer of the object.
-        HANDLE_ERROR( cudaMemcpy ( &allSynapses.postSpikeQueue, pEventQueue, sizeof( EventQueue * ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( &allSynapses.postSpikeQueue, pEventQueue, sizeof( EventQueue * ), cudaMemcpyDeviceToHost ) );
 
         // free device memory for the buffer.
-        HANDLE_ERROR( cudaFree( pEventQueue ) );
+        checkCudaErrors( cudaFree( pEventQueue ) );
 }
 
 /*
@@ -93,11 +93,11 @@ void AllSTDPSynapses::allocDeviceStruct( AllSTDPSynapsesDeviceProperties &allSyn
 void AllSTDPSynapses::deleteSynapseDeviceStruct( void* allSynapsesDevice ) {
 	AllSTDPSynapsesDeviceProperties allSynapses;
 
-	HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSTDPSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSTDPSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
 
 	deleteDeviceStruct( allSynapses );
 
-	HANDLE_ERROR( cudaFree( allSynapsesDevice ) );
+	checkCudaErrors( cudaFree( allSynapsesDevice ) );
 }
 
 /*
@@ -108,18 +108,18 @@ void AllSTDPSynapses::deleteSynapseDeviceStruct( void* allSynapsesDevice ) {
  *                             on device memory.
  */
 void AllSTDPSynapses::deleteDeviceStruct( AllSTDPSynapsesDeviceProperties& allSynapses ) {
-        HANDLE_ERROR( cudaFree( allSynapses.total_delayPost ) );
-        HANDLE_ERROR( cudaFree( allSynapses.tauspost ) );
-        HANDLE_ERROR( cudaFree( allSynapses.tauspre ) );
-        HANDLE_ERROR( cudaFree( allSynapses.taupos ) );
-        HANDLE_ERROR( cudaFree( allSynapses.tauneg ) );
-        HANDLE_ERROR( cudaFree( allSynapses.STDPgap ) );
-        HANDLE_ERROR( cudaFree( allSynapses.Wex ) );
-        HANDLE_ERROR( cudaFree( allSynapses.Aneg ) );
-        HANDLE_ERROR( cudaFree( allSynapses.Apos ) );
-        HANDLE_ERROR( cudaFree( allSynapses.mupos ) );
-        HANDLE_ERROR( cudaFree( allSynapses.muneg ) );
-        HANDLE_ERROR( cudaFree( allSynapses.useFroemkeDanSTDP ) );
+        checkCudaErrors( cudaFree( allSynapses.total_delayPost ) );
+        checkCudaErrors( cudaFree( allSynapses.tauspost ) );
+        checkCudaErrors( cudaFree( allSynapses.tauspre ) );
+        checkCudaErrors( cudaFree( allSynapses.taupos ) );
+        checkCudaErrors( cudaFree( allSynapses.tauneg ) );
+        checkCudaErrors( cudaFree( allSynapses.STDPgap ) );
+        checkCudaErrors( cudaFree( allSynapses.Wex ) );
+        checkCudaErrors( cudaFree( allSynapses.Aneg ) );
+        checkCudaErrors( cudaFree( allSynapses.Apos ) );
+        checkCudaErrors( cudaFree( allSynapses.mupos ) );
+        checkCudaErrors( cudaFree( allSynapses.muneg ) );
+        checkCudaErrors( cudaFree( allSynapses.useFroemkeDanSTDP ) );
 
         // delete EventQueue object in device memory.
         deleteEventQueueDevice <<< 1, 1 >>> ( allSynapses.postSpikeQueue );
@@ -150,7 +150,7 @@ void AllSTDPSynapses::copySynapseHostToDevice( void* allSynapsesDevice, const Si
 void AllSTDPSynapses::copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) { // copy everything necessary
 	AllSTDPSynapsesDeviceProperties allSynapses;
 
-        HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSTDPSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSTDPSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
 
 	copyHostToDevice( allSynapsesDevice, allSynapses, num_neurons, maxSynapsesPerNeuron );	
 }
@@ -169,45 +169,45 @@ void AllSTDPSynapses::copyHostToDevice( void* allSynapsesDevice, AllSTDPSynapses
 
         BGSIZE max_total_synapses = maxSynapsesPerNeuron * num_neurons;
         
-        HANDLE_ERROR( cudaMemcpy ( allSynapses.total_delayPost, total_delayPost,
+        checkCudaErrors( cudaMemcpy ( allSynapses.total_delayPost, total_delayPost,
                 max_total_synapses * sizeof( int ), cudaMemcpyHostToDevice ) ); 
-        HANDLE_ERROR( cudaMemcpy ( allSynapses.tauspost, tauspost,
+        checkCudaErrors( cudaMemcpy ( allSynapses.tauspost, tauspost,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        HANDLE_ERROR( cudaMemcpy ( allSynapses.tauspre, tauspre,
+        checkCudaErrors( cudaMemcpy ( allSynapses.tauspre, tauspre,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        HANDLE_ERROR( cudaMemcpy ( allSynapses.taupos, taupos,
+        checkCudaErrors( cudaMemcpy ( allSynapses.taupos, taupos,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        HANDLE_ERROR( cudaMemcpy ( allSynapses.tauneg, tauneg,
+        checkCudaErrors( cudaMemcpy ( allSynapses.tauneg, tauneg,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        HANDLE_ERROR( cudaMemcpy ( allSynapses.STDPgap, STDPgap,
+        checkCudaErrors( cudaMemcpy ( allSynapses.STDPgap, STDPgap,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        HANDLE_ERROR( cudaMemcpy ( allSynapses.Wex, Wex,
+        checkCudaErrors( cudaMemcpy ( allSynapses.Wex, Wex,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        HANDLE_ERROR( cudaMemcpy ( allSynapses.Aneg, Aneg,
+        checkCudaErrors( cudaMemcpy ( allSynapses.Aneg, Aneg,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        HANDLE_ERROR( cudaMemcpy ( allSynapses.Apos, Apos,
+        checkCudaErrors( cudaMemcpy ( allSynapses.Apos, Apos,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        HANDLE_ERROR( cudaMemcpy ( allSynapses.mupos, mupos,
+        checkCudaErrors( cudaMemcpy ( allSynapses.mupos, mupos,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        HANDLE_ERROR( cudaMemcpy ( allSynapses.muneg, muneg,
+        checkCudaErrors( cudaMemcpy ( allSynapses.muneg, muneg,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        HANDLE_ERROR( cudaMemcpy ( allSynapses.useFroemkeDanSTDP, useFroemkeDanSTDP,
+        checkCudaErrors( cudaMemcpy ( allSynapses.useFroemkeDanSTDP, useFroemkeDanSTDP,
                 max_total_synapses * sizeof( bool ), cudaMemcpyHostToDevice ) ); 
 
         // deep copy postSpikeQueue from host to device
         BGQUEUE_ELEMENT* pQueueBuffer; // temporary buffer to save event queue.
 
         // allocate device memory for the buffer.
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &pQueueBuffer, postSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &pQueueBuffer, postSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ) ) );
 
         // copy event queue data from host to the buffer.
-        HANDLE_ERROR( cudaMemcpy ( pQueueBuffer, postSpikeQueue->m_queueEvent, postSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ), cudaMemcpyHostToDevice ) );
+        checkCudaErrors( cudaMemcpy ( pQueueBuffer, postSpikeQueue->m_queueEvent, postSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ), cudaMemcpyHostToDevice ) );
 
         // copy event queue data from the buffer to the device.
         copyEventQueueDevice <<< 1, 1 >>> (allSynapses.postSpikeQueue, postSpikeQueue->m_nMaxEvent, postSpikeQueue->m_idxQueue, pQueueBuffer);
 
         // free device memory for the buffer.
-        HANDLE_ERROR( cudaFree( pQueueBuffer ) );
+        checkCudaErrors( cudaFree( pQueueBuffer ) );
 }
 
 /*
@@ -221,7 +221,7 @@ void AllSTDPSynapses::copySynapseDeviceToHost( void* allSynapsesDevice, const Si
 	// copy everything necessary
 	AllSTDPSynapsesDeviceProperties allSynapses;
 
-        HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSTDPSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSTDPSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
 
 	copyDeviceToHost( allSynapses, sim_info );
 }
@@ -241,27 +241,27 @@ void AllSTDPSynapses::copyDeviceToHost( AllSTDPSynapsesDeviceProperties& allSyna
 	int num_neurons = sim_info->totalNeurons;
 	BGSIZE max_total_synapses = sim_info->maxSynapsesPerNeuron * num_neurons;
 
-        HANDLE_ERROR( cudaMemcpy ( tauspost, allSynapses.tauspost,
+        checkCudaErrors( cudaMemcpy ( tauspost, allSynapses.tauspost,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( tauspre, allSynapses.tauspre,
+        checkCudaErrors( cudaMemcpy ( tauspre, allSynapses.tauspre,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( taupos, allSynapses.taupos,
+        checkCudaErrors( cudaMemcpy ( taupos, allSynapses.taupos,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( tauneg, allSynapses.tauneg,
+        checkCudaErrors( cudaMemcpy ( tauneg, allSynapses.tauneg,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( STDPgap, allSynapses.STDPgap,
+        checkCudaErrors( cudaMemcpy ( STDPgap, allSynapses.STDPgap,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( Wex, allSynapses.Wex,
+        checkCudaErrors( cudaMemcpy ( Wex, allSynapses.Wex,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( Aneg, allSynapses.Aneg,
+        checkCudaErrors( cudaMemcpy ( Aneg, allSynapses.Aneg,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( Apos, allSynapses.Apos,
+        checkCudaErrors( cudaMemcpy ( Apos, allSynapses.Apos,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( mupos, allSynapses.mupos,
+        checkCudaErrors( cudaMemcpy ( mupos, allSynapses.mupos,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( muneg, allSynapses.muneg,
+        checkCudaErrors( cudaMemcpy ( muneg, allSynapses.muneg,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( useFroemkeDanSTDP, allSynapses.useFroemkeDanSTDP,
+        checkCudaErrors( cudaMemcpy ( useFroemkeDanSTDP, allSynapses.useFroemkeDanSTDP,
                 max_total_synapses * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 
         // deep copy postSpikeQueue from device to host.
@@ -269,20 +269,20 @@ void AllSTDPSynapses::copyDeviceToHost( AllSTDPSynapsesDeviceProperties& allSyna
         EventQueue* pDstEventQueue;    // temporary buffer to save EventQueue object.
 
         // allocate device memories for buffers.
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &pQueueBuffer, postSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ) ) );
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &pDstEventQueue, sizeof( EventQueue ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &pQueueBuffer, postSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &pDstEventQueue, sizeof( EventQueue ) ) );
 
         // copy event queue data from device to the buffers.
         copyEventQueueDevice <<< 1, 1 >>> (allSynapses.postSpikeQueue, pQueueBuffer, pDstEventQueue);
 
         // copy data in the buffers to the event queue in host memory.
-        HANDLE_ERROR( cudaMemcpy ( postSpikeQueue->m_queueEvent, pQueueBuffer, postSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( &postSpikeQueue->m_nMaxEvent, &pDstEventQueue->m_nMaxEvent, sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( &postSpikeQueue->m_idxQueue, &pDstEventQueue->m_idxQueue, sizeof( uint32_t ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( postSpikeQueue->m_queueEvent, pQueueBuffer, postSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( &postSpikeQueue->m_nMaxEvent, &pDstEventQueue->m_nMaxEvent, sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( &postSpikeQueue->m_idxQueue, &pDstEventQueue->m_idxQueue, sizeof( uint32_t ), cudaMemcpyDeviceToHost ) );
 
         // free device memories for buffers.
-        HANDLE_ERROR( cudaFree( pQueueBuffer ) );
-        HANDLE_ERROR( cudaFree( pDstEventQueue ) );
+        checkCudaErrors( cudaFree( pQueueBuffer ) );
+        checkCudaErrors( cudaFree( pDstEventQueue ) );
 }
 
 /*
@@ -322,5 +322,5 @@ void AllSTDPSynapses::setSynapseClassID()
 {
     enumClassSynapses classSynapses_h = classAllSTDPSynapses;
 
-    HANDLE_ERROR( cudaMemcpyToSymbol(classSynapses_d, &classSynapses_h, sizeof(enumClassSynapses)) );
+    checkCudaErrors( cudaMemcpyToSymbol(classSynapses_d, &classSynapses_h, sizeof(enumClassSynapses)) );
 }

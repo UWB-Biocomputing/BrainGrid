@@ -5,7 +5,7 @@
 
 #include "AllSpikingNeurons.h"
 #include "AllSpikingSynapses.h"
-#include "Book.h"
+#include <helper_cuda.h>
 
 /*
  *  Copy spike history data stored in device memory to host.
@@ -18,11 +18,11 @@ void AllSpikingNeurons::copyDeviceSpikeHistoryToHost( AllSpikingNeuronsDevicePro
 {
         int numNeurons = sim_info->totalNeurons;
         uint64_t* pSpikeHistory[numNeurons];
-        HANDLE_ERROR( cudaMemcpy ( pSpikeHistory, allNeurons.spike_history, numNeurons * sizeof( uint64_t* ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( pSpikeHistory, allNeurons.spike_history, numNeurons * sizeof( uint64_t* ), cudaMemcpyDeviceToHost ) );
 
         int max_spikes = static_cast<int> (sim_info->epochDuration * sim_info->maxFiringRate);
         for (int i = 0; i < numNeurons; i++) {
-                HANDLE_ERROR( cudaMemcpy ( spike_history[i], pSpikeHistory[i],
+                checkCudaErrors( cudaMemcpy ( spike_history[i], pSpikeHistory[i],
                         max_spikes * sizeof( uint64_t ), cudaMemcpyDeviceToHost ) );
         }
 }
@@ -38,8 +38,8 @@ void AllSpikingNeurons::copyDeviceSpikeCountsToHost( AllSpikingNeuronsDeviceProp
 {
         int numNeurons = sim_info->totalNeurons;
 
-        HANDLE_ERROR( cudaMemcpy ( spikeCount, allNeurons.spikeCount, numNeurons * sizeof( int ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( spikeCountOffset, allNeurons.spikeCountOffset, numNeurons * sizeof( int ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( spikeCount, allNeurons.spikeCount, numNeurons * sizeof( int ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( spikeCountOffset, allNeurons.spikeCountOffset, numNeurons * sizeof( int ), cudaMemcpyDeviceToHost ) );
 }
 
 /*
@@ -53,8 +53,8 @@ void AllSpikingNeurons::clearDeviceSpikeCounts( AllSpikingNeuronsDevicePropertie
 {
         int numNeurons = sim_info->totalNeurons;
 
-        HANDLE_ERROR( cudaMemset( allNeurons.spikeCount, 0, numNeurons * sizeof( int ) ) );
-        HANDLE_ERROR( cudaMemcpy ( allNeurons.spikeCountOffset, spikeCountOffset, numNeurons * sizeof( int ), cudaMemcpyHostToDevice ) );
+        checkCudaErrors( cudaMemset( allNeurons.spikeCount, 0, numNeurons * sizeof( int ) ) );
+        checkCudaErrors( cudaMemcpy ( allNeurons.spikeCountOffset, spikeCountOffset, numNeurons * sizeof( int ), cudaMemcpyHostToDevice ) );
 }
 
 /*

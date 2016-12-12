@@ -7,7 +7,7 @@
  */
 
 #include "GpuSInputRegular.h"
-#include "Book.h"
+#include <helper_cuda.h>
 
 // Forward Delaration
 void allocDeviceValues( SimulationInfo* psi, BGFLOAT* initValues, int *nShiftValues );
@@ -101,12 +101,12 @@ void allocDeviceValues( SimulationInfo* psi, BGFLOAT* initValues, int *nShiftVal
     BGSIZE nShiftValues_d_size = neuron_count * sizeof (int);   // size of shift values
 
     // Allocate GPU device memory
-    HANDLE_ERROR( cudaMalloc ( ( void ** ) &initValues_d, initValues_d_size ) );
-    HANDLE_ERROR( cudaMalloc ( ( void ** ) &nShiftValues_d, nShiftValues_d_size ) );
+    checkCudaErrors( cudaMalloc ( ( void ** ) &initValues_d, initValues_d_size ) );
+    checkCudaErrors( cudaMalloc ( ( void ** ) &nShiftValues_d, nShiftValues_d_size ) );
 
     // Copy values into device memory
-    HANDLE_ERROR( cudaMemcpy ( initValues_d, initValues, initValues_d_size, cudaMemcpyHostToDevice ) );
-    HANDLE_ERROR( cudaMemcpy ( nShiftValues_d, nShiftValues, nShiftValues_d_size, cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( initValues_d, initValues, initValues_d_size, cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( nShiftValues_d, nShiftValues, nShiftValues_d_size, cudaMemcpyHostToDevice ) );
 }
 
 /* 
@@ -114,8 +114,8 @@ void allocDeviceValues( SimulationInfo* psi, BGFLOAT* initValues, int *nShiftVal
  */ 
 void deleteDeviceValues(  )
 {   
-    HANDLE_ERROR( cudaFree( initValues_d ) );
-    HANDLE_ERROR( cudaFree( nShiftValues_d ) );
+    checkCudaErrors( cudaFree( initValues_d ) );
+    checkCudaErrors( cudaFree( nShiftValues_d ) );
 }
 
 // CUDA code for -----------------------------------------------------------------------

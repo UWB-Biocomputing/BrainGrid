@@ -1,7 +1,7 @@
 #include "ConnGrowth.h"
 #include "AllSpikingSynapses.h"
 #include "AllSynapsesDeviceFuncs.h"
-#include "Book.h"
+#include <helper_cuda.h>
 
 /*
  *  Update the weight of the Synapses in the simulation.
@@ -31,28 +31,28 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neuro
         BGSIZE W_d_size = sim_info->totalNeurons * sim_info->totalNeurons * sizeof (BGFLOAT);
         BGFLOAT* W_h = new BGFLOAT[W_d_size];
         BGFLOAT* W_d;
-        HANDLE_ERROR( cudaMalloc ( ( void ** ) &W_d, W_d_size ) );
+        checkCudaErrors( cudaMalloc ( ( void ** ) &W_d, W_d_size ) );
 
         neuronType* neuron_type_map_d;
-        HANDLE_ERROR( cudaMalloc( ( void ** ) &neuron_type_map_d, sim_info->totalNeurons * sizeof( neuronType ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &neuron_type_map_d, sim_info->totalNeurons * sizeof( neuronType ) ) );
 
         // copy weight data to the device memory
         for ( int i = 0 ; i < sim_info->totalNeurons; i++ )
                 for ( int j = 0; j < sim_info->totalNeurons; j++ )
                         W_h[i * sim_info->totalNeurons + j] = (*W)(i, j);
 
-        HANDLE_ERROR( cudaMemcpy ( W_d, W_h, W_d_size, cudaMemcpyHostToDevice ) );
+        checkCudaErrors( cudaMemcpy ( W_d, W_h, W_d_size, cudaMemcpyHostToDevice ) );
 
-        HANDLE_ERROR( cudaMemcpy ( neuron_type_map_d, layout->neuron_type_map, sim_info->totalNeurons * sizeof( neuronType ), cudaMemcpyHostToDevice ) );
+        checkCudaErrors( cudaMemcpy ( neuron_type_map_d, layout->neuron_type_map, sim_info->totalNeurons * sizeof( neuronType ), cudaMemcpyHostToDevice ) );
 
         blocksPerGrid = ( sim_info->totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
         updateSynapsesWeightsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, deltaT, W_d, sim_info->maxSynapsesPerNeuron, m_allNeuronsDevice, m_allSynapsesDevice, neuron_type_map_d );
 
         // free memories
-        HANDLE_ERROR( cudaFree( W_d ) );
+        checkCudaErrors( cudaFree( W_d ) );
         delete[] W_h;
 
-        HANDLE_ERROR( cudaFree( neuron_type_map_d ) );
+        checkCudaErrors( cudaFree( neuron_type_map_d ) );
 
         // copy device synapse count to host memory
         synapses.copyDeviceSynapseCountsToHost(m_allSynapsesDevice, sim_info);

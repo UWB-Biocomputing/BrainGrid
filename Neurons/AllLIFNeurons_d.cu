@@ -1,7 +1,7 @@
 #include "AllLIFNeurons.h"
 #include "AllNeuronsDeviceFuncs.h"
 
-#include "Book.h"
+#include <helper_cuda.h>
 
 /*
  *  Update the state of all neurons for a time step

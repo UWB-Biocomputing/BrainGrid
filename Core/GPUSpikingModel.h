@@ -65,7 +65,7 @@
 #include "AllSpikingNeurons.h"
 #include "AllSpikingSynapses.h"
 #ifdef __CUDACC__
-#include "Book.h"
+#include <helper_cuda.h>
 #endif
 
 const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;

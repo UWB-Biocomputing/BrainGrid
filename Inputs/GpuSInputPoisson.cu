@@ -8,7 +8,7 @@
 
 #include "curand_kernel.h"
 #include "GpuSInputPoisson.h"
-#include "Book.h"
+#include <helper_cuda.h>
 
 //! Memory to save global state for curand.
 curandState* devStates_d;
@@ -110,10 +110,10 @@ void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int
     BGSIZE nISIs_d_size = neuron_count * sizeof (int);   // size of shift values
 
     // Allocate GPU device memory
-    HANDLE_ERROR( cudaMalloc ( ( void ** ) &nISIs_d, nISIs_d_size ) );
+    checkCudaErrors( cudaMalloc ( ( void ** ) &nISIs_d, nISIs_d_size ) );
 
     // Copy values into device memory
-    HANDLE_ERROR( cudaMemcpy ( nISIs_d, nISIs, nISIs_d_size, cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( nISIs_d, nISIs, nISIs_d_size, cudaMemcpyHostToDevice ) );
 
     // create an input synapse layer
     m_synapses->allocSynapseDeviceStruct( (void **)&allSynapsesDevice, neuron_count, 1 ); 
@@ -125,7 +125,7 @@ void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int
     initSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, allSynapsesDevice, psi->pSummationMap, psi->width, psi->deltaT, weight );
 
     // allocate memory for curand global state
-    HANDLE_ERROR( cudaMalloc ( &devStates_d, neuron_count * sizeof( curandState ) ) );
+    checkCudaErrors( cudaMalloc ( &devStates_d, neuron_count * sizeof( curandState ) ) );
 
     // allocate memory for synapse index map and initialize it
     SynapseIndexMap synapseIndexMap;
@@ -136,16 +136,16 @@ void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int
     {
         incomingSynapseIndexMap[i] = syn_i;
     }
-    HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMap.incomingSynapseIndexMap, neuron_count * sizeof( BGSIZE ) ) );
-    HANDLE_ERROR( cudaMemcpy ( synapseIndexMap.incomingSynapseIndexMap, incomingSynapseIndexMap, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) ); 
-    HANDLE_ERROR( cudaMalloc( ( void ** ) &synapseIndexMapDevice, sizeof( SynapseIndexMap ) ) );
-    HANDLE_ERROR( cudaMemcpy ( synapseIndexMapDevice, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &synapseIndexMap.incomingSynapseIndexMap, neuron_count * sizeof( BGSIZE ) ) );
+    checkCudaErrors( cudaMemcpy ( synapseIndexMap.incomingSynapseIndexMap, incomingSynapseIndexMap, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) ); 
+    checkCudaErrors( cudaMalloc( ( void ** ) &synapseIndexMapDevice, sizeof( SynapseIndexMap ) ) );
+    checkCudaErrors( cudaMemcpy ( synapseIndexMapDevice, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
 
     delete[] incomingSynapseIndexMap;
 
     // allocate memory for masks for stimulus input and initialize it
-    HANDLE_ERROR( cudaMalloc ( &masks_d, neuron_count * sizeof( bool ) ) );
-    HANDLE_ERROR( cudaMemcpy ( masks_d, masks, neuron_count * sizeof( bool ), cudaMemcpyHostToDevice ) ); 
+    checkCudaErrors( cudaMalloc ( &masks_d, neuron_count * sizeof( bool ) ) );
+    checkCudaErrors( cudaMemcpy ( masks_d, masks, neuron_count * sizeof( bool ), cudaMemcpyHostToDevice ) ); 
 }
 
 /*
@@ -156,17 +156,17 @@ void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int
  */
 void GpuSInputPoisson::deleteDeviceValues(IModel* model, SimulationInfo* psi )
 {
-    HANDLE_ERROR( cudaFree( nISIs_d ) );
-    HANDLE_ERROR( cudaFree( devStates_d ) );
-    HANDLE_ERROR( cudaFree( masks_d ) );
+    checkCudaErrors( cudaFree( nISIs_d ) );
+    checkCudaErrors( cudaFree( devStates_d ) );
+    checkCudaErrors( cudaFree( masks_d ) );
 
     m_synapses->deleteSynapseDeviceStruct( allSynapsesDevice );
 
     // deallocate memory for synapse index map
     SynapseIndexMap synapseIndexMap;
-    HANDLE_ERROR( cudaMemcpy ( &synapseIndexMap, synapseIndexMapDevice, sizeof( SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
-    HANDLE_ERROR( cudaFree( synapseIndexMap.incomingSynapseIndexMap ) );
-    HANDLE_ERROR( cudaFree( synapseIndexMapDevice ) );
+    checkCudaErrors( cudaMemcpy ( &synapseIndexMap, synapseIndexMapDevice, sizeof( SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaFree( synapseIndexMap.incomingSynapseIndexMap ) );
+    checkCudaErrors( cudaFree( synapseIndexMapDevice ) );
 }
 
 // CUDA code for -----------------------------------------------------------------------

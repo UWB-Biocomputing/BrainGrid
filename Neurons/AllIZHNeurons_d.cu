@@ -7,7 +7,7 @@
 #include "AllIZHNeurons.h"
 #include "AllNeuronsDeviceFuncs.h"
 
-#include "Book.h"
+#include <helper_cuda.h>
 
 /*
  *  Allocate GPU memories to store all neurons' states,
@@ -22,8 +22,8 @@ void AllIZHNeurons::allocNeuronDeviceStruct( void** allNeuronsDevice, Simulation
 
 	allocDeviceStruct( allNeurons, sim_info );
 
-        HANDLE_ERROR( cudaMalloc( allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ) ) );
-        HANDLE_ERROR( cudaMemcpy ( *allNeuronsDevice, &allNeurons, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyHostToDevice ) );
+        checkCudaErrors( cudaMalloc( allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ) ) );
+        checkCudaErrors( cudaMemcpy ( *allNeuronsDevice, &allNeurons, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyHostToDevice ) );
 }
 
 /*
@@ -38,12 +38,12 @@ void AllIZHNeurons::allocDeviceStruct( AllIZHNeuronsDeviceProperties &allNeurons
 
 	AllIFNeurons::allocDeviceStruct( allNeurons, sim_info );
  
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeurons.Aconst, count * sizeof( BGFLOAT ) ) );
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeurons.Bconst, count * sizeof( BGFLOAT ) ) );
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeurons.Cconst, count * sizeof( BGFLOAT ) ) );
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeurons.Dconst, count * sizeof( BGFLOAT ) ) );
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeurons.u, count * sizeof( BGFLOAT ) ) );
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeurons.C3, count * sizeof( BGFLOAT ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &allNeurons.Aconst, count * sizeof( BGFLOAT ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &allNeurons.Bconst, count * sizeof( BGFLOAT ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &allNeurons.Cconst, count * sizeof( BGFLOAT ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &allNeurons.Dconst, count * sizeof( BGFLOAT ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &allNeurons.u, count * sizeof( BGFLOAT ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &allNeurons.C3, count * sizeof( BGFLOAT ) ) );
 }
 
 /*
@@ -56,11 +56,11 @@ void AllIZHNeurons::allocDeviceStruct( AllIZHNeuronsDeviceProperties &allNeurons
 void AllIZHNeurons::deleteNeuronDeviceStruct( void* allNeuronsDevice, const SimulationInfo *sim_info ) {
 	AllIZHNeuronsDeviceProperties allNeurons;
 
-	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
 
 	deleteDeviceStruct( allNeurons, sim_info );
 
-	HANDLE_ERROR( cudaFree( allNeuronsDevice ) );
+	checkCudaErrors( cudaFree( allNeuronsDevice ) );
 }
 
 /*
@@ -71,12 +71,12 @@ void AllIZHNeurons::deleteNeuronDeviceStruct( void* allNeuronsDevice, const Simu
  *  @param  sim_info           SimulationInfo to refer from.
  */
 void AllIZHNeurons::deleteDeviceStruct( AllIZHNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info ) {
-	HANDLE_ERROR( cudaFree( allNeurons.Aconst ) );
-	HANDLE_ERROR( cudaFree( allNeurons.Bconst ) );
-	HANDLE_ERROR( cudaFree( allNeurons.Cconst ) );
-	HANDLE_ERROR( cudaFree( allNeurons.Dconst ) );
-	HANDLE_ERROR( cudaFree( allNeurons.u ) );
-	HANDLE_ERROR( cudaFree( allNeurons.C3 ) );
+	checkCudaErrors( cudaFree( allNeurons.Aconst ) );
+	checkCudaErrors( cudaFree( allNeurons.Bconst ) );
+	checkCudaErrors( cudaFree( allNeurons.Cconst ) );
+	checkCudaErrors( cudaFree( allNeurons.Dconst ) );
+	checkCudaErrors( cudaFree( allNeurons.u ) );
+	checkCudaErrors( cudaFree( allNeurons.C3 ) );
 
 	AllIFNeurons::deleteDeviceStruct( allNeurons, sim_info );
 }
@@ -91,7 +91,7 @@ void AllIZHNeurons::deleteDeviceStruct( AllIZHNeuronsDeviceProperties& allNeuron
 void AllIZHNeurons::copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info ) { 
 	AllIZHNeuronsDeviceProperties allNeurons;
 
-	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
 	copyHostToDevice( allNeurons, sim_info );
 }
 
@@ -107,12 +107,12 @@ void AllIZHNeurons::copyHostToDevice( AllIZHNeuronsDeviceProperties& allNeurons,
 
 	AllIFNeurons::copyHostToDevice( allNeurons, sim_info );
 
-	HANDLE_ERROR( cudaMemcpy ( allNeurons.Aconst, Aconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
-	HANDLE_ERROR( cudaMemcpy ( allNeurons.Bconst, Bconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
-	HANDLE_ERROR( cudaMemcpy ( allNeurons.Cconst, Cconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
-	HANDLE_ERROR( cudaMemcpy ( allNeurons.Dconst, Dconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
-	HANDLE_ERROR( cudaMemcpy ( allNeurons.u, u, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
-	HANDLE_ERROR( cudaMemcpy ( allNeurons.C3, C3, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( allNeurons.Aconst, Aconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( allNeurons.Bconst, Bconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( allNeurons.Cconst, Cconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( allNeurons.Dconst, Dconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( allNeurons.u, u, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( allNeurons.C3, C3, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 }
 
 /*
@@ -125,7 +125,7 @@ void AllIZHNeurons::copyHostToDevice( AllIZHNeuronsDeviceProperties& allNeurons,
 void AllIZHNeurons::copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info ) {
 	AllIZHNeuronsDeviceProperties allNeurons;
 
-	HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
 	copyDeviceToHost( allNeurons, sim_info );
 }
 
@@ -141,12 +141,12 @@ void AllIZHNeurons::copyDeviceToHost( AllIZHNeuronsDeviceProperties& allNeurons,
 
 	AllIFNeurons::copyDeviceToHost( allNeurons, sim_info );
 
-	HANDLE_ERROR( cudaMemcpy ( Aconst, allNeurons.Aconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaMemcpy ( Bconst, allNeurons.Bconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaMemcpy ( Cconst, allNeurons.Cconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaMemcpy ( Dconst, allNeurons.Dconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaMemcpy ( u, allNeurons.u, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaMemcpy ( C3, allNeurons.C3, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( Aconst, allNeurons.Aconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( Bconst, allNeurons.Bconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( Cconst, allNeurons.Cconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( Dconst, allNeurons.Dconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( u, allNeurons.u, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( C3, allNeurons.C3, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 }
 
 /*
@@ -158,7 +158,7 @@ void AllIZHNeurons::copyDeviceToHost( AllIZHNeuronsDeviceProperties& allNeurons,
  */
 void AllIZHNeurons::copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDevice, const SimulationInfo *sim_info ) {
         AllIZHNeuronsDeviceProperties allNeurons;
-        HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
         AllSpikingNeurons::copyDeviceSpikeHistoryToHost( allNeurons, sim_info );
 }
 
@@ -172,7 +172,7 @@ void AllIZHNeurons::copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDevice, 
 void AllIZHNeurons::copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, const SimulationInfo *sim_info )
 {
         AllIZHNeuronsDeviceProperties allNeurons;
-        HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
         AllSpikingNeurons::copyDeviceSpikeCountsToHost( allNeurons, sim_info );
 }
 
@@ -186,7 +186,7 @@ void AllIZHNeurons::copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, c
 void AllIZHNeurons::clearNeuronSpikeCounts( void* allNeuronsDevice, const SimulationInfo *sim_info )
 {
         AllIZHNeuronsDeviceProperties allNeurons;
-        HANDLE_ERROR( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
         AllSpikingNeurons::clearDeviceSpikeCounts( allNeurons, sim_info );
 }
 
