@@ -67,6 +67,12 @@ void AllSpikingSynapses::allocDeviceStruct( AllSpikingSynapsesDeviceProperties &
         // allocate device memory for the buffer.
         checkCudaErrors( cudaMalloc( ( void ** ) &pEventQueue, sizeof( EventQueue * ) ) );
 
+        // allocate device heap memory
+        size_t heapSize;
+        checkCudaErrors( cudaDeviceGetLimit(&heapSize, cudaLimitMallocHeapSize) );
+        heapSize += max_total_synapses * 2;
+        checkCudaErrors( cudaDeviceSetLimit(cudaLimitMallocHeapSize, heapSize) );
+        
         // create a EventQueue object in device memory.
         allocEventQueueDevice <<< 1, 1 >>> ( max_total_synapses, pEventQueue );
 
