@@ -223,5 +223,8 @@ void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, uns
 }       
         
 //! Calculate summation point.
-extern __global__ void calcSummationMapDevice( int totalNeurons, AllSpikingNeuronsDeviceProperties* allNeurnsDevice, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice );
+extern __global__ void calcSummationMapDevice(int totalNeurons,
+		    AllSpikingNeuronsDeviceProperties* __restrict__ allNeurnsDevice,
+		    const SynapseIndexMap* __restrict__ synapseIndexMapDevice,
+                    const AllSpikingSynapsesDeviceProperties* __restrict__ allSynapsesDevice );
 #endif
