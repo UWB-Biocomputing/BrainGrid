@@ -29,18 +29,94 @@ class InputConfigurationBuilder {
     Document doc;
     Element root;
 
+    private static final String newRootTagName = "BGSimParams";
+    //attribute
+    private static final String nameAttributeName = "name";
+    private static final String classAttributeName = "class";
+    
+    //tags
+    private static final String simInfoParamsTagName = "SimInfoParams";
+    private static final String simInfoParamsPoolSizeTagName = "PoolSize";
+    private static final String simInfoParamsPoolSizeXTagName = "x";
+    private static final String simInfoParamsPoolSizeYTagName = "y";
+    private static final String simInfoParamsPoolSizeZTagName = "z";
+    private static final String simInfoParamsSimParamsTagName = "SimParams";
+    private static final String simInfoParamsSimParamsTSimTagName = "Tsim";
+    private static final String simInfoParamsSimParamsNumSimsTagName = "numSims";
+    private static final String simInfoParamsSimConfigTagName = "SimConfig";
+    private static final String simInfoParamsSimConfigMaxFiringRateTagName = "maxFiringRate";
+    private static final String simInfoParamsSimConfigMaxSynapsesPerNeuronTagName
+            = "maxSynapsesPerNeuron";
+    // <!-- Random seed - set to zero to use /dev/random -->
+    private static final String simInfoParamsSeedTagName = "Seed";
+    private static final String simInfoParamsSeedValueTagName = "value";
+    // <!-- Simulation State Ouptut File -->
+    private static final String simInfoParamsOutputParamsTagName = "OutputParams";
+    private static final String simInfoParamsOutputParamsStateOutputFileNameTagName
+            = "stateOutputFileName";
+    
+    private static final String modelParamsTagName = "ModelParams";
+    private static final String modelParamsNeuronsParamsTagName = "NeuronsParams";
+    private static final String modelParamsNeuronsParamsClassAttributeName = "class";
+    private static final String modelParamsNeuronsParamsIinjectTagName = "Iinject";
+    private static final String modelParamsNeuronsParamsIinjectMinTagName = "min";
+    private static final String modelParamsNeuronsParamsIinjectMaxTagName = "max";
+    private static final String modelParamsNeuronsParamsInoiseTagName = "Inoise";
+    private static final String modelParamsNeuronsParamsInoiseMinTagName = "min";
+    private static final String modelParamsNeuronsParamsInoiseMaxTagName = "max";
+    private static final String modelParamsNeuronsParamsVthreshTagName = "Vthresh";
+    private static final String modelParamsNeuronsParamsVthreshMinTagName = "min";
+    private static final String modelParamsNeuronsParamsVthreshMaxTagName = "max";
+    private static final String modelParamsNeuronsParamsVrestingTagName = "Vresting";
+    private static final String modelParamsNeuronsParamsVrestingMinTagName = "min";
+    private static final String modelParamsNeuronsParamsVrestingMaxTagName = "max";
+    private static final String modelParamsNeuronsParamsVresetTagName = "Vreset";
+    private static final String modelParamsNeuronsParamsVresetMinTagName = "min";
+    private static final String modelParamsNeuronsParamsVresetMaxTagName = "max";
+    private static final String modelParamsNeuronsParamsVinitTagName = "Vinit";
+    private static final String modelParamsNeuronsParamsVinitMinTagName = "min";
+    private static final String modelParamsNeuronsParamsVinitMaxTagName = "max";
+    private static final String modelParamsNeuronsParamsStarterVThreshTagName = "starter_vthresh";
+    private static final String modelParamsNeuronsParamsStarterVThreshMinTagName = "min";
+    private static final String modelParamsNeuronsParamsStarterVThreshMaxTagName = "max";
+    private static final String modelParamsNeuronsParamsStarterVResetTagName = "starter_vreset";
+    private static final String modelParamsNeuronsParamsStarterVResetMinTagName = "min";
+    private static final String modelParamsNeuronsParamsStarterVResetMaxTagName = "max";
+    
+    private static final String modelParamsSynapsesParamsTagName = "SynapsesParams";
+    private static final String modelParamsSynapsesParamsClassAttributeName = "class";
+    
+    private static final String modelParamsConnectionsParamsTagName = "ConnectionsParams";
+    private static final String modelParamsConnectionsParamsClassAttributeName = "class";
+    private static final String modelParamsConnectionsParamsGrowthParamsTagName = "GrowthParams";
+    private static final String modelParamsConnectionsParamsGrowthParamsEpsilonTagName = "epsilon";
+    private static final String modelParamsConnectionsParamsGrowthParamsBetaTagName = "beta";
+    private static final String modelParamsConnectionsParamsGrowthParamsRhoTagName = "rho";
+    private static final String modelParamsConnectionsParamsGrowthParamsTargetRateTagName = "targetRate";
+    private static final String modelParamsConnectionsParamsGrowthParamsMinRadiusTagName = "minRadius";
+    private static final String modelParamsConnectionsParamsGrowthParamsStartRadiusTagName = "startRadius";
+    
+    private static final String modelParamsLayoutParamsTagName = "LayoutParams";
+    private static final String modelParamsLayoutParamsClassAttributeName = "class";
+    private static final String modelParamsLayoutParamsFixedLayoutParamsTagName = "FixedLayoutParams";
+    private static final String modelParamsLayoutParamsFixedLayoutParamsLayoutFilesTagName = "LayoutFiles";
+    private static final String modelParamsLayoutParamsFixedLayoutParamsLayoutFilesActiveNListFileNameTagName = "activeNListFileName";
+    private static final String modelParamsLayoutParamsFixedLayoutParamsLayoutFilesInhNListFileNameTagName = "inhNListFileName";
+    private static final String modelParamsLayoutParamsFixedLayoutParamsLayoutFilesPrbNListFileNameTagName = "prbNListFileName";
+   
+    /* Will be deleted Later*/
     /* Tag and Attribute Names */
     private static final String rootTagName = "SimParams";
-    // <!-- Parameters for LSM -->
+//     <!-- Parameters for LSM -->
     private static final String lsmParamsTagName = "LsmParams";
     private static final String lsmFracExcAttributeName = "frac_EXC";
     private static final String lsmStartNeuronsAttributeName = "starter_neurons";
-    // <!-- size of pool of neurons [x y z] -->
+//     <!-- size of pool of neurons [x y z] -->
     private static final String poolSizeTagName = "PoolSize";
     private static final String poolSizeXAttributeName = "x";
     private static final String poolSizeYAttributeName = "y";
     private static final String poolSizeZAttributeName = "z";
-    // <!-- Interval of constant injected current -->
+//     <!-- Interval of constant injected current -->
     private static final String IinjectTagName = "Iinject";
     private static final String iInjectMinAttributeName = "min";
     private static final String iInjectMaxAttributeName = "max";
@@ -72,7 +148,7 @@ class InputConfigurationBuilder {
     private static final String starterVResetTagName = "starter_vreset";
     private static final String starterVResetMinAttributeName = "min";
     private static final String starterVResetMaxAttributeName = "max";
-    // <!-- Growth parameters -->
+//     <!-- Growth parameters -->
     private static final String growthParamsTagName
             = "GrowthParams";
     private static final String growthParamsEpsilonAttributeName
@@ -85,7 +161,7 @@ class InputConfigurationBuilder {
             = "minRadius";
     private static final String growthParamsStartRadiusAttributeName
             = "startRadius";
-    // <!-- Simulation Parameters -->
+//     <!-- Simulation Parameters -->
     private static final String simParamsTagName = "SimParams";
     private static final String simParamsTSimAttributeName = "Tsim";
     private static final String simParamsNumSimsAttributeName = "numSims";
@@ -100,8 +176,8 @@ class InputConfigurationBuilder {
     // <!-- Random seed - set to zero to use /dev/random -->
     private static final String seedTagName = "Seed";
     private static final String seedValueAttributeName = "value";
-    // <!-- If FixedLayout is present, the grid will be laid out according to 
-    // the positions below, rather than randomly based on LsmParams -->
+//     <!-- If FixedLayout is present, the grid will be laid out according to 
+//     the positions below, rather than randomly based on LsmParams -->
     private static final String layoutTypeTagName = "FixedLayout";
     private static final String layoutFilesTagName = "LayoutFiles";
     private static final String layoutFilesActiveNListFileNameAttributeName
@@ -110,6 +186,7 @@ class InputConfigurationBuilder {
             = "inhNListFileName";
     private static final String layoutFilesPrbNListFileNameAttributeName
             = "prbNListFileName";
+    /* Will be deleted Later*/
 
     /**
      * Responsible for initializing members and constructing this builder
@@ -120,8 +197,8 @@ class InputConfigurationBuilder {
         /* Build New XML Document */
         doc = DocumentBuilderFactory.newInstance().
                 newDocumentBuilder().newDocument();
-        root = doc.createElement(rootTagName);
-        doc.appendChild(root);
+        //root = doc.createElement(rootTagName);
+        //doc.appendChild(root);
     }
 
     /**
@@ -133,133 +210,424 @@ class InputConfigurationBuilder {
      * values, respectively
      */
     public void build(HashMap<String, String> paramMap) {
-        if (root != null) {
-            Element elem;
-            Element parent;
+//        if (root != null) {
+//            Element elem;
+//            Element parent;
+//
+//            // <!-- Parameters for LSM -->
+//            elem = doc.createElement(lsmParamsTagName);
+//            elem.setAttribute(lsmFracExcAttributeName,
+//                    paramMap.get(InputConfiguration.LSM_FRAC_EXC));
+//            elem.setAttribute(lsmStartNeuronsAttributeName,
+//                    paramMap.get(InputConfiguration.LSM_START_NEURONS));
+//            root.appendChild(elem); 
+//            // <!-- size of pool of neurons [x y z] -->
+//            elem = doc.createElement(poolSizeTagName);
+//            elem.setAttribute(poolSizeXAttributeName,
+//                    paramMap.get(InputConfiguration.POOL_SIZE_X));
+//            elem.setAttribute(poolSizeYAttributeName,
+//                    paramMap.get(InputConfiguration.POOL_SIZE_Y));
+//            elem.setAttribute(poolSizeZAttributeName,
+//                    paramMap.get(InputConfiguration.POOL_SIZE_Z));
+//            root.appendChild(elem);
+//            // <!-- Interval of constant injected current -->
+//            elem = doc.createElement(IinjectTagName);
+//            elem.setAttribute(iInjectMinAttributeName,
+//                    paramMap.get(InputConfiguration.I_INJECT_MIN));
+//            elem.setAttribute(iInjectMaxAttributeName,
+//                    paramMap.get(InputConfiguration.I_INJECT_MAX));
+//            root.appendChild(elem);
+//            // <!-- Interval of STD of (gaussian) noise current -->
+//            elem = doc.createElement(iNoiseTagName);
+//            elem.setAttribute(iNoiseMinAttributeName,
+//                    paramMap.get(InputConfiguration.I_NOISE_MIN));
+//            elem.setAttribute(iNoiseMaxAttributeName,
+//                    paramMap.get(InputConfiguration.I_NOISE_MAX));
+//            root.appendChild(elem);
+//            // <!-- Interval of firing threshold -->
+//            elem = doc.createElement(vThreshTagName);
+//            elem.setAttribute(vThreshMinAttributeName,
+//                    paramMap.get(InputConfiguration.V_THRESH_MIN));
+//            elem.setAttribute(vThreshMaxAttributeName,
+//                    paramMap.get(InputConfiguration.V_THRESH_MAX));
+//            root.appendChild(elem);
+//            // <!-- Interval of asymptotic voltage -->
+//            elem = doc.createElement(vRestingTagName);
+//            elem.setAttribute(vRestingMinAttributeName,
+//                    paramMap.get(InputConfiguration.V_RESTING_MIN));
+//            elem.setAttribute(vRestingMaxAttributeName,
+//                    paramMap.get(InputConfiguration.V_RESTING_MAX));
+//            root.appendChild(elem);
+//            // <!-- Interval of reset voltage -->
+//            elem = doc.createElement(vResetTagName);
+//            elem.setAttribute(vResetMinAttributeName,
+//                    paramMap.get(InputConfiguration.V_RESET_MIN));
+//            elem.setAttribute(vResetMaxAttributeName,
+//                    paramMap.get(InputConfiguration.V_RESET_MAX));
+//            root.appendChild(elem);
+//            // <!-- Interval of initial membrance voltage -->
+//            elem = doc.createElement(vInitTagName);
+//            elem.setAttribute(vInitMinAttributeName,
+//                    paramMap.get(InputConfiguration.V_INIT_MIN));
+//            elem.setAttribute(vInitMaxAttributeName,
+//                    paramMap.get(InputConfiguration.V_INIT_MAX));
+//            root.appendChild(elem);
+//            // <!-- Starter firing threshold -->
+//            elem = doc.createElement(starterVThreshTagName);
+//            elem.setAttribute(starterVThreshMinAttributeName,
+//                    paramMap.get(InputConfiguration.STARTER_V_THRESH_MIN));
+//            elem.setAttribute(starterVThreshMaxAttributeName,
+//                    paramMap.get(InputConfiguration.STARTER_V_THRESH_MAX));
+//            root.appendChild(elem);
+//            // <!-- Starter reset voltage -->
+//            elem = doc.createElement(starterVResetTagName);
+//            elem.setAttribute(starterVResetMinAttributeName,
+//                    paramMap.get(InputConfiguration.STARTER_V_RESET_MIN));
+//            elem.setAttribute(starterVResetMaxAttributeName,
+//                    paramMap.get(InputConfiguration.STARTER_V_RESET_MAX));
+//            root.appendChild(elem);
+//            // <!-- Growth parameters -->
+//            elem = doc.createElement(growthParamsTagName);
+//            elem.setAttribute(growthParamsEpsilonAttributeName,
+//                    paramMap.get(InputConfiguration.GROWTH_PARAMS_EPSILON));
+//            elem.setAttribute(growthBetaAttributeName,
+//                    paramMap.get(InputConfiguration.GROWTH_BETA));
+//            elem.setAttribute(growthParamsRhoAttributeName,
+//                    paramMap.get(InputConfiguration.GROWTH_PARAMS_RHO));
+//            elem.setAttribute(growthParamsTargetRateAttributeName,
+//                    paramMap.get(InputConfiguration.GROWTH_PARAMS_TARGET_RATE));
+//            elem.setAttribute(growthParamsMinRadiusAttributeName,
+//                    paramMap.get(InputConfiguration.GROWTH_PARAMS_MIN_RADIUS));
+//            elem.setAttribute(growthParamsStartRadiusAttributeName,
+//                    paramMap.get(InputConfiguration.GROWTH_PARAMS_START_RADIUS));
+//            root.appendChild(elem);
+//            // <!-- Simulation Parameters -->
+//            elem = doc.createElement(simParamsTagName);
+//            elem.setAttribute(simParamsTSimAttributeName,
+//                    paramMap.get(InputConfiguration.SIM_PARAMS_T_SIM));
+//            elem.setAttribute(simParamsNumSimsAttributeName,
+//                    paramMap.get(InputConfiguration.SIM_PARAMS_NUM_SIMS));
+//            elem.setAttribute(simParamsMaxFiringRateAttributeName,
+//                    paramMap.get(InputConfiguration.SIM_PARAMS_MAX_FIRING_RATE));
+//            elem.setAttribute(simParamsMaxSynapsesPerNeuronAttributeName,
+//                    paramMap.get(
+//                            InputConfiguration.SIM_PARAMS_MAX_SYNAPSES_PER_NEURON));
+//            root.appendChild(elem);
+//            // <!-- Simulation State Ouptut File -->
+//            elem = doc.createElement(outputParamsTagName);
+//            elem.setAttribute(
+//                    outputParamsStateOutputFileNameAttributeName, paramMap.get(
+//                            InputConfiguration.OUTPUT_PARAMS_STATE_OUTPUT_FILENAME));
+//            root.appendChild(elem);
+//            // <!-- Random seed - set to zero to use /dev/random -->
+//            elem = doc.createElement(seedTagName);
+//            elem.setAttribute(seedValueAttributeName,
+//                    paramMap.get(InputConfiguration.SEED_VALUE));
+//            root.appendChild(elem);
+//            // <!-- If FixedLayout is present, the grid will be laid out according  
+//            // to the positions below, rather than randomly based on LsmParams -->
+//            parent = doc.createElement(layoutTypeTagName);
+//            elem = doc.createElement(layoutFilesTagName);
+//            parent.appendChild(elem);
+//            elem.setAttribute(layoutFilesActiveNListFileNameAttributeName,
+//                    paramMap.get(InputConfiguration.LAYOUT_FILES_ACTIVE_N_LIST_FILE_NAME));
+//            elem.setAttribute(layoutFilesInhNListFileNameAttributeName,
+//                    paramMap.get(InputConfiguration.LAYOUT_FILES_INH_N_LIST_FILE_NAME));
+//            elem.setAttribute(layoutFilesPrbNListFileNameAttributeName,
+//                    paramMap.get(InputConfiguration.LAYOUT_FILES_PROBED_N_LIST_FILE_NAME));
+//            root.appendChild(parent);
+//        }
 
-            // <!-- Parameters for LSM -->
-            elem = doc.createElement(lsmParamsTagName);
-            elem.setAttribute(lsmFracExcAttributeName,
-                    paramMap.get(InputConfiguration.LSM_FRAC_EXC));
-            elem.setAttribute(lsmStartNeuronsAttributeName,
-                    paramMap.get(InputConfiguration.LSM_START_NEURONS));
-            root.appendChild(elem);
-            // <!-- size of pool of neurons [x y z] -->
-            elem = doc.createElement(poolSizeTagName);
-            elem.setAttribute(poolSizeXAttributeName,
-                    paramMap.get(InputConfiguration.POOL_SIZE_X));
-            elem.setAttribute(poolSizeYAttributeName,
-                    paramMap.get(InputConfiguration.POOL_SIZE_Y));
-            elem.setAttribute(poolSizeZAttributeName,
-                    paramMap.get(InputConfiguration.POOL_SIZE_Z));
-            root.appendChild(elem);
-            // <!-- Interval of constant injected current -->
-            elem = doc.createElement(IinjectTagName);
-            elem.setAttribute(iInjectMinAttributeName,
-                    paramMap.get(InputConfiguration.I_INJECT_MIN));
-            elem.setAttribute(iInjectMaxAttributeName,
-                    paramMap.get(InputConfiguration.I_INJECT_MAX));
-            root.appendChild(elem);
-            // <!-- Interval of STD of (gaussian) noise current -->
-            elem = doc.createElement(iNoiseTagName);
-            elem.setAttribute(iNoiseMinAttributeName,
-                    paramMap.get(InputConfiguration.I_NOISE_MIN));
-            elem.setAttribute(iNoiseMaxAttributeName,
-                    paramMap.get(InputConfiguration.I_NOISE_MAX));
-            root.appendChild(elem);
-            // <!-- Interval of firing threshold -->
-            elem = doc.createElement(vThreshTagName);
-            elem.setAttribute(vThreshMinAttributeName,
-                    paramMap.get(InputConfiguration.V_THRESH_MIN));
-            elem.setAttribute(vThreshMaxAttributeName,
-                    paramMap.get(InputConfiguration.V_THRESH_MAX));
-            root.appendChild(elem);
-            // <!-- Interval of asymptotic voltage -->
-            elem = doc.createElement(vRestingTagName);
-            elem.setAttribute(vRestingMinAttributeName,
-                    paramMap.get(InputConfiguration.V_RESTING_MIN));
-            elem.setAttribute(vRestingMaxAttributeName,
-                    paramMap.get(InputConfiguration.V_RESTING_MAX));
-            root.appendChild(elem);
-            // <!-- Interval of reset voltage -->
-            elem = doc.createElement(vResetTagName);
-            elem.setAttribute(vResetMinAttributeName,
-                    paramMap.get(InputConfiguration.V_RESET_MIN));
-            elem.setAttribute(vResetMaxAttributeName,
-                    paramMap.get(InputConfiguration.V_RESET_MAX));
-            root.appendChild(elem);
-            // <!-- Interval of initial membrance voltage -->
-            elem = doc.createElement(vInitTagName);
-            elem.setAttribute(vInitMinAttributeName,
-                    paramMap.get(InputConfiguration.V_INIT_MIN));
-            elem.setAttribute(vInitMaxAttributeName,
-                    paramMap.get(InputConfiguration.V_INIT_MAX));
-            root.appendChild(elem);
-            // <!-- Starter firing threshold -->
-            elem = doc.createElement(starterVThreshTagName);
-            elem.setAttribute(starterVThreshMinAttributeName,
-                    paramMap.get(InputConfiguration.STARTER_V_THRESH_MIN));
-            elem.setAttribute(starterVThreshMaxAttributeName,
-                    paramMap.get(InputConfiguration.STARTER_V_THRESH_MAX));
-            root.appendChild(elem);
-            // <!-- Starter reset voltage -->
-            elem = doc.createElement(starterVResetTagName);
-            elem.setAttribute(starterVResetMinAttributeName,
-                    paramMap.get(InputConfiguration.STARTER_V_RESET_MIN));
-            elem.setAttribute(starterVResetMaxAttributeName,
-                    paramMap.get(InputConfiguration.STARTER_V_RESET_MAX));
-            root.appendChild(elem);
-            // <!-- Growth parameters -->
-            elem = doc.createElement(growthParamsTagName);
-            elem.setAttribute(growthParamsEpsilonAttributeName,
-                    paramMap.get(InputConfiguration.GROWTH_PARAMS_EPSILON));
-            elem.setAttribute(growthBetaAttributeName,
-                    paramMap.get(InputConfiguration.GROWTH_BETA));
-            elem.setAttribute(growthParamsRhoAttributeName,
-                    paramMap.get(InputConfiguration.GROWTH_PARAMS_RHO));
-            elem.setAttribute(growthParamsTargetRateAttributeName,
-                    paramMap.get(InputConfiguration.GROWTH_PARAMS_TARGET_RATE));
-            elem.setAttribute(growthParamsMinRadiusAttributeName,
-                    paramMap.get(InputConfiguration.GROWTH_PARAMS_MIN_RADIUS));
-            elem.setAttribute(growthParamsStartRadiusAttributeName,
-                    paramMap.get(InputConfiguration.GROWTH_PARAMS_START_RADIUS));
-            root.appendChild(elem);
-            // <!-- Simulation Parameters -->
-            elem = doc.createElement(simParamsTagName);
-            elem.setAttribute(simParamsTSimAttributeName,
-                    paramMap.get(InputConfiguration.SIM_PARAMS_T_SIM));
-            elem.setAttribute(simParamsNumSimsAttributeName,
-                    paramMap.get(InputConfiguration.SIM_PARAMS_NUM_SIMS));
-            elem.setAttribute(simParamsMaxFiringRateAttributeName,
-                    paramMap.get(InputConfiguration.SIM_PARAMS_MAX_FIRING_RATE));
-            elem.setAttribute(simParamsMaxSynapsesPerNeuronAttributeName,
-                    paramMap.get(
-                            InputConfiguration.SIM_PARAMS_MAX_SYNAPSES_PER_NEURON));
-            root.appendChild(elem);
-            // <!-- Simulation State Ouptut File -->
-            elem = doc.createElement(outputParamsTagName);
-            elem.setAttribute(
-                    outputParamsStateOutputFileNameAttributeName, paramMap.get(
-                            InputConfiguration.OUTPUT_PARAMS_STATE_OUTPUT_FILENAME));
-            root.appendChild(elem);
-            // <!-- Random seed - set to zero to use /dev/random -->
-            elem = doc.createElement(seedTagName);
-            elem.setAttribute(seedValueAttributeName,
-                    paramMap.get(InputConfiguration.SEED_VALUE));
-            root.appendChild(elem);
-            // <!-- If FixedLayout is present, the grid will be laid out according  
-            // to the positions below, rather than randomly based on LsmParams -->
-            parent = doc.createElement(layoutTypeTagName);
-            elem = doc.createElement(layoutFilesTagName);
-            parent.appendChild(elem);
-            elem.setAttribute(layoutFilesActiveNListFileNameAttributeName,
-                    paramMap.get(InputConfiguration.LAYOUT_FILES_ACTIVE_N_LIST_FILE_NAME));
-            elem.setAttribute(layoutFilesInhNListFileNameAttributeName,
-                    paramMap.get(InputConfiguration.LAYOUT_FILES_INH_N_LIST_FILE_NAME));
-            elem.setAttribute(layoutFilesPrbNListFileNameAttributeName,
-                    paramMap.get(InputConfiguration.LAYOUT_FILES_PROBED_N_LIST_FILE_NAME));
-            root.appendChild(parent);
-        }
+        //root level
+        root = doc.createElement(newRootTagName);
+        doc.appendChild(root);
+        
+        Element elem;
+        //Setup SimInfoParams
+        Element simInfoParams;
+        Element poolSize;
+        Element simParams;
+        Element simConfig;
+        Element seed;
+        Element outputParams;
+        
+        //first level
+        simInfoParams = doc.createElement(simInfoParamsTagName);
+        simInfoParams.setAttribute(nameAttributeName,simInfoParamsTagName);
+        root.appendChild(simInfoParams);
+       
+        //second level
+        poolSize = doc.createElement(simInfoParamsPoolSizeTagName);
+        poolSize.setAttribute(nameAttributeName,simInfoParamsPoolSizeTagName);
+        simParams = doc.createElement(simInfoParamsSimParamsTagName);
+        simParams.setAttribute(nameAttributeName,simInfoParamsSimParamsTagName);
+        simConfig = doc.createElement(simInfoParamsSimConfigTagName);
+        simConfig.setAttribute(nameAttributeName,simInfoParamsSimConfigTagName);
+        seed = doc.createElement(simInfoParamsSeedTagName);
+        seed.setAttribute(nameAttributeName,simInfoParamsSeedTagName);
+        outputParams = doc.createElement(simInfoParamsOutputParamsTagName);
+        outputParams.setAttribute(nameAttributeName,simInfoParamsOutputParamsTagName);
+        
+        //setup the hierarchy structure
+        simInfoParams.appendChild(poolSize);
+        simInfoParams.appendChild(simParams);
+        simInfoParams.appendChild(simConfig);
+        simInfoParams.appendChild(seed);
+        simInfoParams.appendChild(outputParams);
+        
+        //thrid level
+        //poolSize
+        elem = doc.createElement(simInfoParamsPoolSizeXTagName);
+        elem.setAttribute(nameAttributeName,simInfoParamsPoolSizeXTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.POOL_SIZE_X));
+        poolSize.appendChild(elem);
+        
+        elem = doc.createElement(simInfoParamsPoolSizeYTagName);
+        elem.setAttribute(nameAttributeName,simInfoParamsPoolSizeYTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.POOL_SIZE_Y));
+        poolSize.appendChild(elem);
+        
+        elem = doc.createElement(simInfoParamsPoolSizeZTagName);
+        elem.setAttribute(nameAttributeName,simInfoParamsPoolSizeZTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.POOL_SIZE_Z));
+        poolSize.appendChild(elem);
+        
+        //SimParams
+        elem = doc.createElement(simInfoParamsSimParamsTSimTagName);
+        elem.setAttribute(nameAttributeName,simInfoParamsSimParamsTSimTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.SIM_PARAMS_T_SIM));
+        simParams.appendChild(elem);
+        
+        elem = doc.createElement(simInfoParamsSimParamsNumSimsTagName);
+        elem.setAttribute(nameAttributeName,simInfoParamsSimParamsNumSimsTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.SIM_PARAMS_NUM_SIMS));
+        simParams.appendChild(elem);
+        
+        //SimConfig
+        elem = doc.createElement(simInfoParamsSimConfigMaxFiringRateTagName);
+        elem.setAttribute(nameAttributeName,simInfoParamsSimConfigMaxFiringRateTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.SIM_PARAMS_MAX_FIRING_RATE));
+        simConfig.appendChild(elem);
+        
+        elem = doc.createElement(simInfoParamsSimConfigMaxSynapsesPerNeuronTagName);
+        elem.setAttribute(nameAttributeName,simInfoParamsSimConfigMaxSynapsesPerNeuronTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.SIM_PARAMS_MAX_SYNAPSES_PER_NEURON));
+        simConfig.appendChild(elem);
+        
+        //Seed
+        elem = doc.createElement(simInfoParamsSeedValueTagName);
+        elem.setAttribute(nameAttributeName,simInfoParamsSeedValueTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.SEED_VALUE));
+        seed.appendChild(elem);
+        
+        //OutputParams
+        elem = doc.createElement(simInfoParamsOutputParamsStateOutputFileNameTagName);
+        elem.setAttribute(nameAttributeName,simInfoParamsOutputParamsStateOutputFileNameTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.OUTPUT_PARAMS_STATE_OUTPUT_FILENAME));
+        outputParams.appendChild(elem);
+        
+        //Setup ModelParams
+        Element modelParams;
+        Element neuronsParams;
+        Element synapsesParams;
+        Element connectionsParams;
+        Element layoutParams;
+        
+        Element iinject;
+        Element inoise;
+        Element vthresh;
+        Element vresting;
+        Element vreset;
+        Element vinit;
+        Element starterVThresh;
+        Element starterVReset;
+        Element growthParams;
+        Element fixedLayoutParams;
+        
+        Element layoutFiles;
+        
+        //first level
+        modelParams = doc.createElement(modelParamsTagName);
+        modelParams.setAttribute(nameAttributeName,modelParamsTagName);
+        
+        root.appendChild(modelParams);
+        
+        //second level
+        neuronsParams = doc.createElement(modelParamsNeuronsParamsTagName);
+        neuronsParams.setAttribute(nameAttributeName,modelParamsNeuronsParamsTagName);
+        neuronsParams.setAttribute(modelParamsNeuronsParamsClassAttributeName,paramMap.get(InputConfiguration.NEURONS_PARAMS_CLASS));
+        synapsesParams = doc.createElement(modelParamsSynapsesParamsTagName);
+        synapsesParams.setAttribute(nameAttributeName,modelParamsSynapsesParamsTagName);
+        neuronsParams.setAttribute(modelParamsSynapsesParamsClassAttributeName,paramMap.get(InputConfiguration.SYNAPSES_PARAMS_CLASS));
+        connectionsParams = doc.createElement(modelParamsConnectionsParamsTagName);
+        connectionsParams.setAttribute(nameAttributeName,modelParamsConnectionsParamsTagName);
+        neuronsParams.setAttribute(modelParamsConnectionsParamsClassAttributeName,paramMap.get(InputConfiguration.CONNECTIONS_PARAMS_CLASS));
+        layoutParams = doc.createElement(modelParamsLayoutParamsTagName);
+        layoutParams.setAttribute(nameAttributeName,modelParamsLayoutParamsTagName);
+        neuronsParams.setAttribute(modelParamsLayoutParamsClassAttributeName,paramMap.get(InputConfiguration.LAYOUT_PARAMS_CLASS));
+        
+        modelParams.appendChild(neuronsParams);
+        modelParams.appendChild(synapsesParams);
+        modelParams.appendChild(connectionsParams);
+        modelParams.appendChild(layoutParams);
+        
+        //third level
+        iinject = doc.createElement(modelParamsNeuronsParamsIinjectTagName);
+        iinject.setAttribute(nameAttributeName,modelParamsNeuronsParamsIinjectTagName);
+        inoise = doc.createElement(modelParamsNeuronsParamsInoiseTagName);
+        inoise.setAttribute(nameAttributeName,modelParamsNeuronsParamsInoiseTagName);
+        vthresh = doc.createElement(modelParamsNeuronsParamsVthreshTagName);
+        vthresh.setAttribute(nameAttributeName,modelParamsNeuronsParamsVthreshTagName);
+        vresting = doc.createElement(modelParamsNeuronsParamsVrestingTagName);
+        vresting.setAttribute(nameAttributeName,modelParamsNeuronsParamsVrestingTagName);
+        vreset = doc.createElement(modelParamsNeuronsParamsVresetTagName);
+        vreset.setAttribute(nameAttributeName,modelParamsNeuronsParamsVresetTagName);
+        vinit = doc.createElement(modelParamsNeuronsParamsVinitTagName);
+        vinit.setAttribute(nameAttributeName,modelParamsNeuronsParamsVinitTagName);
+        starterVThresh = doc.createElement(modelParamsNeuronsParamsStarterVThreshTagName);
+        starterVThresh.setAttribute(nameAttributeName,modelParamsNeuronsParamsStarterVThreshTagName);
+        starterVReset = doc.createElement(modelParamsNeuronsParamsStarterVResetTagName);
+        starterVReset.setAttribute(nameAttributeName,modelParamsNeuronsParamsStarterVResetTagName);
+        
+        growthParams = doc.createElement(modelParamsConnectionsParamsGrowthParamsTagName);
+        growthParams.setAttribute(nameAttributeName,modelParamsConnectionsParamsGrowthParamsTagName);
+        
+        fixedLayoutParams = doc.createElement(modelParamsLayoutParamsFixedLayoutParamsTagName);
+        fixedLayoutParams.setAttribute(nameAttributeName,modelParamsLayoutParamsFixedLayoutParamsTagName);
+        
+        //setup the hierarchy structure     
+        neuronsParams.appendChild(iinject);
+        neuronsParams.appendChild(inoise);
+        neuronsParams.appendChild(vthresh);
+        neuronsParams.appendChild(vresting);
+        neuronsParams.appendChild(vreset);
+        neuronsParams.appendChild(vinit);
+        neuronsParams.appendChild(starterVThresh);
+        neuronsParams.appendChild(starterVReset);
+        
+        connectionsParams.appendChild(growthParams);
+        
+        layoutParams.appendChild(fixedLayoutParams);
+        
+        //fourth level
+        //Iinject
+        elem = doc.createElement(modelParamsNeuronsParamsIinjectMinTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsIinjectMinTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.I_INJECT_MIN));
+        iinject.appendChild(elem);
+        elem = doc.createElement(modelParamsNeuronsParamsIinjectMaxTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsIinjectMaxTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.I_INJECT_MAX));
+        iinject.appendChild(elem);
+        //Inoise
+        elem = doc.createElement(modelParamsNeuronsParamsInoiseMinTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsInoiseMinTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.I_NOISE_MIN));
+        inoise.appendChild(elem);
+        elem = doc.createElement(modelParamsNeuronsParamsInoiseMaxTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsInoiseMaxTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.I_NOISE_MAX));
+        inoise.appendChild(elem);
+        //Vthresh
+        elem = doc.createElement(modelParamsNeuronsParamsVthreshMinTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsVthreshMinTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.V_THRESH_MIN));
+        vthresh.appendChild(elem);
+        elem = doc.createElement(modelParamsNeuronsParamsVthreshMaxTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsVthreshMaxTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.V_THRESH_MAX));
+        vthresh.appendChild(elem);
+        //Vresting
+        elem = doc.createElement(modelParamsNeuronsParamsVrestingMinTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsVrestingMinTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.V_RESTING_MIN));
+        vresting.appendChild(elem);
+        elem = doc.createElement(modelParamsNeuronsParamsVrestingMaxTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsVrestingMaxTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.V_RESTING_MAX));
+        vresting.appendChild(elem);
+        //Vreset
+        elem = doc.createElement(modelParamsNeuronsParamsVresetMinTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsVresetMinTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.V_RESET_MIN));
+        vreset.appendChild(elem);
+        elem = doc.createElement(modelParamsNeuronsParamsVresetMaxTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsVresetMaxTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.V_RESET_MAX));
+        vreset.appendChild(elem);
+        //Vinit
+        elem = doc.createElement(modelParamsNeuronsParamsVinitMinTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsVinitMinTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.V_INIT_MIN));
+        vinit.appendChild(elem);
+        elem = doc.createElement(modelParamsNeuronsParamsVinitMaxTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsVinitMaxTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.V_INIT_MAX));
+        vinit.appendChild(elem);
+        //starter_vthresh
+        elem = doc.createElement(modelParamsNeuronsParamsStarterVThreshMinTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsStarterVThreshMinTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.STARTER_V_THRESH_MIN));
+        starterVThresh.appendChild(elem);
+        elem = doc.createElement(modelParamsNeuronsParamsStarterVThreshMaxTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsStarterVThreshMaxTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.STARTER_V_THRESH_MAX));
+        starterVThresh.appendChild(elem);
+        //starter_vreset 
+        elem = doc.createElement(modelParamsNeuronsParamsStarterVResetMinTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsStarterVResetMinTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.STARTER_V_RESET_MIN));
+        starterVReset.appendChild(elem);
+        elem = doc.createElement(modelParamsNeuronsParamsStarterVResetMaxTagName);
+        elem.setAttribute(nameAttributeName,modelParamsNeuronsParamsStarterVResetMaxTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.STARTER_V_RESET_MAX));
+        starterVReset.appendChild(elem);
+        
+        //GrowthParams
+        elem = doc.createElement(modelParamsConnectionsParamsGrowthParamsEpsilonTagName);
+        elem.setAttribute(nameAttributeName,modelParamsConnectionsParamsGrowthParamsEpsilonTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.GROWTH_PARAMS_EPSILON));
+        growthParams.appendChild(elem);
+        elem = doc.createElement(modelParamsConnectionsParamsGrowthParamsBetaTagName);
+        elem.setAttribute(nameAttributeName,modelParamsConnectionsParamsGrowthParamsBetaTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.GROWTH_BETA));
+        growthParams.appendChild(elem);
+        elem = doc.createElement(modelParamsConnectionsParamsGrowthParamsRhoTagName);
+        elem.setAttribute(nameAttributeName,modelParamsConnectionsParamsGrowthParamsRhoTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.GROWTH_PARAMS_RHO));
+        growthParams.appendChild(elem);
+        elem = doc.createElement(modelParamsConnectionsParamsGrowthParamsTargetRateTagName);
+        elem.setAttribute(nameAttributeName,modelParamsConnectionsParamsGrowthParamsTargetRateTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.GROWTH_PARAMS_TARGET_RATE));
+        growthParams.appendChild(elem);
+        elem = doc.createElement(modelParamsConnectionsParamsGrowthParamsMinRadiusTagName);
+        elem.setAttribute(nameAttributeName,modelParamsConnectionsParamsGrowthParamsMinRadiusTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.GROWTH_PARAMS_MIN_RADIUS));
+        growthParams.appendChild(elem);
+        elem = doc.createElement(modelParamsConnectionsParamsGrowthParamsStartRadiusTagName);
+        elem.setAttribute(nameAttributeName,modelParamsConnectionsParamsGrowthParamsStartRadiusTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.GROWTH_PARAMS_START_RADIUS));
+        growthParams.appendChild(elem);
+        
+        //FixedLayoutParams
+        layoutFiles = doc.createElement(modelParamsLayoutParamsFixedLayoutParamsLayoutFilesTagName);
+        layoutFiles.setAttribute(nameAttributeName,modelParamsLayoutParamsFixedLayoutParamsLayoutFilesTagName);
+        fixedLayoutParams.appendChild(layoutFiles);
+        
+        //fifth level
+        //LayoutFiles
+        elem = doc.createElement(modelParamsLayoutParamsFixedLayoutParamsLayoutFilesActiveNListFileNameTagName);
+        elem.setAttribute(nameAttributeName,modelParamsLayoutParamsFixedLayoutParamsLayoutFilesActiveNListFileNameTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.LAYOUT_FILES_ACTIVE_N_LIST_FILE_NAME));
+        layoutFiles.appendChild(elem);
+        elem = doc.createElement(modelParamsLayoutParamsFixedLayoutParamsLayoutFilesInhNListFileNameTagName);
+        elem.setAttribute(nameAttributeName,modelParamsLayoutParamsFixedLayoutParamsLayoutFilesInhNListFileNameTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.LAYOUT_FILES_INH_N_LIST_FILE_NAME));
+        layoutFiles.appendChild(elem);
+        elem = doc.createElement(modelParamsLayoutParamsFixedLayoutParamsLayoutFilesPrbNListFileNameTagName);
+        elem.setAttribute(nameAttributeName,modelParamsLayoutParamsFixedLayoutParamsLayoutFilesPrbNListFileNameTagName);
+        elem.setTextContent(paramMap.get(InputConfiguration.LAYOUT_FILES_PROBED_N_LIST_FILE_NAME));
+        layoutFiles.appendChild(elem);
     }
 
     /**

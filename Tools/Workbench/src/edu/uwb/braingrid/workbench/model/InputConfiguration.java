@@ -61,6 +61,11 @@ public class InputConfiguration {
             = "layoutFilesInhNListFileName";
     public static final String LAYOUT_FILES_PROBED_N_LIST_FILE_NAME
             = "probedNListFileName";
+    //Testing
+    public static final String NEURONS_PARAMS_CLASS = "neuronsParamsClass";
+    public static final String SYNAPSES_PARAMS_CLASS = "synapsesParamsClass";
+    public static final String CONNECTIONS_PARAMS_CLASS = "connectionsParamsClass";
+    public static final String LAYOUT_PARAMS_CLASS = "layoutParamsClass";
 
     /**
      * Responsible for initializing containers for parameters/values and their
@@ -110,6 +115,12 @@ public class InputConfiguration {
         defaultValues.put(LAYOUT_FILES_ACTIVE_N_LIST_FILE_NAME, "Unknown");
         defaultValues.put(LAYOUT_FILES_INH_N_LIST_FILE_NAME, "Unknown");
         defaultValues.put(LAYOUT_FILES_PROBED_N_LIST_FILE_NAME, "Unknown");
+        
+        //Testing
+        defaultValues.put(NEURONS_PARAMS_CLASS, "AllLIFNeurons");
+        defaultValues.put(SYNAPSES_PARAMS_CLASS, "AllDSSynapses");
+        defaultValues.put(CONNECTIONS_PARAMS_CLASS, "ConnGrowth");
+        defaultValues.put(LAYOUT_PARAMS_CLASS, "FixedLayout");
     }
 
     /**
