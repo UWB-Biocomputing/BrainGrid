@@ -125,10 +125,10 @@ void GPUSpikingModel::setupSim(SimulationInfo *sim_info)
   cudaEventCreate( &start );
   cudaEventCreate( &stop );
 
-  t_gpu_rndGeneration = 0.0f;
-  t_gpu_advanceNeurons = 0.0f;
-  t_gpu_advanceSynapses = 0.0f;
-  t_gpu_calcSummation = 0.0f;
+  t_gpu_rndGeneration = 0.0;
+  t_gpu_advanceNeurons = 0.0;
+  t_gpu_advanceSynapses = 0.0;
+  t_gpu_calcSummation = 0.0;
 #endif // PERFORMANCE_METRICS
 
   // allocates memories on CUDA device

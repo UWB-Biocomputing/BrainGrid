@@ -36,8 +36,10 @@ void Simulator::setup(SimulationInfo *sim_info)
   sim_info->model->setupSim(sim_info);
 
   // init stimulus input object
-  if (sim_info->pInput != NULL)
+  if (sim_info->pInput != NULL) {
+    cout << "Initializing input." << endl;
     sim_info->pInput->init(sim_info);
+  }
 }
 
 /*
@@ -93,6 +95,7 @@ void Simulator::simulate(SimulationInfo *sim_info)
 
 #ifdef PERFORMANCE_METRICS
   // Start overall simulation timer
+  t_host_adjustSynapses = 0.0;
   timer.start();
 #endif
 
@@ -127,7 +130,7 @@ void Simulator::simulate(SimulationInfo *sim_info)
 #ifdef PERFORMANCE_METRICS
     // Times converted from microseconds to seconds
     // Time to update synapses
-    t_host_adjustSynapses = short_timer.lap() / 1000000.0;
+    t_host_adjustSynapses += short_timer.lap() / 1000000.0;
     // Time since start of simulation
     double total_time = timer.lap() / 1000000.0;
     /*

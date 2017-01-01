@@ -87,6 +87,7 @@ int main(int argc, char* argv[]) {
 
     // Deserializes internal state from a prior run of the simulation
     if (!simInfo->memInputFileName.empty()) {
+        DEBUG(cout << "Deserializing state from file." << endl;);
         ifstream memory_in;
         memory_in.open(simInfo->memInputFileName.c_str(), ofstream::binary | ofstream::in);
         simulator->deserialize(memory_in, simInfo);

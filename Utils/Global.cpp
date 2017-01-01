@@ -113,7 +113,7 @@ void printPerformanceMetrics(double total_time, int steps)
 
   cout << "\nAverage time per simulation epoch:" << endl;
   cout << "GPU random number generation: " << t_gpu_rndGeneration/steps 
-       << " seconds/epoch" << << endl;
+       << " seconds/epoch" << endl;
   cout << "GPU advanceNeurons: " << t_gpu_advanceNeurons/steps
        << " seconds/epoch" << endl;
   cout << "GPU advanceSynapses: " << t_gpu_advanceSynapses/steps 
