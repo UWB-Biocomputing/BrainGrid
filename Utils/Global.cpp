@@ -13,9 +13,9 @@
 // see "global.h" for bitmask usage of debug outputs
 int g_debug_mask
 #if DEBUG_OUT
-		= DEBUG_LOG_LOW;
+= DEBUG_LOG_LOW;
 #else
-		= 0;
+= 0;
 #endif
 
 /*
@@ -26,9 +26,9 @@ int g_debug_mask
  *  @return string with the converted indexes and square brackets surrounding them.
  */
 string index2dToString(int i, int width, int height) {
-	stringstream ss;
-	ss << "[" << i % width << "][" << i / height << "]";
-	return ss.str();
+  stringstream ss;
+  ss << "[" << i % width << "][" << i / height << "]";
+  return ss.str();
 }
 
 /*
@@ -38,9 +38,9 @@ string index2dToString(int i, int width, int height) {
  *  @return returns the given coordinates surrounded by square brackets.
  */
 string coordToString(int x, int y) {
-	stringstream ss;
-	ss << "[" << x << "][" << y << "]";
-	return ss.str();
+  stringstream ss;
+  ss << "[" << x << "][" << y << "]";
+  return ss.str();
 }
 
 /*
@@ -51,23 +51,23 @@ string coordToString(int x, int y) {
  *  @return returns the given coordinates surrounded by square brackets.
  */
 string coordToString(int x, int y, int z) {
-	stringstream ss;
-	ss << "[" << x << "][" << y << "][" << z << "]";
-	return ss.str();
+  stringstream ss;
+  ss << "[" << x << "][" << y << "][" << z << "]";
+  return ss.str();
 }
 
 // MODEL INDEPENDENT FUNCTION NMV-BEGIN {
 string neuronTypeToString(neuronType t) {
-	switch (t) {
-	case INH:
-		return "INH";
-	case EXC:
-		return "EXC";
-	default:
-		cerr << "ERROR->neuronTypeToString() failed, unknown type: " << t << endl;
-		assert(false);
-		return NULL; // Must return a value -- this will probably cascade to another failure
-	}
+  switch (t) {
+  case INH:
+    return "INH";
+  case EXC:
+    return "EXC";
+  default:
+    cerr << "ERROR->neuronTypeToString() failed, unknown type: " << t << endl;
+    assert(false);
+    return NULL; // Must return a value -- this will probably cascade to another failure
+  }
 }
 // } NMV-END
 #if defined(USE_GPU)
@@ -90,19 +90,38 @@ uint64_t g_simulationStep = 0;
 const BGFLOAT pi = 3.1415926536;
 
 #ifdef PERFORMANCE_METRICS
-float t_gpu_rndGeneration;
-float t_gpu_advanceNeurons;
-float t_gpu_advanceSynapses;
-float t_gpu_calcSummation;
-float t_host_adjustSynapses;
+// All times in seconds
+double t_gpu_rndGeneration;
+double t_gpu_advanceNeurons;
+double t_gpu_advanceSynapses;
+double t_gpu_calcSummation;
+double t_host_adjustSynapses;
 
-void printPerformanceMetrics(const float total_time)
+void printPerformanceMetrics(double total_time, int steps)
 {
-    cout << "t_gpu_rndGeneration: " << t_gpu_rndGeneration << " ms (" << t_gpu_rndGeneration / total_time * 100 << "%)" << endl;
-    cout << "t_gpu_advanceNeurons: " << t_gpu_advanceNeurons << " ms (" << t_gpu_advanceNeurons / total_time * 100 << "%)" << endl;
-    cout << "t_gpu_advanceSynapses: " << t_gpu_advanceSynapses << " ms (" << t_gpu_advanceSynapses / total_time * 100 << "%)" << endl;
-    cout << "t_gpu_calcSummation: " << t_gpu_calcSummation << " ms (" << t_gpu_calcSummation / total_time * 100 << "%)" << endl;
-    cout << "t_host_adjustSynapses: " << t_host_adjustSynapses << " ms (" << t_host_adjustSynapses / total_time * 100 << "%)" << endl;
+  cout << "Total time since simulation start:" << endl;
+  cout << "GPU random number generation: " << t_gpu_rndGeneration << " seconds (" 
+       << t_gpu_rndGeneration / total_time * 100 << "%)" << endl;
+  cout << "GPU advanceNeurons: " << t_gpu_advanceNeurons << " seconds (" 
+       << t_gpu_advanceNeurons / total_time * 100 << "%)" << endl;
+  cout << "GPU advanceSynapses: " << t_gpu_advanceSynapses << " seconds (" 
+       << t_gpu_advanceSynapses / total_time * 100 << "%)" << endl;
+  cout << "GPU calcSummation: " << t_gpu_calcSummation << " seconds (" 
+       << t_gpu_calcSummation / total_time * 100 << "%)" << endl;
+  cout << "Host adjustSynapses: " << t_host_adjustSynapses << " seconds (" 
+       << t_host_adjustSynapses / total_time * 100 << "%)" << endl;
+
+  cout << "\nAverage time per simulation epoch:" << endl;
+  cout << "GPU random number generation: " << t_gpu_rndGeneration/steps 
+       << " seconds/epoch" << << endl;
+  cout << "GPU advanceNeurons: " << t_gpu_advanceNeurons/steps
+       << " seconds/epoch" << endl;
+  cout << "GPU advanceSynapses: " << t_gpu_advanceSynapses/steps 
+       << " seconds/epoch" << endl;
+  cout << "GPU calcSummation: " << t_gpu_calcSummation/steps 
+       << " seconds/epoch" << endl;
+  cout << "Host adjustSynapses: " << t_host_adjustSynapses/steps 
+       << " seconds/epoch" << endl;
 }
 #endif // PERFORMANCE_METRICS
 

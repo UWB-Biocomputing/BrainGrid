@@ -1,11 +1,11 @@
 /*
-* @file Simulator.cpp
-*
-* @author Derek McLean
-*
-* @brief Base class for model-independent simulators targeting different
-* platforms.
-*/
+ * @file Simulator.cpp
+ *
+ * @author Derek McLean
+ *
+ * @brief Base class for model-independent simulators targeting different
+ * platforms.
+ */
 
 #include "Simulator.h"
 
@@ -14,7 +14,7 @@
  */
 Simulator::Simulator() 
 {
-    g_simulationStep = 0;
+  g_simulationStep = 0;
 }
 
 /*
@@ -22,7 +22,7 @@ Simulator::Simulator()
  */
 Simulator::~Simulator()
 {
-    freeResources();
+  freeResources();
 }
 
 /*
@@ -32,12 +32,12 @@ Simulator::~Simulator()
  */
 void Simulator::setup(SimulationInfo *sim_info)
 {
-    cout << "Initializing models in network." << endl;
-    sim_info->model->setupSim(sim_info);
+  cout << "Initializing models in network." << endl;
+  sim_info->model->setupSim(sim_info);
 
-    // init stimulus input object
-    if (sim_info->pInput != NULL)
-        sim_info->pInput->init(sim_info);
+  // init stimulus input object
+  if (sim_info->pInput != NULL)
+    sim_info->pInput->init(sim_info);
 }
 
 /*
@@ -47,8 +47,8 @@ void Simulator::setup(SimulationInfo *sim_info)
  */
 void Simulator::finish(SimulationInfo *sim_info)
 {
-    // Terminate the simulator
-    sim_info->model->cleanupSim(sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
+  // Terminate the simulator
+  sim_info->model->cleanupSim(sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
 }
 
 /*
@@ -59,22 +59,22 @@ void Simulator::finish(SimulationInfo *sim_info)
  */
 void Simulator::reset(SimulationInfo *sim_info)
 {
-    DEBUG(cout << "\nEntering Simulator::reset()" << endl;)
+  DEBUG(cout << "\nEntering Simulator::reset()" << endl;)
 
     // Terminate the simulator
     sim_info->model->cleanupSim(sim_info);
 
-    // Clean up objects
-    freeResources();
+  // Clean up objects
+  freeResources();
 
-    // Reset global simulation Step to 0
-    g_simulationStep = 0;
+  // Reset global simulation Step to 0
+  g_simulationStep = 0;
 
-    // Initialize and prepare network for simulation
-    sim_info->model->setupSim(sim_info);
+  // Initialize and prepare network for simulation
+  sim_info->model->setupSim(sim_info);
 
-    DEBUG(cout << "\nExiting Simulator::reset()" << endl;)
-}
+  DEBUG(cout << "\nExiting Simulator::reset()" << endl;)
+    }
 
 /*
  *  Clean up objects.
@@ -90,47 +90,58 @@ void Simulator::freeResources()
  */
 void Simulator::simulate(SimulationInfo *sim_info)
 {
-    // Main simulation loop - execute maxGrowthSteps
-    for (int currentStep = 1; currentStep <= sim_info->maxSteps; currentStep++) {
 
-        DEBUG(cout << endl << endl;)
-        DEBUG(cout << "Performing simulation number " << currentStep << endl;)
-        DEBUG(cout << "Begin network state:" << endl;)
+#ifdef PERFORMANCE_METRICS
+  // Start overall simulation timer
+  timer.start();
+#endif
 
-        // Init SimulationInfo parameters
-        sim_info->currentStep = currentStep;
+  // Main simulation loop - execute maxGrowthSteps
+  for (int currentStep = 1; currentStep <= sim_info->maxSteps; currentStep++) {
 
-        // Advance simulation to next growth cycle
-        advanceUntilGrowth(currentStep, sim_info);
+    DEBUG(cout << endl << endl;)
+      DEBUG(cout << "Performing simulation number " << currentStep << endl;)
+      DEBUG(cout << "Begin network state:" << endl;)
 
-        DEBUG(cout << endl << endl;)
-        DEBUG(
+      // Init SimulationInfo parameters
+      sim_info->currentStep = currentStep;
+
+    // Advance simulation to next growth cycle
+    advanceUntilGrowth(currentStep, sim_info);
+
+    DEBUG(cout << endl << endl;)
+      DEBUG(
             cout << "Done with simulation cycle, beginning growth update "
-                 << currentStep << endl;
-         )
+	    << currentStep << endl;
+	    )
 
-        // Update the neuron network
+      // Update the neuron network
 #ifdef PERFORMANCE_METRICS
-        short_timer.start();
+      // Start timer for connection update
+      short_timer.start();
 #endif
-        sim_info->model->updateConnections(sim_info);
+    sim_info->model->updateConnections(sim_info);
 
-        sim_info->model->updateHistory(sim_info);
+    sim_info->model->updateHistory(sim_info);
 
 #ifdef PERFORMANCE_METRICS
-        t_host_adjustSynapses = short_timer.lap() / 1000.0f;
-        float total_time = timer.lap() / 1000.0f;
-        float t_others = total_time
-            - (t_gpu_rndGeneration + t_gpu_advanceNeurons
-                + t_gpu_advanceSynapses + t_gpu_calcSummation
-                + t_host_adjustSynapses);
-
-        cout << endl;
-        cout << "total_time: " << total_time << " ms" << endl;
-        printPerformanceMetrics(total_time);
-        cout << endl;
+    // Times converted from microseconds to seconds
+    // Time to update synapses
+    t_host_adjustSynapses = short_timer.lap() / 1000000.0;
+    // Time since start of simulation
+    double total_time = timer.lap() / 1000000.0;
+    /*
+      double t_others = total_time
+      - (t_gpu_rndGeneration + t_gpu_advanceNeurons
+      + t_gpu_advanceSynapses + t_gpu_calcSummation
+      + t_host_adjustSynapses);
+    */
+    cout << endl;
+    cout << "total_time: " << total_time << " seconds" << endl;
+    printPerformanceMetrics(total_time, currentStep);
+    cout << endl;
 #endif
-    }
+  }
 }
 
 /*
@@ -143,34 +154,34 @@ void Simulator::simulate(SimulationInfo *sim_info)
  */
 void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_info)
 {
-    uint64_t count = 0;
-    // Compute step number at end of this simulation epoch
-    uint64_t endStep = g_simulationStep
-            + static_cast<uint64_t>(sim_info->epochDuration / sim_info->deltaT);
+  uint64_t count = 0;
+  // Compute step number at end of this simulation epoch
+  uint64_t endStep = g_simulationStep
+    + static_cast<uint64_t>(sim_info->epochDuration / sim_info->deltaT);
 
-    DEBUG_MID(sim_info->model->logSimStep(sim_info);) // Generic model debug call
+  DEBUG_MID(sim_info->model->logSimStep(sim_info);) // Generic model debug call
 
     while (g_simulationStep < endStep) {
-        DEBUG_LOW(
-		  // Output status once every 10,000 steps
-            if (count % 10000 == 0)
-            {
-                cout << currentStep << "/" << sim_info->maxSteps
-                     << " simulating time: "
-                     << g_simulationStep * sim_info->deltaT << endl;
-                count = 0;
-            }
-            count++;
-        )
+      DEBUG_LOW(
+		// Output status once every 10,000 steps
+		if (count % 10000 == 0)
+		  {
+		    cout << currentStep << "/" << sim_info->maxSteps
+			 << " simulating time: "
+			 << g_simulationStep * sim_info->deltaT << endl;
+		    count = 0;
+		  }
+		count++;
+		)
 
         // input stimulus
         if (sim_info->pInput != NULL)
-            sim_info->pInput->inputStimulus(sim_info);
+	  sim_info->pInput->inputStimulus(sim_info);
 
-	// Advance the Network one time step
-        sim_info->model->advance(sim_info);
+      // Advance the Network one time step
+      sim_info->model->advance(sim_info);
 
-        g_simulationStep++;
+      g_simulationStep++;
     }
 }
 
@@ -181,7 +192,7 @@ void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_in
  */
 void Simulator::saveData(SimulationInfo *sim_info) const
 {
-    sim_info->model->saveData(sim_info);
+  sim_info->model->saveData(sim_info);
 }
 
 /*
@@ -194,12 +205,12 @@ void Simulator::saveData(SimulationInfo *sim_info) const
  */
 void Simulator::deserialize(istream &memory_in, SimulationInfo *sim_info)
 {
-    // read the neuron data
-    memory_in >> sim_info->totalNeurons; memory_in.ignore();
-    sim_info->model->deserialize(memory_in, sim_info);
+  // read the neuron data
+  memory_in >> sim_info->totalNeurons; memory_in.ignore();
+  sim_info->model->deserialize(memory_in, sim_info);
 
-    // Init history matrices with current values
-    sim_info->simRecorder->initValues();
+  // Init history matrices with current values
+  sim_info->simRecorder->initValues();
 }
 
 /*
@@ -213,9 +224,9 @@ void Simulator::deserialize(istream &memory_in, SimulationInfo *sim_info)
  */
 void Simulator::serialize(ostream &memory_out, SimulationInfo *sim_info) const
 {
-    cerr << "Simulator::writeSimMemory was called. " << endl;
-    // get history matrices with current values
-    sim_info->simRecorder->getValues();
+  cerr << "Simulator::writeSimMemory was called. " << endl;
+  // get history matrices with current values
+  sim_info->simRecorder->getValues();
 
-    sim_info->model->serialize(memory_out, sim_info);
+  sim_info->model->serialize(memory_out, sim_info);
 }
