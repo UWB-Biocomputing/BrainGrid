@@ -116,7 +116,7 @@ void Model::saveData(SimulationInfo *sim_info)
  */
 void Model::createAllNeurons(SimulationInfo *sim_info)
 {
-    DEBUG(cout << "\nAllocating neurons..." << endl;)
+    DEBUG(cerr << "\nAllocating neurons..." << endl;)
 
     // init neuron's map with layout
     m_layout->generateNeuronTypeMap(sim_info->totalNeurons);
@@ -125,7 +125,7 @@ void Model::createAllNeurons(SimulationInfo *sim_info)
     // set their specific types
     m_neurons->createAllNeurons(sim_info, m_layout);
 
-    DEBUG(cout << "Done initializing neurons..." << endl;)
+    DEBUG(cerr << "Done initializing neurons..." << endl;)
 }
 
 /*
@@ -135,9 +135,13 @@ void Model::createAllNeurons(SimulationInfo *sim_info)
  */
 void Model::setupSim(SimulationInfo *sim_info)
 {
+    DEBUG(cerr << "\tSetting up neurons....";)
     m_neurons->setupNeurons(sim_info);
+    DEBUG(cerr << "done.\n\tSetting up synapses....";)
     m_synapses->setupSynapses(sim_info);
+    DEBUG(cerr << "done.\n\tSetting up layout....";)
     m_layout->setupLayout(sim_info);
+    DEBUG(cerr << "done." << endl;)
 
     // Init radii and rates history matrices with default values
     if (sim_info->simRecorder != NULL) {

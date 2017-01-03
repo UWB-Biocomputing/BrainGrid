@@ -32,8 +32,9 @@ Simulator::~Simulator()
  */
 void Simulator::setup(SimulationInfo *sim_info)
 {
-  cout << "Initializing models in network." << endl;
+  DEBUG(cerr << "Initializing models in network... ";)
   sim_info->model->setupSim(sim_info);
+  DEBUG(cerr << "\ndone init models." << endl;)
 
   // init stimulus input object
   if (sim_info->pInput != NULL) {
@@ -95,8 +96,10 @@ void Simulator::simulate(SimulationInfo *sim_info)
 
 #ifdef PERFORMANCE_METRICS
   // Start overall simulation timer
+  cerr << "Starting main timer... ";
   t_host_adjustSynapses = 0.0;
   timer.start();
+  cerr << "done." << endl;
 #endif
 
   // Main simulation loop - execute maxGrowthSteps
