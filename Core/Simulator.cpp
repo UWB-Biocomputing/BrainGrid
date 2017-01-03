@@ -133,14 +133,8 @@ void Simulator::simulate(SimulationInfo *sim_info)
     t_host_adjustSynapses += short_timer.lap() / 1000000.0;
     // Time since start of simulation
     double total_time = timer.lap() / 1000000.0;
-    /*
-      double t_others = total_time
-      - (t_gpu_rndGeneration + t_gpu_advanceNeurons
-      + t_gpu_advanceSynapses + t_gpu_calcSummation
-      + t_host_adjustSynapses);
-    */
-    cout << endl;
-    cout << "total_time: " << total_time << " seconds" << endl;
+
+    cout << "\ntotal_time: " << total_time << " seconds" << endl;
     printPerformanceMetrics(total_time, currentStep);
     cout << endl;
 #endif

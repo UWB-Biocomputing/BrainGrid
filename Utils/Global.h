@@ -8,8 +8,7 @@
  */
 //! Globally available functions and default parameter values.
 
-#ifndef _GLOBAL_H_
-#define _GLOBAL_H_
+#pragma once
 
 // Debug output is included in both debug/release builds now.
 // The Default for debug is "LOW" and "OFF" for Release.
@@ -141,16 +140,16 @@ string neuronTypeToString(neuronType t);
 
 #ifdef PERFORMANCE_METRICS
 // All times in seconds
+#ifdef USE_GPU
 extern double t_gpu_rndGeneration;
 extern double t_gpu_advanceNeurons;
 extern double t_gpu_advanceSynapses;
 extern double t_gpu_calcSummation;
+#endif
 extern double t_host_adjustSynapses;
 
 void printPerformanceMetrics(double total_time, int steps);
 #endif // PERFORMANCE_METRICS
-
-#endif
 
 // TODO comment
 extern const string MATRIX_TYPE;
