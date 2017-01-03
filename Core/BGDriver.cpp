@@ -82,12 +82,12 @@ int main(int argc, char* argv[]) {
     simulator = new Simulator();
 	
     // setup simulation
-    DEBUG(cout << "Setup simulation." << endl;);
+    DEBUG(cerr << "Setup simulation." << endl;)
     simulator->setup(simInfo);
 
     // Deserializes internal state from a prior run of the simulation
     if (!simInfo->memInputFileName.empty()) {
-        DEBUG(cout << "Deserializing state from file." << endl;);
+        DEBUG(cerr << "Deserializing state from file." << endl;)
         ifstream memory_in;
         memory_in.open(simInfo->memInputFileName.c_str(), ofstream::binary | ofstream::in);
         simulator->deserialize(memory_in, simInfo);
@@ -211,7 +211,7 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
  */
 bool LoadAllParameters(SimulationInfo *simInfo)
 {
-    DEBUG(cout << "reading parameters from xml file" << endl;)
+    DEBUG(cerr << "reading parameters from xml file" << endl;)
 
     TiXmlDocument simDoc(simInfo->stateInputFileName.c_str());
     if (!simDoc.LoadFile()) {
@@ -229,7 +229,7 @@ bool LoadAllParameters(SimulationInfo *simInfo)
     }
 
     // create instances of all model classes
-    DEBUG(cout << "creating instances of all classes" << endl;)
+    DEBUG(cerr << "creating instances of all classes" << endl;)
     if (createAllModelClassInstances(&simDoc, simInfo) != true) {
         return false;
     }
