@@ -3,15 +3,17 @@ package edu.uwb.braingrid.workbench.model;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import org.w3c.dom.*;
 
 /**
  * Maintains data for an input configuration.
  *
  * @author Del Davis
  */
-public class InputConfiguration {
+ public class InputConfiguration {
 
-    private HashMap<String, String> inputConfig;
+    //private HashMap<String, String> inputConfig;
+    private Document inputConfig;
     private HashMap<String, String> defaultValues;
 
     /* Config State Data */

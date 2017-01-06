@@ -32,7 +32,6 @@ class InputConfigurationBuilder {
     private static final String newRootTagName = "BGSimParams";
     //attribute
     private static final String nameAttributeName = "name";
-    private static final String classAttributeName = "class";
     
     //tags
     private static final String simInfoParamsTagName = "SimInfoParams";
