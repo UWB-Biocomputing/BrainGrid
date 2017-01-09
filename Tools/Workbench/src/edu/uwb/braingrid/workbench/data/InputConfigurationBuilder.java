@@ -4,6 +4,7 @@ package edu.uwb.braingrid.workbench.data;
 import edu.uwb.braingrid.workbench.model.InputConfiguration;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,6 +30,12 @@ class InputConfigurationBuilder {
     Document doc;
     Element root;
 
+    private static final String simInfoParamsPath = "/BGSimParams/SimInfoParams";
+    private static final String neuronsParamsPath = "BGSimParams";
+    private static final String synapsesParamsPath = "BGSimParams";
+    private static final String connectionsParamsPath = "BGSimParams";
+    private static final String layoutParamsPath = "BGSimParams";
+    
     private static final String newRootTagName = "BGSimParams";
     //attribute
     private static final String nameAttributeName = "name";
@@ -788,47 +795,30 @@ class InputConfigurationBuilder {
 //        ic.setValue(InputConfiguration.LAYOUT_FILES_PROBED_N_LIST_FILE_NAME, str);
         
         root = null;
+        Element elem = null;
+        ArrayList<Element> elems = new ArrayList<Element>();
+        ArrayList<Integer> elemIndex = new ArrayList<Integer>();
+        int curLevel = 0;
 
         doc = DocumentBuilderFactory.newInstance().
                 newDocumentBuilder().parse(file);
         doc.getDocumentElement().normalize();
-        NodeList nl = doc.getElementsByTagName(newRootTagName);
+        NodeList nl = doc.getChildNodes();
         if (nl.getLength() > 0) {
+            root = (Element) nl.item(0);
+//            elems.add((Element) nl.item(0));
+//            elemIndex.add(0);
             root = (Element) nl.item(0);
         }
         else{
             return ic;
         }
         
-        Element elem;
+        while(elems.get(curLevel))
+        
         String str;
-        //Elements for SimInfoParams
-        Element simInfoParams;
-        Element poolSize;
-        Element simParams;
-        Element simConfig;
-        Element seed;
-        Element outputParams;
         
-        //Elements for ModelParams
-        Element modelParams;
-        Element neuronsParams;
-        Element synapsesParams;
-        Element connectionsParams;
-        Element layoutParams;
         
-        Element iinject;
-        Element inoise;
-        Element vthresh;
-        Element vresting;
-        Element vreset;
-        Element vinit;
-        Element starterVthresh;
-        Element starterVreset;
-        Element growthParams;
-        Element fixedLayoutParams;
-        
-        Element layoutFiles;
 
         //SimInfoParams
         simInfoParams = (Element)root.getElementsByTagName(simInfoParamsTagName).item(0);
@@ -836,150 +826,6 @@ class InputConfigurationBuilder {
         poolSize = (Element)simInfoParams.getElementsByTagName(simInfoParamsPoolSizeTagName).item(0);
         elem = (Element)poolSize.getElementsByTagName(simInfoParamsPoolSizeXTagName).item(0);
         ic.setValue(InputConfiguration.POOL_SIZE_X, elem.getTextContent());
-        
-        elem = (Element)poolSize.getElementsByTagName(simInfoParamsPoolSizeYTagName).item(0);
-        ic.setValue(InputConfiguration.POOL_SIZE_Y, elem.getTextContent());
-        
-        elem = (Element)poolSize.getElementsByTagName(simInfoParamsPoolSizeZTagName).item(0);
-        ic.setValue(InputConfiguration.POOL_SIZE_Z, elem.getTextContent());
-        
-        //SimParams
-        simParams = (Element)simInfoParams.getElementsByTagName(simInfoParamsSimParamsTagName).item(0);
-        elem = (Element)simParams.getElementsByTagName(simInfoParamsSimParamsTsimTagName).item(0);
-        ic.setValue(InputConfiguration.SIM_PARAMS_T_SIM, elem.getTextContent());
-        
-        elem = (Element)simParams.getElementsByTagName(simInfoParamsSimParamsNumSimsTagName).item(0);
-        ic.setValue(InputConfiguration.SIM_PARAMS_NUM_SIMS, elem.getTextContent());
-        
-        //SimConfig
-        simConfig = (Element)simInfoParams.getElementsByTagName(simInfoParamsSimConfigTagName).item(0);
-        elem = (Element)simConfig.getElementsByTagName(simInfoParamsSimConfigMaxFiringRateTagName).item(0);
-        ic.setValue(InputConfiguration.SIM_PARAMS_MAX_FIRING_RATE, elem.getTextContent());
-        
-        elem = (Element)simConfig.getElementsByTagName(simInfoParamsSimConfigMaxSynapsesPerNeuronTagName).item(0);
-        ic.setValue(InputConfiguration.SIM_PARAMS_MAX_SYNAPSES_PER_NEURON, elem.getTextContent());
-        
-        //Seed
-        seed = (Element)simInfoParams.getElementsByTagName(simInfoParamsSeedTagName).item(0);
-        elem = (Element)seed.getElementsByTagName(simInfoParamsSeedValueTagName).item(0);
-        ic.setValue(InputConfiguration.SEED_VALUE, elem.getTextContent());
-        
-        //OutputParams
-        outputParams = (Element)simInfoParams.getElementsByTagName(simInfoParamsOutputParamsTagName).item(0);
-        elem = (Element)outputParams.getElementsByTagName(simInfoParamsOutputParamsStateOutputFileNameTagName).item(0);
-        ic.setValue(InputConfiguration.OUTPUT_PARAMS_STATE_OUTPUT_FILENAME, elem.getTextContent());
-        
-        //ModelParams
-        modelParams = (Element)root.getElementsByTagName(modelParamsTagName).item(0);
-        //NeuronParams
-        neuronsParams = (Element)modelParams.getElementsByTagName(modelParamsNeuronsParamsTagName).item(0);
-        ic.setValue(InputConfiguration.NEURONS_PARAMS_CLASS, neuronsParams.getAttribute(modelParamsNeuronsParamsClassAttributeName));
-        //Iinject
-        iinject = (Element)neuronsParams.getElementsByTagName(modelParamsNeuronsParamsIinjectTagName).item(0);
-        elem = (Element)iinject.getElementsByTagName(modelParamsNeuronsParamsIinjectMinTagName).item(0);
-        ic.setValue(InputConfiguration.I_INJECT_MIN, elem.getTextContent());
-        
-        elem = (Element)iinject.getElementsByTagName(modelParamsNeuronsParamsIinjectMaxTagName).item(0);
-        ic.setValue(InputConfiguration.I_INJECT_MAX, elem.getTextContent());
-        
-        //Inoise
-        inoise = (Element)neuronsParams.getElementsByTagName(modelParamsNeuronsParamsInoiseTagName).item(0);
-        elem = (Element)inoise.getElementsByTagName(modelParamsNeuronsParamsInoiseMinTagName).item(0);
-        ic.setValue(InputConfiguration.I_NOISE_MIN, elem.getTextContent());
-        
-        elem = (Element)inoise.getElementsByTagName(modelParamsNeuronsParamsInoiseMaxTagName).item(0);
-        ic.setValue(InputConfiguration.I_NOISE_MAX, elem.getTextContent());
-        
-        //Vthresh
-        vthresh = (Element)neuronsParams.getElementsByTagName(modelParamsNeuronsParamsVthreshTagName).item(0);
-        elem = (Element)vthresh.getElementsByTagName(modelParamsNeuronsParamsVthreshMinTagName).item(0);
-        ic.setValue(InputConfiguration.V_THRESH_MIN, elem.getTextContent());
-        
-        elem = (Element)vthresh.getElementsByTagName(modelParamsNeuronsParamsVthreshMaxTagName).item(0);
-        ic.setValue(InputConfiguration.V_THRESH_MAX, elem.getTextContent());
-        
-        //Vresting
-        vresting = (Element)neuronsParams.getElementsByTagName(modelParamsNeuronsParamsVrestingTagName).item(0);
-        elem = (Element)vresting.getElementsByTagName(modelParamsNeuronsParamsVrestingMinTagName).item(0);
-        ic.setValue(InputConfiguration.V_RESTING_MIN, elem.getTextContent());
-        
-        elem = (Element)vresting.getElementsByTagName(modelParamsNeuronsParamsVrestingMaxTagName).item(0);
-        ic.setValue(InputConfiguration.V_RESTING_MAX, elem.getTextContent());
-        
-        //Vreset
-        vreset = (Element)neuronsParams.getElementsByTagName(modelParamsNeuronsParamsVresetTagName).item(0);
-        elem = (Element)vreset.getElementsByTagName(modelParamsNeuronsParamsVresetMinTagName).item(0);
-        ic.setValue(InputConfiguration.V_RESET_MIN, elem.getTextContent());
-        
-        elem = (Element)vreset.getElementsByTagName(modelParamsNeuronsParamsVresetMaxTagName).item(0);
-        ic.setValue(InputConfiguration.V_RESET_MAX, elem.getTextContent());
-        
-        //Vinit
-        vinit = (Element)neuronsParams.getElementsByTagName(modelParamsNeuronsParamsVinitTagName).item(0);
-        elem = (Element)vinit.getElementsByTagName(modelParamsNeuronsParamsVinitMinTagName).item(0);
-        ic.setValue(InputConfiguration.V_INIT_MIN, elem.getTextContent());
-        
-        elem = (Element)vinit.getElementsByTagName(modelParamsNeuronsParamsVinitMaxTagName).item(0);
-        ic.setValue(InputConfiguration.V_INIT_MAX, elem.getTextContent());
-        
-        //starter_vthresh
-        starterVthresh = (Element)neuronsParams.getElementsByTagName(modelParamsNeuronsParamsStarterVthreshTagName).item(0);
-        elem = (Element)starterVthresh.getElementsByTagName(modelParamsNeuronsParamsStarterVthreshMinTagName).item(0);
-        ic.setValue(InputConfiguration.STARTER_V_THRESH_MIN, elem.getTextContent());
-        
-        elem = (Element)starterVthresh.getElementsByTagName(modelParamsNeuronsParamsStarterVthreshMaxTagName).item(0);
-        ic.setValue(InputConfiguration.STARTER_V_THRESH_MAX, elem.getTextContent());
-        
-        //starter_vreset 
-        starterVreset = (Element)neuronsParams.getElementsByTagName(modelParamsNeuronsParamsStarterVresetTagName).item(0);
-        elem = (Element)starterVreset.getElementsByTagName(modelParamsNeuronsParamsStarterVresetMinTagName).item(0);
-        ic.setValue(InputConfiguration.STARTER_V_RESET_MIN, elem.getTextContent());
-        
-        elem = (Element)starterVreset.getElementsByTagName(modelParamsNeuronsParamsStarterVresetMaxTagName).item(0);
-        ic.setValue(InputConfiguration.STARTER_V_RESET_MAX, elem.getTextContent());
-        
-        //SynapsesParams
-        synapsesParams = (Element)modelParams.getElementsByTagName(modelParamsSynapsesParamsTagName).item(0);
-        ic.setValue(InputConfiguration.SYNAPSES_PARAMS_CLASS, synapsesParams.getAttribute(modelParamsSynapsesParamsClassAttributeName));
-        
-        //ConnectionsParams
-        connectionsParams = (Element)modelParams.getElementsByTagName(modelParamsConnectionsParamsTagName).item(0);
-        ic.setValue(InputConfiguration.CONNECTIONS_PARAMS_CLASS, connectionsParams.getAttribute(modelParamsConnectionsParamsClassAttributeName));
-        //GrowthParams
-        growthParams = (Element)connectionsParams.getElementsByTagName(modelParamsConnectionsParamsGrowthParamsTagName).item(0);
-        elem = (Element)growthParams.getElementsByTagName(modelParamsConnectionsParamsGrowthParamsEpsilonTagName).item(0);
-        ic.setValue(InputConfiguration.GROWTH_PARAMS_EPSILON, elem.getTextContent());
-        
-        elem = (Element)growthParams.getElementsByTagName(modelParamsConnectionsParamsGrowthParamsBetaTagName).item(0);
-        ic.setValue(InputConfiguration.GROWTH_BETA, elem.getTextContent());
-        
-        elem = (Element)growthParams.getElementsByTagName(modelParamsConnectionsParamsGrowthParamsRhoTagName).item(0);
-        ic.setValue(InputConfiguration.GROWTH_PARAMS_RHO, elem.getTextContent());
-        
-        elem = (Element)growthParams.getElementsByTagName(modelParamsConnectionsParamsGrowthParamsTargetRateTagName).item(0);
-        ic.setValue(InputConfiguration.GROWTH_PARAMS_TARGET_RATE, elem.getTextContent());
-        
-        elem = (Element)growthParams.getElementsByTagName(modelParamsConnectionsParamsGrowthParamsMinRadiusTagName).item(0);
-        ic.setValue(InputConfiguration.GROWTH_PARAMS_MIN_RADIUS, elem.getTextContent());
-        
-        elem = (Element)growthParams.getElementsByTagName(modelParamsConnectionsParamsGrowthParamsStartRadiusTagName).item(0);
-        ic.setValue(InputConfiguration.GROWTH_PARAMS_START_RADIUS, elem.getTextContent());
-        
-        //LayoutParams
-        layoutParams = (Element)modelParams.getElementsByTagName(modelParamsLayoutParamsTagName).item(0);
-        ic.setValue(InputConfiguration.LAYOUT_PARAMS_CLASS, layoutParams.getAttribute(modelParamsLayoutParamsClassAttributeName));
-        //FixedLayoutParams
-        fixedLayoutParams = (Element)layoutParams.getElementsByTagName(modelParamsLayoutParamsFixedLayoutParamsTagName).item(0);
-        //LayoutFiles
-        layoutFiles = (Element)fixedLayoutParams.getElementsByTagName(modelParamsLayoutParamsFixedLayoutParamsLayoutFilesTagName).item(0);
-        elem = (Element)layoutFiles.getElementsByTagName(modelParamsLayoutParamsFixedLayoutParamsLayoutFilesActiveNListFileNameTagName).item(0);
-        ic.setValue(InputConfiguration.LAYOUT_FILES_ACTIVE_N_LIST_FILE_NAME, elem.getTextContent());
-        
-        elem = (Element)layoutFiles.getElementsByTagName(modelParamsLayoutParamsFixedLayoutParamsLayoutFilesInhNListFileNameTagName).item(0);
-        ic.setValue(InputConfiguration.LAYOUT_FILES_INH_N_LIST_FILE_NAME, elem.getTextContent());
-        
-        elem = (Element)layoutFiles.getElementsByTagName(modelParamsLayoutParamsFixedLayoutParamsLayoutFilesPrbNListFileNameTagName).item(0);
-        ic.setValue(InputConfiguration.LAYOUT_FILES_PROBED_N_LIST_FILE_NAME, elem.getTextContent());
         
         return ic;
     }

@@ -10,6 +10,7 @@ import edu.uwb.braingrid.tools.nledit.ControlFrame;
 import edu.uwb.braingrid.workbench.data.InputAnalyzer;
 import edu.uwb.braingrid.workbench.project.ProjectMgr;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
+import edu.uwb.braingrid.workbench.ui.DynamicInputConfigurationDialog;
 import edu.uwb.braingrid.workbench.ui.InputConfigurationDialog;
 import edu.uwb.braingrid.workbench.ui.NewProjectDialog;
 import edu.uwb.braingrid.workbench.ui.ProvenanceQueryDialog;
@@ -111,8 +112,10 @@ public class WorkbenchManager {
         String projectName = getProjectName();
         if (!projectName.equals("None")) {
             String configFilename = projectMgr.getSimConfigFilename();
-            InputConfigurationDialog icd
-                    = new InputConfigurationDialog(projectName, true, configFilename);
+//            InputConfigurationDialog icd
+//                    = new InputConfigurationDialog(projectName, true, configFilename);
+            DynamicInputConfigurationDialog icd
+                    = new DynamicInputConfigurationDialog(projectName, true, configFilename);
             String simulationConfigurationFile = null;
             String stateOutputFilename = null;
             if (success = icd.getSuccess()) {

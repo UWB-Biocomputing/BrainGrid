@@ -1,8 +1,11 @@
 package edu.uwb.braingrid.workbench.model;
 // CLEANED
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.*;
 
 /**
@@ -13,8 +16,9 @@ import org.w3c.dom.*;
  public class InputConfiguration {
 
     //private HashMap<String, String> inputConfig;
-    private Document inputConfig;
-    private HashMap<String, String> defaultValues;
+    //private Document inputConfig;
+    private ArrayList<Element> inputConfig;
+    //private HashMap<String, String> defaultValues;
 
     /* Config State Data */
     public static final String LSM_FRAC_EXC = "lsmFracExc";
@@ -74,11 +78,12 @@ import org.w3c.dom.*;
      * default values, as well as constructing this input configuration object.
      */
     public InputConfiguration() {
-        inputConfig = new HashMap<>();
-        defaultValues = new HashMap<>();
+        inputConfig = new ArrayList<Element>();
+//        defaultValues = DocumentBuilderFactory.newInstance().
+//                newDocumentBuilder().newDocument();
         fillDefaultParams();
     }
-
+    
     private void fillDefaultParams() {
         defaultValues.put(LSM_FRAC_EXC, "0.98");
         defaultValues.put(LSM_START_NEURONS, "0.10");
