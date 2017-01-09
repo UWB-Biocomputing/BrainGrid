@@ -14,8 +14,8 @@ all: growth growth_cuda
 # CPMETRICS: 	 yes - see performance of large function calls  
 #		 no  - not showing performance results
 ################################################################################
-CUSEHDF5 = yes
-CPMETRICS = no
+CUSEHDF5 = no
+CPMETRICS = yes
 
 ################################################################################
 # Source Directories

@@ -1,10 +1,8 @@
 /**
- *      @file GPUSpikingModel.h
+ * @file GPUSpikingModel.h
  *
- *      @brief Implementation of Model for the spiking neunal networks.
- */
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - **\ 
+ * @brief Implementation of Model for the spiking neunal networks.
+ *
  * @authors Aaron Oziel, Sean Blackbourn 
  *
  * Fumitaka Kawasaki (5/3/14):
@@ -77,15 +75,17 @@ const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
 extern float g_time;
 extern cudaEvent_t start, stop;
 
-inline void startTimer() {
+inline void cudaStartTimer() {
        	cudaEventRecord( start, 0 );
 };
 
-inline void lapTime(float& t_event) {
+//*! Increment elapsed time in seconds
+inline void cudaLapTime(double& t_event) {
        	cudaEventRecord( stop, 0 );
        	cudaEventSynchronize( stop );
        	cudaEventElapsedTime( &g_time, start, stop );
-       	t_event += g_time;
+	// The CUDA functions return time in milliseconds
+       	t_event += g_time/1000.0;
 };
 #endif // PERFORMANCE_METRICS
 
@@ -223,5 +223,8 @@ void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, uns
 }       
         
 //! Calculate summation point.
-extern __global__ void calcSummationMapDevice( int totalNeurons, AllSpikingNeuronsDeviceProperties* allNeurnsDevice, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice );
+extern __global__ void calcSummationMapDevice(int totalNeurons,
+		    AllSpikingNeuronsDeviceProperties* __restrict__ allNeurnsDevice,
+		    const SynapseIndexMap* __restrict__ synapseIndexMapDevice,
+                    const AllSpikingSynapsesDeviceProperties* __restrict__ allSynapsesDevice );
 #endif

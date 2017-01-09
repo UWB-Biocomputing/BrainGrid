@@ -14,7 +14,10 @@
 #include "IModel.h"
 #include "ISInput.h"
 
+// Home-brewed performance measurement
+#ifdef PERFORMANCE_METRICS
 #include "Timer.h"
+#endif
 
 /**
  * @class Simulator Simulator.h "Simulator.h"
@@ -110,6 +113,7 @@ class Simulator
          */
         void freeResources();
 
+#ifdef PERFORMANCE_METRICS
         /**
          * Timer for measuring performance of an epoch.
          */
@@ -118,6 +122,7 @@ class Simulator
          * Timer for measuring performance of connection update.
          */
         Timer short_timer;
+#endif
 };
 
 #endif /* _SIMULATOR_H_ */

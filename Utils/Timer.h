@@ -1,7 +1,12 @@
-// Project:      CSS432 UDP Socket Class
-// Professor:    Munehiro Fukuda
-// Organization: CSS, University of Washington, Bothell
-// Date:         March 5, 2004
+/**
+ * @file Timer.h
+ *
+ * @authors Munehiro Fukuda
+ *
+ * @date March 5, 2004
+ *
+ * @brief Timer class, from CSS432
+ */
 
 #ifndef _TIMER_H_
 #define _TIMER_H_
@@ -14,10 +19,11 @@ extern "C"
 {
 #ifdef _WIN32	//windows portability 
 #include <windows.h>	//includes timeval struct
-//gettimeofday sets the first parameter struct timeval with the seconds and microseconds that have elapsed 
-//since the epoc time (2nd struct timeval param is not used in implementation). gettimeofday is part of 
-//sys/time.h which is unavailable to WIN32. A solution to this is to use SYSTEMTIME to recieve a high resolution 
-//time.
+//gettimeofday sets the first parameter struct timeval with the
+//seconds and microseconds that have elapsed since the epoc time (2nd
+//struct timeval param is not used in implementation). gettimeofday is
+//part of sys/time.h which is unavailable to WIN32. A solution to this
+//is to use SYSTEMTIME to receive a high resolution time.
 static int gettimeofday(struct timeval *tval, struct timeval *alwaysNULL){
 	if(tval != NULL){
 		SYSTEMTIME systemtime;
@@ -45,12 +51,25 @@ static int gettimeofday(struct timeval *tval, struct timeval *alwaysNULL){
 #endif
 }
 
+/**
+ * @class Timer
+ *
+ *
+ * Class that encapsulates timing capability, for performance
+ * measurement. Includes lap timing capability.
+ *
+ * \latexonly  \subsubsection*{Credits} \endlatexonly
+ * \htmlonly   <h3>Credits</h3> \endhtmlonly
+ *
+ * Code originally developed by Prof. Munehiro Fukuda for CSS 432 at
+ * the University of Washington Bothell.
+ */
 class Timer {
  public:
   Timer( );                  // Constructor
-  void start( );             // Memorize the curren time in startTime
-  long lap( );               // endTime - startTime
-  long lap( long oldTv_sec, long oldTv_usec ); // endTime - oldTime
+  void start( );             // Memorize the current time in startTime
+  long lap( );               // endTime - startTime (in microseconds)
+  long lap(long oldTv_sec, long oldTv_usec); // endTime - oldTime (in microseconds)
   long getSec( );            // get startTime.tv_sec
   long getUsec( );           // get startTime.tv_usec
  private:
