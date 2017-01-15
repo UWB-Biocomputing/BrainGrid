@@ -6,6 +6,8 @@ import edu.uwb.braingrid.workbench.data.InputAnalyzer;
 import edu.uwb.braingrid.workbench.data.InputAnalyzer.InputType;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -23,17 +25,13 @@ import org.xml.sax.SAXException;
  * @author Tom Wong
  */
 public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
-    private static final String simInfoParamsPath = "/SimInfoParams";
-    private static final String neuronsParamsPath = "/ModelParams/NeuronsParams";
-    private static final String synapsesParamsPath = "/ModelParams/SynapsesParams";
-    private static final String connectionsParamsPath = "/ModelParams/ConnectionsParams";
-    private static final String layoutParamsPath = "/ModelParams/LayoutParams";
-    
     private static final String[] tabPaths = {"/BGSimParams/SimInfoParams", 
                                               "/BGSimParams/ModelParams/NeuronsParams",
                                               "/BGSimParams/ModelParams/SynapsesParams",
                                               "/BGSimParams/ModelParams/ConnectionsParams",
                                               "/BGSimParams/ModelParams/LayoutParams"};
+    private static final String stateOutputFileNameNode = "stateOutputFileName";
+    private static final HashMap<String,InputType> nodeName2InputType = new HashMap<String,InputType>(){{put("activeNListFileName",InputType.ACTIVE);put("inhNListFileName",InputType.INHIBITORY);put("prbNListFileName",InputType.PROBED);}};
 
     // <editor-fold defaultstate="collapsed" desc="Auto-Generated Code">    
     /**
@@ -143,10 +141,12 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
     private void buildButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buildButtonActionPerformed
 //        try {
             // gather param values
-            ArrayList<String> paramStrs = new ArrayList<String>();
+            ArrayList<String> paramStrs = new ArrayList<>();
             for(int i = 0; i < paramsTextFields.size(); i++){
-                paramStrs.add(paramsTextFields.get(i).toString());
+                paramStrs.add(paramsTextFields.get(i).getText());
             }
+            
+            lastStateOutputFileName = stateOutputFileNameTextField.getText();
             
             icm.updateParamValues(paramStrs);
 
@@ -157,7 +157,6 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
                     if (fileName != null) {
                         okButton.setEnabled(true);
                         lastBuiltFile = fileName;
-//                        lastStateOutputFileName = stateOutputFilename_textField.getText();
                         messageLabelText.setText("<html><span style=\"color:green\">"
                                 + FileManager.getSimpleFilename(fileName)
                                 + " successfully persisted..."
@@ -205,7 +204,8 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Custom Members"> 
     private DynamicInputConfigurationManager icm;
     private Document xmlDoc = null;
-    private ArrayList<JTextField> paramsTextFields = new ArrayList<JTextField>();
+    private ArrayList<JTextField> paramsTextFields = new ArrayList<>();
+    private JTextField stateOutputFileNameTextField = null;
     private boolean okClicked = false;
     private String lastBuiltFile = null;
     private String lastStateOutputFileName = null;
@@ -233,7 +233,9 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
             System.err.println(e.toString());
         }
         if (icm != null) {
-            setInitValues();      
+            setInitValues();    
+            File configFile = new File(configFilename);
+            configFilename_textField.setText(configFile.getName());
             setPreferredSize(new Dimension(700, 365));
             okButton.setEnabled(false);
 
@@ -246,9 +248,10 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
     
     /**
      * @param aDoc
+     * @throws javax.xml.xpath.XPathExpressionException
      */
     public void buildTabsGUI(Document aDoc) throws XPathExpressionException {
-        ArrayList<Node> inputElements = new ArrayList<Node>();
+        ArrayList<Node> inputElements = new ArrayList<>();
         
         for(int i = 0; i < tabPaths.length; i++){
             XPathExpression xpath = XPathFactory.newInstance().newXPath().compile(tabPaths[i]);
@@ -302,18 +305,44 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
                             label = new JLabel(((Element)param).getAttribute("name"));
 
                             JTextField field = new JTextField(param.getTextContent());
-                            field.setMaximumSize(new Dimension(Integer.MAX_VALUE, field.getPreferredSize().height));
-                            subLayout.setHorizontalGroup(
-                                    subLayout.createSequentialGroup()
-                                    .addComponent(label)
-                                    .addComponent(field)
-                            );
-                            subLayout.setVerticalGroup(
-                                    subLayout.createSequentialGroup()
-                                    .addGroup(subLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                            .addComponent(label).addComponent(field))
-                            );
+                            String nodeName = ((Element)param).getNodeName();
+                            String type = ((Element)param).getAttribute("type");
+                            if(type.equals("InputFile")){
+                                JButton button = new JButton("Import");
+                                button.addActionListener(new ImportFileButtonListener(nodeName2InputType.get(nodeName),field));
+                                field.setMaximumSize(new Dimension(Integer.MAX_VALUE, field.getPreferredSize().height));
+                                subLayout.setHorizontalGroup(
+                                        subLayout.createSequentialGroup()
+                                        .addComponent(label)
+                                        .addComponent(field)
+                                        .addComponent(button)
+                                );
+                                subLayout.setVerticalGroup(
+                                        subLayout.createSequentialGroup()
+                                        .addGroup(subLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                                .addComponent(label)
+                                                .addComponent(field)
+                                                .addComponent(button))
+                                );
+                            }
+                            else{
+                                field.setMaximumSize(new Dimension(Integer.MAX_VALUE, field.getPreferredSize().height));
+                                subLayout.setHorizontalGroup(
+                                        subLayout.createSequentialGroup()
+                                        .addComponent(label)
+                                        .addComponent(field)
+                                );
+                                subLayout.setVerticalGroup(
+                                        subLayout.createSequentialGroup()
+                                        .addGroup(subLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                                .addComponent(label).addComponent(field))
+                                );
+                            }
 
+                            if(nodeName == stateOutputFileNameNode){
+                                stateOutputFileNameTextField = field;
+                                lastStateOutputFileName = field.getText();
+                            }
                             paramsTextFields.add(field);
                             contentPanel.add(subPanel);
                         }
@@ -368,69 +397,71 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Utils">
-    private void importNeuronList(InputType type, JTextField field) {
-        FileManager fm = FileManager.getFileManager();
-        // get starting folder
-        String simConfFilesDir;
-        try {
-            simConfFilesDir = fm.getSimConfigDirectoryPath(projectName, true);
-        } catch (IOException e) {
-            messageLabelText.setText(
-                    "<html><span style=\"color:red\">"
-                    + e.getClass()
-                    + "occurred, import failed...</span></html>");
-            return;
+    private class ImportFileButtonListener implements ActionListener{
+        InputType type = null;
+        JTextField field = null;
+        
+        ImportFileButtonListener(InputType aType, JTextField aField){
+            type = aType;
+            field = aField;
         }
-        JFileChooser dlg = new JFileChooser(simConfFilesDir);
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "XML file (*.xml)", "xml");
-        dlg.addChoosableFileFilter(filter);
-        dlg.setFileFilter(filter);
-        dlg.setMultiSelectionEnabled(true);
-        String dialogTitle = "Select Input Files for a Simulation";
-        dlg.setDialogTitle(dialogTitle);
-        if (dlg.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            importNeuronList(type, field);
+        }
+        
+        private void importNeuronList(InputType type, JTextField field) {
+            FileManager fm = FileManager.getFileManager();
+            // get starting folder
+            String simConfFilesDir;
             try {
-                File file = dlg.getSelectedFile();
-                // if type is correct
-                if (InputAnalyzer.getInputType(file) == type) {
-                    Path sourceFilePath = file.toPath();
-                    String destPathText = fm.getNeuronListFilePath(projectName,
-                            file.getName(), true);
-                    Path destFilePath = new File(destPathText).toPath();
-                    if (FileManager.copyFile(sourceFilePath, destFilePath)) {
-                        field.setText("workbenchconfigfiles/NList/"
-                                + fm.getSimpleFilename(destFilePath.toString()));
-                    }
-                } else {
-                    messageLabelText.setText("<html><span style=\"color:orange\">"
-                            + "The selected file did not match the type: "
-                            + type.toString() + "</span></html>");
-                }
-            } catch (ParserConfigurationException | SAXException |
-                    IOException ex) {
+                simConfFilesDir = fm.getSimConfigDirectoryPath(projectName, true);
+            } catch (IOException e) {
                 messageLabelText.setText(
                         "<html><span style=\"color:red\">"
-                        + ex.getClass()
+                        + e.getClass()
                         + "occurred, import failed...</span></html>");
+                return;
             }
-        } else {
-            messageLabelText.setText(
-                    "<html><span style=\"color:red\">"
-                    + "Import Cancelled...</span></html>");
+            JFileChooser dlg = new JFileChooser(simConfFilesDir);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "XML file (*.xml)", "xml");
+            dlg.addChoosableFileFilter(filter);
+            dlg.setFileFilter(filter);
+            dlg.setMultiSelectionEnabled(true);
+            String dialogTitle = "Select Input Files for a Simulation";
+            dlg.setDialogTitle(dialogTitle);
+            if (dlg.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                try {
+                    File file = dlg.getSelectedFile();
+                    // if type is correct
+                    if (InputAnalyzer.getInputType(file) == type) {
+                        Path sourceFilePath = file.toPath();
+                        String destPathText = fm.getNeuronListFilePath(projectName,
+                                file.getName(), true);
+                        Path destFilePath = new File(destPathText).toPath();
+                        if (FileManager.copyFile(sourceFilePath, destFilePath)) {
+                            field.setText("workbenchconfigfiles/NList/"
+                                    + fm.getSimpleFilename(destFilePath.toString()));
+                        }
+                    } else {
+                        messageLabelText.setText("<html><span style=\"color:orange\">"
+                                + "The selected file did not match the type: "
+                                + type.toString() + "</span></html>");
+                    }
+                } catch (ParserConfigurationException | SAXException |
+                        IOException ex) {
+                    messageLabelText.setText(
+                            "<html><span style=\"color:red\">"
+                            + ex.getClass()
+                            + "occurred, import failed...</span></html>");
+                }
+            } else {
+                messageLabelText.setText(
+                        "<html><span style=\"color:red\">"
+                        + "Import Cancelled...</span></html>");
+            }
         }
     }
-
-    private void autoFillConfigFilename() {
-        String calculatedFilename = "";
-//        String fE = fracEXC_textField.getText();
-//        String tR = targetRate_textField.getText();
-//        if (!fE.isEmpty() && !tR.isEmpty()) {
-//            calculatedFilename = "tR_" + tR + "--fE_" + fE
-//                    + ".xml";
-//        }
-        configFilename_textField.setText(calculatedFilename);
-    }
-    // </editor-fold>
 }
