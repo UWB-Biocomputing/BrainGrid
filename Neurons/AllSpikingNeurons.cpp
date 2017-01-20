@@ -19,10 +19,11 @@ AllSpikingNeurons::~AllSpikingNeurons()
  *  Setup the internal structure of the class (allocate memories).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllSpikingNeurons::setupNeurons(SimulationInfo *sim_info)
+void AllSpikingNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    AllNeurons::setupNeurons(sim_info);
+    AllNeurons::setupNeurons(sim_info, clr_info);
 
     // TODO: Rename variables for easier identification
     hasFired = new bool[size];
@@ -37,7 +38,7 @@ void AllSpikingNeurons::setupNeurons(SimulationInfo *sim_info)
         spikeCountOffset[i] = 0;
     }
 
-    sim_info->pSummationMap = summation_map;
+    clr_info->pClusterSummationMap = summation_map;
 }
 
 /*
@@ -75,12 +76,13 @@ void AllSpikingNeurons::freeResources()
  *  Clear the spike counts out of all Neurons.
  *
  *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info)
+void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
 {
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
+    for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
         spikeCountOffset[i] = (spikeCount[i] + spikeCountOffset[i]) % max_spikes;
         spikeCount[i] = 0;
     }
@@ -94,14 +96,15 @@ void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info)
  *  @param  synapses         The Synapse list to search from.
  *  @param  sim_info         SimulationInfo class to read information from.
  *  @param  synapseIndexMap  Reference to the SynapseIndexMap.
+ *  @param  clr_info         ClusterInfo class to read information from.
  */
-void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap)
+void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap, const ClusterInfo *clr_info)
 {
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
     AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
     // For each neuron in the network
-    for (int idx = sim_info->totalNeurons - 1; idx >= 0; --idx) {
+    for (int idx = clr_info->totalClusterNeurons - 1; idx >= 0; --idx) {
         // advance neurons
         advanceNeuron(idx, sim_info);
 

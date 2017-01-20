@@ -44,7 +44,7 @@ public:
     ~SInputPoisson();
 
     //! Initialize data.
-    virtual void init(SimulationInfo* psi);
+    virtual void init(SimulationInfo* psi, ClusterInfo* pci);
 
     //! Terminate process.
     virtual void term(SimulationInfo* psi);

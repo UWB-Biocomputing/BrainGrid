@@ -59,8 +59,9 @@ class AllSynapses : public IAllSynapses
          *  Setup the internal structure of the class (allocate memories and initialize them).
          *
          *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void setupSynapses(SimulationInfo *sim_info);
+        virtual void setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
          *  Cleanup the class (deallocate memories).
@@ -79,17 +80,17 @@ class AllSynapses : public IAllSynapses
          *  Sets the data for Synapses to input's data.
          *
          *  @param  input  istream to read from.
-         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info);
+        virtual void deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info);
 
         /**
          *  Write the synapses data to the stream.
          *
          *  @param  output  stream to print out to.
-         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void serialize(ostream& output, const SimulationInfo *sim_info);
+        virtual void serialize(ostream& output, const ClusterInfo *clr_info);
 
         /**
          *  Adds a Synapse to the model, connecting two Neurons.
@@ -121,8 +122,9 @@ class AllSynapses : public IAllSynapses
          *
          *  @param  synapseIndexMap   Reference to thw pointer to SynapseIndexMap structure.
          *  @param  sim_info          Pointer to the simulation information.
+         *  @param  clr_info          Pointer to the cluster information.
          */
-        virtual void createSynapseImap(SynapseIndexMap *&synapseIndexMap, const SimulationInfo* sim_info);
+        virtual void createSynapseImap(SynapseIndexMap *&synapseIndexMap, const SimulationInfo* sim_info, const ClusterInfo* clr_info);
 
         /**
          *  Get the sign of the synapseType.

@@ -23,10 +23,11 @@ AllSpikingSynapses::~AllSpikingSynapses()
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllSpikingSynapses::setupSynapses(SimulationInfo *sim_info)
+void AllSpikingSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    setupSynapses(sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron);
+    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron);
 }
 
 /*
@@ -124,11 +125,11 @@ void AllSpikingSynapses::printParameters(ostream &output) const
  *  Sets the data for Synapses to input's data.
  *
  *  @param  input  istream to read from.
- *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllSpikingSynapses::deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info)
+void AllSpikingSynapses::deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info)
 {
-    AllSynapses::deserialize(input, neurons, sim_info);
+    AllSynapses::deserialize(input, neurons, clr_info);
     preSpikeQueue->deserialize(input);
 }
 
@@ -136,11 +137,11 @@ void AllSpikingSynapses::deserialize(istream& input, IAllNeurons &neurons, const
  *  Write the synapses data to the stream.
  *
  *  @param  output  stream to print out to.
- *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllSpikingSynapses::serialize(ostream& output, const SimulationInfo *sim_info)
+void AllSpikingSynapses::serialize(ostream& output, const ClusterInfo *clr_info)
 {
-    AllSynapses::serialize(output, sim_info);
+    AllSynapses::serialize(output, clr_info);
     preSpikeQueue->serialize(output);
 }
 

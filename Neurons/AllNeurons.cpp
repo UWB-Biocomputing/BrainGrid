@@ -16,10 +16,11 @@ AllNeurons::~AllNeurons()
  *  Setup the internal structure of the class (allocate memories).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllNeurons::setupNeurons(SimulationInfo *sim_info)
+void AllNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    size = sim_info->totalNeurons;
+    size = clr_info->totalClusterNeurons;
     // TODO: Rename variables for easier identification
     summation_map = new BGFLOAT[size];
 
@@ -27,7 +28,7 @@ void AllNeurons::setupNeurons(SimulationInfo *sim_info)
         summation_map[i] = 0;
     }
 
-    sim_info->pSummationMap = summation_map;
+    clr_info->pClusterSummationMap = summation_map;
 }
 
 /*

@@ -1,10 +1,10 @@
 #include "EventQueue.h"
 
-CUDA_CALLABLE EventQueue::EventQueue() :
-    m_queueEvent(NULL),
-    m_nMaxEvent(0),
-    m_idxQueue(0)
+CUDA_CALLABLE EventQueue::EventQueue() 
 {
+    m_queueEvent = NULL;
+    m_nMaxEvent = 0;
+    m_idxQueue = 0;
 }
 
 CUDA_CALLABLE EventQueue::~EventQueue()

@@ -35,18 +35,18 @@ GpuSInputPoisson::~GpuSInputPoisson()
  *
  * @param[in] psi       Pointer to the simulation information.
  */
-void GpuSInputPoisson::init(SimulationInfo* psi)
+void GpuSInputPoisson::init(SimulationInfo* psi, ClusterInfo *pci)
 {
-    SInputPoisson::init(psi);
+    SInputPoisson::init(psi, pci);
 
     if (fSInput == false)
         return;
 
     // allocate GPU device memory and copy values
-    allocDeviceValues(psi->model, psi, nISIs);
+    allocDeviceValues(psi->model, psi, pci, nISIs);
 
     // CUDA parameters
-    int neuron_count = psi->totalNeurons;
+    int neuron_count = pci->totalClusterNeurons;
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
@@ -73,13 +73,13 @@ void GpuSInputPoisson::term(SimulationInfo* psi)
  *
  * @param[in] psi                Pointer to the simulation information.
  */
-void GpuSInputPoisson::inputStimulus(SimulationInfo* psi)
+void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, const ClusterInfo* pci)
 {
     if (fSInput == false)
         return;
 
-    int neuron_count = psi->totalNeurons;
-    int synapse_count = psi->totalNeurons;
+    int neuron_count = pci->totalClusterNeurons;
+    int synapse_count = pci->totalClusterNeurons;
 
     // CUDA parameters
     const int threadsPerBlock = 256;
@@ -94,7 +94,7 @@ void GpuSInputPoisson::inputStimulus(SimulationInfo* psi)
     advanceSpikingSynapsesEventQueueDevice <<< 1, 1 >>> ((AllSpikingSynapsesDeviceProperties*)allSynapsesDevice);
 
     // update summation point
-    applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, psi->pSummationMap, allSynapsesDevice );
+    applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, allSynapsesDevice );
 }
 
 /*
@@ -104,9 +104,9 @@ void GpuSInputPoisson::inputStimulus(SimulationInfo* psi)
  * @param[in] psi        Pointer to the simulation information.
  * @param[in] nISIs      Pointer to the interval counter.
  */
-void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int *nISIs )
+void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, ClusterInfo* pci, int *nISIs )
 {
-    int neuron_count = psi->totalNeurons;
+    int neuron_count = pci->totalClusterNeurons;
     BGSIZE nISIs_d_size = neuron_count * sizeof (int);   // size of shift values
 
     // Allocate GPU device memory
@@ -122,7 +122,7 @@ void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, int
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
-    initSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, allSynapsesDevice, psi->pSummationMap, psi->width, psi->deltaT, weight );
+    initSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, allSynapsesDevice, pci->pClusterSummationMap, psi->width, psi->deltaT, weight );
 
     // allocate memory for curand global state
     checkCudaErrors( cudaMalloc ( &devStates_d, neuron_count * sizeof( curandState ) ) );

@@ -121,7 +121,7 @@ SInputPoisson::~SInputPoisson()
  *
  *  @param[in] psi       Pointer to the simulation information.
  */
-void SInputPoisson::init(SimulationInfo* psi)
+void SInputPoisson::init(SimulationInfo* psi, ClusterInfo* pci)
 {
     if (fSInput == false)
         return;
@@ -137,7 +137,7 @@ void SInputPoisson::init(SimulationInfo* psi)
         else
             type = EE;
 
-        BGFLOAT* sum_point = &( psi->pSummationMap[neuron_index] );
+        BGFLOAT* sum_point = &( pci->pClusterSummationMap[neuron_index] );
         BGSIZE iSyn = psi->maxSynapsesPerNeuron * neuron_index;
 
         m_synapses->createSynapse(iSyn, 0, neuron_index, sum_point, psi->deltaT, type);

@@ -33,9 +33,9 @@ HostSInputPoisson::~HostSInputPoisson()
  *
  * @param[in] psi       Pointer to the simulation information.
  */
-void HostSInputPoisson::init(SimulationInfo* psi)
+void HostSInputPoisson::init(SimulationInfo* psi, ClusterInfo* pci)
 {
-    SInputPoisson::init(psi);
+    SInputPoisson::init(psi, pci);
 
     if (fSInput == false)
         return;
@@ -57,7 +57,7 @@ void HostSInputPoisson::term(SimulationInfo* psi)
  *
  * @param[in] psi             Pointer to the simulation information.
  */
-void HostSInputPoisson::inputStimulus(SimulationInfo* psi)
+void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, const ClusterInfo* pci)
 {
     if (fSInput == false)
         return;

@@ -54,8 +54,9 @@ class AllNeurons : public IAllNeurons
          *  Allocate memories to store all neurons' state.
          *
          *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void setupNeurons(SimulationInfo *sim_info);
+        virtual void setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
          *  Cleanup the class.

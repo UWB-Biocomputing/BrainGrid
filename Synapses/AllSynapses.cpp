@@ -31,10 +31,11 @@ AllSynapses::~AllSynapses()
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllSynapses::setupSynapses(SimulationInfo *sim_info)
+void AllSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    setupSynapses(sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron);
+    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron);
 }
 
 /*
@@ -118,13 +119,13 @@ void AllSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
  *  Sets the data for Synapses to input's data.
  *
  *  @param  input  istream to read from.
- *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info)
+void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info)
 {
         // read the synapse data & create synapses
-        int* read_synapses_counts= new int[sim_info->totalNeurons];
-        for (int i = 0; i < sim_info->totalNeurons; i++) {
+        int* read_synapses_counts= new int[clr_info->totalClusterNeurons];
+        for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
                 read_synapses_counts[i] = 0;
         }
 
@@ -148,7 +149,7 @@ void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const Simula
                 read_synapses_counts[neuron_index]++;
         }
 
-        for (int i = 0; i < sim_info->totalNeurons; i++) {
+        for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
                         synapse_counts[i] = read_synapses_counts[i];
         }
         delete[] read_synapses_counts;
@@ -158,18 +159,18 @@ void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const Simula
  *  Write the synapses data to the stream.
  *
  *  @param  output  stream to print out to.
- *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllSynapses::serialize(ostream& output, const SimulationInfo *sim_info)
+void AllSynapses::serialize(ostream& output, const ClusterInfo *clr_info)
 {
     // write the synapse data
     int synapse_count = 0;
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
+    for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
         synapse_count += synapse_counts[i];
     }
     output << synapse_count << ends;
 
-    for (int neuron_index = 0; neuron_index < sim_info->totalNeurons; neuron_index++) {
+    for (int neuron_index = 0; neuron_index < clr_info->totalClusterNeurons; neuron_index++) {
         for (BGSIZE synapse_index = 0; synapse_index < synapse_counts[neuron_index]; synapse_index++) {
             BGSIZE iSyn = maxSynapsesPerNeuron * neuron_index + synapse_index;
             writeSynapse(output, iSyn);
@@ -219,10 +220,11 @@ void AllSynapses::writeSynapse(ostream& output, const BGSIZE iSyn) const
  *
  *  @param  synapseIndexMap   Reference to the pointer to SynapseIndexMap structure.
  *  @param  sim_info          Pointer to the simulation information.
+ *  @param  clr_info          Pointer to the cluster information.
  */
-void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const SimulationInfo* sim_info)
+void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const SimulationInfo* sim_info, const ClusterInfo* clr_info)
 {
-        int neuron_count = sim_info->totalNeurons;
+        int neuron_count = clr_info->totalClusterNeurons;
         int total_synapse_counts = 0;
 
         // count the total synapses

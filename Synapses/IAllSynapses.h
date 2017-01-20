@@ -9,6 +9,7 @@
 #include "Global.h"
 #include "SimulationInfo.h"
 #include "SynapseIndexMap.h"
+#include "ClusterInfo.h"
 
 class IAllNeurons;
 class IAllSynapses;
@@ -27,8 +28,9 @@ class IAllSynapses
          *  Setup the internal structure of the class (allocate memories and initialize them).
          *
          *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void setupSynapses(SimulationInfo *sim_info) = 0;
+        virtual void setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
 
         /**
          *  Cleanup the class (deallocate memories).
@@ -69,17 +71,17 @@ class IAllSynapses
          *  Sets the data for Synapses to input's data.
          *
          *  @param  input  istream to read from.
-         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param clr_info  ClusterInfo class to read information from.
          */
-        virtual void deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info) = 0;
+        virtual void deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info) = 0;
 
         /**
          *  Write the synapses data to the stream.
          *
          *  @param  output  stream to print out to.
-         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void serialize(ostream& output, const SimulationInfo *sim_info) = 0;
+        virtual void serialize(ostream& output, const ClusterInfo *clr_info) = 0;
 
         /**
          *  Adds a Synapse to the model, connecting two Neurons.
@@ -111,8 +113,9 @@ class IAllSynapses
          *
          *  @param  synapseIndexMap   Reference to thw pointer to SynapseIndexMap structure.
          *  @param  sim_info          Pointer to the simulation information.
+         *  @param  clr_info          Pointer to the cluster information.
          */
-        virtual void createSynapseImap(SynapseIndexMap *&synapseIndexMap, const SimulationInfo* sim_info) = 0;
+        virtual void createSynapseImap(SynapseIndexMap *&synapseIndexMap, const SimulationInfo* sim_info, const ClusterInfo *clr_info) = 0;
 
         /**
          *  Get the sign of the synapseType.
@@ -130,8 +133,9 @@ class IAllSynapses
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
+        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) = 0;
 
         /**
          *  Allocate GPU memories to store all synapses' states,
@@ -156,8 +160,9 @@ class IAllSynapses
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
+        virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) = 0;
 
         /**
          *  Copy all synapses' data from host to device.
@@ -173,24 +178,26 @@ class IAllSynapses
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info ) = 0;
+        virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) = 0;
 
         /**
          *  Get synapse_counts in AllSynapses struct on device memory.
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const SimulationInfo *sim_info) = 0;
+        virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const ClusterInfo *clr_info) = 0;
 
         /** 
          *  Get summationCoord and in_use in AllSynapses struct on device memory.
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info) = 0;
+        virtual void copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info) = 0;
 
         /**
          *  Advance all the Synapses in the simulation.

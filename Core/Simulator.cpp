@@ -35,12 +35,6 @@ void Simulator::setup(SimulationInfo *sim_info)
   DEBUG(cerr << "Initializing models in network... ";)
   sim_info->model->setupSim(sim_info);
   DEBUG(cerr << "\ndone init models." << endl;)
-
-  // init stimulus input object
-  if (sim_info->pInput != NULL) {
-    cout << "Initializing input." << endl;
-    sim_info->pInput->init(sim_info);
-  }
 }
 
 /*
@@ -173,10 +167,6 @@ void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_in
 		  }
 		count++;
 		)
-
-        // input stimulus
-        if (sim_info->pInput != NULL)
-	  sim_info->pInput->inputStimulus(sim_info);
 
       // Advance the Network one time step
       sim_info->model->advance(sim_info);

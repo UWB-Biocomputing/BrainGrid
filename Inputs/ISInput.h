@@ -42,7 +42,7 @@ public:
      *
      * @param[in] psi       Pointer to the simulation information.
      */
-    virtual void init(SimulationInfo* psi) = 0;
+    virtual void init(SimulationInfo* psi, ClusterInfo* pci) = 0;
 
     /**
      * Terminate process
@@ -54,7 +54,7 @@ public:
      *
      * @param[in] psi       Pointer to the simulation information.
      */
-    virtual void inputStimulus(SimulationInfo* psi) = 0;
+    virtual void inputStimulus(const SimulationInfo* psi, const ClusterInfo* pci) = 0;
 };
 
 #endif // _ISINPUT_H_

@@ -123,7 +123,7 @@ SInputRegular::~SInputRegular()
  *
  * @param[in] psi       Pointer to the simulation information.
  */
-void SInputRegular::init(SimulationInfo* psi)
+void SInputRegular::init(SimulationInfo* psi, ClusterInfo* pci)
 {
 }
 

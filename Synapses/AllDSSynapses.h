@@ -75,8 +75,9 @@ class AllDSSynapses : public AllSpikingSynapses
          *  Setup the internal structure of the class (allocate memories and initialize them).
          *
          *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void setupSynapses(SimulationInfo *sim_info);
+        virtual void setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
          *  Cleanup the class (deallocate memories).
@@ -159,8 +160,9 @@ class AllDSSynapses : public AllSpikingSynapses
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info );
+        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
         /**
          *  Allocate GPU memories to store all synapses' states,
@@ -185,8 +187,9 @@ class AllDSSynapses : public AllSpikingSynapses
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info );
+        virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
         /**
          *  Copy all synapses' data from host to device.
@@ -202,8 +205,9 @@ class AllDSSynapses : public AllSpikingSynapses
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info );
+        virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
         /**
          *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
@@ -252,10 +256,10 @@ class AllDSSynapses : public AllSpikingSynapses
          *  (Helper function of copySynapseDeviceToHost)
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  num_neurons           Number of neurons.
-         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        void copyDeviceToHost( AllDSSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info );
+        void copyDeviceToHost( AllDSSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 #else // !defined(USE_GPU)
     protected:
         /**

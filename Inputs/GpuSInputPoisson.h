@@ -43,17 +43,17 @@ public:
     ~GpuSInputPoisson();
 
     //! Initialize data.
-    virtual void init(SimulationInfo* psi);
+    virtual void init(SimulationInfo* psi, ClusterInfo *pci);
 
     //! Terminate process.
     virtual void term(SimulationInfo* psi);
 
     //! Process input stimulus for each time step.
-    virtual void inputStimulus(SimulationInfo* psi);
+    virtual void inputStimulus(const SimulationInfo* psi, const ClusterInfo* pci);
 
 private:
     //! Allocate GPU device memory and copy values
-    void allocDeviceValues( IModel* model, SimulationInfo* psi, int *nISIs );
+    void allocDeviceValues( IModel* model, SimulationInfo* psi, ClusterInfo* pci, int *nISIs );
 
     //! Dellocate GPU device memory
     void deleteDeviceValues( IModel* model, SimulationInfo* psi );

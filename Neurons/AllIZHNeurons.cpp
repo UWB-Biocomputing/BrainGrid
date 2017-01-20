@@ -21,10 +21,11 @@ AllIZHNeurons::~AllIZHNeurons()
  *  Setup the internal structure of the class (allocate memories).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllIZHNeurons::setupNeurons(SimulationInfo *sim_info)
+void AllIZHNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    AllIFNeurons::setupNeurons(sim_info);
+    AllIFNeurons::setupNeurons(sim_info, clr_info);
 
     Aconst = new BGFLOAT[size];
     Bconst = new BGFLOAT[size];
@@ -247,11 +248,12 @@ void AllIZHNeurons::printParameters(ostream &output) const
  *
  *  @param  sim_info    SimulationInfo class to read information from.
  *  @param  layout      Layout information of the neunal network.
+ *  @param  clr_info    ClusterInfo class to read information from.
  */
-void AllIZHNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout)
+void AllIZHNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout, ClusterInfo *clr_info)
 {
     /* set their specific types */
-    for (int neuron_index = 0; neuron_index < sim_info->totalNeurons; neuron_index++) {
+    for (int neuron_index = 0; neuron_index < clr_info->totalClusterNeurons; neuron_index++) {
         setNeuronDefaults(neuron_index);
 
         // set the neuron info for neurons
@@ -353,12 +355,12 @@ string AllIZHNeurons::toString(const int i) const
  *  Sets the data for Neurons to input's data.
  *
  *  @param  input       istream to read from.
- *  @param  sim_info    used as a reference to set info for neurons.
+ *  @param  clr_info    used as a reference to set info for neurons.
  */
-void AllIZHNeurons::deserialize(istream &input, const SimulationInfo *sim_info)
+void AllIZHNeurons::deserialize(istream &input, const ClusterInfo *clr_info)
 {
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        readNeuron(input, sim_info, i);
+    for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
+        readNeuron(input, i);
     }
 }
 
@@ -366,12 +368,11 @@ void AllIZHNeurons::deserialize(istream &input, const SimulationInfo *sim_info)
  *  Sets the data for Neuron #index to input's data.
  *
  *  @param  input       istream to read from.
- *  @param  sim_info    used as a reference to set info for neurons.
  *  @param  i           index of the neuron (in neurons).
  */
-void AllIZHNeurons::readNeuron(istream &input, const SimulationInfo *sim_info, int i)
+void AllIZHNeurons::readNeuron(istream &input, int i)
 {
-    AllIFNeurons::readNeuron(input, sim_info, i);
+    AllIFNeurons::readNeuron(input, i);
 
     input >> Aconst[i]; input.ignore();
     input >> Bconst[i]; input.ignore();
@@ -385,12 +386,12 @@ void AllIZHNeurons::readNeuron(istream &input, const SimulationInfo *sim_info, i
  *  Writes out the data in Neurons.
  *
  *  @param  output      stream to write out to.
- *  @param  sim_info    used as a reference to set info for neuronss.
+ *  @param  clr_info    used as a reference to set info for neuronss.
  */
-void AllIZHNeurons::serialize(ostream& output, const SimulationInfo *sim_info) const 
+void AllIZHNeurons::serialize(ostream& output, const ClusterInfo *clr_info) const 
 {
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        writeNeuron(output, sim_info, i);
+    for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
+        writeNeuron(output, i);
     }
 }
 
@@ -398,12 +399,11 @@ void AllIZHNeurons::serialize(ostream& output, const SimulationInfo *sim_info) c
  *  Writes out the data in the selected Neuron.
  *
  *  @param  output      stream to write out to.
- *  @param  sim_info    used as a reference to set info for neuronss.
  *  @param  i           index of the neuron (in neurons).
  */
-void AllIZHNeurons::writeNeuron(ostream& output, const SimulationInfo *sim_info, int i) const
+void AllIZHNeurons::writeNeuron(ostream& output, int i) const
 {
-    AllIFNeurons::writeNeuron(output, sim_info, i);
+    AllIFNeurons::writeNeuron(output, i);
 
     output << Aconst[i] << ends;
     output << Bconst[i] << ends;

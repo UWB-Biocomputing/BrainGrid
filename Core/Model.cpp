@@ -5,7 +5,7 @@
 #include "ParseParamError.h"
 #include "Util.h"
 #include "ConnGrowth.h"
-
+#include "ISInput.h"
 
 /*
  *  Constructor
@@ -16,7 +16,8 @@ Model::Model(Connections *conns, IAllNeurons *neurons, IAllSynapses *synapses, L
     m_neurons(neurons),
     m_synapses(synapses),
     m_layout(layout),
-    m_synapseIndexMap(NULL)
+    m_synapseIndexMap(NULL),
+    m_clusterInfo(NULL)
 {
 }
 
@@ -49,6 +50,11 @@ Model::~Model()
         delete m_synapseIndexMap;
         m_synapseIndexMap = NULL;
     }
+
+    if (m_clusterInfo!= NULL) {
+        delete m_clusterInfo;
+        m_clusterInfo = NULL;
+    }
 }
 
 /*
@@ -62,16 +68,16 @@ Model::~Model()
 void Model::deserialize(istream& input, const SimulationInfo *sim_info)
 {
     // read the neurons data & create neurons
-    m_neurons->deserialize(input, sim_info);
+    m_neurons->deserialize(input, m_clusterInfo);
 
     // read the synapse data & create synapses
-    m_synapses->deserialize(input, *m_neurons, sim_info);
+    m_synapses->deserialize(input, *m_neurons, m_clusterInfo);
 
     // read the connections data
     m_conns->deserialize(input, sim_info);
 
     // create a synapse index map 
-    m_synapses->createSynapseImap(m_synapseIndexMap, sim_info);
+    m_synapses->createSynapseImap(m_synapseIndexMap, sim_info, m_clusterInfo);
 }
 
 /*
@@ -86,10 +92,10 @@ void Model::serialize(ostream& output, const SimulationInfo *sim_info)
 {
     // write the neurons data
     output << sim_info->totalNeurons << ends;
-    m_neurons->serialize(output, sim_info);
+    m_neurons->serialize(output, m_clusterInfo);
 
     // write the synapse data
-    m_synapses->serialize(output, sim_info);
+    m_synapses->serialize(output, m_clusterInfo);
 
     // write the connections data
     m_conns->serialize(output, sim_info);
@@ -123,7 +129,7 @@ void Model::createAllNeurons(SimulationInfo *sim_info)
     m_layout->initStarterMap(sim_info->totalNeurons);
 
     // set their specific types
-    m_neurons->createAllNeurons(sim_info, m_layout);
+    m_neurons->createAllNeurons(sim_info, m_layout, m_clusterInfo);
 
     DEBUG(cerr << "Done initializing neurons..." << endl;)
 }
@@ -135,10 +141,14 @@ void Model::createAllNeurons(SimulationInfo *sim_info)
  */
 void Model::setupSim(SimulationInfo *sim_info)
 {
+    // create cluster information
+    m_clusterInfo = new ClusterInfo();
+    m_clusterInfo->totalClusterNeurons = sim_info->totalNeurons;
+
     DEBUG(cerr << "\tSetting up neurons....";)
-    m_neurons->setupNeurons(sim_info);
+    m_neurons->setupNeurons(sim_info, m_clusterInfo);
     DEBUG(cerr << "done.\n\tSetting up synapses....";)
-    m_synapses->setupSynapses(sim_info);
+    m_synapses->setupSynapses(sim_info, m_clusterInfo);
     DEBUG(cerr << "done.\n\tSetting up layout....";)
     m_layout->setupLayout(sim_info);
     DEBUG(cerr << "done." << endl;)
@@ -154,7 +164,13 @@ void Model::setupSim(SimulationInfo *sim_info)
     m_conns->setupConnections(sim_info, m_layout, m_neurons, m_synapses);
 
     // create a synapse index map 
-    m_synapses->createSynapseImap(m_synapseIndexMap, sim_info);
+    m_synapses->createSynapseImap(m_synapseIndexMap, sim_info, m_clusterInfo);
+
+  // init stimulus input object
+  if (sim_info->pInput != NULL) {
+    cout << "Initializing input." << endl;
+    sim_info->pInput->init(sim_info, m_clusterInfo);
+  }
 }
 
 /*
@@ -232,7 +248,7 @@ void Model::updateHistory(const SimulationInfo *sim_info)
 {
     // Compile history information in every epoch
     if (sim_info->simRecorder != NULL) {
-        sim_info->simRecorder->compileHistories(*m_neurons);
+        sim_info->simRecorder->compileHistories(*m_neurons, m_clusterInfo);
     }
 }
 

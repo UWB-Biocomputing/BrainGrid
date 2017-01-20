@@ -14,9 +14,10 @@
  *  @param  allSynapsesDevice  Reference to the AllDynamicSTDPSynapsesDeviceProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
+ *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllDynamicSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info ) {
-	allocSynapseDeviceStruct( allSynapsesDevice, sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron );
+void AllDynamicSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
+	allocSynapseDeviceStruct( allSynapsesDevice, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );
 }
 
 /*
@@ -101,9 +102,10 @@ void AllDynamicSTDPSynapses::deleteDeviceStruct( AllDynamicSTDPSynapsesDevicePro
  *  @param  allSynapsesDevice  Reference to the AllDynamicSTDPSynapsesDeviceProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
+ *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllDynamicSTDPSynapses::copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info ) { // copy everything necessary
-	copySynapseHostToDevice( allSynapsesDevice, sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron );	
+void AllDynamicSTDPSynapses::copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) { // copy everything necessary
+	copySynapseHostToDevice( allSynapsesDevice, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );	
 }
 
 /*
@@ -156,14 +158,15 @@ void AllDynamicSTDPSynapses::copyHostToDevice( void* allSynapsesDevice, AllDynam
  *  @param  allSynapsesDevice  Reference to the AllDynamicSTDPSynapsesDeviceProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
+ *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllDynamicSTDPSynapses::copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info ) {
+void AllDynamicSTDPSynapses::copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
 	// copy everything necessary
 	AllDynamicSTDPSynapsesDeviceProperties allSynapses;
 
         checkCudaErrors( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllDynamicSTDPSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
 
-	copyDeviceToHost( allSynapses, sim_info );
+	copyDeviceToHost( allSynapses, sim_info, clr_info );
 }
 
 /*
@@ -172,13 +175,13 @@ void AllDynamicSTDPSynapses::copySynapseDeviceToHost( void* allSynapsesDevice, c
  *
  *  @param  allSynapsesDevice     Reference to the AllDynamicSTDPSynapsesDeviceProperties struct 
  *                                on device memory.
- *  @param  num_neurons           Number of neurons.
- *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+ *  @param  sim_info              SimulationInfo to refer from.
+ *  @param  clr_info              ClusterInfo to refer from.
  */
-void AllDynamicSTDPSynapses::copyDeviceToHost( AllDynamicSTDPSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info ) {
-        AllSTDPSynapses::copyDeviceToHost( allSynapses, sim_info ) ;
+void AllDynamicSTDPSynapses::copyDeviceToHost( AllDynamicSTDPSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
+        AllSTDPSynapses::copyDeviceToHost( allSynapses, sim_info, clr_info ) ;
 
-	int num_neurons = sim_info->totalNeurons;
+	int num_neurons = clr_info->totalClusterNeurons;
 	BGSIZE max_total_synapses = sim_info->maxSynapsesPerNeuron * num_neurons;
 
         checkCudaErrors( cudaMemcpy ( lastSpike, allSynapses.lastSpike,

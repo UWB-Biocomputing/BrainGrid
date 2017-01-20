@@ -153,20 +153,35 @@ class Model : public IModel
         // kind of a hack to do error handling for read params
         int m_read_params;
 
-        // TODO
+        /**
+         *  Pointer to the Connection object.
+         */
         Connections *m_conns;
 
-        //
+        /**
+         *  Pointer to the Neurons object.
+         */
         IAllNeurons *m_neurons;
 
-        //
+        /**
+         *  Pointer to the Synapses object.
+         */
         IAllSynapses *m_synapses;
 
-        // 
+        /**
+         *  Pointer to the Layout objects.
+         */
         Layout *m_layout;
 
-        //
+        /**
+         *  Pointer to the Synapse Index Map object.
+         */
         SynapseIndexMap *m_synapseIndexMap;
+
+        /**
+         *  Pointer to the ClusterInfo object.
+         */
+        ClusterInfo *m_clusterInfo;
 
     private:
         /**

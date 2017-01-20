@@ -1,5 +1,6 @@
 #include "SingleThreadedSpikingModel.h"
 #include "AllDSSynapses.h"
+#include "ISInput.h"
 
 /*
  *  Constructor
@@ -38,7 +39,11 @@ void SingleThreadedSpikingModel::setupSim(SimulationInfo *sim_info)
  */
 void SingleThreadedSpikingModel::advance(const SimulationInfo *sim_info)
 {
-    m_neurons->advanceNeurons(*m_synapses, sim_info, m_synapseIndexMap);
+    // input stimulus
+    if (sim_info->pInput != NULL)
+      sim_info->pInput->inputStimulus(sim_info, m_clusterInfo);
+
+    m_neurons->advanceNeurons(*m_synapses, sim_info, m_synapseIndexMap, m_clusterInfo);
     m_synapses->advanceSynapses(sim_info, m_neurons);
 }
 
@@ -53,7 +58,7 @@ void SingleThreadedSpikingModel::updateConnections(const SimulationInfo *sim_inf
     if (m_conns->updateConnections(*m_neurons, sim_info, m_layout)) {
         m_conns->updateSynapsesWeights(sim_info->totalNeurons, *m_neurons, *m_synapses, sim_info, m_layout);
         // create synapse inverse map
-        m_synapses->createSynapseImap( m_synapseIndexMap, sim_info );
+        m_synapses->createSynapseImap( m_synapseIndexMap, sim_info, m_clusterInfo );
     }
 }
 

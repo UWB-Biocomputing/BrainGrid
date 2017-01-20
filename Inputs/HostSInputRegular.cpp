@@ -31,9 +31,9 @@ HostSInputRegular::~HostSInputRegular()
  *
  * @param[in] psi       Pointer to the simulation information.
  */
-void HostSInputRegular::init(SimulationInfo* psi)
+void HostSInputRegular::init(SimulationInfo* psi, ClusterInfo* pci)
 {
-    SInputRegular::init(psi);
+    SInputRegular::init(psi, pci);
 }
 
 /*
@@ -56,23 +56,23 @@ void HostSInputRegular::term(SimulationInfo* psi)
  *
  * @param[in] psi             Pointer to the simulation information.
  */
-void HostSInputRegular::inputStimulus(SimulationInfo* psi)
+void HostSInputRegular::inputStimulus(const SimulationInfo* psi, const ClusterInfo *pci)
 {
     if (fSInput == false)
         return;
 
 #if defined(USE_OMP)
-int chunk_size = psi->totalNeurons / omp_get_max_threads();
+int chunk_size = pci->totalClusterNeurons / omp_get_max_threads();
 #endif
 
 #if defined(USE_OMP)
 #pragma omp parallel for schedule(static, chunk_size)
 #endif
     // add input to each summation point
-    for (int i = psi->totalNeurons - 1; i >= 0; --i)
+    for (int i = pci->totalClusterNeurons - 1; i >= 0; --i)
     {
         if ( (nStepsInCycle >= nShiftValues[i]) && (nStepsInCycle < (nShiftValues[i] + nStepsDuration ) % nStepsCycle) )
-            psi->pSummationMap[i] += values[i];
+            pci->pClusterSummationMap[i] += values[i];
     }
 
     // update cycle count 

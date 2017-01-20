@@ -53,8 +53,9 @@ class AllIFNeurons : public AllSpikingNeurons
          *  Allocate memories to store all neurons' state.
          *
          *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void setupNeurons(SimulationInfo *sim_info);
+        virtual void setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
          *  Cleanup the class.
@@ -89,8 +90,9 @@ class AllIFNeurons : public AllSpikingNeurons
          *
          *  @param  sim_info    SimulationInfo class to read information from.
          *  @param  layout      Layout information of the neunal network.
+         *  @param  clr_info    ClusterInfo class to read information from.
          */
-        virtual void createAllNeurons(SimulationInfo *sim_info, Layout *layout);
+        virtual void createAllNeurons(SimulationInfo *sim_info, Layout *layout, ClusterInfo *clr_info);
 
         /**
          *  Outputs state of the neuron chosen as a string.
@@ -104,17 +106,17 @@ class AllIFNeurons : public AllSpikingNeurons
          *  Reads and sets the data for all neurons from input stream.
          *
          *  @param  input       istream to read from.
-         *  @param  sim_info    used as a reference to set info for neuronss.
+         *  @param  clr_info    used as a reference to set info for neuronss.
          */
-        virtual void deserialize(istream &input, const SimulationInfo *sim_info);
+        virtual void deserialize(istream &input, const ClusterInfo *clr_info);
 
         /**
          *  Writes out the data in all neurons to output stream.
          *
          *  @param  output      stream to write out to.
-         *  @param  sim_info    used as a reference to set info for neuronss.
+         *  @param  clr_info    used as a reference to set info for neuronss.
          */
-        virtual void serialize(ostream& output, const SimulationInfo *sim_info) const;
+        virtual void serialize(ostream& output, const ClusterInfo *clr_info) const;
 
 #if defined(USE_GPU)
     public:
@@ -128,8 +130,9 @@ class AllIFNeurons : public AllSpikingNeurons
          *  @param  sim_info               SimulationInfo to refer from.
          *  @param  randNoise              Reference to the random noise array.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
+         *  @param  clr_info               ClusterInfo to refer from.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice);
+        virtual void advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info);
 
         /**
          *  Allocate GPU memories to store all neurons' states,
@@ -137,56 +140,60 @@ class AllIFNeurons : public AllSpikingNeurons
          *
          *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info );
+        virtual void allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info, ClusterInfo *clr_info );
 
         /**
          *  Delete GPU memories.
          *
          *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void deleteNeuronDeviceStruct( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void deleteNeuronDeviceStruct( void* allNeuronsDevice, const ClusterInfo *clr_info );
 
         /**
          *  Copy all neurons' data from host to device.
          *
          *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
         /**
          *  Copy all neurons' data from device to host.
          *
          *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
         /**
          *  Copy spike history data stored in device memory to host.
          *
          *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
         /**
          *  Copy spike counts data stored in device memory to host.
          *
          *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, const ClusterInfo *clr_info );
 
         /**
          *  Clear the spike counts out of all neurons.
          *
          *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void clearNeuronSpikeCounts( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void clearNeuronSpikeCounts( void* allNeuronsDevice, const ClusterInfo *clr_info );
 
     protected:
         /**
@@ -195,17 +202,18 @@ class AllIFNeurons : public AllSpikingNeurons
          *
          *  @param  allNeurons         Reference to the AllIFNeuronsDeviceProperties struct.
          *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        void allocDeviceStruct( AllIFNeuronsDeviceProperties &allNeurons, SimulationInfo *sim_info );
+        void allocDeviceStruct( AllIFNeuronsDeviceProperties &allNeurons, SimulationInfo *sim_info, ClusterInfo *clr_info );
 
         /**
          *  Delete GPU memories.
          *  (Helper function of deleteNeuronDeviceStruct)
          *
          *  @param  allNeurons         Reference to the AllIFNeuronsDeviceProperties struct.
-         *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-        void deleteDeviceStruct( AllIFNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info );
+        void deleteDeviceStruct( AllIFNeuronsDeviceProperties& allNeurons, const ClusterInfo *clr_info );
 
         /**
          *  Copy all neurons' data from host to device.
@@ -213,8 +221,9 @@ class AllIFNeurons : public AllSpikingNeurons
          *
          *  @param  allNeurons         Reference to the AllIFNeuronsDeviceProperties struct.
          *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-	void copyHostToDevice( AllIFNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info );
+	void copyHostToDevice( AllIFNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
         /**
          *  Copy all neurons' data from device to host.
@@ -222,8 +231,9 @@ class AllIFNeurons : public AllSpikingNeurons
          *
          *  @param  allNeurons         Reference to the AllIFNeuronsDeviceProperties struct.
          *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
          */
-	void copyDeviceToHost( AllIFNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info );
+	void copyDeviceToHost( AllIFNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
 #endif // defined(USE_GPU)
 
@@ -259,7 +269,7 @@ class AllIFNeurons : public AllSpikingNeurons
          *  @param  sim_info    used as a reference to set info for neurons.
          *  @param  i           index of the neuron (in neurons).
          */
-        void readNeuron(istream &input, const SimulationInfo *sim_info, int i);
+        void readNeuron(istream &input, int i);
 
         /**
          *  Writes out the data in the selected Neuron.
@@ -268,7 +278,7 @@ class AllIFNeurons : public AllSpikingNeurons
          *  @param  sim_info    used as a reference to set info for neuronss.
          *  @param  i           index of the neuron (in neurons).
          */
-        void writeNeuron(ostream& output, const SimulationInfo *sim_info, int i) const;
+        void writeNeuron(ostream& output, int i) const;
 
     private:
         /**

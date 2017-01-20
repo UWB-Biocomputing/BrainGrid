@@ -49,7 +49,6 @@ public:
             maxSynapsesPerNeuron(0),
             deltaT(DEFAULT_dt),
             maxRate(0),
-            pSummationMap(NULL),
 	    seed(0),
             model(NULL),
             simRecorder(NULL),
@@ -115,17 +114,8 @@ public:
 	//! Time elapsed between the beginning and end of the simulation step
 	BGFLOAT deltaT; // Inner Simulation Step Duration !!!!!!!!
 
-	//! The neuron type map (INH, EXC).
-	neuronType* rgNeuronTypeMap;
-
-	//! The starter existence map (T/F).
-	bool* rgEndogenouslyActiveNeuronMap;
-
 	//! growth variable (m_targetRate / m_epsilon) TODO: more detail here
 	BGFLOAT maxRate;
-
-	//! List of summation points (either host or device memory)
-	BGFLOAT* pSummationMap;
 
 	//! Seed used for the simulation random SINGLE THREADED
 	long seed;

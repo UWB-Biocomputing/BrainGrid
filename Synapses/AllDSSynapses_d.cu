@@ -15,9 +15,10 @@
  *  @param  allSynapsesDevice  Reference to the AllDSSynapsesDeviceProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
+ *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllDSSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info ) {
-	allocSynapseDeviceStruct( allSynapsesDevice, sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron );
+void AllDSSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
+	allocSynapseDeviceStruct( allSynapsesDevice, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );
 }
 
 /*
@@ -102,9 +103,10 @@ void AllDSSynapses::deleteDeviceStruct( AllDSSynapsesDeviceProperties& allSynaps
  *  @param  allSynapsesDevice  Reference to the AllDSSynapsesDeviceProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
+ *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllDSSynapses::copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info ) { // copy everything necessary
-	copySynapseHostToDevice( allSynapsesDevice, sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron );	
+void AllDSSynapses::copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) { // copy everything necessary
+	copySynapseHostToDevice( allSynapsesDevice, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );	
 }
 
 /*
@@ -156,14 +158,15 @@ void AllDSSynapses::copyHostToDevice( void* allSynapsesDevice, AllDSSynapsesDevi
  *  @param  allSynapsesDevice  Reference to the AllDSSynapsesDeviceProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
+ *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllDSSynapses::copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info ) {
+void AllDSSynapses::copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
 	// copy everything necessary
 	AllDSSynapsesDeviceProperties allSynapses;
 
         checkCudaErrors( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllDSSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
 
-	copyDeviceToHost( allSynapses, sim_info );
+	copyDeviceToHost( allSynapses, sim_info, clr_info );
 }
 
 /*
@@ -172,13 +175,13 @@ void AllDSSynapses::copySynapseDeviceToHost( void* allSynapsesDevice, const Simu
  *
  *  @param  allSynapsesDevice     Reference to the AllDSSynapsesDeviceProperties struct 
  *                                on device memory.
- *  @param  num_neurons           Number of neurons.
- *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+ *  @param  sim_info           SimulationInfo to refer from.
+ *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllDSSynapses::copyDeviceToHost( AllDSSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info ) {
-        AllSpikingSynapses::copyDeviceToHost( allSynapses, sim_info ) ;
+void AllDSSynapses::copyDeviceToHost( AllDSSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
+        AllSpikingSynapses::copyDeviceToHost( allSynapses, sim_info, clr_info ) ;
 
-	int num_neurons = sim_info->totalNeurons;
+	int num_neurons = clr_info->totalClusterNeurons;
 	BGSIZE max_total_synapses = sim_info->maxSynapsesPerNeuron * num_neurons;
 
         checkCudaErrors( cudaMemcpy ( lastSpike, allSynapses.lastSpike,

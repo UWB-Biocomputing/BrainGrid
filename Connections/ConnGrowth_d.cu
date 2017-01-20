@@ -14,8 +14,9 @@
  *  @param  m_allNeuronsDevice  Reference to the allNeurons struct on device memory. 
  *  @param  m_allSynapsesDevice Reference to the allSynapses struct on device memory.
  *  @param  layout              Layout information of the neunal network.
+ *  @paam   clr_info            ClusterInfo to refer from.
  */
-void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeuronsDeviceProperties* m_allNeuronsDevice, AllSpikingSynapsesDeviceProperties* m_allSynapsesDevice, Layout *layout)
+void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeuronsDeviceProperties* m_allNeuronsDevice, AllSpikingSynapsesDeviceProperties* m_allSynapsesDevice, Layout *layout, const ClusterInfo *clr_info)
 {
         // For now, we just set the weights to equal the areas. We will later
         // scale it and set its sign (when we index and get its sign).
@@ -55,7 +56,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neuro
         checkCudaErrors( cudaFree( neuron_type_map_d ) );
 
         // copy device synapse count to host memory
-        synapses.copyDeviceSynapseCountsToHost(m_allSynapsesDevice, sim_info);
+        synapses.copyDeviceSynapseCountsToHost(m_allSynapsesDevice, clr_info);
         // copy device synapse summation coordinate to host memory
-        synapses.copyDeviceSynapseSumIdxToHost(m_allSynapsesDevice, sim_info);
+        synapses.copyDeviceSynapseSumIdxToHost(m_allSynapsesDevice, sim_info, clr_info);
 }

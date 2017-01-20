@@ -31,10 +31,11 @@ AllIFNeurons::~AllIFNeurons()
  *  Setup the internal structure of the class (allocate memories).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllIFNeurons::setupNeurons(SimulationInfo *sim_info)
+void AllIFNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    AllSpikingNeurons::setupNeurons(sim_info);
+    AllSpikingNeurons::setupNeurons(sim_info, clr_info);
 
     // TODO: Rename variables for easier identification
     C1 = new BGFLOAT[size];
@@ -297,11 +298,12 @@ void AllIFNeurons::printParameters(ostream &output) const
  *
  *  @param  sim_info    SimulationInfo class to read information from.
  *  @param  layout      Layout information of the neunal network.
+ *  @param  clr_info    ClusterInfo class to read information from.
  */
-void AllIFNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout)
+void AllIFNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout, ClusterInfo *clr_info)
 {
     /* set their specific types */
-    for (int neuron_index = 0; neuron_index < sim_info->totalNeurons; neuron_index++) {
+    for (int neuron_index = 0; neuron_index < clr_info->totalClusterNeurons; neuron_index++) {
         setNeuronDefaults(neuron_index);
 
         // set the neuron info for neurons
@@ -454,12 +456,12 @@ string AllIFNeurons::toString(const int i) const
  *  Sets the data for Neurons to input's data.
  *
  *  @param  input       istream to read from.
- *  @param  sim_info    used as a reference to set info for neuronss.
+ *  @param  clr_info    used as a reference to set info for neuronss.
  */
-void AllIFNeurons::deserialize(istream &input, const SimulationInfo *sim_info)
+void AllIFNeurons::deserialize(istream &input, const ClusterInfo *clr_info)
 {
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        readNeuron(input, sim_info, i);
+    for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
+        readNeuron(input, i);
     }
 }
 
@@ -470,7 +472,7 @@ void AllIFNeurons::deserialize(istream &input, const SimulationInfo *sim_info)
  *  @param  sim_info    used as a reference to set info for neurons.
  *  @param  i           index of the neuron (in neurons).
  */
-void AllIFNeurons::readNeuron(istream &input, const SimulationInfo *sim_info, int i)
+void AllIFNeurons::readNeuron(istream &input, int i)
 {
     // input.ignore() so input skips over end-of-line characters.
     input >> Cm[i]; input.ignore();
@@ -496,12 +498,12 @@ void AllIFNeurons::readNeuron(istream &input, const SimulationInfo *sim_info, in
  *  Writes out the data in Neurons.
  *
  *  @param  output      stream to write out to.
- *  @param  sim_info    used as a reference to set info for neuronss.
+ *  @param  clr_info    used as a reference to set info for neuronss.
  */
-void AllIFNeurons::serialize(ostream& output, const SimulationInfo *sim_info) const 
+void AllIFNeurons::serialize(ostream& output, const ClusterInfo *clr_info) const 
 {
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        writeNeuron(output, sim_info, i);
+    for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
+        writeNeuron(output, i);
     }
 }
 
@@ -509,10 +511,9 @@ void AllIFNeurons::serialize(ostream& output, const SimulationInfo *sim_info) co
  *  Writes out the data in the selected Neuron.
  *
  *  @param  output      stream to write out to.
- *  @param  sim_info    used as a reference to set info for neuronss.
  *  @param  i           index of the neuron (in neurons).
  */
-void AllIFNeurons::writeNeuron(ostream& output, const SimulationInfo *sim_info, int i) const
+void AllIFNeurons::writeNeuron(ostream& output, int i) const
 {
     output << Cm[i] << ends;
     output << Rm[i] << ends;

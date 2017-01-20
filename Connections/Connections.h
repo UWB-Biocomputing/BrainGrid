@@ -140,8 +140,9 @@ class Connections
          *  @param  m_allNeuronsDevice  Reference to the allNeurons struct on device memory. 
          *  @param  m_allSynapsesDevice Reference to the allSynapses struct on device memory.
          *  @param  layout              Layout information of the neunal network.
+         *  @param  clr_info            ClusterInfo to refer from.
          */
-        virtual void updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeuronsDeviceProperties* m_allNeuronsDevice, AllSpikingSynapsesDeviceProperties* m_allSynapsesDevice, Layout *layout);
+        virtual void updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeuronsDeviceProperties* m_allNeuronsDevice, AllSpikingSynapsesDeviceProperties* m_allSynapsesDevice, Layout *layout, const ClusterInfo *clr_info);
 #else
     public:
         /**

@@ -39,9 +39,9 @@ GpuSInputRegular::~GpuSInputRegular()
  *
  * @param[in] psi       Pointer to the simulation information.
  */
-void GpuSInputRegular::init(SimulationInfo* psi)
+void GpuSInputRegular::init(SimulationInfo* psi, ClusterInfo *pci)
 {
-    SInputRegular::init(psi);
+    SInputRegular::init(psi, pci);
 
     if (fSInput == false)
         return;
@@ -69,12 +69,12 @@ void GpuSInputRegular::term(SimulationInfo* psi)
  *
  * @param[in] psi               Pointer to the simulation information.
  */
-void GpuSInputRegular::inputStimulus(SimulationInfo* psi)
+void GpuSInputRegular::inputStimulus(const SimulationInfo* psi, const ClusterInfo *pci)
 {
     if (fSInput == false)
         return;
 
-    int neuron_count = psi->totalNeurons;
+    int neuron_count = pci->totalClusterNeurons;
 
     // CUDA parameters
     const int threadsPerBlock = 256;
@@ -82,7 +82,7 @@ void GpuSInputRegular::inputStimulus(SimulationInfo* psi)
 
     // add input to each summation point
     blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-    inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, psi->pSummationMap, initValues_d, nShiftValues_d, nStepsInCycle, nStepsCycle, nStepsDuration );
+    inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, initValues_d, nShiftValues_d, nStepsInCycle, nStepsCycle, nStepsDuration );
     // update cycle count
     nStepsInCycle = (nStepsInCycle + 1) % nStepsCycle;
 }

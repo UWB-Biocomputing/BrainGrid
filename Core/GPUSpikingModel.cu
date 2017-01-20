@@ -56,23 +56,23 @@ GPUSpikingModel::~GPUSpikingModel()
 void GPUSpikingModel::allocDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info)
 {
   // Allocate Neurons and Synapses strucs on GPU device memory
-  m_neurons->allocNeuronDeviceStruct( allNeuronsDevice, sim_info );
-  m_synapses->allocSynapseDeviceStruct( allSynapsesDevice, sim_info );
+  m_neurons->allocNeuronDeviceStruct( allNeuronsDevice, sim_info, m_clusterInfo );
+  m_synapses->allocSynapseDeviceStruct( allSynapsesDevice, sim_info, m_clusterInfo );
 
   // Allocate memory for random noise array
-  int neuron_count = sim_info->totalNeurons;
+  int neuron_count = m_clusterInfo->totalClusterNeurons;
   BGSIZE randNoise_d_size = neuron_count * sizeof (float);	// size of random noise array
   checkCudaErrors( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
 
   // Copy host neuron and synapse arrays into GPU device
-  m_neurons->copyNeuronHostToDevice( *allNeuronsDevice, sim_info );
-  m_synapses->copySynapseHostToDevice( *allSynapsesDevice, sim_info );
+  m_neurons->copyNeuronHostToDevice( *allNeuronsDevice, sim_info, m_clusterInfo );
+  m_synapses->copySynapseHostToDevice( *allSynapsesDevice, sim_info, m_clusterInfo );
 
   // allocate synapse inverse map in device memory
   allocSynapseImap( neuron_count );
 
   // copy inverse map to the device memory
-  copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
+  copySynapseIndexMapHostToDevice(*m_synapseIndexMap, m_clusterInfo->totalClusterNeurons);
 }
 
 /*
@@ -85,13 +85,13 @@ void GPUSpikingModel::allocDeviceStruct(void** allNeuronsDevice, void** allSynap
 void GPUSpikingModel::deleteDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info)
 {
   // copy device synapse and neuron structs to host memory
-  m_neurons->copyNeuronDeviceToHost( *allNeuronsDevice, sim_info );
+  m_neurons->copyNeuronDeviceToHost( *allNeuronsDevice, sim_info, m_clusterInfo );
 
   // Deallocate device memory
-  m_neurons->deleteNeuronDeviceStruct( *allNeuronsDevice, sim_info );
+  m_neurons->deleteNeuronDeviceStruct( *allNeuronsDevice, m_clusterInfo );
 
   // copy device synapse and neuron structs to host memory
-  m_synapses->copySynapseDeviceToHost( *allSynapsesDevice, sim_info );
+  m_synapses->copySynapseDeviceToHost( *allSynapsesDevice, sim_info, m_clusterInfo );
 
   // Deallocate device memory
   m_synapses->deleteSynapseDeviceStruct( *allSynapsesDevice );
@@ -171,11 +171,11 @@ void GPUSpikingModel::deserialize(istream& input, const SimulationInfo *sim_info
   Model::deserialize(input, sim_info);
 
   // copy inverse map to the device memory
-  copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
+  copySynapseIndexMapHostToDevice(*m_synapseIndexMap, m_clusterInfo->totalClusterNeurons);
 
   // Reinitialize device struct - Copy host neuron and synapse arrays into GPU device
-  m_neurons->copyNeuronHostToDevice( m_allNeuronsDevice, sim_info );
-  m_synapses->copySynapseHostToDevice( m_allSynapsesDevice, sim_info );
+  m_neurons->copyNeuronHostToDevice( m_allNeuronsDevice, sim_info, m_clusterInfo );
+  m_synapses->copySynapseHostToDevice( m_allSynapsesDevice, sim_info, m_clusterInfo );
 }
 
 /* 
@@ -201,7 +201,7 @@ void GPUSpikingModel::advance(const SimulationInfo *sim_info)
 
   // display running info to console
   // Advance neurons ------------->
-  m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoise_d, synapseIndexMapDevice);
+  m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoise_d, synapseIndexMapDevice, m_clusterInfo);
 
 #ifdef PERFORMANCE_METRICS
   cudaLapTime(t_gpu_advanceNeurons);
@@ -233,9 +233,9 @@ void GPUSpikingModel::calcSummationMap(const SimulationInfo *sim_info)
 {
   // CUDA parameters
   const int threadsPerBlock = 256;
-  int blocksPerGrid = ( sim_info->totalNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
+  int blocksPerGrid = ( m_clusterInfo->totalClusterNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
 
-  calcSummationMapDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, m_allNeuronsDevice, synapseIndexMapDevice, m_allSynapsesDevice );
+  calcSummationMapDevice <<< blocksPerGrid, threadsPerBlock >>> ( m_clusterInfo->totalClusterNeurons, m_allNeuronsDevice, synapseIndexMapDevice, m_allSynapsesDevice );
 }
 
 /* 
@@ -245,16 +245,16 @@ void GPUSpikingModel::calcSummationMap(const SimulationInfo *sim_info)
  */
 void GPUSpikingModel::updateConnections(const SimulationInfo *sim_info)
 {
-  dynamic_cast<AllSpikingNeurons*>(m_neurons)->copyNeuronDeviceSpikeCountsToHost(m_allNeuronsDevice, sim_info);
-  dynamic_cast<AllSpikingNeurons*>(m_neurons)->copyNeuronDeviceSpikeHistoryToHost(m_allNeuronsDevice, sim_info);
+  dynamic_cast<AllSpikingNeurons*>(m_neurons)->copyNeuronDeviceSpikeCountsToHost(m_allNeuronsDevice, m_clusterInfo);
+  dynamic_cast<AllSpikingNeurons*>(m_neurons)->copyNeuronDeviceSpikeHistoryToHost(m_allNeuronsDevice, sim_info, m_clusterInfo);
 
   // Update Connections data
   if (m_conns->updateConnections(*m_neurons, sim_info, m_layout)) {
-    m_conns->updateSynapsesWeights(sim_info->totalNeurons, *m_neurons, *m_synapses, sim_info, m_allNeuronsDevice, m_allSynapsesDevice, m_layout);
+    m_conns->updateSynapsesWeights(m_clusterInfo->totalClusterNeurons, *m_neurons, *m_synapses, sim_info, m_allNeuronsDevice, m_allSynapsesDevice, m_layout, m_clusterInfo);
     // create synapse inverse map
-    m_synapses->createSynapseImap(m_synapseIndexMap, sim_info);
+    m_synapses->createSynapseImap(m_synapseIndexMap, sim_info, m_clusterInfo);
     // copy inverse map to the device memory
-    copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
+    copySynapseIndexMapHostToDevice(*m_synapseIndexMap, m_clusterInfo->totalClusterNeurons);
   }
 }
 
@@ -268,7 +268,7 @@ void GPUSpikingModel::updateHistory(const SimulationInfo *sim_info)
   Model::updateHistory(sim_info);
 
   // clear spike count
-  dynamic_cast<AllSpikingNeurons*>(m_neurons)->clearNeuronSpikeCounts(m_allNeuronsDevice, sim_info);
+  dynamic_cast<AllSpikingNeurons*>(m_neurons)->clearNeuronSpikeCounts(m_allNeuronsDevice, m_clusterInfo);
 }
 
 /* ------------------*\

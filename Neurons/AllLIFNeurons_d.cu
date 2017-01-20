@@ -15,10 +15,11 @@
  *  @param  sim_info               SimulationInfo to refer from.
  *  @param  randNoise              Reference to the random noise array.
  *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
+ *  @param  clr_info               ClusterInfo to refer from.
  */
-void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice )
+void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info )
 {
-    int neuron_count = sim_info->totalNeurons;
+    int neuron_count = clr_info->totalClusterNeurons;
     int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
 
     // CUDA parameters

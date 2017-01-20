@@ -85,8 +85,9 @@ public:
      * Compile history information in every epoch
      *
      * @param[in] neurons   The entire list of neurons.
+     * @param[in] clr_info  ClusterInfo class to read information from.
      */
-    virtual void compileHistories(IAllNeurons &neurons);
+    virtual void compileHistories(IAllNeurons &neurons, ClusterInfo *clr_info);
 
     /**
      * Writes simulation results to an output destination.
