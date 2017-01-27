@@ -12,7 +12,7 @@
 #include "Global.h"
 #include "ParamContainer.h"
 
-#include "IModel.h"
+#include "Model.h"
 #include "FClassOfCategory.h"
 #include "IRecorder.h"
 #include "FSInput.h"
@@ -22,20 +22,18 @@
 // #include <vld.h>
 
 #if defined(USE_GPU)
-    #include "GPUSpikingModel.h"
-#elif defined(USE_OMP)
-//    #include "MultiThreadedSim.h"
+    #include "GPUSpikingCluster.h"
 #else 
-    #include "SingleThreadedSpikingModel.h"
+    #include "SingleThreadedCluster.h"
 #endif
 
 using namespace std;
 
 // functions
-bool LoadAllParameters(SimulationInfo *simInfo);
+bool LoadAllParameters(SimulationInfo *simInfo, Cluster *&cluster, ClusterInfo *&clusterInfo);
 void printParams(SimulationInfo *simInfo);
 bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo);
-bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo);
+bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo, Cluster *&cluster, ClusterInfo *&clusterInfo);
 
 /*
  *  Main for Simulator. Handles command line arguments and loads parameters
@@ -50,6 +48,9 @@ int main(int argc, char* argv[]) {
     SimulationInfo *simInfo = NULL;    // simulation information
     Simulator *simulator = NULL;       // Simulator object
 
+    ClusterInfo *clusterInfo = NULL;   // Cluster information
+    Cluster *cluster = NULL;           // Cluster object
+
     // create simulation info object
     simInfo = new SimulationInfo();
 
@@ -60,7 +61,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Create all model instances and load parameters from a file.
-    if (!LoadAllParameters(simInfo)) {
+    if (!LoadAllParameters(simInfo, cluster, clusterInfo)) {
         cerr << "! ERROR: failed while parsing simulation parameters." << endl;
         return -1;
     }
@@ -136,6 +137,12 @@ int main(int argc, char* argv[]) {
     cout << "time elapsed: " << time_elapsed << endl;
     cout << "ssps (simulation seconds / real time seconds): " << ssps << endl;
     
+    delete clusterInfo;
+    clusterInfo = NULL;
+
+    delete cluster;
+    cluster = NULL;
+
     delete simInfo->model;
     simInfo->model = NULL;
     
@@ -156,11 +163,13 @@ int main(int argc, char* argv[]) {
 /*
  *  Create instances of all model classes.
  *
- *  @param  simDoc  the TiXmlDocument to read from.
- *  @param  simInfo   SimulationInfo class to read information from.
+ *  @param  simDoc        the TiXmlDocument to read from.
+ *  @param  simInfo       SimulationInfo class to read information from.
+ *  @param  cluster       Cluster class object to be created.
+ *  @param  clusterInfo   ClusterInfo class to be ceated.
  *  @retrun true if successful, false if not
  */
-bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo)
+bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo, Cluster *&cluster, ClusterInfo *&clusterInfo)
 {
     TiXmlElement* parms = NULL;
 
@@ -193,12 +202,19 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
         return false;
     }
 
-    // create the model
+    // create cluster information
+    clusterInfo = new ClusterInfo();
+    clusterInfo->totalClusterNeurons = simInfo->totalNeurons;
+
+    // create the cluster
     #if defined(USE_GPU)
-         simInfo->model = new GPUSpikingModel(conns, neurons, synapses, layout);
+        cluster = new GPUSpikingCluster(neurons, synapses);
     #else
-         simInfo->model = new SingleThreadedSpikingModel(conns, neurons, synapses, layout);
+        cluster = new SingleThreadedCluster(neurons, synapses);
     #endif
+
+    // create the model
+    simInfo->model = new Model(conns, layout, cluster, clusterInfo);
 
     return true;
 }
@@ -206,10 +222,12 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
 /*
  *  Load parameters from a file.
  *
- *  @param  simInfo   SimulationInfo class to read information from.
+ *  @param  simInfo       SimulationInfo class to read information from.
+ *  @param  cluster       Cluster class object to be created.
+ *  @param  clusterInfo   ClusterInfo class to be ceated.
  *  @return true if successful, false if not
  */
-bool LoadAllParameters(SimulationInfo *simInfo)
+bool LoadAllParameters(SimulationInfo *simInfo, Cluster *&cluster, ClusterInfo *&clusterInfo)
 {
     DEBUG(cerr << "reading parameters from xml file" << endl;)
 
@@ -230,7 +248,7 @@ bool LoadAllParameters(SimulationInfo *simInfo)
 
     // create instances of all model classes
     DEBUG(cerr << "creating instances of all classes" << endl;)
-    if (createAllModelClassInstances(&simDoc, simInfo) != true) {
+    if (createAllModelClassInstances(&simDoc, simInfo, cluster, clusterInfo) != true) {
         return false;
     }
 

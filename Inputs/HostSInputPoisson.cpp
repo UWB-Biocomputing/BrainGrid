@@ -7,7 +7,6 @@
  */
 
 #include "HostSInputPoisson.h"
-#include "SingleThreadedSpikingModel.h"
 #include "tinyxml.h"
 
 /*
@@ -62,13 +61,6 @@ void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, const ClusterIn
     if (fSInput == false)
         return;
 
-#if defined(USE_OMP)
-int chunk_size = psi->totalNeurons / omp_get_max_threads();
-#endif
-
-#if defined(USE_OMP)
-#pragma omp parallel for schedule(static, chunk_size)
-#endif
     for (int neuron_index = 0; neuron_index < psi->totalNeurons; neuron_index++)
     {
         if (masks[neuron_index] == false)

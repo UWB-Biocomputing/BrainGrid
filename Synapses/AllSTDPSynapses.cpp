@@ -410,14 +410,7 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
     // decay the post spike response
     psr *= decay;
     // and apply it to the summation point
-#ifdef USE_OMP
-#pragma omp atomic
-#endif
     summationPoint += psr;
-#ifdef USE_OMP
-    //PAB: atomic above has implied flush (following statement generates error -- can't be member variable)
-    //#pragma omp flush (summationPoint)
-#endif
 }
 
 /*

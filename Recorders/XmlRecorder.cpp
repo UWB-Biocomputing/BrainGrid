@@ -69,7 +69,7 @@ void XmlRecorder::term()
  * @param[in] neurons 	The entire list of neurons.
  * @param[in] clr_info  ClusterInfo class to read information from.
  */
-void XmlRecorder::compileHistories(IAllNeurons &neurons, ClusterInfo *clr_info)
+void XmlRecorder::compileHistories(IAllNeurons &neurons, const ClusterInfo *clr_info)
 {
     AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
     int max_spikes = (int) ((m_sim_info->epochDuration * m_sim_info->maxFiringRate));

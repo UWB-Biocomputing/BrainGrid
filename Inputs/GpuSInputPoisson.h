@@ -32,7 +32,6 @@
 #define _GPUSINPUTPOISSON_H_
 
 #include "SInputPoisson.h"
-#include "GPUSpikingModel.h"
 #include "AllSynapsesDeviceFuncs.h"
 
 class GpuSInputPoisson : public SInputPoisson

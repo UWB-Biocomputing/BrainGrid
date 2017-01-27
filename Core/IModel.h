@@ -23,6 +23,7 @@ using namespace std;
 #include "IRecorder.h"
 #include "Connections.h"
 #include "Layout.h"
+#include "Cluster.h"
 
 /**
  * Neural Network Model interface.

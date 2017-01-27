@@ -94,7 +94,7 @@ NVCCFLAGS =  -g -arch=sm_30 -rdc=true $(INCDIRS) -I/usr/local/cuda/samples/commo
 ################################################################################
 
 CUDAOBJS =   \
-		$(COREDIR)/GPUSpikingModel.o \
+		$(COREDIR)/GPUSpikingCluster.o \
 		$(NEURONDIR)/AllNeuronsDeviceFuncs_d.o \
 		$(NEURONDIR)/AllNeurons_cuda.o \
 		$(NEURONDIR)/AllSpikingNeurons_cuda.o \
@@ -133,6 +133,7 @@ LIBOBJS =   \
 		$(COREDIR)/Simulator.o \
 		$(COREDIR)/SimulationInfo.o \
 		$(COREDIR)/Model.o \
+		$(COREDIR)/Cluster.o \
 		$(LAYOUTDIR)/Layout.o \
 		$(LAYOUTDIR)/FixedLayout.o \
 		$(LAYOUTDIR)/DynamicLayout.o \
@@ -148,6 +149,7 @@ LIBOBJS =   \
 		$(COREDIR)/Simulator.o \
 		$(COREDIR)/SimulationInfo.o \
 		$(COREDIR)/Model.o \
+		$(COREDIR)/Cluster.o \
 		$(LAYOUTDIR)/Layout.o \
 		$(LAYOUTDIR)/FixedLayout.o \
 		$(LAYOUTDIR)/DynamicLayout.o \
@@ -169,7 +171,7 @@ RNGOBJS =	$(RNGDIR)/Norm.o \
 		$(RNGDIR)/MersenneTwister.o
 
 SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
-		$(COREDIR)/SingleThreadedSpikingModel.o \
+		$(COREDIR)/SingleThreadedCluster.o \
 		$(INPUTDIR)/FSInput.o \
 		$(COREDIR)/FClassOfCategory.o \
 		$(COREDIR)/EventQueue.o \
@@ -226,8 +228,8 @@ clean:
 $(RNGDIR)/MersenneTwister_d.o: $(RNGDIR)/MersenneTwister_d.cu $(UTILDIR)/Global.h $(RNGDIR)/MersenneTwister_d.h
 	nvcc -c $(NVCCFLAGS) $(RNGDIR)/MersenneTwister_d.cu $(CGPUFLAGS) -o $(RNGDIR)/MersenneTwister_d.o
 
-$(COREDIR)/GPUSpikingModel.o: $(COREDIR)/GPUSpikingModel.cu $(UTILDIR)/Global.h $(COREDIR)/GPUSpikingModel.h $(NEURONDIR)/AllIFNeurons.h $(SYNAPSEDIR)/AllSynapses.h $(COREDIR)/IModel.h  
-	nvcc -c $(NVCCFLAGS) $(COREDIR)/GPUSpikingModel.cu $(CGPUFLAGS) -o $(COREDIR)/GPUSpikingModel.o
+$(COREDIR)/GPUSpikingCluster.o: $(COREDIR)/GPUSpikingCluster.cu $(UTILDIR)/Global.h $(COREDIR)/GPUSpikingCluster.h $(NEURONDIR)/AllIFNeurons.h $(SYNAPSEDIR)/AllSynapses.h $(COREDIR)/IModel.h  
+	nvcc -c $(NVCCFLAGS) $(COREDIR)/GPUSpikingCluster.cu $(CGPUFLAGS) -o $(COREDIR)/GPUSpikingCluster.o
 
 $(NEURONDIR)/AllNeuronsDeviceFuncs_d.o: $(NEURONDIR)/AllNeuronsDeviceFuncs_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllNeuronsDeviceFuncs.h
 	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllNeuronsDeviceFuncs_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllNeuronsDeviceFuncs_d.o
@@ -356,6 +358,9 @@ $(COREDIR)/SimulationInfo.o: $(COREDIR)/SimulationInfo.cpp $(COREDIR)/Simulation
 $(COREDIR)/Model.o: $(COREDIR)/Model.cpp $(COREDIR)/Model.h $(COREDIR)/IModel.h $(UTILDIR)/ParseParamError.h $(UTILDIR)/Util.h $(XMLDIR)/tinyxml.h
 	$(CXX) $(CXXFLAGS) $(COREDIR)/Model.cpp -o $(COREDIR)/Model.o
 
+$(COREDIR)/Cluster.o: $(COREDIR)/Cluster.cpp $(COREDIR)/Cluster.h 
+	$(CXX) $(CXXFLAGS) $(COREDIR)/Cluster.cpp -o $(COREDIR)/Cluster.o
+
 $(CONNDIR)/Connections.o: $(CONNDIR)/Connections.cpp $(CONNDIR)/Connections.h 
 	$(CXX) $(CXXFLAGS) $(CONNDIR)/Connections.cpp -o $(CONNDIR)/Connections.o
 
@@ -374,8 +379,8 @@ $(LAYOUTDIR)/FixedLayout.o: $(LAYOUTDIR)/FixedLayout.cpp $(LAYOUTDIR)/FixedLayou
 $(LAYOUTDIR)/DynamicLayout.o: $(LAYOUTDIR)/DynamicLayout.cpp $(LAYOUTDIR)/DynamicLayout.h 
 	$(CXX) $(CXXFLAGS) $(LAYOUTDIR)/DynamicLayout.cpp -o $(LAYOUTDIR)/DynamicLayout.o
 
-$(COREDIR)/SingleThreadedSpikingModel.o: $(COREDIR)/SingleThreadedSpikingModel.cpp $(COREDIR)/SingleThreadedSpikingModel.h $(COREDIR)/Model.h 
-	$(CXX) $(CXXFLAGS) $(COREDIR)/SingleThreadedSpikingModel.cpp -o $(COREDIR)/SingleThreadedSpikingModel.o
+$(COREDIR)/SingleThreadedCluster.o: $(COREDIR)/SingleThreadedCluster.cpp $(COREDIR)/SingleThreadedCluster.h $(COREDIR)/Cluster.h 
+	$(CXX) $(CXXFLAGS) $(COREDIR)/SingleThreadedCluster.cpp -o $(COREDIR)/SingleThreadedCluster.o
 
 $(UTILDIR)/ParseParamError.o: $(UTILDIR)/ParseParamError.cpp $(UTILDIR)/ParseParamError.h
 	$(CXX) $(CXXFLAGS) $(UTILDIR)/ParseParamError.cpp -o $(UTILDIR)/ParseParamError.o

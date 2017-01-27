@@ -4,7 +4,6 @@
  */
 
 #include "AllDSSynapses.h"
-#include "GPUSpikingModel.h"
 #include "AllSynapsesDeviceFuncs.h"
 #include <helper_cuda.h>
 

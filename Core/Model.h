@@ -13,8 +13,7 @@
  *
  * The Model class maintains and manages classes of objects that make up
  * essential components of the spiking neunal network.
- *    -# IAllNeurons: A class to define a list of partiular type of neurons.
- *    -# IAllSynapses: A class to define a list of partiular type of synapses.
+ *    -# Clusters: A group of cluster class objects, which contain neurons and synapses.
  *    -# Connections: A class to define connections of the neunal network.
  *    -# Layout: A class to define neurons' layout information in the network.
  *
@@ -58,7 +57,7 @@ using namespace std;
 class Model : public IModel
 {
     public:
-        Model(Connections *conns, IAllNeurons *neurons, IAllSynapses *synapses, Layout *layout);
+        Model(Connections *conns, Layout *layout, Cluster *cluster, ClusterInfo *clr_info);
         virtual ~Model();
 
         /**
@@ -131,6 +130,22 @@ class Model : public IModel
          */
         virtual void updateHistory(const SimulationInfo *sim_info);
 
+        /**
+         * Advances network state one simulation step.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         */
+        virtual void advance(const SimulationInfo *sim_info);
+
+        /**
+         * Modifies connections between neurons based on current state of the network and behavior
+         * over the past epoch. Should be called once every epoch.
+         *
+         * @param currentStep - The epoch step in which the connections are being updated.
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         */
+        virtual void updateConnections(const SimulationInfo *sim_info);
+
     protected:
 
         /* -----------------------------------------------------------------------------------------
@@ -159,36 +174,26 @@ class Model : public IModel
         Connections *m_conns;
 
         /**
-         *  Pointer to the Neurons object.
-         */
-        IAllNeurons *m_neurons;
-
-        /**
-         *  Pointer to the Synapses object.
-         */
-        IAllSynapses *m_synapses;
-
-        /**
          *  Pointer to the Layout objects.
          */
         Layout *m_layout;
-
-        /**
-         *  Pointer to the Synapse Index Map object.
-         */
-        SynapseIndexMap *m_synapseIndexMap;
 
         /**
          *  Pointer to the ClusterInfo object.
          */
         ClusterInfo *m_clusterInfo;
 
-    private:
+        /**
+         *  Pointer to the Cluster object.
+         */
+        Cluster *m_cluster;
+
+    protected:
         /**
          * Populate an instance of IAllNeurons with an initial state for each neuron.
          *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
-        void createAllNeurons(SimulationInfo *sim_info);
+        virtual void setupClusters(SimulationInfo *sim_info);
 
 };

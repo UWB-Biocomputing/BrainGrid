@@ -1,9 +1,12 @@
 /**
- * @file GPUSpikingModel.h
+ * @file GPUSpikingCluster.h
  *
- * @brief Implementation of Model for the spiking neunal networks.
+ * @brief Implementation of Cluster for the spiking neunal networks.
  *
  * @authors Aaron Oziel, Sean Blackbourn 
+ *
+ * Fumitaka Kawasaki (1/27/17):
+ * Changed from Model to Cluster class.
  *
  * Fumitaka Kawasaki (5/3/14):
  * All functions were completed and working. 
@@ -18,17 +21,17 @@
 
 /**
  *
- * @class GPUSpikingModel GPUSpikingModel.h "GPUSpikingModel.h"
+ * @class GPUSpikingCluster GPUSpikingCluster.h "GPUSpikingCluster.h"
  *
  * \latexonly  \subsubsection*{Implementation} \endlatexonly
  * \htmlonly   <h3>Implementation</h3> \endhtmlonly
  *
- * The Model class maintains and manages classes of objects that make up
- * essential components of the spiking neunal networks.
+ * A cluster is a unit of execution corresponding to a thread, a GPU device, or
+ * a computing node, depending on the configuration.
+ * The Cluster class maintains and manages classes of objects that make up
+ * essential components of the spiking neunal network.
  *    -# IAllNeurons: A class to define a list of partiular type of neurons.
  *    -# IAllSynapses: A class to define a list of partiular type of synapses.
- *    -# Connections: A class to define connections of the neunal network.
- *    -# Layout: A class to define neurons' layout information in the network.
  *
  * \image html bg_data_layout.png
  *
@@ -91,50 +94,58 @@ inline void cudaLapTime(double& t_event) {
 
 class AllSpikingSynapses;
 
-class GPUSpikingModel : public Model  {
+class GPUSpikingCluster : public Cluster  {
 	friend class GpuSInputPoisson;
 
 public:
-	GPUSpikingModel(Connections *conns, IAllNeurons *neurons, IAllSynapses *synapses, Layout *layout);
-	virtual ~GPUSpikingModel();
+	GPUSpikingCluster(IAllNeurons *neurons, IAllSynapses *synapses);
+	virtual ~GPUSpikingCluster();
  
         /**
          * Set up model state, if anym for a specific simulation run.
          *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         * @param clr_info - parameters defining the cluster to be run with the given collection of neurons.
          */
-	virtual void setupSim(SimulationInfo *sim_info);
+	virtual void setupCluster(SimulationInfo *sim_info, Layout *layout, ClusterInfo *clr_info);
 
         /**
          * Performs any finalization tasks on network following a simulation.
          *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         * @param clr_info - parameters defining the cluster to be run with the given collection of neurons.
          */
-	virtual void cleanupSim(SimulationInfo *sim_info);
+	virtual void cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
          *  Loads the simulation based on istream input.
          *
          *  @param  input       istream to read from.
          *  @param  sim_info    used as a reference to set info for neurons and synapses.
+         *  @param  clr_info    used as a reference to set info for neurons and synapses.
          */
-        virtual void deserialize(istream& input, const SimulationInfo *sim_info);
+        virtual void deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
          * Advances network state one simulation step.
          *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         * @param clr_info - parameters defining the cluster to be run with the given collection of neurons.
          */
-	virtual void advance(const SimulationInfo *sim_info);
+	virtual void advance(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
          * Modifies connections between neurons based on current state of the network and behavior
          * over the past epoch. Should be called once every epoch.
          *
-         * @param currentStep - The epoch step in which the connections are being updated.
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         *  @param  layout      A class to define neurons' layout information in the network.
+         *  @param  conns       A class to define neurons' connections information in the network.
+         *  @param  clr_info    ClusterInfo class to read information from.
          */
-	virtual void updateConnections(const SimulationInfo *sim_info);
+	virtual void updateConnections(const SimulationInfo *sim_info, Connections *conns, Layout *layout, const ClusterInfo *clr_info);
+
+        virtual void updateHistory(const SimulationInfo *sim_infos, const ClusterInfo *clr_info);
 
 protected:
         /**
@@ -143,24 +154,27 @@ protected:
         * @param[out] allNeuronsDevice          Memory loation of the pointer to the neurons list on device memory.
         * @param[out] allSynapsesDevice         Memory loation of the pointer to the synapses list on device memory.
         * @param[in] sim_info                   Pointer to the simulation information.
+        * @param[in] clr_info                   Pointer to the cluster information.
         */
-	void allocDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info);
+	void allocDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
          * Copies device memories to host memories and deallocaes them.
          *
-        * @param[out] allNeuronsDevice          Memory loation of the pointer to the neurons list on device memory.
-        * @param[out] allSynapsesDevice         Memory loation of the pointer to the synapses list on device memory.
-        * @param[in]  sim_info                  Pointer to the simulation information.
+         * @param[out] allNeuronsDevice          Memory loation of the pointer to the neurons list on device memory.
+         * @param[out] allSynapsesDevice         Memory loation of the pointer to the synapses list on device memory.
+         * @param[in]  sim_info                  Pointer to the simulation information.
+         * @param[in]  clr_info                  Pointer to the cluster information.
          */
-	virtual void deleteDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info);
+	virtual void deleteDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
          * Add psr of all incoming synapses to summation points.
          *
          * @param[in] sim_info                   Pointer to the simulation information.
+         * @param[in] clr_info                   Pointer to the cluster information.
          */
-	virtual void calcSummationMap(const SimulationInfo *sim_info);
+	virtual void calcSummationMap(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
 	/* ------------------*\
 	|* # Helper Functions
@@ -201,8 +215,6 @@ private:
 
 	// # Update Connections
 	// --------------------
-
-        void updateHistory(const SimulationInfo *sim_infos);
 
 	// TODO
 	void eraseSynapse(IAllSynapses &synapses, const int neuron_index, const int synapse_index);

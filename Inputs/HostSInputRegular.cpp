@@ -61,13 +61,6 @@ void HostSInputRegular::inputStimulus(const SimulationInfo* psi, const ClusterIn
     if (fSInput == false)
         return;
 
-#if defined(USE_OMP)
-int chunk_size = pci->totalClusterNeurons / omp_get_max_threads();
-#endif
-
-#if defined(USE_OMP)
-#pragma omp parallel for schedule(static, chunk_size)
-#endif
     // add input to each summation point
     for (int i = pci->totalClusterNeurons - 1; i >= 0; --i)
     {

@@ -70,7 +70,7 @@ void XmlGrowthRecorder::getValues()
  * @param[in] neurons 	The entire list of neurons.
  * @param[in] clr_info  ClusterInfo class to read information from.
  */
-void XmlGrowthRecorder::compileHistories(IAllNeurons &neurons, ClusterInfo *clr_info)
+void XmlGrowthRecorder::compileHistories(IAllNeurons &neurons, const ClusterInfo *clr_info)
 {
     XmlRecorder::compileHistories(neurons, clr_info);
 
