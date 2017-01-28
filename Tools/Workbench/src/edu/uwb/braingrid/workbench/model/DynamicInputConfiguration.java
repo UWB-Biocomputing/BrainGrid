@@ -2,13 +2,12 @@ package edu.uwb.braingrid.workbench.model;
 // CLEANED
 
 import java.util.*;
-import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.*;
 
 /**
- * Maintains data for an input configuration.
+ * Dynamically maintains data for an input configuration.
  *
  * @author Tom Wong
  */

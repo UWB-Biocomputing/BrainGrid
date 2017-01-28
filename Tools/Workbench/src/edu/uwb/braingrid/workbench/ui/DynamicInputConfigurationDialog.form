@@ -114,9 +114,6 @@
       </Events>
     </Component>
     <Component class="javax.swing.JTextField" name="configFilename_textField">
-      <Properties>
-        <Property name="enabled" type="boolean" value="false"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="configFilename_label">
       <Properties>

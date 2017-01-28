@@ -80,8 +80,6 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
             }
         });
 
-        configFilename_textField.setEnabled(false);
-
         configFilename_label.setText("Config Filename:");
 
         messageLabel.setText("Message:");
@@ -139,44 +137,37 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void buildButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buildButtonActionPerformed
-//        try {
-            // gather param values
-            ArrayList<String> paramStrs = new ArrayList<>();
-            for(int i = 0; i < paramsTextFields.size(); i++){
-                paramStrs.add(paramsTextFields.get(i).getText());
-            }
-            
-            lastStateOutputFileName = stateOutputFileNameTextField.getText();
-            
-            icm.updateParamValues(paramStrs);
+        // gather param values
+        ArrayList<String> paramStrs = new ArrayList<>();
+        for(int i = 0; i < paramsTextFields.size(); i++){
+            paramStrs.add(paramsTextFields.get(i).getText());
+        }
 
-            try {
-                String fileName = configFilename_textField.getText();
-                if (fileName != null && !fileName.isEmpty()) {
-                    fileName = icm.buildAndPersist(projectName, fileName);
-                    if (fileName != null) {
-                        okButton.setEnabled(true);
-                        lastBuiltFile = fileName;
-                        messageLabelText.setText("<html><span style=\"color:green\">"
-                                + FileManager.getSimpleFilename(fileName)
-                                + " successfully persisted..."
-                                + "</span></html>");
-                    } else {
-                        messageLabelText.setText("<html><span style=\"color:red\">*All fields must be filled</span></html>");
-                    }
+        lastStateOutputFileName = stateOutputFileNameTextField.getText();
+
+        icm.updateParamValues(paramStrs);
+
+        try {
+            String fileName = configFilename_textField.getText();
+            if (fileName != null && !fileName.isEmpty()) {
+                fileName = icm.buildAndPersist(projectName, fileName);
+                if (fileName != null) {
+                    okButton.setEnabled(true);
+                    lastBuiltFile = fileName;
+                    messageLabelText.setText("<html><span style=\"color:green\">"
+                            + FileManager.getSimpleFilename(fileName)
+                            + " successfully persisted..."
+                            + "</span></html>");
+                } else {
+                    messageLabelText.setText("<html><span style=\"color:red\">*All fields must be filled</span></html>");
                 }
-            } catch (TransformerException | IOException e) {
-                messageLabelText.setText("<html><span style=\"color:red\">"
-                        + e.getClass()
-                        + " prevented successful build...</span></html>");
-                e.printStackTrace();
             }
-//        } catch (ParserConfigurationException ex) {
-//            messageLabelText.setText("<html><span style=\"color:red\">"
-//                    + ex.getClass()
-//                    + " prevented successful build...</span></html>");
-//            ex.printStackTrace();
-//        }
+        } catch (TransformerException | IOException e) {
+            messageLabelText.setText("<html><span style=\"color:red\">"
+                    + e.getClass()
+                    + " prevented successful build...</span></html>");
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_buildButtonActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
@@ -218,14 +209,15 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
      * @param projectName
      * @param modal
      * @param configFilename 
+     * @param aIcm 
      */
     public DynamicInputConfigurationDialog(String projectName, boolean modal,
-            String configFilename) {
+            String configFilename, DynamicInputConfigurationManager aIcm) {
         initComponents();
         setModal(modal);
         this.projectName = projectName;
         try {
-            icm = new DynamicInputConfigurationManager(configFilename);
+            icm = aIcm;
             xmlDoc = icm.getInputConfigDoc();
             buildTabsGUI(xmlDoc);
 

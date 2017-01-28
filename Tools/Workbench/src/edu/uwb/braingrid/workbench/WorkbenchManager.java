@@ -11,7 +11,7 @@ import edu.uwb.braingrid.workbench.data.InputAnalyzer;
 import edu.uwb.braingrid.workbench.project.ProjectMgr;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
 import edu.uwb.braingrid.workbench.ui.DynamicInputConfigurationDialog;
-import edu.uwb.braingrid.workbench.ui.InputConfigurationDialog;
+import edu.uwb.braingrid.workbench.ui.InputConfigClassSelectionDialog;
 import edu.uwb.braingrid.workbench.ui.NewProjectDialog;
 import edu.uwb.braingrid.workbench.ui.ProvenanceQueryDialog;
 import edu.uwb.braingrid.workbench.ui.ScriptSpecificationDialog;
@@ -112,25 +112,27 @@ public class WorkbenchManager {
         String projectName = getProjectName();
         if (!projectName.equals("None")) {
             String configFilename = projectMgr.getSimConfigFilename();
-//            InputConfigurationDialog icd
-//                    = new InputConfigurationDialog(projectName, true, configFilename);
-            DynamicInputConfigurationDialog icd
-                    = new DynamicInputConfigurationDialog(projectName, true, configFilename);
-            String simulationConfigurationFile = null;
-            String stateOutputFilename = null;
-            if (success = icd.getSuccess()) {
-                simulationConfigurationFile = icd.getBuiltFile();
-                stateOutputFilename = icd.getStateOutputFilename();
-                if (simulationConfigurationFile != null && stateOutputFilename != null) {
-                    projectMgr.addSimConfigFile(simulationConfigurationFile);
-                    projectMgr.setSimStateOutputFile(stateOutputFilename);
-                    if (projectMgr.isProvenanceEnabled()) {
-                        prov.addFileGeneration("simulation_input_file_generation",
-                                null, "workbench", null, false,
-                                simulationConfigurationFile, null, false);
+            InputConfigClassSelectionDialog iccsd
+                    = new InputConfigClassSelectionDialog(projectName, true, configFilename);
+            if (success = iccsd.getSuccess()) {
+                DynamicInputConfigurationDialog icd
+                        = new DynamicInputConfigurationDialog(projectName, true, configFilename, iccsd.getInputConfigMgr());
+                String simulationConfigurationFile = null;
+                String stateOutputFilename = null;
+                if (success = icd.getSuccess()) {
+                    simulationConfigurationFile = icd.getBuiltFile();
+                    stateOutputFilename = icd.getStateOutputFilename();
+                    if (simulationConfigurationFile != null && stateOutputFilename != null) {
+                        projectMgr.addSimConfigFile(simulationConfigurationFile);
+                        projectMgr.setSimStateOutputFile(stateOutputFilename);
+                        if (projectMgr.isProvenanceEnabled()) {
+                            prov.addFileGeneration("simulation_input_file_generation",
+                                    null, "workbench", null, false,
+                                    simulationConfigurationFile, null, false);
+                        }
+                    } else {
+                        success = false;
                     }
-                } else {
-                    success = false;
                 }
             }
         }
