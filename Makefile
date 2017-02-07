@@ -83,10 +83,10 @@ INCDIRS = -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) \
           -I$(MATRIXDIR) -I$(NEURONDIR) -I$(PARAMDIR) -I$(RECORDERDIR) \
           -I$(RNGDIR) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(XMLDIR) 
 
-CXXFLAGS = -O2 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) 
-CGPUFLAGS = -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
-LDFLAGS = -lstdc++ 
-LGPUFLAGS = -L$(CUDALIBDIR) -lcuda -lcudart
+CXXFLAGS = -std=c++11 -O2 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS)
+CGPUFLAGS = -std=c++11 -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
+CXXLDFLAGS = -lstdc++ -pthread
+LGPUFLAGS = -lstdc++ -L$(CUDALIBDIR) -lcuda -lcudart
 NVCCFLAGS =  -g -arch=sm_30 -rdc=true $(INCDIRS) -I/usr/local/cuda/samples/common/inc
 
 ################################################################################
@@ -206,12 +206,12 @@ INPUTOBJS =	$(INPUTDIR)/HostSInputRegular.o \
 # make growth (single threaded version)
 # ------------------------------------------------------------------------------
 growth: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(INPUTOBJS)
-	$(LD) -o growth -g $(LDFLAGS) $(LH5FLAGS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(INPUTOBJS) $(LIBOBJS) 
+	$(LD) -o growth -g $(CXXLDFLAGS) $(LH5FLAGS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(INPUTOBJS) $(LIBOBJS) 
 
 # make growth_cuda (multi-threaded version)
 # ------------------------------------------------------------------------------
 growth_cuda: 	$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS) $(INPUTOBJS)
-		$(LD_cuda) -o growth_cuda $(NVCCFLAGS) $(LDFLAGS) $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(INPUTOBJS)
+		$(LD_cuda) -o growth_cuda $(NVCCFLAGS) $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(INPUTOBJS)
 
 # make clean
 # ------------------------------------------------------------------------------

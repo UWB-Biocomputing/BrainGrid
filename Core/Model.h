@@ -57,7 +57,7 @@ using namespace std;
 class Model : public IModel
 {
     public:
-        Model(Connections *conns, Layout *layout, Cluster *cluster, ClusterInfo *clr_info);
+        Model(Connections *conns, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
         virtual ~Model();
 
         /**
@@ -179,14 +179,14 @@ class Model : public IModel
         Layout *m_layout;
 
         /**
-         *  Pointer to the ClusterInfo object.
+         *  Vecttor of pointer to the ClusterInfo object.
          */
-        ClusterInfo *m_clusterInfo;
+        vector<ClusterInfo *> &m_vtClrInfo;
 
         /**
-         *  Pointer to the Cluster object.
+         *  Vector of pointer to the Cluster object.
          */
-        Cluster *m_cluster;
+        vector<Cluster *> &m_vtClr;
 
     protected:
         /**

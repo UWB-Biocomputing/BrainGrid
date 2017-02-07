@@ -17,6 +17,7 @@
 #include "IRecorder.h"
 #include "FSInput.h"
 #include "Simulator.h"
+#include <vector>
 
 // Uncomment to use visual leak detector (Visual Studios Plugin)
 // #include <vld.h>
@@ -30,10 +31,10 @@
 using namespace std;
 
 // functions
-bool LoadAllParameters(SimulationInfo *simInfo, Cluster *&cluster, ClusterInfo *&clusterInfo);
+bool LoadAllParameters(SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 void printParams(SimulationInfo *simInfo);
 bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo);
-bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo, Cluster *&cluster, ClusterInfo *&clusterInfo);
+bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 
 /*
  *  Main for Simulator. Handles command line arguments and loads parameters
@@ -48,8 +49,8 @@ int main(int argc, char* argv[]) {
     SimulationInfo *simInfo = NULL;    // simulation information
     Simulator *simulator = NULL;       // Simulator object
 
-    ClusterInfo *clusterInfo = NULL;   // Cluster information
-    Cluster *cluster = NULL;           // Cluster object
+    vector<ClusterInfo *> vtClrInfo;   // Vector of Cluster information
+    vector<Cluster *> vtClr;           // Vector of Cluster object
 
     // create simulation info object
     simInfo = new SimulationInfo();
@@ -61,7 +62,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Create all model instances and load parameters from a file.
-    if (!LoadAllParameters(simInfo, cluster, clusterInfo)) {
+    if (!LoadAllParameters(simInfo, vtClr, vtClrInfo)) {
         cerr << "! ERROR: failed while parsing simulation parameters." << endl;
         return -1;
     }
@@ -137,11 +138,15 @@ int main(int argc, char* argv[]) {
     cout << "time elapsed: " << time_elapsed << endl;
     cout << "ssps (simulation seconds / real time seconds): " << ssps << endl;
     
-    delete clusterInfo;
-    clusterInfo = NULL;
+    // delete clusters
+    for (vector<Cluster *>::iterator clr = vtClr.begin(); clr !=vtClr.end(); clr++) {
+        delete *clr;
+    }
 
-    delete cluster;
-    cluster = NULL;
+    // delete cluster information
+    for (vector<ClusterInfo *>::iterator clrInfo = vtClrInfo.begin(); clrInfo !=vtClrInfo.end(); clrInfo++) {
+        delete *clrInfo;
+    }
 
     delete simInfo->model;
     simInfo->model = NULL;
@@ -169,7 +174,7 @@ int main(int argc, char* argv[]) {
  *  @param  clusterInfo   ClusterInfo class to be ceated.
  *  @retrun true if successful, false if not
  */
-bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo, Cluster *&cluster, ClusterInfo *&clusterInfo)
+bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
     TiXmlElement* parms = NULL;
 
@@ -203,18 +208,21 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
     }
 
     // create cluster information
-    clusterInfo = new ClusterInfo();
+    ClusterInfo *clusterInfo = new ClusterInfo();
     clusterInfo->totalClusterNeurons = simInfo->totalNeurons;
+    vtClrInfo.push_back(clusterInfo); 
 
     // create the cluster
+    Cluster *cluster;
     #if defined(USE_GPU)
         cluster = new GPUSpikingCluster(neurons, synapses);
     #else
         cluster = new SingleThreadedCluster(neurons, synapses);
     #endif
+    vtClr.push_back(cluster);
 
     // create the model
-    simInfo->model = new Model(conns, layout, cluster, clusterInfo);
+    simInfo->model = new Model(conns, layout, vtClr, vtClrInfo);
 
     return true;
 }
@@ -227,7 +235,7 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
  *  @param  clusterInfo   ClusterInfo class to be ceated.
  *  @return true if successful, false if not
  */
-bool LoadAllParameters(SimulationInfo *simInfo, Cluster *&cluster, ClusterInfo *&clusterInfo)
+bool LoadAllParameters(SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
     DEBUG(cerr << "reading parameters from xml file" << endl;)
 
@@ -248,7 +256,7 @@ bool LoadAllParameters(SimulationInfo *simInfo, Cluster *&cluster, ClusterInfo *
 
     // create instances of all model classes
     DEBUG(cerr << "creating instances of all classes" << endl;)
-    if (createAllModelClassInstances(&simDoc, simInfo, cluster, clusterInfo) != true) {
+    if (createAllModelClassInstances(&simDoc, simInfo, vtClr, vtClrInfo) != true) {
         return false;
     }
 

@@ -188,7 +188,7 @@ class AllSynapses : public IAllSynapses
 #endif // !defined(USE_GPU)
     public:
         // The factor to adjust overlapping area to synapse weight.
-        static const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
+        static constexpr BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
  
         /**
          *  The location of the synapse.

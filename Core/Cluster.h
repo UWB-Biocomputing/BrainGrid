@@ -51,6 +51,8 @@
 #include "SimulationInfo.h"
 #include "Connections.h"
 #include "Layout.h"
+#include <thread>
+#include "Barrier.hpp"
 
 class Cluster
 {
@@ -128,6 +130,33 @@ class Cluster
         virtual void advance(const SimulationInfo *sim_info, const ClusterInfo *clr_info) = 0;
 
         /**
+         *  Thread for advance a cluster.
+         *
+         *  @param  sim_info    SimulationInfo class to read information from.
+         *  @param  clr_info    ClusterInfo class to read information from.
+         */
+        void advanceThread(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+
+        /**
+         *  Create an advanceThread.
+         *  If barrier synchronize object has not been created, create it.
+         *
+         *  @param  sim_info    SimulationInfo class to read information from.
+         *  @param  clr_info    ClusterInfo class to read information from.
+         */
+        void createAdvanceThread(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+
+        /**
+         *  Run advance of all waiting threads.
+         */
+        static void runAdvance();
+
+        /**
+         *  Quit all advanceThread.
+         */
+        static void quitAdvanceThread();
+
+        /**
          *  Set up the connection of all the Neurons and Synapses of the simulation.
          *
          *  @param  sim_info    SimulationInfo class to read information from.
@@ -164,4 +193,13 @@ class Cluster
         SynapseIndexMap *m_synapseIndexMap;
 
     private:
+        /**
+         *  Pointer to the Barrier Synchnonize object for advanceThreads.
+         */
+        static Barrier *m_barrierAdvance;
+
+        /**
+         *  Flag for advanceThreads. true if terminating advanceThreads.
+         */
+        static bool m_isAdvanceExit;
 };

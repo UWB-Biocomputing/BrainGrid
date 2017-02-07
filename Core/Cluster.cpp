@@ -1,5 +1,11 @@
 #include "Cluster.h"
 
+// Initialize the Barrier Synchnonize object for advanceThreads.
+Barrier *Cluster::m_barrierAdvance = NULL;
+
+// Initialize the flag for advanceThreads. true if terminating advanceThreads.
+bool Cluster::m_isAdvanceExit = false;
+
 /*
  *  Constructor
  */
@@ -147,8 +153,83 @@ IAllNeurons* Cluster::getNeurons()
  */
 void Cluster::setupConnections(SimulationInfo *sim_info, Layout *layout, Connections *conns, const ClusterInfo *clr_info)
 {
+    // Setup the internal structure of the connetions
     conns->setupConnections(sim_info, layout, m_neurons, m_synapses);
     
+    // Create a synapse index map 
     m_synapses->createSynapseImap(m_synapseIndexMap, sim_info, clr_info);
 }
 
+/*
+ *  Thread for advance a cluster.
+ *
+ *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  clr_info    ClusterInfo class to read information from.
+ */
+void Cluster::advanceThread(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+{
+    while (true) {
+        // wait until the main thread notify that the advance is ready to go
+        // or exit if quit is posted.
+        m_barrierAdvance->Sync();
+
+        // Check if Cluster::quitAdvanceThread() is called
+        if (m_isAdvanceExit == true) {
+            DEBUG(cerr << "Cluster::advanceThread has finished. Thread ID: " << std::this_thread::get_id() << endl;)
+            break;
+        }
+
+        // Advances network state one simulation step
+        advance(sim_info, clr_info);
+
+        // wait until all threads are complete 
+        m_barrierAdvance->Sync();
+    }
+}
+
+/*
+ *  Create an advanceThread.
+ *  If barrier synchronize object has not been created, create it.
+ *
+ *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  clr_info    ClusterInfo class to read information from.
+ */
+void Cluster::createAdvanceThread(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+{
+    // If barrier synchronize object has not been created, create it
+    if (m_barrierAdvance == NULL) {
+        m_barrierAdvance = new Barrier(2);
+    }
+
+    // Create an advanceThread
+    std::thread thAdvance(&Cluster::advanceThread, this, sim_info, clr_info);
+
+    // Leave it running
+    thAdvance.detach();
+}
+
+/*
+ *  Run advance of all waiting threads.
+ */
+void Cluster::runAdvance()
+{
+    // notify all advanceThread that the advance is ready to go
+    m_barrierAdvance->Sync();
+
+    // wait until the advance of all advanceThread complete
+    m_barrierAdvance->Sync();
+}
+
+/*
+ *  Quit all advanceThread.
+ */
+void Cluster::quitAdvanceThread()
+{
+    // notify all advanceThread to quit
+    m_isAdvanceExit = true;
+    m_barrierAdvance->Sync();
+
+    // delete barrier synchronize object
+    delete m_barrierAdvance;
+    m_barrierAdvance = NULL;
+}
