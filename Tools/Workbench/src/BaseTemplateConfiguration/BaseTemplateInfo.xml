@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BaseTemplateInfo templatePath="/BaseTemplateConfiguration/BaseTemplateDefault.xml" allParamsClassesPath="/InputParamsClassTemplate/AllParamsClasses.xml">
+    <ParamsClasses name = "NeuronsParamsClasses" nodePath="/BGSimParams/ModelParams/NeuronsParams"/>
+    <ParamsClasses name = "SynapsesParamsClasses" nodePath="/BGSimParams/ModelParams/SynapsesParams"/>
+    <ParamsClasses name = "ConnectionsParamsClasses" nodePath="/BGSimParams/ModelParams/ConnectionsParams"/>
+    <ParamsClasses name = "LayoutParamsClasses" nodePath="/BGSimParams/ModelParams/LayoutParams"/>
+</BaseTemplateInfo>

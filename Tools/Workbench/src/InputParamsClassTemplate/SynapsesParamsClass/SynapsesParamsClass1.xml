@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SynapsesParams name = "SynapsesParams" class="SynapsesParamsClass1">
+    <Vresting name="Vresting">
+        <min name="min">0.0</min>
+        <max name="max">0.0</max>
+    </Vresting>
+    <Vreset name="Vreset">
+        <min name="min">13.5e-03</min>
+        <max name="max">13.5e-03</max>
+    </Vreset>
+</SynapsesParams>

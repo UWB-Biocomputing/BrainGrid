@@ -25,11 +25,11 @@ import org.xml.sax.SAXException;
  * @author Tom Wong
  */
 public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
-    private static final String[] tabPaths = {"/BGSimParams/SimInfoParams", 
-                                              "/BGSimParams/ModelParams/NeuronsParams",
-                                              "/BGSimParams/ModelParams/SynapsesParams",
-                                              "/BGSimParams/ModelParams/ConnectionsParams",
-                                              "/BGSimParams/ModelParams/LayoutParams"};
+    public static final String[] tabPaths = {"/BGSimParams/SimInfoParams", 
+                                             "/BGSimParams/ModelParams/NeuronsParams",
+                                             "/BGSimParams/ModelParams/SynapsesParams",
+                                             "/BGSimParams/ModelParams/ConnectionsParams",
+                                             "/BGSimParams/ModelParams/LayoutParams"};
     private static final String stateOutputFileNameNode = "stateOutputFileName";
     private static final HashMap<String,InputType> nodeName2InputType = new HashMap<String,InputType>(){{put("activeNListFileName",InputType.ACTIVE);put("inhNListFileName",InputType.INHIBITORY);put("prbNListFileName",InputType.PROBED);}};
 
@@ -225,9 +225,11 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
             System.err.println(e.toString());
         }
         if (icm != null) {
-            setInitValues();    
-            File configFile = new File(configFilename);
-            configFilename_textField.setText(configFile.getName());
+            setInitValues();
+            if(configFilename != null && configFilename != ""){
+                File configFile = new File(configFilename);
+                configFilename_textField.setText(configFile.getName());
+            }
             setPreferredSize(new Dimension(700, 365));
             okButton.setEnabled(false);
 

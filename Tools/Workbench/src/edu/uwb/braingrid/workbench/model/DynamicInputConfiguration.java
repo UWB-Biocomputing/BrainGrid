@@ -1,33 +1,35 @@
 package edu.uwb.braingrid.workbench.model;
 // CLEANED
 
+import edu.uwb.braingrid.workbench.SystemConfig;
 import java.util.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 /**
  * Dynamically maintains data for an input configuration.
  *
  * @author Tom Wong
  */
- public class DynamicInputConfiguration {
+public class DynamicInputConfiguration {
+     
     private Document inputConfig;
     private ArrayList<Node> paramValues;
-
-    //Testing
-    public static final String NEURONS_PARAMS_CLASS = "neuronsParamsClass";
-    public static final String SYNAPSES_PARAMS_CLASS = "synapsesParamsClass";
-    public static final String CONNECTIONS_PARAMS_CLASS = "connectionsParamsClass";
-    public static final String LAYOUT_PARAMS_CLASS = "layoutParamsClass";
 
     /**
      * Responsible for initializing containers for parameters/values and their
      * default values, as well as constructing this input configuration object.
+     * @throws java.lang.Exception
      */
-    public DynamicInputConfiguration() throws ParserConfigurationException{
+    public DynamicInputConfiguration() throws Exception{
+        Document baseTemplateInfoDoc = DocumentBuilderFactory.newInstance().
+                newDocumentBuilder().parse(getClass().getResourceAsStream(SystemConfig.BASE_TEMPLATE_INFO_XML_File_URL));
+        Node baseTemplateNode = baseTemplateInfoDoc.getFirstChild();
+        String templatePath = ((Element)baseTemplateNode).getAttribute(SystemConfig.TEMPLATE_PATH_ATTRIBUTE_NAME);
         inputConfig = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().newDocument();
+                newDocumentBuilder().parse(getClass().getResourceAsStream(templatePath));
     }
     
     /**
