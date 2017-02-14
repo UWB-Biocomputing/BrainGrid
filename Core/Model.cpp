@@ -98,13 +98,17 @@ void Model::setupClusters(SimulationInfo *sim_info)
     m_layout->generateNeuronTypeMap(sim_info->totalNeurons);
     m_layout->initStarterMap(sim_info->totalNeurons);
 
-    // set their specific types
-    m_vtClr[0]->setupCluster(sim_info, m_layout, m_vtClrInfo[0]);
+    // setup each cluster
+    for (unsigned int i = 0; i < m_vtClr.size(); i++) {
+        // creates all the Neurons and generates data for them
+        m_vtClr[i]->setupCluster(sim_info, m_layout, m_vtClrInfo[i]);
 
-    m_vtClr[0]->setupConnections(sim_info, m_layout, m_conns, m_vtClrInfo[0]);
+        // set up the connection of all the Neurons and Synapses of the simulation
+        m_vtClr[i]->setupConnections(sim_info, m_layout, m_conns, m_vtClrInfo[i]);
 
-    // create advance threads
-    m_vtClr[0]->createAdvanceThread(sim_info, m_vtClrInfo[0]);
+        // create advance threads
+        m_vtClr[i]->createAdvanceThread(sim_info, m_vtClrInfo[i]);
+    }
 }
 
 /*
@@ -138,7 +142,9 @@ void Model::cleanupSim(SimulationInfo *sim_info)
 {
     Cluster::quitAdvanceThread();
 
-    m_vtClr[0]->cleanupCluster(sim_info, m_vtClrInfo[0]);
+    for (unsigned int i = 0; i < m_vtClr.size(); i++) {
+        m_vtClr[i]->cleanupCluster(sim_info, m_vtClrInfo[i]);
+    }
 
     m_conns->cleanupConnections();
 }
@@ -252,6 +258,7 @@ void Model::advance(const SimulationInfo *sim_info)
     if (sim_info->pInput != NULL)
       sim_info->pInput->inputStimulus(sim_info, m_vtClrInfo[0]);
 
+    // run advance of all waiting threads
     Cluster::runAdvance();
 }
 
@@ -262,5 +269,7 @@ void Model::advance(const SimulationInfo *sim_info)
  */
 void Model::updateConnections(const SimulationInfo *sim_info)
 {
-    m_vtClr[0]->updateConnections(sim_info, m_conns, m_layout, m_vtClrInfo[0]);
+    for (unsigned int i = 0; i < m_vtClr.size(); i++) {
+        m_vtClr[i]->updateConnections(sim_info, m_conns, m_layout, m_vtClrInfo[i]);
+    }
 }

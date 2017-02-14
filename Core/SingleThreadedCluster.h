@@ -61,6 +61,14 @@ class SingleThreadedCluster : public Cluster {
         virtual void setupCluster(SimulationInfo *sim_info, Layout *layout, ClusterInfo *clr_info);
 
         /**
+         *  Clean up the cluster.
+         *
+         *  @param  sim_info    SimulationInfo to refer.
+         *  @param  clr_info    ClusterInfo to refer.
+         */
+        virtual void cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
          * Advances network state one simulation step.
          *       
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.

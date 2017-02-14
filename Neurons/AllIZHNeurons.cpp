@@ -419,8 +419,9 @@ void AllIZHNeurons::writeNeuron(ostream& output, int i) const
  *
  *  @param  index       Index of the Neuron to update.
  *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  clr_info    ClusterInfo class to read information from.
  */
-void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info)
+void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info)
 {
     BGFLOAT &Vm = this->Vm[index];
     BGFLOAT &Vthresh = this->Vthresh[index];
@@ -445,7 +446,7 @@ void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
     } else {
         summationPoint += I0; // add IO
         // add noise
-        BGFLOAT noise = (*rgNormrnd[0])();
+        BGFLOAT noise = (*clr_info->normRand)();
         DEBUG_MID(cout << "ADVANCE NEURON[" << index << "] :: noise = " << noise << endl;)
         summationPoint += noise * Inoise; // add noise
 

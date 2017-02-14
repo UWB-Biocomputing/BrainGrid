@@ -36,7 +36,8 @@ class ClusterInfo
     public:
         ClusterInfo() :
             totalClusterNeurons(0),
-            pClusterSummationMap(NULL)
+            pClusterSummationMap(NULL),
+            seed(0)
         {
         }
 
@@ -47,4 +48,17 @@ class ClusterInfo
 
         //! List of summation points (either host or device memory)
         BGFLOAT* pClusterSummationMap;
+
+        //! Seed used for the simulation random SINGLE THREADED
+        long seed;
+
+#if defined(USE_GPU)
+        //! CUDA device ID
+        int deviceId;
+#endif // USE_GPU
+
+#if !defined(USE_GPU)
+        //! A normalized random number generator
+        Norm* normRand;
+#endif // !USE_GPU
 };

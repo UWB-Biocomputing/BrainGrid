@@ -125,12 +125,6 @@ int main(int argc, char* argv[]) {
         simInfo->simRecorder->term();
     }
 
-    for(unsigned int i = 0; i < rgNormrnd.size(); ++i) {
-        delete rgNormrnd[i];
-    }
-
-    rgNormrnd.clear();
-
     time(&end_time);
     double time_elapsed = difftime(end_time, start_time);
     double ssps = simInfo->epochDuration * simInfo->maxSteps / time_elapsed;
@@ -210,6 +204,10 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
     // create cluster information
     ClusterInfo *clusterInfo = new ClusterInfo();
     clusterInfo->totalClusterNeurons = simInfo->totalNeurons;
+    clusterInfo->seed = simInfo->seed;
+#if defined(USE_GPU)
+    clusterInfo->deviceId = g_deviceId;
+#endif // USE_GPU
     vtClrInfo.push_back(clusterInfo); 
 
     // create the cluster
@@ -251,8 +249,7 @@ bool LoadAllParameters(SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector
 
     // load simulation parameters
     if (simInfo->readParameters(&simDoc) != true) {
-        return false;
-    }
+        return false; }
 
     // create instances of all model classes
     DEBUG(cerr << "creating instances of all classes" << endl;)

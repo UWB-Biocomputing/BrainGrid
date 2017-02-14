@@ -292,8 +292,9 @@ class AllIZHNeurons : public AllIFNeurons
          *
          *  @param  index            Index of the neuron to update.
          *  @param  sim_info         SimulationInfo class to read information from.
+         *  @param  clr_info         ClusterInfo class to read information from.
          */
-        virtual void advanceNeuron(const int index, const SimulationInfo *sim_info);
+        virtual void advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
          *  Initiates a firing of a neuron to connected neurons.

@@ -115,7 +115,7 @@ void GPUSpikingCluster::deleteDeviceStruct(void** allNeuronsDevice, void** allSy
 void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, ClusterInfo *clr_info)
 {
   // Set device ID
-  checkCudaErrors( cudaSetDevice( g_deviceId ) );
+  checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
 
   // Set DEBUG flag
   checkCudaErrors( cudaMemcpyToSymbol (d_debug_mask, &g_debug_mask, sizeof(int) ) );
@@ -128,7 +128,7 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
   int rng_nPerRng = 4; //# of iterations per thread (thread granularity, # of rands generated per thread)
   int rng_mt_rng_count = clr_info->totalClusterNeurons/rng_nPerRng; //# of threads to generate for neuron_count rand #s
   int rng_threads = rng_mt_rng_count/rng_blocks; //# threads per block needed
-  initMTGPU(sim_info->seed, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
+  initMTGPU(clr_info->seed, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
 
 #ifdef PERFORMANCE_METRICS
   cudaEventCreate( &start );

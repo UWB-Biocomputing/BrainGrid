@@ -27,7 +27,21 @@ void SingleThreadedCluster::setupCluster(SimulationInfo *sim_info, Layout *layou
     Cluster::setupCluster(sim_info, layout, clr_info);
 
     // Create a normalized random number generator
-    rgNormrnd.push_back(new Norm(0, 1, sim_info->seed)); 
+    clr_info->normRand = new Norm(0, 1, clr_info->seed); 
+}
+
+/*
+ *  Clean up the cluster.
+ *
+ *  @param  sim_info    SimulationInfo to refer.
+ *  @param  clr_info    ClusterInfo to refer.
+ */
+void SingleThreadedCluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
+{
+    // delete a normalized random number generator
+    delete clr_info->normRand;
+
+    Cluster::cleanupCluster(sim_info, clr_info);
 }
 
 /*

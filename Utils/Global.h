@@ -77,9 +77,6 @@ extern const BGFLOAT pi;
 //! A random number generator.
 extern MTRand rng;
 
-//! A normalized random number generator.
-extern vector<Norm *> rgNormrnd;
-
 //! The current simulation step.
 extern uint64_t g_simulationStep;
 

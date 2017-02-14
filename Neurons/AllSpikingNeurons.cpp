@@ -106,7 +106,7 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
     // For each neuron in the network
     for (int idx = clr_info->totalClusterNeurons - 1; idx >= 0; --idx) {
         // advance neurons
-        advanceNeuron(idx, sim_info);
+        advanceNeuron(idx, sim_info, clr_info);
 
         // notify outgoing/incomming synapses if neuron has fired
         if (hasFired[idx]) {

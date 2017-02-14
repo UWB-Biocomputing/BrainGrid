@@ -78,9 +78,6 @@ int g_deviceId = 0;
 //! A random number generator.
 MTRand rng(1);
 
-//! A normalized random number generator.
-vector<Norm *> rgNormrnd;
-
 /*		simulation vars		*/
 uint64_t g_simulationStep = 0;
 
