@@ -2,6 +2,7 @@ package edu.uwb.braingrid.workbench.model;
 // CLEANED
 
 import edu.uwb.braingrid.workbench.SystemConfig;
+import java.io.File;
 import java.util.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -25,11 +26,11 @@ public class DynamicInputConfiguration {
      */
     public DynamicInputConfiguration() throws Exception{
         Document baseTemplateInfoDoc = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().parse(getClass().getResourceAsStream(SystemConfig.BASE_TEMPLATE_INFO_XML_File_URL));
+                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + SystemConfig.BASE_TEMPLATE_INFO_XML_File_URL);
         Node baseTemplateNode = baseTemplateInfoDoc.getFirstChild();
         String templatePath = ((Element)baseTemplateNode).getAttribute(SystemConfig.TEMPLATE_PATH_ATTRIBUTE_NAME);
         inputConfig = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().parse(getClass().getResourceAsStream(templatePath));
+                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + templatePath);
     }
     
     /**

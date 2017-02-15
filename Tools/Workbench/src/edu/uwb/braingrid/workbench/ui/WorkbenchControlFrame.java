@@ -1,17 +1,11 @@
 package edu.uwb.braingrid.workbench.ui;
 
-//import edu.uwb.braingrid.workbench.FileManager;
 import edu.uwb.braingrid.workbench.WorkbenchManager;
 import edu.uwb.braingrid.workbench.utils.DateTime;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-//import java.awt.event.KeyEvent;
 import java.util.Date;
-//import javax.swing.InputMap;
 import javax.swing.JFileChooser;
-//import javax.swing.KeyStroke;
-//import javax.swing.UIManager;
-//import javax.swing.text.DefaultEditorKit;
 
 /**
  * The workbench control frame is responsible for specifying BrainGrid project
@@ -66,6 +60,7 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
         viewProvenanceMenuItem = new javax.swing.JMenuItem();
         toolsMenu = new javax.swing.JMenu();
         NLEditMenuItem = new javax.swing.JMenuItem();
+        ManageParamsClasses = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("BrainGrid Workbench");
@@ -231,6 +226,14 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
             }
         });
         toolsMenu.add(NLEditMenuItem);
+
+        ManageParamsClasses.setText("Manage Params Classes");
+        ManageParamsClasses.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ManageParamsClassesActionPerformed(evt);
+            }
+        });
+        toolsMenu.add(ManageParamsClasses);
 
         MainMenuBar.add(toolsMenu);
 
@@ -522,8 +525,17 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
         workbenchMgr.viewProvenance();
     }//GEN-LAST:event_viewProvenanceMenuItemActionPerformed
 
+    private void ManageParamsClassesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ManageParamsClassesActionPerformed
+        if (workbenchMgr.configureParamsClasses()) {
+            updateProjectOverview();
+        }
+        setMsg();
+        pack();
+    }//GEN-LAST:event_ManageParamsClassesActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuBar MainMenuBar;
+    private javax.swing.JMenuItem ManageParamsClasses;
     private javax.swing.JMenuItem NLEditMenuItem;
     private javax.swing.JLabel ProjectTitleLabel;
     private javax.swing.JButton analyzeOutputButton;
@@ -577,7 +589,6 @@ public class WorkbenchControlFrame extends javax.swing.JFrame {
 
     private void initCustomMembers() {
         workbenchMgr = new WorkbenchManager();
-        //setMacCopyPaste();
 
         transferProgressBar.setVisible(false);
     }

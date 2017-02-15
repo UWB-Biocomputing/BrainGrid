@@ -19,7 +19,7 @@ import org.xml.sax.SAXException;
 /**
  * Builds the XML document used as input to a simulation
  *
- * @author Del Davis
+ * @author Tom Wong
  */
 class DynamicInputConfigurationBuilder {
     /**

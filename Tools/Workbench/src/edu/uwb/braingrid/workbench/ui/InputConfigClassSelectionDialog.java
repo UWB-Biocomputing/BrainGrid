@@ -3,22 +3,13 @@ package edu.uwb.braingrid.workbench.ui;
 import edu.uwb.braingrid.workbench.FileManager;
 import edu.uwb.braingrid.workbench.SystemConfig;
 import edu.uwb.braingrid.workbench.data.DynamicInputConfigurationManager;
-import edu.uwb.braingrid.workbench.data.InputAnalyzer;
-import edu.uwb.braingrid.workbench.data.InputAnalyzer.InputType;
-import static edu.uwb.braingrid.workbench.ui.DynamicInputConfigurationDialog.tabPaths;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathConstants;
@@ -184,6 +175,15 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
     private ArrayList<String> synapsesParamsTemplatePaths = new ArrayList<>();
     private ArrayList<String> connectionsParamsTemplatePaths = new ArrayList<>();
     private ArrayList<String> layoutParamsTemplatePaths = new ArrayList<>();
+    private String neuronsParamsNodePath = null;
+    private String synapsesParamsNodePath = null;
+    private String connectionsParamsNodePath = null;
+    private String layoutParamsNodePath = null;
+    private String neuronsParamsClass = null;
+    private String synapsesParamsClass = null;
+    private String connectionsParamsClass = null;
+    private String layoutParamsClass = null;
+    
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction"> 
@@ -198,8 +198,7 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
         initComponents();
         setModal(modal);
         try {
-            baseTemplateInfoDoc = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().parse(getClass().getResourceAsStream(SystemConfig.BASE_TEMPLATE_INFO_XML_File_URL));
+            baseTemplateInfoDoc = SystemConfig.getBaseTemplateInfoDoc();
             Node baseTemplateInfoNode = baseTemplateInfoDoc.getFirstChild();
             
             icm = new DynamicInputConfigurationManager(configFilename);
@@ -218,43 +217,13 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
     // </editor-fold>
     
     private void setConfigXMLDoc() throws Exception{
-        String neuronsParamsNodePath = null;
-        String synapsesParamsNodePath = null;
-        String connectionsParamsNodePath = null;
-        String layoutParamsNodePath = null;
-        
-        Node baseTemplateInfoNode = baseTemplateInfoDoc.getFirstChild();
-        NodeList paramsClassesNodes = baseTemplateInfoNode.getChildNodes();
-        for(int i = 0; i < paramsClassesNodes.getLength(); i++){
-            Node paramsClassesNode = paramsClassesNodes.item(i);
-                if(paramsClassesNode.getNodeType() == Node.ELEMENT_NODE){
-                String paramsClassesName = ((Element)paramsClassesNode).getAttribute(SystemConfig.NAME_ATTRIBUTE_NAME);
-                String paramsClassesNodePath = ((Element)paramsClassesNode).getAttribute(SystemConfig.NODE_PATH_ATTRIBUTE_NAME);
-                switch(paramsClassesName){
-                    case SystemConfig.NEURONS_PARAMS_CLASSES_TAG_NAME:
-                        neuronsParamsNodePath = paramsClassesNodePath;
-                        break;
-                    case SystemConfig.SYNAPSES_PARAMS_CLASSES_TAG_NAME:
-                        synapsesParamsNodePath = paramsClassesNodePath;
-                        break;
-                    case SystemConfig.CONNECTIONS_PARAMS_CLASSES_TAG_NAME:
-                        connectionsParamsNodePath = paramsClassesNodePath;
-                        break;
-                    case SystemConfig.LAYOUT_PARAMS_CLASSES_TAG_NAME:
-                        layoutParamsNodePath = paramsClassesNodePath;
-                        break;
-                }
-            }
-        }
-        
         XPathExpression xpath = XPathFactory.newInstance().newXPath().compile(neuronsParamsNodePath);
         NodeList nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
         Node node = nodeList.item(0);
-        String neuronParamsClass = ((Element)node).getAttribute(SystemConfig.CLASS_ATTRIBUTE_NAME);
-        if(!neuronParamsClass.equals(neuronsParamsClassCBox.getSelectedItem().toString())){
+        if(!neuronsParamsClass.equals(neuronsParamsClassCBox.getSelectedItem().toString())){
             String templateFileURL = neuronsParamsTemplatePaths.get(neuronsParamsClassCBox.getSelectedIndex());
             Document templateNode = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().parse(getClass().getResourceAsStream(templateFileURL));
+                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + templateFileURL);
             Node parentNode = node.getParentNode();
             Node newNode = xmlDoc.importNode(templateNode.getFirstChild(), true);
             parentNode.replaceChild(newNode, node);
@@ -263,11 +232,10 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
         xpath = XPathFactory.newInstance().newXPath().compile(synapsesParamsNodePath);
         nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
         node = nodeList.item(0);
-        String synapsesParamsClass = ((Element)node).getAttribute(SystemConfig.CLASS_ATTRIBUTE_NAME);
         if(!synapsesParamsClass.equals(synapsesParamsClassCBox.getSelectedItem().toString())){
             String templateFileURL = synapsesParamsTemplatePaths.get(synapsesParamsClassCBox.getSelectedIndex());
             Document templateNode = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().parse(getClass().getResourceAsStream(templateFileURL));
+                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + templateFileURL);
             Node parentNode = node.getParentNode();
             Node newNode = xmlDoc.importNode(templateNode.getFirstChild(), true);
             parentNode.replaceChild(newNode, node);
@@ -276,11 +244,10 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
         xpath = XPathFactory.newInstance().newXPath().compile(connectionsParamsNodePath);
         nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
         node = nodeList.item(0);
-        String connectionsParamsClass = ((Element)node).getAttribute(SystemConfig.CLASS_ATTRIBUTE_NAME);
         if(!connectionsParamsClass.equals(connectionsParamsClassCBox.getSelectedItem().toString())){
             String templateFileURL = connectionsParamsTemplatePaths.get(connectionsParamsClassCBox.getSelectedIndex());
             Document templateNode = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().parse(getClass().getResourceAsStream(templateFileURL));
+                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + templateFileURL);
             Node parentNode = node.getParentNode();
             Node newNode = xmlDoc.importNode(templateNode.getFirstChild(), true);
             parentNode.replaceChild(newNode, node);
@@ -289,11 +256,10 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
         xpath = XPathFactory.newInstance().newXPath().compile(layoutParamsNodePath);
         nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
         node = nodeList.item(0);
-        String layoutParamsClass = ((Element)node).getAttribute(SystemConfig.CLASS_ATTRIBUTE_NAME);
         if(!layoutParamsClass.equals(layoutParamsClassCBox.getSelectedItem().toString())){
             String templateFileURL = layoutParamsTemplatePaths.get(layoutParamsClassCBox.getSelectedIndex());
             Document templateNode = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().parse(getClass().getResourceAsStream(templateFileURL));
+                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + templateFileURL);
             Node parentNode = node.getParentNode();
             Node newNode = xmlDoc.importNode(templateNode.getFirstChild(), true);
             parentNode.replaceChild(newNode, node);
@@ -309,9 +275,9 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
         return icm;
     }
     
-    private void loadParamsClassCBoxes(String aXMLFileURL) throws IOException, ParserConfigurationException, SAXException{
+    private void loadParamsClassCBoxes(String aXMLFilePath) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException{
         Document allParamsClassesDoc = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().parse(getClass().getResourceAsStream(aXMLFileURL));
+                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + aXMLFilePath);
         NodeList roots = allParamsClassesDoc.getChildNodes();
         
         for(int i = 0; i < roots.getLength(); i++){
@@ -321,12 +287,13 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
                 for(int j = 0; j < paramsClassesTypes.getLength(); j++){
                     Node paramsClassesType = paramsClassesTypes.item(j);
                     if(paramsClassesType.getNodeType() == Node.ELEMENT_NODE){
+                        String templateDirectory = ((Element)paramsClassesType).getAttribute(SystemConfig.TEMPLATE_DIRECTORY_ATTRIBUTE_NAME);
                         NodeList paramsClasses = paramsClassesType.getChildNodes();
                         for(int k = 0; k < paramsClasses.getLength(); k++){
                             Node paramsClass = paramsClasses.item(k);
                             if(paramsClass.getNodeType() == Node.ELEMENT_NODE){
                                 String className = ((Element)paramsClass).getAttribute(SystemConfig.NAME_ATTRIBUTE_NAME);
-                                String templatePath = ((Element)paramsClass).getAttribute(SystemConfig.TEMPLATE_PATH_ATTRIBUTE_NAME);
+                                String templatePath = templateDirectory + File.separator + ((Element)paramsClass).getAttribute(SystemConfig.TEMPLATE_FILE_NAME_ATTRIBUTE_NAME);
                                 String paramsClassesTypeName = paramsClassesType.getNodeName();
                                 switch(paramsClassesTypeName){
                                     case SystemConfig.NEURONS_PARAMS_CLASSES_TAG_NAME:
@@ -353,12 +320,57 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
                 }
             }
         }
+        
+        //Get Node paths for each param class
+        Node baseTemplateInfoNode = baseTemplateInfoDoc.getFirstChild();
+        NodeList paramsClassesNodes = baseTemplateInfoNode.getChildNodes();
+        for(int i = 0; i < paramsClassesNodes.getLength(); i++){
+            Node paramsClassesNode = paramsClassesNodes.item(i);
+                if(paramsClassesNode.getNodeType() == Node.ELEMENT_NODE){
+                String paramsClassesType = ((Element)paramsClassesNode).getAttribute(SystemConfig.NAME_ATTRIBUTE_NAME);
+                String paramsClassesNodePath = ((Element)paramsClassesNode).getAttribute(SystemConfig.NODE_PATH_ATTRIBUTE_NAME);
+                switch(paramsClassesType){
+                    case SystemConfig.NEURONS_PARAMS_CLASSES_TAG_NAME:
+                        neuronsParamsNodePath = paramsClassesNodePath;
+                        break;
+                    case SystemConfig.SYNAPSES_PARAMS_CLASSES_TAG_NAME:
+                        synapsesParamsNodePath = paramsClassesNodePath;
+                        break;
+                    case SystemConfig.CONNECTIONS_PARAMS_CLASSES_TAG_NAME:
+                        connectionsParamsNodePath = paramsClassesNodePath;
+                        break;
+                    case SystemConfig.LAYOUT_PARAMS_CLASSES_TAG_NAME:
+                        layoutParamsNodePath = paramsClassesNodePath;
+                        break;
+                }
+            }
+        }
+        
+        //get the Class from XML file and match with the Combo Box options.
+        XPathExpression xpath = XPathFactory.newInstance().newXPath().compile(neuronsParamsNodePath);
+        NodeList nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
+        Node node = nodeList.item(0);
+        neuronsParamsClass = ((Element)node).getAttribute(SystemConfig.CLASS_ATTRIBUTE_NAME);
+        neuronsParamsClassCBox.setSelectedItem(neuronsParamsClass);
+        
+        xpath = XPathFactory.newInstance().newXPath().compile(synapsesParamsNodePath);
+        nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
+        node = nodeList.item(0);
+        synapsesParamsClass = ((Element)node).getAttribute(SystemConfig.CLASS_ATTRIBUTE_NAME);
+        synapsesParamsClassCBox.setSelectedItem(synapsesParamsClass);
+        
+        xpath = XPathFactory.newInstance().newXPath().compile(connectionsParamsNodePath);
+        nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
+        node = nodeList.item(0);
+        connectionsParamsClass = ((Element)node).getAttribute(SystemConfig.CLASS_ATTRIBUTE_NAME);
+        connectionsParamsClassCBox.setSelectedItem(connectionsParamsClass);
+        
+        xpath = XPathFactory.newInstance().newXPath().compile(layoutParamsNodePath);
+        nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
+        node = nodeList.item(0);
+        layoutParamsClass = ((Element)node).getAttribute(SystemConfig.CLASS_ATTRIBUTE_NAME);
+        layoutParamsClassCBox.setSelectedItem(layoutParamsClass);
     };
-    
-    // set up each of the text fields with default values
-    private void setInitValues() {
-        // load values from template
-    }
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="UI Manipulation">

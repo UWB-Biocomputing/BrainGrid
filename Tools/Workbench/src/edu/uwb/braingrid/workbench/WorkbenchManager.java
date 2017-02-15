@@ -982,4 +982,8 @@ public class WorkbenchManager {
         return messageAccumulator;
     }
     // </editor-fold>
+
+    public boolean configureParamsClasses() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
