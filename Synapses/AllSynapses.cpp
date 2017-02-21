@@ -269,6 +269,7 @@ void AllSynapses::createSynapseImap(SynapseIndexMap *&synapseIndexMap, const Sim
                                 synapse_count++;
                         }
                 }
+                assert( synapse_count == this->synapse_counts[i] );
                 synapseIndexMap->incomingSynapseCount[i] = synapse_count;
         }
 
@@ -317,22 +318,15 @@ synapseType AllSynapses::synapseOrdinalToType(const int type_ordinal)
 /*
  *  Advance all the Synapses in the simulation.
  *
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  neurons   The Neuron list to search from.
+ *  @param  sim_info          SimulationInfo class to read information from.
+ *  @param  neurons           The Neuron list to search from.
+ *  @param  synapseIndexMap   Pointer to SynapseIndexMap structure.
  */
-void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons)
+void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap)
 {
-    int num_neurons = sim_info->totalNeurons;
-
-    for (int i = 0; i < num_neurons; i++) {
-        BGSIZE synapse_counts = this->synapse_counts[i];
-        int synapse_advanced = 0;
-        for (BGSIZE z = 0; z < synapse_counts; z++) {
-            // Advance Synapse
-            BGSIZE iSyn = maxSynapsesPerNeuron * i + z;
-            advanceSynapse(iSyn, sim_info, neurons);
-            synapse_advanced++;
-        }
+    for (BGSIZE i = 0; i < total_synapse_counts; i++) {
+        BGSIZE iSyn = synapseIndexMap->incomingSynapseIndexMap[i];
+        advanceSynapse(iSyn, sim_info, neurons);
     }
 }
 
