@@ -39,7 +39,7 @@ void SingleThreadedSpikingModel::setupSim(SimulationInfo *sim_info)
 void SingleThreadedSpikingModel::advance(const SimulationInfo *sim_info)
 {
     m_neurons->advanceNeurons(*m_synapses, sim_info, m_synapseIndexMap);
-    m_synapses->advanceSynapses(sim_info, m_neurons);
+    m_synapses->advanceSynapses(sim_info, m_neurons, m_synapseIndexMap);
 }
 
 /*
