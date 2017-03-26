@@ -20,7 +20,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 /**
- *
+ * Dialog to select the parameter classes before going to the parameter config screen. 
  * @author Tom Wong
  */
 public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
@@ -216,56 +216,6 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
     }   
     // </editor-fold>
     
-    private void setConfigXMLDoc() throws Exception{
-        XPathExpression xpath = XPathFactory.newInstance().newXPath().compile(neuronsParamsNodePath);
-        NodeList nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
-        Node node = nodeList.item(0);
-        if(!neuronsParamsClass.equals(neuronsParamsClassCBox.getSelectedItem().toString())){
-            String templateFileURL = neuronsParamsTemplatePaths.get(neuronsParamsClassCBox.getSelectedIndex());
-            Document templateNode = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + templateFileURL);
-            Node parentNode = node.getParentNode();
-            Node newNode = xmlDoc.importNode(templateNode.getFirstChild(), true);
-            parentNode.replaceChild(newNode, node);
-        }
-        
-        xpath = XPathFactory.newInstance().newXPath().compile(synapsesParamsNodePath);
-        nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
-        node = nodeList.item(0);
-        if(!synapsesParamsClass.equals(synapsesParamsClassCBox.getSelectedItem().toString())){
-            String templateFileURL = synapsesParamsTemplatePaths.get(synapsesParamsClassCBox.getSelectedIndex());
-            Document templateNode = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + templateFileURL);
-            Node parentNode = node.getParentNode();
-            Node newNode = xmlDoc.importNode(templateNode.getFirstChild(), true);
-            parentNode.replaceChild(newNode, node);
-        }
-        
-        xpath = XPathFactory.newInstance().newXPath().compile(connectionsParamsNodePath);
-        nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
-        node = nodeList.item(0);
-        if(!connectionsParamsClass.equals(connectionsParamsClassCBox.getSelectedItem().toString())){
-            String templateFileURL = connectionsParamsTemplatePaths.get(connectionsParamsClassCBox.getSelectedIndex());
-            Document templateNode = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + templateFileURL);
-            Node parentNode = node.getParentNode();
-            Node newNode = xmlDoc.importNode(templateNode.getFirstChild(), true);
-            parentNode.replaceChild(newNode, node);
-        }
-        
-        xpath = XPathFactory.newInstance().newXPath().compile(layoutParamsNodePath);
-        nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
-        node = nodeList.item(0);
-        if(!layoutParamsClass.equals(layoutParamsClassCBox.getSelectedItem().toString())){
-            String templateFileURL = layoutParamsTemplatePaths.get(layoutParamsClassCBox.getSelectedIndex());
-            Document templateNode = DocumentBuilderFactory.newInstance().
-                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + templateFileURL);
-            Node parentNode = node.getParentNode();
-            Node newNode = xmlDoc.importNode(templateNode.getFirstChild(), true);
-            parentNode.replaceChild(newNode, node);
-        }
-    }
-    
     // <editor-fold defaultstate="collapsed" desc="Getters/Setters">
     public boolean getSuccess() {
         return okClicked;
@@ -275,6 +225,14 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
         return icm;
     }
     
+    /**
+     * setup Parameter classes combo boxes
+     * @param aXMLFilePath
+     * @throws IOException
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws XPathExpressionException 
+     */
     private void loadParamsClassCBoxes(String aXMLFilePath) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException{
         Document allParamsClassesDoc = DocumentBuilderFactory.newInstance().
                 newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + aXMLFilePath);
@@ -346,7 +304,7 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
             }
         }
         
-        //get the Class from XML file and match with the Combo Box options.
+        //get the Classes from XML file and match with the Combo Box options.
         XPathExpression xpath = XPathFactory.newInstance().newXPath().compile(neuronsParamsNodePath);
         NodeList nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
         Node node = nodeList.item(0);
@@ -370,7 +328,66 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
         node = nodeList.item(0);
         layoutParamsClass = ((Element)node).getAttribute(SystemConfig.CLASS_ATTRIBUTE_NAME);
         layoutParamsClassCBox.setSelectedItem(layoutParamsClass);
-    };
+    };    
+    
+    /**
+     * Set up XML config file according to the selected items in combo boxes
+     * @throws Exception 
+     */
+    private void setConfigXMLDoc() throws Exception{
+        //get neurons Params Node from the path
+        XPathExpression xpath = XPathFactory.newInstance().newXPath().compile(neuronsParamsNodePath);
+        NodeList nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
+        Node node = nodeList.item(0);
+        if(!neuronsParamsClass.equals(neuronsParamsClassCBox.getSelectedItem().toString())){
+            String templateFileURL = neuronsParamsTemplatePaths.get(neuronsParamsClassCBox.getSelectedIndex());
+            Document templateNode = DocumentBuilderFactory.newInstance().
+                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + templateFileURL);
+            Node parentNode = node.getParentNode();
+            Node newNode = xmlDoc.importNode(templateNode.getFirstChild(), true);
+            parentNode.replaceChild(newNode, node);
+        }
+        
+        //get synapses Params Node from the path
+        xpath = XPathFactory.newInstance().newXPath().compile(synapsesParamsNodePath);
+        nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
+        node = nodeList.item(0);
+        if(!synapsesParamsClass.equals(synapsesParamsClassCBox.getSelectedItem().toString())){
+            String templateFileURL = synapsesParamsTemplatePaths.get(synapsesParamsClassCBox.getSelectedIndex());
+            Document templateNode = DocumentBuilderFactory.newInstance().
+                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + templateFileURL);
+            Node parentNode = node.getParentNode();
+            Node newNode = xmlDoc.importNode(templateNode.getFirstChild(), true);
+            parentNode.replaceChild(newNode, node);
+        }
+        
+        //get connections Params Node from the path
+        xpath = XPathFactory.newInstance().newXPath().compile(connectionsParamsNodePath);
+        nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
+        node = nodeList.item(0);
+        if(!connectionsParamsClass.equals(connectionsParamsClassCBox.getSelectedItem().toString())){
+            String templateFileURL = connectionsParamsTemplatePaths.get(connectionsParamsClassCBox.getSelectedIndex());
+            Document templateNode = DocumentBuilderFactory.newInstance().
+                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + templateFileURL);
+            Node parentNode = node.getParentNode();
+            Node newNode = xmlDoc.importNode(templateNode.getFirstChild(), true);
+            parentNode.replaceChild(newNode, node);
+        }
+        
+        //get layout Params Node from the path
+        xpath = XPathFactory.newInstance().newXPath().compile(layoutParamsNodePath);
+        nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
+        node = nodeList.item(0);
+        if(!layoutParamsClass.equals(layoutParamsClassCBox.getSelectedItem().toString())){
+            String templateFileURL = layoutParamsTemplatePaths.get(layoutParamsClassCBox.getSelectedIndex());
+            Document templateNode = DocumentBuilderFactory.newInstance().
+                newDocumentBuilder().parse(System.getProperty("user.dir")+ File.separator + templateFileURL);
+            Node parentNode = node.getParentNode();
+            Node newNode = xmlDoc.importNode(templateNode.getFirstChild(), true);
+            parentNode.replaceChild(newNode, node);
+        }
+    }
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="UI Manipulation">
