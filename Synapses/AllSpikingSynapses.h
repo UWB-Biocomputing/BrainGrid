@@ -51,7 +51,8 @@ class AllSpikingSynapses : public AllSynapses
 {
     public:
         AllSpikingSynapses();
-        AllSpikingSynapses(const int num_neurons, const int max_synapses);
+        AllSpikingSynapses(const AllSpikingSynapses &r_synapses);
+        AllSpikingSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info);
         virtual ~AllSpikingSynapses();
 
         static IAllSynapses* Create() { return new AllSpikingSynapses(); }
@@ -142,8 +143,9 @@ class AllSpikingSynapses : public AllSynapses
          *
          *  @param  num_neurons   Total number of neurons in the network.
          *  @param  max_synapses  Maximum number of synapses per neuron.
+         *  @param  clr_info      ClusterInfo class to read information from.
          */
-        virtual void setupSynapses(const int num_neurons, const int max_synapses);
+        virtual void setupSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info);
 
         /**
          *  Updates the decay if the synapse selected.
@@ -317,10 +319,16 @@ public:
          *  Advance all the Synapses in the simulation.
          *  Update the state of all synapses for a time step.
          *
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  neurons   The Neuron list to search from.
+         *  @param  sim_info         SimulationInfo class to read information from.
+         *  @param  neurons          The Neuron list to search from.
+         *  @param  synapseIndexMap  Pointer to the synapse index map.
          */
-        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons);
+        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap);
+
+        /*
+         * Advances synapses pre spike event queue state of the cluster one simulation step.
+         */
+        virtual void advancePreSpikeQueue();
 
         /**
          *  Advance one specific Synapse.
@@ -334,9 +342,10 @@ public:
         /**
          *  Prepares Synapse for a spike hit.
          *
-         *  @param  iSyn   Index of the Synapse to update.
+         *  @param  iSyn      Index of the Synapse to update.
+         *  @param  iCluster  Cluster ID of cluster where the spike is added.
          */
-        virtual void preSpikeHit(const BGSIZE iSyn);
+        virtual void preSpikeHit(const BGSIZE iSyn, const CLUSTER_INDEX_TYPE iCluster);
 
         /**
          *  Prepares Synapse for a spike hit (for back propagation).

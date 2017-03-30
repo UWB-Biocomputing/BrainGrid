@@ -70,17 +70,18 @@ public:
     /**
      * Compile history information in every epoch
      *
-     * @param[in] neurons   The entire list of neurons.
-     * @param[in] clr_info  ClusterInfo class to read information from.
+     * @param[in] vtClr      Vector of pointer to the Cluster object.
+     * @param[in] vtClrInfo  Vecttor of pointer to the ClusterInfo object.
      */
-    virtual void compileHistories(IAllNeurons &neurons, const ClusterInfo *clr_info);
+    virtual void compileHistories(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 
     /**
      * Writes simulation results to an output destination.
      *
-     * @param  neurons the Neuron list to search from.
+     * @param[in] vtClr      Vector of pointer to the Cluster object.
+     * @param[in] vtClrInfo  Vecttor of pointer to the ClusterInfo object.
      **/
-    virtual void saveSimData(const IAllNeurons &neurons);
+    virtual void saveSimData(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 
 protected:
     void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info);

@@ -30,18 +30,28 @@
 #pragma once
 
 #include "Global.h"
+#include "EventHandler.h"
 
 class ClusterInfo
 {
     public:
         ClusterInfo() :
+            clusterID(0),
+            clusterNeuronsBegin(0),
             totalClusterNeurons(0),
             pClusterSummationMap(NULL),
-            seed(0)
+            seed(0),
+            eventHandler(NULL)
         {
         }
 
         virtual ~ClusterInfo() {}
+
+        //! The cluster ID
+        CLUSTER_INDEX_TYPE clusterID;
+
+        //! The beginning neuron index in the cluster
+        int clusterNeuronsBegin;    
 
         //! Count of neurons in the cluster
         int totalClusterNeurons;
@@ -61,4 +71,7 @@ class ClusterInfo
         //! A normalized random number generator
         Norm* normRand;
 #endif // !USE_GPU
+
+        //! Pointer to the multi clusters event handler
+        EventHandler* eventHandler;
 };

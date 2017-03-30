@@ -50,18 +50,32 @@ Connections::~Connections()
 /*
  *  Update the connections status in every epoch.
  *
- *  @param  neurons  The Neuron list to search from.
- *  @param  sim_info SimulationInfo class to read information from.
- *  @param  layout   Layout information of the neunal network.
+ *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  layout      Layout information of the neunal network.
+ *  @param  vtClr       Vector of Cluster class objects.
+ *  @param  vtClrInfo   Vector of ClusterInfo.
  *  @return true if successful, false otherwise.
  */
-bool Connections::updateConnections(IAllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout)
+bool Connections::updateConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
     return false;
 }
 
 #if defined(USE_GPU)
-void Connections::updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeuronsDeviceProperties* m_allNeuronsDevice, AllSpikingSynapsesDeviceProperties* m_allSynapsesDevice, Layout *layout, const ClusterInfo *clr_info)
+/*
+ *  Update the weight of the Synapses in the simulation.
+ *  Note: Platform Dependent.
+ *
+ *  @param  num_neurons        Number of neurons to update.
+ *  @param  neurons            The Neuron list to search from.
+ *  @param  synapses           The Synapse list to search from.
+ *  @param  sim_info           SimulationInfo to refer from.
+ *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
+ *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+ *  @param  layout             Layout information of the neunal network.
+ *  @param  clr_info           ClusterInfo to refer from. 
+ */
+void Connections::updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, Layout *layout, const ClusterInfo *clr_info)
 {
 }
 #else
@@ -69,12 +83,12 @@ void Connections::updateSynapsesWeights(const int num_neurons, IAllNeurons &neur
  *  Update the weight of the Synapses in the simulation.
  *  Note: Platform Dependent.
  *
- *  @param  num_neurons Number of neurons to update.
- *  @param  neurons     The Neuron list to search from.
- *  @param  synapses    The Synapse list to search from.
  *  @param  sim_info    SimulationInfo to refer from.
+ *  @param  layout      Layout information of the neunal network.
+ *  @param  vtClr       Vector of Cluster class objects.
+ *  @param  vtClrInfo   Vector of ClusterInfo.
  */
-void Connections::updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, Layout *layout)
+void Connections::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
 }
 #endif // !USE_GPU

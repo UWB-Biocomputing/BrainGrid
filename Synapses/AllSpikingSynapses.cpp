@@ -1,7 +1,7 @@
 #include "AllSpikingSynapses.h"
 
-AllSpikingSynapses::AllSpikingSynapses() : 
-    AllSynapses()
+// Default constructor
+AllSpikingSynapses::AllSpikingSynapses() : AllSynapses()
 {
     decay = NULL;
     total_delay = NULL;
@@ -9,9 +9,18 @@ AllSpikingSynapses::AllSpikingSynapses() :
     preSpikeQueue = NULL;
 }
 
-AllSpikingSynapses::AllSpikingSynapses(const int num_neurons, const int max_synapses) 
+// Copy constructor
+AllSpikingSynapses::AllSpikingSynapses(const AllSpikingSynapses &r_synapses) : AllSynapses(r_synapses)
 {
-    setupSynapses(num_neurons, max_synapses);
+    decay = NULL;
+    total_delay = NULL;
+    tau = NULL;
+    preSpikeQueue = NULL;
+}
+
+AllSpikingSynapses::AllSpikingSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info)
+{
+    setupSynapses(num_neurons, max_synapses, clr_info);
 }
 
 AllSpikingSynapses::~AllSpikingSynapses()
@@ -27,7 +36,7 @@ AllSpikingSynapses::~AllSpikingSynapses()
  */
 void AllSpikingSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron);
+    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, clr_info);
 }
 
 /*
@@ -35,10 +44,11 @@ void AllSpikingSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *cl
  *
  *  @param  num_neurons   Total number of neurons in the network.
  *  @param  max_synapses  Maximum number of synapses per neuron.
+ *  @param  clr_info      ClusterInfo class to read information from.
  */
-void AllSpikingSynapses::setupSynapses(const int num_neurons, const int max_synapses)
+void AllSpikingSynapses::setupSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info)
 {
-    AllSynapses::setupSynapses(num_neurons, max_synapses);
+    AllSynapses::setupSynapses(num_neurons, max_synapses, clr_info);
 
     BGSIZE max_total_synapses = max_synapses * num_neurons;
 
@@ -49,7 +59,10 @@ void AllSpikingSynapses::setupSynapses(const int num_neurons, const int max_syna
 
         // create a pre synapse spike queue & initialize it
         preSpikeQueue = new EventQueue();
-        preSpikeQueue->initEventQueue(max_total_synapses);
+        preSpikeQueue->initEventQueue(max_total_synapses, clr_info->clusterID);
+
+        // register the queue to the event handler
+        clr_info->eventHandler->addEventQueue(clr_info->clusterID, preSpikeQueue);
     }
 }
 
@@ -193,8 +206,8 @@ void AllSpikingSynapses::createSynapse(const BGSIZE iSyn, int source_index, int 
 
     in_use[iSyn] = true;
     summationPoint[iSyn] = sum_point;
-    destNeuronIndex[iSyn] = dest_index;
-    sourceNeuronIndex[iSyn] = source_index;
+    destNeuronLayoutIndex[iSyn] = dest_index;
+    sourceNeuronLayoutIndex[iSyn] = source_index;
     W[iSyn] = synSign(type) * 10.0e-9;
     this->type[iSyn] = type;
     tau[iSyn] = DEFAULT_tau;
@@ -241,20 +254,22 @@ void AllSpikingSynapses::createSynapse(const BGSIZE iSyn, int source_index, int 
  */
 bool AllSpikingSynapses::isSpikeQueue(const BGSIZE iSyn)
 {
-    return preSpikeQueue->checkAnEvent(iSyn);
+    int &total_delay = this->total_delay[iSyn];
+
+    // Checks if there is an event in the queue.
+    return preSpikeQueue->checkAnEvent(iSyn, total_delay);
 }
 
 /*
  *  Prepares Synapse for a spike hit.
  *
  *  @param  iSyn   Index of the Synapse to update.
+ *  @param  iCluster  Cluster ID of cluster where the spike is added.
  */
-void AllSpikingSynapses::preSpikeHit(const BGSIZE iSyn)
+void AllSpikingSynapses::preSpikeHit(const BGSIZE iSyn, const CLUSTER_INDEX_TYPE iCluster)
 {
-    int &total_delay = this->total_delay[iSyn];
-
     // Add to spike queue
-    preSpikeQueue->addAnEvent(iSyn, total_delay);
+    preSpikeQueue->addAnEvent(iSyn, iCluster);
 }
 
 /*
@@ -269,13 +284,20 @@ void AllSpikingSynapses::postSpikeHit(const BGSIZE iSyn)
 /*
  *  Advance all the Synapses in the simulation.
  *
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  neurons   The Neuron list to search from.
+ *  @param  sim_info         SimulationInfo class to read information from.
+ *  @param  neurons          The Neuron list to search from.
+ *  @param  synapseIndexMap  Pointer to the synapse index map.
  */
-void AllSpikingSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons)
+void AllSpikingSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap)
 {
-    AllSynapses::advanceSynapses(sim_info, neurons);
+    AllSynapses::advanceSynapses(sim_info, neurons, synapseIndexMap);
+}
 
+/*
+ * Advances synapses pre spike event queue state of the cluster one simulation step.
+ */
+void AllSpikingSynapses::advancePreSpikeQueue()
+{
     preSpikeQueue->advanceEventQueue();
 }
 

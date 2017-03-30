@@ -8,11 +8,11 @@
 
 using namespace std;
 
-#include "SynapseIndexMap.h"
 #include "Layout.h"
 #include "ClusterInfo.h"
 
 class IAllSynapses;
+class SynapseIndexMap;
 
 class IAllNeurons
 {

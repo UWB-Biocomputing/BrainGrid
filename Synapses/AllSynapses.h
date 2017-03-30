@@ -52,7 +52,8 @@ class AllSynapses : public IAllSynapses
 {
     public:
         AllSynapses();
-        AllSynapses(const int num_neurons, const int max_synapses);
+        AllSynapses(const AllSynapses &r_synapses);
+        AllSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info);
         virtual ~AllSynapses();
 
         /**
@@ -101,8 +102,9 @@ class AllSynapses : public IAllSynapses
          *  @param  dest_neuron The Neuron that receives from the Synapse.
          *  @param  sum_point   Summation point address.
          *  @param  deltaT      Inner simulation step duration
+         *  @param  clr_info    ClusterInfo to refer from.
          */
-        virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT);
+        virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT, const ClusterInfo *clr_info);
 
         /**
          *  Create a Synapse and connect it to the model.
@@ -118,15 +120,6 @@ class AllSynapses : public IAllSynapses
         virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
 
         /**
-         *  Create a synapse index map.
-         *
-         *  @param  synapseIndexMap   Reference to thw pointer to SynapseIndexMap structure.
-         *  @param  sim_info          Pointer to the simulation information.
-         *  @param  clr_info          Pointer to the cluster information.
-         */
-        virtual void createSynapseImap(SynapseIndexMap *&synapseIndexMap, const SimulationInfo* sim_info, const ClusterInfo* clr_info);
-
-        /**
          *  Get the sign of the synapseType.
          *
          *  @param    type    synapseType I to I, I to E, E to I, or E to E
@@ -140,8 +133,9 @@ class AllSynapses : public IAllSynapses
          *
          *  @param  num_neurons   Total number of neurons in the network.
          *  @param  max_synapses  Maximum number of synapses per neuron.
+         *  @param  clr_info      ClusterInfo class to read information from.
          */
-        virtual void setupSynapses(const int num_neurons, const int max_synapses);
+        virtual void setupSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info);
 
         /**
          *  Sets the data for Synapse to input's data.
@@ -173,10 +167,11 @@ class AllSynapses : public IAllSynapses
          *  Advance all the Synapses in the simulation.
          *  Update the state of all synapses for a time step.
          *
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  neurons   The Neuron list to search from.
+         *  @param  sim_info         SimulationInfo class to read information from.
+         *  @param  neurons          The Neuron list to search from.
+         *  @param  synapseIndexMap  Pointer to the synapse index map.
          */
-        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons);
+        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap);
 
         /**
          *  Remove a synapse from the network.
@@ -191,14 +186,14 @@ class AllSynapses : public IAllSynapses
         static constexpr BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
  
         /**
-         *  The location of the synapse.
+         *  The location of the source neuron.
          */
-        int *sourceNeuronIndex;
+        int *sourceNeuronLayoutIndex;
 
         /** 
-         *  The coordinates of the summation point.
+         *  The location of the destination neuron.
          */
-        int *destNeuronIndex;
+        int *destNeuronLayoutIndex;
 
         /**
          *   The weight (scaling factor, strength, maximal amplitude) of the synapse.

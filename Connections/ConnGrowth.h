@@ -94,12 +94,12 @@ class ConnGrowth : public Connections
         /**
          *  Setup the internal structure of the class (allocate memories and initialize them).
          *
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  layout    Layout information of the neunal network.
-         *  @param  neurons   The Neuron list to search from.
-         *  @param  synapses  The Synapse list to search from.
+         *  @param  sim_info    SimulationInfo class to read information from.
+         *  @param  layout      Layout information of the neunal network.
+         *  @param  vtClr       Vector of Cluster class objects.
+         *  @param  vtClrInfo   Vector of ClusterInfo.
          */
-        virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, IAllNeurons *neurons, IAllSynapses *synapses);
+        virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 
         /**
          *  Cleanup the class (deallocate memories).
@@ -147,12 +147,13 @@ class ConnGrowth : public Connections
         /**
          *  Update the connections status in every epoch.
          *
-         *  @param  neurons  The Neuron list to search from.
-         *  @param  sim_info SimulationInfo class to read information from.
-         *  @param  layout   Layout information of the neunal network.
+         *  @param  sim_info    SimulationInfo class to read information from.
+         *  @param  layout      Layout information of the neunal network.
+         *  @param  vtClr       Vector of Cluster class objects.
+         *  @param  vtClrInfo   Vector of ClusterInfo.
          *  @return true if successful, false otherwise.
          */
-        virtual bool updateConnections(IAllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout);
+        virtual bool updateConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 
         /**
          *  Creates a recorder class object for the connection.
@@ -173,8 +174,8 @@ class ConnGrowth : public Connections
          *  @param  neurons             the Neuron list to search from.
          *  @param  synapses            the Synapse list to search from.
          *  @param  sim_info            SimulationInfo to refer from.
-         *  @param  m_allNeuronsDevice  Reference to the allNeurons struct on device memory. 
-         *  @param  m_allSynapsesDevice Reference to the allSynapses struct on device memory.
+         *  @param  allNeuronsDevice    Reference to the allNeurons struct on device memory. 
+         *  @param  allSynapsesDevice   Reference to the allSynapses struct on device memory.
          *  @param  layout              Layout information of the neunal network.
          *  @param  clr_info            ClusterInfo to refer from.
          */
@@ -185,21 +186,22 @@ class ConnGrowth : public Connections
          *  Update the weight of the Synapses in the simulation.
          *  Note: Platform Dependent.
          *
-         *  @param  num_neurons Number of neurons to update.
-         *  @param  ineurons    The Neuron list to search from.
-         *  @param  isynapses   The Synapse list to search from.
          *  @param  sim_info    SimulationInfo to refer from.
+         *  @param  layout      Layout information of the neunal network.
+         *  @param  vtClr       Vector of Cluster class objects.
+         *  @param  vtClrInfo   Vector of ClusterInfo.
          */
-        virtual void updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, Layout *layout);
+        virtual void updateSynapsesWeights(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 #endif
     private:
         /**
          *  Calculates firing rates, neuron radii change and assign new values.
          *
-         *  @param  neurons  The Neuron list to search from.
-         *  @param  sim_info SimulationInfo class to read information from.
+         *  @param  sim_info    SimulationInfo class to read information from.
+         *  @param  vtClr       Vector of Cluster class objects.
+         *  @param  vtClrInfo   Vector of ClusterInfo.
          */
-        void updateConns(IAllNeurons &neurons, const SimulationInfo *sim_info);
+        void updateConns(const SimulationInfo *sim_info, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 
         /**
          *  Update the distance between frontiers of Neurons.

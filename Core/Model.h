@@ -103,13 +103,6 @@ class Model : public IModel
         virtual void cleanupSim(SimulationInfo *sim_info);
 
         /**
-         *  Get the IAllNeurons class object.
-         *
-         *  @return Pointer to the AllNeurons class object.
-         */
-        virtual IAllNeurons* getNeurons();
-
-        /**
          *  Get the Connections class object.
          *
          *  @return Pointer to the Connections class object.
@@ -187,6 +180,11 @@ class Model : public IModel
          *  Vector of pointer to the Cluster object.
          */
         vector<Cluster *> &m_vtClr;
+
+        /**
+         *  Pointer to the event handler object.
+         */
+        EventHandler *m_eventHandler;
 
     protected:
         /**

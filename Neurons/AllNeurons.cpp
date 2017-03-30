@@ -7,6 +7,14 @@ AllNeurons::AllNeurons() :
     summation_map = NULL;
 }
 
+// Copy constructor
+AllNeurons::AllNeurons(const AllNeurons &r_neurons) :
+        size(0), 
+        nParams(0)
+{
+    summation_map = NULL;
+}
+
 AllNeurons::~AllNeurons()
 {
     freeResources();

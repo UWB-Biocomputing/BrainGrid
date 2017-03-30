@@ -69,20 +69,27 @@ class SingleThreadedCluster : public Cluster {
         virtual void cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
-         * Advances network state one simulation step.
-         *       
-         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
-         * @param clr_info - parameters defining the simulation to be run with the given collection of neurons.
-         */  
-        virtual void advance(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+         * Advances neurons network state of the cluster one simulation step.
+         *
+         * @param sim_info - parameters defining the simulation to be run with
+         *                   the given collection of neurons.
+         * @param clr_info - parameters defining the simulation to be run with
+         *                   the given collection of neurons.
+         */
+        virtual void advanceNeurons(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
-        /**     
-         *  Update the connection of all the Neurons and Synapses of the simulation.
-         *       
-         *  @param  sim_info    SimulationInfo class to read information from.         
-         *  @param  layout      A class to define neurons' layout information in the network.
-         *  @param  conns       A class to define neurons' connections information in the network.
-         *  @param  clr_info    ClusterInfo class to read information from.
-         */  
-        virtual void updateConnections(const SimulationInfo *sim_info, Connections *conns, Layout *layout, const ClusterInfo *clr_info);
+        /**
+         * Advances synapses network state of the cluster one simulation step.
+         *
+         * @param sim_info - parameters defining the simulation to be run with
+         *                   the given collection of neurons.
+         * @param clr_info - parameters defining the simulation to be run with
+         *                   the given collection of neurons.
+         */
+        virtual void advanceSynapses(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+
+        /**
+         * Advances synapses pre spike event queue state of the cluster one simulation step.
+         */
+        virtual void advancePreSpikeQueue();
 };

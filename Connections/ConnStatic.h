@@ -59,12 +59,12 @@ class ConnStatic : public Connections
          *  number of maximum connections per neurons, connection radius threshold, and
          *  small-world rewiring probability.
          *
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  layout    Layout information of the neunal network.
-         *  @param  neurons   The Neuron list to search from.
-         *  @param  synapses  The Synapse list to search from.
+         *  @param  sim_info    SimulationInfo class to read information from.
+         *  @param  layout      Layout information of the neunal network.
+         *  @param  vtClr       Vector of Cluster class objects.
+         *  @param  vtClrInfo   Vector of ClusterInfo.
          */
-        virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, IAllNeurons *neurons, IAllSynapses *synapses);
+        virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 
         /**
          *  Cleanup the class.

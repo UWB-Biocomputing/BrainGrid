@@ -46,6 +46,7 @@ class AllIFNeurons : public AllSpikingNeurons
 {
     public:
         AllIFNeurons();
+        AllIFNeurons(const AllIFNeurons &r_neurons);
         virtual ~AllIFNeurons();
 
         /**
@@ -244,8 +245,9 @@ class AllIFNeurons : public AllSpikingNeurons
          *  @param  sim_info     SimulationInfo class to read information from.
          *  @param  neuron_index Index of the neuron to create.
          *  @param  layout       Layout information of the neunal network.
+         *  @param  clr_info     ClusterInfo class to read information from.
          */
-        void createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layoug);
+        void createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layoug, ClusterInfo *clr_info);
 
         /**
          *  Set the Neuron at the indexed location to default values.

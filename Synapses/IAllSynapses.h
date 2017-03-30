@@ -8,11 +8,11 @@
 
 #include "Global.h"
 #include "SimulationInfo.h"
-#include "SynapseIndexMap.h"
 #include "ClusterInfo.h"
 
 class IAllNeurons;
 class IAllSynapses;
+class SynapseIndexMap;
 
 typedef void (*fpCreateSynapse_t)(void*, const int, const int, int, int, BGFLOAT*, const BGFLOAT, synapseType);
 
@@ -92,8 +92,9 @@ class IAllSynapses
          *  @param  dest_neuron The Neuron that receives from the Synapse.
          *  @param  sum_point   Summation point address.
          *  @param  deltaT      Inner simulation step duration
+         *  @param  clr_info    ClusterInfo class to read information from.
          */
-        virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT) = 0;
+        virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT, const ClusterInfo *clr_info) = 0;
 
         /**
          *  Create a Synapse and connect it to the model.
@@ -107,15 +108,6 @@ class IAllSynapses
          *  @param  type        Type of the Synapse to create.
          */
         virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
-
-        /**
-         *  Create a synapse index map.
-         *
-         *  @param  synapseIndexMap   Reference to thw pointer to SynapseIndexMap structure.
-         *  @param  sim_info          Pointer to the simulation information.
-         *  @param  clr_info          Pointer to the cluster information.
-         */
-        virtual void createSynapseImap(SynapseIndexMap *&synapseIndexMap, const SimulationInfo* sim_info, const ClusterInfo *clr_info) = 0;
 
         /**
          *  Get the sign of the synapseType.
@@ -233,10 +225,16 @@ class IAllSynapses
          *  Advance all the Synapses in the simulation.
          *  Update the state of all synapses for a time step.
          *
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  neurons   The Neuron list to search from.
+         *  @param  sim_info         SimulationInfo class to read information from.
+         *  @param  neurons          The Neuron list to search from.
+         *  @param  synapseIndexMap  Pointer to the synapse index map.
          */
-        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons) = 0;
+        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap) = 0;
+
+        /**
+         * Advances synapses pre spike event queue state of the cluster one simulation step.
+         */
+        virtual void advancePreSpikeQueue() = 0;
 
         /**
          *  Advance one specific Synapse.

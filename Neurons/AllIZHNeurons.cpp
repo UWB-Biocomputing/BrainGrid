@@ -12,6 +12,28 @@ AllIZHNeurons::AllIZHNeurons() : AllIFNeurons()
     C3 = NULL;
 }
 
+// Copy constructor
+AllIZHNeurons::AllIZHNeurons(const AllIZHNeurons &r_neurons) : AllIFNeurons(r_neurons)
+{
+    Aconst = NULL;
+    Bconst = NULL;
+    Cconst = NULL; 
+    Dconst = NULL;
+    u = NULL;
+    C3 = NULL;
+
+    for (int i = 0; i < 2; i++) {
+        m_excAconst[i] = r_neurons.m_excAconst[i];
+        m_inhAconst[i] = r_neurons.m_inhAconst[i];
+        m_excBconst[i] = r_neurons.m_excBconst[i];
+        m_inhBconst[i] = r_neurons.m_inhBconst[i];
+        m_excCconst[i] = r_neurons.m_excCconst[i];
+        m_inhCconst[i] = r_neurons.m_inhCconst[i];
+        m_excDconst[i] = r_neurons.m_excDconst[i];
+        m_inhDconst[i] = r_neurons.m_inhDconst[i];
+    }
+}
+
 AllIZHNeurons::~AllIZHNeurons()
 {
     freeResources();
@@ -257,7 +279,7 @@ void AllIZHNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout, C
         setNeuronDefaults(neuron_index);
 
         // set the neuron info for neurons
-        createNeuron(sim_info, neuron_index, layout);
+        createNeuron(sim_info, neuron_index, layout, clr_info);
     }
 }
 
@@ -267,14 +289,16 @@ void AllIZHNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout, C
  *  @param  sim_info     SimulationInfo class to read information from.
  *  @param  neuron_index Index of the neuron to create.
  *  @param  layout       Layout information of the neunal network.
+ *  @param  clr_info     ClusterInfo class to read information from.
  */
-void AllIZHNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layout)
+void AllIZHNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layout, ClusterInfo *clr_info)
 {
     // set the neuron info for neurons
-    AllIFNeurons::createNeuron(sim_info, neuron_index, layout);
+    AllIFNeurons::createNeuron(sim_info, neuron_index, layout, clr_info);
 
     // TODO: we may need another distribution mode besides flat distribution
-    if (layout->neuron_type_map[neuron_index] == EXC) {
+    int neuron_layout_index = clr_info->clusterNeuronsBegin + neuron_index;
+    if (layout->neuron_type_map[neuron_layout_index] == EXC) {
         // excitatory neuron
         Aconst[neuron_index] = rng.inRange(m_excAconst[0], m_excAconst[1]); 
         Bconst[neuron_index] = rng.inRange(m_excBconst[0], m_excBconst[1]); 
@@ -290,7 +314,7 @@ void AllIZHNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Lay
  
     u[neuron_index] = 0;
 
-    DEBUG_HI(cout << "CREATE NEURON[" << neuron_index << "] {" << endl
+    DEBUG_HI(cout << "CREATE NEURON[" << neuron_layout_index << "] {" << endl
             << "\tAconst = " << Aconst[neuron_index] << endl
             << "\tBconst = " << Bconst[neuron_index] << endl
             << "\tCconst = " << Cconst[neuron_index] << endl

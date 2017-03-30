@@ -1,5 +1,6 @@
 #include "AllDSSynapses.h"
 
+// Default constructor
 AllDSSynapses::AllDSSynapses() : AllSpikingSynapses()
 {
     lastSpike = NULL;
@@ -10,10 +11,21 @@ AllDSSynapses::AllDSSynapses() : AllSpikingSynapses()
     F = NULL;
 }
 
-AllDSSynapses::AllDSSynapses(const int num_neurons, const int max_synapses) :
-        AllSpikingSynapses(num_neurons, max_synapses)
+// Copy constructor
+AllDSSynapses::AllDSSynapses(const AllDSSynapses &r_synapses) : AllSpikingSynapses(r_synapses)
 {
-    setupSynapses(num_neurons, max_synapses);
+    lastSpike = NULL;
+    r = NULL;
+    u = NULL;
+    D = NULL;
+    U = NULL;
+    F = NULL;
+}
+
+AllDSSynapses::AllDSSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info) :
+        AllSpikingSynapses(num_neurons, max_synapses, clr_info)
+{
+    setupSynapses(num_neurons, max_synapses, clr_info);
 }
 
 AllDSSynapses::~AllDSSynapses()
@@ -29,7 +41,7 @@ AllDSSynapses::~AllDSSynapses()
  */
 void AllDSSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron);
+    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, clr_info);
 }
 
 /*
@@ -37,10 +49,11 @@ void AllDSSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_inf
  *
  *  @param  num_neurons   Total number of neurons in the network.
  *  @param  max_synapses  Maximum number of synapses per neuron.
+ *  @param  clr_info      ClusterInfo class to read information from.
  */
-void AllDSSynapses::setupSynapses(const int num_neurons, const int max_synapses)
+void AllDSSynapses::setupSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info)
 {
-    AllSpikingSynapses::setupSynapses(num_neurons, max_synapses);
+    AllSpikingSynapses::setupSynapses(num_neurons, max_synapses, clr_info);
 
     BGSIZE max_total_synapses = max_synapses * num_neurons;
 

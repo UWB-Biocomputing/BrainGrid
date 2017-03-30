@@ -72,7 +72,10 @@ __device__ void changeDSSynapsePSRDevice(AllDSSynapsesDeviceProperties* allSynap
  */
 __device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn)
 {
-    return allSynapsesDevice->preSpikeQueue->checkAnEvent(iSyn);
+    int &total_delay = allSynapsesDevice->total_delay[iSyn];
+
+    // Checks if there is an event in the queue.
+    return allSynapsesDevice->preSpikeQueue->checkAnEvent(iSyn, total_delay);
 }
 
 /*     

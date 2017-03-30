@@ -6,6 +6,11 @@ AllLIFNeurons::AllLIFNeurons() : AllIFNeurons()
 {
 }
 
+// Copy constructor
+AllLIFNeurons::AllLIFNeurons(const AllLIFNeurons &r_neurons) : AllIFNeurons(r_neurons)
+{
+}
+
 AllLIFNeurons::~AllLIFNeurons()
 {
 }

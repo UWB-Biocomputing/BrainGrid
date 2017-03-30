@@ -10,6 +10,15 @@ AllSpikingNeurons::AllSpikingNeurons() : AllNeurons()
     spike_history = NULL;
 }
 
+// Copy constructor
+AllSpikingNeurons::AllSpikingNeurons(const AllSpikingNeurons &r_neurons) : AllNeurons(r_neurons)
+{
+    hasFired = NULL;
+    spikeCount = NULL;
+    spikeCountOffset = NULL;
+    spike_history = NULL;
+}
+
 AllSpikingNeurons::~AllSpikingNeurons()
 {
     freeResources();
@@ -114,35 +123,36 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
 
             assert( spikeCount[idx] < max_spikes );
 
-            // notify outgoing synapses
-            BGSIZE synapse_counts;
+            if (spSynapses.total_synapse_counts != 0) {
+                // notify outgoing synapses
+                BGSIZE synapse_counts;
 
-            if(synapseIndexMap != NULL){
                 synapse_counts = synapseIndexMap->outgoingSynapseCount[idx];
                 if (synapse_counts != 0) {
-                    int beginIndex = synapseIndexMap->outgoingSynapseBegin[idx];
-                    BGSIZE* outgoingMap_begin = &( synapseIndexMap->outgoingSynapseIndexMap[beginIndex] );
-                    BGSIZE iSyn;
+                    BGSIZE beginIndex = synapseIndexMap->outgoingSynapseBegin[idx];
+                    OUTGOING_SYNAPSE_INDEX_TYPE* outgoingMap_begin = &( synapseIndexMap->outgoingSynapseIndexMap[beginIndex] );
                     for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
-                        iSyn = outgoingMap_begin[i];
-                        spSynapses.preSpikeHit(iSyn);
+                        OUTGOING_SYNAPSE_INDEX_TYPE idx = outgoingMap_begin[i];
+                        // outgoing synapse index consists of cluster index + synapse index
+                        CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIndex(idx);
+                        BGSIZE iSyn = SynapseIndexMap::getSynapseIndex(idx);
+                        spSynapses.preSpikeHit(iSyn, iCluster);
+                    }
+                }
+
+                // notify incomming synapses
+                synapse_counts = synapseIndexMap->incomingSynapseIndexMap[idx];
+
+                if (spSynapses.allowBackPropagation() && synapse_counts != 0) {
+                    int beginIndex = synapseIndexMap->incomingSynapseBegin[idx];
+                    BGSIZE* incomingMap_begin = &( synapseIndexMap->incomingSynapseIndexMap[beginIndex] );
+          
+                    for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
+                        BGSIZE iSyn = incomingMap_begin[i];
+                        spSynapses.postSpikeHit(iSyn);
                     }
                 }
             }
-
-            // notify incomming synapses
-            synapse_counts = spSynapses.synapse_counts[idx];
-            BGSIZE synapse_notified = 0;
-
-            if (spSynapses.allowBackPropagation()) {
-                for (int z = 0; synapse_notified < synapse_counts; z++) {
-                     BGSIZE iSyn = sim_info->maxSynapsesPerNeuron * idx + z;
-                     if (spSynapses.in_use[iSyn] == true) {
-                         spSynapses.postSpikeHit(iSyn);
-                         synapse_notified++;
-                     }
-                 }
-             }
 
             hasFired[idx] = false;
         }

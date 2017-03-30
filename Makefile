@@ -175,6 +175,8 @@ SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
 		$(INPUTDIR)/FSInput.o \
 		$(COREDIR)/FClassOfCategory.o \
 		$(COREDIR)/EventQueue.o \
+		$(COREDIR)/EventHandler.o \
+		$(COREDIR)/SynapseIndexMap.o \
 		$(NEURONDIR)/AllNeurons.o \
 		$(NEURONDIR)/AllSpikingNeurons.o \
 		$(NEURONDIR)/AllIFNeurons.o \
@@ -415,6 +417,12 @@ $(COREDIR)/EventQueue_cuda.o: $(COREDIR)/EventQueue.cpp $(COREDIR)/EventQueue.h
 
 $(COREDIR)/EventQueue.o: $(COREDIR)/EventQueue.cpp $(COREDIR)/EventQueue.h
 	$(CXX) $(CXXFLAGS) $(COREDIR)/EventQueue.cpp -o $(COREDIR)/EventQueue.o
+
+$(COREDIR)/EventHandler.o: $(COREDIR)/EventHandler.cpp $(COREDIR)/EventHandler.h
+	$(CXX) $(CXXFLAGS) $(COREDIR)/EventHandler.cpp -o $(COREDIR)/EventHandler.o
+
+$(COREDIR)/SynapseIndexMap.o: $(COREDIR)/SynapseIndexMap.cpp $(COREDIR)/SynapseIndexMap.h
+	$(CXX) $(CXXFLAGS) $(COREDIR)/SynapseIndexMap.cpp -o $(COREDIR)/SynapseIndexMap.o
 
 # Matrix
 # ------------------------------------------------------------------------------

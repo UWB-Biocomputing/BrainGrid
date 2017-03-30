@@ -48,6 +48,9 @@ void Model::deserialize(istream& input, const SimulationInfo *sim_info)
     // read the clusters data
     m_vtClr[0]->deserialize(input, sim_info, m_vtClrInfo[0]);
 
+    // create a synapse index map
+    SynapseIndexMap::createSynapseImap(sim_info, m_vtClr, m_vtClrInfo);
+
     // read the connections data
     m_conns->deserialize(input, sim_info);
 }
@@ -82,7 +85,7 @@ void Model::serialize(ostream& output, const SimulationInfo *sim_info)
 void Model::saveData(SimulationInfo *sim_info)
 {
     if (sim_info->simRecorder != NULL) {
-        m_vtClr[0]->saveData(sim_info);
+        sim_info->simRecorder->saveSimData(m_vtClr, m_vtClrInfo);
     }
 }
 
@@ -98,17 +101,23 @@ void Model::setupClusters(SimulationInfo *sim_info)
     m_layout->generateNeuronTypeMap(sim_info->totalNeurons);
     m_layout->initStarterMap(sim_info->totalNeurons);
 
+    // create & initialize EventHandler
+    m_eventHandler = new EventHandler();
+    m_eventHandler->initEventHandler(m_vtClr.size());
+
     // setup each cluster
     for (unsigned int i = 0; i < m_vtClr.size(); i++) {
-        // creates all the Neurons and generates data for them
+        m_vtClrInfo[i]->eventHandler = m_eventHandler;
+
+        // creates all the Neurons and generates data for them in the cluster
         m_vtClr[i]->setupCluster(sim_info, m_layout, m_vtClrInfo[i]);
 
-        // set up the connection of all the Neurons and Synapses of the simulation
-        m_vtClr[i]->setupConnections(sim_info, m_layout, m_conns, m_vtClrInfo[i]);
-
         // create advance threads
-        m_vtClr[i]->createAdvanceThread(sim_info, m_vtClrInfo[i]);
+        m_vtClr[i]->createAdvanceThread(sim_info, m_vtClrInfo[i], m_vtClrInfo.size());
     }
+
+    // set up the connection of all the Neurons and Synapses of the simulation
+    m_conns->setupConnections(sim_info, m_layout, m_vtClr, m_vtClrInfo);
 }
 
 /*
@@ -147,6 +156,8 @@ void Model::cleanupSim(SimulationInfo *sim_info)
     }
 
     m_conns->cleanupConnections();
+
+    delete m_eventHandler;
 }
 
 /*
@@ -212,18 +223,8 @@ void Model::updateHistory(const SimulationInfo *sim_info)
 {
     // Compile history information in every epoch
     if (sim_info->simRecorder != NULL) {
-        m_vtClr[0]->updateHistory(sim_info, m_vtClrInfo[0]);
+        sim_info->simRecorder->compileHistories(m_vtClr, m_vtClrInfo);
     }
-}
-
-/*
- *  Get the IAllNeurons class object.
- *
- *  @return Pointer to the AllNeurons class object.
- */
-IAllNeurons* Model::getNeurons()
-{
-    return m_vtClr[0]->getNeurons();
 }
 
 /*
@@ -255,8 +256,9 @@ Layout* Model::getLayout()
 void Model::advance(const SimulationInfo *sim_info)
 {
     // input stimulus
-    if (sim_info->pInput != NULL)
+    if (sim_info->pInput != NULL) {
       sim_info->pInput->inputStimulus(sim_info, m_vtClrInfo[0]);
+    }
 
     // run advance of all waiting threads
     Cluster::runAdvance();
@@ -269,7 +271,8 @@ void Model::advance(const SimulationInfo *sim_info)
  */
 void Model::updateConnections(const SimulationInfo *sim_info)
 {
-    for (unsigned int i = 0; i < m_vtClr.size(); i++) {
-        m_vtClr[i]->updateConnections(sim_info, m_conns, m_layout, m_vtClrInfo[i]);
+    // Update Connections data
+    if (m_conns->updateConnections(sim_info, m_layout, m_vtClr, m_vtClrInfo)) {
+        m_conns->updateSynapsesWeights(sim_info, m_layout, m_vtClr, m_vtClrInfo);
     }
 }

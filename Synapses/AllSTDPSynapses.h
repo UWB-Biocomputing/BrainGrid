@@ -68,7 +68,8 @@ class AllSTDPSynapses : public AllSpikingSynapses
 {
     public:
         AllSTDPSynapses();
-        AllSTDPSynapses(const int num_neurons, const int max_synapses);
+        AllSTDPSynapses(const AllSTDPSynapses &r_synapses);
+        AllSTDPSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info);
         virtual ~AllSTDPSynapses();
 
         static IAllSynapses* Create() { return new AllSTDPSynapses(); }
@@ -159,8 +160,9 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *
          *  @param  num_neurons   Total number of neurons in the network.
          *  @param  max_synapses  Maximum number of synapses per neuron.
+         *  @param  clr_info      ClusterInfo class to read information from.
          */
-        virtual void setupSynapses(const int num_neurons, const int max_synapses);
+        virtual void setupSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info);
 
         /**
          *  Sets the data for Synapse to input's data.
@@ -303,10 +305,11 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  Advance all the Synapses in the simulation.
          *  Update the state of all synapses for a time step.
          *
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  neurons   The Neuron list to search from.
+         *  @param  sim_info         SimulationInfo class to read information from.
+         *  @param  neurons          The Neuron list to search from.
+         *  @param  synapseIndexMap  Pointer to the synapse index map.
          */
-        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons);
+        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap);
 
         /**
          *  Advance one specific Synapse.

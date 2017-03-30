@@ -53,9 +53,6 @@ void Cluster::deserialize(istream& input, const SimulationInfo *sim_info, const 
 
     // read the synapse data & create synapses
     m_synapses->deserialize(input, *m_neurons, clr_info);
-
-    // create a synapse index map
-    m_synapses->createSynapseImap(m_synapseIndexMap, sim_info, clr_info);
 }
 
 /*
@@ -74,16 +71,6 @@ void Cluster::serialize(ostream& output, const SimulationInfo *sim_info, const C
 
     // write the synapse data
     m_synapses->serialize(output, clr_info);
-}
-
-/*
- *  Save simulation results to an output destination.
- *
- *  @param  sim_info    parameters for the simulation.
- */
-void Cluster::saveData(SimulationInfo *sim_info)
-{
-    sim_info->simRecorder->saveSimData(*m_neurons);
 }
 
 /*
@@ -123,44 +110,6 @@ void Cluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
 }
 
 /*
- *  Update the simulation history of every epoch.
- *
- *  @param  sim_info    SimulationInfo to refer from.
- *  @param  clr_info    ClusterInfo to refer from.
- */
-void Cluster::updateHistory(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
-{
-    sim_info->simRecorder->compileHistories(*m_neurons, clr_info);
-}
-
-/*
- *  Get the IAllNeurons class object.
- *
- *  @return Pointer to the AllNeurons class object.
- */
-IAllNeurons* Cluster::getNeurons()
-{
-    return m_neurons;
-}
-
-/*
- *  Set up the connection of all the Neurons and Synapses of the simulation.
- *
- *  @param  sim_info    SimulationInfo class to read information from.
- *  @param  layout      A class to define neurons' layout information in the network.
- *  @param  conns       A class to define neurons' connections information in the network.
- *  @param  clr_info    ClusterInfo class to read information from.
- */
-void Cluster::setupConnections(SimulationInfo *sim_info, Layout *layout, Connections *conns, const ClusterInfo *clr_info)
-{
-    // Setup the internal structure of the connetions
-    conns->setupConnections(sim_info, layout, m_neurons, m_synapses);
-    
-    // Create a synapse index map 
-    m_synapses->createSynapseImap(m_synapseIndexMap, sim_info, clr_info);
-}
-
-/*
  *  Thread for advance a cluster.
  *
  *  @param  sim_info    SimulationInfo class to read information from.
@@ -175,12 +124,23 @@ void Cluster::advanceThread(const SimulationInfo *sim_info, const ClusterInfo *c
 
         // Check if Cluster::quitAdvanceThread() is called
         if (m_isAdvanceExit == true) {
-            DEBUG(cerr << "Cluster::advanceThread has finished. Thread ID: " << std::this_thread::get_id() << endl;)
             break;
         }
 
-        // Advances network state one simulation step
-        advance(sim_info, clr_info);
+        // Advances neurons network state one simulation step
+        advanceNeurons(sim_info, clr_info);
+
+        // wait until all threads are complete 
+        m_barrierAdvance->Sync();
+
+        // Advances synapses network state one simulation step
+        advanceSynapses(sim_info, clr_info);
+
+        // wait until all threads are complete 
+        m_barrierAdvance->Sync();
+
+        // Advance event queue state one simulation step
+        advancePreSpikeQueue();
 
         // wait until all threads are complete 
         m_barrierAdvance->Sync();
@@ -193,12 +153,14 @@ void Cluster::advanceThread(const SimulationInfo *sim_info, const ClusterInfo *c
  *
  *  @param  sim_info    SimulationInfo class to read information from.
  *  @param  clr_info    ClusterInfo class to read information from.
+ *  @param  count       Number of total clusters.
  */
-void Cluster::createAdvanceThread(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+void Cluster::createAdvanceThread(const SimulationInfo *sim_info, const ClusterInfo *clr_info, int count)
 {
     // If barrier synchronize object has not been created, create it
     if (m_barrierAdvance == NULL) {
-        m_barrierAdvance = new Barrier(2);
+        // number of cluster thread + 1 (for main thread)
+        m_barrierAdvance = new Barrier(count + 1);
     }
 
     // Create an advanceThread
@@ -213,7 +175,19 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, const ClusterI
  */
 void Cluster::runAdvance()
 {
-    // notify all advanceThread that the advance is ready to go
+    // notify all advanceThread that the advanceNeurons is ready to go
+    m_barrierAdvance->Sync();
+
+    // wait until the advance of all advanceThread complete
+    m_barrierAdvance->Sync();
+
+    // notify all advanceThread that the advanceSynapses is ready to go
+    m_barrierAdvance->Sync();
+
+    // wait until the advance of all advanceThread complete
+    m_barrierAdvance->Sync();
+
+    // notify all advanceThread that the advancePreSpikeQueue is ready to go
     m_barrierAdvance->Sync();
 
     // wait until the advance of all advanceThread complete

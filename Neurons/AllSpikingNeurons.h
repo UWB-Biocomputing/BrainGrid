@@ -49,6 +49,7 @@ class AllSpikingNeurons : public AllNeurons
 {
     public:
         AllSpikingNeurons();
+        AllSpikingNeurons(const AllSpikingNeurons &r_neurons);
         virtual ~AllSpikingNeurons();
 
         /**

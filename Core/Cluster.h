@@ -83,13 +83,6 @@ class Cluster
         virtual void serialize(ostream& output, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
-         *  Save simulation results to an output destination.
-         *
-         *  @param  sim_info    parameters for the simulation.
-         */
-        void saveData(SimulationInfo *sim_info);
-
-        /**
          *  Creates all the Neurons and generates data for them.
          *
          *  @param  sim_info    SimulationInfo class to read information from.
@@ -107,27 +100,29 @@ class Cluster
         virtual void cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
-         *  Update the simulation history of every epoch.
+         * Advances neurons network state of the cluster one simulation step.
          *
-         *  @param  sim_info    SimulationInfo to refer from.
-         *  @param  clr_info    ClusterInfo to refer from.
+         * @param sim_info - parameters defining the simulation to be run with 
+         *                   the given collection of neurons.
+         * @param clr_info - parameters defining the simulation to be run with 
+         *                   the given collection of neurons.
          */
-        virtual void updateHistory(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        virtual void advanceNeurons(const SimulationInfo *sim_info, const ClusterInfo *clr_info) = 0;
 
         /**
-         *  Get the IAllNeurons class object.
+         * Advances synapses network state of the cluster one simulation step.
          *
-         *  @return Pointer to the AllNeurons class object.
+         * @param sim_info - parameters defining the simulation to be run with 
+         *                   the given collection of neurons.
+         * @param clr_info - parameters defining the simulation to be run with 
+         *                   the given collection of neurons.
          */
-        IAllNeurons* getNeurons();
+        virtual void advanceSynapses(const SimulationInfo *sim_info, const ClusterInfo *clr_info) = 0;
 
         /**
-         * Advances network state one simulation step.
-         *
-         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
-         * @param clr_info - parameters defining the simulation to be run with the given collection of neurons.
+         * Advances synapses pre spike event queue state of the cluster one simulation step.
          */
-        virtual void advance(const SimulationInfo *sim_info, const ClusterInfo *clr_info) = 0;
+        virtual void advancePreSpikeQueue() = 0;
 
         /**
          *  Thread for advance a cluster.
@@ -143,8 +138,9 @@ class Cluster
          *
          *  @param  sim_info    SimulationInfo class to read information from.
          *  @param  clr_info    ClusterInfo class to read information from.
+         *  @param  count       Number of total clusters.
          */
-        void createAdvanceThread(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        void createAdvanceThread(const SimulationInfo *sim_info, const ClusterInfo *clr_info, int count);
 
         /**
          *  Run advance of all waiting threads.
@@ -156,27 +152,7 @@ class Cluster
          */
         static void quitAdvanceThread();
 
-        /**
-         *  Set up the connection of all the Neurons and Synapses of the simulation.
-         *
-         *  @param  sim_info    SimulationInfo class to read information from.
-         *  @param  layout      A class to define neurons' layout information in the network.
-         *  @param  conns       A class to define neurons' connections information in the network.
-         *  @param  clr_info    ClusterInfo class to read information from.
-         */
-        virtual void setupConnections(SimulationInfo *sim_info, Layout *layout, Connections *conns, const ClusterInfo *clr_info);
-
-        /**
-         *  Update the connection of all the Neurons and Synapses of the simulation.
-         *
-         *  @param  sim_info    SimulationInfo class to read information from.
-         *  @param  layout      A class to define neurons' layout information in the network.
-         *  @param  conns       A class to define neurons' connections information in the network.
-         *  @param  clr_info    ClusterInfo class to read information from.
-         */
-        virtual void updateConnections(const SimulationInfo *sim_info, Connections *conns, Layout *layout, const ClusterInfo *clr_info) = 0;
-
-    protected:
+    public:
         /**
          *  Pointer to the Neurons object.
          */

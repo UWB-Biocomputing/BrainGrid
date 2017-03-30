@@ -38,15 +38,15 @@
 using namespace std;
 
 #include "Global.h"
-#include "SimulationInfo.h"
-#include "SynapseIndexMap.h"
-#include "Layout.h"
 #include "IAllNeurons.h"
+#include "SimulationInfo.h"
+#include "Layout.h"
 
 class AllNeurons : public IAllNeurons
 {
     public:
         AllNeurons();
+        AllNeurons(const AllNeurons &r_neurons);
         virtual ~AllNeurons();
 
         /**

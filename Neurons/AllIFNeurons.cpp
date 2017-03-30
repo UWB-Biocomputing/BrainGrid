@@ -22,6 +22,38 @@ AllIFNeurons::AllIFNeurons() : AllSpikingNeurons()
     nStepsInRefr = NULL;
 }
 
+// Copy constructor
+AllIFNeurons::AllIFNeurons(const AllIFNeurons &r_neurons) : AllSpikingNeurons(r_neurons)
+{
+    C1 = NULL;
+    C2 = NULL;
+    Cm = NULL;
+    I0 = NULL;
+    Iinject = NULL;
+    Inoise = NULL;
+    Isyn = NULL;
+    Rm = NULL;
+    Tau = NULL;
+    Trefract = NULL;
+    Vinit = NULL;
+    Vm = NULL;
+    Vreset = NULL;
+    Vrest = NULL;
+    Vthresh = NULL;
+    nStepsInRefr = NULL;
+
+    for (int i = 0; i < 2; i++) {
+        m_Iinject[i] = r_neurons.m_Iinject[i];
+        m_Inoise[i] = r_neurons.m_Inoise[i];
+        m_Vthresh[i] = r_neurons.m_Vthresh[i];
+        m_Vresting[i] = r_neurons.m_Vresting[i];
+        m_Vreset[i] = r_neurons.m_Vreset[i];
+        m_Vinit[i] = r_neurons.m_Vinit[i];
+        m_starter_Vthresh[i] = r_neurons.m_starter_Vthresh[i];
+        m_starter_Vreset[i] = r_neurons.m_starter_Vreset[i];
+    }
+}
+
 AllIFNeurons::~AllIFNeurons()
 {
     freeResources();
@@ -307,7 +339,7 @@ void AllIFNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout, Cl
         setNeuronDefaults(neuron_index);
 
         // set the neuron info for neurons
-        createNeuron(sim_info, neuron_index, layout);
+        createNeuron(sim_info, neuron_index, layout, clr_info);
     }
 }
 
@@ -317,8 +349,9 @@ void AllIFNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout, Cl
  *  @param  sim_info     SimulationInfo class to read information from.
  *  @param  neuron_index Index of the neuron to create.
  *  @param  layout       Layout information of the neunal network.
+ *  @param  clr_info     ClusterInfo class to read information from.
  */
-void AllIFNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layout)
+void AllIFNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layout, ClusterInfo *clr_info)
 {
     // set the neuron info for neurons
     Iinject[neuron_index] = rng.inRange(m_Iinject[0], m_Iinject[1]);
@@ -337,33 +370,34 @@ void AllIFNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Layo
         spike_history[neuron_index][j] = ULONG_MAX;
     }
 
-    switch (layout->neuron_type_map[neuron_index]) {
+    int neuron_layout_index = clr_info->clusterNeuronsBegin + neuron_index;
+    switch (layout->neuron_type_map[neuron_layout_index]) {
         case INH:
-            DEBUG_MID(cout << "setting inhibitory neuron: "<< neuron_index << endl;)
+            DEBUG_MID(cout << "setting inhibitory neuron: "<< neuron_layout_index << endl;)
             // set inhibitory absolute refractory period
             Trefract[neuron_index] = DEFAULT_InhibTrefract;// TODO(derek): move defaults inside model.
             break;
 
         case EXC:
-            DEBUG_MID(cout << "setting exitory neuron: " << neuron_index << endl;)
+            DEBUG_MID(cout << "setting exitory neuron: " << neuron_layout_index << endl;)
             // set excitory absolute refractory period
             Trefract[neuron_index] = DEFAULT_ExcitTrefract;
             break;
 
         default:
-            DEBUG_MID(cout << "ERROR: unknown neuron type: " << layout->neuron_type_map[neuron_index] << "@" << neuron_index << endl;)
+            DEBUG_MID(cout << "ERROR: unknown neuron type: " << layout->neuron_type_map[neuron_layout_index] << "@" << neuron_layout_index << endl;)
             assert(false);
             break;
     }
     // endogenously_active_neuron_map -> Model State
-    if (layout->starter_map[neuron_index]) {
+    if (layout->starter_map[neuron_layout_index]) {
         // set endogenously active threshold voltage, reset voltage, and refractory period
         Vthresh[neuron_index] = rng.inRange(m_starter_Vthresh[0], m_starter_Vthresh[1]);
         Vreset[neuron_index] = rng.inRange(m_starter_Vreset[0], m_starter_Vreset[1]);
         Trefract[neuron_index] = DEFAULT_ExcitTrefract; // TODO(derek): move defaults inside model.
     }
 
-    DEBUG_HI(cout << "CREATE NEURON[" << neuron_index << "] {" << endl
+    DEBUG_HI(cout << "CREATE NEURON[" << neuron_layout_index << "] {" << endl
             << "\tVm = " << Vm[neuron_index] << endl
             << "\tVthresh = " << Vthresh[neuron_index] << endl
             << "\tI0 = " << I0[neuron_index] << endl

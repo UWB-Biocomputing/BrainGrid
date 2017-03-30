@@ -98,6 +98,7 @@ class AllLIFNeurons : public AllIFNeurons
     public:
 
         AllLIFNeurons();
+        AllLIFNeurons(const AllLIFNeurons &r_neurons);
         virtual ~AllLIFNeurons();
 
         /**

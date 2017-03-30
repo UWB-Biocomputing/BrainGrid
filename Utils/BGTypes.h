@@ -30,14 +30,17 @@ typedef BGFLOAT* PBGFLOAT;
 
 // Platform Specific (are the typdef's redundant?)
 #ifdef __linux__ 
+typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
 typedef signed int int32_t;
 
 #elif defined __APPLE__
+typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
 typedef signed int int32_t;
 
 #elif defined _WIN32 || defined _WIN64
+typedef unsigned short uint16_t;
 typedef unsigned __int32 uint32_t;		// included in inttypes.h, which is not 
 										// available in WIN32
 typedef signed __int32 int32_t;
@@ -64,6 +67,21 @@ typedef unsigned long long int uint64_t;
 #else
 #define CUDA_CALLABLE
 #endif 
+
+// The type for using outgoing synapses indexes,
+// which consists of cluster index + synapse index
+#define OUTGOING_SYNAPSE_INDEX_TYPE uint64_t
+
+// The type for using clusters indexes
+#define CLUSTER_INDEX_TYPE uint16_t 
+
+// Shift count to convert from synapse index to cluster index
+// (sizeof(OUTGOING_SYNAPSE_INDEX_TYPE) - sizeof(CLUSTER_INDEX_TYPE) ) * 8
+#define CSC_SHIFT_COUNT (48)
+
+// Mask for synapse index
+// 2^(sizeof(CSC_SHIFT_COUNT)) - 1
+#define SYNAPSE_INDEX_MASK (0xffffffffffff)
 
 #endif // __BGTYPES_H_
 

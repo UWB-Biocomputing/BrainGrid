@@ -69,39 +69,45 @@ void XmlRecorder::term()
  * @param[in] neurons 	The entire list of neurons.
  * @param[in] clr_info  ClusterInfo class to read information from.
  */
-void XmlRecorder::compileHistories(IAllNeurons &neurons, const ClusterInfo *clr_info)
+void XmlRecorder::compileHistories(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
-    AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
     int max_spikes = (int) ((m_sim_info->epochDuration * m_sim_info->maxFiringRate));
 
-    // output spikes
-    for (int iNeuron = 0; iNeuron < m_sim_info->totalNeurons; iNeuron++)
-    {
-        uint64_t* pSpikes = spNeurons.spike_history[iNeuron];
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++)
+    { 
+        AllSpikingNeurons *neurons = dynamic_cast<AllSpikingNeurons*>(vtClr[iCluster]->m_neurons);
 
-        int& spike_count = spNeurons.spikeCount[iNeuron];
-        int& offset = spNeurons.spikeCountOffset[iNeuron];
-        for (int i = 0, idxSp = offset; i < spike_count; i++, idxSp++)
+        // output spikes
+        int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
+        int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
+        for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++)
         {
-            // Single precision (float) gives you 23 bits of significand, 8 bits of exponent, 
-            // and 1 sign bit. Double precision (double) gives you 52 bits of significand, 
-            // 11 bits of exponent, and 1 sign bit. 
-            // Therefore, single precision can only handle 2^23 = 8,388,608 simulation steps 
-            // or 8 epochs (1 epoch = 100s, 1 simulation step = 0.1ms).
+            uint64_t* pSpikes = neurons->spike_history[iNeuron];
 
-            if (idxSp >= max_spikes) idxSp = 0;
-            // compile network wide burstiness index data in 1s bins
-            int idx1 = static_cast<int>( static_cast<double>( pSpikes[idxSp] ) * m_sim_info->deltaT );
-            burstinessHist[idx1] = burstinessHist[idx1] + 1.0;
+            int& spike_count = neurons->spikeCount[iNeuron];
+            int& offset = neurons->spikeCountOffset[iNeuron];
+            for (int i = 0, idxSp = offset; i < spike_count; i++, idxSp++)
+            {
+                // Single precision (float) gives you 23 bits of significand, 8 bits of exponent, 
+                // and 1 sign bit. Double precision (double) gives you 52 bits of significand, 
+                // 11 bits of exponent, and 1 sign bit. 
+                // Therefore, single precision can only handle 2^23 = 8,388,608 simulation steps 
+                // or 8 epochs (1 epoch = 100s, 1 simulation step = 0.1ms).
 
-            // compile network wide spike count in 10ms bins
-            int idx2 = static_cast<int>( static_cast<double>( pSpikes[idxSp] ) * m_sim_info->deltaT * 100 );
-            spikesHistory[idx2] = spikesHistory[idx2] + 1.0;
+                if (idxSp >= max_spikes) idxSp = 0;
+                // compile network wide burstiness index data in 1s bins
+                int idx1 = static_cast<int>( static_cast<double>( pSpikes[idxSp] ) * m_sim_info->deltaT );
+                burstinessHist[idx1] = burstinessHist[idx1] + 1.0;
+
+                // compile network wide spike count in 10ms bins
+                int idx2 = static_cast<int>( static_cast<double>( pSpikes[idxSp] ) * m_sim_info->deltaT * 100 );
+                spikesHistory[idx2] = spikesHistory[idx2] + 1.0;
+            }
         }
-    }
 
-    // clear spike count
-    spNeurons.clearSpikeCounts(m_sim_info, clr_info);
+        // clear spike count
+        neurons->clearSpikeCounts(m_sim_info, vtClrInfo[iCluster]);
+    }
 }
 
 /*
@@ -109,7 +115,7 @@ void XmlRecorder::compileHistories(IAllNeurons &neurons, const ClusterInfo *clr_
  *
  * @param  neurons the Neuron list to search from.
  **/
-void XmlRecorder::saveSimData(const IAllNeurons &neurons)
+void XmlRecorder::saveSimData(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
     // create Neuron Types matrix
     VectorMatrix neuronTypes(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, EXC);
@@ -119,8 +125,14 @@ void XmlRecorder::saveSimData(const IAllNeurons &neurons)
 
     // create neuron threshold matrix
     VectorMatrix neuronThresh(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, 0);
-    for (int i = 0; i < m_sim_info->totalNeurons; i++) {
-        neuronThresh[i] = dynamic_cast<const AllIFNeurons&>(neurons).Vthresh[i];
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
+        AllIFNeurons *neurons = dynamic_cast<AllIFNeurons*>(vtClr[iCluster]->m_neurons);
+
+        int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
+        int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
+        for (int iNeurons = 0; iNeurons < totalClusterNeurons; iNeurons++, neuronLayoutIndex++) {
+            neuronThresh[neuronLayoutIndex] = neurons->Vthresh[iNeurons];
+        }
     }
 
     // Write XML header information:

@@ -45,32 +45,35 @@ void SingleThreadedCluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo
 }
 
 /*
- * Advances network state one simulation step.
+ * Advances neurons network state of the cluster one simulation step.
  *
- * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
- * @param clr_info - parameters defining the simulation to be run with the given collection of neurons.
+ * @param sim_info - parameters defining the simulation to be run with 
+ *                   the given collection of neurons.
+ * @param clr_info - parameters defining the simulation to be run with 
+ *                   the given collection of neurons.
  */
-void SingleThreadedCluster::advance(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+void SingleThreadedCluster::advanceNeurons(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
 {
     m_neurons->advanceNeurons(*m_synapses, sim_info, m_synapseIndexMap, clr_info);
-    m_synapses->advanceSynapses(sim_info, m_neurons);
 }
 
 /*
- *  Update the connection of all the Neurons and Synapses of the simulation.
+ * Advances synapses network state of the cluster one simulation step.
  *
- *  @param  sim_info    SimulationInfo class to read information from.
- *  @param  layout      A class to define neurons' layout information in the network.
- *  @param  conns       A class to define neurons' connections information in the network.
- *  @param  clr_info    ClusterInfo class to read information from.
+ * @param sim_info - parameters defining the simulation to be run with 
+ *                   the given collection of neurons.
+ * @param clr_info - parameters defining the simulation to be run with 
+ *                   the given collection of neurons.
  */
-void SingleThreadedCluster::updateConnections(const SimulationInfo *sim_info, Connections *conns, Layout *layout, const ClusterInfo *clr_info)
+void SingleThreadedCluster::advanceSynapses(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
 {
-    // Update Connections data
-    if (conns->updateConnections(*m_neurons, sim_info, layout)) {
-        conns->updateSynapsesWeights(clr_info->totalClusterNeurons, *m_neurons, *m_synapses, sim_info, layout);
-        // create synapse inverse map
-        m_synapses->createSynapseImap( m_synapseIndexMap, sim_info, clr_info );
-    }
+    m_synapses->advanceSynapses(sim_info, m_neurons, m_synapseIndexMap);
 }
 
+/*
+ * Advances synapses pre spike event queue state of the cluster one simulation step.
+ */
+void SingleThreadedCluster::advancePreSpikeQueue()
+{
+    m_synapses->advancePreSpikeQueue();
+}

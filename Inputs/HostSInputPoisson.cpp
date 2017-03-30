@@ -70,7 +70,7 @@ void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, const ClusterIn
         if (--nISIs[neuron_index] <= 0)
         {
             // add a spike
-            dynamic_cast<AllSpikingSynapses*>(m_synapses)->preSpikeHit(iSyn);
+            dynamic_cast<AllSpikingSynapses*>(m_synapses)->preSpikeHit(iSyn, pci->clusterID);
 
             // update interval counter (exponectially distribution ISIs, Poisson)
             BGFLOAT isi = -lambda * log(rng.inRange(0, 1));

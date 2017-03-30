@@ -13,8 +13,7 @@
  *                                   on device memory.
  */
 __device__ void preSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
-        int total_delay = allSynapsesDevice->total_delay[iSyn];
-        allSynapsesDevice->preSpikeQueue->addAnEvent(iSyn, total_delay);
+        allSynapsesDevice->preSpikeQueue->addAnEvent(iSyn);
 }
 
 /*

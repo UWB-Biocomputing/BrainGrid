@@ -57,7 +57,8 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
 {
     public:
         AllDynamicSTDPSynapses();
-        AllDynamicSTDPSynapses(const int num_neurons, const int max_synapses);
+        AllDynamicSTDPSynapses(const AllDynamicSTDPSynapses &r_synapses);
+        AllDynamicSTDPSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info);
         virtual ~AllDynamicSTDPSynapses();
 
         static IAllSynapses* Create() { return new AllDynamicSTDPSynapses(); }
@@ -124,8 +125,9 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *
          *  @param  num_neurons   Total number of neurons in the network.
          *  @param  max_synapses  Maximum number of synapses per neuron.
+         *  @param  clr_info      ClusterInfo class to read information from.
          */
-        virtual void setupSynapses(const int num_neurons, const int max_synapses);
+        virtual void setupSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info);
 
         /**
          *  Sets the data for Synapse to input's data.

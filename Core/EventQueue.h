@@ -30,6 +30,8 @@
 #pragma once
 
 #include "SimulationInfo.h"
+#include "SynapseIndexMap.h"
+#include "EventHandler.h"
 
 class EventQueue
 {
@@ -39,21 +41,32 @@ class EventQueue
     #define LENGTH_OF_DELAYQUEUE        ( sizeof(BGQUEUE_ELEMENT) * 8 )
 
     public:
-        //! The constructor for FClassOfCategory.
+        //! The constructor for EventQueue.
         CUDA_CALLABLE EventQueue();
+
+        //! The destructor for EventQueue.
         CUDA_CALLABLE virtual ~EventQueue();
 
         /**
          * Initializes the collection of queue.
          *
          * @param nMaxEvent The number of event queue.
+         * @param clusterID The cluster ID of cluster to be initialized.
          */
-        CUDA_CALLABLE void initEventQueue(BGSIZE nMaxEvent);
+        CUDA_CALLABLE void initEventQueue(BGSIZE nMaxEvent, CLUSTER_INDEX_TYPE clusterID);
 
         /**
          * Add an event in the queue.
          *
-         * @param idx The queue index of the collection.
+         * @param idx       The queue index of the collection.
+         * @param clusterID The cluster ID where the event to be added.
+         */
+        CUDA_CALLABLE void addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID);
+
+        /**
+         * Add an event in the queue.
+         *
+         * @param idx   The queue index of the collection.
          * @param delay The delay descretized into time steps when the event will be triggered.
          */
         CUDA_CALLABLE void addAnEvent(const BGSIZE idx, const int delay);
@@ -64,7 +77,16 @@ class EventQueue
          * @param idx The queue index of the collection.
          * @return true if there is an event.
          */
-        CUDA_CALLABLE bool checkAnEvent(const BGSIZE idx);
+        CUDA_CALLABLE bool checkAnEvent(const BGSIZE);
+
+        /**
+         * Checks if there is an event in the queue.
+         *
+         * @param idx   The queue index of the collection.
+         * @param delay The delay descretized into time steps when the event will be triggered.
+         * @return true if there is an event.
+         */
+        CUDA_CALLABLE bool checkAnEvent(const BGSIZE idx, const int delay);
 
         /**
          * Clears events in the queue.
@@ -80,6 +102,13 @@ class EventQueue
         CUDA_CALLABLE void advanceEventQueue();
 
         /**
+         * Register an event handler.
+         *
+         * @param eventHandler  Pointer to the EventHandler.
+         */
+        CUDA_CALLABLE void regEventHandler(EventHandler* eventHandler);
+
+        /**
          * Writes the queue data to the stream.
          *
          * output  stream to print out to.
@@ -93,6 +122,11 @@ class EventQueue
          */
         void deserialize(istream& input);
 
+    private:
+
+        //! The cluster ID of cluster that owns the event queue.
+        CLUSTER_INDEX_TYPE m_clusterID;
+
         //! The number of event queue.
         BGSIZE m_nMaxEvent;
 
@@ -101,4 +135,7 @@ class EventQueue
 
         //! The index indicating the current time slot in the delayed queue.
         uint32_t m_idxQueue;
+
+        //! Pointer to the EventHandler.
+        EventHandler* m_eventHandler;
 };

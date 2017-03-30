@@ -159,6 +159,9 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
+#include "AllLIFNeurons.h"
+#include "AllDSSynapses.h"
+
 /*
  *  Create instances of all model classes.
  *
@@ -201,23 +204,61 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
         return false;
     }
 
-    // create cluster information
-    ClusterInfo *clusterInfo = new ClusterInfo();
-    clusterInfo->totalClusterNeurons = simInfo->totalNeurons;
-    clusterInfo->seed = simInfo->seed;
-#if defined(USE_GPU)
-    clusterInfo->deviceId = g_deviceId;
-#endif // USE_GPU
-    vtClrInfo.push_back(clusterInfo); 
+    // load parameters for all models
+    if (FClassOfCategory::get()->readParameters(simDoc) != true) {
+        return false;
+    }
 
-    // create the cluster
-    Cluster *cluster;
-    #if defined(USE_GPU)
-        cluster = new GPUSpikingCluster(neurons, synapses);
-    #else
-        cluster = new SingleThreadedCluster(neurons, synapses);
-    #endif
-    vtClr.push_back(cluster);
+    // create clusters
+    int numClusters = 8;	// number of clusters
+    int numClusterNeurons = simInfo->totalNeurons / numClusters;	// number of neurons in cluster
+
+    for (int iCluster = 0; iCluster < numClusters; iCluster++) {
+        // create a cluster information
+        ClusterInfo *clusterInfo = new ClusterInfo();
+        clusterInfo->clusterID = iCluster;
+        clusterInfo->clusterNeuronsBegin = numClusterNeurons * iCluster;
+        if (iCluster == numClusters - 1) {
+            clusterInfo->totalClusterNeurons = simInfo->totalNeurons - numClusterNeurons * (numClusters - 1);
+        } else {
+            clusterInfo->totalClusterNeurons = numClusterNeurons;
+        }
+        clusterInfo->seed = simInfo->seed;
+#if defined(USE_GPU)
+        clusterInfo->deviceId = g_deviceId + Cluster;
+#endif // USE_GPU
+
+        // save the cluser information to the vector
+        vtClrInfo.push_back(clusterInfo); 
+
+        // create a cluster
+        Cluster *cluster;
+        if (iCluster == 0) {
+#if defined(USE_GPU)
+            cluster = new GPUSpikingCluster(neurons, synapses);
+#else
+            cluster = new SingleThreadedCluster(neurons, synapses);
+#endif
+        } else {
+            // create a new neurons class and copy properties from the reference neurons class
+            // TODO: type of neurons class should not be hard coded
+            IAllNeurons *neurons_1 = new AllLIFNeurons(*dynamic_cast<AllLIFNeurons*>(neurons));
+
+            // create a new synapses class and copy properties from the reference synapses class
+            // TODO: type of synapses class should not be har coded
+            IAllSynapses *synapses_1 = new AllDSSynapses(*dynamic_cast<AllDSSynapses*>(synapses));
+
+           // create a cluster class object
+#if defined(USE_GPU)
+            cluster = new GPUSpikingCluster(neurons_1, synapses_1);
+#else
+            cluster = new SingleThreadedCluster(neurons_1, synapses_1);
+#endif
+        }
+
+        // save the cluster to the vector
+        vtClr.push_back(cluster);
+    }
 
     // create the model
     simInfo->model = new Model(conns, layout, vtClr, vtClrInfo);
@@ -251,14 +292,9 @@ bool LoadAllParameters(SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector
     if (simInfo->readParameters(&simDoc) != true) {
         return false; }
 
-    // create instances of all model classes
+    // create instances of all model classes & load parameters
     DEBUG(cerr << "creating instances of all classes" << endl;)
     if (createAllModelClassInstances(&simDoc, simInfo, vtClr, vtClrInfo) != true) {
-        return false;
-    }
-
-    // load parameters for all models
-    if (FClassOfCategory::get()->readParameters(&simDoc) != true) {
         return false;
     }
 

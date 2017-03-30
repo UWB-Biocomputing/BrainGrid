@@ -128,7 +128,7 @@ void SInputPoisson::init(SimulationInfo* psi, ClusterInfo* pci)
 
     // create an input synapse layer
     // TODO: do we need to support other types of synapses?
-    m_synapses = new AllDSSynapses(psi->totalNeurons, 1);
+    m_synapses = new AllDSSynapses(psi->totalNeurons, 1, pci);
     for (int neuron_index = 0; neuron_index < psi->totalNeurons; neuron_index++)
     {
         synapseType type;

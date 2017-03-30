@@ -159,11 +159,12 @@ void Hdf5GrowthRecorder::term()
 /*
  * Compile history information in every epoch.
  *
- * @param[in] neurons   The entire list of neurons.
+ * @param[in] vtClr      Vector of pointer to the Cluster object.
+ * @param[in] vtClrInfo  Vecttor of pointer to the ClusterInfo object.
  */
-void Hdf5GrowthRecorder::compileHistories(IAllNeurons &neurons)
+void Hdf5GrowthRecorder::compileHistories(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
-    Hdf5Recorder::compileHistories(neurons);
+    Hdf5Recorder::compileHistories(vtClr, vtClrInfo);
 
     Connections* pConn = m_model->getConnections();
 
@@ -172,20 +173,20 @@ void Hdf5GrowthRecorder::compileHistories(IAllNeurons &neurons)
     VectorMatrix& radii = (*dynamic_cast<ConnGrowth*>(pConn)->radii);
 
     // output spikes
-    for (int iNeuron = 0; iNeuron < m_sim_info->totalNeurons; iNeuron++)
+    for (int neuronLayoutIndex = 0; neuronLayoutIndex < m_sim_info->totalNeurons; neuronLayoutIndex++)
     {
         // record firing rate to history matrix
-        ratesHistory[iNeuron] = rates[iNeuron];
+        ratesHistory[neuronLayoutIndex] = rates[neuronLayoutIndex];
 
         // Cap minimum radius size and record radii to history matrix
         // TODO: find out why we cap this here.
-        if (radii[iNeuron] < minRadius)
-            radii[iNeuron] = minRadius;
+        if (radii[neuronLayoutIndex] < minRadius)
+            radii[neuronLayoutIndex] = minRadius;
 
         // record radius to history matrix
-        radiiHistory[iNeuron] = radii[iNeuron];
+        radiiHistory[neuronLayoutIndex] = radii[neuronLayoutIndex];
 
-        DEBUG_MID(cout << "radii[" << iNeuron << ":" << radii[iNeuron] << "]" << endl;)
+        DEBUG_MID(cout << "radii[" << neuronLayoutIndex << ":" << radii[neuronLayoutIndex] << "]" << endl;)
     }
 
     writeRadiiRates();

@@ -180,59 +180,68 @@ void Hdf5Recorder::term()
 /*
  * Compile history information in every epoch.
  *
- * @param[in] neurons   The entire list of neurons.
- * @param[in] clr_info  ClusterInfo class to read information from.
+ * @param[in] vtClr      Vector of pointer to the Cluster object.
+ * @param[in] vtClrInfo  Vecttor of pointer to the ClusterInfo object.
  */
-void Hdf5Recorder::compileHistories(IAllNeurons &neurons, const ClusterInfo *clr_info)
+void Hdf5Recorder::compileHistories(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
-    AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
     int max_spikes = (int) ((m_sim_info->epochDuration * m_sim_info->maxFiringRate));
 
     unsigned int iProbe = 0;    // index of the probedNeuronsLayout vector
     bool fProbe = false;
 
-    // output spikes
-    for (int iNeuron = 0; iNeuron < m_sim_info->totalNeurons; iNeuron++)
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++)
     {
-        // true if this is a probed neuron
-        fProbe = ((iProbe < m_model->getLayout()->m_probed_neuron_list.size()) && (iNeuron == m_model->getLayout()->m_probed_neuron_list[iProbe]));
+        AllSpikingNeurons *neurons = dynamic_cast<AllSpikingNeurons*>(vtClr[iCluster]->m_neurons);
 
-        uint64_t* pSpikes = spNeurons.spike_history[iNeuron];
-
-        int& spike_count = spNeurons.spikeCount[iNeuron];
-        int& offset = spNeurons.spikeCountOffset[iNeuron];
-        for (int i = 0, idxSp = offset; i < spike_count; i++, idxSp++)
+        // output spikes
+        int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
+        int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
+        for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex)
         {
-            // Single precision (float) gives you 23 bits of significand, 8 bits of exponent, 
-            // and 1 sign bit. Double precision (double) gives you 52 bits of significand, 
-            // 11 bits of exponent, and 1 sign bit. 
-            // Therefore, single precision can only handle 2^23 = 8,388,608 simulation steps 
-            // or 8 epochs (1 epoch = 100s, 1 simulation step = 0.1ms).
+            // true if this is a probed neuron
+            fProbe = ((iProbe < m_model->getLayout()->m_probed_neuron_list.size()) && (neuronLayoutIndex == m_model->getLayout()->m_probed_neuron_list[iProbe]));
 
-            if (idxSp >= max_spikes) idxSp = 0;
-            // compile network wide burstiness index data in 1s bins
-            int idx1 = static_cast<int>( static_cast<double>( pSpikes[idxSp] ) *  m_sim_info->deltaT
-                - ( (m_sim_info->currentStep - 1) * m_sim_info->epochDuration ) );
-            assert(idx1 >= 0 && idx1 < m_sim_info->epochDuration);
-            burstinessHist[idx1]++;
+            uint64_t* pSpikes = neurons->spike_history[iNeuron];
 
-            // compile network wide spike count in 10ms bins
-            int idx2 = static_cast<int>( static_cast<double>( pSpikes[idxSp] ) * m_sim_info->deltaT * 100
-                - ( (m_sim_info->currentStep - 1) * m_sim_info->epochDuration * 100 ) );
-            assert(idx2 >= 0 && idx2 < m_sim_info->epochDuration * 100);
-            spikesHistory[idx2]++;
+            int& spike_count = neurons->spikeCount[iNeuron];
+            int& offset = neurons->spikeCountOffset[iNeuron];
+            for (int i = 0, idxSp = offset; i < spike_count; i++, idxSp++)
+            {
+                // Single precision (float) gives you 23 bits of significand, 8 bits of exponent, 
+                // and 1 sign bit. Double precision (double) gives you 52 bits of significand, 
+                // 11 bits of exponent, and 1 sign bit. 
+                // Therefore, single precision can only handle 2^23 = 8,388,608 simulation steps 
+                // or 8 epochs (1 epoch = 100s, 1 simulation step = 0.1ms).
 
-            // compile spikes time of the probed neuron (append spikes time)
+                if (idxSp >= max_spikes) idxSp = 0;
+                // compile network wide burstiness index data in 1s bins
+                int idx1 = static_cast<int>( static_cast<double>( pSpikes[idxSp] ) *  m_sim_info->deltaT
+                    - ( (m_sim_info->currentStep - 1) * m_sim_info->epochDuration ) );
+                assert(idx1 >= 0 && idx1 < m_sim_info->epochDuration);
+                burstinessHist[idx1]++;
+
+                // compile network wide spike count in 10ms bins
+                int idx2 = static_cast<int>( static_cast<double>( pSpikes[idxSp] ) * m_sim_info->deltaT * 100
+                    - ( (m_sim_info->currentStep - 1) * m_sim_info->epochDuration * 100 ) );
+                assert(idx2 >= 0 && idx2 < m_sim_info->epochDuration * 100);
+                spikesHistory[idx2]++;
+
+                // compile spikes time of the probed neuron (append spikes time)
+                if (fProbe)
+                {
+                    spikesProbedNeurons[iProbe].insert(spikesProbedNeurons[iProbe].end(), pSpikes[idxSp]);
+                }
+            }
+
             if (fProbe)
             {
-                spikesProbedNeurons[iProbe].insert(spikesProbedNeurons[iProbe].end(), pSpikes[idxSp]);
+                iProbe++;
             }
         }
 
-        if (fProbe)
-        {
-            iProbe++;
-        }
+        // clear spike count
+        neurons->clearSpikeCounts(m_sim_info, vtClrInfo[iCluster]);
     }
     try
     {
@@ -293,17 +302,15 @@ void Hdf5Recorder::compileHistories(IAllNeurons &neurons, const ClusterInfo *clr
         error.printError();
         return;
     }
-
-    // clear spike count
-    spNeurons.clearSpikeCounts(m_sim_info, clr_info);
 }
 
 /*
  * Writes simulation results to an output destination.
  *
- * @param  neurons the Neuron list to search from.
+ * @param[in] vtClr      Vector of pointer to the Cluster object.
+ * @param[in] vtClrInfo  Vecttor of pointer to the ClusterInfo object.
  **/
-void Hdf5Recorder::saveSimData(const IAllNeurons &neurons)
+void Hdf5Recorder::saveSimData(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
     try
     {
@@ -315,8 +322,14 @@ void Hdf5Recorder::saveSimData(const IAllNeurons &neurons)
 
         // create neuron threshold matrix
         VectorMatrix neuronThresh(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, 0);
-        for (int i = 0; i < m_sim_info->totalNeurons; i++) {
-            neuronThresh[i] = dynamic_cast<const AllIFNeurons&>(neurons).Vthresh[i];
+        for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
+            AllIFNeurons *neurons = dynamic_cast<AllIFNeurons*>(vtClr[iCluster]->m_neurons);
+
+            int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
+            int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
+            for (int iNeurons = 0; iNeurons < totalClusterNeurons; iNeurons++, neuronLayoutIndex++) {
+                neuronThresh[neuronLayoutIndex] = neurons->Vthresh[iNeurons];
+            }
         }
 
         // Write the neuron location matrices

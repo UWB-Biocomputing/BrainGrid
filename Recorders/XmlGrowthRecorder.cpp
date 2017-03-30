@@ -67,12 +67,12 @@ void XmlGrowthRecorder::getValues()
 /*
  * Compile history information in every epoch
  *
- * @param[in] neurons 	The entire list of neurons.
- * @param[in] clr_info  ClusterInfo class to read information from.
+ * @param[in] vtClr      Vector of pointer to the Cluster object.
+ * @param[in] vtClrInfo  Vecttor of pointer to the ClusterInfo object.
  */
-void XmlGrowthRecorder::compileHistories(IAllNeurons &neurons, const ClusterInfo *clr_info)
+void XmlGrowthRecorder::compileHistories(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
-    XmlRecorder::compileHistories(neurons, clr_info);
+    XmlRecorder::compileHistories(vtClr, vtClrInfo);
 
     Connections* pConn = m_model->getConnections();
 
@@ -80,29 +80,30 @@ void XmlGrowthRecorder::compileHistories(IAllNeurons &neurons, const ClusterInfo
     VectorMatrix& rates = (*dynamic_cast<ConnGrowth*>(pConn)->rates);
     VectorMatrix& radii = (*dynamic_cast<ConnGrowth*>(pConn)->radii);
 
-    for (int iNeuron = 0; iNeuron < m_sim_info->totalNeurons; iNeuron++)
+    for (int neuronLayoutIndex = 0; neuronLayoutIndex < m_sim_info->totalNeurons; neuronLayoutIndex++)
     {
         // record firing rate to history matrix
-        ratesHistory(m_sim_info->currentStep, iNeuron) = rates[iNeuron];
+        ratesHistory(m_sim_info->currentStep, neuronLayoutIndex) = rates[neuronLayoutIndex];
 
         // Cap minimum radius size and record radii to history matrix
         // TODO: find out why we cap this here.
-        if (radii[iNeuron] < minRadius)
-            radii[iNeuron] = minRadius;
+        if (radii[neuronLayoutIndex] < minRadius)
+            radii[neuronLayoutIndex] = minRadius;
 
         // record radius to history matrix
-        radiiHistory(m_sim_info->currentStep, iNeuron) = radii[iNeuron];
+        radiiHistory(m_sim_info->currentStep, neuronLayoutIndex) = radii[neuronLayoutIndex];
 
-        DEBUG_MID(cout << "radii[" << iNeuron << ":" << radii[iNeuron] << "]" << endl;)
+        DEBUG_MID(cout << "radii[" << neuronLayoutIndex << ":" << radii[neuronLayoutIndex] << "]" << endl;)
     }
 }
 
 /*
  * Writes simulation results to an output destination.
  *
- * @param  neurons the Neuron list to search from.
+ * @param[in] vtClr      Vector of pointer to the Cluster object.
+ * @param[in] vtClrInfo  Vecttor of pointer to the ClusterInfo object.
  **/
-void XmlGrowthRecorder::saveSimData(const IAllNeurons &neurons)
+void XmlGrowthRecorder::saveSimData(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
     // create Neuron Types matrix
     VectorMatrix neuronTypes(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, EXC);
@@ -112,8 +113,14 @@ void XmlGrowthRecorder::saveSimData(const IAllNeurons &neurons)
 
     // create neuron threshold matrix
     VectorMatrix neuronThresh(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, 0);
-    for (int i = 0; i < m_sim_info->totalNeurons; i++) {
-        neuronThresh[i] = dynamic_cast<const AllIFNeurons&>(neurons).Vthresh[i];
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
+        AllIFNeurons *neurons = dynamic_cast<AllIFNeurons*>(vtClr[iCluster]->m_neurons);
+
+        int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
+        int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
+        for (int iNeurons = 0; iNeurons < totalClusterNeurons; iNeurons++, neuronLayoutIndex++) {
+            neuronThresh[neuronLayoutIndex] = neurons->Vthresh[iNeurons];
+        }
     }
 
     // Write XML header information:

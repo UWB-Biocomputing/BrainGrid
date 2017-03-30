@@ -63,12 +63,12 @@ ConnGrowth::~ConnGrowth()
 /*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  layout    Layout information of the neunal network.
- *  @param  neurons   The Neuron list to search from.
- *  @param  synapses  The Synapse list to search from.
+ *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  layout      Layout information of the neunal network.
+ *  @param  vtClr       Vector of Cluster class objects.
+ *  @param  vtClrInfo   Vector of ClusterInfo.
  */
-void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout, IAllNeurons *neurons, IAllSynapses *synapses)
+void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
     int num_neurons = sim_info->totalNeurons;
 
@@ -237,15 +237,16 @@ void ConnGrowth::serialize(ostream& output, const SimulationInfo *sim_info)
 /*
  *  Update the connections status in every epoch.
  *
- *  @param  neurons  The Neuron list to search from.
- *  @param  sim_info SimulationInfo class to read information from.
- *  @param  layout   Layout information of the neunal network.
+ *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  layout      Layout information of the neunal network.
+ *  @param  vtClr       Vector of Cluster class objects.
+ *  @param  vtClrInfo   Vector of ClusterInfo.
  *  @return true if successful, false otherwise.
  */
-bool ConnGrowth::updateConnections(IAllNeurons &neurons, const SimulationInfo *sim_info, Layout *layout)
+bool ConnGrowth::updateConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
     // Update Connections data
-    updateConns(neurons, sim_info);
+    updateConns(sim_info, vtClr, vtClrInfo);
  
     // Update the distance between frontiers of Neurons
     updateFrontiers(sim_info->totalNeurons, layout);
@@ -259,19 +260,25 @@ bool ConnGrowth::updateConnections(IAllNeurons &neurons, const SimulationInfo *s
 /*
  *  Calculates firing rates, neuron radii change and assign new values.
  *
- *  @param  neurons  The Neuron list to search from.
- *  @param  sim_info SimulationInfo class to read information from.
+ *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  vtClr       Vector of Cluster class objects.
+ *  @param  vtClrInfo   Vector of ClusterInfo.
  */
-void ConnGrowth::updateConns(IAllNeurons &neurons, const SimulationInfo *sim_info)
+void ConnGrowth::updateConns(const SimulationInfo *sim_info, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
-    AllSpikingNeurons &spNeurons = dynamic_cast<AllSpikingNeurons&>(neurons);
-
     // Calculate growth cycle firing rate for previous period
     int max_spikes = static_cast<int> (sim_info->epochDuration * sim_info->maxFiringRate);
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        // Calculate firing rate
-        assert(spNeurons.spikeCount[i] < max_spikes);
-        (*rates)[i] = spNeurons.spikeCount[i] / sim_info->epochDuration;
+
+    // for each cluster
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
+        AllSpikingNeurons *neurons = dynamic_cast<AllSpikingNeurons*>(vtClr[iCluster]->m_neurons);
+        int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
+        int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
+        for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++) {
+            // Calculate firing rate
+            assert(neurons->spikeCount[iNeuron] < max_spikes);
+            (*rates)[neuronLayoutIndex] = neurons->spikeCount[iNeuron] / sim_info->epochDuration;
+        }
     }
 
     // compute neuron radii change and assign new values
@@ -350,15 +357,14 @@ void ConnGrowth::updateOverlap(BGFLOAT num_neurons, Layout *layout)
  *  Update the weight of the Synapses in the simulation.
  *  Note: Platform Dependent.
  *
- *  @param  num_neurons Number of neurons to update.
- *  @param  ineurons    The Neuron list to search from.
- *  @param  isynapses   The Synapse list to search from.
  *  @param  sim_info    SimulationInfo to refer from.
+ *  @param  layout      Layout information of the neunal network.
+ *  @param  vtClr       Vector of Cluster class objects.
+ *  @param  vtClrInfo   Vector of ClusterInfo.
  */
-void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &ineurons, IAllSynapses &isynapses, const SimulationInfo *sim_info, Layout *layout)
+void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
-    AllNeurons &neurons = dynamic_cast<AllNeurons&>(ineurons);
-    AllSynapses &synapses = dynamic_cast<AllSynapses&>(isynapses);
+    int num_neurons = sim_info->totalNeurons;
 
     // For now, we just set the weights to equal the areas. We will later
     // scale it and set its sign (when we index and get its sign).
@@ -374,54 +380,63 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &ineur
     // Scale and add sign to the areas
     // visit each neuron 'a'
     for (int src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
-        // and each destination neuron 'b'
-        for (int dest_neuron = 0; dest_neuron < num_neurons; dest_neuron++) {
-            // visit each synapse at (xa,ya)
-            bool connected = false;
-            synapseType type = layout->synType(src_neuron, dest_neuron);
 
-            // for each existing synapse
-            BGSIZE synapse_counts = synapses.synapse_counts[dest_neuron];
-            BGSIZE synapse_adjusted = 0;
-            BGSIZE iSyn = sim_info->maxSynapsesPerNeuron * dest_neuron;
-            for (BGSIZE synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++, iSyn++) {
-                if (synapses.in_use[iSyn] == true) {
-                    // if there is a synapse between a and b
-                    if (synapses.sourceNeuronIndex[iSyn] == src_neuron) {
-                        connected = true;
-                        adjusted++;
-                        // adjust the strength of the synapse or remove
-                        // it from the synapse map if it has gone below
-                        // zero.
-                        if ((*W)(src_neuron, dest_neuron) < 0) {
-                            removed++;
-                            synapses.eraseSynapse(dest_neuron, iSyn);
-                        } else {
-                            // adjust
-                            // SYNAPSE_STRENGTH_ADJUSTMENT is 1.0e-8;
-                            synapses.W[iSyn] = (*W)(src_neuron, dest_neuron) *
-                                synapses.synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+        // destination neurons of each cluster
+        for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
+            AllNeurons *neurons = dynamic_cast<AllNeurons*>(vtClr[iCluster]->m_neurons);
+            AllSynapses *synapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
 
-                            DEBUG_MID(cout << "weight of rgSynapseMap" <<
-                                   "[" <<synapse_index<<"]: " <<
-                                   synapses.W[iSyn] << endl;);
+            // and each destination neuron 'b'
+            int dest_neuron = vtClrInfo[iCluster]->clusterNeuronsBegin;
+            int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
+            for (int iNeuron = 0; iNeuron < totalClusterNeurons; dest_neuron++, iNeuron++) {
+                // visit each synapse at (xa,ya)
+                bool connected = false;
+                synapseType type = layout->synType(src_neuron, dest_neuron);
+
+                // for each existing synapse
+                BGSIZE synapse_counts = synapses->synapse_counts[iNeuron];
+                BGSIZE synapse_adjusted = 0;
+                BGSIZE iSyn = sim_info->maxSynapsesPerNeuron * (iNeuron);
+                for (BGSIZE synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++, iSyn++) {
+                    if (synapses->in_use[iSyn] == true) {
+                        // if there is a synapse between a and b
+                        if (synapses->sourceNeuronLayoutIndex[iSyn] == src_neuron) {
+                            connected = true;
+                            adjusted++;
+                            // adjust the strength of the synapse or remove
+                            // it from the synapse map if it has gone below
+                            // zero.
+                            if ((*W)(src_neuron, dest_neuron) < 0) {
+                                removed++;
+                                synapses->eraseSynapse(iNeuron, iSyn);
+                            } else {
+                                // adjust
+                                // SYNAPSE_STRENGTH_ADJUSTMENT is 1.0e-8;
+                                synapses->W[iSyn] = (*W)(src_neuron, dest_neuron) *
+                                    synapses->synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+
+                                DEBUG_MID(cout << "weight of rgSynapseMap" <<
+                                       "[" <<synapse_index<<"]: " <<
+                                       synapses->W[iSyn] << endl;);
+                            }
                         }
+                        synapse_adjusted++;
                     }
-                    synapse_adjusted++;
                 }
-            }
 
-            // if not connected and weight(a,b) > 0, add a new synapse from a to b
-            if (!connected && ((*W)(src_neuron, dest_neuron) > 0)) {
+                // if not connected and weight(a,b) > 0, add a new synapse from a to b
+                if (!connected && ((*W)(src_neuron, dest_neuron) > 0)) {
 
-                // locate summation point
-                BGFLOAT* sum_point = &( neurons.summation_map[dest_neuron] );
-                added++;
+                    // locate summation point
+                    BGFLOAT* sum_point = &( neurons->summation_map[iNeuron] );
+                    added++;
+    
+                    BGSIZE iSyn;
+                    synapses->addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT, vtClrInfo[iCluster]);
+                    synapses->W[iSyn] = (*W)(src_neuron, dest_neuron) * synapses->synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 
-                BGSIZE iSyn;
-                synapses.addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT);
-                synapses.W[iSyn] = (*W)(src_neuron, dest_neuron) * synapses.synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
-
+                }
             }
         }
     }
@@ -430,6 +445,9 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &ineur
     DEBUG (cout << "could have been removed (TODO: calculate this): " << could_have_been_removed << endl;)
     DEBUG (cout << "removed: " << removed << endl;)
     DEBUG (cout << "added: " << added << endl << endl << endl;)
+
+    // Create synapse index maps
+    SynapseIndexMap::createSynapseImap(sim_info, vtClr, vtClrInfo);
 }
 #endif // !USE_GPU
 

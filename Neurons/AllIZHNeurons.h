@@ -92,6 +92,7 @@ class AllIZHNeurons : public AllIFNeurons
 {
     public:
         AllIZHNeurons();
+        AllIZHNeurons(const AllIZHNeurons &r_neurons);
         virtual ~AllIZHNeurons();
 
         static IAllNeurons* Create() { return new AllIZHNeurons(); }
@@ -312,8 +313,9 @@ class AllIZHNeurons : public AllIFNeurons
          *  @param  sim_info     SimulationInfo class to read information from.
          *  @param  neuron_index Index of the neuron to create.
          *  @param  layout       Layout information of the neunal network.
+         *  @param  clr_info     ClusterInfo class to read information from.
          */
-        void createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layout);
+        void createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layout, ClusterInfo *clr_info);
 
         /**
          *  Set the Neuron at the indexed location to default values.

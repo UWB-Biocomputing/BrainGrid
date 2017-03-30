@@ -124,13 +124,6 @@ class IModel {
         virtual void logSimStep(const SimulationInfo *sim_info) const = 0;
 
         /**
-         *  Get the IAllNeurons class object.
-         *
-         *  @return Pointer to the AllNeurons class object.
-         */
-        virtual IAllNeurons* getNeurons() = 0;
-
-        /**
          *  Get the Connections class object.
          *
          *  @return Pointer to the Connections class object.

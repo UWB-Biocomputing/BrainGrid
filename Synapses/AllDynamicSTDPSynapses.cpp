@@ -1,5 +1,6 @@
 #include "AllDynamicSTDPSynapses.h"
 
+// Default constructor
 AllDynamicSTDPSynapses::AllDynamicSTDPSynapses() : AllSTDPSynapses()
 {
     lastSpike = NULL;
@@ -10,10 +11,21 @@ AllDynamicSTDPSynapses::AllDynamicSTDPSynapses() : AllSTDPSynapses()
     F = NULL;
 }
 
-AllDynamicSTDPSynapses::AllDynamicSTDPSynapses(const int num_neurons, const int max_synapses) :
-        AllSTDPSynapses(num_neurons, max_synapses)
+// Copy constructor
+AllDynamicSTDPSynapses::AllDynamicSTDPSynapses(const AllDynamicSTDPSynapses &r_synapses) : AllSTDPSynapses(r_synapses)
 {
-    setupSynapses(num_neurons, max_synapses);
+    lastSpike = NULL;
+    r = NULL;
+    u = NULL;
+    D = NULL;
+    U = NULL;
+    F = NULL;
+}
+
+AllDynamicSTDPSynapses::AllDynamicSTDPSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info) :
+        AllSTDPSynapses(num_neurons, max_synapses, clr_info)
+{
+    setupSynapses(num_neurons, max_synapses, clr_info);
 }
 
 AllDynamicSTDPSynapses::~AllDynamicSTDPSynapses()
@@ -29,7 +41,7 @@ AllDynamicSTDPSynapses::~AllDynamicSTDPSynapses()
  */
 void AllDynamicSTDPSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron);
+    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, clr_info);
 }
 
 /*
@@ -37,10 +49,11 @@ void AllDynamicSTDPSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo
  * 
  *  @param  num_neurons   Total number of neurons in the network.
  *  @param  max_synapses  Maximum number of synapses per neuron.
+ *  @param  clr_info      ClusterInfo class to read information from.
  */
-void AllDynamicSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapses)
+void AllDynamicSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info)
 {
-    AllSTDPSynapses::setupSynapses(num_neurons, max_synapses);
+    AllSTDPSynapses::setupSynapses(num_neurons, max_synapses, clr_info);
 
     BGSIZE max_total_synapses = max_synapses * num_neurons;
 

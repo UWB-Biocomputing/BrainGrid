@@ -25,12 +25,12 @@ ConnStatic::~ConnStatic()
  *  number of maximum connections per neurons, connection radius threshold, and
  *  small-world rewiring probability.
  *
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  layout    Layout information of the neunal network.
- *  @param  neurons   The Neuron list to search from.
- *  @param  synapses  The Synapse list to search from.
+ *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  layout      Layout information of the neunal network.
+ *  @param  vtClr       Vector of Cluster class objects.
+ *  @param  vtClrInfo   Vector of ClusterInfo.
  */
-void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout, IAllNeurons *neurons, IAllSynapses *synapses)
+void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
     int num_neurons = sim_info->totalNeurons;
     vector<DistDestNeuron> distDestNeurons[num_neurons];
@@ -40,8 +40,7 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
     DEBUG(cout << "Initializing connections" << endl;)
 
     for (int src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
-        distDestNeurons[src_neuron].clear();
-
+        distDestNeurons[src_neuron].clear(); 
         // pick the connections shorter than threshConnsRadius
         for (int dest_neuron = 0; dest_neuron < num_neurons; dest_neuron++) {
             if (src_neuron != dest_neuron) {
@@ -61,13 +60,20 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
         for (BGSIZE i = 0; i < distDestNeurons[src_neuron].size() && (int)i < m_nConnsPerNeuron; i++) {
             int dest_neuron = distDestNeurons[src_neuron][i].dest_neuron;
             synapseType type = layout->synType(src_neuron, dest_neuron);
-            BGFLOAT* sum_point = &( dynamic_cast<AllNeurons*>(neurons)->summation_map[dest_neuron] );
+
+            // create a synapse at the cluster of the destination neuron
+
+            // get the cluster index where the destination neuron exits
+            CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIdxFromNeuronLayoutIdx(dest_neuron, vtClrInfo);
+            IAllNeurons *neurons = vtClr[iCluster]->m_neurons;
+            IAllSynapses *synapses = vtClr[iCluster]->m_synapses;
 
             DEBUG_MID (cout << "source: " << src_neuron << " dest: " << dest_neuron << " dist: " << distDestNeurons[src_neuron][i].dist << endl;)
 
+            BGFLOAT* sum_point = &( dynamic_cast<AllNeurons*>(neurons)->summation_map[dest_neuron] );
             BGSIZE iSyn;
-            synapses->addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT);
-            added++;
+            synapses->addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT, vtClrInfo[iCluster]);
+                added++;
 
             // set synapse weight
             // TODO: we need another synaptic weight distibution mode (normal distribution)
@@ -85,6 +91,9 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
     DEBUG(cout << "Rewiring connections: " << nRewiring << endl;)
 
     DEBUG (cout << "added connections: " << added << endl << endl << endl;)
+
+    // Create synapse index maps
+    SynapseIndexMap::createSynapseImap(sim_info, vtClr, vtClrInfo);
 }
 
 /*
