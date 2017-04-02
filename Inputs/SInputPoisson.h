@@ -44,7 +44,7 @@ public:
     ~SInputPoisson();
 
     //! Initialize data.
-    virtual void init(SimulationInfo* psi, ClusterInfo* pci);
+    virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     //! Terminate process.
     virtual void term(SimulationInfo* psi);
@@ -67,6 +67,12 @@ protected:
 
     //! Masks for stimulus input
     bool* masks;
+
+    //! Cluster information for the input synapse layer
+    ClusterInfo* m_clusterInfo;
+
+    //! Maximum number of synapses per neuron (will be 1)
+    int m_maxSynapsesPerNeuron;
 };
 
 #endif // _SINPUTPOISSON_H_

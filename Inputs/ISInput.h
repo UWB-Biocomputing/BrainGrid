@@ -40,9 +40,10 @@ public:
     /**
      * Initialize data
      *
-     * @param[in] psi       Pointer to the simulation information.
+     * @param[in] psi             Pointer to the simulation information.
+     * @param[in] vtClrInfo       Vector of ClusterInfo.
      */
-    virtual void init(SimulationInfo* psi, ClusterInfo* pci) = 0;
+    virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo) = 0;
 
     /**
      * Terminate process
@@ -52,9 +53,10 @@ public:
     /**
      * Process input stimulus for each time step
      *
-     * @param[in] psi       Pointer to the simulation information.
+     * @param[in] psi             Pointer to the simulation information.
+     * @param[in] vtClrInfo       Vector of ClusterInfo.
      */
-    virtual void inputStimulus(const SimulationInfo* psi, const ClusterInfo* pci) = 0;
+    virtual void inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo) = 0;
 };
 
 #endif // _ISINPUT_H_

@@ -19,7 +19,8 @@ extern void getValueList(const string& valString, vector<BGFLOAT>* pList);
 SInputPoisson::SInputPoisson(SimulationInfo* psi, TiXmlElement* parms) :
     nISIs(NULL),
     m_synapses(NULL),
-    masks(NULL)
+    masks(NULL),
+    m_clusterInfo(NULL)
 {
     fSInput = false;
 
@@ -119,29 +120,43 @@ SInputPoisson::~SInputPoisson()
 /*
  * Initialize data.
  *
- *  @param[in] psi       Pointer to the simulation information.
+ *  @param[in] psi            Pointer to the simulation information.
+ *  @param[in] vtClrInfo      Vector of ClusterInfo.
  */
-void SInputPoisson::init(SimulationInfo* psi, ClusterInfo* pci)
+void SInputPoisson::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
     if (fSInput == false)
         return;
 
+    // create a clusterInfo for the input synapse layer
+    m_clusterInfo = new ClusterInfo();
+    m_clusterInfo->clusterID = vtClrInfo.size();
+    
     // create an input synapse layer
     // TODO: do we need to support other types of synapses?
-    m_synapses = new AllDSSynapses(psi->totalNeurons, 1, pci);
-    for (int neuron_index = 0; neuron_index < psi->totalNeurons; neuron_index++)
+    m_maxSynapsesPerNeuron = 1;
+    m_synapses = new AllDSSynapses(psi->totalNeurons, m_maxSynapsesPerNeuron, m_clusterInfo);
+
+    // for each cluster
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) 
     {
-        synapseType type;
-        if (psi->model->getLayout()->neuron_type_map[neuron_index] == INH)
-            type = EI;
-        else
-            type = EE;
+        int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
+        int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
 
-        BGFLOAT* sum_point = &( pci->pClusterSummationMap[neuron_index] );
-        BGSIZE iSyn = psi->maxSynapsesPerNeuron * neuron_index;
+        for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++)
+        {
+            synapseType type;
+            if (psi->model->getLayout()->neuron_type_map[neuronLayoutIndex] == INH)
+                type = EI;
+            else
+                type = EE;
 
-        m_synapses->createSynapse(iSyn, 0, neuron_index, sum_point, psi->deltaT, type);
-        dynamic_cast<AllSynapses*>(m_synapses)->W[iSyn] = weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+            BGFLOAT* sum_point = &( vtClrInfo[iCluster]->pClusterSummationMap[iNeuron] );
+            BGSIZE iSyn = m_maxSynapsesPerNeuron * neuronLayoutIndex;
+
+            m_synapses->createSynapse(iSyn, 0, neuronLayoutIndex, sum_point, psi->deltaT, type);
+            dynamic_cast<AllSynapses*>(m_synapses)->W[iSyn] = weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+        }
     }
 }
 
@@ -163,4 +178,8 @@ void SInputPoisson::term(SimulationInfo* psi)
     // clear memory for input masks
     if (masks != NULL)
         delete[] masks;
+
+    // clear memoy for cluster information
+    if (m_clusterInfo != NULL)
+        delete m_clusterInfo;
 }

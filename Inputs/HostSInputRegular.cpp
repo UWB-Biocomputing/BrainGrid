@@ -29,11 +29,12 @@ HostSInputRegular::~HostSInputRegular()
 /*
  * Initialize data.
  *
- * @param[in] psi       Pointer to the simulation information.
+ * @param[in] psi             Pointer to the simulation information.
+ * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void HostSInputRegular::init(SimulationInfo* psi, ClusterInfo* pci)
+void HostSInputRegular::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
-    SInputRegular::init(psi, pci);
+    SInputRegular::init(psi, vtClrInfo);
 }
 
 /*
@@ -55,17 +56,23 @@ void HostSInputRegular::term(SimulationInfo* psi)
  * Apply inputs on summationPoint.
  *
  * @param[in] psi             Pointer to the simulation information.
+ * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void HostSInputRegular::inputStimulus(const SimulationInfo* psi, const ClusterInfo *pci)
+void HostSInputRegular::inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
     if (fSInput == false)
         return;
 
-    // add input to each summation point
-    for (int i = pci->totalClusterNeurons - 1; i >= 0; --i)
-    {
-        if ( (nStepsInCycle >= nShiftValues[i]) && (nStepsInCycle < (nShiftValues[i] + nStepsDuration ) % nStepsCycle) )
-            pci->pClusterSummationMap[i] += values[i];
+    // for each cluster
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
+        int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
+        int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
+
+        // add input to each summation point
+        for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++) {
+            if ( (nStepsInCycle >= nShiftValues[neuronLayoutIndex]) && (nStepsInCycle < (nShiftValues[neuronLayoutIndex] + nStepsDuration ) % nStepsCycle) )
+                vtClrInfo[iCluster]->pClusterSummationMap[iNeuron] += values[neuronLayoutIndex];
+        }
     }
 
     // update cycle count 

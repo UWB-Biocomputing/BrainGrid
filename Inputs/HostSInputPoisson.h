@@ -41,13 +41,13 @@ public:
     ~HostSInputPoisson();
 
     // Initialize data.
-    virtual void init(SimulationInfo* psi, ClusterInfo* pci);
+    virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     // Terminate process.
     virtual void term(SimulationInfo* psi);
 
     // Process input stimulus for each time step.
-    virtual void inputStimulus(const SimulationInfo* psi, const ClusterInfo* pci);
+    virtual void inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
 private:
 };

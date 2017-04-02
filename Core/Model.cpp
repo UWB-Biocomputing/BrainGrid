@@ -138,7 +138,7 @@ void Model::setupSim(SimulationInfo *sim_info)
     // init stimulus input object
     if (sim_info->pInput != NULL) {
         cout << "Initializing input." << endl;
-        sim_info->pInput->init(sim_info, m_vtClrInfo[0]);
+        sim_info->pInput->init(sim_info, m_vtClrInfo);
     }
 }
 
@@ -257,7 +257,7 @@ void Model::advance(const SimulationInfo *sim_info)
 {
     // input stimulus
     if (sim_info->pInput != NULL) {
-      sim_info->pInput->inputStimulus(sim_info, m_vtClrInfo[0]);
+      sim_info->pInput->inputStimulus(sim_info, m_vtClrInfo);
     }
 
     // run advance of all waiting threads

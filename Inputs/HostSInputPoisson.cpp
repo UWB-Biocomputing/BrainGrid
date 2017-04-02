@@ -30,11 +30,12 @@ HostSInputPoisson::~HostSInputPoisson()
 /*
  * Initialize data.
  *
- * @param[in] psi       Pointer to the simulation information.
+ * @param[in] psi             Pointer to the simulation information.
+ * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void HostSInputPoisson::init(SimulationInfo* psi, ClusterInfo* pci)
+void HostSInputPoisson::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
-    SInputPoisson::init(psi, pci);
+    SInputPoisson::init(psi, vtClrInfo);
 
     if (fSInput == false)
         return;
@@ -55,32 +56,44 @@ void HostSInputPoisson::term(SimulationInfo* psi)
  * Apply inputs on summationPoint.
  *
  * @param[in] psi             Pointer to the simulation information.
+ * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, const ClusterInfo* pci)
+void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
     if (fSInput == false)
         return;
 
-    for (int neuron_index = 0; neuron_index < psi->totalNeurons; neuron_index++)
+    // for each cluster
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++)
     {
-        if (masks[neuron_index] == false)
-            continue;
+        int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
+        int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
 
-        BGSIZE iSyn = psi->maxSynapsesPerNeuron * neuron_index;
-        if (--nISIs[neuron_index] <= 0)
+        for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++)
         {
-            // add a spike
-            dynamic_cast<AllSpikingSynapses*>(m_synapses)->preSpikeHit(iSyn, pci->clusterID);
+            if (masks[neuronLayoutIndex] == false)
+                continue;
 
-            // update interval counter (exponectially distribution ISIs, Poisson)
-            BGFLOAT isi = -lambda * log(rng.inRange(0, 1));
-            // delete isi within refractoriness
-            while (rng.inRange(0, 1) <= exp(-(isi*isi)/32))
-                isi = -lambda * log(rng.inRange(0, 1));
-            // convert isi from msec to steps
-            nISIs[neuron_index] = static_cast<int>( (isi / 1000) / psi->deltaT + 0.5 );
+            BGSIZE iSyn = m_maxSynapsesPerNeuron * neuronLayoutIndex;
+            if (--nISIs[neuronLayoutIndex] <= 0)
+            {
+                // add a spike
+                dynamic_cast<AllSpikingSynapses*>(m_synapses)->preSpikeHit(iSyn, m_clusterInfo->clusterID);
+
+                // update interval counter (exponectially distribution ISIs, Poisson)
+                BGFLOAT isi = -lambda * log(rng.inRange(0, 1));
+                // delete isi within refractoriness
+                while (rng.inRange(0, 1) <= exp(-(isi*isi)/32))
+                    isi = -lambda * log(rng.inRange(0, 1));
+                // convert isi from msec to steps
+                nISIs[neuronLayoutIndex] = static_cast<int>( (isi / 1000) / psi->deltaT + 0.5 );
+            }
+
+            // process synapse
+            m_synapses->advanceSynapse(iSyn, psi, NULL);
         }
-        // process synapse
-        m_synapses->advanceSynapse(iSyn, psi, NULL);
     }
+
+    // Advances synapses pre spike event queue state of the cluster one simulation step
+    m_synapses->advancePreSpikeQueue();
 }

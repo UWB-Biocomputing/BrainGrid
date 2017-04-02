@@ -42,7 +42,7 @@ public:
     ~SInputRegular();
 
     //! Initialize data.
-    virtual void init(SimulationInfo* psi, ClusterInfo* pci);
+    virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     //! Terminate process.
     virtual void term(SimulationInfo* psi);
