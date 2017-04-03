@@ -232,11 +232,6 @@ class IAllSynapses
         virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap) = 0;
 
         /**
-         * Advances synapses pre spike event queue state of the cluster one simulation step.
-         */
-        virtual void advancePreSpikeQueue() = 0;
-
-        /**
          *  Advance one specific Synapse.
          *
          *  @param  iSyn      Index of the Synapse to connect to.

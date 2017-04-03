@@ -89,7 +89,6 @@ void AllSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapse
         // create a post synapse spike queue & initialize it
         postSpikeQueue = new EventQueue();
         postSpikeQueue->initEventQueue(max_total_synapses, clr_info->clusterID);
-
     }
 }
 
@@ -519,6 +518,16 @@ void AllSTDPSynapses::postSpikeHit(const BGSIZE iSyn)
 void AllSTDPSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap)
 {
     AllSpikingSynapses::advanceSynapses(sim_info, neurons, synapseIndexMap);
+
+    postSpikeQueue->advanceEventQueue();
+}
+
+/*
+ * Advances synapses spike event queue state of the cluster one simulation step.
+ */
+void AllSTDPSynapses::advanceSpikeQueue()
+{
+    AllSpikingSynapses::advanceSpikeQueue();
 
     postSpikeQueue->advanceEventQueue();
 }

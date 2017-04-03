@@ -71,9 +71,9 @@ void SingleThreadedCluster::advanceSynapses(const SimulationInfo *sim_info, cons
 }
 
 /*
- * Advances synapses pre spike event queue state of the cluster one simulation step.
+ * Advances synapses spike event queue state of the cluster one simulation step.
  */
-void SingleThreadedCluster::advancePreSpikeQueue()
+void SingleThreadedCluster::advanceSpikeQueue()
 {
-    m_synapses->advancePreSpikeQueue();
+    (dynamic_cast<AllSpikingSynapses*>(m_synapses))->advanceSpikeQueue();
 }

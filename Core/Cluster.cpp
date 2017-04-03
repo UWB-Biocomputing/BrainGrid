@@ -140,7 +140,7 @@ void Cluster::advanceThread(const SimulationInfo *sim_info, const ClusterInfo *c
         m_barrierAdvance->Sync();
 
         // Advance event queue state one simulation step
-        advancePreSpikeQueue();
+        advanceSpikeQueue();
 
         // wait until all threads are complete 
         m_barrierAdvance->Sync();
@@ -187,7 +187,7 @@ void Cluster::runAdvance()
     // wait until the advance of all advanceThread complete
     m_barrierAdvance->Sync();
 
-    // notify all advanceThread that the advancePreSpikeQueue is ready to go
+    // notify all advanceThread that the advanceSpikeQueue is ready to go
     m_barrierAdvance->Sync();
 
     // wait until the advance of all advanceThread complete

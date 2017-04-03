@@ -294,9 +294,9 @@ void AllSpikingSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeu
 }
 
 /*
- * Advances synapses pre spike event queue state of the cluster one simulation step.
+ * Advances synapses spike event queue state of the cluster one simulation step.
  */
-void AllSpikingSynapses::advancePreSpikeQueue()
+void AllSpikingSynapses::advanceSpikeQueue()
 {
     preSpikeQueue->advanceEventQueue();
 }

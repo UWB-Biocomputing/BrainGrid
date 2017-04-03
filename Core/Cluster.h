@@ -120,9 +120,9 @@ class Cluster
         virtual void advanceSynapses(const SimulationInfo *sim_info, const ClusterInfo *clr_info) = 0;
 
         /**
-         * Advances synapses pre spike event queue state of the cluster one simulation step.
+         * Advances synapses spike event queue state of the cluster one simulation step.
          */
-        virtual void advancePreSpikeQueue() = 0;
+        virtual void advanceSpikeQueue() = 0;
 
         /**
          *  Thread for advance a cluster.

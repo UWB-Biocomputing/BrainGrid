@@ -95,5 +95,5 @@ void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, vector<ClusterI
     }
 
     // Advances synapses pre spike event queue state of the cluster one simulation step
-    m_synapses->advancePreSpikeQueue();
+    dynamic_cast<AllSpikingSynapses*>(m_synapses)->advanceSpikeQueue();
 }

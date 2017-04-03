@@ -311,6 +311,11 @@ class AllSTDPSynapses : public AllSpikingSynapses
          */
         virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap);
 
+        /*
+         * Advances synapses spike event queue state of the cluster one simulation step.
+         */
+        virtual void advanceSpikeQueue();
+
         /**
          *  Advance one specific Synapse.
          *  Update the state of synapse for a time step
