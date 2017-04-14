@@ -130,8 +130,12 @@ void Cluster::advanceThread(const SimulationInfo *sim_info, const ClusterInfo *c
         // Advances neurons network state one simulation step
         advanceNeurons(sim_info, clr_info);
 
+        // We don't need barrier synchronization here,
+        // because all incoming synapses should be in the same cluster of
+        // the target neuron. Therefore summation point of the neuron
+        // should not be modified from synapses of other clusters.  
         // wait until all threads are complete 
-        m_barrierAdvance->Sync();
+        // m_barrierAdvance->Sync();
 
         // Advances synapses network state one simulation step
         advanceSynapses(sim_info, clr_info);
@@ -178,14 +182,8 @@ void Cluster::runAdvance()
     // notify all advanceThread that the advanceNeurons is ready to go
     m_barrierAdvance->Sync();
 
-    // wait until the advance of all advanceThread complete
-    m_barrierAdvance->Sync();
-
     // notify all advanceThread that the advanceSynapses is ready to go
-    m_barrierAdvance->Sync();
-
-    // wait until the advance of all advanceThread complete
-    m_barrierAdvance->Sync();
+    // m_barrierAdvance->Sync();
 
     // notify all advanceThread that the advanceSpikeQueue is ready to go
     m_barrierAdvance->Sync();
