@@ -1,6 +1,7 @@
 package edu.uwb.braingrid.workbench.ui;
 
 import edu.uwb.braingrid.workbench.FileManager;
+import edu.uwb.braingrid.workbench.SystemConfig;
 import edu.uwb.braingrid.workbench.data.DynamicInputConfigurationManager;
 import edu.uwb.braingrid.workbench.data.InputAnalyzer;
 import edu.uwb.braingrid.workbench.data.InputAnalyzer.InputType;
@@ -21,18 +22,11 @@ import javax.xml.xpath.*;
 import org.xml.sax.SAXException;
 
 /**
- *
+ * Dynamic Input Configuration Dialog
+ * The GUI is built dynamically according to the input Configuration XML file.
  * @author Tom Wong
  */
-public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
-    public static final String[] tabPaths = {"/BGSimParams/SimInfoParams", 
-                                             "/BGSimParams/ModelParams/NeuronsParams",
-                                             "/BGSimParams/ModelParams/SynapsesParams",
-                                             "/BGSimParams/ModelParams/ConnectionsParams",
-                                             "/BGSimParams/ModelParams/LayoutParams"};
-    private static final String stateOutputFileNameNode = "stateOutputFileName";
-    private static final HashMap<String,InputType> nodeName2InputType = new HashMap<String,InputType>(){{put("activeNListFileName",InputType.ACTIVE);put("inhNListFileName",InputType.INHIBITORY);put("prbNListFileName",InputType.PROBED);}};
-
+public class DynamicInputConfigurationDialog extends javax.swing.JDialog {    
     // <editor-fold defaultstate="collapsed" desc="Auto-Generated Code">    
     /**
      * This method is called from within the constructor to initialize the form.
@@ -201,6 +195,7 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
     private String lastBuiltFile = null;
     private String lastStateOutputFileName = null;
     private String projectName = null;
+    private ArrayList<String> tabPaths = new ArrayList<>();
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction"> 
@@ -219,6 +214,16 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
         try {
             icm = aIcm;
             xmlDoc = icm.getInputConfigDoc();
+            //Get Node paths for each param class
+            Node baseTemplateInfoNode = SystemConfig.getBaseTemplateInfoDoc().getFirstChild();
+            NodeList paramsClassesNodes = baseTemplateInfoNode.getChildNodes();
+            for(int i = 0; i < paramsClassesNodes.getLength(); i++){
+                Node paramsClassesNode = paramsClassesNodes.item(i);
+                    if(paramsClassesNode.getNodeType() == Node.ELEMENT_NODE){
+                    String paramsClassesNodePath = ((Element)paramsClassesNode).getAttribute(SystemConfig.NODE_PATH_ATTRIBUTE_NAME);
+                    tabPaths.add(paramsClassesNodePath);
+                }
+            }
             buildTabsGUI(xmlDoc);
 
         } catch (Exception e) {
@@ -226,7 +231,7 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
         }
         if (icm != null) {
             setInitValues();
-            if(configFilename != null && configFilename != ""){
+            if(configFilename != null && !configFilename.equals("")){
                 File configFile = new File(configFilename);
                 configFilename_textField.setText(configFile.getName());
             }
@@ -241,14 +246,15 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
     }   
     
     /**
+     * Build the GUI according to the input XML File.
      * @param aDoc
      * @throws javax.xml.xpath.XPathExpressionException
      */
     public void buildTabsGUI(Document aDoc) throws XPathExpressionException {
         ArrayList<Node> inputElements = new ArrayList<>();
         
-        for(int i = 0; i < tabPaths.length; i++){
-            XPathExpression xpath = XPathFactory.newInstance().newXPath().compile(tabPaths[i]);
+        for(int i = 0; i < tabPaths.size(); i++){
+            XPathExpression xpath = XPathFactory.newInstance().newXPath().compile(tabPaths.get(i));
             NodeList nodeList = (NodeList) xpath.evaluate(aDoc, XPathConstants.NODESET);
             Node tab = nodeList.item(0);
             
@@ -258,12 +264,15 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
             
             JPanel contentPanel = new JPanel();
             contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.PAGE_AXIS));
-            tabs.add(((Element)tab).getAttribute("name"), new JScrollPane(contentPanel));
+            //add tab to GUI
+            tabs.add(((Element)tab).getAttribute(SystemConfig.NAME_ATTRIBUTE_NAME), new JScrollPane(contentPanel));
             
+            //go to next node if current node doesn't have child.
             if(!tab.hasChildNodes()){
                 continue;
             }
             
+            //get section nodes.
             NodeList sections = tab.getChildNodes();
             for(int j = 0; j < sections.getLength(); j++){
                 Node section = sections.item(j);
@@ -272,7 +281,7 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
                     GroupLayout subLayout = new GroupLayout(subPanel);
                     subLayout.setAutoCreateGaps(true);
                     subPanel.setLayout(subLayout);
-                    JLabel label = new JLabel(((Element)section).getAttribute("name"));
+                    JLabel label = new JLabel(((Element)section).getAttribute(SystemConfig.NAME_ATTRIBUTE_NAME));
 
                     subLayout.setHorizontalGroup(
                             subLayout.createSequentialGroup()
@@ -286,6 +295,7 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
 
                     contentPanel.add(subPanel);
 
+                    //Get parameter nodes
                     NodeList params = sections.item(j).getChildNodes();
                     for(int k = 0; k < params.getLength(); k++){
                         Node param = params.item(k);
@@ -296,14 +306,14 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
                             subLayout = new GroupLayout(subPanel);
                             subPanel.setLayout(subLayout);
                             subLayout.setAutoCreateGaps(true);
-                            label = new JLabel(((Element)param).getAttribute("name"));
+                            label = new JLabel(((Element)param).getAttribute(SystemConfig.NAME_ATTRIBUTE_NAME));
 
                             JTextField field = new JTextField(param.getTextContent());
                             String nodeName = ((Element)param).getNodeName();
                             String type = ((Element)param).getAttribute("type");
                             if(type.equals("InputFile")){
                                 JButton button = new JButton("Import");
-                                button.addActionListener(new ImportFileButtonListener(nodeName2InputType.get(nodeName),field));
+                                button.addActionListener(new ImportFileButtonListener(SystemConfig.TAG_NAME_INPUT_TYPE_MAPPING.get(nodeName),field));
                                 field.setMaximumSize(new Dimension(Integer.MAX_VALUE, field.getPreferredSize().height));
                                 subLayout.setHorizontalGroup(
                                         subLayout.createSequentialGroup()
@@ -333,7 +343,7 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
                                 );
                             }
 
-                            if(nodeName == stateOutputFileNameNode){
+                            if(nodeName.equals(SystemConfig.STATE_OUTPUT_FILE_NAME_TAG_NAME)){
                                 stateOutputFileNameTextField = field;
                                 lastStateOutputFileName = field.getText();
                             }
@@ -347,50 +357,8 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
         
         icm.setInputParamElements(inputElements);
     }   
-    // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="Getters/Setters">
-    public boolean getSuccess() {
-        return okClicked;
-    }
-
-    public String getBuiltFile() {
-        String builtFile = null;
-        if (okClicked) {
-            builtFile = lastBuiltFile;
-        }
-        return builtFile;
-    }
-    
-    public String getStateOutputFilename() {
-        String fileName = null;
-        if(okClicked){
-            fileName = lastStateOutputFileName;
-        }
-        return fileName;
-    }
-    
-    // set up each of the text fields with default values
-    private void setInitValues() {
-        // load values from template
-    }
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc="UI Manipulation">
-    private void center() {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension frameSize = getSize();
-        if (frameSize.height > screenSize.height) {
-            frameSize.height = screenSize.height;
-        }
-        if (frameSize.width > screenSize.width) {
-            frameSize.width = screenSize.width;
-        }
-        setLocation((screenSize.width - frameSize.width) / 2,
-                (screenSize.height - frameSize.height) / 2);
-    }
-    // </editor-fold>
-
+    //File Button Listener used to handle the copy of the file and set the path
     private class ImportFileButtonListener implements ActionListener{
         InputType type = null;
         JTextField field = null;
@@ -458,4 +426,47 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
             }
         }
     }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Getters/Setters">
+    public boolean getSuccess() {
+        return okClicked;
+    }
+
+    public String getBuiltFile() {
+        String builtFile = null;
+        if (okClicked) {
+            builtFile = lastBuiltFile;
+        }
+        return builtFile;
+    }
+    
+    public String getStateOutputFilename() {
+        String fileName = null;
+        if(okClicked){
+            fileName = lastStateOutputFileName;
+        }
+        return fileName;
+    }
+    
+    // set up each of the text fields with default values
+    private void setInitValues() {
+        // load values from template
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="UI Manipulation">
+    private void center() {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        Dimension frameSize = getSize();
+        if (frameSize.height > screenSize.height) {
+            frameSize.height = screenSize.height;
+        }
+        if (frameSize.width > screenSize.width) {
+            frameSize.width = screenSize.width;
+        }
+        setLocation((screenSize.width - frameSize.width) / 2,
+                (screenSize.height - frameSize.height) / 2);
+    }
+    // </editor-fold>
 }
