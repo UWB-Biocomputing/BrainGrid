@@ -112,8 +112,18 @@ bool ConnStatic::checkNumParameters()
  */
 bool ConnStatic::readParameters(const TiXmlElement& element)
 {
-    // Connections parameters
     if (element.ValueStr().compare("StaticConnectionsParams") == 0) {
+	nParams++;
+	return true;
+    }
+    if (element.ValueStr().compare("StaticConnectionsWeight") == 0) {
+	nParams++;
+	return true;
+    }
+
+    // Connections parameters
+    if (element.Parent()->ValueStr().compare("StaticConnectionsParams") == 0) {
+/*
         // number of maximum connections per neurons
         if (element.QueryIntAttribute("nConnsPerNeuron", &m_nConnsPerNeuron) != TIXML_SUCCESS) {
                 throw ParseParamError("nConnsPerNeuron", "Static Connections param 'nConnsPerNeuron' missing in XML.");
@@ -138,11 +148,28 @@ bool ConnStatic::readParameters(const TiXmlElement& element)
                 throw ParseParamError("pRewiring", "Invalid negative Growth param 'pRewiring' value.");
         }
         nParams++;
-        return true;
+*/
+	if(element.ValueStr().compare("nConnsPerNeuron") == 0){
+            m_nConnsPerNeuron = atoi(element.GetText());
+        }
+        else if(element.ValueStr().compare("threshConnsRadius") == 0){
+            m_threshConnsRadius = atof(element.GetText());
+        }
+	else if(element.ValueStr().compare("pRewiring") == 0){
+	    m_pRewiring = atof(element.GetText());
+	}
+
+        if (m_pRewiring < 0 || m_pRewiring > 1.0) {
+                throw ParseParamError("pRewiring", "Invalid negative Growth param 'pRewiring' value.");
+        }
+
+	return true;
     }
+		
 
     // Connections weight parameters
-    if (element.ValueStr().compare("StaticConnectionsWeight") == 0) {
+    if (element.Parent()->ValueStr().compare("StaticConnectionsWeight") == 0) {
+/*
         if (element.QueryFLOATAttribute("minExc", &m_excWeight[0]) != TIXML_SUCCESS) {
             throw ParseParamError("ConnectionsWeight minExc", "ConnectionsWeight missing minimum values of excitatory neuron's synapse weight in XML.");
         }
@@ -162,6 +189,20 @@ bool ConnStatic::readParameters(const TiXmlElement& element)
             throw ParseParamError("ConnectionsWeight maxInh", "Invalid range for ConnectionsWeight inhibitory neuron's synapse weight.");
         }
         nParams++;
+*/
+	if(element.ValueStr().compare("minExc") == 0){
+            m_excWeight[0] = atof(element.GetText());
+        }
+        else if(element.ValueStr().compare("maxExc") == 0){
+            m_excWeight[1] = atof(element.GetText());
+        }
+        else if(element.ValueStr().compare("minInh") == 0){
+            m_inhWeight[0] = atof(element.GetText());
+        }
+        else if(element.ValueStr().compare("maxInh") == 0){
+            m_inhWeight[1] = atof(element.GetText());
+        }
+
         return true;
     }
 

@@ -88,6 +88,15 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         return true;
     }
 
+    if (element.ValueStr().compare("Aconst") == 0 ||
+	element.ValueStr().compare("Bconst") == 0 ||
+	element.ValueStr().compare("Cconst") == 0 ||
+	element.ValueStr().compare("Dconst") == 0    ) {
+	nParams++;
+	return true;
+    }
+
+/*
     if (element.ValueStr().compare("Aconst") == 0) {
         // Min/max values of Aconst for excitatory neurons.
         if (element.QueryFLOATAttribute("minExc", &m_excAconst[0]) != TIXML_SUCCESS) {
@@ -200,6 +209,151 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         if (m_inhDconst[0] > m_inhDconst[1]) {
             throw ParseParamError("Dconst maxInh", "Invalid range for Dconst value.");
         }
+        nParams++;
+        return true;
+    }
+*/
+    if (element.Parent()->ValueStr().compare("Aconst") == 0) {
+        // Min/max values of Aconst for excitatory neurons.
+	if(element.ValueStr().compare("minExc") == 0){
+	    m_excAconst[0] = atof(element.GetText());
+
+            if (m_excAconst[0] < 0) {
+                throw ParseParamError("Aconst minExc", "Invalid negative Aconst value.");
+            }
+	}
+	else if(element.ValueStr().compare("maxExc") == 0){
+	    m_excAconst[1] = atof(element.GetText());
+
+            if (m_excAconst[0] > m_excAconst[1]) {
+                throw ParseParamError("Aconst maxExc", "Invalid range for Aconst value.");
+            }
+	}
+	else if(element.ValueStr().compare("minInh") == 0){
+	    m_inhAconst[0] = atof(element.GetText());
+
+            if (m_inhAconst[0] < 0) {
+                throw ParseParamError("Aconst minInh", "Invalid negative Aconst value.");
+            }
+	}
+	else if(element.ValueStr().compare("maxInh") == 0){
+	    m_inhAconst[1] = atof(element.GetText());
+
+            if (m_inhAconst[0] > m_inhAconst[1]) {
+                throw ParseParamError("Aconst maxInh", "Invalid range for Aconst value.");
+            }
+	}
+
+        nParams++;
+        return true;
+    }
+
+    if (element.Parent()->ValueStr().compare("Bconst") == 0) {
+        // Min/max values of Bconst for excitatory neurons.
+	if(element.ValueStr().compare("minExc") == 0){
+	    m_excBconst[0] = atof(element.GetText());
+
+            if (m_excBconst[0] < 0) {
+                throw ParseParamError("Bconst minExc", "Invalid negative Bconst value.");
+            }
+	}
+	else if(element.ValueStr().compare("maxExc") == 0){
+	    m_excBconst[1] = atof(element.GetText());
+
+            if (m_excBconst[0] > m_excBconst[1]) {
+                throw ParseParamError("Bconst maxExc", "Invalid range for Bconst value.");
+            }
+	}
+
+        // Min/max values of Bconst for inhibitory neurons.
+	if(element.ValueStr().compare("minInh") == 0){
+	    m_inhBconst[0] = atof(element.GetText());
+
+            if (m_inhBconst[0] < 0) {
+                throw ParseParamError("Bconst minInh", "Invalid negative Bconst value.");
+            }
+	}
+	else if(element.ValueStr().compare("maxInh") == 0){
+	    m_inhBconst[1] = atof(element.GetText());
+
+            if (m_inhBconst[0] > m_inhBconst[1]) {
+                throw ParseParamError("Bconst maxInh", "Invalid range for Bconst value.");
+            }
+	}
+
+        nParams++;
+        return true;
+    }
+
+    if (element.Parent()->ValueStr().compare("Cconst") == 0) {
+        // Min/max values of Cconst for excitatory neurons. 
+	if(element.ValueStr().compare("minExc") == 0){
+	    m_excCconst[0] = atof(element.GetText());
+
+            if (m_excCconst[0] < 0) {
+                throw ParseParamError("Cconst minExc", "Invalid negative Cconst value.");
+            }
+	}
+	else if(element.ValueStr().compare("maxExc") == 0){
+	    m_excCconst[1] = atof(element.GetText());
+
+            if (m_excCconst[0] > m_excCconst[1]) {
+                throw ParseParamError("Cconst maxExc", "Invalid range for Cconst value.");
+            }
+	}
+
+        // Min/max values of Cconst for inhibitory neurons.
+	if(element.ValueStr().compare("minInh") == 0){
+	    m_inhCconst[0] = atof(element.GetText());
+
+            if (m_inhCconst[0] < 0) {
+                throw ParseParamError("Cconst minInh", "Invalid negative Cconst value.");
+            }
+	}
+	else if(element.ValueStr().compare("maxInh") == 0){
+	    m_inhCconst[1] = atof(element.GetText());
+
+            if (m_inhCconst[0] > m_inhCconst[1]) {
+                throw ParseParamError("Cconst maxInh", "Invalid range for Cconst value.");
+            }
+	}
+
+        nParams++;
+        return true;
+    }
+
+    if (element.ValueStr().compare("Dconst") == 0) {
+        // Min/max values of Dconst for excitatory neurons.
+	if(element.ValueStr().compare("minExc") == 0){
+	    m_excDconst[0] = atof(element.GetText());
+
+            if (m_excDconst[0] < 0) {
+                throw ParseParamError("Dconst minExc", "Invalid negative Dconst value.");
+            }
+	}
+	else if(element.ValueStr().compare("maxExc") == 0){
+	    m_excDconst[1] = atof(element.GetText());
+
+            if (m_excDconst[0] > m_excDconst[1]) {
+                throw ParseParamError("Dconst maxExc", "Invalid range for Dconst value.");
+            }
+	}
+        // Min/max values of Dconst for inhibitory neurons.
+	if(element.ValueStr().compare("minInh") == 0){
+	    m_inhDconst[0] = atof(element.GetText());
+
+            if (m_inhDconst[0] < 0) {
+                throw ParseParamError("Dconst minInh", "Invalid negative Dconst value.");
+            }
+	}
+	else if(element.ValueStr().compare("maxInh") == 0){
+	    m_inhDconst[1] = atof(element.GetText());
+
+            if (m_inhDconst[0] > m_inhDconst[1]) {
+                throw ParseParamError("Dconst maxInh", "Invalid range for Dconst value.");
+            }
+	}
+
         nParams++;
         return true;
     }

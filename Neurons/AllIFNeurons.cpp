@@ -128,7 +128,20 @@ bool AllIFNeurons::checkNumParameters()
  */
 bool AllIFNeurons::readParameters(const TiXmlElement& element)
 {
-    if (element.ValueStr().compare("Iinject") == 0) {
+    if (element.ValueStr().compare("Iinject") == 0         ||
+	element.ValueStr().compare("Inoise") == 0          ||
+    	element.ValueStr().compare("Vthresh") == 0         ||
+    	element.ValueStr().compare("Vresting") == 0        ||
+    	element.ValueStr().compare("Vreset") == 0          ||
+	element.ValueStr().compare("Vinit") == 0           ||
+	element.ValueStr().compare("starter_vthresh") == 0 ||
+	element.ValueStr().compare("starter_vreset") == 0    )     {
+	nParams++;
+	return true;
+    }
+
+    if (element.Parent()->ValueStr().compare("Iinject") == 0) {
+/*
         if (element.QueryFLOATAttribute("min", &m_Iinject[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Iinject min", "Iinject missing minimum value in XML.");
         }
@@ -141,11 +154,21 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
         if (m_Iinject[0] > m_Iinject[1]) {
             throw ParseParamError("Iinject max", "Invalid range for Iinject value.");
         }
+	
         nParams++;
+*/
+	if(element.ValueStr().compare("min") == 0){
+            m_Iinject[0] = atof(element.GetText());
+        }
+	else if(element.ValueStr().compare("max") == 0){
+            m_Iinject[1] = atof(element.GetText());
+        }
+
         return true;
     }
 
-    if (element.ValueStr().compare("Inoise") == 0) {
+    if (element.Parent()->ValueStr().compare("Inoise") == 0) {
+/*
         if (element.QueryFLOATAttribute("min", &m_Inoise[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Inoise min", "Inoise missing minimum value in XML.");
         }
@@ -159,10 +182,19 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
             throw ParseParamError("Inoise max", "Invalid range for Inoise value.");
         }
         nParams++;
+*/
+	if(element.ValueStr().compare("min") == 0){
+            m_Inoise[0] = atof(element.GetText());
+        }
+	else if(element.ValueStr().compare("max") == 0){
+            m_Inoise[1] = atof(element.GetText());
+        }
+
         return true;
     }
 
-    if (element.ValueStr().compare("Vthresh") == 0) {
+    if (element.Parent()->ValueStr().compare("Vthresh") == 0) {
+/*
         if (element.QueryFLOATAttribute("min", &m_Vthresh[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vthresh min", "Vthresh missing minimum value in XML.");
         }
@@ -176,10 +208,19 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
             throw ParseParamError("Vthresh max", "Invalid range for Vthresh value.");
         }
         nParams++;
+*/	
+	if(element.ValueStr().compare("min") == 0){
+            m_Vthresh[0] = atof(element.GetText());
+        }
+	else if(element.ValueStr().compare("max") == 0){
+            m_Vthresh[1] = atof(element.GetText());
+        }
+
         return true;
     }
 
-    if (element.ValueStr().compare("Vresting") == 0) {
+    if (element.Parent()->ValueStr().compare("Vresting") == 0) {
+/*
         if (element.QueryFLOATAttribute("min", &m_Vresting[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vresting min", "Vresting missing minimum value in XML.");
         }
@@ -190,10 +231,18 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
             throw ParseParamError("Vresting max", "Invalid range for Vresting value.");
         }
         nParams++;
+*/
+	if(element.ValueStr().compare("min") == 0){
+            m_Vresting[0] = atof(element.GetText());
+        }
+	else if(element.ValueStr().compare("max") == 0){
+            m_Vresting[1] = atof(element.GetText());
+        }
         return true;
     }
 
-    if (element.ValueStr().compare("Vreset") == 0) {
+    if (element.Parent()->ValueStr().compare("Vreset") == 0) {
+/*
         if (element.QueryFLOATAttribute("min", &m_Vreset[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vreset min", "Vreset missing minimum value in XML.");
         }
@@ -204,10 +253,18 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
             throw ParseParamError("Vreset max", "Invalid range for Vreset value.");
         }
         nParams++;
+*/
+	if(element.ValueStr().compare("min") == 0){
+            m_Vreset[0] = atof(element.GetText());
+        }
+	else if(element.ValueStr().compare("max") == 0){
+            m_Vreset[1] = atof(element.GetText());
+        }
         return true;
     }
 
-    if (element.ValueStr().compare("Vinit") == 0) {
+    if (element.Parent()->ValueStr().compare("Vinit") == 0) {
+/*
         if (element.QueryFLOATAttribute("min", &m_Vinit[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Vinit min", "Vinit missing minimum value in XML.");
         }
@@ -218,11 +275,18 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
             throw ParseParamError("Vinit max", "Invalid range for Vinit value.");
         }
         nParams++;
+*/
+	if(element.ValueStr().compare("min") == 0){
+            m_Vinit[0] = atof(element.GetText());
+        }
+	else if(element.ValueStr().compare("max") == 0){
+            m_Vinit[1] = atof(element.GetText());
+        }
         return true;
     }
 
-    if (element.ValueStr().compare("starter_vthresh") == 0) {
-
+    if (element.Parent()->ValueStr().compare("starter_vthresh") == 0) {
+/*
         if (element.QueryFLOATAttribute("min", &m_starter_Vthresh[0]) != TIXML_SUCCESS) {
             throw ParseParamError("starter_vthresh min", "starter_vthresh missing minimum value in XML.");
         }
@@ -236,10 +300,18 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
             throw ParseParamError("starter_vthresh max", "Invalid range for starter_vthresh value.");
         }
         nParams++;
+*/
+	if(element.ValueStr().compare("min") == 0){
+            m_starter_Vthresh[0] = atof(element.GetText());
+        }
+	else if(element.ValueStr().compare("max") == 0){
+            m_starter_Vthresh[1] = atof(element.GetText());
+        }
         return true;
     }
 
-    if (element.ValueStr().compare("starter_vreset") == 0) {
+    if (element.Parent()->ValueStr().compare("starter_vreset") == 0) {
+/*
         if (element.QueryFLOATAttribute("min", &m_starter_Vreset[0]) != TIXML_SUCCESS) {
             throw ParseParamError("starter_vreset min", "starter_vreset missing minimum value in XML.");
         }
@@ -253,6 +325,13 @@ bool AllIFNeurons::readParameters(const TiXmlElement& element)
             throw ParseParamError("starter_vreset max", "Invalid range for starter_vreset value.");
         }
         nParams++;
+*/
+	if(element.ValueStr().compare("min") == 0){
+            m_starter_Vreset[0] = atof(element.GetText());
+        }
+	else if(element.ValueStr().compare("max") == 0){
+            m_starter_Vreset[1] = atof(element.GetText());
+        }
         return true;
     }
 

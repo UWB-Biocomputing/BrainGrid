@@ -21,7 +21,7 @@ bool SimulationInfo::readParameters(TiXmlDocument* simDoc)
 {
     TiXmlElement* parms = NULL;
 
-    if ((parms = simDoc->FirstChildElement("SimInfoParams")) == NULL) {
+    if ((parms = simDoc->FirstChildElement()->FirstChildElement("SimInfoParams")) == NULL) {
         cerr << "Could not find <SimInfoParms> in simulation parameter file " << endl;
         return false;
     }
@@ -53,12 +53,23 @@ bool SimulationInfo::readParameters(TiXmlDocument* simDoc)
 bool SimulationInfo::VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute)
 //TODO: firstAttribute does not seem to be used! Delete?
 {
+    static string parentNode = "";
     if (element.ValueStr().compare("SimInfoParams") == 0) {
         return true;
-    } 
+    }
 
-    if (element.ValueStr().compare("PoolSize") == 0) {
-        if (element.QueryIntAttribute("x", &width) != TIXML_SUCCESS) {
+    if (element.ValueStr().compare("PoolSize") == 0    ||
+        element.ValueStr().compare("SimParams") == 0   ||
+	element.ValueStr().compare("SimConfig") == 0   ||
+	element.ValueStr().compare("Seed") == 0        ||
+	element.ValueStr().compare("OutputParams") ==0    ) {
+	nParams++;
+
+        return true;
+    }
+
+    if (element.Parent()->ValueStr().compare("PoolSize") == 0) {
+/*      if (element.QueryIntAttribute("x", &width) != TIXML_SUCCESS) {
             throw ParseParamError("PoolSize x", "PoolSize missing x value in XML.");
         }
         if (element.QueryIntAttribute("y", &height) != TIXML_SUCCESS) {
@@ -69,54 +80,98 @@ bool SimulationInfo::VisitEnter(const TiXmlElement& element, const TiXmlAttribut
         }
         //z dimmension is for future expansion and not currently supported
         totalNeurons = width * height;
-        nParams++;
+	nParams++;
+*/
+	if(element.ValueStr().compare("x") == 0){
+	    width = atoi(element.GetText());
+	}
+	else if(element.ValueStr().compare("y") == 0){
+	    height = atoi(element.GetText());
+	}
+
+	if(width != 0 && height != 0){
+	    totalNeurons = width * height;
+	}
+
         return true;
     }
 
-    if (element.ValueStr().compare("SimParams") == 0) {
+    if (element.Parent()->ValueStr().compare("SimParams") == 0) {
+/*
         if (element.QueryFLOATAttribute("Tsim", &epochDuration) != TIXML_SUCCESS) {
             throw ParseParamError("SimParams Tsim", "SimParams missing Tsim value in XML.");
         }
         if (element.QueryIntAttribute("numSims", &maxSteps) != TIXML_SUCCESS) {
             throw ParseParamError("SimParams numSims", "SimParams missing numSims value in XML.");
         }
+        nParams++;
+*/
+	if(element.ValueStr().compare("Tsim")){
+	    epochDuration = atof(element.GetText());
+	}
+	else if(element.ValueStr().compare("numSims")){
+	    maxSteps = atof(element.GetText());
+	}
+
         if (epochDuration < 0 || maxSteps < 0) {
             throw ParseParamError("SimParams", "Invalid negative SimParams value.");
         }
-        nParams++;
+
         return true;
     }
 
-    if (element.ValueStr().compare("SimConfig") == 0) {
+    if (element.Parent()->ValueStr().compare("SimConfig") == 0) {
+/*
         if (element.QueryIntAttribute("maxFiringRate", &maxFiringRate) != TIXML_SUCCESS) {
             throw ParseParamError("SimConfig maxFiringRate", "SimConfig missing maxFiringRate value in XML.");
         }
         if (element.QueryIntAttribute("maxSynapsesPerNeuron", &maxSynapsesPerNeuron) != TIXML_SUCCESS) {
             throw ParseParamError("SimConfig maxSynapsesPerNeuron", "SimConfig missing maxSynapsesPerNeuron value in XML.");
         }
+        nParams++;
+*/
+	if(element.ValueStr().compare("maxFiringRate") == 0){
+	    maxFiringRate = atoi(element.GetText());
+	}
+	else if(element.ValueStr().compare("maxSynapsesPerNeuron") == 0){
+	    maxSynapsesPerNeuron = atoi(element.GetText());
+	}
+
         if (maxFiringRate < 0 || maxSynapsesPerNeuron < 0) {
             throw ParseParamError("SimConfig", "Invalid negative SimConfig value.");
         }
-        nParams++;
+
         return true;
     }
 
-    if (element.ValueStr().compare("Seed") == 0) {
+    if (element.Parent()->ValueStr().compare("Seed") == 0) {
+/*
         if (element.QueryValueAttribute("value", &seed) != TIXML_SUCCESS) {
             throw ParseParamError("Seed value", "Seed missing value in XML.");
         }
         nParams++;
+*/
+	if(element.ValueStr().compare("value") == 0){
+	    seed = atoi(element.GetText());
+	}
         return true;
     }
 
-    if (element.ValueStr().compare("OutputParams") == 0) {
+    if (element.Parent()->ValueStr().compare("OutputParams") == 0) {
         // file name specified in commond line is higher priority
+
         if (stateOutputFileName.empty()) {
+/*
             if (element.QueryValueAttribute("stateOutputFileName", &stateOutputFileName) != TIXML_SUCCESS) {
                 throw ParseParamError("OutputParams stateOutputFileName", "OutputParams missing stateOutputFileName value in XML.");
             }
+*/
+	    if(element.ValueStr().compare("stateOutputFileName") == 0){
+		stateOutputFileName = element.GetText();
+	    }
         }
-        nParams++;
+
+//      nParams++;
         return true;
     }
 
