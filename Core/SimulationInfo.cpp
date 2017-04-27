@@ -106,10 +106,10 @@ bool SimulationInfo::VisitEnter(const TiXmlElement& element, const TiXmlAttribut
         }
         nParams++;
 */
-	if(element.ValueStr().compare("Tsim")){
+	if(element.ValueStr().compare("Tsim") == 0){
 	    epochDuration = atof(element.GetText());
 	}
-	else if(element.ValueStr().compare("numSims")){
+	else if(element.ValueStr().compare("numSims") == 0){
 	    maxSteps = atof(element.GetText());
 	}
 
