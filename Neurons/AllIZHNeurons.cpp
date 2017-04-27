@@ -289,10 +289,6 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         // Min/max values of Cconst for excitatory neurons. 
 	if(element.ValueStr().compare("minExc") == 0){
 	    m_excCconst[0] = atof(element.GetText());
-
-            if (m_excCconst[0] < 0) {
-                throw ParseParamError("Cconst minExc", "Invalid negative Cconst value.");
-            }
 	}
 	else if(element.ValueStr().compare("maxExc") == 0){
 	    m_excCconst[1] = atof(element.GetText());
@@ -305,10 +301,6 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         // Min/max values of Cconst for inhibitory neurons.
 	if(element.ValueStr().compare("minInh") == 0){
 	    m_inhCconst[0] = atof(element.GetText());
-
-            if (m_inhCconst[0] < 0) {
-                throw ParseParamError("Cconst minInh", "Invalid negative Cconst value.");
-            }
 	}
 	else if(element.ValueStr().compare("maxInh") == 0){
 	    m_inhCconst[1] = atof(element.GetText());
@@ -322,7 +314,7 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         return true;
     }
 
-    if (element.ValueStr().compare("Dconst") == 0) {
+    if (element.Parent()->ValueStr().compare("Dconst") == 0) {
         // Min/max values of Dconst for excitatory neurons.
 	if(element.ValueStr().compare("minExc") == 0){
 	    m_excDconst[0] = atof(element.GetText());
