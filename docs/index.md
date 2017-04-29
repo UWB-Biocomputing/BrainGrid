@@ -1,37 +1,49 @@
-## Welcome to GitHub Pages
+## About The BrainGrid Project
 
-You can use the [editor on GitHub](https://github.com/UWB-Biocomputing/BrainGrid/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+The idea behind The BrainGrid Project is to develop a toolkit/software architecture to ease creating high-performance neural network simulators. It is particularly focused on facilitating biologically realistic modeling. 
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Our current focus is on single-threaded simulators and simulators running on GPUs using NVIDIA's CUDA libraries. We expect to shortly thereafter roll out support for multi-cluster CPU and multi-threading using OpenMP. 
 
-### Markdown
+##### Multiple simulation architectures:
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+- Single-threaded on general-purpose CPU
+- GPU-accelerated using NVIDIA's CUDA libraries
+- Multi-cluster (CPU version) *— under development*
+- Multi-threading using OpenMP — *not yet implemented*
 
-```markdown
-Syntax highlighted code block
+##### Supported operating systems:
 
-# Header 1
-## Header 2
-### Header 3
+-  Linux Distribution
 
-- Bulleted
-- List
+##### Resources:
 
-1. Numbered
-2. List
+- [BrainGrid Forum]([https://groups.google.com/forum/#!forum/uwb-braingrid](https://groups.google.com/forum/#!forum/uwb-braingrid)): A place where BrainGridders can communicate and collaborate. Click the button "Apply to join this group" to be a BrainGridder.
+- [Git Crash Course](https://github.com/UWB-Biocomputing/BrainGrid/wiki/Git-Crash-Course)
+- [Linux Crash Course](https://github.com/UWB-Biocomputing/BrainGrid/wiki/Linux-Crash-Course)
 
-**Bold** and _Italic_ and `Code` text
+##### Lab publications:
 
-[Link](url) and ![Image](src)
-```
+2017
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+> Michael Stiber, Fumitaka Kawasaki, Delmar Davis, Hazeline Asuncion, Jewel Yun-Hsuan Lee, and Destiny Boyer. *BrainGrid+Workbench: High-Performance/High-Quality Neural Simulation*. International Joint Conference on Neural Networks (IJCNN), 14 – 19 May 2017, Anchorage, AK.
 
-### Jekyll Themes
+2015
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/UWB-Biocomputing/BrainGrid/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+> Davis, Delmar, Hazeline U. Asuncion, and Michael Stiber. "Software and Data Provenance in Computational Neuroscience Research." Available at http://faculty.washington.edu/stiber/pubs/davis-etal15.pdf
 
-### Support or Contact
+2014
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+> F. Kawasaki and M. Stiber, “A simple mode of cortical culture growth: burst property dependence on network composition and activity,” Biological Cybernetics, vol. 108, no. 4, pp. 423–443, 2014.
+
+##### Support or Contact:
+
+BrainGrid documentation is under construction. If you cannot find what you are looking for or have trouble using BrainGrid, please contact us. 
+
+
+## Table of Contents
+
+1. [Introduction]()
+2. [Installation]()
+3. [Quickstart]()
+4. [Examples]()
+5. [FAQ]()
