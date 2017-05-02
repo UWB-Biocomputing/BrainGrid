@@ -70,7 +70,8 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
 
             DEBUG_MID (cout << "source: " << src_neuron << " dest: " << dest_neuron << " dist: " << distDestNeurons[src_neuron][i].dist << endl;)
 
-            BGFLOAT* sum_point = &( dynamic_cast<AllNeurons*>(neurons)->summation_map[dest_neuron] );
+            int iNeuron = dest_neuron - vtClrInfo[iCluster]->clusterNeuronsBegin;
+            BGFLOAT* sum_point = &( dynamic_cast<AllNeurons*>(neurons)->summation_map[iNeuron] );
             BGSIZE iSyn;
             synapses->addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT, vtClrInfo[iCluster]);
                 added++;

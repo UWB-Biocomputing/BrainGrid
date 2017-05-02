@@ -86,7 +86,7 @@ public:
      * @param[in] vtClr      Vector of pointer to the Cluster object.
      * @param[in] vtClrInfo  Vecttor of pointer to the ClusterInfo object.
      */
-    virtual void compileHistories(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
+    virtual void compileHistories(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 
 protected:
     virtual void initDataSet();

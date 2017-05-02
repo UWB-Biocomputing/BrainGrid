@@ -197,7 +197,7 @@ void Hdf5Recorder::compileHistories(vector<Cluster *> &vtClr, vector<ClusterInfo
         // output spikes
         int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
         int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
-        for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex)
+        for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++)
         {
             // true if this is a probed neuron
             fProbe = ((iProbe < m_model->getLayout()->m_probed_neuron_list.size()) && (neuronLayoutIndex == m_model->getLayout()->m_probed_neuron_list[iProbe]));
