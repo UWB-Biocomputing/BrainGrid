@@ -1,6 +1,10 @@
 <div style="text-align:center">
-# 2. Installation
+<h1> 2. Installation </h1>
 </div>
+
+
+
+
 
 ## 2.1 Necessary Hardware/Software
 
