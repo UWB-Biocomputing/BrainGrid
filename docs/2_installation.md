@@ -1,5 +1,6 @@
 # 2. Installation
 
+
 ## 2.1 Necessary Hardware/Software
 
 BrainGrid is designed to be easy to use and fast to simulate with, but given its scope and flexibility, there are some tradeoffs. 
