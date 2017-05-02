@@ -57,6 +57,7 @@ If you are forking the BrainGrid that is currently under development, you will w
 - List the current configured remote repository for your fork. 
 
   When a repo is cloned, the default remote **origin** is your fork on Github, not BrainGrid repo it was forked from.
+  
   ```shell
   $ git remote -v 
   origin  https://github.com/YOUR_USERNAME/public_html.git (fetch)
@@ -64,11 +65,13 @@ If you are forking the BrainGrid that is currently under development, you will w
   ```
 
 - Set BrainGrid as your new remote **upstream** in order to keep your local copy in sync with the BrainGrid.
+
   ```shell
   $ git remote add upstream https://github.com/UWB-Biocomputing/BrainGrid.git
   ```
 
 - Verify the new remote repository you've specified for your fork. 
+
   ```shell
   $ git remote -v
   origin  https://github.com/YOUR_USERNAME/BrainGrid.git (fetch)
@@ -121,7 +124,6 @@ In order to compile and run BrainGrid, you will need to set up a couple things i
    -  change HDF5 home directory: ```H5INCDIR = YOUR_HDF5_HOME_PATH``` 
    -  change HDF5 library directory: ```H5LIBDIR = YOUR_HDF5_LIBRARY_PATH```
    -  make ```CUSEHDF5 = yes``` in line 17 to use HDF5 file format instead of XML
-
 
 3. BrainGrid is written in C++ and CUDA C/C++. Make sure you have all these dependencies in order to compile BrainGrid:
    - [make](https://www.gnu.org/software/make/)
