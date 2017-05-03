@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AllParamsClasses
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xsi:noNamespaceSchemaLocation='AllParamsClasses.xsd'>
+    <NeuronsParamsClasses name="NeuronsParamsClasses" templateDirectory="ParamsClassTemplateConfig/NeuronsParamsClass/">
+        <ParamsClass name="ALLLIFNeurons" templateFileName="AllLIFNeurons.xml"/>
+        <ParamsClass name="NeuronsParamsClass1" templateFileName="NeuronsParamsClass1.xml"/>
+        <ParamsClass name="NeuronsParamsClass2" templateFileName="NeuronsParamsClass2.xml"/>
+    </NeuronsParamsClasses>
+    <SynapsesParamsClasses name="SynapsesParamsClasses" templateDirectory="ParamsClassTemplateConfig/SynapsesParamsClass/">
+        <ParamsClass name="AllDSSynapses" templateFileName="AllDSSynapses.xml"/>
+        <ParamsClass name="SynapsesParamsClass1" templateFileName="SynapsesParamsClass1.xml"/>
+        <ParamsClass name="SynapsesParamsClass2" templateFileName="SynapsesParamsClass2.xml"/>
+    </SynapsesParamsClasses>
+    <ConnectionsParamsClasses name="ConnectionsParamsClasses" templateDirectory="ParamsClassTemplateConfig/ConnectionsParamsClass/">
+        <ParamsClass name="ConnGrowth" templateFileName="ConnGrowth.xml"/>
+        <ParamsClass name="ConnectionsParamsClass1" templateFileName="ConnectionsParamsClass1.xml"/>
+        <ParamsClass name="ConnectionsParamsClass2" templateFileName="ConnectionsParamsClass2.xml"/>
+    </ConnectionsParamsClasses>
+    <LayoutParamsClasses name="LayoutParamsClasses" templateDirectory="ParamsClassTemplateConfig/LayoutParamsClass/">
+        <ParamsClass name="FixedLayout" templateFileName="FixedLayout.xml"/>
+        <ParamsClass name="LayoutParamsClass1" templateFileName="LayoutParamsClass1.xml"/>
+        <ParamsClass name="LayoutParamsClass2" templateFileName="LayoutParamsClass2.xml"/>
+    </LayoutParamsClasses>
+</AllParamsClasses>
+

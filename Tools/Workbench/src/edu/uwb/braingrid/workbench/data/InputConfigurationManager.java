@@ -98,13 +98,13 @@ public class InputConfigurationManager {
             throws TransformerException, TransformerConfigurationException,
             IOException {
         String fullPath = null;
-        boolean success = inputConfig.allValuesSet();
-        if (success) {
+        //boolean success = inputConfig.allValuesSet();
+        //if (success) {
             inputConfigBuilder.build(inputConfig.getMap());
             FileManager fm = FileManager.getFileManager();
             fullPath = fm.getSimConfigFilePath(projectName, filename, true);
             inputConfigBuilder.persist(fullPath);
-        }
+        //}
         return fullPath;
     }
 

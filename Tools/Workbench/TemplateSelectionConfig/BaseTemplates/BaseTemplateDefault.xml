@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BGSimParams>
+   <SimInfoParams name="SimInfoParams">
+      <PoolSize name="PoolSize">
+         <x name="x">10</x>
+         <y name="y">10</y>
+         <z name="z">1</z>
+      </PoolSize>
+      <SimParams name="SimParams">
+         <Tsim name="Tsim">100.0</Tsim>
+         <numSims name="numSims">1</numSims>
+      </SimParams>
+      <SimConfig name="SimConfig">
+         <maxFiringRate name="maxFiringRate">200</maxFiringRate>
+         <maxSynapsesPerNeuron name="maxSynapsesPerNeuron">200</maxSynapsesPerNeuron>
+      </SimConfig>
+      <Seed name="Seed">
+         <value name="value">1</value>
+      </Seed>
+      <OutputParams name="OutputParams">
+         <stateOutputFileName name="stateOutputFileName">results/tR_1.9--fE_0.98_historyDump_1.xml</stateOutputFileName>
+      </OutputParams>
+   </SimInfoParams>
+
+    <ModelParams>
+        <NeuronsParams>
+        </NeuronsParams>
+
+        <SynapsesParams>
+        </SynapsesParams>
+
+        <ConnectionsParams>
+        </ConnectionsParams>
+
+        <LayoutParams>
+        </LayoutParams>
+    </ModelParams>
+</BGSimParams>
