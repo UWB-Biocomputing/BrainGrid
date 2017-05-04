@@ -136,6 +136,10 @@ void SynapseIndexMap::createSynapseImap(const SimulationInfo* sim_info, vector<C
             total_outgoing_synapse_count += rgSynapseSynapseIndexMap[neuronLayoutIndex].size();
         }
 
+        if (total_outgoing_synapse_count == 0) {
+            continue;
+        }
+
         // Number of incoming synapes and number of outgoing synapses are not always equal.
         // However for the growth connection model, each couple of neurons are connected 
         // bi-directionally. So the number of inter cluster synapses between two clusters 
