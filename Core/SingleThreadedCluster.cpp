@@ -27,7 +27,8 @@ void SingleThreadedCluster::setupCluster(SimulationInfo *sim_info, Layout *layou
     Cluster::setupCluster(sim_info, layout, clr_info);
 
     // Create a normalized random number generator
-    clr_info->normRand = new Norm(0, 1, clr_info->seed); 
+    // TODO: we will have the way to specify seed value of each cluster separately.
+    clr_info->normRand = new Norm(0, 1, clr_info->seed + clr_info->clusterID); 
 }
 
 /*
