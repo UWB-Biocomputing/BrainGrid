@@ -40,7 +40,6 @@ The idea behind the BrainGrid Project is to develop a toolkit/software architect
 
 7. [Acknowledgements](http://uwb-biocomputing.github.io/BrainGrid/7_acknowledgements)
 
-8. [FAQ](https://github.com/UWB-Biocomputing/BrainGrid/wiki)
 ---------
 ### Multiple simulation architectures:
 
