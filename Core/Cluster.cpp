@@ -130,12 +130,23 @@ void Cluster::advanceThread(const SimulationInfo *sim_info, const ClusterInfo *c
         // Advances neurons network state one simulation step
         advanceNeurons(sim_info, clr_info);
 
-        // We don't need barrier synchronization here,
+        // We don't need barrier synchronization between advanceNeurons
+        // and advanceSynapses,
         // because all incoming synapses should be in the same cluster of
         // the target neuron. Therefore summation point of the neuron
         // should not be modified from synapses of other clusters.  
+
+        // The above mention is not true. 
+        // When advanceNeurons and advanceSynapses in different clusters 
+        // are running concurrently, there might be race condition at
+        // event queues. For example, EventQueue::addAnEvent() is called
+        // from advanceNeurons in cluster 0 and EventQueue::checkAnEvent()
+        // is called from advanceSynapses in cluster 1. These functions
+        // contain memory read/write operation at event queue and 
+        // consequntltly data race happens. 
+
         // wait until all threads are complete 
-        // m_barrierAdvance->Sync();
+        m_barrierAdvance->Sync();
 
         // Advances synapses network state one simulation step
         advanceSynapses(sim_info, clr_info);
@@ -183,7 +194,7 @@ void Cluster::runAdvance()
     m_barrierAdvance->Sync();
 
     // notify all advanceThread that the advanceSynapses is ready to go
-    // m_barrierAdvance->Sync();
+    m_barrierAdvance->Sync();
 
     // notify all advanceThread that the advanceSpikeQueue is ready to go
     m_barrierAdvance->Sync();
