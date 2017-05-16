@@ -7,39 +7,33 @@ The idea behind the BrainGrid Project is to develop a toolkit/software architect
 1. [Introduction](http://uwb-biocomputing.github.io/BrainGrid/1_introduction)
 
    1.1 What is BrainGrid?
-
    1.2 What is BrainGrid for?
-
    1.3 Why do we need BrainGrid?
 
 2. [Installation](http://uwb-biocomputing.github.io/BrainGrid/2_installation)
 
    2.1 Necessary Hardware/Software
-
    2.2 Download BrainGrid
-
    2.3 Install BrainGrid
 
 3. [Quickstart](http://uwb-biocomputing.github.io/BrainGrid/3_quickstart)
 
    3.1 Quick Sanity Test
-
    3.2 Use of Screen
-
    3.3 Contribute to BrainGrid
 
-4. [Configuration]()
+4. [Configuration](http://uwb-biocomputing.github.io/BrainGrid/4_configuration)
 
    4.1 Use built-in models
-
    4.2 Configuring the model
 
-5. [Examples]()
+5. Examples [under construction]
 
-6. [Acknowledgements]()
+6. [Lab Publication](http://uwb-biocomputing.github.io/BrainGrid/6_lab-publication) 
 
-7. [FAQ]()
+7. [Acknowledgements](http://uwb-biocomputing.github.io/BrainGrid/7_acknowledgements)
 
+8. [FAQ](https://github.com/UWB-Biocomputing/BrainGrid/wiki)
 ---------
 ### Multiple simulation architectures:
 
@@ -58,19 +52,11 @@ The idea behind the BrainGrid Project is to develop a toolkit/software architect
 - [Git Crash Course](https://github.com/UWB-Biocomputing/BrainGrid/wiki/Git-Crash-Course)
 - [Linux Crash Course](https://github.com/UWB-Biocomputing/BrainGrid/wiki/Linux-Crash-Course)
 
-### Lab publications:
+### Latest News about BrainGrid:
 
-2017
+Our recently published conference paper for IJCNN 2017:
 
 > Michael Stiber, Fumitaka Kawasaki, Delmar Davis, Hazeline Asuncion, Jewel Lee, and Destiny Boyer. *BrainGrid+Workbench: High-Performance/High-Quality Neural Simulation*. International Joint Conference on Neural Networks (IJCNN), 14 – 19 May 2017, Anchorage, AK.
-
-2015
-
-> Davis, Delmar, Hazeline U. Asuncion, and Michael Stiber. "Software and Data Provenance in Computational Neuroscience Research." Available at http://faculty.washington.edu/stiber/pubs/davis-etal15.pdf
-
-2014
-
-> F. Kawasaki and M. Stiber, “A simple mode of cortical culture growth: burst property dependence on network composition and activity,” Biological Cybernetics, vol. 108, no. 4, pp. 423–443, 2014.
 
 ### Support or Contact:
 
