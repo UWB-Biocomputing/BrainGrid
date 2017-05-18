@@ -22,6 +22,35 @@ AllIZHNeurons::AllIZHNeurons(const AllIZHNeurons &r_neurons) : AllIFNeurons(r_ne
     u = NULL;
     C3 = NULL;
 
+    copyParameters(r_neurons);
+}
+
+AllIZHNeurons::~AllIZHNeurons()
+{
+    freeResources();
+}
+
+/*
+ *  Assignment operator: copy neurons parameters.
+ *
+ *  @param  r_neurons  Neurons class object to copy from.
+ */
+IAllNeurons &AllIZHNeurons::operator=(const IAllNeurons &r_neurons)
+{
+    copyParameters(dynamic_cast<const AllIZHNeurons &>(r_neurons));
+
+    return (*this);
+}
+
+/*
+ *  Copy neurons parameters.
+ *
+ *  @param  r_neurons  Neurons class object to copy from.
+ */
+void AllIZHNeurons::copyParameters(const AllIZHNeurons &r_neurons)
+{
+    AllIFNeurons::copyParameters(r_neurons);
+
     for (int i = 0; i < 2; i++) {
         m_excAconst[i] = r_neurons.m_excAconst[i];
         m_inhAconst[i] = r_neurons.m_inhAconst[i];
@@ -32,11 +61,6 @@ AllIZHNeurons::AllIZHNeurons(const AllIZHNeurons &r_neurons) : AllIFNeurons(r_ne
         m_excDconst[i] = r_neurons.m_excDconst[i];
         m_inhDconst[i] = r_neurons.m_inhDconst[i];
     }
-}
-
-AllIZHNeurons::~AllIZHNeurons()
-{
-    freeResources();
 }
 
 /*

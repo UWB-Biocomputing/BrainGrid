@@ -116,14 +116,26 @@ void FClassOfCategory::registerLayout(const string &layoutClassName, CreateLayou
  */
 IAllNeurons* FClassOfCategory::createNeurons(const TiXmlNode* parms)
 {
-    string neuronsClassName;
- 
-    if (parms->ToElement()->QueryValueAttribute("class", &neuronsClassName) == TIXML_SUCCESS) {
-        m_neurons = createNeuronsWithName(neuronsClassName);
+    if (parms->ToElement()->QueryValueAttribute("class", &m_neuronsClassName) == TIXML_SUCCESS) {
+        m_neurons = createNeuronsWithName(m_neuronsClassName);
         return m_neurons;
     }
 
     return NULL;
+}
+
+/*
+ * Create an instance of the neurons class and copy neurons parameters from the 
+ * neurons class object that has been already created.
+ *
+ * @return Poiner to the neurons object.
+ */
+IAllNeurons* FClassOfCategory::createNeurons()
+{
+    IAllNeurons *neurons = createNeuronsWithName(m_neuronsClassName);
+    *neurons = *m_neurons;
+
+    return neurons;
 }
 
 /*
@@ -134,14 +146,26 @@ IAllNeurons* FClassOfCategory::createNeurons(const TiXmlNode* parms)
  */
 IAllSynapses* FClassOfCategory::createSynapses(const TiXmlNode* parms)
 {
-    string synapsesClassName;
-
-    if (parms->ToElement()->QueryValueAttribute("class", &synapsesClassName) == TIXML_SUCCESS) {
-        m_synapses = createSynapsesWithName(synapsesClassName);
+    if (parms->ToElement()->QueryValueAttribute("class", &m_synapsesClassName) == TIXML_SUCCESS) {
+        m_synapses = createSynapsesWithName(m_synapsesClassName);
         return m_synapses;
     }
 
     return NULL;
+}
+
+/*
+ * Create an instance of the synapses class and copy synapses parameters from the 
+ * synapse class object that has been already created.
+ *
+ * @return Poiner to the synapses object.
+ */
+IAllSynapses* FClassOfCategory::createSynapses()
+{
+    IAllSynapses *synapses = createSynapsesWithName(m_synapsesClassName);
+    *synapses = *m_synapses;
+
+    return synapses;
 }
 
 /*

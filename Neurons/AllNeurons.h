@@ -50,6 +50,13 @@ class AllNeurons : public IAllNeurons
         virtual ~AllNeurons();
 
         /**
+         *  Assignment operator: copy neurons parameters.
+         *
+         *  @param  r_neurons  Neurons class object to copy from.
+         */
+        virtual IAllNeurons &operator=(const IAllNeurons &r_neurons);
+
+        /**
          *  Setup the internal structure of the class. 
          *  Allocate memories to store all neurons' state.
          *
@@ -74,6 +81,13 @@ class AllNeurons : public IAllNeurons
         BGFLOAT *summation_map;
 
     protected:
+        /**
+         *  Copy neurons parameters.
+         *
+         *  @param  r_neurons  Neurons class object to copy from.
+         */
+        void copyParameters(const AllNeurons &r_neurons);
+
         /**
          *  Total number of neurons.
          */

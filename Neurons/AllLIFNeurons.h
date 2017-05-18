@@ -109,6 +109,13 @@ class AllLIFNeurons : public AllIFNeurons
          */
         static IAllNeurons* Create() { return new AllLIFNeurons(); }
 
+        /**
+         *  Assignment operator: copy neurons parameters.
+         *
+         *  @param  r_neurons  Neurons class object to copy from.
+         */
+        virtual IAllNeurons &operator=(const IAllNeurons &r_neurons);
+
 #if defined(USE_GPU)
     public:
 
@@ -128,6 +135,12 @@ class AllLIFNeurons : public AllIFNeurons
 
 #else  // !defined(USE_GPU)
     protected:
+        /**
+         *  Copy neurons parameters.
+         *
+         *  @param  r_neurons  Neurons class object to copy from.
+         */
+        void copyParameters(const AllLIFNeurons &r_neurons);
 
         /**
          *  Helper for #advanceNeuron. Updates state of a single neuron.

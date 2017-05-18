@@ -20,6 +20,13 @@ class IAllNeurons
         virtual ~IAllNeurons() {}
 
         /**
+         *  Assignment operator: copy neurons parameters.
+         *
+         *  @param  r_neurons  Neurons class object to copy from.
+         */
+        virtual IAllNeurons &operator=(const IAllNeurons &r_neurons) = 0;
+
+        /**
          *  Setup the internal structure of the class. 
          *  Allocate memories to store all neurons' state.
          *

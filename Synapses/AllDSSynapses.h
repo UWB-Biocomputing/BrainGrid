@@ -73,6 +73,13 @@ class AllDSSynapses : public AllSpikingSynapses
         static IAllSynapses* Create() { return new AllDSSynapses(); }
 
         /**
+         *  Assignment operator: copy synapses parameters.
+         *
+         *  @param  r_synapses  Synapses class object to copy from.
+         */
+        virtual IAllSynapses &operator=(const IAllSynapses &r_synapses);
+
+        /**
          *  Setup the internal structure of the class (allocate memories and initialize them).
          *
          *  @param  sim_info  SimulationInfo class to read information from.
@@ -129,6 +136,13 @@ class AllDSSynapses : public AllSpikingSynapses
         virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
 
     protected:
+        /**
+         *  Copy synapses parameters.
+         *
+         *  @param  r_synapses  Synapses class object to copy from.
+         */
+        void copyParameters(const AllDSSynapses &r_synapses);
+
         /**
          *  Setup the internal structure of the class (allocate memories and initialize them).
          *

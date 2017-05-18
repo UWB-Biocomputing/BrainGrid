@@ -53,6 +53,13 @@ class AllSpikingNeurons : public AllNeurons
         virtual ~AllSpikingNeurons();
 
         /**
+         *  Assignment operator: copy neurons parameters.
+         *
+         *  @param  r_neurons  Neurons class object to copy from.
+         */
+        virtual IAllNeurons &operator=(const IAllNeurons &r_neurons);
+
+        /**
          *  Setup the internal structure of the class.
          *  Allocate memories to store all neurons' state.
          *
@@ -178,6 +185,14 @@ class AllSpikingNeurons : public AllNeurons
          */
         virtual void fire(const int index, const SimulationInfo *sim_info) const;
 #endif // defined(USE_GPU)
+
+    protected:
+        /**
+         *  Copy neurons parameters.
+         *
+         *  @param  r_neurons  Neurons class object to copy from.
+         */
+        void copyParameters(const AllSpikingNeurons &r_neurons);
 
     private:
         /**

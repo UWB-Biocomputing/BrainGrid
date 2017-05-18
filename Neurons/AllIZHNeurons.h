@@ -98,6 +98,13 @@ class AllIZHNeurons : public AllIFNeurons
         static IAllNeurons* Create() { return new AllIZHNeurons(); }
 
         /**
+         *  Assignment operator: copy neurons parameters.
+         *
+         *  @param  r_neurons  Neurons class object to copy from.
+         */
+        virtual IAllNeurons &operator=(const IAllNeurons &r_neurons);
+
+        /**
          *  Setup the internal structure of the class.
          *  Allocate memories to store all neurons' state.
          *
@@ -307,6 +314,13 @@ class AllIZHNeurons : public AllIFNeurons
 #endif  // defined(USE_GPU)
 
     protected:
+        /**
+         *  Copy neurons parameters.
+         *
+         *  @param  r_neurons  Neurons class object to copy from.
+         */
+        void copyParameters(const AllIZHNeurons &r_neurons);
+
         /**
          *  Creates a single Neuron and generates data for it.
          *

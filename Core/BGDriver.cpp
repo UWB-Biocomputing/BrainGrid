@@ -159,9 +159,6 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-#include "AllLIFNeurons.h"
-#include "AllDSSynapses.h"
-
 /*
  *  Create instances of all model classes.
  *
@@ -210,7 +207,7 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
     }
 
     // create clusters
-    int numClusters = 8;	// number of clusters
+    int numClusters = 2;	// number of clusters
     int numClusterNeurons = simInfo->totalNeurons / numClusters;	// number of neurons in cluster
 
     for (int iCluster = 0; iCluster < numClusters; iCluster++) {
@@ -240,13 +237,11 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
             cluster = new SingleThreadedCluster(neurons, synapses);
 #endif
         } else {
-            // create a new neurons class and copy properties from the reference neurons class
-            // TODO: type of neurons class should not be hard coded
-            IAllNeurons *neurons_1 = new AllLIFNeurons(*dynamic_cast<AllLIFNeurons*>(neurons));
+            // create a new neurons class object and copy properties from the reference neurons class object
+            IAllNeurons *neurons_1 = FClassOfCategory::get()->createNeurons();
 
-            // create a new synapses class and copy properties from the reference synapses class
-            // TODO: type of synapses class should not be har coded
-            IAllSynapses *synapses_1 = new AllDSSynapses(*dynamic_cast<AllDSSynapses*>(synapses));
+            // create a new synapses class object and copy properties from the reference synapses class object
+            IAllSynapses *synapses_1 = FClassOfCategory::get()->createSynapses();
 
            // create a cluster class object
 #if defined(USE_GPU)

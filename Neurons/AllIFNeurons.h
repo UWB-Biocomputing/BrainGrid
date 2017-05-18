@@ -50,6 +50,13 @@ class AllIFNeurons : public AllSpikingNeurons
         virtual ~AllIFNeurons();
 
         /**
+         *  Assignment operator: copy neurons parameters.
+         *
+         *  @param  r_neurons  Neurons class object to copy from.
+         */
+        virtual IAllNeurons &operator=(const IAllNeurons &r_neurons);
+
+        /**
          *  Setup the internal structure of the class.
          *  Allocate memories to store all neurons' state.
          *
@@ -239,6 +246,13 @@ class AllIFNeurons : public AllSpikingNeurons
 #endif // defined(USE_GPU)
 
     protected:
+        /**
+         *  Copy neurons parameters.
+         *
+         *  @param  r_neurons  Neurons class object to copy from.
+         */
+        void copyParameters(const AllIFNeurons &r_neurons);
+
         /**
          *  Creates a single Neuron and generates data for it.
          *

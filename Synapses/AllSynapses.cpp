@@ -47,6 +47,27 @@ AllSynapses::~AllSynapses()
 }
 
 /*
+ *  Assignment operator: copy synapses parameters.
+ *
+ *  @param  r_synapses  Synapses class object to copy from.
+ */
+IAllSynapses &AllSynapses::operator=(const IAllSynapses &r_synapses)
+{
+    copyParameters(dynamic_cast<const AllSynapses &>(r_synapses));
+
+    return (*this);
+}
+
+/*
+ *  Copy synapses parameters.
+ *
+ *  @param  r_synapses  Synapses class object to copy from.
+ */
+void AllSynapses::copyParameters(const AllSynapses &r_synapses)
+{
+}
+
+/*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *
  *  @param  sim_info  SimulationInfo class to read information from.

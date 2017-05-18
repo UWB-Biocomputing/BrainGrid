@@ -62,12 +62,28 @@ public:
     IAllNeurons* createNeurons(const TiXmlNode* parms);
 
     /**
+     * Create an instance of the neurons class and copy neurons parameters from the
+     * neurons class object that has been already created.
+     *
+     * @return Poiner to the neurons object.
+     */
+    IAllNeurons* createNeurons();
+
+    /**
      * Create an instance of the synapses class, which is specified in the parameter file.
      *
      * @param  element TiXmlNode to examine.
      * @return Poiner to the synapses object.
      */
     IAllSynapses* createSynapses(const TiXmlNode* parms);
+
+    /**
+     * Create an instance of the synapses class and copy synapses parameters from the
+     * synapse class object that has been already created.
+     *
+     * @return Poiner to the synapses object.
+     */
+    IAllSynapses* createSynapses();
 
     /**
      * Create an instance of the connections class, which is specified in the parameter file.
@@ -123,6 +139,12 @@ private:
 
     //! Pointer to the layout object.
     Layout* m_layout;
+
+    //! Class name of neurons
+    string m_neuronsClassName;
+
+    //! Class name of synapses
+    string m_synapsesClassName;
 
     // type definitions
     typedef IAllNeurons* (*CreateNeuronsFn)(void);

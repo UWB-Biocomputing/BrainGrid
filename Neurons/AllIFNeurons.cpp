@@ -42,6 +42,35 @@ AllIFNeurons::AllIFNeurons(const AllIFNeurons &r_neurons) : AllSpikingNeurons(r_
     Vthresh = NULL;
     nStepsInRefr = NULL;
 
+    copyParameters(r_neurons);
+}
+
+AllIFNeurons::~AllIFNeurons()
+{
+    freeResources();
+}
+
+/*
+ *  Assignment operator: copy neurons parameters.
+ *
+ *  @param  r_neurons  Neurons class object to copy from.
+ */
+IAllNeurons &AllIFNeurons::operator=(const IAllNeurons &r_neurons)
+{
+    copyParameters(dynamic_cast<const AllIFNeurons &>(r_neurons));
+
+    return (*this);
+}
+
+/*
+ *  Copy neurons parameters.
+ *
+ *  @param  r_neurons  Neurons class object to copy from.
+ */
+void AllIFNeurons::copyParameters(const AllIFNeurons &r_neurons)
+{
+    AllSpikingNeurons::copyParameters(r_neurons);
+ 
     for (int i = 0; i < 2; i++) {
         m_Iinject[i] = r_neurons.m_Iinject[i];
         m_Inoise[i] = r_neurons.m_Inoise[i];
@@ -52,11 +81,6 @@ AllIFNeurons::AllIFNeurons(const AllIFNeurons &r_neurons) : AllSpikingNeurons(r_
         m_starter_Vthresh[i] = r_neurons.m_starter_Vthresh[i];
         m_starter_Vreset[i] = r_neurons.m_starter_Vreset[i];
     }
-}
-
-AllIFNeurons::~AllIFNeurons()
-{
-    freeResources();
 }
 
 /*

@@ -25,6 +25,28 @@ AllSpikingNeurons::~AllSpikingNeurons()
 }
 
 /*
+ *  Assignment operator: copy neurons parameters.
+ *
+ *  @param  r_neurons  Neurons class object to copy from.
+ */
+IAllNeurons &AllSpikingNeurons::operator=(const IAllNeurons &r_neurons)
+{
+    copyParameters(dynamic_cast<const AllSpikingNeurons &>(r_neurons));
+
+    return (*this);
+}
+
+/*
+ *  Copy neurons parameters.
+ *
+ *  @param  r_neurons  Neurons class object to copy from.
+ */
+void AllSpikingNeurons::copyParameters(const AllSpikingNeurons &r_neurons)
+{
+    AllNeurons::copyParameters(r_neurons);
+}
+
+/*
  *  Setup the internal structure of the class (allocate memories).
  *
  *  @param  sim_info  SimulationInfo class to read information from.
