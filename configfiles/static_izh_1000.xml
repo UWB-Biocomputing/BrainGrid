@@ -1,59 +1,111 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<SimInfoParams>
-    <!-- size of pool of neurons [x y z] -->
-    <PoolSize x="40" y="25" z="1"/>
-    <!-- Simulation Parameters -->
-    <SimParams Tsim="1" numSims="1"/>
-    <!-- Simulation Configuration Parameters -->
-    <SimConfig maxFiringRate="1000" maxSynapsesPerNeuron="1000"/>
-    <!-- Random seed - set to zero to use /dev/random -->
-    <Seed value="777"/>
-    <!-- State output file name, this name will be overwritten if -o option is specified -->
-    <OutputParams stateOutputFileName="results/static_izh_historyDump.h5"/>
-</SimInfoParams>
+<BGSimParams>
+    <SimInfoParams name="SimInfoParams">
+        <PoolSize name="PoolSize">
+            <x name="x">40</x>
+            <y name="y">25</y>
+            <z name="z">1</z>
+        </PoolSize>
+        <SimParams name="SimParams">
+            <Tsim name="Tsim">1</Tsim>
+            <numSims name="numSims">1</numSims>
+        </SimParams>
+        <SimConfig name="SimConfig">
+            <maxFiringRate name="maxFiringRate">1000</maxFiringRate>
+            <maxSynapsesPerNeuron name="maxSynapsesPerNeuron">1000</maxSynapsesPerNeuron>
+        </SimConfig>
+        <Seed name="Seed">
+            <value name="value">777</value>
+        </Seed>
+        <OutputParams name="OutputParams">
+            <stateOutputFileName name="stateOutputFileName">results/static_izh_historyDump.h5</stateOutputFileName>
+        </OutputParams>
+    </SimInfoParams>
+    <ModelParams>
+        <NeuronsParams class="AllIZHNeurons" name="NeuronsParams">
+            <Iinject name="Iinject">
+                <min name="min">13.5e-09</min>
+                <max name="max">13.5e-09</max>
+            </Iinject>
+            <Inoise name="Inoise">
+                <min name="min">0.5e-06</min>
+                <max name="max">0.7329e-06</max>
+            </Inoise>
+            <Vthresh name="Vthresh">
+                <min name="min">30.0e-03</min>
+                <max name="max">30.0e-03</max>
+            </Vthresh>
+            <Vresting name="Vresting">
+                <min name="min">0.0</min>
+                <max name="max">0.0</max>
+            </Vresting>
 
-<ModelParams>
-    <NeuronsParams class="AllIZHNeurons">
-        <!-- Interval of constant injected current -->
-        <Iinject max="13.5e-09" min="13.5e-09"/>
-        <!-- Interval of STD of (gaussian) noise current -->
-        <!--Inoise max="1.5e-09" min="1.0e-09"/-->
-        <Inoise max="0.7329e-06" min="0.5e-06"/>
-        <!-- Interval of firing threshold -->
-        <Vthresh max="30.0e-03" min="30.0e-03"/>
-        <!-- Interval of asymptotic voltage -->
-        <Vresting max="0.0" min="0.0"/>
-        <!-- Interval of reset voltage -->
-        <Vreset max="-0.065" min="-0.065"/>
-        <!-- Interval of initial membrance voltage -->
-        <Vinit max="-0.065" min="-0.065"/>
-        <!-- Starter firing threshold -->
-        <starter_vthresh max="13.655e-3" min="13.565e-3"/>
-        <!-- Starter reset voltage -->
-        <starter_vreset max="13.0e-3" min="13.0e-3"/>
-        <!-- Izhikevich neuron parameters -->
-        <Aconst maxExc="0.02" minExc="0.02" maxInh="0.1" minInh="0.02"/>
-        <Bconst maxExc="0.2" minExc="0.2" maxInh="0.25" minInh="0.2"/>
-        <Cconst maxExc="-50" minExc="-65" maxInh="-65" minInh="-65"/>
-        <Dconst maxExc="8" minExc="2" maxInh="2" minInh="2"/>
-    </NeuronsParams>
+            <Vreset name="Vreset">
+                <min name="min">-0.065</min>
+                <max name="max">-0.065</max>
+            </Vreset>
+            <Vinit name="Vinit">
+                <min name="min">-0.065</min>
+                <max name="max">-0.065</max>
+            </Vinit>
+            <starter_vthresh name="starter_vthresh">
+                <min name="min">13.565e-3</min>
+                <max name="max">13.655e-3</max>
+            </starter_vthresh>
+            <starter_vreset name="starter_vreset">
+                <min name="min">13.0e-3</min>
+                <max name="max">13.0e-3</max>
+            </starter_vreset>
+            <!-- Izhikevich neuron parameters -->
+            <Aconst name="Aconst">
+                <minExc name="minExc">0.02</minExc>
+                <maxExc name="maxExc">0.02</maxExc>
+                <minInh name="minInh">0.02</minInh>
+                <maxInh name="maxInh">0.1</maxInh>
+            </Aconst>
+            <Bconst name="Bconst">
+                <minExc name="minExc">0.2</minExc>
+                <maxExc name="maxExc">0.2</maxExc>
+                <minInh name="minInh">0.2</minInh>
+                <maxInh name="maxInh">0.25</maxInh>
+            </Bconst>
+            <Cconst name="Cconst">
+                <minExc name="minExc">-65</minExc>
+                <maxExc name="maxExc">-50</maxExc>
+                <minInh name="minInh">-65</minInh>
+                <maxInh name="maxInh">-65</maxInh>
+            </Cconst>
+            <Dconst name="Dconst">
+                <minExc name="minExc">2</minExc>
+                <maxExc name="maxExc">8</maxExc>
+                <minInh name="minInh">2</minInh>
+                <maxInh name="maxInh">2</maxInh>
+            </Dconst>
+        </NeuronsParams>
 
-    <SynapsesParams class="AllSpikingSynapses">
-    </SynapsesParams>
+        <SynapsesParams class="AllSpikingSynapses" name="SynapsesParams">
+        </SynapsesParams>
 
-    <ConnectionsParams class="ConnStatic">
-        <!-- Connection parameters -->
-        <StaticConnectionsParams nConnsPerNeuron="999" threshConnsRadius="50" pRewiring="0"/>
-        <!-- Connections weight -->
-        <StaticConnectionsWeight minExc="0" maxExc="0.5e-7" minInh="-0.5e-7" maxInh="0" />
-    </ConnectionsParams>
+        <ConnectionsParams class="ConnStatic" name="ConnectionsParams">
+            <StaticConnectionsParams name="StaticConnectionsParams">
+                <nConnsPerNeuron name="nConnsPerNeuron">999</nConnsPerNeuron>
+                <threshConnsRadius name="threshConnsRadius">50</threshConnsRadius>
+                <pRewiring name="pRewiring">0</pRewiring>
+            </StaticConnectionsParams>
+            <StaticConnectionsWeight name="StaticConnectionsWeight">
+                <minExc name="minExc">0</minExc>
+                <maxExc name="maxExc">0.5e-7</maxExc>
+                <minInh name="minInh">-0.5e-7</minInh>
+                <maxInh name="maxInh">0</maxInh>
+            </StaticConnectionsWeight>
+        </ConnectionsParams>
 
-    <LayoutParams class="FixedLayout">
-            <!-- Parameters for Dynamic Layout -->
-            <!-- DynamicLayoutParamsLsmParams frac_EXC="0.80" starter_neurons="0"/-->
-        <!-- If FixedLayout is present, the grid will be laid out according to the positions below, rather than randomly based on LsmParams -->
-            <FixedLayoutParams>
-                <LayoutFiles inhNListFileName="configfiles/NList/inhNList__1000.xml" probedNListFileName="configfiles/NList/probedNList_1000.xml"/>
-            </FixedLayoutParams>
-    </LayoutParams>
-</ModelParams>
+        <LayoutParams class="FixedLayout" name="LayoutParams">
+            <LayoutFiles name="LayoutFiles">
+                <activeNListFileName name="activeNListFileName" type="InputFile"/>
+                <inhNListFileName name="inhNListFileName" type="InputFile">configfiles/NList/inhNList__1000.xml</inhNListFileName>
+                <probedNListFileName name="probedNListFileName" type="InputFile">configfiles/NList/probedNList_1000.xml</probedNListFileName>
+            </LayoutFiles>
+        </LayoutParams>
+    </ModelParams>
+</BGSimParams>
