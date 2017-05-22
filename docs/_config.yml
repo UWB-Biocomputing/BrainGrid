@@ -1,1 +1,6 @@
-theme: jekyll-theme-cayman
+theme: jekyll-theme-slate
+
+title: BrainGrid
+description: A project to facilitate construction of high-performance neural simulations
+
+show_downloads: false

@@ -413,25 +413,6 @@ public class SimulationConfigurationDialog extends javax.swing.JDialog {
                     fields.get(fieldIndex).setText("workbenchconfigfiles/NList/"
                             + fm.getSimpleFilename(destFilePath.toString()));
                 }
-                //TO DO - Check whether I need the if statement anymore. Note
-                //that code directly above is copied from below with small modifications.
-                //Make sure the setText is the correct text.
-
-                // if type is correct
-                /*if (InputAnalyzer.getInputType(file) == type) {
-                 Path sourceFilePath = file.toPath();
-                 String destPathText = fm.getNeuronListFilePath(projectName,
-                 file.getName(), true);
-                 Path destFilePath = new File(destPathText).toPath();
-                 if (FileManager.copyFile(sourceFilePath, destFilePath)) {
-                 field.setText("workbenchconfigfiles/NList/"
-                 + fm.getSimpleFilename(destFilePath.toString()));
-                 }
-                 } else {
-                 messageLabelText.setText("<html><span style=\"color:orange\">"
-                 + "The selected file did not match the type: "
-                 + type.toString() + "</span></html>");
-                 }*/
             } catch (IOException ex) {
                 messageLabelText.setText(
                         "<html><span style=\"color:red\">"
@@ -464,12 +445,44 @@ public class SimulationConfigurationDialog extends javax.swing.JDialog {
         }
         //</editor-fold>
         // FILE CAN BE FOUND IN BrainGrid/Tools/Workbench/models
-        String filename = "C:\\Users\\Del\\Desktop\\SimulationConfigurationTest.xml";
+        //String filename = System.getProperty("user.dir") + File.separator + "SimulationConfigurationTest.xml";
+        String filename = System.getProperty("user.dir") + File.separator + "tR_1.9--fE_0.98.xml";
+//        try {
+//            SimulationConfigurationDialog dialog = new SimulationConfigurationDialog("Test", true, filename, new SimulationConfiguration(DocumentBuilderFactory.newInstance().
+//                    newDocumentBuilder().parse(new File(filename))));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+        
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
         try {
-            SimulationConfigurationDialog dialog = new SimulationConfigurationDialog("Test", true, filename, new SimulationConfiguration(DocumentBuilderFactory.newInstance().
-                    newDocumentBuilder().parse(new File(filename))));
-        } catch (Exception e) {
-            e.printStackTrace();
+            for (javax.swing.UIManager.LookAndFeelInfo info
+                    : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(WorkbenchControlFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                new SimulationConfigurationDialog("Test", true, filename, new SimulationConfiguration(DocumentBuilderFactory.newInstance().
+                    newDocumentBuilder().parse(new File(filename)))).setVisible(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

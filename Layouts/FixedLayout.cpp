@@ -35,6 +35,7 @@ bool FixedLayout::readParameters(const TiXmlElement& element)
     }
 
     if (element.ValueStr().compare("LayoutFiles") == 0) {
+	nParams++;
         return true;
     }
 	
@@ -43,6 +44,7 @@ bool FixedLayout::readParameters(const TiXmlElement& element)
     *  contained in these elements is later in this function, the traversal of nodes
     *  causes this function to be called to handle the each of the elements individually. 
 	*/
+/*needed?
 	if (element.ValueStr().compare("A") == 0){
 		if(element.Parent()->ValueStr().compare("FixedLayoutParams") == 0){
 			return true;
@@ -53,7 +55,8 @@ bool FixedLayout::readParameters(const TiXmlElement& element)
 			return true;
 		}
 	}
-
+*/
+/*
     // Parse fixed layout (overrides random layouts)
     if (element.ValueStr().compare("FixedLayoutParams") == 0) {
         const TiXmlNode* pNode = NULL;
@@ -128,8 +131,70 @@ bool FixedLayout::readParameters(const TiXmlElement& element)
             }
         }
         nParams++;
-        return true;
+*/
+    // Parse fixed layout (changed to utilize the Visiter Pattern provided by Tinyxml
+    if (element.Parent()->ValueStr().compare("LayoutFiles") == 0) {
+	if(element.ValueStr().compare("activeNListFileName") == 0){
+	    const char* activeNListFileName = element.GetText();
+            TiXmlDocument simDoc(activeNListFileName);
+            if (!simDoc.LoadFile( ))
+            {
+                cerr << "Failed loading positions of endogenously active neurons list file " << activeNListFileName << ":" << "\n\t"
+                    << simDoc.ErrorDesc( ) << endl;
+                cerr << " error: " << simDoc.ErrorRow( ) << ", " << simDoc.ErrorCol( ) << endl;
+                return false;
+            }
+            TiXmlNode* temp2 = NULL;
+            if (( temp2 = simDoc.FirstChildElement( "A" ) ) == NULL)
+            {
+                cerr << "Could not find <A> in positons of endogenously active neurons list file " << activeNListFileName << endl;
+                return false;
+            }
+            getValueList(temp2->ToElement()->GetText(), &m_endogenously_active_neuron_list);
+            num_endogenously_active_neurons = m_endogenously_active_neuron_list.size();
+
+	    return true;
+	}
+	if(element.ValueStr().compare("inhNListFileName") == 0){
+	    const char* inhNListFileName = element.GetText();
+            TiXmlDocument simDoc(inhNListFileName);
+            if (!simDoc.LoadFile( ))
+            {
+                cerr << "Failed loading positions of inhibitory neurons list file " << inhNListFileName << ":" << "\n\t"
+                    << simDoc.ErrorDesc( ) << endl;
+                cerr << " error: " << simDoc.ErrorRow( ) << ", " << simDoc.ErrorCol( ) << endl;
+                return false;
+            }
+            TiXmlNode* temp2 = NULL;
+            if (( temp2 = simDoc.FirstChildElement( "I" ) ) == NULL)
+            {
+                cerr << "Could not find <I> in positions of inhibitory neurons list file " << inhNListFileName << endl;
+                return false;
+            }
+            getValueList(temp2->ToElement()->GetText(), &m_inhibitory_neuron_layout);
+	    return true;
+	}
+	if(element.ValueStr().compare("probedNListFileName") == 0){
+	    const char* probedNListFileName = element.GetText();
+            TiXmlDocument simDoc(probedNListFileName);
+            if (!simDoc.LoadFile( ))
+            {
+                cerr << "Failed loading positions of probed neurons list file " << probedNListFileName << ":" << "\n\t"
+                    << simDoc.ErrorDesc( ) << endl;
+                cerr << " error: " << simDoc.ErrorRow( ) << ", " << simDoc.ErrorCol( ) << endl;
+                return false;
+            }
+            TiXmlNode* temp2 = NULL;
+            if (( temp2 = simDoc.FirstChildElement( "P" ) ) == NULL)
+            {
+                cerr << "Could not find <P> in positions of probed neurons list file " << probedNListFileName << endl;
+                return false;
+            }
+            getValueList(temp2->ToElement()->GetText(), &m_probed_neuron_list);
+	    return true;
+	}
     }
+
     return false;
 }
 

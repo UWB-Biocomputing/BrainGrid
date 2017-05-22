@@ -172,7 +172,9 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
 {
     TiXmlElement* parms = NULL;
 
-    if ((parms = simDoc->FirstChildElement("ModelParams")) == NULL) {
+    //cout << "Child:" <<  simDoc->FirstChildElement()->Value() << endl;
+
+    if ((parms = simDoc->FirstChildElement()->FirstChildElement("ModelParams")) == NULL) {
         cerr << "Could not find <MoelParms> in simulation parameter file " << endl;
         return false;
     }
@@ -195,6 +197,11 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
             layout = FClassOfCategory::get()->createLayout(pNode);
         }
     }
+
+    if (neurons == NULL){ cout << "N" << endl;}
+    if (synapses == NULL){ cout << "S" << endl;}
+    if (conns == NULL){ cout << "C" << endl;}
+    if (layout == NULL){ cout << "L" << endl;}
 
     if (neurons == NULL || synapses == NULL || conns == NULL || layout == NULL) {
         cerr << "!ERROR: failed to create classes" << endl;

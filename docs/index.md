@@ -1,37 +1,69 @@
-## Welcome to GitHub Pages
+## About BrainGrid Project
 
-You can use the [editor on GitHub](https://github.com/UWB-Biocomputing/BrainGrid/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+The idea behind the BrainGrid Project is to develop a toolkit/software architecture to ease creating **high-performance neural network simulators**. It is particularly focused on facilitating biologically realistic modeling. 
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Table of Contents
 
-### Markdown
+1. [Introduction](http://uwb-biocomputing.github.io/BrainGrid/1_introduction)
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+   1.1 What is BrainGrid?
+   
+   1.2 What is BrainGrid for?
+   
+   1.3 Why do we need BrainGrid?
 
-```markdown
-Syntax highlighted code block
+2. [Installation](http://uwb-biocomputing.github.io/BrainGrid/2_installation)
 
-# Header 1
-## Header 2
-### Header 3
+   2.1 Necessary Hardware/Software
+   
+   2.2 Download BrainGrid
+   
+   2.3 Install BrainGrid
 
-- Bulleted
-- List
+3. [Quickstart](http://uwb-biocomputing.github.io/BrainGrid/3_quickstart)
 
-1. Numbered
-2. List
+   3.1 Quick Sanity Test
+   
+   3.2 Use of Screen
+   
+   3.3 Contribute to BrainGrid
 
-**Bold** and _Italic_ and `Code` text
+4. [Configuration](http://uwb-biocomputing.github.io/BrainGrid/4_configuration)
 
-[Link](url) and ![Image](src)
-```
+   4.1 Use built-in models
+   
+   4.2 Configuring the model
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+5. Examples [under construction]
 
-### Jekyll Themes
+6. [Lab Publication](http://uwb-biocomputing.github.io/BrainGrid/6_lab-publication) 
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/UWB-Biocomputing/BrainGrid/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+7. [Acknowledgements](http://uwb-biocomputing.github.io/BrainGrid/7_acknowledgements)
 
-### Support or Contact
+---------
+### Multiple simulation architectures:
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+- Single-threaded on general-purpose CPU
+- GPU-accelerated using NVIDIA's CUDA libraries
+- Multi-cluster (CPU version) *— under development*
+- Multi-threading using OpenMP — *not yet implemented*
+
+### Supported operating systems:
+
+- GNU Linux
+
+### BrainGrid Resources:
+
+- [BrainGrid Forum]([https://groups.google.com/forum/#!forum/uwb-braingrid](https://groups.google.com/forum/#!forum/uwb-braingrid)): A place where BrainGridders can communicate and collaborate. Click the button "Apply to join this group" to be a BrainGridder.
+- [Git Crash Course](https://github.com/UWB-Biocomputing/BrainGrid/wiki/Git-Crash-Course)
+- [Linux Crash Course](https://github.com/UWB-Biocomputing/BrainGrid/wiki/Linux-Crash-Course)
+
+### Latest News about BrainGrid:
+
+Our recently published conference paper for IJCNN 2017:
+
+> Michael Stiber, Fumitaka Kawasaki, Delmar Davis, Hazeline Asuncion, Jewel Lee, and Destiny Boyer. *BrainGrid+Workbench: High-Performance/High-Quality Neural Simulation*. International Joint Conference on Neural Networks (IJCNN), 14 – 19 May 2017, Anchorage, AK.
+
+### Support or Contact:
+
+BrainGrid documentation is under construction. If you cannot find what you are looking for or have trouble using BrainGrid, please contact us. 

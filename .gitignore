@@ -195,3 +195,5 @@ make/growth # Consider using an extension like .run
 make/growth*
 /growth*
 .gitignore
+
+Core/SingleThreadedSpikingModel.cpp

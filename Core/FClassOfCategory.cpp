@@ -270,7 +270,7 @@ bool FClassOfCategory::readParameters(TiXmlDocument* simDoc)
 {
     TiXmlElement* parms = NULL;
 
-    if ((parms = simDoc->FirstChildElement("ModelParams")) == NULL) {
+    if ((parms = simDoc->FirstChildElement()->FirstChildElement("ModelParams")) == NULL) {
         cerr << "Could not find <ModelParms> in simulation parameter file " << endl;
         return false;
     }

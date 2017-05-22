@@ -125,6 +125,12 @@ bool ConnGrowth::checkNumParameters()
 bool ConnGrowth::readParameters(const TiXmlElement& element)
 {
     if (element.ValueStr().compare("GrowthParams") == 0) {
+	nParams++;
+	return true;
+    }
+
+    if (element.Parent()->ValueStr().compare("GrowthParams") == 0) {
+/*
         if (element.QueryFLOATAttribute("epsilon", &m_growth.epsilon) != TIXML_SUCCESS) {
                 throw ParseParamError("epsilon", "Growth param 'epsilon' missing in XML.");
         }
@@ -172,6 +178,30 @@ bool ConnGrowth::readParameters(const TiXmlElement& element)
         m_growth.maxRate = m_growth.targetRate / m_growth.epsilon;
 
         nParams++;
+*/
+	if(element.ValueStr().compare("epsilon") == 0){
+            m_growth.epsilon = atof(element.GetText());
+        }
+	else if(element.ValueStr().compare("beta") == 0){
+            m_growth.beta = atof(element.GetText());
+        }
+	else if(element.ValueStr().compare("rho") == 0){
+            m_growth.rho = atof(element.GetText());
+        }
+	else if(element.ValueStr().compare("targetRate") == 0){
+            m_growth.targetRate = atof(element.GetText());
+        }
+	else if(element.ValueStr().compare("minRadius") == 0){
+            m_growth.minRadius = atof(element.GetText());
+        }
+	else if(element.ValueStr().compare("startRadius") == 0){
+            m_growth.startRadius = atof(element.GetText());
+        }
+	
+	if(m_growth.epsilon != 0){
+	    m_growth.maxRate = m_growth.targetRate / m_growth.epsilon;
+	}
+
         return true;
     }
 

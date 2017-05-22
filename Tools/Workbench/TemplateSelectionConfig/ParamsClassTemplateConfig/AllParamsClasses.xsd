@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+    <xs:element name="AllParamsClasses">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name = "NeuronsParamsClasses" type = "ParamsClasses"/>
+                <xs:element name = "SynapsesParamsClasses" type = "ParamsClasses"/>    
+                <xs:element name = "ConnectionsParamsClasses" type = "ParamsClasses"/>    
+                <xs:element name = "LayoutParamsClasses" type = "ParamsClasses"/> 
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:complexType name = "ParamsClasses">
+        <xs:sequence>
+            <xs:element name = "ParamsClass" maxOccurs = "unbounded">
+                <xs:complexType>
+                    <xs:attribute name = "name" type = "xs:string"/>
+                    <xs:attribute name = "templatePath" type = "xs:string"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
