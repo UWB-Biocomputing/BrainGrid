@@ -103,13 +103,15 @@ void AllSpikingNeurons::freeResources()
     spike_history = NULL;
 }
 
+#if !defined(USE_GPU)
 /*
  *  Clear the spike counts out of all Neurons.
  *
  *  @param  sim_info  SimulationInfo class to read information from.
  *  @param  clr_info  ClusterInfo class to read information from.
+ *  @param  clr       Cluster class to read information from.
  */
-void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info, const ClusterInfo *clr_info, Cluster *clr)
 {
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
@@ -119,7 +121,6 @@ void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info, const C
     }
 }
 
-#if !defined(USE_GPU)
 /*
  *  Update internal state of the indexed Neuron (called by every simulation step).
  *  Notify outgoing synapses if neuron has fired.

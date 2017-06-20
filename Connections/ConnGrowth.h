@@ -164,23 +164,6 @@ class ConnGrowth : public Connections
          *  @return Pointer to the recorder class object.
          */
         virtual IRecorder* createRecorder(const SimulationInfo *sim_info);
-#if defined(USE_GPU)
-    public:
-        /**
-         *  Update the weight of the Synapses in the simulation.
-         *  Note: Platform Dependent.
-         *
-         *  @param  num_neurons         number of neurons to update.
-         *  @param  neurons             the Neuron list to search from.
-         *  @param  synapses            the Synapse list to search from.
-         *  @param  sim_info            SimulationInfo to refer from.
-         *  @param  allNeuronsDevice    Reference to the allNeurons struct on device memory. 
-         *  @param  allSynapsesDevice   Reference to the allSynapses struct on device memory.
-         *  @param  layout              Layout information of the neunal network.
-         *  @param  clr_info            ClusterInfo to refer from.
-         */
-        virtual void updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeuronsDeviceProperties* m_allNeuronsDevice, AllSpikingSynapsesDeviceProperties* m_allSynapsesDevice, Layout *layout, const ClusterInfo *clr_info);
-#else
     public:
         /**
          *  Update the weight of the Synapses in the simulation.
@@ -192,7 +175,7 @@ class ConnGrowth : public Connections
          *  @param  vtClrInfo   Vector of ClusterInfo.
          */
         virtual void updateSynapsesWeights(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
-#endif
+
     private:
         /**
          *  Calculates firing rates, neuron radii change and assign new values.

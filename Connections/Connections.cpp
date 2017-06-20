@@ -61,24 +61,6 @@ bool Connections::updateConnections(const SimulationInfo *sim_info, Layout *layo
     return false;
 }
 
-#if defined(USE_GPU)
-/*
- *  Update the weight of the Synapses in the simulation.
- *  Note: Platform Dependent.
- *
- *  @param  num_neurons        Number of neurons to update.
- *  @param  neurons            The Neuron list to search from.
- *  @param  synapses           The Synapse list to search from.
- *  @param  sim_info           SimulationInfo to refer from.
- *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
- *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
- *  @param  layout             Layout information of the neunal network.
- *  @param  clr_info           ClusterInfo to refer from. 
- */
-void Connections::updateSynapsesWeights(const int num_neurons, IAllNeurons &neurons, IAllSynapses &synapses, const SimulationInfo *sim_info, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, Layout *layout, const ClusterInfo *clr_info)
-{
-}
-#else
 /*
  *  Update the weight of the Synapses in the simulation.
  *  Note: Platform Dependent.
@@ -91,4 +73,3 @@ void Connections::updateSynapsesWeights(const int num_neurons, IAllNeurons &neur
 void Connections::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
 }
-#endif // !USE_GPU

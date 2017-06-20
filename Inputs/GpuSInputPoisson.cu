@@ -33,15 +33,18 @@ GpuSInputPoisson::~GpuSInputPoisson()
 /*
  * Initialize data.
  *
- * @param[in] psi       Pointer to the simulation information.
+ * @param[in] psi             Pointer to the simulation information.
+ * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void GpuSInputPoisson::init(SimulationInfo* psi, ClusterInfo *pci)
+void GpuSInputPoisson::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
-    SInputPoisson::init(psi, pci);
+    SInputPoisson::init(psi, vtClrInfo);
 
     if (fSInput == false)
         return;
 
+    // TODO: need to implement for multi-clusters.
+#if 0
     // allocate GPU device memory and copy values
     allocDeviceValues(psi->model, psi, pci, nISIs);
 
@@ -52,6 +55,7 @@ void GpuSInputPoisson::init(SimulationInfo* psi, ClusterInfo *pci)
 
     // setup seeds
     setupSeeds <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, devStates_d, time(NULL) );
+#endif
 }
 
 /*
@@ -71,13 +75,16 @@ void GpuSInputPoisson::term(SimulationInfo* psi)
  * Process input stimulus for each time step.
  * Apply inputs on summationPoint.
  *
- * @param[in] psi                Pointer to the simulation information.
+ * @param[in] psi             Pointer to the simulation information.
+ * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, const ClusterInfo* pci)
+void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
     if (fSInput == false)
         return;
 
+    // TODO: need to implement for multi-clusters.
+#if 0
     int neuron_count = pci->totalClusterNeurons;
     int synapse_count = pci->totalClusterNeurons;
 
@@ -95,6 +102,7 @@ void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, const ClusterInf
 
     // update summation point
     applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, allSynapsesDevice );
+#endif
 }
 
 /*
@@ -116,7 +124,7 @@ void GpuSInputPoisson::allocDeviceValues(IModel* model, SimulationInfo* psi, Clu
     checkCudaErrors( cudaMemcpy ( nISIs_d, nISIs, nISIs_d_size, cudaMemcpyHostToDevice ) );
 
     // create an input synapse layer
-    m_synapses->allocSynapseDeviceStruct( (void **)&allSynapsesDevice, neuron_count, 1 ); 
+    m_synapses->allocSynapseDeviceStruct( (void **)&allSynapsesDevice, neuron_count, 1, pci->clusterID ); 
     m_synapses->copySynapseHostToDevice( allSynapsesDevice, neuron_count, 1 );
 
     const int threadsPerBlock = 256;

@@ -122,7 +122,7 @@ class EventQueue
          */
         void deserialize(istream& input);
 
-    private:
+    public:
 
         //! The cluster ID of cluster that owns the event queue.
         CLUSTER_INDEX_TYPE m_clusterID;

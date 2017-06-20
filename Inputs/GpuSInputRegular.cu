@@ -37,20 +37,24 @@ GpuSInputRegular::~GpuSInputRegular()
 /*
  * Initialize data.
  *
- * @param[in] psi       Pointer to the simulation information.
+ * @param[in] psi             Pointer to the simulation information.
+ * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void GpuSInputRegular::init(SimulationInfo* psi, ClusterInfo *pci)
+void GpuSInputRegular::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
-    SInputRegular::init(psi, pci);
+    SInputRegular::init(psi, vtClrInfo);
 
     if (fSInput == false)
         return;
 
+    // TODO: need to implement for multi-clusters.
+#if 0
     // allocate GPU device memory and copy values
     allocDeviceValues(psi, values, nShiftValues);
 
     delete[] values;
     delete[] nShiftValues;
+#endif
 }
 
 /*
@@ -67,13 +71,16 @@ void GpuSInputRegular::term(SimulationInfo* psi)
 /*
  * Process input stimulus for each time step on GPU.
  *
- * @param[in] psi               Pointer to the simulation information.
+ * @param[in] psi             Pointer to the simulation information.
+ * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void GpuSInputRegular::inputStimulus(const SimulationInfo* psi, const ClusterInfo *pci)
+void GpuSInputRegular::inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
     if (fSInput == false)
         return;
 
+    // TODO: need to implement for multi-clusters.
+#if 0
     int neuron_count = pci->totalClusterNeurons;
 
     // CUDA parameters
@@ -85,6 +92,7 @@ void GpuSInputRegular::inputStimulus(const SimulationInfo* psi, const ClusterInf
     inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, initValues_d, nShiftValues_d, nStepsInCycle, nStepsCycle, nStepsDuration );
     // update cycle count
     nStepsInCycle = (nStepsInCycle + 1) % nStepsCycle;
+#endif
 }
 
 /*

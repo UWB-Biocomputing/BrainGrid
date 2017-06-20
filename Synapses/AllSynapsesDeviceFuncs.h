@@ -43,8 +43,11 @@ extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, Syn
  * @param[in] maxSynapses        Maximum number of synapses per neuron.
  * @param[in] allNeuronsDevice   Pointer to the Neuron structures in device memory.
  * @param[in] allSynapsesDevice  Pointer to the Synapse structures in device memory.
+ * @param[in] neuron_type_map_d  Pointer to the neurons type map in device memory.
+ * @param[in] totalClusterNeurons  Total number of neurons in the cluster.
+ * @param[in] clusterNeuronsBegin  Begin neuron index of the cluster.
  */
-extern __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, neuronType* neuron_type_map_d );
+extern __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, neuronType* neuron_type_map_d, int totalClusterNeurons, int clusterNeuronsBegin );
 
 /** 
  * Adds a synapse to the network.  Requires the locations of the source and
@@ -64,8 +67,9 @@ extern __global__ void initSynapsesDevice( int n, AllDSSynapsesDeviceProperties*
  * @param[in] total_synapse_counts  Number of synapses.
  * @param[in/out] pEventQueue       Pointer to the pointer to EventQueue objet
  *                                  where the pointer EventQueue object is stored.
+ * @param[in] clusterID             The cluster ID of cluster.
  */
-extern __global__ void allocEventQueueDevice(int total_synapse_counts, EventQueue **pEventQueue);
+extern __global__ void allocEventQueueDevice(int total_synapse_counts, EventQueue **pEventQueue, CLUSTER_INDEX_TYPE clusterID);
 
 /**
  * Delete a EventQueue object in device memory.

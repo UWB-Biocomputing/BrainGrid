@@ -143,8 +143,9 @@ class IAllSynapses
          *  @param  allSynapsesDevice     Reference to the allSynapses struct on device memory.
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         *  @param  clusterID             The cluster ID of the cluster.
          */
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) = 0;
+        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID ) = 0;
 
         /**
          *  Delete GPU memories.
@@ -189,14 +190,14 @@ class IAllSynapses
          */
         virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const ClusterInfo *clr_info) = 0;
 
-        /** 
-         *  Get summationCoord and in_use in AllSynapses struct on device memory.
+        /**
+         *  Get sourceNeuronLayoutIndex and in_use in AllSynapses struct on device memory.
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info) = 0;
+        virtual void copyDeviceSourceNeuronIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info) = 0;
 
         /**
          *  Advance all the Synapses in the simulation.

@@ -12,8 +12,8 @@
  *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
  *                                   on device memory.
  */
-__device__ void preSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
-        allSynapsesDevice->preSpikeQueue->addAnEvent(iSyn);
+__device__ void preSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const CLUSTER_INDEX_TYPE iCluster ) {
+        allSynapsesDevice->preSpikeQueue->addAnEvent(iSyn, iCluster);
 }
 
 /*
@@ -100,11 +100,15 @@ __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int 
                     // get the index of where this neuron's list of synapses are
                     BGSIZE beginIndex = synapseIndexMapDevice->outgoingSynapseBegin[idx];
                     // get the memory location of where that list begins
-                    BGSIZE* outgoingMap_begin = &(synapseIndexMapDevice->outgoingSynapseIndexMap[beginIndex]);
+                    OUTGOING_SYNAPSE_INDEX_TYPE* outgoingMap_begin = &(synapseIndexMapDevice->outgoingSynapseIndexMap[beginIndex]);
 
                     // for each synapse, let them know we have fired
                     for (BGSIZE i = 0; i < synapse_counts; i++) {
-                        preSpikingSynapsesSpikeHitDevice(outgoingMap_begin[i], allSynapsesDevice);
+                        OUTGOING_SYNAPSE_INDEX_TYPE idx = outgoingMap_begin[i];
+                        // outgoing synapse index consists of cluster index + synapse index
+                        CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIndex(idx);
+                        BGSIZE iSyn = SynapseIndexMap::getSynapseIndex(idx);
+                        preSpikingSynapsesSpikeHitDevice(iSyn, allSynapsesDevice, iCluster);
                     }
                 }
 
@@ -207,11 +211,15 @@ __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int 
                     // get the index of where this neuron's list of synapses are
                     BGSIZE beginIndex = synapseIndexMapDevice->outgoingSynapseBegin[idx]; 
                     // get the memory location of where that list begins
-                    BGSIZE* outgoingMap_begin = &(synapseIndexMapDevice->outgoingSynapseIndexMap[beginIndex]);
+                    OUTGOING_SYNAPSE_INDEX_TYPE* outgoingMap_begin = &(synapseIndexMapDevice->outgoingSynapseIndexMap[beginIndex]);
                    
                     // for each synapse, let them know we have fired
                     for (BGSIZE i = 0; i < synapse_counts; i++) {
-                        preSpikingSynapsesSpikeHitDevice(outgoingMap_begin[i], allSynapsesDevice);
+                        OUTGOING_SYNAPSE_INDEX_TYPE idx = outgoingMap_begin[i];
+                        // outgoing synapse index consists of cluster index + synapse index
+                        CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIndex(idx);
+                        BGSIZE iSyn = SynapseIndexMap::getSynapseIndex(idx);
+                        preSpikingSynapsesSpikeHitDevice(iSyn, allSynapsesDevice, iCluster);
                     }
                 }
 

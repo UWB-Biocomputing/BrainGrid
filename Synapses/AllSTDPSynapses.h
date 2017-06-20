@@ -213,8 +213,9 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  allSynapsesDevice     Reference to the allSynapses struct on device memory.
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         *  @param  clusterID             The cluster ID of the cluster.
          */
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron );
+        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
 
         /**
          *  Delete GPU memories.
@@ -283,8 +284,9 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         *  @param  clusterID             The cluster ID of the cluster.
          */
-        void allocDeviceStruct( AllSTDPSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void allocDeviceStruct( AllSTDPSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
 
         /**
          *  Delete GPU memories.

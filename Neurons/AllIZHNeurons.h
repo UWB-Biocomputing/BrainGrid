@@ -243,15 +243,6 @@ class AllIZHNeurons : public AllIFNeurons
          */
         virtual void copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, const ClusterInfo *clr_info );
 
-        /**
-         *  Clear the spike counts out of all neurons.
-         *
-         *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void clearNeuronSpikeCounts( void* allNeuronsDevice, const ClusterInfo *clr_info );
-
-
     protected:
         /**
          *  Allocate GPU memories to store all neurons' states.

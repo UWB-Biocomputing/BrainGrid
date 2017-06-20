@@ -126,6 +126,8 @@ CUDAOBJS =   \
 		$(INPUTDIR)/FSInput_cuda.o \
 		$(COREDIR)/FClassOfCategory_cuda.o \
 		$(COREDIR)/EventQueue_cuda.o \
+		$(COREDIR)/EventHandler_cuda.o \
+		$(COREDIR)/SynapseIndexMap_cuda.o \
 		$(UTILDIR)/Global_cuda.o
 
 ifeq ($(CUSEHDF5), yes)
@@ -420,6 +422,12 @@ $(COREDIR)/EventQueue.o: $(COREDIR)/EventQueue.cpp $(COREDIR)/EventQueue.h
 
 $(COREDIR)/EventHandler.o: $(COREDIR)/EventHandler.cpp $(COREDIR)/EventHandler.h
 	$(CXX) $(CXXFLAGS) $(COREDIR)/EventHandler.cpp -o $(COREDIR)/EventHandler.o
+
+$(COREDIR)/EventHandler_cuda.o: $(COREDIR)/EventHandler.cpp $(COREDIR)/EventHandler.h
+	nvcc -c $(NVCCFLAGS) $(COREDIR)/EventHandler.cpp -x cu $(CGPUFLAGS) -o $(COREDIR)/EventHandler_cuda.o 
+
+$(COREDIR)/SynapseIndexMap_cuda.o: $(COREDIR)/SynapseIndexMap.cpp $(COREDIR)/SynapseIndexMap.h
+	nvcc -c  $(NVCCFLAGS) $(COREDIR)/SynapseIndexMap.cpp -x cu $(CGPUFLAGS) -o $(COREDIR)/SynapseIndexMap_cuda.o
 
 $(COREDIR)/SynapseIndexMap.o: $(COREDIR)/SynapseIndexMap.cpp $(COREDIR)/SynapseIndexMap.h
 	$(CXX) $(CXXFLAGS) $(COREDIR)/SynapseIndexMap.cpp -o $(COREDIR)/SynapseIndexMap.o

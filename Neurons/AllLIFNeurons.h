@@ -116,6 +116,14 @@ class AllLIFNeurons : public AllIFNeurons
          */
         virtual IAllNeurons &operator=(const IAllNeurons &r_neurons);
 
+    protected:
+        /**
+         *  Copy neurons parameters.
+         *
+         *  @param  r_neurons  Neurons class object to copy from.
+         */
+        void copyParameters(const AllLIFNeurons &r_neurons);
+
 #if defined(USE_GPU)
     public:
 
@@ -134,14 +142,6 @@ class AllLIFNeurons : public AllIFNeurons
         virtual void advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info);
 
 #else  // !defined(USE_GPU)
-    protected:
-        /**
-         *  Copy neurons parameters.
-         *
-         *  @param  r_neurons  Neurons class object to copy from.
-         */
-        void copyParameters(const AllLIFNeurons &r_neurons);
-
         /**
          *  Helper for #advanceNeuron. Updates state of a single neuron.
          *

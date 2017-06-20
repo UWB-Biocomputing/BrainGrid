@@ -178,8 +178,9 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  allSynapsesDevice     Reference to the allSynapses struct on device memory.
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         *  @param  clusterID             The cluster ID of the cluster.
          */
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron );
+        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
 
         /**
          *  Delete GPU memories.
@@ -237,8 +238,9 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         *  @param  clusterID             The cluster ID of the cluster.
          */
-        void allocDeviceStruct( AllDynamicSTDPSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void allocDeviceStruct( AllDynamicSTDPSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
 
         /**
          *  Delete GPU memories.

@@ -229,7 +229,7 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
         }
         clusterInfo->seed = simInfo->seed;
 #if defined(USE_GPU)
-        clusterInfo->deviceId = g_deviceId + Cluster;
+        clusterInfo->deviceId = g_deviceId + iCluster;
 #endif // USE_GPU
 
         // save the cluser information to the vector

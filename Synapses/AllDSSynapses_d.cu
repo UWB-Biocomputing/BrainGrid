@@ -17,7 +17,7 @@
  *  @param  clr_info           ClusterInfo to refer from.
  */
 void AllDSSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
-	allocSynapseDeviceStruct( allSynapsesDevice, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );
+	allocSynapseDeviceStruct( allSynapsesDevice, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, clr_info->clusterID );
 }
 
 /*
@@ -28,11 +28,12 @@ void AllDSSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const Si
  *                                on device memory.
  *  @param  num_neurons           Number of neurons.
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+ *  @param  clusterID             The cluster ID of the cluster.
  */
-void AllDSSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) {
+void AllDSSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID ) {
 	AllDSSynapsesDeviceProperties allSynapses;
 
-	allocDeviceStruct( allSynapses, num_neurons, maxSynapsesPerNeuron );
+	allocDeviceStruct( allSynapses, num_neurons, maxSynapsesPerNeuron, clusterID );
 
 	checkCudaErrors( cudaMalloc( allSynapsesDevice, sizeof( AllDSSynapsesDeviceProperties ) ) );
 	checkCudaErrors( cudaMemcpy ( *allSynapsesDevice, &allSynapses, sizeof( AllDSSynapsesDeviceProperties ), cudaMemcpyHostToDevice ) );
@@ -47,9 +48,10 @@ void AllDSSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, int num_
  *                                on device memory.
  *  @param  num_neurons           Number of neurons.
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+ *  @param  clusterID             The cluster ID of the cluster.
  */
-void AllDSSynapses::allocDeviceStruct( AllDSSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron ) {
-        AllSpikingSynapses::allocDeviceStruct( allSynapses, num_neurons, maxSynapsesPerNeuron );
+void AllDSSynapses::allocDeviceStruct( AllDSSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID ) {
+        AllSpikingSynapses::allocDeviceStruct( allSynapses, num_neurons, maxSynapsesPerNeuron, clusterID );
 
         BGSIZE max_total_synapses = maxSynapsesPerNeuron * num_neurons;
 

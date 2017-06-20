@@ -205,8 +205,9 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  allSynapsesDevice     Reference to the allSynapses struct on device memory.
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         *  @param  clusterID             The cluster ID of the cluster.
          */
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron );
+        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
 
         /**
          *  Delete GPU memories.
@@ -251,13 +252,13 @@ class AllSpikingSynapses : public AllSynapses
         virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const ClusterInfo *clr_info);
 
         /** 
-         *  Get summationCoord and in_use in AllSynapses struct on device memory.
+         *  Get sourceNeuronLayoutIndex and in_use in AllSynapses struct on device memory.
          *
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copyDeviceSynapseSumIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        virtual void copyDeviceSourceNeuronIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
          *  Advance all the Synapses in the simulation.
@@ -297,8 +298,9 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         *  @param  clusterID             The cluster ID of the cluster.
          */
-        void allocDeviceStruct( AllSpikingSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void allocDeviceStruct( AllSpikingSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
 
         /**
          *  Delete GPU memories.

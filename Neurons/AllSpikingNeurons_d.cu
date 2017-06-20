@@ -5,6 +5,7 @@
 
 #include "AllSpikingNeurons.h"
 #include "AllSpikingSynapses.h"
+#include "GPUSpikingCluster.h"
 #include <helper_cuda.h>
 
 /*
@@ -45,18 +46,30 @@ void AllSpikingNeurons::copyDeviceSpikeCountsToHost( AllSpikingNeuronsDeviceProp
 }
 
 /*
- *  Clear the spike counts out of all neurons in device memory.
- *  (helper function of clearNeuronSpikeCounts)
+ *  Clear the spike counts out of all Neurons.
  *
- *  @param  allNeurons         Reference to the allNeurons struct.
- *  @param  clr_info           ClusterInfo to refer from.
+ *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
+ *  @param  clr       Cluster class to read information from.
  */
-void AllSpikingNeurons::clearDeviceSpikeCounts( AllSpikingNeuronsDeviceProperties& allNeurons, const ClusterInfo *clr_info ) 
+void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info, const ClusterInfo *clr_info, Cluster *clr)
 {
-        int numNeurons = clr_info->totalClusterNeurons;
+    // clear spike counts in host memory
+    int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
+    int numNeurons = clr_info->totalClusterNeurons;
 
-        checkCudaErrors( cudaMemset( allNeurons.spikeCount, 0, numNeurons * sizeof( int ) ) );
-        checkCudaErrors( cudaMemcpy ( allNeurons.spikeCountOffset, spikeCountOffset, numNeurons * sizeof( int ), cudaMemcpyHostToDevice ) );
+    for (int i = 0; i < numNeurons; i++) {
+        spikeCountOffset[i] = (spikeCount[i] + spikeCountOffset[i]) % max_spikes;
+        spikeCount[i] = 0;
+    }
+
+    // clear spike counts in device memory
+    AllSpikingNeuronsDeviceProperties allNeurons;
+    AllSpikingNeuronsDeviceProperties *allNeuronsDevice = dynamic_cast<GPUSpikingCluster*>(clr)->m_allNeuronsDevice;
+
+    checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllSpikingNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemset( allNeurons.spikeCount, 0, numNeurons * sizeof( int ) ) );
+    checkCudaErrors( cudaMemcpy ( allNeurons.spikeCountOffset, spikeCountOffset, numNeurons * sizeof( int ), cudaMemcpyHostToDevice ) );
 }
 
 /*

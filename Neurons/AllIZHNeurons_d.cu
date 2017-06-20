@@ -183,20 +183,6 @@ void AllIZHNeurons::copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, c
         AllSpikingNeurons::copyDeviceSpikeCountsToHost( allNeurons, clr_info );
 }
 
-/*
- *  Clear the spike counts out of all neurons.
- *
- *  @param  allNeuronsDevice   Reference to the AllIZHNeuronsDeviceProperties struct 
- *                             on device memory.
- *  @param  clr_info           ClusterInfo to refer from.
- */
-void AllIZHNeurons::clearNeuronSpikeCounts( void* allNeuronsDevice, const ClusterInfo *clr_info )
-{
-        AllIZHNeuronsDeviceProperties allNeurons;
-        checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
-        AllSpikingNeurons::clearDeviceSpikeCounts( allNeurons, clr_info );
-}
-
 /**
  *  Update the state of all neurons for a time step
  *  Notify outgoing synapses if neuron has fired.

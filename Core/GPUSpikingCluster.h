@@ -135,17 +135,29 @@ public:
 	virtual void advance(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
-         * Modifies connections between neurons based on current state of the network and behavior
-         * over the past epoch. Should be called once every epoch.
+         * Advances neurons network state of the cluster one simulation step.
          *
-         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
-         *  @param  layout      A class to define neurons' layout information in the network.
-         *  @param  conns       A class to define neurons' connections information in the network.
-         *  @param  clr_info    ClusterInfo class to read information from.
+         * @param sim_info - parameters defining the simulation to be run with
+         *                   the given collection of neurons.
+         * @param clr_info - parameters defining the simulation to be run with
+         *                   the given collection of neurons.
          */
-	virtual void updateConnections(const SimulationInfo *sim_info, Connections *conns, Layout *layout, const ClusterInfo *clr_info);
+        virtual void advanceNeurons(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
-        virtual void updateHistory(const SimulationInfo *sim_infos, const ClusterInfo *clr_info);
+        /**
+         * Advances synapses network state of the cluster one simulation step.
+         *
+         * @param sim_info - parameters defining the simulation to be run with
+         *                   the given collection of neurons.
+         * @param clr_info - parameters defining the simulation to be run with
+         *                   the given collection of neurons.
+         */
+        virtual void advanceSynapses(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+
+        /**
+         * Advances synapses spike event queue state of the cluster one simulation step.
+         */
+        virtual void advanceSpikeQueue();
 
 protected:
         /**
@@ -183,12 +195,13 @@ protected:
 	//! Pointer to device random noise array.
 	float* randNoise_d;
 
-	//! Pointer to synapse index map in device memory.
-	SynapseIndexMap* synapseIndexMapDevice;
-
 	/*----------------------------------------------*\
 	|  Member variables
 	\*----------------------------------------------*/
+
+public:
+	//! Pointer to synapse index map in device memory.
+	SynapseIndexMap* m_synapseIndexMapDevice;
 
 	//! Synapse structures in device memory.
 	AllSpikingSynapsesDeviceProperties* m_allSynapsesDevice;
@@ -196,13 +209,29 @@ protected:
 	//! Neuron structure in device memory.
 	AllSpikingNeuronsDeviceProperties* m_allNeuronsDevice;
 
+        /**
+         *  Copy SynapseIndexMap in host memory to SynapseIndexMap in device memory.
+         *
+         *  @param  clr_info    ClusterInfo to refer from.
+         */
+	void copySynapseIndexMapHostToDevice(const ClusterInfo *clr_info);
+
 private: 
 	/* ------------------*\
 	|* # Helper Functions
 	\* ------------------*/
+
+        /**
+         *  Allocate device memory for synapse inverse map.
+         *  @param  count       The number of neurons.
+         */
 	void allocSynapseImap( int count );
+
+
+        /**
+         *  Deallocate device memory for synapse inverse map.
+         */
 	void deleteSynapseImap( );
-	void copySynapseIndexMapHostToDevice(SynapseIndexMap &synapseIndexMapHost, int neuron_count);
 
 	// # Load Memory
 	// -------------

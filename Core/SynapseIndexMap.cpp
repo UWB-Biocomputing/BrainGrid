@@ -237,6 +237,6 @@ void SynapseIndexMap::createSynapseImap(const SimulationInfo* sim_info, vector<C
             }
         }
     }
-    )
+    ) // end DEBUG
 }
 

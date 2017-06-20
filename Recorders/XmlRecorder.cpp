@@ -106,7 +106,7 @@ void XmlRecorder::compileHistories(vector<Cluster *> &vtClr, vector<ClusterInfo 
         }
 
         // clear spike count
-        neurons->clearSpikeCounts(m_sim_info, vtClrInfo[iCluster]);
+        neurons->clearSpikeCounts(m_sim_info, vtClrInfo[iCluster], vtClr[iCluster]);
     }
 }
 

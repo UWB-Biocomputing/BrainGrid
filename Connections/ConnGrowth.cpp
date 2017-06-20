@@ -287,6 +287,7 @@ bool ConnGrowth::updateConnections(const SimulationInfo *sim_info, Layout *layou
     return true;
 }
 
+#if !defined(USE_GPU)
 /*
  *  Calculates firing rates, neuron radii change and assign new values.
  *
@@ -316,6 +317,7 @@ void ConnGrowth::updateConns(const SimulationInfo *sim_info, vector<Cluster *> &
     (*deltaR) = sim_info->epochDuration * m_growth.rho * *outgrowth;
     (*radii) += (*deltaR);
 }
+#endif // !USE_GPU
 
 /*
  *  Update the distance between frontiers of Neurons.

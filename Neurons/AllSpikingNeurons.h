@@ -79,8 +79,9 @@ class AllSpikingNeurons : public AllNeurons
          *
          *  @param  sim_info  SimulationInfo class to read information from.
          *  @param  clr_info  ClusterInfo class to read information from.
+         *  @param  clr       Cluster class to read information from.
          */
-        void clearSpikeCounts(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        void clearSpikeCounts(const SimulationInfo *sim_info, const ClusterInfo *clr_info, Cluster *clr);
 
 #if defined(USE_GPU)
     public:
@@ -108,14 +109,6 @@ class AllSpikingNeurons : public AllNeurons
          */
         virtual void copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) = 0;
 
-        /**
-         *  Clear the spike counts out of all neurons.
-         *
-         *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void clearNeuronSpikeCounts( void* allNeuronsDevice, const ClusterInfo *clr_info ) = 0;
-
     protected:
         /**
          *  Copy spike history data stored in device memory to host.
@@ -136,14 +129,6 @@ class AllSpikingNeurons : public AllNeurons
          */
         void copyDeviceSpikeCountsToHost( AllSpikingNeuronsDeviceProperties& allNeurons, const ClusterInfo *clr_info );
 
-        /**
-         *  Clear the spike counts out of all neurons in device memory.
-         *  (helper function of clearNeuronSpikeCounts)
-         *
-         *  @param  allNeurons         Reference to the AllSpikingNeuronsDeviceProperties struct.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        void clearDeviceSpikeCounts( AllSpikingNeuronsDeviceProperties& allNeurons, const ClusterInfo *clr_info );
 #else // !defined(USE_GPU)
 
     public:

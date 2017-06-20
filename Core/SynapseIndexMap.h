@@ -90,7 +90,7 @@ class SynapseIndexMap
          *
          *  @param  outSynIndex   Outgoing synapse index.
          */
-        static inline CLUSTER_INDEX_TYPE getClusterIndex(OUTGOING_SYNAPSE_INDEX_TYPE outSynIndex) {
+        CUDA_CALLABLE static inline CLUSTER_INDEX_TYPE getClusterIndex(OUTGOING_SYNAPSE_INDEX_TYPE outSynIndex) {
             return outSynIndex >> CSC_SHIFT_COUNT; 
         };
 
@@ -99,7 +99,7 @@ class SynapseIndexMap
          *
          *  @param  outSynIndex   Outgoing synapse index.
          */
-        static inline BGSIZE getSynapseIndex(OUTGOING_SYNAPSE_INDEX_TYPE outSynIndex) {
+        CUDA_CALLABLE static inline BGSIZE getSynapseIndex(OUTGOING_SYNAPSE_INDEX_TYPE outSynIndex) {
             return outSynIndex & SYNAPSE_INDEX_MASK;
         };
 

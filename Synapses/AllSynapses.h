@@ -272,12 +272,12 @@ struct AllSynapsesDeviceProperties
         /**
          *  The location of the synapse.
          */
-        int *sourceNeuronIndex;
+        int *sourceNeuronLayoutIndex;
 
         /** 
          *  The coordinates of the summation point.
          */
-        int *destNeuronIndex;
+        int *destNeuronLayoutIndex;
 
         /**
          *   The weight (scaling factor, strength, maximal amplitude) of the synapse.

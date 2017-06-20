@@ -18,7 +18,7 @@
  *  @param  clr_info           ClusterInfo to refer from.
  */
 void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
-	allocSynapseDeviceStruct( allSynapsesDevice, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );
+	allocSynapseDeviceStruct( allSynapsesDevice, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, clr_info->clusterID );
 }
 
 /*
@@ -29,11 +29,12 @@ void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const 
  *                                on device memory.
  *  @param  num_neurons           Number of neurons.
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+ *  @param  clusterID             The cluster ID of the cluster.
  */
-void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) {
+void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID ) {
 	AllSTDPSynapsesDeviceProperties allSynapses;
 
-	allocDeviceStruct( allSynapses, num_neurons, maxSynapsesPerNeuron );
+	allocDeviceStruct( allSynapses, num_neurons, maxSynapsesPerNeuron, clusterID );
 
 	checkCudaErrors( cudaMalloc( allSynapsesDevice, sizeof( AllSTDPSynapsesDeviceProperties ) ) );
 	checkCudaErrors( cudaMemcpy ( *allSynapsesDevice, &allSynapses, sizeof( AllSTDPSynapsesDeviceProperties ), cudaMemcpyHostToDevice ) );
@@ -48,9 +49,10 @@ void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, int nu
  *                                on device memory.
  *  @param  num_neurons           Number of neurons.
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+ *  @param  clusterID             The cluster ID of the cluster.
  */
-void AllSTDPSynapses::allocDeviceStruct( AllSTDPSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron ) {
-        AllSpikingSynapses::allocDeviceStruct( allSynapses, num_neurons, maxSynapsesPerNeuron );
+void AllSTDPSynapses::allocDeviceStruct( AllSTDPSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID ) {
+        AllSpikingSynapses::allocDeviceStruct( allSynapses, num_neurons, maxSynapsesPerNeuron, clusterID );
 
         BGSIZE max_total_synapses = maxSynapsesPerNeuron * num_neurons;
 
@@ -66,27 +68,6 @@ void AllSTDPSynapses::allocDeviceStruct( AllSTDPSynapsesDeviceProperties &allSyn
         checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.mupos, max_total_synapses * sizeof( BGFLOAT ) ) );
         checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.muneg, max_total_synapses * sizeof( BGFLOAT ) ) );
         checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.useFroemkeDanSTDP, max_total_synapses * sizeof( bool ) ) );
-
-        // create a EventQueue objet in device memory and set the pointer to postSpikeQueue.
-        EventQueue **pEventQueue; // temporary buffer to save pointer to EventQueue object.
-
-        // allocate device memory for the buffer.
-        checkCudaErrors( cudaMalloc( ( void ** ) &pEventQueue, sizeof( EventQueue * ) ) );
-
-        // allocate device heap memory
-        size_t heapSize;
-        checkCudaErrors( cudaDeviceGetLimit(&heapSize, cudaLimitMallocHeapSize) );
-        heapSize += max_total_synapses * 2;
-        checkCudaErrors( cudaDeviceSetLimit(cudaLimitMallocHeapSize, heapSize) );
-
-        // create a EventQueue object in device memory.
-        allocEventQueueDevice <<< 1, 1 >>> ( max_total_synapses, pEventQueue );
-
-        // save the pointer of the object.
-        checkCudaErrors( cudaMemcpy ( &allSynapses.postSpikeQueue, pEventQueue, sizeof( EventQueue * ), cudaMemcpyDeviceToHost ) );
-
-        // free device memory for the buffer.
-        checkCudaErrors( cudaFree( pEventQueue ) );
 }
 
 /*
