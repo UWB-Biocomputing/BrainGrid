@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SynapsesParams name = "SynapsesParams" class="SynapsesParamsClass2">
+    <starter_vthresh name="starter_vthresh">
+        <min name="min">13.565e-3</min>
+        <max name="max">13.655e-3</max>
+    </starter_vthresh>
+    <starter_vreset name="starter_vreset">
+        <min name="min">13.0e-3</min>
+        <max name="max">13.0e-3</max>
+    </starter_vreset>
+</SynapsesParams>

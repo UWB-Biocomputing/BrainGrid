@@ -4,21 +4,23 @@
     xsi:noNamespaceSchemaLocation='AllParamsClasses.xsd'>
     <NeuronsParamsClasses name="NeuronsParamsClasses" templateDirectory="ParamsClassTemplateConfig/NeuronsParamsClass/">
         <ParamsClass name="ALLLIFNeurons" templateFileName="AllLIFNeurons.xml"/>
-        <ParamsClass name="AllIZHNeurons" templateFileName="AllIZHNeurons.xml"/>
+        <ParamsClass name="NeuronsParamsClass1" templateFileName="NeuronsParamsClass1.xml"/>
+        <ParamsClass name="NeuronsParamsClass2" templateFileName="NeuronsParamsClass2.xml"/>
     </NeuronsParamsClasses>
     <SynapsesParamsClasses name="SynapsesParamsClasses" templateDirectory="ParamsClassTemplateConfig/SynapsesParamsClass/">
-        <ParamsClass name="AllSpikingSynapses" templateFileName="AllSpikingSynapses.xml"/>
         <ParamsClass name="AllDSSynapses" templateFileName="AllDSSynapses.xml"/>
-        <ParamsClass name="AllSTDPSynapses" templateFileName="AllSTDPSynapses.xml"/>
-        <ParamsClass name="AllDynamicSTDPSynapses" templateFileName="AllDynamicSTDPSynapses.xml"/>
+        <ParamsClass name="SynapsesParamsClass1" templateFileName="SynapsesParamsClass1.xml"/>
+        <ParamsClass name="SynapsesParamsClass2" templateFileName="SynapsesParamsClass2.xml"/>
     </SynapsesParamsClasses>
     <ConnectionsParamsClasses name="ConnectionsParamsClasses" templateDirectory="ParamsClassTemplateConfig/ConnectionsParamsClass/">
         <ParamsClass name="ConnGrowth" templateFileName="ConnGrowth.xml"/>
-        <ParamsClass name="ConnStatic" templateFileName="ConnStatic.xml"/>
+        <ParamsClass name="ConnectionsParamsClass1" templateFileName="ConnectionsParamsClass1.xml"/>
+        <ParamsClass name="ConnectionsParamsClass2" templateFileName="ConnectionsParamsClass2.xml"/>
     </ConnectionsParamsClasses>
     <LayoutParamsClasses name="LayoutParamsClasses" templateDirectory="ParamsClassTemplateConfig/LayoutParamsClass/">
         <ParamsClass name="FixedLayout" templateFileName="FixedLayout.xml"/>
-        <ParamsClass name="DynamicLayout" templateFileName="DynamicLayout.xml"/>
+        <ParamsClass name="LayoutParamsClass1" templateFileName="LayoutParamsClass1.xml"/>
+        <ParamsClass name="LayoutParamsClass2" templateFileName="LayoutParamsClass2.xml"/>
     </LayoutParamsClasses>
 </AllParamsClasses>
 
