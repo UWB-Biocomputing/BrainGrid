@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LayoutParams name="LayoutParams" class="DynamicLayout">
+    <LayoutFiles name="LayoutFiles">
+        <frac_EXC name="frac_EXC">0.80</frac_EXC>
+        <starter_neurons name="starter_neurons">0.10</starter_neurons>
+    </LayoutFiles>
+</LayoutParams>
