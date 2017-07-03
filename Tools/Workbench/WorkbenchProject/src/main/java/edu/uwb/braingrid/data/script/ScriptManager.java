@@ -1,6 +1,6 @@
 package edu.uwb.braingrid.data.script;
 /////////////////CLEANED
-import com.hp.hpl.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Resource;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import edu.uwb.braingrid.provenance.ProvMgr;
