@@ -282,9 +282,16 @@ void AllSTDPSynapses::copyDeviceToHost( AllSTDPSynapsesDeviceProperties& allSyna
  *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
  *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
  *  @param  sim_info               SimulationInfo class to read information from.
+ *  @param  clr_info               ClusterInfo to refer from.
  */
-void AllSTDPSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info)
+void AllSTDPSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info)
 {
+    DEBUG (
+    int deviceId;
+    checkCudaErrors( cudaGetDevice( &deviceId ) );
+    assert(deviceId == clr_info->deviceId);
+    ); // end DEBUG
+
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
     // CUDA parameters
@@ -292,6 +299,17 @@ void AllSTDPSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuronsD
     int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
     // Advance synapses ------------->
     advanceSTDPSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapsesDeviceProperties*)allSynapsesDevice, (AllSpikingNeuronsDeviceProperties*)allNeuronsDevice, max_spikes, sim_info->width );
+}
+
+/*
+ * Advances synapses spike event queue state of the cluster one simulation step.
+ *
+ *  @param  allSynapsesDevice      Reference to the AllSynapsesDeviceProperties struct
+ *                                 on device memory.
+ */
+void AllSTDPSynapses::advanceSpikeQueue(void* allSynapsesDevice)
+{
+    AllSpikingSynapses::advanceSpikeQueue(allSynapsesDevice);
 
     advanceSTDPSynapsesEventQueueDevice <<< 1, 1 >>> ( (AllSTDPSynapsesDeviceProperties*)allSynapsesDevice );
 }

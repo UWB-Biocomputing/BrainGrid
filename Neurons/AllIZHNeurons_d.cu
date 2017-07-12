@@ -197,6 +197,12 @@ void AllIZHNeurons::copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, c
  */
 void AllIZHNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info)
 {
+    DEBUG (
+    int deviceId;
+    checkCudaErrors( cudaGetDevice( &deviceId ) );
+    assert(deviceId == clr_info->deviceId);
+    ); // end DEBUG
+
     int neuron_count = clr_info->totalClusterNeurons;
     int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
 

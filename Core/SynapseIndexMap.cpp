@@ -9,6 +9,9 @@
 #include "SynapseIndexMap.h"
 #include "AllSynapses.h"
 #include "Cluster.h"
+#if defined(USE_GPU)
+#include "GPUSpikingCluster.h"
+#endif
 
 /**
  *  Get cluster index from neuron layout index.
@@ -165,6 +168,14 @@ void SynapseIndexMap::createSynapseImap(const SimulationInfo* sim_info, vector<C
 
     // delete memories
     delete[] rgSynapseSynapseIndexMap;
+
+#if defined(USE_GPU)
+    // Copy synapse index maps to the device memory
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
+        GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(vtClr[iCluster]);
+        GPUClr->copySynapseIndexMapHostToDevice(vtClrInfo[iCluster]);
+    }
+#endif // USE_GPU
 
     DEBUG_MID (
     // check the validity of the incoming index map of SynapseIndexMap 

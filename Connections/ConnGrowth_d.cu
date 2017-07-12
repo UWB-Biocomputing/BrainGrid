@@ -18,14 +18,12 @@ void ConnGrowth::updateConns(const SimulationInfo *sim_info, vector<Cluster *> &
 
     // for each cluster
     for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
+        // Set device ID
+        checkCudaErrors( cudaSetDevice( vtClrInfo[iCluster]->deviceId ) );
+
         AllSpikingNeurons *neurons = dynamic_cast<AllSpikingNeurons*>(vtClr[iCluster]->m_neurons);
         int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
         int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
-
-        // copy neuron's data from device memory to host
-        GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(vtClr[iCluster]);
-        neurons->copyNeuronDeviceSpikeCountsToHost(GPUClr->m_allNeuronsDevice, vtClrInfo[iCluster]);
-        neurons->copyNeuronDeviceSpikeHistoryToHost(GPUClr->m_allNeuronsDevice, sim_info, vtClrInfo[iCluster]);
 
         for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++) {
             // Calculate firing rate
@@ -61,26 +59,38 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
     const int threadsPerBlock = 256;
     int blocksPerGrid;
 
-    // allocate device memories
+    // allocate host memory for weight data
     BGSIZE W_d_size = sim_info->totalNeurons * sim_info->totalNeurons * sizeof (BGFLOAT);
     BGFLOAT* W_h = new BGFLOAT[W_d_size];
-    BGFLOAT* W_d;
-    checkCudaErrors( cudaMalloc ( ( void ** ) &W_d, W_d_size ) );
 
-    neuronType* neuron_type_map_d;
-    checkCudaErrors( cudaMalloc( ( void ** ) &neuron_type_map_d, sim_info->totalNeurons * sizeof( neuronType ) ) );
-
-    // copy weight data to the device memory
+    // and initialize it
     for ( int i = 0 ; i < sim_info->totalNeurons; i++ )
         for ( int j = 0; j < sim_info->totalNeurons; j++ )
             W_h[i * sim_info->totalNeurons + j] = (*W)(i, j);
 
-    checkCudaErrors( cudaMemcpy ( W_d, W_h, W_d_size, cudaMemcpyHostToDevice ) );
-
-    checkCudaErrors( cudaMemcpy ( neuron_type_map_d, layout->neuron_type_map, sim_info->totalNeurons * sizeof( neuronType ), cudaMemcpyHostToDevice ) );
-
     // destination neurons of each cluster
     for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
+        // Set device ID
+        checkCudaErrors( cudaSetDevice( vtClrInfo[iCluster]->deviceId ) );
+
+        // TODO: OPTIMIZATION: Device memories for weight data and neuron type map
+        // must be allocated for each device; however, they can be
+        // devided for each cluster.
+
+        // allocate device memories for weight data 
+        BGFLOAT* W_d;
+        checkCudaErrors( cudaMalloc ( ( void ** ) &W_d, W_d_size ) );
+
+        // and initialize it
+        checkCudaErrors( cudaMemcpy ( W_d, W_h, W_d_size, cudaMemcpyHostToDevice ) );
+
+        // allocate device memory for neuron type map
+        neuronType* neuron_type_map_d;
+        checkCudaErrors( cudaMalloc( ( void ** ) &neuron_type_map_d, sim_info->totalNeurons * sizeof( neuronType ) ) );
+
+        // and initialize it
+        checkCudaErrors( cudaMemcpy ( neuron_type_map_d, layout->neuron_type_map, sim_info->totalNeurons * sizeof( neuronType ), cudaMemcpyHostToDevice ) );
+
         int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
         int clusterNeuronsBegin = vtClrInfo[iCluster]->clusterNeuronsBegin;
         GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(vtClr[iCluster]);
@@ -90,25 +100,21 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
         blocksPerGrid = ( totalClusterNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
         updateSynapsesWeightsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, deltaT, W_d, sim_info->maxSynapsesPerNeuron, allNeuronsDevice, allSynapsesDevice, neuron_type_map_d, totalClusterNeurons, clusterNeuronsBegin );
 
-        AllSynapses *synapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
         // copy device synapse count to host memory
+        AllSynapses *synapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
         synapses->copyDeviceSynapseCountsToHost(allSynapsesDevice, vtClrInfo[iCluster]);
+
         // copy device sourceNeuronLayoutIndex and in_use to host memory
         synapses->copyDeviceSourceNeuronIdxToHost(allSynapsesDevice, sim_info, vtClrInfo[iCluster]);
+
+        // free device memories
+        checkCudaErrors( cudaFree( W_d ) );
+        checkCudaErrors( cudaFree( neuron_type_map_d ) );
     }
 
-    // free memories
-    checkCudaErrors( cudaFree( W_d ) );
+    // free host memories
     delete[] W_h;
-
-    checkCudaErrors( cudaFree( neuron_type_map_d ) );
 
     // Create synapse index maps
     SynapseIndexMap::createSynapseImap(sim_info, vtClr, vtClrInfo);
-
-    // Copy synapse index maps to the device memory
-    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
-        GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(vtClr[iCluster]);
-        GPUClr->copySynapseIndexMapHostToDevice(vtClrInfo[iCluster]);
-    }
 }

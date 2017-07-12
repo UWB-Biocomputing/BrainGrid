@@ -6,6 +6,9 @@
 #include "Hdf5Recorder.h"
 #endif
 #include <algorithm>
+#if defined(USE_GPU)
+#include "GPUSpikingCluster.h"
+#endif // USE_GPU
 
 ConnStatic::ConnStatic() : Connections()
 {
@@ -95,6 +98,18 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
 
     // Create synapse index maps
     SynapseIndexMap::createSynapseImap(sim_info, vtClr, vtClrInfo);
+
+#if defined(USE_GPU)
+    // copy host synapse arrays into GPU device
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
+        // Set device ID
+        checkCudaErrors( cudaSetDevice( vtClrInfo[iCluster]->deviceId ) );
+
+        AllSynapses *synapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
+        AllSpikingSynapsesDeviceProperties* allSynapsesDevice = dynamic_cast<GPUSpikingCluster*>(vtClr[iCluster])->m_allSynapsesDevice;
+        synapses->copySynapseHostToDevice( allSynapsesDevice, sim_info, vtClrInfo[iCluster] );
+    }
+#endif // USE_GPU
 }
 
 /*

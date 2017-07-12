@@ -121,8 +121,10 @@ class Cluster
 
         /**
          * Advances synapses spike event queue state of the cluster one simulation step.
+         *
+         *  @param  clr_info    ClusterInfo class to read information from.
          */
-        virtual void advanceSpikeQueue() = 0;
+        virtual void advanceSpikeQueue(const ClusterInfo *clr_info) = 0;
 
         /**
          *  Thread for advance a cluster.

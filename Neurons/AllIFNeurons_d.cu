@@ -238,6 +238,9 @@ void AllIFNeurons::copyDeviceToHost( AllIFNeuronsDeviceProperties& allNeurons, c
  */
 void AllIFNeurons::copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) 
 {        
+        // Set device ID
+        checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
+
         AllIFNeuronsDeviceProperties allNeurons;
         checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIFNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );        
         AllSpikingNeurons::copyDeviceSpikeHistoryToHost( allNeurons, sim_info, clr_info );
@@ -251,6 +254,9 @@ void AllIFNeurons::copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDevice, c
  */
 void AllIFNeurons::copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, const ClusterInfo *clr_info )
 {
+        // Set device ID
+        checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
+
         AllIFNeuronsDeviceProperties allNeurons;
         checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIFNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
         AllSpikingNeurons::copyDeviceSpikeCountsToHost( allNeurons, clr_info );

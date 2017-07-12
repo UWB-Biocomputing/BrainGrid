@@ -6,6 +6,9 @@
 #include "Util.h"
 #include "ConnGrowth.h"
 #include "ISInput.h"
+#if defined(USE_GPU)
+#include "GPUSpikingCluster.h"
+#endif
 
 /*
  *  Constructor
@@ -271,6 +274,17 @@ void Model::advance(const SimulationInfo *sim_info)
  */
 void Model::updateConnections(const SimulationInfo *sim_info)
 {
+#if defined(USE_GPU)
+    // for each cluster
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < m_vtClr.size(); iCluster++) {
+        // copy neuron's data from device memory to host
+        AllSpikingNeurons *neurons = dynamic_cast<AllSpikingNeurons*>(m_vtClr[iCluster]->m_neurons);
+        GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(m_vtClr[iCluster]);
+        neurons->copyNeuronDeviceSpikeCountsToHost(GPUClr->m_allNeuronsDevice, m_vtClrInfo[iCluster]);
+        neurons->copyNeuronDeviceSpikeHistoryToHost(GPUClr->m_allNeuronsDevice, sim_info, m_vtClrInfo[iCluster]);
+    }
+#endif // USE_GPU
+
     // Update Connections data
     if (m_conns->updateConnections(sim_info, m_layout, m_vtClr, m_vtClrInfo)) {
         m_conns->updateSynapsesWeights(sim_info, m_layout, m_vtClr, m_vtClrInfo);

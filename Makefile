@@ -87,7 +87,7 @@ CXXFLAGS = -std=c++11 -O2 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDI
 CGPUFLAGS = -std=c++11 -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 CXXLDFLAGS = -lstdc++ -pthread
 LGPUFLAGS = -lstdc++ -L$(CUDALIBDIR) -lcuda -lcudart
-NVCCFLAGS =  -g -arch=sm_30 -rdc=true $(INCDIRS) -I/usr/local/cuda/samples/common/inc
+NVCCFLAGS =  -g -arch=sm_30 -rdc=true -DDEBUG_OUT $(INCDIRS) -I/usr/local/cuda/samples/common/inc
 
 ################################################################################
 # Objects
@@ -95,6 +95,7 @@ NVCCFLAGS =  -g -arch=sm_30 -rdc=true $(INCDIRS) -I/usr/local/cuda/samples/commo
 
 CUDAOBJS =   \
 		$(COREDIR)/GPUSpikingCluster.o \
+		$(COREDIR)/Model_cuda.o \
 		$(NEURONDIR)/AllNeuronsDeviceFuncs_d.o \
 		$(NEURONDIR)/AllNeurons_cuda.o \
 		$(NEURONDIR)/AllSpikingNeurons_cuda.o \
@@ -134,7 +135,6 @@ ifeq ($(CUSEHDF5), yes)
 LIBOBJS =   \
 		$(COREDIR)/Simulator.o \
 		$(COREDIR)/SimulationInfo.o \
-		$(COREDIR)/Model.o \
 		$(COREDIR)/Cluster.o \
 		$(LAYOUTDIR)/Layout.o \
 		$(LAYOUTDIR)/FixedLayout.o \
@@ -150,7 +150,6 @@ else
 LIBOBJS =   \
 		$(COREDIR)/Simulator.o \
 		$(COREDIR)/SimulationInfo.o \
-		$(COREDIR)/Model.o \
 		$(COREDIR)/Cluster.o \
 		$(LAYOUTDIR)/Layout.o \
 		$(LAYOUTDIR)/FixedLayout.o \
@@ -173,6 +172,7 @@ RNGOBJS =	$(RNGDIR)/Norm.o \
 		$(RNGDIR)/MersenneTwister.o
 
 SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
+		$(COREDIR)/Model.o \
 		$(COREDIR)/SingleThreadedCluster.o \
 		$(INPUTDIR)/FSInput.o \
 		$(COREDIR)/FClassOfCategory.o \
@@ -308,7 +308,7 @@ $(CONNDIR)/ConnGrowth_cuda.o: $(CONNDIR)/ConnGrowth.cpp $(CONNDIR)/ConnGrowth.h 
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(CONNDIR)/ConnGrowth.cpp -o $(CONNDIR)/ConnGrowth_cuda.o
 
 $(CONNDIR)/ConnStatic_cuda.o: $(CONNDIR)/ConnStatic.cpp $(CONNDIR)/ConnStatic.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(CONNDIR)/ConnStatic.cpp -o $(CONNDIR)/ConnStatic_cuda.o
+	nvcc -c $(NVCCFLAGS) $(CONNDIR)/ConnStatic.cpp -x cu $(CGPUFLAGS) -o $(CONNDIR)/ConnStatic_cuda.o 
 
 $(UTILDIR)/Global_cuda.o: $(UTILDIR)/Global.cpp $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(UTILDIR)/Global.cpp -o $(UTILDIR)/Global_cuda.o
@@ -361,6 +361,9 @@ $(COREDIR)/SimulationInfo.o: $(COREDIR)/SimulationInfo.cpp $(COREDIR)/Simulation
 
 $(COREDIR)/Model.o: $(COREDIR)/Model.cpp $(COREDIR)/Model.h $(COREDIR)/IModel.h $(UTILDIR)/ParseParamError.h $(UTILDIR)/Util.h $(XMLDIR)/tinyxml.h
 	$(CXX) $(CXXFLAGS) $(COREDIR)/Model.cpp -o $(COREDIR)/Model.o
+
+$(COREDIR)/Model_cuda.o: $(COREDIR)/Model.cpp $(COREDIR)/Model.h $(COREDIR)/IModel.h $(UTILDIR)/ParseParamError.h $(UTILDIR)/Util.h $(XMLDIR)/tinyxml.h
+	$(CXX) $(CXXFLAGS) $(COREDIR)/Model.cpp $(CGPUFLAGS) -o $(COREDIR)/Model_cuda.o
 
 $(COREDIR)/Cluster.o: $(COREDIR)/Cluster.cpp $(COREDIR)/Cluster.h 
 	$(CXX) $(CXXFLAGS) $(COREDIR)/Cluster.cpp -o $(COREDIR)/Cluster.o

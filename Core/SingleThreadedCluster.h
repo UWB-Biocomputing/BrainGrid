@@ -90,6 +90,9 @@ class SingleThreadedCluster : public Cluster {
 
         /**
          * Advances synapses spike event queue state of the cluster one simulation step.
+         *
+         * @param clr_info - parameters defining the simulation to be run with
+         *                   the given collection of neurons.
          */
-        virtual void advanceSpikeQueue();
+        virtual void advanceSpikeQueue(const ClusterInfo *clr_info);
 };

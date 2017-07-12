@@ -54,6 +54,9 @@ void AllSpikingNeurons::copyDeviceSpikeCountsToHost( AllSpikingNeuronsDeviceProp
  */
 void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info, const ClusterInfo *clr_info, Cluster *clr)
 {
+    // Set device ID
+    checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
+
     // clear spike counts in host memory
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
     int numNeurons = clr_info->totalClusterNeurons;

@@ -815,7 +815,7 @@ __device__ synapseType synType( neuronType* neuron_type_map_d, const int src_neu
 __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, neuronType* neuron_type_map_d, int totalClusterNeurons, int clusterNeuronsBegin )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if ( idx >= num_neurons )
+    if ( idx >= totalClusterNeurons )
         return;
 
     int adjusted = 0;

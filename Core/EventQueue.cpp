@@ -42,8 +42,8 @@ CUDA_CALLABLE void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_
 {
     if (clusterID != m_clusterID) {
         // notify the event to other cluster
-        assert( m_eventHandler != NULL );
-        m_eventHandler->addAnEvent(idx, clusterID);
+        //assert( m_eventHandler != NULL );
+        //m_eventHandler->addAnEvent(idx, clusterID);
     } else {
         BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
 
