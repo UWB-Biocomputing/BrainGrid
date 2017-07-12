@@ -137,3 +137,9 @@ If you want to make changes and contribute to BrainGrid, we strongly recommend c
 - Enter the **title** and **description** for your pull request. 
 - Lastly, click on the green **Send pull request** button.
 - Once a pull request is sent, collaborators can review and discuss the changes you made.
+
+
+
+-------------
+
+<h3><center>[<< Previous: 2. Installation](http://uwb-biocomputing.github.io/BrainGrid/2_installation) 	3. Quickstart	[>> Next: 4. Configuration](http://uwb-biocomputing.github.io/BrainGrid/4_configuration)<h3><center>
