@@ -33,7 +33,7 @@ The initial principles that we are basing BrainGrid on are as follows:
 
 
 -------------
-[>> Next: 2. Installation](http://uwb-biocomputing.github.io/BrainGrid/2_installation)(http://uwb-biocomputing.github.io/BrainGrid/4_configuration)
+[>> Next: 2. Installation](http://uwb-biocomputing.github.io/BrainGrid/2_installation)
 
 -------------
 [<< Previous:  Table of Contents](http://uwb-biocomputing.github.io/BrainGrid/)
