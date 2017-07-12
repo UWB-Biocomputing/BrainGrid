@@ -136,4 +136,6 @@ In order to compile and run BrainGrid, you will need to set up a couple things i
 
 [>> Next: 3. Quickstart](http://uwb-biocomputing.github.io/BrainGrid/3_quickstart)
 
+--------
+
 [<< Previous: 1. Introduction](http://uwb-biocomputing.github.io/BrainGrid/1_introduction)
