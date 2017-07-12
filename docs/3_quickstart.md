@@ -141,4 +141,4 @@ If you want to make changes and contribute to BrainGrid, we strongly recommend c
 
 
 -------------
-[<< Previous: 2. Installation](http://uwb-biocomputing.github.io/BrainGrid/2_installation) 	3. Quickstart	[>> Next: 4. Configuration](http://uwb-biocomputing.github.io/BrainGrid/4_configuration)
+[<< Previous: 2. Installation](http://uwb-biocomputing.github.io/BrainGrid/2_installation) 	   3. Quickstart	   [>> Next: 4. Configuration](http://uwb-biocomputing.github.io/BrainGrid/4_configuration)
