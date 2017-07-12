@@ -26,7 +26,7 @@ As a quick start and sanity test, let's run a small, prepackaged simulation to m
    ```
 
    - HDF5 is useful for making the data analysis easier for Matlab, which has native HDF5 support, after a simulation - especially a very long one; but it is fine to use the default XML output.
-   - If you like to use HDF5 or have issues with using HDF5, see [Using BrainGrid with HDF5](https://github.com/UWB-Biocomputing/BrainGrid/wiki/Getting-BrainGrid-working-with-HDF5)
+   - If you like to use HDF5 or have issues with using HDF5, see [Using BrainGrid with HDF5](https://github.com/UWB-Biocomputing/BrainGrid/wiki/Using-BrainGrid-with-HDF5)
 
    **!!!** Note: Make sure your output file extension in the configuration file (under BrainGrid/configfiles/) matches your choice of **CUSEHDF5** flag. Otherwise an error will be thrown upon compilation. 
 
