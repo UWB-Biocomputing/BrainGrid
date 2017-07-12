@@ -144,3 +144,7 @@ The next set of parameters is the ModelParams. These parameters are specific to 
 * **Layout Params**: Another node to populate. Its only parameter is:
     + **FixedLayoutParams**: As you can see from the helpful comment, the simulator will use this if specified, rather than randomly placing the neurons.
 
+---------
+[>> Next: 5. Examples]()
+---------
+[>> Previous: 3. Quickstart](http://uwb-biocomputing.github.io/BrainGrid/3_quickstart)](http://uwb-biocomputing.github.io/BrainGrid/1_introduction)
