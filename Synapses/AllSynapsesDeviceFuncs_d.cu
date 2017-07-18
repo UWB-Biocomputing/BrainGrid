@@ -902,14 +902,15 @@ __global__ void initSynapsesDevice( int n, AllDSSynapsesDeviceProperties* allSyn
  * Creates a EventQueue object in device memory.
  *
  * @param[in] total_synapse_counts  Number of synapses.
+ * @param[in] pQueueEvent           Pointer to the collection of event queue.
  * @param[in/out] pEventQueue       Pointer to the pointer to EventQueue objet
  *                                  where the pointer EventQueue object is stored.
  * @param[in] clusterID             The cluster ID of cluster.
  */
-__global__ void allocEventQueueDevice(int total_synapse_counts, EventQueue **pEventQueue, CLUSTER_INDEX_TYPE clusterID)
+__global__ void allocEventQueueDevice(int total_synapse_counts, BGQUEUE_ELEMENT* pQueueEvent, EventQueue **pEventQueue, CLUSTER_INDEX_TYPE clusterID)
 {
     *pEventQueue = new EventQueue();
-    (*pEventQueue)->initEventQueue(total_synapse_counts, clusterID);
+    (*pEventQueue)->initEventQueue(total_synapse_counts, pQueueEvent, clusterID);
 }
 
 /*
@@ -920,6 +921,8 @@ __global__ void allocEventQueueDevice(int total_synapse_counts, EventQueue **pEv
 __global__ void deleteEventQueueDevice(EventQueue *pEventQueue)
 {
     if (pEventQueue != NULL) {
+        // event queue buffer was freed by calling cudaFree()
+        pEventQueue->m_queueEvent = NULL;
         delete pEventQueue;
     }
 }
@@ -930,27 +933,21 @@ __global__ void deleteEventQueueDevice(EventQueue *pEventQueue)
  * @param pDstEventQueue       Pointer to the EventQueue object (destination).
  * @param nMaxEvent            The number of event queue (source).
  * @param idxQueue             The index indicating the current time slot in the delayed queue (source).
- * @param pQueueBuffer         Pointer to the collection of event queue (source).
  */
-__global__ void copyEventQueueDevice(EventQueue *pDstEventQueue, BGSIZE nMaxEvent, uint32_t idxQueue, BGQUEUE_ELEMENT* pQueueBuffer)
+__global__ void copyEventQueueDevice(EventQueue *pDstEventQueue, BGSIZE nMaxEvent, uint32_t idxQueue)
 {
     pDstEventQueue->m_nMaxEvent = nMaxEvent;
     pDstEventQueue->m_idxQueue = idxQueue;
-    memcpy(pDstEventQueue->m_queueEvent, pQueueBuffer, nMaxEvent * sizeof( BGQUEUE_ELEMENT ));
 }
 
 /*
  * Copy event queue data from the buffer to the device between device memories.
  * 
  * @param pSrcEventQueue       Pointer to the EventQueue object (source).
- * @param pQueueBuffer         Pointer to the collection of event queue (destination).
  * @param pDstEventQueue       Pointer to the EventQueue object (destination).
  */
-__global__ void copyEventQueueDevice(EventQueue *pSrcEventQueue, BGQUEUE_ELEMENT* pQueueBuffer, EventQueue* pDstEventQueue)
+__global__ void copyEventQueueDevice(EventQueue *pSrcEventQueue, EventQueue* pDstEventQueue)
 {
-    BGSIZE nMaxEvent = pSrcEventQueue->m_nMaxEvent;
-    memcpy(pQueueBuffer, pSrcEventQueue->m_queueEvent, nMaxEvent * sizeof( BGQUEUE_ELEMENT ));
-
     pDstEventQueue->m_nMaxEvent = pSrcEventQueue->m_nMaxEvent;
     pDstEventQueue->m_idxQueue = pSrcEventQueue->m_idxQueue;
 }

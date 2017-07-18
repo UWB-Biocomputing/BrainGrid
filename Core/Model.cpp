@@ -104,8 +104,8 @@ void Model::setupClusters(SimulationInfo *sim_info)
     m_layout->generateNeuronTypeMap(sim_info->totalNeurons);
     m_layout->initStarterMap(sim_info->totalNeurons);
 
-    // create & initialize EventHandler
-    m_eventHandler = new EventHandler();
+    // create & initialize InterClustersEventHandler
+    m_eventHandler = new InterClustersEventHandler();
     m_eventHandler->initEventHandler(m_vtClr.size());
 
     // setup each cluster

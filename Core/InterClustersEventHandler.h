@@ -1,19 +1,19 @@
 /**
- *      @file EventHandler.h
+ *      @file InterClustersEventHandler.h
  *
  *      @brief A class to handle inter-cluster events.
  */
 
 /**
  **
- ** @class EventHandler EventHandler.h "EventHandler.h"
+ ** @class InterClustersEventHandler InterClustersEventHandler.h "InterClustersEventHandler.h"
  **
  ** \latexonly  \subsubsection*{Implementation} \endlatexonly
  ** \htmlonly   <h3>Implementation</h3> \endhtmlonly
  **
- ** The EventHandler class handles inter-clusters events of EventQueue.
+ ** The InterClustersEventHandler class handles inter-clusters events of EventQueue.
  ** When EventQueue::addAnEvent() is called and cluserID is different from the caller's
- ** cluser, the function calls EventHandler::addAnEvent() and the event will be added to
+ ** cluser, the function calls InterClustersEventHandler::addAnEvent() and the event will be added to
  ** the event queue of clusterID specified by the parameter.
  **
  ** \latexonly  \subsubsection*{Credits} \endlatexonly
@@ -33,14 +33,14 @@
 
 class EventQueue;
 
-class EventHandler
+class InterClustersEventHandler
 {
     public:
-        //! The constructor for EventHandler.
-        EventHandler();
+        //! The constructor for InterClustersEventHandler.
+        InterClustersEventHandler();
 
-        //! The destructor for EventHandler.
-        virtual ~EventHandler();
+        //! The destructor for InterClustersEventHandler.
+        virtual ~InterClustersEventHandler();
 
         /**
          * Initializes the event handler.

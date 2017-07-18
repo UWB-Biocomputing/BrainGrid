@@ -127,7 +127,7 @@ CUDAOBJS =   \
 		$(INPUTDIR)/FSInput_cuda.o \
 		$(COREDIR)/FClassOfCategory_cuda.o \
 		$(COREDIR)/EventQueue_cuda.o \
-		$(COREDIR)/EventHandler_cuda.o \
+		$(COREDIR)/InterClustersEventHandler_cuda.o \
 		$(COREDIR)/SynapseIndexMap_cuda.o \
 		$(UTILDIR)/Global_cuda.o
 
@@ -177,7 +177,7 @@ SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
 		$(INPUTDIR)/FSInput.o \
 		$(COREDIR)/FClassOfCategory.o \
 		$(COREDIR)/EventQueue.o \
-		$(COREDIR)/EventHandler.o \
+		$(COREDIR)/InterClustersEventHandler.o \
 		$(COREDIR)/SynapseIndexMap.o \
 		$(NEURONDIR)/AllNeurons.o \
 		$(NEURONDIR)/AllSpikingNeurons.o \
@@ -290,13 +290,13 @@ $(SYNAPSEDIR)/AllSynapses_cuda.o: $(SYNAPSEDIR)/AllSynapses.cpp $(SYNAPSEDIR)/Al
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(SYNAPSEDIR)/AllSynapses.cpp -o $(SYNAPSEDIR)/AllSynapses_cuda.o
 
 $(SYNAPSEDIR)/AllSpikingSynapses_cuda.o: $(SYNAPSEDIR)/AllSpikingSynapses.cpp $(SYNAPSEDIR)/AllSpikingSynapses.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(SYNAPSEDIR)/AllSpikingSynapses.cpp -o $(SYNAPSEDIR)/AllSpikingSynapses_cuda.o
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSpikingSynapses.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSpikingSynapses_cuda.o
 
 $(SYNAPSEDIR)/AllDSSynapses_cuda.o: $(SYNAPSEDIR)/AllDSSynapses.cpp $(SYNAPSEDIR)/AllDSSynapses.h $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(SYNAPSEDIR)/AllDSSynapses.cpp -o $(SYNAPSEDIR)/AllDSSynapses_cuda.o
 
 $(SYNAPSEDIR)/AllSTDPSynapses_cuda.o: $(SYNAPSEDIR)/AllSTDPSynapses.cpp $(SYNAPSEDIR)/AllSTDPSynapses.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(SYNAPSEDIR)/AllSTDPSynapses.cpp -o $(SYNAPSEDIR)/AllSTDPSynapses_cuda.o
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSTDPSynapses.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSTDPSynapses_cuda.o
 
 $(SYNAPSEDIR)/AllDynamicSTDPSynapses_cuda.o: $(SYNAPSEDIR)/AllDynamicSTDPSynapses.cpp $(SYNAPSEDIR)/AllDynamicSTDPSynapses.h $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(SYNAPSEDIR)/AllDynamicSTDPSynapses.cpp -o $(SYNAPSEDIR)/AllDynamicSTDPSynapses_cuda.o
@@ -423,11 +423,11 @@ $(COREDIR)/EventQueue_cuda.o: $(COREDIR)/EventQueue.cpp $(COREDIR)/EventQueue.h
 $(COREDIR)/EventQueue.o: $(COREDIR)/EventQueue.cpp $(COREDIR)/EventQueue.h
 	$(CXX) $(CXXFLAGS) $(COREDIR)/EventQueue.cpp -o $(COREDIR)/EventQueue.o
 
-$(COREDIR)/EventHandler.o: $(COREDIR)/EventHandler.cpp $(COREDIR)/EventHandler.h
-	$(CXX) $(CXXFLAGS) $(COREDIR)/EventHandler.cpp -o $(COREDIR)/EventHandler.o
+$(COREDIR)/InterClustersEventHandler.o: $(COREDIR)/InterClustersEventHandler.cpp $(COREDIR)/InterClustersEventHandler.h
+	$(CXX) $(CXXFLAGS) $(COREDIR)/InterClustersEventHandler.cpp -o $(COREDIR)/InterClustersEventHandler.o
 
-$(COREDIR)/EventHandler_cuda.o: $(COREDIR)/EventHandler.cpp $(COREDIR)/EventHandler.h
-	nvcc -c $(NVCCFLAGS) $(COREDIR)/EventHandler.cpp -x cu $(CGPUFLAGS) -o $(COREDIR)/EventHandler_cuda.o 
+$(COREDIR)/InterClustersEventHandler_cuda.o: $(COREDIR)/InterClustersEventHandler.cpp $(COREDIR)/InterClustersEventHandler.h
+	nvcc -c $(NVCCFLAGS) $(COREDIR)/InterClustersEventHandler.cpp -x cu $(CGPUFLAGS) -o $(COREDIR)/InterClustersEventHandler_cuda.o 
 
 $(COREDIR)/SynapseIndexMap_cuda.o: $(COREDIR)/SynapseIndexMap.cpp $(COREDIR)/SynapseIndexMap.h
 	nvcc -c  $(NVCCFLAGS) $(COREDIR)/SynapseIndexMap.cpp -x cu $(CGPUFLAGS) -o $(COREDIR)/SynapseIndexMap_cuda.o

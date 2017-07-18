@@ -184,7 +184,7 @@ class Model : public IModel
         /**
          *  Pointer to the event handler object.
          */
-        EventHandler *m_eventHandler;
+        InterClustersEventHandler *m_eventHandler;
 
     protected:
         /**

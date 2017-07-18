@@ -70,14 +70,9 @@ void AllSpikingSynapses::allocDeviceStruct( AllSpikingSynapsesDeviceProperties &
         // allocate device memory for the buffer.
         checkCudaErrors( cudaMalloc( ( void ** ) &pEventQueue, sizeof( EventQueue * ) ) );
 
-        // allocate device heap memory
-        size_t heapSize;
-        checkCudaErrors( cudaDeviceGetLimit(&heapSize, cudaLimitMallocHeapSize) );
-        heapSize += max_total_synapses * 2;
-        checkCudaErrors( cudaDeviceSetLimit(cudaLimitMallocHeapSize, heapSize) );
-        
         // create a EventQueue object in device memory.
-        allocEventQueueDevice <<< 1, 1 >>> ( max_total_synapses, pEventQueue, clusterID );
+        // memory for the event queue buffer was allocated at setupSynapses in unified memory
+        allocEventQueueDevice <<< 1, 1 >>> ( max_total_synapses, preSpikeQueue->m_queueEvent, pEventQueue, clusterID );
 
         // save the pointer of the object.
         checkCudaErrors( cudaMemcpy ( &allSynapses.preSpikeQueue, pEventQueue, sizeof( EventQueue * ), cudaMemcpyDeviceToHost ) );
@@ -200,20 +195,11 @@ void AllSpikingSynapses::copyHostToDevice( void* allSynapsesDevice, AllSpikingSy
         checkCudaErrors( cudaMemcpy ( allSynapses.total_delay, total_delay,
                 max_total_synapses * sizeof( int ), cudaMemcpyHostToDevice ) );
 
-        // deep copy preSpikeQueue from host to device
-        BGQUEUE_ELEMENT* pQueueBuffer; // temporary buffer to save event queue.
-
-        // allocate device memory for the buffer.
-        checkCudaErrors( cudaMalloc( ( void ** ) &pQueueBuffer, preSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ) ) );
-
-        // copy event queue data from host to the buffer.
-        checkCudaErrors( cudaMemcpy ( pQueueBuffer, preSpikeQueue->m_queueEvent, preSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ), cudaMemcpyHostToDevice ) );
-
         // copy event queue data from the buffer to the device.
-        copyEventQueueDevice <<< 1, 1 >>> (allSynapses.preSpikeQueue, preSpikeQueue->m_nMaxEvent, preSpikeQueue->m_idxQueue, pQueueBuffer);
+        copyEventQueueDevice <<< 1, 1 >>> (allSynapses.preSpikeQueue, preSpikeQueue->m_nMaxEvent, preSpikeQueue->m_idxQueue);
 
-        // free device memory for the buffer.
-        checkCudaErrors( cudaFree( pQueueBuffer ) );
+        // wait until all CUDA related tasks complete
+        checkCudaErrors( cudaDeviceSynchronize() );
 }
 
 /*
@@ -275,24 +261,20 @@ void AllSpikingSynapses::copyDeviceToHost( AllSpikingSynapsesDeviceProperties& a
         checkCudaErrors( cudaMemcpy ( total_delay, allSynapses.total_delay,
                 max_total_synapses * sizeof( int ), cudaMemcpyDeviceToHost ) );
 
-        // deep copy preSpikeQueue from device to host.
-        BGQUEUE_ELEMENT* pQueueBuffer; // temporary buffer to save event queue.
+        // copy preSpikeQueue from device to host.
         EventQueue* pDstEventQueue;    // temporary buffer to save EventQueue object.
 
         // allocate device memories for buffers.
-        checkCudaErrors( cudaMalloc( ( void ** ) &pQueueBuffer, preSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ) ) );
         checkCudaErrors( cudaMalloc( ( void ** ) &pDstEventQueue, sizeof( EventQueue ) ) );
 
         // copy event queue data from device to the buffers.
-        copyEventQueueDevice <<< 1, 1 >>> (allSynapses.preSpikeQueue, pQueueBuffer, pDstEventQueue);
+        copyEventQueueDevice <<< 1, 1 >>> (allSynapses.preSpikeQueue, pDstEventQueue);
 
         // copy data in the buffers to the event queue in host memory.
-        checkCudaErrors( cudaMemcpy ( preSpikeQueue->m_queueEvent, pQueueBuffer, preSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ), cudaMemcpyDeviceToHost ) );
         checkCudaErrors( cudaMemcpy ( &preSpikeQueue->m_nMaxEvent, &pDstEventQueue->m_nMaxEvent, sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
         checkCudaErrors( cudaMemcpy ( &preSpikeQueue->m_idxQueue, &pDstEventQueue->m_idxQueue, sizeof( uint32_t ), cudaMemcpyDeviceToHost ) );
 
         // free device memories for buffers.
-        checkCudaErrors( cudaFree( pQueueBuffer ) );
         checkCudaErrors( cudaFree( pDstEventQueue ) );
 }
 

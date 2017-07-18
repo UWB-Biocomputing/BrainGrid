@@ -31,7 +31,7 @@
 
 #include "SimulationInfo.h"
 #include "SynapseIndexMap.h"
-#include "EventHandler.h"
+#include "InterClustersEventHandler.h"
 
 class EventQueue
 {
@@ -54,6 +54,15 @@ class EventQueue
          * @param clusterID The cluster ID of cluster to be initialized.
          */
         CUDA_CALLABLE void initEventQueue(BGSIZE nMaxEvent, CLUSTER_INDEX_TYPE clusterID);
+
+        /**
+         * Initializes the collection of queue.
+         *
+         * @param nMaxEvent   The number of event queue.
+         * @param pQueueEvent Pointer to the collection of event queue.
+         * @param clusterID   The cluster ID of cluster to be initialized.
+         */
+        CUDA_CALLABLE void initEventQueue(BGSIZE nMaxEvent, BGQUEUE_ELEMENT* pQueueEvent, CLUSTER_INDEX_TYPE clusterID);
 
         /**
          * Add an event in the queue.
@@ -104,9 +113,9 @@ class EventQueue
         /**
          * Register an event handler.
          *
-         * @param eventHandler  Pointer to the EventHandler.
+         * @param eventHandler  Pointer to the InterClustersEventHandler.
          */
-        CUDA_CALLABLE void regEventHandler(EventHandler* eventHandler);
+        CUDA_CALLABLE void regEventHandler(InterClustersEventHandler* eventHandler);
 
         /**
          * Writes the queue data to the stream.
@@ -136,6 +145,6 @@ class EventQueue
         //! The index indicating the current time slot in the delayed queue.
         uint32_t m_idxQueue;
 
-        //! Pointer to the EventHandler.
-        EventHandler* m_eventHandler;
+        //! Pointer to the InterClustersEventHandler.
+        InterClustersEventHandler* m_eventHandler;
 };

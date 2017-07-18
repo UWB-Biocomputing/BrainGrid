@@ -30,7 +30,7 @@
 #pragma once
 
 #include "Global.h"
-#include "EventHandler.h"
+#include "InterClustersEventHandler.h"
 
 class ClusterInfo
 {
@@ -73,5 +73,5 @@ class ClusterInfo
 #endif // !USE_GPU
 
         //! Pointer to the multi clusters event handler
-        EventHandler* eventHandler;
+        InterClustersEventHandler* eventHandler;
 };

@@ -68,6 +68,22 @@ void AllSTDPSynapses::allocDeviceStruct( AllSTDPSynapsesDeviceProperties &allSyn
         checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.mupos, max_total_synapses * sizeof( BGFLOAT ) ) );
         checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.muneg, max_total_synapses * sizeof( BGFLOAT ) ) );
         checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.useFroemkeDanSTDP, max_total_synapses * sizeof( bool ) ) );
+
+        // create a EventQueue objet in device memory and set the pointer to preSpikeQueue.
+        EventQueue **pEventQueue; // temporary buffer to save pointer to EventQueue object.
+
+        // allocate device memory for the buffer.
+        checkCudaErrors( cudaMalloc( ( void ** ) &pEventQueue, sizeof( EventQueue * ) ) );
+
+        // create a EventQueue object in device memory.
+        // memory for the event queue buffer was allocated at setupSynapses in unified memory
+        allocEventQueueDevice <<< 1, 1 >>> ( max_total_synapses, postSpikeQueue->m_queueEvent, pEventQueue, clusterID );
+
+        // save the pointer of the object.
+        checkCudaErrors( cudaMemcpy ( &allSynapses.postSpikeQueue, pEventQueue, sizeof( EventQueue * ), cudaMemcpyDeviceToHost ) );
+
+        // free device memory for the buffer.
+        checkCudaErrors( cudaFree( pEventQueue ) );
 }
 
 /*
@@ -181,20 +197,11 @@ void AllSTDPSynapses::copyHostToDevice( void* allSynapsesDevice, AllSTDPSynapses
         checkCudaErrors( cudaMemcpy ( allSynapses.useFroemkeDanSTDP, useFroemkeDanSTDP,
                 max_total_synapses * sizeof( bool ), cudaMemcpyHostToDevice ) ); 
 
-        // deep copy postSpikeQueue from host to device
-        BGQUEUE_ELEMENT* pQueueBuffer; // temporary buffer to save event queue.
-
-        // allocate device memory for the buffer.
-        checkCudaErrors( cudaMalloc( ( void ** ) &pQueueBuffer, postSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ) ) );
-
-        // copy event queue data from host to the buffer.
-        checkCudaErrors( cudaMemcpy ( pQueueBuffer, postSpikeQueue->m_queueEvent, postSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ), cudaMemcpyHostToDevice ) );
-
         // copy event queue data from the buffer to the device.
-        copyEventQueueDevice <<< 1, 1 >>> (allSynapses.postSpikeQueue, postSpikeQueue->m_nMaxEvent, postSpikeQueue->m_idxQueue, pQueueBuffer);
+        copyEventQueueDevice <<< 1, 1 >>> (allSynapses.postSpikeQueue, postSpikeQueue->m_nMaxEvent, postSpikeQueue->m_idxQueue);
 
-        // free device memory for the buffer.
-        checkCudaErrors( cudaFree( pQueueBuffer ) );
+        // wait until all CUDA related tasks complete
+        checkCudaErrors( cudaDeviceSynchronize() );
 }
 
 /*
@@ -252,24 +259,20 @@ void AllSTDPSynapses::copyDeviceToHost( AllSTDPSynapsesDeviceProperties& allSyna
         checkCudaErrors( cudaMemcpy ( useFroemkeDanSTDP, allSynapses.useFroemkeDanSTDP,
                 max_total_synapses * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 
-        // deep copy postSpikeQueue from device to host.
-        BGQUEUE_ELEMENT* pQueueBuffer; // temporary buffer to save event queue.
+        // copy postSpikeQueue from device to host.
         EventQueue* pDstEventQueue;    // temporary buffer to save EventQueue object.
 
         // allocate device memories for buffers.
-        checkCudaErrors( cudaMalloc( ( void ** ) &pQueueBuffer, postSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ) ) );
         checkCudaErrors( cudaMalloc( ( void ** ) &pDstEventQueue, sizeof( EventQueue ) ) );
 
         // copy event queue data from device to the buffers.
-        copyEventQueueDevice <<< 1, 1 >>> (allSynapses.postSpikeQueue, pQueueBuffer, pDstEventQueue);
+        copyEventQueueDevice <<< 1, 1 >>> (allSynapses.postSpikeQueue, pDstEventQueue);
 
         // copy data in the buffers to the event queue in host memory.
-        checkCudaErrors( cudaMemcpy ( postSpikeQueue->m_queueEvent, pQueueBuffer, postSpikeQueue->m_nMaxEvent * sizeof( BGQUEUE_ELEMENT ), cudaMemcpyDeviceToHost ) );
         checkCudaErrors( cudaMemcpy ( &postSpikeQueue->m_nMaxEvent, &pDstEventQueue->m_nMaxEvent, sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
         checkCudaErrors( cudaMemcpy ( &postSpikeQueue->m_idxQueue, &pDstEventQueue->m_idxQueue, sizeof( uint32_t ), cudaMemcpyDeviceToHost ) );
 
         // free device memories for buffers.
-        checkCudaErrors( cudaFree( pQueueBuffer ) );
         checkCudaErrors( cudaFree( pDstEventQueue ) );
 }
 

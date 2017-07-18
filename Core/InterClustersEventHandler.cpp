@@ -1,11 +1,11 @@
-#include "EventHandler.h"
+#include "InterClustersEventHandler.h"
 #include "EventQueue.h"
 
-EventHandler::EventHandler() : m_vtEventQueue(NULL)
+InterClustersEventHandler::InterClustersEventHandler() : m_vtEventQueue(NULL)
 {
 }
 
-EventHandler::~EventHandler()
+InterClustersEventHandler::~InterClustersEventHandler()
 {
     if (m_vtEventQueue != NULL) {
         delete m_vtEventQueue;
@@ -17,7 +17,7 @@ EventHandler::~EventHandler()
  *
  * @param size  Size of the EventQueue vector.
  */
-void EventHandler::initEventHandler(const int size)
+void InterClustersEventHandler::initEventHandler(const int size)
 {
     m_vtEventQueue = new vector<EventQueue *>(size);
 }
@@ -28,7 +28,7 @@ void EventHandler::initEventHandler(const int size)
  * @param clusterID   Cluster ID of the EventQueue.
  * @param eventQueue  Pointer to the EventQueue.
  */
-void EventHandler::addEventQueue(const CLUSTER_INDEX_TYPE clusterID, EventQueue* eventQueue)
+void InterClustersEventHandler::addEventQueue(const CLUSTER_INDEX_TYPE clusterID, EventQueue* eventQueue)
 {
     m_vtEventQueue->at(clusterID) = eventQueue;
 
@@ -41,7 +41,7 @@ void EventHandler::addEventQueue(const CLUSTER_INDEX_TYPE clusterID, EventQueue*
  * @param idx        The queue index of the collection.
  * @param clusterID  The cluster ID where the event to be added.
  */
-void EventHandler::addAnEvent( const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID)
+void InterClustersEventHandler::addAnEvent( const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID)
 {
     m_vtEventQueue->at(clusterID)->addAnEvent(idx, clusterID);
 }

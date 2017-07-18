@@ -1,4 +1,7 @@
 #include "AllSpikingSynapses.h"
+#if defined(USE_GPU)
+#include <helper_cuda.h>
+#endif // USE_GPU
 
 // Default constructor
 AllSpikingSynapses::AllSpikingSynapses() : AllSynapses()
@@ -81,7 +84,14 @@ void AllSpikingSynapses::setupSynapses(const int num_neurons, const int max_syna
 
         // create a pre synapse spike queue & initialize it
         preSpikeQueue = new EventQueue();
+#if defined(USE_GPU)
+        // allocate memory for the collection of event queue in unified memory
+        BGQUEUE_ELEMENT* preSpikeEventBuffer;
+        checkCudaErrors( cudaMallocManaged(&preSpikeEventBuffer, max_total_synapses * sizeof(BGQUEUE_ELEMENT)) );
+        preSpikeQueue->initEventQueue(max_total_synapses, preSpikeEventBuffer, clr_info->clusterID);
+#else // USE_GPU
         preSpikeQueue->initEventQueue(max_total_synapses, clr_info->clusterID);
+#endif // USE_GPU
 
         // register the queue to the event handler
         clr_info->eventHandler->addEventQueue(clr_info->clusterID, preSpikeQueue);
@@ -106,6 +116,10 @@ void AllSpikingSynapses::cleanupSynapses()
     tau = NULL;
 
     if (preSpikeQueue != NULL) {
+#if defined(USE_GPU)
+        checkCudaErrors( cudaFree(preSpikeQueue->m_queueEvent) );
+        preSpikeQueue->m_queueEvent = NULL;
+#endif // USE_GPU
         delete preSpikeQueue;
         preSpikeQueue = NULL;
     }

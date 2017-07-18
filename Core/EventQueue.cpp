@@ -33,6 +33,22 @@ CUDA_CALLABLE void EventQueue::initEventQueue(BGSIZE nMaxEvent, CLUSTER_INDEX_TY
 }
 
 /*
+ * Initializes the collection of queue.
+ * 
+ * @param nMaxEvent   The number of event queue.
+ * @param pQueueEvent Pointer to the collection of event queue.
+ * @param clusterID   The cluster ID of cluster to be initialized.
+ */
+CUDA_CALLABLE void EventQueue::initEventQueue(BGSIZE nMaxEvent, BGQUEUE_ELEMENT* pQueueEvent, CLUSTER_INDEX_TYPE clusterID)
+{
+    m_clusterID = clusterID;
+
+    // allocate & initialize a memory for the event queue
+    m_nMaxEvent = nMaxEvent;
+    m_queueEvent = pQueueEvent;
+}
+
+/*
  * Add an event in the queue.
  * 
  * @param idx The queue index of the collection.
@@ -147,9 +163,9 @@ CUDA_CALLABLE void EventQueue::advanceEventQueue()
 /**
  * Register an event handler.
  *
- * @param eventHandler  Pointer to the EventHandler.
+ * @param eventHandler  Pointer to the InterClustersEventHandler.
  */
-CUDA_CALLABLE void EventQueue::regEventHandler(EventHandler* eventHandler)
+CUDA_CALLABLE void EventQueue::regEventHandler(InterClustersEventHandler* eventHandler)
 {
     m_eventHandler = eventHandler;
 }
