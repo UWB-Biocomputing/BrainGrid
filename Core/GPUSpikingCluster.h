@@ -131,26 +131,23 @@ public:
          *
          * @param sim_info - parameters defining the simulation to be run with
          *                   the given collection of neurons.
-         * @param clr_info - parameters defining the simulation to be run with
-         *                   the given collection of neurons.
+         * @param  clr_info  ClusterInfo to refer.
          */
         virtual void advanceNeurons(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
-         * Process inter clusters outgoing spikes.
+         * Process inter clusters outging spikes.
          *
-         * @param  vtClr             Vector of pointer to the Cluster object.
-         * @param  vtClrInfo         Vecttor of pointer to the ClusterInfo object.
+         * @param  clr_info  ClusterInfo to refer.
          */
-        static void processInterClustesOutgoingSpikes(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
+        void processInterClustesOutgoingSpikes(const ClusterInfo *clr_info);
 
         /**
          * Advances synapses network state of the cluster one simulation step.
          *
          * @param sim_info - parameters defining the simulation to be run with
          *                   the given collection of neurons.
-         * @param clr_info - parameters defining the simulation to be run with
-         *                   the given collection of neurons.
+         * @param  clr_info  ClusterInfo to refer.
          */
         virtual void advanceSynapses(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 

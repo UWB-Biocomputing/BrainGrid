@@ -169,7 +169,7 @@ void GPUSpikingCluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *cl
  *
  *  @param  input   istream to read from.
  *  @param  sim_info    used as a reference to set info for neurons and synapses.
- *  @param  clr_info    used as a reference to set info for neurons and synapses.
+ *  @param  clr_info  ClusterInfo to refer.
  */
 void GPUSpikingCluster::deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info)
 {
@@ -183,10 +183,9 @@ void GPUSpikingCluster::deserialize(istream& input, const SimulationInfo *sim_in
 /*
  * Advances neurons network state of the cluster one simulation step.
  *
- * @param sim_info - parameters defining the simulation to be run with
+ * @param sim_info   parameters defining the simulation to be run with
  *                   the given collection of neurons.
- * @param clr_info - parameters defining the simulation to be run with
- *                   the given collection of neurons.
+ * @param  clr_info  ClusterInfo to refer.
  */
 void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
 {
@@ -205,28 +204,23 @@ void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, const Clu
 /*
  * Process inter clusters outgoing spikes.
  *
- * @param  vtClr             Vector of pointer to the Cluster object.
- * @param  vtClrInfo         Vecttor of pointer to the ClusterInfo object.
+ * @param  clr_info  ClusterInfo to refer.
  */
-void GPUSpikingCluster::processInterClustesOutgoingSpikes(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
+void GPUSpikingCluster::processInterClustesOutgoingSpikes(const ClusterInfo *clr_info)
 {
-  for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
-    // Set device ID
-    checkCudaErrors( cudaSetDevice( vtClrInfo[iCluster]->deviceId ) );
+  // Set device ID
+  checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
 
-    // process inter clusters outgoing spikes
-    GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(vtClr[iCluster]);
-    dynamic_cast<AllSpikingSynapses*>(GPUClr->m_synapses)->processInterClustesOutgoingSpikes(GPUClr->m_allSynapsesDevice);
-  }
+  // process inter clusters outgoing spikes
+  dynamic_cast<AllSpikingSynapses*>(m_synapses)->processInterClustesOutgoingSpikes(m_allSynapsesDevice);
 }
 
 /*
  * Advances synapses network state of the cluster one simulation step.
  *
- * @param sim_info - parameters defining the simulation to be run with
+ * @param sim_info   parameters defining the simulation to be run with
  *                   the given collection of neurons.
- * @param clr_info - parameters defining the simulation to be run with
- *                   the given collection of neurons.
+ * @param  clr_info  ClusterInfo to refer.
  */
 void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
 {

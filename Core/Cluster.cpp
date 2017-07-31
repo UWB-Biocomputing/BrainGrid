@@ -1,5 +1,4 @@
 #include "Cluster.h"
-#include "GPUSpikingCluster.h"
 
 // Initialize the Barrier Synchnonize object for advanceThreads.
 Barrier *Cluster::m_barrierAdvance = NULL;
@@ -111,6 +110,15 @@ void Cluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
 }
 
 /*
+ * Process inter clusters outging spikes.
+ *
+ * @param  clr_info  ClusterInfo to refer.
+ */
+void Cluster::processInterClustesOutgoingSpikes(const ClusterInfo *clr_info)
+{
+}
+
+/*
  *  Thread for advance a cluster.
  *
  *  @param  sim_info    SimulationInfo class to read information from.
@@ -206,7 +214,9 @@ void Cluster::runAdvance(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrI
     m_barrierAdvance->Sync();
 
     // process inter clusters outgoing spikes
-    GPUSpikingCluster::processInterClustesOutgoingSpikes(vtClr, vtClrInfo);
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
+        vtClr[iCluster]->processInterClustesOutgoingSpikes(vtClrInfo[iCluster]);
+    }
 
     // notify all advanceThread that the advanceSynapses is ready to go
     m_barrierAdvance->Sync();

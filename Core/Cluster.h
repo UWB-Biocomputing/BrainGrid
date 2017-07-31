@@ -102,20 +102,25 @@ class Cluster
         /**
          * Advances neurons network state of the cluster one simulation step.
          *
-         * @param sim_info - parameters defining the simulation to be run with 
+         * @param sim_info   parameters defining the simulation to be run with 
          *                   the given collection of neurons.
-         * @param clr_info - parameters defining the simulation to be run with 
-         *                   the given collection of neurons.
+         * @param  clr_info  ClusterInfo to refer.
          */
         virtual void advanceNeurons(const SimulationInfo *sim_info, const ClusterInfo *clr_info) = 0;
+
+        /**
+         * Process inter clusters outging spikes.
+         *
+         * @param  clr_info  ClusterInfo to refer.
+         */
+        virtual void processInterClustesOutgoingSpikes(const ClusterInfo *clr_info);
 
         /**
          * Advances synapses network state of the cluster one simulation step.
          *
          * @param sim_info - parameters defining the simulation to be run with 
          *                   the given collection of neurons.
-         * @param clr_info - parameters defining the simulation to be run with 
-         *                   the given collection of neurons.
+         * @param  clr_info  ClusterInfo to refer.
          */
         virtual void advanceSynapses(const SimulationInfo *sim_info, const ClusterInfo *clr_info) = 0;
 

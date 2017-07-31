@@ -71,35 +71,25 @@ class SingleThreadedCluster : public Cluster {
         /**
          * Advances neurons network state of the cluster one simulation step.
          *
-         * @param sim_info - parameters defining the simulation to be run with
+         * @param sim_info   parameters defining the simulation to be run with
          *                   the given collection of neurons.
-         * @param clr_info - parameters defining the simulation to be run with
-         *                   the given collection of neurons.
+         * @param  clr_info   ClusterInfo to refer.
          */
         virtual void advanceNeurons(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
-         * Process inter clusters outging spikes.
-         *
-         * @param  vtClrInfo         Vecttor of pointer to the ClusterInfo object.
-         */
-        static void processInterClustesOutgoingSpikes(vector<ClusterInfo *> &vtClrInfo);
-
-        /**
          * Advances synapses network state of the cluster one simulation step.
          *
-         * @param sim_info - parameters defining the simulation to be run with
+         * @param sim_info   parameters defining the simulation to be run with
          *                   the given collection of neurons.
-         * @param clr_info - parameters defining the simulation to be run with
-         *                   the given collection of neurons.
+         * @param  clr_info  ClusterInfo to refer.
          */
         virtual void advanceSynapses(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
          * Advances synapses spike event queue state of the cluster one simulation step.
          *
-         * @param clr_info - parameters defining the simulation to be run with
-         *                   the given collection of neurons.
+         * @param  clr_info    ClusterInfo to refer.
          */
         virtual void advanceSpikeQueue(const ClusterInfo *clr_info);
 };
