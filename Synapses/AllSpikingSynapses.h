@@ -273,6 +273,22 @@ class AllSpikingSynapses : public AllSynapses
         virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
+         * Process inter clusters outgoing spikes.
+         *
+         *  @param  allSynapsesDevice     Reference to the AllSpikingSynapsesDeviceProperties struct
+         *                                on device memory.
+         */
+        virtual void processInterClustesOutgoingSpikes(void* allSynapsesDevice);
+
+        /**
+         * Process inter clusters incoming spikes.
+         *
+         *  @param  allSynapsesDevice     Reference to the AllSpikingSynapsesDeviceProperties struct
+         *                                on device memory.
+         */
+        virtual void processInterClustesIncomingSpikes(void* allSynapsesDevice);
+
+        /**
          * Advances synapses spike event queue state of the cluster one simulation step.
          *
          *  @param  allSynapsesDevice      Reference to the AllSynapsesDeviceProperties struct

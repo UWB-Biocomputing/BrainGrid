@@ -269,22 +269,22 @@ $(CONNDIR)/ConnGrowth_d.o: $(CONNDIR)/ConnGrowth_d.cu $(UTILDIR)/Global.h $(CONN
 	nvcc -c $(NVCCFLAGS) $(CONNDIR)/ConnGrowth_d.cu $(CGPUFLAGS) -o $(CONNDIR)/ConnGrowth_d.o
 
 $(COREDIR)/BGDriver_cuda.o: $(COREDIR)/BGDriver.cpp $(UTILDIR)/Global.h $(COREDIR)/IModel.h $(NEURONDIR)/AllIFNeurons.h $(SYNAPSEDIR)/AllSynapses.h 
-	$(CXX) -c $(CXXFLAGS) $(CGPUFLAGS) $(COREDIR)/BGDriver.cpp -o $(COREDIR)/BGDriver_cuda.o
+	nvcc -c $(NVCCFLAGS) $(COREDIR)/BGDriver.cpp -x cu $(CGPUFLAGS) -o $(COREDIR)/BGDriver_cuda.o
 
 $(NEURONDIR)/AllNeurons_cuda.o: $(NEURONDIR)/AllNeurons.cpp $(NEURONDIR)/AllNeurons.h $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(NEURONDIR)/AllNeurons.cpp -o $(NEURONDIR)/AllNeurons_cuda.o
 
 $(NEURONDIR)/AllSpikingNeurons_cuda.o: $(NEURONDIR)/AllSpikingNeurons.cpp $(NEURONDIR)/AllSpikingNeurons.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(NEURONDIR)/AllSpikingNeurons.cpp -o $(NEURONDIR)/AllSpikingNeurons_cuda.o
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllSpikingNeurons.cpp -x cu $(CGPUFLAGS) -o $(NEURONDIR)/AllSpikingNeurons_cuda.o
 
 $(NEURONDIR)/AllIFNeurons_cuda.o: $(NEURONDIR)/AllIFNeurons.cpp $(NEURONDIR)/AllIFNeurons.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(NEURONDIR)/AllIFNeurons.cpp -o $(NEURONDIR)/AllIFNeurons_cuda.o
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllIFNeurons.cpp -x cu $(CGPUFLAGS) -o $(NEURONDIR)/AllIFNeurons_cuda.o
 
 $(NEURONDIR)/AllLIFNeurons_cuda.o: $(NEURONDIR)/AllLIFNeurons.cpp $(NEURONDIR)/AllLIFNeurons.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(NEURONDIR)/AllLIFNeurons.cpp -o $(NEURONDIR)/AllLIFNeurons_cuda.o
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllLIFNeurons.cpp -x cu $(CGPUFLAGS) -o $(NEURONDIR)/AllLIFNeurons_cuda.o
 
 $(NEURONDIR)/AllIZHNeurons_cuda.o: $(NEURONDIR)/AllIZHNeurons.cpp $(NEURONDIR)/AllIZHNeurons.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(NEURONDIR)/AllIZHNeurons.cpp -o $(NEURONDIR)/AllIZHNeurons_cuda.o
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllIZHNeurons.cpp -x cu $(CGPUFLAGS) -o $(NEURONDIR)/AllIZHNeurons_cuda.o
 
 $(SYNAPSEDIR)/AllSynapses_cuda.o: $(SYNAPSEDIR)/AllSynapses.cpp $(SYNAPSEDIR)/AllSynapses.h $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(SYNAPSEDIR)/AllSynapses.cpp -o $(SYNAPSEDIR)/AllSynapses_cuda.o
@@ -293,19 +293,19 @@ $(SYNAPSEDIR)/AllSpikingSynapses_cuda.o: $(SYNAPSEDIR)/AllSpikingSynapses.cpp $(
 	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSpikingSynapses.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSpikingSynapses_cuda.o
 
 $(SYNAPSEDIR)/AllDSSynapses_cuda.o: $(SYNAPSEDIR)/AllDSSynapses.cpp $(SYNAPSEDIR)/AllDSSynapses.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(SYNAPSEDIR)/AllDSSynapses.cpp -o $(SYNAPSEDIR)/AllDSSynapses_cuda.o
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllDSSynapses.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllDSSynapses_cuda.o
 
 $(SYNAPSEDIR)/AllSTDPSynapses_cuda.o: $(SYNAPSEDIR)/AllSTDPSynapses.cpp $(SYNAPSEDIR)/AllSTDPSynapses.h $(UTILDIR)/Global.h
 	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSTDPSynapses.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSTDPSynapses_cuda.o
 
 $(SYNAPSEDIR)/AllDynamicSTDPSynapses_cuda.o: $(SYNAPSEDIR)/AllDynamicSTDPSynapses.cpp $(SYNAPSEDIR)/AllDynamicSTDPSynapses.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(SYNAPSEDIR)/AllDynamicSTDPSynapses.cpp -o $(SYNAPSEDIR)/AllDynamicSTDPSynapses_cuda.o
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllDynamicSTDPSynapses.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllDynamicSTDPSynapses_cuda.o
 
 $(CONNDIR)/Connections_cuda.o: $(CONNDIR)/Connections.cpp $(CONNDIR)/Connections.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(CONNDIR)/Connections.cpp -o $(CONNDIR)/Connections_cuda.o
+	nvcc -c $(NVCCFLAGS) $(CONNDIR)/Connections.cpp -x cu $(CGPUFLAGS) -o $(CONNDIR)/Connections_cuda.o
 
 $(CONNDIR)/ConnGrowth_cuda.o: $(CONNDIR)/ConnGrowth.cpp $(CONNDIR)/ConnGrowth.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(CONNDIR)/ConnGrowth.cpp -o $(CONNDIR)/ConnGrowth_cuda.o
+	nvcc -c $(NVCCFLAGS) $(CONNDIR)/ConnGrowth.cpp -x cu $(CGPUFLAGS) -o $(CONNDIR)/ConnGrowth_cuda.o
 
 $(CONNDIR)/ConnStatic_cuda.o: $(CONNDIR)/ConnStatic.cpp $(CONNDIR)/ConnStatic.h $(UTILDIR)/Global.h
 	nvcc -c $(NVCCFLAGS) $(CONNDIR)/ConnStatic.cpp -x cu $(CGPUFLAGS) -o $(CONNDIR)/ConnStatic_cuda.o 
@@ -314,7 +314,7 @@ $(UTILDIR)/Global_cuda.o: $(UTILDIR)/Global.cpp $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(UTILDIR)/Global.cpp -o $(UTILDIR)/Global_cuda.o
 
 $(COREDIR)/FClassOfCategory_cuda.o: $(COREDIR)/FClassOfCategory.cpp $(COREDIR)/FClassOfCategory.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(COREDIR)/FClassOfCategory.cpp -o $(COREDIR)/FClassOfCategory_cuda.o
+	nvcc -c $(NVCCFLAGS) $(COREDIR)/FClassOfCategory.cpp -x cu $(CGPUFLAGS) -o $(COREDIR)/FClassOfCategory_cuda.o 
 
 
 # Library
@@ -363,7 +363,7 @@ $(COREDIR)/Model.o: $(COREDIR)/Model.cpp $(COREDIR)/Model.h $(COREDIR)/IModel.h 
 	$(CXX) $(CXXFLAGS) $(COREDIR)/Model.cpp -o $(COREDIR)/Model.o
 
 $(COREDIR)/Model_cuda.o: $(COREDIR)/Model.cpp $(COREDIR)/Model.h $(COREDIR)/IModel.h $(UTILDIR)/ParseParamError.h $(UTILDIR)/Util.h $(XMLDIR)/tinyxml.h
-	$(CXX) $(CXXFLAGS) $(COREDIR)/Model.cpp $(CGPUFLAGS) -o $(COREDIR)/Model_cuda.o
+	nvcc -c $(NVCCFLAGS) $(COREDIR)/Model.cpp -x cu $(CGPUFLAGS) -o $(COREDIR)/Model_cuda.o
 
 $(COREDIR)/Cluster.o: $(COREDIR)/Cluster.cpp $(COREDIR)/Cluster.h 
 	$(CXX) $(CXXFLAGS) $(COREDIR)/Cluster.cpp -o $(COREDIR)/Cluster.o
@@ -488,7 +488,7 @@ $(INPUTDIR)/FSInput.o: $(INPUTDIR)/FSInput.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)
 	$(CXX) $(CXXFLAGS) $(INPUTDIR)/FSInput.cpp -o $(INPUTDIR)/FSInput.o
 
 $(INPUTDIR)/FSInput_cuda.o: $(INPUTDIR)/FSInput.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)/FSInput.h $(INPUTDIR)/HostSInputRegular.h $(INPUTDIR)/GpuSInputRegular.h $(INPUTDIR)/HostSInputPoisson.h $(INPUTDIR)/GpuSInputPoisson.h $(XMLDIR)/tinyxml.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(INPUTDIR)/FSInput.cpp -o $(INPUTDIR)/FSInput_cuda.o
+	nvcc -c $(NVCCFLAGS) $(INPUTDIR)/FSInput.cpp -x cu $(CGPUFLAGS) -o $(INPUTDIR)/FSInput_cuda.o 
 
 $(INPUTDIR)/SInputRegular.o: $(INPUTDIR)/SInputRegular.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)/SInputRegular.h $(XMLDIR)/tinyxml.h
 	$(CXX) $(CXXFLAGS) $(INPUTDIR)/SInputRegular.cpp -o $(INPUTDIR)/SInputRegular.o

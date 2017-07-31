@@ -137,6 +137,14 @@ public:
         virtual void advanceNeurons(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
+         * Process inter clusters outgoing spikes.
+         *
+         * @param  vtClr             Vector of pointer to the Cluster object.
+         * @param  vtClrInfo         Vecttor of pointer to the ClusterInfo object.
+         */
+        static void processInterClustesOutgoingSpikes(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
+
+        /**
          * Advances synapses network state of the cluster one simulation step.
          *
          * @param sim_info - parameters defining the simulation to be run with

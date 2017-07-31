@@ -1,4 +1,5 @@
 #include "Cluster.h"
+#include "GPUSpikingCluster.h"
 
 // Initialize the Barrier Synchnonize object for advanceThreads.
 Barrier *Cluster::m_barrierAdvance = NULL;
@@ -148,6 +149,11 @@ void Cluster::advanceThread(const SimulationInfo *sim_info, const ClusterInfo *c
         // wait until all threads are complete 
         m_barrierAdvance->Sync();
 
+        // process inter clusters spikes by the main thread
+
+        // wait until all threads are complete 
+        m_barrierAdvance->Sync();
+
         // Advances synapses network state one simulation step
         advanceSynapses(sim_info, clr_info);
 
@@ -187,11 +193,20 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, const ClusterI
 
 /*
  *  Run advance of all waiting threads.
+ *
+ *  @param  vtClr             Vector of pointer to the Cluster object.
+ *  @param  vtClrInfo         Vecttor of pointer to the ClusterInfo object.
  */
-void Cluster::runAdvance()
+void Cluster::runAdvance(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
     // notify all advanceThread that the advanceNeurons is ready to go
     m_barrierAdvance->Sync();
+
+    // notify all advanceThread that the processInterClustesSpikes is complete
+    m_barrierAdvance->Sync();
+
+    // process inter clusters outgoing spikes
+    GPUSpikingCluster::processInterClustesOutgoingSpikes(vtClr, vtClrInfo);
 
     // notify all advanceThread that the advanceSynapses is ready to go
     m_barrierAdvance->Sync();

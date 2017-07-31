@@ -109,7 +109,7 @@ class SynapseIndexMap
          *  @param  idxCluster   Cluster index.
          *  @param  syn_i        Synapse index.
          */
-        static inline OUTGOING_SYNAPSE_INDEX_TYPE getOutgoingSynapseIndex(CLUSTER_INDEX_TYPE idxCluster, BGSIZE syn_i) {
+        CUDA_CALLABLE static inline OUTGOING_SYNAPSE_INDEX_TYPE getOutgoingSynapseIndex(CLUSTER_INDEX_TYPE idxCluster, BGSIZE syn_i) {
             return ((OUTGOING_SYNAPSE_INDEX_TYPE)idxCluster << CSC_SHIFT_COUNT) | syn_i;
         };
 

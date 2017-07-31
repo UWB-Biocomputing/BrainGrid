@@ -64,21 +64,8 @@ void AllSpikingSynapses::allocDeviceStruct( AllSpikingSynapsesDeviceProperties &
         checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.tau, max_total_synapses * sizeof( BGFLOAT ) ) );
         checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.total_delay, max_total_synapses * sizeof( int ) ) );
 
-        // create a EventQueue objet in device memory and set the pointer to preSpikeQueue.
-        EventQueue **pEventQueue; // temporary buffer to save pointer to EventQueue object.
-
-        // allocate device memory for the buffer.
-        checkCudaErrors( cudaMalloc( ( void ** ) &pEventQueue, sizeof( EventQueue * ) ) );
-
-        // create a EventQueue object in device memory.
-        // memory for the event queue buffer was allocated at setupSynapses in unified memory
-        allocEventQueueDevice <<< 1, 1 >>> ( max_total_synapses, preSpikeQueue->m_queueEvent, pEventQueue, clusterID );
-
-        // save the pointer of the object.
-        checkCudaErrors( cudaMemcpy ( &allSynapses.preSpikeQueue, pEventQueue, sizeof( EventQueue * ), cudaMemcpyDeviceToHost ) );
-
-        // free device memory for the buffer.
-        checkCudaErrors( cudaFree( pEventQueue ) );
+        // create an EventQueue objet in device memory and set the pointer in device
+        preSpikeQueue->createEventQueueInDevice(&allSynapses.preSpikeQueue);
 }
 
 /*
@@ -118,7 +105,7 @@ void AllSpikingSynapses::deleteDeviceStruct( AllSpikingSynapsesDeviceProperties&
         checkCudaErrors( cudaFree( allSynapses.total_delay ) );
 
         // delete EventQueue object in device memory.
-        deleteEventQueueDevice <<< 1, 1 >>> ( allSynapses.preSpikeQueue );
+        EventQueue::deleteEventQueueInDevice(allSynapses.preSpikeQueue);
 
         // Set count_neurons to 0 to avoid illegal memory deallocation 
         // at AllSpikingSynapses deconstructor.
@@ -195,11 +182,8 @@ void AllSpikingSynapses::copyHostToDevice( void* allSynapsesDevice, AllSpikingSy
         checkCudaErrors( cudaMemcpy ( allSynapses.total_delay, total_delay,
                 max_total_synapses * sizeof( int ), cudaMemcpyHostToDevice ) );
 
-        // copy event queue data from the buffer to the device.
-        copyEventQueueDevice <<< 1, 1 >>> (allSynapses.preSpikeQueue, preSpikeQueue->m_nMaxEvent, preSpikeQueue->m_idxQueue);
-
-        // wait until all CUDA related tasks complete
-        checkCudaErrors( cudaDeviceSynchronize() );
+        // copy event queue data from host to device.
+        preSpikeQueue->copyEventQueueHostToDevice(allSynapses.preSpikeQueue);
 }
 
 /*
@@ -261,21 +245,8 @@ void AllSpikingSynapses::copyDeviceToHost( AllSpikingSynapsesDeviceProperties& a
         checkCudaErrors( cudaMemcpy ( total_delay, allSynapses.total_delay,
                 max_total_synapses * sizeof( int ), cudaMemcpyDeviceToHost ) );
 
-        // copy preSpikeQueue from device to host.
-        EventQueue* pDstEventQueue;    // temporary buffer to save EventQueue object.
-
-        // allocate device memories for buffers.
-        checkCudaErrors( cudaMalloc( ( void ** ) &pDstEventQueue, sizeof( EventQueue ) ) );
-
-        // copy event queue data from device to the buffers.
-        copyEventQueueDevice <<< 1, 1 >>> (allSynapses.preSpikeQueue, pDstEventQueue);
-
-        // copy data in the buffers to the event queue in host memory.
-        checkCudaErrors( cudaMemcpy ( &preSpikeQueue->m_nMaxEvent, &pDstEventQueue->m_nMaxEvent, sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy ( &preSpikeQueue->m_idxQueue, &pDstEventQueue->m_idxQueue, sizeof( uint32_t ), cudaMemcpyDeviceToHost ) );
-
-        // free device memories for buffers.
-        checkCudaErrors( cudaFree( pDstEventQueue ) );
+        // copy event queue data from device to host.
+        preSpikeQueue->copyEventQueueDeviceToHost(allSynapses.preSpikeQueue);
 }
 
 /*
@@ -345,6 +316,40 @@ void AllSpikingSynapses::setSynapseClassID()
     enumClassSynapses classSynapses_h = classAllSpikingSynapses;
 
     checkCudaErrors( cudaMemcpyToSymbol(classSynapses_d, &classSynapses_h, sizeof(enumClassSynapses)) );
+}
+
+/*
+ * Process inter clusters outgoing spikes.
+ *
+ *  @param  allSynapsesDevice     Reference to the AllSpikingSynapsesDeviceProperties struct
+ *                                on device memory.
+ */
+void AllSpikingSynapses::processInterClustesOutgoingSpikes(void* allSynapsesDevice)
+{
+    // copy everything necessary from device to host
+    AllSpikingSynapsesDeviceProperties allSynapses;
+
+    checkCudaErrors( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSpikingSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
+
+    // process inter clusters outgoing spikes 
+    preSpikeQueue->processInterClustersOutgoingEvents(allSynapses.preSpikeQueue);
+}
+
+/*
+ * Process inter clusters incoming spikes.
+ *
+ *  @param  allSynapsesDevice     Reference to the AllSpikingSynapsesDeviceProperties struct
+ *                                on device memory.
+ */
+void AllSpikingSynapses::processInterClustesIncomingSpikes(void* allSynapsesDevice)
+{
+    // copy everything necessary from host to device
+    AllSpikingSynapsesDeviceProperties allSynapses;
+
+    checkCudaErrors( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSpikingSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
+
+    // process inter clusters incoming spikes 
+    preSpikeQueue->processInterClustersIncomingEvents(allSynapses.preSpikeQueue);
 }
 
 /*

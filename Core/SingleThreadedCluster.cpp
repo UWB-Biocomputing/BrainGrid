@@ -59,6 +59,15 @@ void SingleThreadedCluster::advanceNeurons(const SimulationInfo *sim_info, const
 }
 
 /*
+ * Process inter clusters outging spikes.
+ *
+ * @param  vtClrInfo         Vecttor of pointer to the ClusterInfo object.
+ */
+void SingleThreadedCluster::processInterClustesOutgoingSpikes(vector<ClusterInfo *> &vtClrInfo)
+{
+}
+
+/*
  * Advances synapses network state of the cluster one simulation step.
  *
  * @param sim_info - parameters defining the simulation to be run with 

@@ -85,12 +85,15 @@ void AllSpikingSynapses::setupSynapses(const int num_neurons, const int max_syna
         // create a pre synapse spike queue & initialize it
         preSpikeQueue = new EventQueue();
 #if defined(USE_GPU)
-        // allocate memory for the collection of event queue in unified memory
-        BGQUEUE_ELEMENT* preSpikeEventBuffer;
-        checkCudaErrors( cudaMallocManaged(&preSpikeEventBuffer, max_total_synapses * sizeof(BGQUEUE_ELEMENT)) );
-        preSpikeQueue->initEventQueue(max_total_synapses, preSpikeEventBuffer, clr_info->clusterID);
+        // TODO: calculate (maxFiringRate * deltaT) instead of 0.2
+        BGSIZE nMaxInterClustersOutgoingEvents = max_total_synapses * 0.2;
+        BGSIZE nMaxInterClustersIncomingEvents = max_total_synapses * 0.2;
+
+        // initializes the pre synapse spike queue
+        preSpikeQueue->initEventQueue(clr_info->clusterID, max_total_synapses, nMaxInterClustersOutgoingEvents, nMaxInterClustersIncomingEvents);
 #else // USE_GPU
-        preSpikeQueue->initEventQueue(max_total_synapses, clr_info->clusterID);
+        // initializes the pre synapse spike queue
+        preSpikeQueue->initEventQueue(clr_info->clusterID, max_total_synapses);
 #endif // USE_GPU
 
         // register the queue to the event handler
@@ -116,10 +119,6 @@ void AllSpikingSynapses::cleanupSynapses()
     tau = NULL;
 
     if (preSpikeQueue != NULL) {
-#if defined(USE_GPU)
-        checkCudaErrors( cudaFree(preSpikeQueue->m_queueEvent) );
-        preSpikeQueue->m_queueEvent = NULL;
-#endif // USE_GPU
         delete preSpikeQueue;
         preSpikeQueue = NULL;
     }

@@ -180,7 +180,7 @@ void GPUSpikingCluster::deserialize(istream& input, const SimulationInfo *sim_in
   m_synapses->copySynapseHostToDevice( m_allSynapsesDevice, sim_info, clr_info );
 }
 
-/**
+/*
  * Advances neurons network state of the cluster one simulation step.
  *
  * @param sim_info - parameters defining the simulation to be run with
@@ -202,7 +202,25 @@ void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, const Clu
   checkCudaErrors( cudaDeviceSynchronize() );
 }
 
-/**
+/*
+ * Process inter clusters outgoing spikes.
+ *
+ * @param  vtClr             Vector of pointer to the Cluster object.
+ * @param  vtClrInfo         Vecttor of pointer to the ClusterInfo object.
+ */
+void GPUSpikingCluster::processInterClustesOutgoingSpikes(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
+{
+  for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
+    // Set device ID
+    checkCudaErrors( cudaSetDevice( vtClrInfo[iCluster]->deviceId ) );
+
+    // process inter clusters outgoing spikes
+    GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(vtClr[iCluster]);
+    dynamic_cast<AllSpikingSynapses*>(GPUClr->m_synapses)->processInterClustesOutgoingSpikes(GPUClr->m_allSynapsesDevice);
+  }
+}
+
+/*
  * Advances synapses network state of the cluster one simulation step.
  *
  * @param sim_info - parameters defining the simulation to be run with
@@ -215,6 +233,9 @@ void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, const Cl
   // Set device ID
   checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
 
+  // process inter clusters incoming spikes
+  dynamic_cast<AllSpikingSynapses*>(m_synapses)->processInterClustesIncomingSpikes(m_allSynapsesDevice);
+
   // Advance synapses ------------->
   m_synapses->advanceSynapses(m_allSynapsesDevice, m_allNeuronsDevice, m_synapseIndexMapDevice, sim_info, clr_info);
 
@@ -225,7 +246,7 @@ void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, const Cl
   checkCudaErrors( cudaDeviceSynchronize() );
 }
 
-/**
+/*
  * Advances synapses spike event queue state of the cluster one simulation step.
  *
  * @param clr_info - parameters defining the simulation to be run with

@@ -41,8 +41,12 @@ void InterClustersEventHandler::addEventQueue(const CLUSTER_INDEX_TYPE clusterID
  * @param idx        The queue index of the collection.
  * @param clusterID  The cluster ID where the event to be added.
  */
-void InterClustersEventHandler::addAnEvent( const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID)
+void InterClustersEventHandler::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID)
 {
+#if !defined(USE_GPU)
     m_vtEventQueue->at(clusterID)->addAnEvent(idx, clusterID);
+#else // USE_GPU
+    m_vtEventQueue->at(clusterID)->addAnInterClustersIncomingEvent(idx);
+#endif // USE_GPU
 }
 

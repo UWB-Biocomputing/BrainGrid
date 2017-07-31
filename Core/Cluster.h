@@ -146,8 +146,11 @@ class Cluster
 
         /**
          *  Run advance of all waiting threads.
+         *
+         *  @param  vtClr             Vector of pointer to the Cluster object.
+         *  @param  vtClrInfo         Vecttor of pointer to the ClusterInfo object.
          */
-        static void runAdvance();
+        static void runAdvance(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 
         /**
          *  Quit all advanceThread.

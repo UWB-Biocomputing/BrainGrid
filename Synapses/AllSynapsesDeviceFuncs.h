@@ -62,41 +62,6 @@ extern __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT del
 extern __global__ void initSynapsesDevice( int n, AllDSSynapsesDeviceProperties* allSynapsesDevice, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight );
 
 /**
- * Creates a EventQueue object in device memory.
- *
- * @param[in] total_synapse_counts  Number of synapses.
- * @param[in] pQueueEvent           Pointer to the collection of event queue.
- * @param[in/out] pEventQueue       Pointer to the pointer to EventQueue objet
- *                                  where the pointer EventQueue object is stored.
- * @param[in] clusterID             The cluster ID of cluster.
- */
-__global__ void allocEventQueueDevice(int total_synapse_counts, BGQUEUE_ELEMENT* pQueueEvent, EventQueue **pEventQueue, CLUSTER_INDEX_TYPE clusterID);
-
-/**
- * Delete a EventQueue object in device memory.
- *
- * @param[in] pEventQueue          Pointer to the EventQueue object to be deleted.
- */
-extern __global__ void deleteEventQueueDevice(EventQueue *pEventQueue);
-
-/**
- * Copy event queue data from the buffer to the device between device memories.
- *
- * @param pDstEventQueue       Pointer to the EventQueue object (destination).
- * @param nMaxEvent            The number of event queue (source).
- * @param idxQueue             The index indicating the current time slot in the delayed queue (source).
- */
-extern __global__ void copyEventQueueDevice(EventQueue *pEventQueue, BGSIZE nMaxEvent, uint32_t idxQueue);
-
-/**
- * Copy event queue data from the buffer to the device between device memories.
- * 
- * @param pSrcEventQueue       Pointer to the EventQueue object (source).
- * @param pDstEventQueue       Pointer to the EventQueue object (destination).
- */
-extern __global__ void copyEventQueueDevice(EventQueue *pSrcEventQueue, EventQueue* pDstEventQueue);
-
-/**
  * Perform updating preSpikeQueue for one time step.
  *
  *  @param  allSynapsesDevice  Reference to the AllSpikingSynapsesDeviceProperties struct

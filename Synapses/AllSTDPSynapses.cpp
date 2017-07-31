@@ -114,12 +114,11 @@ void AllSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapse
         // create a post synapse spike queue & initialize it
         postSpikeQueue = new EventQueue();
 #if defined(USE_GPU)
-        // allocate memory for the collection of event queue in unified memory
-        BGQUEUE_ELEMENT* postSpikeEventBuffer;
-        checkCudaErrors( cudaMallocManaged(&postSpikeEventBuffer, max_total_synapses * sizeof(BGQUEUE_ELEMENT)) );
-        postSpikeQueue->initEventQueue(max_total_synapses, postSpikeEventBuffer, clr_info->clusterID);
+        // initializes the post synapse spike queue
+        postSpikeQueue->initEventQueue(clr_info->clusterID, max_total_synapses, 0, 0);
 #else // USE_GPU
-        postSpikeQueue->initEventQueue(max_total_synapses, clr_info->clusterID);
+        // initializes the post synapse spike queue
+        postSpikeQueue->initEventQueue(clr_info->clusterID, max_total_synapses);
 #endif // USE_GPU
     }
 }
@@ -160,10 +159,6 @@ void AllSTDPSynapses::cleanupSynapses()
     useFroemkeDanSTDP = NULL;
 
     if (postSpikeQueue != NULL) {
-#if defined(USE_GPU)
-        checkCudaErrors( cudaFree(postSpikeQueue->m_queueEvent) );
-        postSpikeQueue->m_queueEvent = NULL;
-#endif // USE_GPU
         delete postSpikeQueue;
         postSpikeQueue = NULL;
     }
