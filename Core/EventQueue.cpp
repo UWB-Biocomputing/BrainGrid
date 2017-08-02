@@ -133,7 +133,11 @@ __host__ void EventQueue::initEventQueue(CLUSTER_INDEX_TYPE clusterID, BGSIZE nM
  * @param idx The queue index of the collection.
  * @param clusterID The cluster ID where the event to be added.
  */
-CUDA_CALLABLE void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID)
+#if !defined(USE_GPU)
+void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID)
+#else // USE_GPU
+__device__ void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID)
+#endif // USE_GPU
 {
     if (clusterID != m_clusterID) {
 #if !defined(USE_GPU)
@@ -141,9 +145,22 @@ CUDA_CALLABLE void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_
         assert( m_eventHandler != NULL );
         m_eventHandler->addAnEvent(idx, clusterID);
 #else // USE_GPU
-        // save the inter clusters outgoing events
-        assert( m_nInterClustersOutgoingEvents < m_nMaxInterClustersOutgoingEvents );
-        m_interClustersOutgoingEvents[m_nInterClustersOutgoingEvents++] = SynapseIndexMap::getOutgoingSynapseIndex(clusterID, idx);
+        // save the inter clusters outgoing events in the outgoing events queue
+        OUTGOING_SYNAPSE_INDEX_TYPE idxOutSyn = SynapseIndexMap::getOutgoingSynapseIndex(clusterID, idx);;
+
+        // Because the function in mlti-threads try to save events concurrently, we need to 
+        // atomicaly store events data.
+        int oldEventIdx, newEventIdx, currEventIdx  = m_nInterClustersOutgoingEvents;
+        do {
+            oldEventIdx = currEventIdx;
+            newEventIdx = currEventIdx + 1;
+            currEventIdx = atomicCAS(&m_nInterClustersOutgoingEvents, oldEventIdx, newEventIdx);
+        } while (currEventIdx != oldEventIdx);
+        
+        // the thread acquires an empty slot (currEventIdx) in the queue
+        // and save the inter clusters outgoing events there.
+        m_interClustersOutgoingEvents[currEventIdx] = idxOutSyn;
+        assert( m_nInterClustersOutgoingEvents <= m_nMaxInterClustersOutgoingEvents );
 #endif // USE_GPU
     } else {
         BGQUEUE_ELEMENT &queue = m_queueEvent[idx];

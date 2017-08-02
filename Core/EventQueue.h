@@ -118,7 +118,11 @@ class EventQueue
          * @param idx       The queue index of the collection.
          * @param clusterID The cluster ID where the event to be added.
          */
-        CUDA_CALLABLE void addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID);
+#if !defined(USE_GPU)
+        void addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID);
+#else // USE_GPU
+        __device__ void addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID);
+#endif // USE_GPU
 
         /**
          * Add an event in the queue.
@@ -275,19 +279,19 @@ class EventQueue
     public:
 
         //! The maximum number of the inter clusters outgoing event queue.
-        BGSIZE m_nMaxInterClustersOutgoingEvents;
+        int m_nMaxInterClustersOutgoingEvents;
 
         //! The number of events stored in the inter clusters outgoing event queue.
-        BGSIZE m_nInterClustersOutgoingEvents;
+        int m_nInterClustersOutgoingEvents;
 
         //! Pointer to the inter clusters outgoing event queue.
         OUTGOING_SYNAPSE_INDEX_TYPE* m_interClustersOutgoingEvents;
 
         //! The maximum number of the inter clusters incoming event queue.
-        BGSIZE m_nMaxInterClustersIncomingEvents;
+        int m_nMaxInterClustersIncomingEvents;
 
         //! The number of events stored in the inter clusters incoming event queue.
-        BGSIZE m_nInterClustersIncomingEvents;
+        int m_nInterClustersIncomingEvents;
 
         //! Pointer to the inter clusters incoming event queue.
         BGSIZE* m_interClustersIncomingEvents;

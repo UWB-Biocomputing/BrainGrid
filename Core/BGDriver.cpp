@@ -227,7 +227,7 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
         } else {
             clusterInfo->totalClusterNeurons = numClusterNeurons;
         }
-        clusterInfo->seed = simInfo->seed;
+        clusterInfo->seed = simInfo->seed + iCluster;
 #if defined(USE_GPU)
         clusterInfo->deviceId = g_deviceId + iCluster;
 #endif // USE_GPU
