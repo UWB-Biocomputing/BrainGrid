@@ -199,17 +199,6 @@ void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, const Clu
 
   // wait until all CUDA related tasks complete
   checkCudaErrors( cudaDeviceSynchronize() );
-}
-
-/*
- * Process inter clusters outgoing spikes.
- *
- * @param  clr_info  ClusterInfo to refer.
- */
-void GPUSpikingCluster::processInterClustesOutgoingSpikes(const ClusterInfo *clr_info)
-{
-  // Set device ID
-  checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
 
   // process inter clusters outgoing spikes
   dynamic_cast<AllSpikingSynapses*>(m_synapses)->processInterClustesOutgoingSpikes(m_allSynapsesDevice);

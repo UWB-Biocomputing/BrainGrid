@@ -264,7 +264,7 @@ void Model::advance(const SimulationInfo *sim_info)
     }
 
     // run advance of all waiting threads
-    Cluster::runAdvance(m_vtClr, m_vtClrInfo);
+    Cluster::runAdvance();
 }
 
 /*

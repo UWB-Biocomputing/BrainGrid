@@ -115,7 +115,7 @@ void AllSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapse
         postSpikeQueue = new EventQueue();
 #if defined(USE_GPU)
         // initializes the post synapse spike queue
-        postSpikeQueue->initEventQueue(clr_info->clusterID, max_total_synapses, 0, 0);
+        postSpikeQueue->initEventQueue(clr_info->clusterID, max_total_synapses, (int)0, (int)0);
 #else // USE_GPU
         // initializes the post synapse spike queue
         postSpikeQueue->initEventQueue(clr_info->clusterID, max_total_synapses);

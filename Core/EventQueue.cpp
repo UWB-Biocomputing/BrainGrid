@@ -78,7 +78,7 @@ void EventQueue::initEventQueue(CLUSTER_INDEX_TYPE clusterID, BGSIZE nMaxEvent)
  *                                          incoming event queue.
  * @param interClustersIncomingEvents       Pointer to the inter clusters incoming event queue.
  */
-__device__ void EventQueue::initEventQueue(CLUSTER_INDEX_TYPE clusterID, BGSIZE nMaxEvent, BGQUEUE_ELEMENT* pQueueEvent, BGSIZE nMaxInterClustersOutgoingEvents, OUTGOING_SYNAPSE_INDEX_TYPE* interClustersOutgoingEvents, BGSIZE nMaxInterClustersIncomingEvents, BGSIZE* interClustersIncomingEvents)
+__device__ void EventQueue::initEventQueue(CLUSTER_INDEX_TYPE clusterID, BGSIZE nMaxEvent, BGQUEUE_ELEMENT* pQueueEvent, int nMaxInterClustersOutgoingEvents, OUTGOING_SYNAPSE_INDEX_TYPE* interClustersOutgoingEvents, int nMaxInterClustersIncomingEvents, BGSIZE* interClustersIncomingEvents)
 {
     m_clusterID = clusterID;
 
@@ -105,7 +105,7 @@ __device__ void EventQueue::initEventQueue(CLUSTER_INDEX_TYPE clusterID, BGSIZE 
  * @param nMaxInterClustersIncomingEvents   The maximum number of the inter clusters 
  *                                          incoming event queue.
  */
-__host__ void EventQueue::initEventQueue(CLUSTER_INDEX_TYPE clusterID, BGSIZE nMaxEvent, BGSIZE nMaxInterClustersOutgoingEvents, BGSIZE nMaxInterClustersIncomingEvents)
+__host__ void EventQueue::initEventQueue(CLUSTER_INDEX_TYPE clusterID, BGSIZE nMaxEvent, int nMaxInterClustersOutgoingEvents, int nMaxInterClustersIncomingEvents)
 {
     m_clusterID = clusterID;
 
@@ -181,8 +181,19 @@ __device__ void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYP
  */
 __host__ void EventQueue::addAnInterClustersIncomingEvent(const BGSIZE idx)
 {
-    assert( m_nInterClustersIncomingEvents < m_nMaxInterClustersIncomingEvents );
-    m_interClustersIncomingEvents[m_nInterClustersIncomingEvents++] = idx;
+    // Because the function in mlti-threads try to save events concurrently, we need to
+    // atomicaly store events data.
+    int oldEventIdx, newEventIdx, currEventIdx  = m_nInterClustersIncomingEvents;
+    do {
+        oldEventIdx = currEventIdx;
+        newEventIdx = currEventIdx + 1;
+        currEventIdx = __sync_val_compare_and_swap(&m_nInterClustersIncomingEvents, oldEventIdx, newEventIdx);
+    } while (currEventIdx != oldEventIdx);
+
+    // the thread acquires an empty slot (currEventIdx) in the queue
+    // and save the inter clusters outgoing events there.
+    m_interClustersIncomingEvents[currEventIdx] = idx;
+    assert( m_nInterClustersIncomingEvents <= m_nMaxInterClustersIncomingEvents );
 }
 
 /*
@@ -194,7 +205,7 @@ __host__ void EventQueue::processInterClustersOutgoingEvents(EventQueue* pEventQ
 {
     // copy preSpikeQueue data from device to host.
     BGQUEUE_ELEMENT *pInterClustersOutgoingEvents_h;
-    BGSIZE nInterClustersOutgoingEvents_h;
+    int nInterClustersOutgoingEvents_h;
 
     // get event queue data in device
     getInterClustersOutgoingEventPointerInDevice(pEventQueue, &pInterClustersOutgoingEvents_h);
@@ -206,7 +217,7 @@ __host__ void EventQueue::processInterClustersOutgoingEvents(EventQueue* pEventQ
     // copy the inter clusters outgoing event queue data to host
     checkCudaErrors( cudaMemcpy ( m_interClustersOutgoingEvents, pInterClustersOutgoingEvents_h, nInterClustersOutgoingEvents_h * sizeof( OUTGOING_SYNAPSE_INDEX_TYPE ), cudaMemcpyDeviceToHost ) );
 
-    for (BGSIZE i = 0; i < m_nInterClustersOutgoingEvents; i++) {
+    for (int i = 0; i < m_nInterClustersOutgoingEvents; i++) {
         OUTGOING_SYNAPSE_INDEX_TYPE idx = m_interClustersOutgoingEvents[i];
         CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIndex(idx);
         BGSIZE iSyn = SynapseIndexMap::getSynapseIndex(idx);
@@ -240,30 +251,33 @@ __host__ void EventQueue::processInterClustersIncomingEvents(EventQueue* pEventQ
     setNInterClustersIncomingEventsDevice <<< 1, 1 >>> ( pEventQueue, m_nInterClustersIncomingEvents );
 
     // process inter clusters incoming spikes -- call device side preSpikeQueue object
-    processInterClustersIncomingEventsDevice <<< 1, 1 >>> (pEventQueue);
+    // CUDA parameters
+    const int threadsPerBlock = 256;
+    int blocksPerGrid = ( m_nInterClustersIncomingEvents + threadsPerBlock - 1 ) / threadsPerBlock;
 
-    // reset the host side number of incoming events
+    processInterClustersIncomingEventsDevice <<< blocksPerGrid, threadsPerBlock >>> ( m_nInterClustersIncomingEvents, pEventQueue );
+
+    // reset the host & device side number of incoming events
     m_nInterClustersIncomingEvents = 0;
+    setNInterClustersIncomingEventsDevice <<< 1, 1 >>> ( pEventQueue, m_nInterClustersIncomingEvents );
 }
 
 /*
  * Process inter clusters incoming events that are stored in the buffer.
+ *
+ * @param idx The queue index of the collection.
  */
-__device__ void EventQueue::processInterClustersIncomingEventsInDevice()
+__device__ void EventQueue::processInterClustersIncomingEventsInDevice(int idx)
 {
-    for (BGSIZE i = 0; i < m_nInterClustersIncomingEvents; i++) {
-        BGSIZE iSyn = m_interClustersIncomingEvents[i];
+    BGSIZE iSyn = m_interClustersIncomingEvents[idx];
 
-        BGQUEUE_ELEMENT &queue = m_queueEvent[iSyn];
+    BGQUEUE_ELEMENT &queue = m_queueEvent[iSyn];
 
-        // Add to event queue
+    // Add to event queue
 
-        // set a spike
-        assert( !(queue & (0x1 << m_idxQueue)) );
-        queue |= (0x1 << m_idxQueue);
-    }
-
-    m_nInterClustersIncomingEvents = 0;
+    // set a spike
+    assert( !(queue & (0x1 << m_idxQueue)) );
+    queue |= (0x1 << m_idxQueue);
 }
 
 #endif // USE_GPU
@@ -272,7 +286,7 @@ __device__ void EventQueue::processInterClustersIncomingEventsInDevice()
  * Add an event in the queue.
  * 
  * @param idx The queue index of the collection.
- *e @param delay The delay descretized into time steps when the event will be triggered.
+ * @param delay The delay descretized into time steps when the event will be triggered.
  */
 CUDA_CALLABLE void EventQueue::addAnEvent(const BGSIZE idx, const int delay)
 {
@@ -424,13 +438,13 @@ __host__ void EventQueue::createEventQueueInDevice(EventQueue** pEventQueue_d)
     BGQUEUE_ELEMENT* queueEvent;
     checkCudaErrors( cudaMalloc(&queueEvent, nMaxEvent * sizeof(BGQUEUE_ELEMENT)) );
 
-    BGSIZE nMaxInterClustersOutgoingEvents = m_nMaxInterClustersOutgoingEvents;
+    int nMaxInterClustersOutgoingEvents = m_nMaxInterClustersOutgoingEvents;
     OUTGOING_SYNAPSE_INDEX_TYPE* interClustersOutgoingEvents = NULL;
     if (nMaxInterClustersOutgoingEvents != 0) {
         checkCudaErrors( cudaMalloc(&interClustersOutgoingEvents, nMaxInterClustersOutgoingEvents * sizeof(OUTGOING_SYNAPSE_INDEX_TYPE)) );
     }
 
-    BGSIZE nMaxInterClustersIncomingEvents = m_nMaxInterClustersIncomingEvents;
+    int nMaxInterClustersIncomingEvents = m_nMaxInterClustersIncomingEvents;
     BGSIZE* interClustersIncomingEvents = NULL;
     if (nMaxInterClustersIncomingEvents != 0) {
         checkCudaErrors( cudaMalloc(&interClustersIncomingEvents, nMaxInterClustersIncomingEvents * sizeof(BGSIZE)) );
@@ -578,18 +592,18 @@ void EventQueue::getQueueEventPointerInDevice(EventQueue* pEventQueue, BGQUEUE_E
  * @param pEventQueue     Pointer to the EventQueue object in device.
  * @param nInterClustersOutgoingEvents_h   Address to the data to get.
  */
-void EventQueue::getNInterClustersOutgoingEventsInDevice(EventQueue* pEventQueue, BGSIZE* nInterClustersOutgoingEvents_h)
+void EventQueue::getNInterClustersOutgoingEventsInDevice(EventQueue* pEventQueue, int* nInterClustersOutgoingEvents_h)
 {
-    BGSIZE *pNInterClustersOutgoingEvents_d; // temporary buffer to save the number
+    int *pNInterClustersOutgoingEvents_d; // temporary buffer to save the number
 
     // allocate device memory for the buffer.
-    checkCudaErrors( cudaMalloc( ( void ** ) &pNInterClustersOutgoingEvents_d, sizeof( BGSIZE ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &pNInterClustersOutgoingEvents_d, sizeof( int ) ) );
 
     // get the number in device memory
     getNInterClustersOutgoingEventsDevice <<< 1, 1 >>> ( pEventQueue, pNInterClustersOutgoingEvents_d );
 
     // copy the queue index to host.
-    checkCudaErrors( cudaMemcpy ( nInterClustersOutgoingEvents_h, pNInterClustersOutgoingEvents_d, sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( nInterClustersOutgoingEvents_h, pNInterClustersOutgoingEvents_d, sizeof( int ), cudaMemcpyDeviceToHost ) );
 
     // free device memory for the buffer.
     checkCudaErrors( cudaFree( pNInterClustersOutgoingEvents_d ) );
@@ -668,7 +682,7 @@ void EventQueue::getInterClustersIncomingEventPointerInDevice(EventQueue* pEvent
  *                                              incoming event queue.
  * @param[in] interClustersIncomingEvents       Pointer to the inter clusters incoming event queue.
  */
-__global__ void allocEventQueueDevice(EventQueue **pEventQueue, CLUSTER_INDEX_TYPE clusterID, BGSIZE nMaxEvent, BGQUEUE_ELEMENT* pQueueEvent, BGSIZE nMaxInterClustersOutgoingEvents, OUTGOING_SYNAPSE_INDEX_TYPE* interClustersOutgoingEvents, BGSIZE nMaxInterClustersIncomingEvents, BGSIZE* interClustersIncomingEvents)
+__global__ void allocEventQueueDevice(EventQueue **pEventQueue, CLUSTER_INDEX_TYPE clusterID, BGSIZE nMaxEvent, BGQUEUE_ELEMENT* pQueueEvent, int nMaxInterClustersOutgoingEvents, OUTGOING_SYNAPSE_INDEX_TYPE* interClustersOutgoingEvents, int nMaxInterClustersIncomingEvents, BGSIZE* interClustersIncomingEvents)
 {
     *pEventQueue = new EventQueue();
     (*pEventQueue)->initEventQueue(clusterID, nMaxEvent, pQueueEvent, nMaxInterClustersOutgoingEvents, interClustersOutgoingEvents, nMaxInterClustersIncomingEvents, interClustersIncomingEvents);
@@ -753,7 +767,7 @@ __global__ void getInterClustersIncomingEventPointerDevice(EventQueue *pEventQue
  * @param[in] pEventQueue                         Pointer to the EventQueue object.
  * @param[in/out] pNInterClustersOutgoingEvents   Buffer to save the number.
  */
-__global__ void getNInterClustersOutgoingEventsDevice(EventQueue *pEventQueue, BGSIZE *pNInterClustersOutgoingEvents)
+__global__ void getNInterClustersOutgoingEventsDevice(EventQueue *pEventQueue, int *pNInterClustersOutgoingEvents)
 {
     *pNInterClustersOutgoingEvents = pEventQueue->m_nInterClustersOutgoingEvents;
 }
@@ -764,7 +778,7 @@ __global__ void getNInterClustersOutgoingEventsDevice(EventQueue *pEventQueue, B
  * @param[in] pEventQueue                         Pointer to the EventQueue object.
  * @param[in] nInterClustersOutgoingEvents        The number events in the queue..
  */
-__global__ void setNInterClustersOutgoingEventsDevice(EventQueue *pEventQueue, BGSIZE nInterClustersOutgoingEvents)
+__global__ void setNInterClustersOutgoingEventsDevice(EventQueue *pEventQueue, int nInterClustersOutgoingEvents)
 {
     pEventQueue->m_nInterClustersOutgoingEvents = nInterClustersOutgoingEvents;
 }
@@ -775,17 +789,24 @@ __global__ void setNInterClustersOutgoingEventsDevice(EventQueue *pEventQueue, B
  * @param[in] pEventQueue                         Pointer to the EventQueue object.
  * @param[in] nInterClustersIncomingEvents        The number events in the queue..
  */
-__global__ void setNInterClustersIncomingEventsDevice(EventQueue *pEventQueue, BGSIZE nInterClustersIncomingEvents)
+__global__ void setNInterClustersIncomingEventsDevice(EventQueue *pEventQueue, int nInterClustersIncomingEvents)
 {
     pEventQueue->m_nInterClustersIncomingEvents = nInterClustersIncomingEvents;
 }
 
 /*
  * Process inter clusters incoming events that are stored in the buffer.
+ *
+ * @param[in] nInterClustersIncomingEvents        The number events in the queue.
  */
-__global__ void processInterClustersIncomingEventsDevice(EventQueue *pEventQueue)
+__global__ void processInterClustersIncomingEventsDevice(int nInterClustersIncomingEvents, EventQueue *pEventQueue)
 {
-    pEventQueue->processInterClustersIncomingEventsInDevice();
+    // The usual thread ID calculation and guard against excess threads
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( idx >= nInterClustersIncomingEvents )
+      return;
+
+    pEventQueue->processInterClustersIncomingEventsInDevice(idx);
 }
 
 #endif // USE_GPU

@@ -86,8 +86,8 @@ void AllSpikingSynapses::setupSynapses(const int num_neurons, const int max_syna
         preSpikeQueue = new EventQueue();
 #if defined(USE_GPU)
         // TODO: calculate (maxFiringRate * deltaT) instead of 0.2
-        BGSIZE nMaxInterClustersOutgoingEvents = max_total_synapses * 0.2;
-        BGSIZE nMaxInterClustersIncomingEvents = max_total_synapses * 0.2;
+        int nMaxInterClustersOutgoingEvents = max_total_synapses * 0.2;
+        int nMaxInterClustersIncomingEvents = max_total_synapses * 0.2;
 
         // initializes the pre synapse spike queue
         preSpikeQueue->initEventQueue(clr_info->clusterID, max_total_synapses, nMaxInterClustersOutgoingEvents, nMaxInterClustersIncomingEvents);

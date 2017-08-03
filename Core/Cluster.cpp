@@ -110,15 +110,6 @@ void Cluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
 }
 
 /*
- * Process inter clusters outging spikes.
- *
- * @param  clr_info  ClusterInfo to refer.
- */
-void Cluster::processInterClustesOutgoingSpikes(const ClusterInfo *clr_info)
-{
-}
-
-/*
  *  Thread for advance a cluster.
  *
  *  @param  sim_info    SimulationInfo class to read information from.
@@ -153,11 +144,6 @@ void Cluster::advanceThread(const SimulationInfo *sim_info, const ClusterInfo *c
         // is called from advanceSynapses in cluster 1. These functions
         // contain memory read/write operation at event queue and 
         // consequntltly data race happens. 
-
-        // wait until all threads are complete 
-        m_barrierAdvance->Sync();
-
-        // process inter clusters spikes by the main thread
 
         // wait until all threads are complete 
         m_barrierAdvance->Sync();
@@ -201,22 +187,11 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, const ClusterI
 
 /*
  *  Run advance of all waiting threads.
- *
- *  @param  vtClr             Vector of pointer to the Cluster object.
- *  @param  vtClrInfo         Vecttor of pointer to the ClusterInfo object.
  */
-void Cluster::runAdvance(vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
+void Cluster::runAdvance()
 {
     // notify all advanceThread that the advanceNeurons is ready to go
     m_barrierAdvance->Sync();
-
-    // notify all advanceThread that the processInterClustesSpikes is complete
-    m_barrierAdvance->Sync();
-
-    // process inter clusters outgoing spikes
-    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
-        vtClr[iCluster]->processInterClustesOutgoingSpikes(vtClrInfo[iCluster]);
-    }
 
     // notify all advanceThread that the advanceSynapses is ready to go
     m_barrierAdvance->Sync();
