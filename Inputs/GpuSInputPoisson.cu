@@ -6,7 +6,6 @@
  *      \brief A class that performs stimulus input (implementation Poisson) on GPU.
  */
 
-#include "curand_kernel.h"
 #include "GpuSInputPoisson.h"
 #include <helper_cuda.h>
 

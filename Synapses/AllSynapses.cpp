@@ -36,11 +36,6 @@ AllSynapses::AllSynapses(const AllSynapses &r_synapses) :
     synapse_counts = NULL;
 }
 
-AllSynapses::AllSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info)
-{
-    setupSynapses(num_neurons, max_synapses, clr_info);
-}
-
 AllSynapses::~AllSynapses()
 {
     cleanupSynapses();
@@ -75,7 +70,7 @@ void AllSynapses::copyParameters(const AllSynapses &r_synapses)
  */
 void AllSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, clr_info);
+    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, sim_info, clr_info);
 }
 
 /*
@@ -83,9 +78,10 @@ void AllSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info)
  *
  *  @param  num_neurons   Total number of neurons in the network.
  *  @param  max_synapses  Maximum number of synapses per neuron.
+ *  @param  sim_info      SimulationInfo class to read information from.
  *  @param  clr_info      ClusterInfo class to read information from.
  */
-void AllSynapses::setupSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info)
+void AllSynapses::setupSynapses(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
     BGSIZE max_total_synapses = max_synapses * num_neurons;
 

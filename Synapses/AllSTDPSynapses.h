@@ -69,7 +69,6 @@ class AllSTDPSynapses : public AllSpikingSynapses
     public:
         AllSTDPSynapses();
         AllSTDPSynapses(const AllSTDPSynapses &r_synapses);
-        AllSTDPSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info);
         virtual ~AllSTDPSynapses();
 
         static IAllSynapses* Create() { return new AllSTDPSynapses(); }
@@ -88,6 +87,16 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  clr_info  ClusterInfo class to read information from.
          */
         virtual void setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
+         *  Setup the internal structure of the class (allocate memories and initialize them).
+         *
+         *  @param  num_neurons   Total number of neurons in the network.
+         *  @param  max_synapses  Maximum number of synapses per neuron.
+         *  @param  sim_info      SimulationInfo class to read information from.
+         *  @param  clr_info      ClusterInfo class to read information from.
+         */
+        virtual void setupSynapses(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
          *  Cleanup the class (deallocate memories).
@@ -168,15 +177,6 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  r_synapses  Synapses class object to copy from.
          */
         void copyParameters(const AllSTDPSynapses &r_synapses);
-
-        /**
-         *  Setup the internal structure of the class (allocate memories and initialize them).
-         *
-         *  @param  num_neurons   Total number of neurons in the network.
-         *  @param  max_synapses  Maximum number of synapses per neuron.
-         *  @param  clr_info      ClusterInfo class to read information from.
-         */
-        virtual void setupSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info);
 
         /**
          *  Sets the data for Synapse to input's data.

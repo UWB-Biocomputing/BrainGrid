@@ -135,7 +135,8 @@ void SInputPoisson::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
     // create an input synapse layer
     // TODO: do we need to support other types of synapses?
     m_maxSynapsesPerNeuron = 1;
-    m_synapses = new AllDSSynapses(psi->totalNeurons, m_maxSynapsesPerNeuron, m_clusterInfo);
+    m_synapses = new AllDSSynapses();
+    m_synapses->setupSynapses(psi->totalNeurons, m_maxSynapsesPerNeuron, psi, m_clusterInfo);
 
     // for each cluster
     for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) 

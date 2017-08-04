@@ -21,11 +21,6 @@ AllSpikingSynapses::AllSpikingSynapses(const AllSpikingSynapses &r_synapses) : A
     preSpikeQueue = NULL;
 }
 
-AllSpikingSynapses::AllSpikingSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info)
-{
-    setupSynapses(num_neurons, max_synapses, clr_info);
-}
-
 AllSpikingSynapses::~AllSpikingSynapses()
 {
     cleanupSynapses();
@@ -61,7 +56,7 @@ void AllSpikingSynapses::copyParameters(const AllSpikingSynapses &r_synapses)
  */
 void AllSpikingSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, clr_info);
+    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, sim_info, clr_info);
 }
 
 /*
@@ -69,11 +64,12 @@ void AllSpikingSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *cl
  *
  *  @param  num_neurons   Total number of neurons in the network.
  *  @param  max_synapses  Maximum number of synapses per neuron.
+ *  @param  sim_info      SimulationInfo class to read information from.
  *  @param  clr_info      ClusterInfo class to read information from.
  */
-void AllSpikingSynapses::setupSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info)
+void AllSpikingSynapses::setupSynapses(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    AllSynapses::setupSynapses(num_neurons, max_synapses, clr_info);
+    AllSynapses::setupSynapses(num_neurons, max_synapses, sim_info, clr_info);
 
     BGSIZE max_total_synapses = max_synapses * num_neurons;
 
@@ -85,9 +81,8 @@ void AllSpikingSynapses::setupSynapses(const int num_neurons, const int max_syna
         // create a pre synapse spike queue & initialize it
         preSpikeQueue = new EventQueue();
 #if defined(USE_GPU)
-        // TODO: calculate (maxFiringRate * deltaT) instead of 0.2
-        int nMaxInterClustersOutgoingEvents = max_total_synapses * 0.2;
-        int nMaxInterClustersIncomingEvents = max_total_synapses * 0.2;
+        int nMaxInterClustersOutgoingEvents = max_total_synapses * sim_info->maxFiringRate * sim_info->deltaT;
+        int nMaxInterClustersIncomingEvents = max_total_synapses * sim_info->maxFiringRate * sim_info->deltaT;
 
         // initializes the pre synapse spike queue
         preSpikeQueue->initEventQueue(clr_info->clusterID, max_total_synapses, nMaxInterClustersOutgoingEvents, nMaxInterClustersIncomingEvents);

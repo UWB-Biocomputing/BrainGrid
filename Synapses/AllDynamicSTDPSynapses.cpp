@@ -22,12 +22,6 @@ AllDynamicSTDPSynapses::AllDynamicSTDPSynapses(const AllDynamicSTDPSynapses &r_s
     F = NULL;
 }
 
-AllDynamicSTDPSynapses::AllDynamicSTDPSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info) :
-        AllSTDPSynapses(num_neurons, max_synapses, clr_info)
-{
-    setupSynapses(num_neurons, max_synapses, clr_info);
-}
-
 AllDynamicSTDPSynapses::~AllDynamicSTDPSynapses()
 {
     cleanupSynapses();
@@ -63,7 +57,7 @@ void AllDynamicSTDPSynapses::copyParameters(const AllDynamicSTDPSynapses &r_syna
  */
 void AllDynamicSTDPSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, clr_info);
+    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, sim_info, clr_info);
 }
 
 /*
@@ -71,11 +65,12 @@ void AllDynamicSTDPSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo
  * 
  *  @param  num_neurons   Total number of neurons in the network.
  *  @param  max_synapses  Maximum number of synapses per neuron.
+ *  @param  sim_info      SimulationInfo class to read information from.
  *  @param  clr_info      ClusterInfo class to read information from.
  */
-void AllDynamicSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapses, ClusterInfo *clr_info)
+void AllDynamicSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    AllSTDPSynapses::setupSynapses(num_neurons, max_synapses, clr_info);
+    AllSTDPSynapses::setupSynapses(num_neurons, max_synapses, sim_info, clr_info);
 
     BGSIZE max_total_synapses = max_synapses * num_neurons;
 

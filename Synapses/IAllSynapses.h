@@ -40,6 +40,16 @@ class IAllSynapses
         virtual void setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
 
         /**
+         *  Setup the internal structure of the class (allocate memories and initialize them).
+         *
+         *  @param  num_neurons   Total number of neurons in the network.
+         *  @param  max_synapses  Maximum number of synapses per neuron.
+         *  @param  sim_info      SimulationInfo class to read information from.
+         *  @param  clr_info      ClusterInfo class to read information from.
+         */
+        virtual void setupSynapses(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
+
+        /**
          *  Cleanup the class (deallocate memories).
          */
         virtual void cleanupSynapses() = 0;
