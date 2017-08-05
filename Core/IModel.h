@@ -143,6 +143,16 @@ class IModel {
          *  @param  sim_info    SimulationInfo to refer from.
          */
         virtual void updateHistory(const SimulationInfo *sim_info) = 0;
+
+#if defined(PERFORMANCE_METRICS)
+        /**
+         *  Print performance metrics statistics
+         *
+         *  @param  total_time    Total time since simulation start.
+         *  @param  steps         Number of epochs.
+         */
+        virtual void printPerformanceMetrics(double total_time, int steps) = 0;
+#endif // PERFORMANCE_METRICS
 };
 
 #endif

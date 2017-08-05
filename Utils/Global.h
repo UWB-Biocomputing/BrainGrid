@@ -140,15 +140,7 @@ string neuronTypeToString(neuronType t);
 
 #ifdef PERFORMANCE_METRICS
 // All times in seconds
-#ifdef USE_GPU
-extern double t_gpu_rndGeneration;
-extern double t_gpu_advanceNeurons;
-extern double t_gpu_advanceSynapses;
-extern double t_gpu_calcSummation;
-#endif
 extern double t_host_adjustSynapses;
-
-void printPerformanceMetrics(double total_time, int steps);
 #endif // PERFORMANCE_METRICS
 
 // TODO comment

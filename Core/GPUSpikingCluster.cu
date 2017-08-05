@@ -26,11 +26,6 @@
 
 #include "GPUSpikingCluster.h"
 
-#ifdef PERFORMANCE_METRICS
-float g_time;
-cudaEvent_t start, stop;
-#endif // PERFORMANCE_METRICS
-
 // ----------------------------------------------------------------------------
 
 GPUSpikingCluster::GPUSpikingCluster(IAllNeurons *neurons, IAllSynapses *synapses) : 	
@@ -123,13 +118,13 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
   initMTGPU(clr_info->seed, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
 
 #ifdef PERFORMANCE_METRICS
-  cudaEventCreate( &start );
-  cudaEventCreate( &stop );
+  cudaEventCreate( &clr_info->start );
+  cudaEventCreate( &clr_info->stop );
 
-  t_gpu_rndGeneration = 0.0;
-  t_gpu_advanceNeurons = 0.0;
-  t_gpu_advanceSynapses = 0.0;
-  t_gpu_calcSummation = 0.0;
+  clr_info->t_gpu_rndGeneration = 0.0;
+  clr_info->t_gpu_advanceNeurons = 0.0;
+  clr_info->t_gpu_advanceSynapses = 0.0;
+  clr_info->t_gpu_calcSummation = 0.0;
 #endif // PERFORMANCE_METRICS
 
   // allocates memories on CUDA device
@@ -157,8 +152,8 @@ void GPUSpikingCluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *cl
   deleteDeviceStruct((void**)&m_allNeuronsDevice, (void**)&m_allSynapsesDevice, sim_info, clr_info);
 
 #ifdef PERFORMANCE_METRICS
-  cudaEventDestroy( start );
-  cudaEventDestroy( stop );
+  cudaEventDestroy( clr_info->start );
+  cudaEventDestroy( clr_info->stop );
 #endif // PERFORMANCE_METRICS
 
   Cluster::cleanupCluster(sim_info, clr_info);
@@ -187,15 +182,29 @@ void GPUSpikingCluster::deserialize(istream& input, const SimulationInfo *sim_in
  *                   the given collection of neurons.
  * @param  clr_info  ClusterInfo to refer.
  */
-void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
   // Set device ID
   checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
 
+#ifdef PERFORMANCE_METRICS
+  // Reset CUDA timer to start measurement of GPU operation
+  cudaStartTimer(clr_info);
+#endif // PERFORMANCE_METRICS
+
   normalMTGPU(randNoise_d);
+
+#ifdef PERFORMANCE_METRICS
+  cudaLapTime(clr_info, clr_info->t_gpu_rndGeneration);
+  cudaStartTimer(clr_info);
+#endif // PERFORMANCE_METRICS
 
   // Advance neurons ------------->
   m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoise_d, m_synapseIndexMapDevice, clr_info);
+
+#ifdef PERFORMANCE_METRICS
+  cudaLapTime(clr_info, clr_info->t_gpu_advanceNeurons);
+#endif // PERFORMANCE_METRICS
 
   // wait until all CUDA related tasks complete
   checkCudaErrors( cudaDeviceSynchronize() );
@@ -211,7 +220,7 @@ void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, const Clu
  *                   the given collection of neurons.
  * @param  clr_info  ClusterInfo to refer.
  */
-void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
   // Set device ID
   checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
@@ -219,11 +228,24 @@ void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, const Cl
   // process inter clusters incoming spikes
   dynamic_cast<AllSpikingSynapses*>(m_synapses)->processInterClustesIncomingSpikes(m_allSynapsesDevice);
 
+#ifdef PERFORMANCE_METRICS
+  cudaStartTimer(clr_info);
+#endif // PERFORMANCE_METRICS
+
   // Advance synapses ------------->
   m_synapses->advanceSynapses(m_allSynapsesDevice, m_allNeuronsDevice, m_synapseIndexMapDevice, sim_info, clr_info);
 
+#ifdef PERFORMANCE_METRICS
+  cudaLapTime(clr_info, clr_info->t_gpu_advanceSynapses);
+  cudaStartTimer(clr_info);
+#endif // PERFORMANCE_METRICS
+
   // calculate summation point
   calcSummationMap(sim_info, clr_info);
+
+#ifdef PERFORMANCE_METRICS
+  cudaLapTime(clr_info, clr_info->t_gpu_calcSummation);
+#endif // PERFORMANCE_METRICS
 
   // wait until all CUDA related tasks complete
   checkCudaErrors( cudaDeviceSynchronize() );

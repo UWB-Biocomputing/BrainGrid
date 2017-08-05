@@ -53,7 +53,7 @@ void SingleThreadedCluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo
  * @param clr_info - parameters defining the simulation to be run with 
  *                   the given collection of neurons.
  */
-void SingleThreadedCluster::advanceNeurons(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+void SingleThreadedCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
     m_neurons->advanceNeurons(*m_synapses, sim_info, m_synapseIndexMap, clr_info);
 }
@@ -66,7 +66,7 @@ void SingleThreadedCluster::advanceNeurons(const SimulationInfo *sim_info, const
  * @param clr_info - parameters defining the simulation to be run with 
  *                   the given collection of neurons.
  */
-void SingleThreadedCluster::advanceSynapses(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+void SingleThreadedCluster::advanceSynapses(const SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
     m_synapses->advanceSynapses(sim_info, m_neurons, m_synapseIndexMap);
 }

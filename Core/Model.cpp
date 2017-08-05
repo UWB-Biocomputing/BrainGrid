@@ -290,3 +290,54 @@ void Model::updateConnections(const SimulationInfo *sim_info)
         m_conns->updateSynapsesWeights(sim_info, m_layout, m_vtClr, m_vtClrInfo);
     }
 }
+
+#if defined(PERFORMANCE_METRICS)
+
+/*
+ *  Print performance metrics statistics
+ *
+ *  @param  total_time    Total time since simulation start.
+ *  @param  steps         Number of epochs.
+ */
+void Model::printPerformanceMetrics(double total_time, int steps)
+{
+    cout << "Total time since simulation start:" << endl;
+#ifdef USE_GPU
+    // Print total time (in seconds) of each procedure since simulation start
+    // for each cluster
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < m_vtClrInfo.size(); iCluster++) {
+        cout << "\nCluster " << iCluster << endl;
+        cout << "GPU random number generation: " << m_vtClrInfo[iCluster]->t_gpu_rndGeneration << " seconds ("
+           << m_vtClrInfo[iCluster]->t_gpu_rndGeneration / total_time * 100 << "%)" << endl;
+        cout << "GPU advanceNeurons: " << m_vtClrInfo[iCluster]->t_gpu_advanceNeurons << " seconds ("
+           << m_vtClrInfo[iCluster]->t_gpu_advanceNeurons / total_time * 100 << "%)" << endl;
+        cout << "GPU advanceSynapses: " << m_vtClrInfo[iCluster]->t_gpu_advanceSynapses << " seconds ("
+           << m_vtClrInfo[iCluster]->t_gpu_advanceSynapses / total_time * 100 << "%)" << endl;
+        cout << "GPU calcSummation: " << m_vtClrInfo[iCluster]->t_gpu_calcSummation << " seconds ("
+           << m_vtClrInfo[iCluster]->t_gpu_calcSummation / total_time * 100 << "%)" << endl;
+    }
+#endif
+    cout << "\nHost adjustSynapses: " << t_host_adjustSynapses << " seconds ("
+       << t_host_adjustSynapses / total_time * 100 << "%)" << endl;
+
+    cout << "\nAverage time per simulation epoch:" << endl;
+#ifdef USE_GPU
+    // Print average time per per simulation epoch  time (in seconds) of each procedure since simulation start
+    // for each cluster
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < m_vtClrInfo.size(); iCluster++) {
+        cout << "\nCluster " << iCluster << endl;
+        cout << "GPU random number generation: " << m_vtClrInfo[iCluster]->t_gpu_rndGeneration/steps
+           << " seconds/epoch" << endl;
+        cout << "GPU advanceNeurons: " << m_vtClrInfo[iCluster]->t_gpu_advanceNeurons/steps
+           << " seconds/epoch" << endl;
+        cout << "GPU advanceSynapses: " << m_vtClrInfo[iCluster]->t_gpu_advanceSynapses/steps
+           << " seconds/epoch" << endl;
+        cout << "GPU calcSummation: " << m_vtClrInfo[iCluster]->t_gpu_calcSummation/steps
+       << " seconds/epoch" << endl;
+    }
+#endif
+    cout << "Host adjustSynapses: " << t_host_adjustSynapses/steps
+       << " seconds/epoch" << endl;
+}
+
+#endif // PERFORMANCE_METRICS

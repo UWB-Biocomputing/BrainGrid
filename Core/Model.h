@@ -139,6 +139,16 @@ class Model : public IModel
          */
         virtual void updateConnections(const SimulationInfo *sim_info);
 
+#if defined(PERFORMANCE_METRICS)
+        /**
+         *  Print performance metrics statistics
+         *
+         *  @param  total_time    Total time since simulation start.
+         *  @param  steps         Number of epochs.
+         */
+        virtual void printPerformanceMetrics(double total_time, int steps);
+#endif // PERFORMANCE_METRICS
+
     protected:
 
         /* -----------------------------------------------------------------------------------------

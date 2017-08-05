@@ -72,6 +72,16 @@ class ClusterInfo
         Norm* normRand;
 #endif // !USE_GPU
 
+#if defined(USE_GPU) && defined(PERFORMANCE_METRICS) && defined(__CUDACC__)
+        //! All times in seconds
+        float g_time;
+        cudaEvent_t start, stop;
+        double t_gpu_rndGeneration;
+        double t_gpu_advanceNeurons;
+        double t_gpu_advanceSynapses;
+        double t_gpu_calcSummation;
+#endif // USE_GPU && PERFORMANCE_METRICS
+
         //! Pointer to the multi clusters event handler
         InterClustersEventHandler* eventHandler;
 };

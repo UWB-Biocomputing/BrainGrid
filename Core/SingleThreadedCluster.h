@@ -75,7 +75,7 @@ class SingleThreadedCluster : public Cluster {
          *                   the given collection of neurons.
          * @param  clr_info   ClusterInfo to refer.
          */
-        virtual void advanceNeurons(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        virtual void advanceNeurons(const SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
          * Advances synapses network state of the cluster one simulation step.
@@ -84,7 +84,7 @@ class SingleThreadedCluster : public Cluster {
          *                   the given collection of neurons.
          * @param  clr_info  ClusterInfo to refer.
          */
-        virtual void advanceSynapses(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        virtual void advanceSynapses(const SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
          * Advances synapses spike event queue state of the cluster one simulation step.

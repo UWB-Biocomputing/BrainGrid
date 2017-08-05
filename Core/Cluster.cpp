@@ -115,7 +115,7 @@ void Cluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
  *  @param  sim_info    SimulationInfo class to read information from.
  *  @param  clr_info    ClusterInfo class to read information from.
  */
-void Cluster::advanceThread(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+void Cluster::advanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
     while (true) {
         // wait until the main thread notify that the advance is ready to go
@@ -170,7 +170,7 @@ void Cluster::advanceThread(const SimulationInfo *sim_info, const ClusterInfo *c
  *  @param  clr_info    ClusterInfo class to read information from.
  *  @param  count       Number of total clusters.
  */
-void Cluster::createAdvanceThread(const SimulationInfo *sim_info, const ClusterInfo *clr_info, int count)
+void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info, int count)
 {
     // If barrier synchronize object has not been created, create it
     if (m_barrierAdvance == NULL) {

@@ -82,45 +82,8 @@ const BGFLOAT pi = 3.1415926536;
 
 #ifdef PERFORMANCE_METRICS
 // All times in seconds
-#ifdef USE_GPU
-double t_gpu_rndGeneration;
-double t_gpu_advanceNeurons;
-double t_gpu_advanceSynapses;
-double t_gpu_calcSummation;
-#endif
 double t_host_adjustSynapses;
-
-void printPerformanceMetrics(double total_time, int steps)
-{
-  cout << "Total time since simulation start:" << endl;
-#ifdef USE_GPU
-  cout << "GPU random number generation: " << t_gpu_rndGeneration << " seconds (" 
-       << t_gpu_rndGeneration / total_time * 100 << "%)" << endl;
-  cout << "GPU advanceNeurons: " << t_gpu_advanceNeurons << " seconds (" 
-       << t_gpu_advanceNeurons / total_time * 100 << "%)" << endl;
-  cout << "GPU advanceSynapses: " << t_gpu_advanceSynapses << " seconds (" 
-       << t_gpu_advanceSynapses / total_time * 100 << "%)" << endl;
-  cout << "GPU calcSummation: " << t_gpu_calcSummation << " seconds (" 
-       << t_gpu_calcSummation / total_time * 100 << "%)" << endl;
-#endif
-  cout << "Host adjustSynapses: " << t_host_adjustSynapses << " seconds (" 
-       << t_host_adjustSynapses / total_time * 100 << "%)" << endl;
-
-  cout << "\nAverage time per simulation epoch:" << endl;
-#ifdef USE_GPU
-  cout << "GPU random number generation: " << t_gpu_rndGeneration/steps 
-       << " seconds/epoch" << endl;
-  cout << "GPU advanceNeurons: " << t_gpu_advanceNeurons/steps
-       << " seconds/epoch" << endl;
-  cout << "GPU advanceSynapses: " << t_gpu_advanceSynapses/steps 
-       << " seconds/epoch" << endl;
-  cout << "GPU calcSummation: " << t_gpu_calcSummation/steps 
-       << " seconds/epoch" << endl;
-#endif
-  cout << "Host adjustSynapses: " << t_host_adjustSynapses/steps 
-       << " seconds/epoch" << endl;
-}
-#endif // PERFORMANCE_METRICS
+#endif // PERFORMANCE_METRICS 
 
 // TODO comment
 const string MATRIX_TYPE = "complete";

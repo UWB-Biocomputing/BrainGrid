@@ -75,20 +75,17 @@ const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
 |  Inline Functions for handling performance recording
 \*-----------------------------------------------------*/
 #if defined(PERFORMANCE_METRICS) && defined(__CUDACC__)
-extern float g_time;
-extern cudaEvent_t start, stop;
-
-inline void cudaStartTimer() {
-       	cudaEventRecord( start, 0 );
+inline void cudaStartTimer(const ClusterInfo *clr_info) {
+       	cudaEventRecord( clr_info->start, 0 );
 };
 
 //*! Increment elapsed time in seconds
-inline void cudaLapTime(double& t_event) {
-       	cudaEventRecord( stop, 0 );
-       	cudaEventSynchronize( stop );
-       	cudaEventElapsedTime( &g_time, start, stop );
+inline void cudaLapTime(ClusterInfo *clr_info, double& t_event) {
+       	cudaEventRecord( clr_info->stop, 0 );
+       	cudaEventSynchronize( clr_info->stop );
+       	cudaEventElapsedTime( &clr_info->g_time, clr_info->start, clr_info->stop );
 	// The CUDA functions return time in milliseconds
-       	t_event += g_time/1000.0;
+       	t_event += clr_info->g_time/1000.0;
 };
 #endif // PERFORMANCE_METRICS
 
@@ -133,7 +130,7 @@ public:
          *                   the given collection of neurons.
          * @param  clr_info  ClusterInfo to refer.
          */
-        virtual void advanceNeurons(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        virtual void advanceNeurons(const SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
          * Advances synapses network state of the cluster one simulation step.
@@ -142,7 +139,7 @@ public:
          *                   the given collection of neurons.
          * @param  clr_info  ClusterInfo to refer.
          */
-        virtual void advanceSynapses(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        virtual void advanceSynapses(const SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
          * Advances synapses spike event queue state of the cluster one simulation step.

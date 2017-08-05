@@ -106,7 +106,7 @@ class Cluster
          *                   the given collection of neurons.
          * @param  clr_info  ClusterInfo to refer.
          */
-        virtual void advanceNeurons(const SimulationInfo *sim_info, const ClusterInfo *clr_info) = 0;
+        virtual void advanceNeurons(const SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
 
         /**
          * Advances synapses network state of the cluster one simulation step.
@@ -115,7 +115,7 @@ class Cluster
          *                   the given collection of neurons.
          * @param  clr_info  ClusterInfo to refer.
          */
-        virtual void advanceSynapses(const SimulationInfo *sim_info, const ClusterInfo *clr_info) = 0;
+        virtual void advanceSynapses(const SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
 
         /**
          * Advances synapses spike event queue state of the cluster one simulation step.
@@ -130,7 +130,7 @@ class Cluster
          *  @param  sim_info    SimulationInfo class to read information from.
          *  @param  clr_info    ClusterInfo class to read information from.
          */
-        void advanceThread(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        void advanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
          *  Create an advanceThread.
@@ -140,7 +140,7 @@ class Cluster
          *  @param  clr_info    ClusterInfo class to read information from.
          *  @param  count       Number of total clusters.
          */
-        void createAdvanceThread(const SimulationInfo *sim_info, const ClusterInfo *clr_info, int count);
+        void createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info, int count);
 
         /**
          *  Run advance of all waiting threads.

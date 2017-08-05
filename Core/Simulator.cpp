@@ -132,7 +132,7 @@ void Simulator::simulate(SimulationInfo *sim_info)
     double total_time = timer.lap() / 1000000.0;
 
     cout << "\ntotal_time: " << total_time << " seconds" << endl;
-    printPerformanceMetrics(total_time, currentStep);
+    sim_info->model->printPerformanceMetrics(total_time, currentStep);
     cout << endl;
 #endif
   }
