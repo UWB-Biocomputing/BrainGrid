@@ -44,7 +44,7 @@ public:
     virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     // Terminate process.
-    virtual void term(SimulationInfo* psi);
+    virtual void term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     // Process input stimulus for each time step.
     virtual void inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);

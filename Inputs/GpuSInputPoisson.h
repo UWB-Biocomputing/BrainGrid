@@ -46,34 +46,22 @@ public:
     virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     //! Terminate process.
-    virtual void term(SimulationInfo* psi);
+    virtual void term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     //! Process input stimulus for each time step.
     virtual void inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
 private:
     //! Allocate GPU device memory and copy values
-    void allocDeviceValues( IModel* model, SimulationInfo* psi, ClusterInfo* pci, int *nISIs );
+    void allocDeviceValues( SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo, int *nISIs );
 
     //! Dellocate GPU device memory
-    void deleteDeviceValues( IModel* model, SimulationInfo* psi );
-
-    //! Synapse structures in device memory.
-    AllDSSynapsesDeviceProperties* allSynapsesDevice;
- 
-    //! Pointer to synapse index map in device memory.
-    SynapseIndexMap* synapseIndexMapDevice;
-
-    //! Pointer to device interval counter.
-    int* nISIs_d;
-
-    //! Pointer to device masks for stimulus input
-    bool* masks_d;
+    void deleteDeviceValues( vector<ClusterInfo *> &vtClrInfo );
 };
 
 #if defined(__CUDACC__)
 //! Device function that processes input stimulus for each time step.
-extern __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapsesDeviceProperties* allSynapsesDevice );
+extern __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapsesDeviceProperties* allSynapsesDevice, CLUSTER_INDEX_TYPE clusterID );
 extern __global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapsesDeviceProperties* allSynapsesDevice );
 extern __global__ void setupSeeds( int n, curandState* devStates_d, unsigned long seed );
 #endif

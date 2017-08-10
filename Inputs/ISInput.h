@@ -48,7 +48,7 @@ public:
     /**
      * Terminate process
      */
-    virtual void term(SimulationInfo* psi) = 0;
+    virtual void term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo) = 0;
 
     /**
      * Process input stimulus for each time step

@@ -10,12 +10,8 @@
 #include <helper_cuda.h>
 
 // Forward Delaration
-void allocDeviceValues( SimulationInfo* psi, BGFLOAT* initValues, int *nShiftValues );
-void deleteDeviceValues( );
-
-//! Pointer to device input values.
-BGFLOAT* initValues_d = NULL;
-int * nShiftValues_d = NULL;
+void allocDeviceValues( ClusterInfo* pci, BGFLOAT* initValues, int *nShiftValues );
+void deleteDeviceValues( ClusterInfo* pci );
 
 /*
  * constructor
@@ -44,28 +40,33 @@ void GpuSInputRegular::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInf
 {
     SInputRegular::init(psi, vtClrInfo);
 
-    if (fSInput == false)
+    if (m_fSInput == false)
         return;
 
-    // TODO: need to implement for multi-clusters.
-#if 0
-    // allocate GPU device memory and copy values
-    allocDeviceValues(psi, values, nShiftValues);
+    // for each cluster
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
+        // allocate GPU device memory and copy values
+        allocDeviceValues(vtClrInfo[iCluster], m_values, m_nShiftValues);
+    }
 
-    delete[] values;
-    delete[] nShiftValues;
-#endif
+    delete[] m_values;
+    delete[] m_nShiftValues;
 }
 
 /*
  * Terminate process.
  *
- * @param[in] psi       Pointer to the simulation information.
+ * @param[in] psi             Pointer to the simulation information.
+ * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void GpuSInputRegular::term(SimulationInfo* psi)
+void GpuSInputRegular::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
-    if (fSInput)
-        deleteDeviceValues( );
+    if (m_fSInput) {
+        // for each cluster
+        for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
+            deleteDeviceValues(vtClrInfo[iCluster]);
+        }
+    }
 }
 
 /*
@@ -76,54 +77,58 @@ void GpuSInputRegular::term(SimulationInfo* psi)
  */
 void GpuSInputRegular::inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
-    if (fSInput == false)
+    if (m_fSInput == false)
         return;
 
-    // TODO: need to implement for multi-clusters.
-#if 0
-    int neuron_count = pci->totalClusterNeurons;
+    // for each cluster
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
+        ClusterInfo *pci = vtClrInfo[iCluster];
+        int neuron_count = pci->totalClusterNeurons;
 
-    // CUDA parameters
-    const int threadsPerBlock = 256;
-    int blocksPerGrid; 
+        // CUDA parameters
+        const int threadsPerBlock = 256;
+        int blocksPerGrid; 
 
-    // add input to each summation point
-    blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-    inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, initValues_d, nShiftValues_d, nStepsInCycle, nStepsCycle, nStepsDuration );
+        // add input to each summation point
+        blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
+        inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->initValues_d, pci->nShiftValues_d, m_nStepsInCycle, m_nStepsCycle, m_nStepsDuration );
+    }
+
     // update cycle count
-    nStepsInCycle = (nStepsInCycle + 1) % nStepsCycle;
-#endif
+    m_nStepsInCycle = (m_nStepsInCycle + 1) % m_nStepsCycle;
 }
 
 /*
  * Allocate GPU device memory and copy values
  *
- * @param[in] psi               Pointer to the simulation information.
+ * @param[in] pci               Pointer to the cluster information.
  * @param[in] initValues        Pointer to the initial values.
  * @param[in] nShiftValues      Pointer to the shift values.
  */
-void allocDeviceValues( SimulationInfo* psi, BGFLOAT* initValues, int *nShiftValues )
+void allocDeviceValues( ClusterInfo* pci, BGFLOAT* initValues, int *nShiftValues )
 {
-    int neuron_count = psi->totalNeurons;
+    int neuron_count = pci->totalClusterNeurons;
     BGSIZE initValues_d_size = neuron_count * sizeof (BGFLOAT);   // size of initial values
     BGSIZE nShiftValues_d_size = neuron_count * sizeof (int);   // size of shift values
 
     // Allocate GPU device memory
-    checkCudaErrors( cudaMalloc ( ( void ** ) &initValues_d, initValues_d_size ) );
-    checkCudaErrors( cudaMalloc ( ( void ** ) &nShiftValues_d, nShiftValues_d_size ) );
+    checkCudaErrors( cudaMalloc ( ( void ** ) &pci->initValues_d, initValues_d_size ) );
+    checkCudaErrors( cudaMalloc ( ( void ** ) &pci->nShiftValues_d, nShiftValues_d_size ) );
 
     // Copy values into device memory
-    checkCudaErrors( cudaMemcpy ( initValues_d, initValues, initValues_d_size, cudaMemcpyHostToDevice ) );
-    checkCudaErrors( cudaMemcpy ( nShiftValues_d, nShiftValues, nShiftValues_d_size, cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( pci->initValues_d, &initValues[pci->clusterNeuronsBegin], initValues_d_size, cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( pci->nShiftValues_d, &nShiftValues[pci->clusterNeuronsBegin], nShiftValues_d_size, cudaMemcpyHostToDevice ) );
 }
 
 /* 
  * Dellocate GPU device memory 
+ *
+ * @param[in] pci               Pointer to the cluster information.
  */ 
-void deleteDeviceValues(  )
+void deleteDeviceValues( ClusterInfo* pci )
 {   
-    checkCudaErrors( cudaFree( initValues_d ) );
-    checkCudaErrors( cudaFree( nShiftValues_d ) );
+    checkCudaErrors( cudaFree( pci->initValues_d ) );
+    checkCudaErrors( cudaFree( pci->nShiftValues_d ) );
 }
 
 // CUDA code for -----------------------------------------------------------------------

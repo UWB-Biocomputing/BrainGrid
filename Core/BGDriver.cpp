@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
     // Terminate the stimulus input 
     if (simInfo->pInput != NULL)
     {
-        simInfo->pInput->term(simInfo);
+        simInfo->pInput->term(simInfo, vtClrInfo);
         delete simInfo->pInput;
     }
 

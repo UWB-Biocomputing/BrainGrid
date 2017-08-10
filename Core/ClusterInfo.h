@@ -31,6 +31,15 @@
 
 #include "Global.h"
 #include "InterClustersEventHandler.h"
+#if defined(USE_GPU)
+#if defined(__CUDACC__)
+#include "curand_kernel.h"
+#endif // __CUDACC__
+class SynapseIndexMap;
+class AllDSSynapsesDeviceProperties;
+#endif // USE_GPU
+
+class IAllSynapses;
 
 class ClusterInfo
 {
@@ -41,7 +50,17 @@ class ClusterInfo
             totalClusterNeurons(0),
             pClusterSummationMap(NULL),
             seed(0),
-            eventHandler(NULL)
+            eventHandler(NULL),
+#if defined(USE_GPU)
+            initValues_d(NULL),
+            nShiftValues_d(NULL),
+            allSynapsesDeviceSInput(NULL),
+            synapseIndexMapDeviceSInput(NULL),
+            nISIs_d(NULL),
+            masks_d(NULL),            
+            devStates_d(NULL),
+#endif // USE_GPU
+            synapsesSInput(NULL)
         {
         }
 
@@ -84,4 +103,36 @@ class ClusterInfo
 
         //! Pointer to the multi clusters event handler
         InterClustersEventHandler* eventHandler;
+
+#if defined(USE_GPU)
+        //! Pointer to device input values for stimulus inputs (Regular).
+        BGFLOAT* initValues_d;
+        int * nShiftValues_d;
+
+        //! variables for stimulus inputs (Poisson)
+
+        //! Synapse structures in device memory.
+        AllDSSynapsesDeviceProperties* allSynapsesDeviceSInput;
+
+        //! Pointer to synapse index map in device memory.
+        SynapseIndexMap* synapseIndexMapDeviceSInput;
+
+        //! Pointer to device interval counter.
+        int* nISIs_d;
+
+        //! Pointer to device masks for stimulus input
+        bool* masks_d;
+
+#if defined(__CUDACC__)
+        //! Memory to save global state for curand.
+        curandState* devStates_d;
+#else // !__CUDACC__
+        void* devStates_d;
+#endif // !__CUDACC__
+#endif // USE_GPU
+
+        //! variables for stimulus input (Poisson)
+
+        //! List of synapses for stimulus input (Poisson)
+        IAllSynapses *synapsesSInput;
 };

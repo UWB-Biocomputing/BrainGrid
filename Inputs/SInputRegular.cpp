@@ -18,19 +18,19 @@ void getValueList(const string& valString, vector<BGFLOAT>* pList);
  * @param[in] parms     Pointer to xml parms element
  */
 SInputRegular::SInputRegular(SimulationInfo* psi, TiXmlElement* parms) :
-    values(NULL),
-    nShiftValues(NULL)
+    m_values(NULL),
+    m_nShiftValues(NULL)
 {
-    fSInput = false;
+    m_fSInput = false;
 
     // read duration, interval and sync
     TiXmlElement* temp = NULL;
     string sync;
-    if (( temp = parms->FirstChildElement( "IntParams" ) ) != NULL) { if (temp->QueryFLOATAttribute("duration", &duration ) != TIXML_SUCCESS) {
+    if (( temp = parms->FirstChildElement( "IntParams" ) ) != NULL) { if (temp->QueryFLOATAttribute("duration", &m_duration ) != TIXML_SUCCESS) {
             cerr << "error IntParams:duration" << endl;
             return;
         }
-        if (temp->QueryFLOATAttribute("interval", &interval ) != TIXML_SUCCESS) {
+        if (temp->QueryFLOATAttribute("interval", &m_interval ) != TIXML_SUCCESS) {
             cerr << "error IntParams:interval" << endl;
             return;
         }
@@ -46,10 +46,10 @@ SInputRegular::SInputRegular(SimulationInfo* psi, TiXmlElement* parms) :
     }
 
     // initialize duration ,interval and cycle
-    nStepsDuration = static_cast<int> ( duration / psi->deltaT + 0.5 );
-    nStepsInterval = static_cast<int> ( interval / psi->deltaT + 0.5 );
-    nStepsCycle = nStepsDuration + nStepsInterval;
-    nStepsInCycle = 0;
+    m_nStepsDuration = static_cast<int> ( m_duration / psi->deltaT + 0.5 );
+    m_nStepsInterval = static_cast<int> ( m_interval / psi->deltaT + 0.5 );
+    m_nStepsCycle = m_nStepsDuration + m_nStepsInterval;
+    m_nStepsInCycle = 0;
 
     // read initial values
     if ((temp = parms->FirstChildElement( "Values")) != NULL)
@@ -59,7 +59,7 @@ SInputRegular::SInputRegular(SimulationInfo* psi, TiXmlElement* parms) :
         {
             if (strcmp(pNode->Value(), "I") == 0)
             {
-                getValueList(pNode->ToElement()->GetText(), &initValues);
+                getValueList(pNode->ToElement()->GetText(), &m_initValues);
             }
             else
             {
@@ -75,40 +75,40 @@ SInputRegular::SInputRegular(SimulationInfo* psi, TiXmlElement* parms) :
     }
 
     // we assume that initial values are in 10x10 matrix
-    assert(initValues.size() == 100);
+    assert(m_initValues.size() == 100);
 
     // allocate memory for input values
-    values = new BGFLOAT[psi->totalNeurons];
+    m_values = new BGFLOAT[psi->totalNeurons];
 
     // initialize values
     for (int i = 0; i < psi->height; i++)
         for (int j = 0; j < psi->width; j++)
-            values[i * psi->width + j] = initValues[(i % 10) * 10 + j % 10];
+            m_values[i * psi->width + j] = m_initValues[(i % 10) * 10 + j % 10];
 
-    initValues.clear();
+    m_initValues.clear();
 
     // allocate memory for shift values
-    nShiftValues = new int[psi->totalNeurons];
+    m_nShiftValues = new int[psi->totalNeurons];
 
     // initialize shift values
-    memset(nShiftValues, 0, sizeof(int) * psi->totalNeurons);
+    memset(m_nShiftValues, 0, sizeof(int) * psi->totalNeurons);
 
     if (sync == "no")
     {
        // asynchronous stimuli - fill nShiftValues array with values between 0 - nStepsCycle
         for (int i = 0; i < psi->height; i++)
             for (int j = 0; j < psi->width; j++)
-                nShiftValues[i * psi->width + j] = static_cast<int>(rng.inRange(0, nStepsCycle - 1));
+                m_nShiftValues[i * psi->width + j] = static_cast<int>(rng.inRange(0, m_nStepsCycle - 1));
     }
     else if (sync == "wave")
     {
         // wave stimuli - moving wave from left to right
         for (int i = 0; i < psi->height; i++)
             for (int j = 0; j < psi->width; j++)
-                nShiftValues[i * psi->width + j] = static_cast<int>((nStepsCycle / psi->width) * j);
+                m_nShiftValues[i * psi->width + j] = static_cast<int>((m_nStepsCycle / psi->width) * j);
     }
 
-    fSInput = true;
+    m_fSInput = true;
 }
 
 /*
@@ -130,9 +130,10 @@ void SInputRegular::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 /*
  * Terminate process.
  *
- * @param[in] psi                Pointer to the simulation information.
+ * @param[in] psi             Pointer to the simulation information.
+ * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void SInputRegular::term(SimulationInfo* psi)
+void SInputRegular::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
 }
 

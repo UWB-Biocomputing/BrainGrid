@@ -92,7 +92,9 @@ void AllSpikingSynapses::setupSynapses(const int num_neurons, const int max_syna
 #endif // USE_GPU
 
         // register the queue to the event handler
-        clr_info->eventHandler->addEventQueue(clr_info->clusterID, preSpikeQueue);
+        if (clr_info->eventHandler != NULL) {
+            clr_info->eventHandler->addEventQueue(clr_info->clusterID, preSpikeQueue);
+        }
     }
 }
 

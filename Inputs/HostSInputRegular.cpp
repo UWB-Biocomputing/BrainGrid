@@ -40,15 +40,16 @@ void HostSInputRegular::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrIn
 /*
  * Terminate process.
  *
- * @param[in] psi       Pointer to the simulation information.
+ * @param[in] psi             Pointer to the simulation information.
+ * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void HostSInputRegular::term(SimulationInfo* psi)
+void HostSInputRegular::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
-    if (values != NULL)
-        delete[] values;
+    if (m_values != NULL)
+        delete[] m_values;
 
-    if (nShiftValues != NULL)
-        delete[] nShiftValues;
+    if (m_nShiftValues != NULL)
+        delete[] m_nShiftValues;
 }
 
 /*
@@ -60,7 +61,7 @@ void HostSInputRegular::term(SimulationInfo* psi)
  */
 void HostSInputRegular::inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
-    if (fSInput == false)
+    if (m_fSInput == false)
         return;
 
     // for each cluster
@@ -70,11 +71,11 @@ void HostSInputRegular::inputStimulus(const SimulationInfo* psi, vector<ClusterI
 
         // add input to each summation point
         for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++) {
-            if ( (nStepsInCycle >= nShiftValues[neuronLayoutIndex]) && (nStepsInCycle < (nShiftValues[neuronLayoutIndex] + nStepsDuration ) % nStepsCycle) )
-                vtClrInfo[iCluster]->pClusterSummationMap[iNeuron] += values[neuronLayoutIndex];
+            if ( (m_nStepsInCycle >= m_nShiftValues[neuronLayoutIndex]) && (m_nStepsInCycle < (m_nShiftValues[neuronLayoutIndex] + m_nStepsDuration ) % m_nStepsCycle) )
+                vtClrInfo[iCluster]->pClusterSummationMap[iNeuron] += m_values[neuronLayoutIndex];
         }
     }
 
     // update cycle count 
-    nStepsInCycle = (nStepsInCycle + 1) % nStepsCycle;
+    m_nStepsInCycle = (m_nStepsInCycle + 1) % m_nStepsCycle;
 }

@@ -47,29 +47,23 @@ public:
     virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     //! Terminate process.
-    virtual void term(SimulationInfo* psi);
+    virtual void term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
 protected:
     //! True if stimuls input is on.
-    bool fSInput;
+    bool m_fSInput;
 
     //! synapse weight
-    BGFLOAT weight;
+    BGFLOAT m_weight;
 
     //! inverse firing rate
-    BGFLOAT lambda;
+    BGFLOAT m_lambda;
 
     //! interval counter
-    int* nISIs;
-
-    //! List of synapses
-    IAllSynapses *m_synapses;
+    int* m_nISIs;
 
     //! Masks for stimulus input
-    bool* masks;
-
-    //! Cluster information for the input synapse layer
-    ClusterInfo* m_clusterInfo;
+    bool* m_masks;
 
     //! Maximum number of synapses per neuron (will be 1)
     int m_maxSynapsesPerNeuron;

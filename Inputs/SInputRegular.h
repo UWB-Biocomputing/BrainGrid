@@ -45,38 +45,38 @@ public:
     virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     //! Terminate process.
-    virtual void term(SimulationInfo* psi);
+    virtual void term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
 protected:
     //! True if stimuls input is on.
-    bool fSInput;
+    bool m_fSInput;
 
     //! Duration of a pulse in second.
-    BGFLOAT duration;
+    BGFLOAT m_duration;
 
     //! Interval between pulses in second.
-    BGFLOAT interval;
+    BGFLOAT m_interval;
 
     //! The number of time steps for one cycle of a stimulation
-    int nStepsCycle;
+    int m_nStepsCycle;
 
     //! The time step within a cycle of stimulation
-    int nStepsInCycle;
+    int m_nStepsInCycle;
 
     //! The number of time steps for duration of a pulse.
-    int nStepsDuration;
+    int m_nStepsDuration;
 
     //! The number of time steps for interval between pulses. 
-    int nStepsInterval;
+    int m_nStepsInterval;
 
     //! Initial input values
-    vector<BGFLOAT> initValues;
+    vector<BGFLOAT> m_initValues;
 
     //! Input values, where each entry corresponds with a summationPoint.
-    BGFLOAT *values;
+    BGFLOAT *m_values;
 
     //! Shift values, which determin the synch of stimuli (all 0 when synchronous)
-    int *nShiftValues;
+    int *m_nShiftValues;
 };
 
 #endif // _SINPUTREGULAR_H_
