@@ -136,6 +136,9 @@ bool FixedLayout::readParameters(const TiXmlElement& element)
     if (element.Parent()->ValueStr().compare("LayoutFiles") == 0) {
 	if(element.ValueStr().compare("activeNListFileName") == 0){
 	    const char* activeNListFileName = element.GetText();
+	    if(activeNListFileName == NULL){
+		return true;
+	    }
             TiXmlDocument simDoc(activeNListFileName);
             if (!simDoc.LoadFile( ))
             {
@@ -157,6 +160,9 @@ bool FixedLayout::readParameters(const TiXmlElement& element)
 	}
 	if(element.ValueStr().compare("inhNListFileName") == 0){
 	    const char* inhNListFileName = element.GetText();
+	    if(inhNListFileName == NULL){
+		return true;
+	    }
             TiXmlDocument simDoc(inhNListFileName);
             if (!simDoc.LoadFile( ))
             {
@@ -176,6 +182,9 @@ bool FixedLayout::readParameters(const TiXmlElement& element)
 	}
 	if(element.ValueStr().compare("probedNListFileName") == 0){
 	    const char* probedNListFileName = element.GetText();
+	    if(probedNListFileName == NULL){
+		return true;
+	    }
             TiXmlDocument simDoc(probedNListFileName);
             if (!simDoc.LoadFile( ))
             {
