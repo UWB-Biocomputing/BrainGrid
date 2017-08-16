@@ -58,6 +58,8 @@ void GPUSpikingCluster::allocDeviceStruct(void** allNeuronsDevice, void** allSyn
 
   // Allocate memory for random noise array
   int neuron_count = clr_info->totalClusterNeurons;
+  // neuron_count must be a multiple of 100
+  neuron_count = ((( neuron_count - 1 ) / 100 ) + 1 ) * 100;
   BGSIZE randNoise_d_size = neuron_count * sizeof (float);	// size of random noise array
   checkCudaErrors( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
 
@@ -113,7 +115,10 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
   //assuming neuron_count >= 100 and is a multiple of 100. Note rng_mt_rng_count must be <= MT_RNG_COUNT
   int rng_blocks = 25; //# of blocks the kernel will use
   int rng_nPerRng = 4; //# of iterations per thread (thread granularity, # of rands generated per thread)
-  int rng_mt_rng_count = clr_info->totalClusterNeurons/rng_nPerRng; //# of threads to generate for neuron_count rand #s
+  int neuron_count = clr_info->totalClusterNeurons;
+  // neuron_count must be a multiple of 100
+  neuron_count = ((( neuron_count - 1 ) / 100 ) + 1 ) * 100;
+  int rng_mt_rng_count = neuron_count/rng_nPerRng; //# of threads to generate for neuron_count rand #s
   int rng_threads = rng_mt_rng_count/rng_blocks; //# threads per block needed
   initMTGPU(clr_info->seed, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
 
