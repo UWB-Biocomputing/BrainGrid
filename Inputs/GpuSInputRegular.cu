@@ -45,6 +45,8 @@ void GpuSInputRegular::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInf
 
     // for each cluster
     for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
+        checkCudaErrors( cudaSetDevice( vtClrInfo[iCluster]->deviceId ) );
+
         // allocate GPU device memory and copy values
         allocDeviceValues(vtClrInfo[iCluster], m_values, m_nShiftValues);
     }
@@ -64,6 +66,8 @@ void GpuSInputRegular::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInf
     if (m_fSInput) {
         // for each cluster
         for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
+            checkCudaErrors( cudaSetDevice( vtClrInfo[iCluster]->deviceId ) );
+
             deleteDeviceValues(vtClrInfo[iCluster]);
         }
     }
@@ -82,6 +86,8 @@ void GpuSInputRegular::inputStimulus(const SimulationInfo* psi, vector<ClusterIn
 
     // for each cluster
     for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
+        checkCudaErrors( cudaSetDevice( vtClrInfo[iCluster]->deviceId ) );
+
         ClusterInfo *pci = vtClrInfo[iCluster];
         int neuron_count = pci->totalClusterNeurons;
 

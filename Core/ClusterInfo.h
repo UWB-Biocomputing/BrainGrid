@@ -32,9 +32,7 @@
 #include "Global.h"
 #include "InterClustersEventHandler.h"
 #if defined(USE_GPU)
-#if defined(__CUDACC__)
 #include "curand_kernel.h"
-#endif // __CUDACC__
 class SynapseIndexMap;
 class AllDSSynapsesDeviceProperties;
 #endif // USE_GPU
@@ -91,7 +89,7 @@ class ClusterInfo
         Norm* normRand;
 #endif // !USE_GPU
 
-#if defined(USE_GPU) && defined(PERFORMANCE_METRICS) && defined(__CUDACC__)
+#if defined(USE_GPU) && defined(PERFORMANCE_METRICS) 
         //! All times in seconds
         float g_time;
         cudaEvent_t start, stop;
@@ -123,12 +121,8 @@ class ClusterInfo
         //! Pointer to device masks for stimulus input
         bool* masks_d;
 
-#if defined(__CUDACC__)
         //! Memory to save global state for curand.
         curandState* devStates_d;
-#else // !__CUDACC__
-        void* devStates_d;
-#endif // !__CUDACC__
 #endif // USE_GPU
 
         //! variables for stimulus input (Poisson)

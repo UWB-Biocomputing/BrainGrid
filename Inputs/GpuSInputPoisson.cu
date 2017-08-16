@@ -54,10 +54,10 @@ void GpuSInputPoisson::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInf
  */
 void GpuSInputPoisson::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
-    SInputPoisson::term(psi, vtClrInfo);
-
     if (m_fSInput)
         deleteDeviceValues(vtClrInfo);
+
+    SInputPoisson::term(psi, vtClrInfo);
 }
 
 /*

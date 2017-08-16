@@ -124,6 +124,8 @@ CUDAOBJS =   \
 		$(COREDIR)/BGDriver_cuda.o \
 		$(INPUTDIR)/GpuSInputRegular.o \
 		$(INPUTDIR)/GpuSInputPoisson.o \
+		$(INPUTDIR)/SInputRegular_cuda.o \
+		$(INPUTDIR)/SInputPoisson_cuda.o \
 		$(INPUTDIR)/FSInput_cuda.o \
 		$(COREDIR)/FClassOfCategory_cuda.o \
 		$(COREDIR)/EventQueue_cuda.o \
@@ -174,6 +176,10 @@ RNGOBJS =	$(RNGDIR)/Norm.o \
 SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
 		$(COREDIR)/Model.o \
 		$(COREDIR)/SingleThreadedCluster.o \
+		$(INPUTDIR)/HostSInputRegular.o \
+		$(INPUTDIR)/SInputRegular.o \
+		$(INPUTDIR)/HostSInputPoisson.o \
+		$(INPUTDIR)/SInputPoisson.o \
 		$(INPUTDIR)/FSInput.o \
 		$(COREDIR)/FClassOfCategory.o \
 		$(COREDIR)/EventQueue.o \
@@ -199,23 +205,18 @@ XMLOBJS =	$(XMLDIR)/tinyxml.o \
 		$(XMLDIR)/tinyxmlerror.o \
 		$(XMLDIR)/tinystr.o
 
-INPUTOBJS =	$(INPUTDIR)/HostSInputRegular.o \
-		$(INPUTDIR)/SInputRegular.o \
-		$(INPUTDIR)/HostSInputPoisson.o \
-		$(INPUTDIR)/SInputPoisson.o 
-
 ################################################################################
 # Targets
 ################################################################################
 # make growth (single threaded version)
 # ------------------------------------------------------------------------------
-growth: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(INPUTOBJS)
-	$(LD) -o growth -g $(CXXLDFLAGS) $(LH5FLAGS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(INPUTOBJS) $(LIBOBJS) 
+growth: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS)
+	$(LD) -o growth -g $(CXXLDFLAGS) $(LH5FLAGS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(LIBOBJS) 
 
 # make growth_cuda (multi-threaded version)
 # ------------------------------------------------------------------------------
-growth_cuda: 	$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS) $(INPUTOBJS)
-		$(LD_cuda) -o growth_cuda $(NVCCFLAGS) $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(INPUTOBJS)
+growth_cuda: 	$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS) 
+		$(LD_cuda) -o growth_cuda $(NVCCFLAGS) $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) 
 
 # make clean
 # ------------------------------------------------------------------------------
@@ -272,7 +273,7 @@ $(COREDIR)/BGDriver_cuda.o: $(COREDIR)/BGDriver.cpp $(UTILDIR)/Global.h $(COREDI
 	nvcc -c $(NVCCFLAGS) $(COREDIR)/BGDriver.cpp -x cu $(CGPUFLAGS) -o $(COREDIR)/BGDriver_cuda.o
 
 $(NEURONDIR)/AllNeurons_cuda.o: $(NEURONDIR)/AllNeurons.cpp $(NEURONDIR)/AllNeurons.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(NEURONDIR)/AllNeurons.cpp -o $(NEURONDIR)/AllNeurons_cuda.o
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllNeurons.cpp -x cu $(CGPUFLAGS) -o $(NEURONDIR)/AllNeurons_cuda.o
 
 $(NEURONDIR)/AllSpikingNeurons_cuda.o: $(NEURONDIR)/AllSpikingNeurons.cpp $(NEURONDIR)/AllSpikingNeurons.h $(UTILDIR)/Global.h
 	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllSpikingNeurons.cpp -x cu $(CGPUFLAGS) -o $(NEURONDIR)/AllSpikingNeurons_cuda.o
@@ -287,7 +288,7 @@ $(NEURONDIR)/AllIZHNeurons_cuda.o: $(NEURONDIR)/AllIZHNeurons.cpp $(NEURONDIR)/A
 	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllIZHNeurons.cpp -x cu $(CGPUFLAGS) -o $(NEURONDIR)/AllIZHNeurons_cuda.o
 
 $(SYNAPSEDIR)/AllSynapses_cuda.o: $(SYNAPSEDIR)/AllSynapses.cpp $(SYNAPSEDIR)/AllSynapses.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(SYNAPSEDIR)/AllSynapses.cpp -o $(SYNAPSEDIR)/AllSynapses_cuda.o
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSynapses.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSynapses_cuda.o
 
 $(SYNAPSEDIR)/AllSpikingSynapses_cuda.o: $(SYNAPSEDIR)/AllSpikingSynapses.cpp $(SYNAPSEDIR)/AllSpikingSynapses.h $(UTILDIR)/Global.h
 	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSpikingSynapses.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSpikingSynapses_cuda.o
@@ -495,6 +496,12 @@ $(INPUTDIR)/SInputRegular.o: $(INPUTDIR)/SInputRegular.cpp $(INPUTDIR)/ISInput.h
 
 $(INPUTDIR)/SInputPoisson.o: $(INPUTDIR)/SInputPoisson.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)/SInputPoisson.h $(XMLDIR)/tinyxml.h
 	$(CXX) $(CXXFLAGS) $(INPUTDIR)/SInputPoisson.cpp -o $(INPUTDIR)/SInputPoisson.o
+
+$(INPUTDIR)/SInputRegular_cuda.o: $(INPUTDIR)/SInputRegular.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)/SInputRegular.h $(XMLDIR)/tinyxml.h
+	nvcc -c $(NVCCFLAGS) $(INPUTDIR)/SInputRegular.cpp -x cu $(CGPUFLAGS) -o $(INPUTDIR)/SInputRegular_cuda.o 
+
+$(INPUTDIR)/SInputPoisson_cuda.o: $(INPUTDIR)/SInputPoisson.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)/SInputPoisson.h $(XMLDIR)/tinyxml.h
+	nvcc -c $(NVCCFLAGS) $(INPUTDIR)/SInputPoisson.cpp -x cu $(CGPUFLAGS) -o $(INPUTDIR)/SInputPoisson_cuda.o 
 
 $(INPUTDIR)/HostSInputRegular.o: $(INPUTDIR)/HostSInputRegular.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)/HostSInputRegular.h
 	$(CXX) $(CXXFLAGS) $(INPUTDIR)/HostSInputRegular.cpp -o $(INPUTDIR)/HostSInputRegular.o
