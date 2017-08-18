@@ -214,16 +214,15 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
     }
 
     // create clusters
-    int numClusters = 2;	// number of clusters
-    int numClusterNeurons = simInfo->totalNeurons / numClusters;	// number of neurons in cluster
+    int numClusterNeurons = simInfo->totalNeurons / g_numClusters;	// number of neurons in cluster
 
-    for (int iCluster = 0; iCluster < numClusters; iCluster++) {
+    for (int iCluster = 0; iCluster < g_numClusters; iCluster++) {
         // create a cluster information
         ClusterInfo *clusterInfo = new ClusterInfo();
         clusterInfo->clusterID = iCluster;
         clusterInfo->clusterNeuronsBegin = numClusterNeurons * iCluster;
-        if (iCluster == numClusters - 1) {
-            clusterInfo->totalClusterNeurons = simInfo->totalNeurons - numClusterNeurons * (numClusters - 1);
+        if (iCluster == g_numClusters - 1) {
+            clusterInfo->totalClusterNeurons = simInfo->totalNeurons - numClusterNeurons * (g_numClusters - 1);
         } else {
             clusterInfo->totalClusterNeurons = numClusterNeurons;
         }
@@ -343,6 +342,7 @@ bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo)
     if ((cl.addParam("stateoutfile", 'o', ParamContainer::filename, "simulation state output filename") != ParamContainer::errOk)
             || (cl.addParam("stateinfile", 't', ParamContainer::filename | ParamContainer::required, "simulation state input filename") != ParamContainer::errOk)
             || (cl.addParam("deviceid", 'd', ParamContainer::regular, "CUDA device id") != ParamContainer::errOk)
+            || (cl.addParam("numclusters", 'c', ParamContainer::regular, "number of clusters") != ParamContainer::errOk)
             || (cl.addParam( "stiminfile", 's', ParamContainer::filename, "stimulus input file" ) != ParamContainer::errOk)
             || (cl.addParam("meminfile", 'r', ParamContainer::filename, "simulation memory image input filename") != ParamContainer::errOk)
             || (cl.addParam("memoutfile", 'w', ParamContainer::filename, "simulation memory image output filename") != ParamContainer::errOk)) {
@@ -352,6 +352,7 @@ bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo)
 #else    // !USE_GPU
     if ((cl.addParam("stateoutfile", 'o', ParamContainer::filename, "simulation state output filename") != ParamContainer::errOk)
             || (cl.addParam("stateinfile", 't', ParamContainer::filename | ParamContainer::required, "simulation state input filename") != ParamContainer::errOk)
+            || (cl.addParam("numclusters", 'c', ParamContainer::regular, "number of clusters") != ParamContainer::errOk)
             || (cl.addParam( "stiminfile", 's', ParamContainer::filename, "stimulus input file" ) != ParamContainer::errOk)
             || (cl.addParam("meminfile", 'r', ParamContainer::filename, "simulation memory image filename") != ParamContainer::errOk)
             || (cl.addParam("memoutfile", 'w', ParamContainer::filename, "simulation memory image output filename") != ParamContainer::errOk)) {
@@ -372,6 +373,10 @@ bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo)
     simInfo->memInputFileName = cl["meminfile"];
     simInfo->memOutputFileName = cl["memoutfile"];
     simInfo->stimulusInputFileName = cl["stiminfile"];
+
+    if (EOF == sscanf(cl["numclusters"].c_str(), "%d", &g_numClusters)) {
+        g_numClusters = 1;
+    }
 
 #if defined(USE_GPU)
     if (EOF == sscanf(cl["deviceid"].c_str(), "%d", &g_deviceId)) {

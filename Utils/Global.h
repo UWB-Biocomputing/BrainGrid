@@ -71,6 +71,8 @@ using namespace std;
 extern int g_deviceId;
 #endif // USE_GPU
 
+extern int g_numClusters;
+
 //! The constant PI.
 extern const BGFLOAT pi;
 

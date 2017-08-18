@@ -69,6 +69,9 @@ string neuronTypeToString(neuronType t) {
 int g_deviceId = 0;
 #endif // USE_GPU
 
+// number of clusters
+int g_numClusters = 1;
+
 //! A random number generator.
 MTRand rng(1);
 
