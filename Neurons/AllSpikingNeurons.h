@@ -140,8 +140,9 @@ class AllSpikingNeurons : public AllNeurons
          *  @param  sim_info         SimulationInfo class to read information from.
          *  @param  synapseIndexMap  Reference to the SynapseIndexMap.
          *  @param  clr_info         ClusterInfo class to read information from.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap, const ClusterInfo *clr_info);
+        virtual void advanceNeurons(IAllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap, const ClusterInfo *clr_info, int iStepOffset);
 
         /**
          *  Get the spike history of neuron[index] at the location offIndex.
@@ -159,16 +160,18 @@ class AllSpikingNeurons : public AllNeurons
          *  @param  index            Index of the neuron to update.
          *  @param  sim_info         SimulationInfo class to read information from.
          *  @param  clr_info         ClusterInfo class to read information from.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info) = 0;
+        virtual void advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset) = 0;
 
         /**
          *  Initiates a firing of a neuron to connected neurons
          *
          *  @param  index            Index of the neuron to fire.
          *  @param  sim_info         SimulationInfo class to read information from.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void fire(const int index, const SimulationInfo *sim_info) const;
+        virtual void fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const;
 #endif // defined(USE_GPU)
 
     protected:

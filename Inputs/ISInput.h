@@ -54,9 +54,18 @@ public:
      * Process input stimulus for each time step
      *
      * @param[in] psi             Pointer to the simulation information.
-     * @param[in] vtClrInfo       Vector of ClusterInfo.
+     * @param[in] pci             Pointer to the ClusterInfo class to read information from.
+     * @param[in] iStepOffset     Offset from the current simulation step.
      */
-    virtual void inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo) = 0;
+    virtual void inputStimulus(const SimulationInfo* psi, ClusterInfo *pci, int iStepOffset) = 0;
+
+    /**
+     * Advance input stimulus state.
+     *
+     * @param[in] pci             Poiter to the ClusterInfo class to read information from.
+     * @param[in] iStep           Simulation steps to advance.
+     */
+    virtual void advanceSInputState(const ClusterInfo *pci, int iStep) = 0;
 };
 
 #endif // _ISINPUT_H_

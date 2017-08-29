@@ -40,11 +40,12 @@ void InterClustersEventHandler::addEventQueue(const CLUSTER_INDEX_TYPE clusterID
  *
  * @param idx        The queue index of the collection.
  * @param clusterID  The cluster ID where the event to be added.
+ * @param iStepOffset  offset from the current simulation step.
  */
-void InterClustersEventHandler::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID)
+void InterClustersEventHandler::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID, int iStepOffset)
 {
 #if !defined(USE_GPU)
-    m_vtEventQueue->at(clusterID)->addAnEvent(idx, clusterID);
+    m_vtEventQueue->at(clusterID)->addAnEvent(idx, clusterID, iStepOffset);
 #else // USE_GPU
     m_vtEventQueue->at(clusterID)->addAnInterClustersIncomingEvent(idx);
 #endif // USE_GPU

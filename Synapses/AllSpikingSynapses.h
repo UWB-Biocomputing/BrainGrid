@@ -363,13 +363,16 @@ public:
          *  @param  sim_info         SimulationInfo class to read information from.
          *  @param  neurons          The Neuron list to search from.
          *  @param  synapseIndexMap  Pointer to the synapse index map.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap);
+        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap, int iStepOffset);
 
         /*
          * Advances synapses spike event queue state of the cluster one simulation step.
+         *
+         * @param iStep     simulation steps to advance.
          */
-        virtual void advanceSpikeQueue();
+        virtual void advanceSpikeQueue(int iStep);
 
         /**
          *  Advance one specific Synapse.
@@ -377,40 +380,45 @@ public:
          *  @param  iSyn      Index of the Synapse to connect to.
          *  @param  sim_info  SimulationInfo class to read information from.
          *  @param  neurons   The Neuron list to search from.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons);
+        virtual void advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons, int iStepOffset);
 
         /**
          *  Prepares Synapse for a spike hit.
          *
          *  @param  iSyn      Index of the Synapse to update.
          *  @param  iCluster  Cluster ID of cluster where the spike is added.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void preSpikeHit(const BGSIZE iSyn, const CLUSTER_INDEX_TYPE iCluster);
+        virtual void preSpikeHit(const BGSIZE iSyn, const CLUSTER_INDEX_TYPE iCluster, int iStepOffset);
 
         /**
          *  Prepares Synapse for a spike hit (for back propagation).
          *
          *  @param  iSyn   Index of the Synapse to update.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void postSpikeHit(const BGSIZE iSyn);
+        virtual void postSpikeHit(const BGSIZE iSyn, int iStepOffset);
 
     protected:
         /**
          *  Checks if there is an input spike in the queue.
          *
          *  @param  iSyn   Index of the Synapse to connect to.
+         *  @param  iStepOffset      Offset from the current simulation step.
          *  @return true if there is an input spike event.
          */
-        bool isSpikeQueue(const BGSIZE iSyn);
+        bool isSpikeQueue(const BGSIZE iSyn, int iStepOffset);
 
         /**
          *  Calculate the post synapse response after a spike.
          *
          *  @param  iSyn        Index of the synapse to set.
          *  @param  deltaT      Inner simulation step duration.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT);
+        virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset);
 #endif
 
     public:

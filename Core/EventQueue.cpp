@@ -132,18 +132,19 @@ __host__ void EventQueue::initEventQueue(CLUSTER_INDEX_TYPE clusterID, BGSIZE nM
  * 
  * @param idx The queue index of the collection.
  * @param clusterID The cluster ID where the event to be added.
+ * @param iStepOffset  offset from the current simulation step.
  */
 #if !defined(USE_GPU)
-void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID)
+void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID, int iStepOffset)
 #else // USE_GPU
-__device__ void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID)
+__device__ void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID, int iStepOffset)
 #endif // USE_GPU
 {
     if (clusterID != m_clusterID) {
 #if !defined(USE_GPU)
         // notify the event to other cluster
         assert( m_eventHandler != NULL );
-        m_eventHandler->addAnEvent(idx, clusterID);
+        m_eventHandler->addAnEvent(idx, clusterID, iStepOffset);
 #else // USE_GPU
         // save the inter clusters outgoing events in the outgoing events queue
         OUTGOING_SYNAPSE_INDEX_TYPE idxOutSyn = SynapseIndexMap::getOutgoingSynapseIndex(clusterID, idx);;
@@ -163,13 +164,35 @@ __device__ void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYP
         assert( m_nInterClustersOutgoingEvents <= m_nMaxInterClustersOutgoingEvents );
 #endif // USE_GPU
     } else {
-        BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
-
         // Add to event queue
 
+        // adjust offset
+        uint32_t idxQueue = m_idxQueue + iStepOffset;
+        idxQueue = (idxQueue < LENGTH_OF_DELAYQUEUE) ? idxQueue : idxQueue - LENGTH_OF_DELAYQUEUE;
+
+#if !defined(USE_GPU)
+        // When advanceNeurons and advanceSynapses in different clusters
+        // are running concurrently, there might be race condition at
+        // event queues (host only). For example, EventQueue::addAnEvent() is called
+        // from advanceNeurons in cluster 0 and EventQueue::checkAnEvent()
+        // is called from advanceSynapses in cluster 1. These functions
+        // contain memory read/write operation at event queue and
+        // consequntltly data race happens.
+        // Therefore we need atomicaly set spiking data here.
+
+        BGQUEUE_ELEMENT oldQueueEvent, newQueueEvent, currQueueEvent = m_queueEvent[idx];
+        assert( !(currQueueEvent & (0x1 << idxQueue)) );
+        do {
+            oldQueueEvent = currQueueEvent;
+            newQueueEvent = currQueueEvent | (0x1 << idxQueue);
+            currQueueEvent = __sync_val_compare_and_swap(&m_queueEvent[idx], oldQueueEvent, newQueueEvent);
+        } while (currQueueEvent != oldQueueEvent);
+#else // USE_GPU
         // set a spike
-        assert( !(queue & (0x1 << m_idxQueue)) );
-        queue |= (0x1 << m_idxQueue);
+        BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
+        assert( !(queue & (0x1 << idxQueue)) );
+        queue |= (0x1 << idxQueue);
+#endif // USE_GPU
     }
 }
 
@@ -287,20 +310,21 @@ __device__ void EventQueue::processInterClustersIncomingEventsInDevice(int idx)
  * 
  * @param idx The queue index of the collection.
  * @param delay The delay descretized into time steps when the event will be triggered.
+ * @param iStepOffset  offset from the current simulation step.
  */
-CUDA_CALLABLE void EventQueue::addAnEvent(const BGSIZE idx, const int delay)
+CUDA_CALLABLE void EventQueue::addAnEvent(const BGSIZE idx, const int delay, int iStepOffset)
 {
-    BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
 
     // Add to event queue
 
     // calculate index where to insert the event into queueEvent
-    uint32_t idxQueue = m_idxQueue + delay;
+    uint32_t idxQueue = m_idxQueue + delay + iStepOffset;
     if ( idxQueue >= LENGTH_OF_DELAYQUEUE ) {
         idxQueue -= LENGTH_OF_DELAYQUEUE;
     }
 
     // set a spike
+    BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
     assert( !(queue & (0x1 << idxQueue)) );
     queue |= (0x1 << idxQueue);
 }
@@ -309,15 +333,19 @@ CUDA_CALLABLE void EventQueue::addAnEvent(const BGSIZE idx, const int delay)
  * Checks if there is an event in the queue.
  * 
  * @param idx The queue index of the collection.
+ * @param iStepOffset  offset from the current simulation step.
  * @return true if there is an event.
  */
-CUDA_CALLABLE bool EventQueue::checkAnEvent(const BGSIZE idx)
+CUDA_CALLABLE bool EventQueue::checkAnEvent(const BGSIZE idx, int iStepOffset)
 {
-    BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
-
     // check and reset the event
-    bool r = queue & (0x1 << m_idxQueue);
-    queue &= ~(0x1 << m_idxQueue);
+    uint32_t idxQueue = m_idxQueue + iStepOffset;
+    if ( idxQueue >= LENGTH_OF_DELAYQUEUE ) {
+        idxQueue -= LENGTH_OF_DELAYQUEUE;
+    }
+    BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
+    bool r = queue & (0x1 << idxQueue);
+    queue &= ~(0x1 << idxQueue);
 
     return r;
 }
@@ -327,23 +355,44 @@ CUDA_CALLABLE bool EventQueue::checkAnEvent(const BGSIZE idx)
  * 
  * @param idx The queue index of the collection.
  * @param delay The delay descretized into time steps when the event will be triggered.
+ * @param iStepOffset  offset from the current simulation step.
  * @return true if there is an event.
  */
-CUDA_CALLABLE bool EventQueue::checkAnEvent(const BGSIZE idx, const int delay)
+CUDA_CALLABLE bool EventQueue::checkAnEvent(const BGSIZE idx, const int delay, int iStepOffset)
 {
-    BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
 
     // check and reset the event
 
     // calculate index where to check if there is an event
-    int idxQueue = m_idxQueue - delay;
+    assert( delay > iStepOffset );
+    uint32_t idxQueue = m_idxQueue - delay + iStepOffset;
     if ( idxQueue < 0 ) {
         idxQueue += LENGTH_OF_DELAYQUEUE;
     }
 
+#if !defined(USE_GPU)
+    // When advanceNeurons and advanceSynapses in different clusters
+    // are running concurrently, there might be race condition at
+    // event queues. For example, EventQueue::addAnEvent() is called
+    // from advanceNeurons in cluster 0 and EventQueue::checkAnEvent()
+    // is called from advanceSynapses in cluster 1. These functions
+    // contain memory read/write operation at event queue and
+    // consequntltly data race happens.
+    // Therefore we need atomicaly check and reset spiking data here.
+
+    BGQUEUE_ELEMENT oldQueueEvent, newQueueEvent, currQueueEvent = m_queueEvent[idx];
+    bool r = currQueueEvent & (0x1 << idxQueue);
+    do {
+        oldQueueEvent = currQueueEvent;
+        newQueueEvent = currQueueEvent & ~(0x1 << idxQueue);
+        currQueueEvent = __sync_val_compare_and_swap(&m_queueEvent[idx], oldQueueEvent, newQueueEvent);
+    } while (currQueueEvent != oldQueueEvent);
+#else // USE_GPU
     // check and reset a spike
+    BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
     bool r = queue & (0x1 << idxQueue);
     queue &= ~(0x1 << idxQueue);
+#endif // USE_GPU
 
     return r;
 }
@@ -361,14 +410,14 @@ CUDA_CALLABLE void EventQueue::clearAnEvent(const BGSIZE idx)
 }
 
 /*
- * Advance one simulation step.
- * 
+ * Advance simulation step.
+ *
+ * @param iStep        simulation step to advance.
  */
-CUDA_CALLABLE void EventQueue::advanceEventQueue()
+CUDA_CALLABLE void EventQueue::advanceEventQueue(int iStep)
 {
-    if ( ++m_idxQueue >= LENGTH_OF_DELAYQUEUE ) {
-        m_idxQueue = 0;
-    }
+    m_idxQueue += iStep;
+    m_idxQueue = (m_idxQueue < LENGTH_OF_DELAYQUEUE) ? m_idxQueue : m_idxQueue - LENGTH_OF_DELAYQUEUE;
 }
 
 /*

@@ -57,46 +57,50 @@ void HostSInputPoisson::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrIn
  * Apply inputs on summationPoint.
  *
  * @param[in] psi             Pointer to the simulation information.
- * @param[in] vtClrInfo       Vector of ClusterInfo.
+ * @param[in] pci             ClusterInfo class to read information from.
+ * @param[in] iStepOffset     Offset from the current simulation step.
  */
-void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
+void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci, int iStepOffset)
 {
     if (m_fSInput == false)
         return;
 
-    // for each cluster
-    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++)
+    int neuronLayoutIndex = pci->clusterNeuronsBegin;
+    int totalClusterNeurons = pci->totalClusterNeurons;
+
+    for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++)
     {
-        ClusterInfo *clr_info = vtClrInfo[iCluster];
+        if (m_masks[neuronLayoutIndex] == false)
+            continue;
 
-        int neuronLayoutIndex = clr_info->clusterNeuronsBegin;
-        int totalClusterNeurons = clr_info->totalClusterNeurons;
-
-        for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++)
+        BGSIZE iSyn = m_maxSynapsesPerNeuron * iNeuron;
+        if (--m_nISIs[neuronLayoutIndex] <= 0)
         {
-            if (m_masks[neuronLayoutIndex] == false)
-                continue;
+            // add a spike
+            dynamic_cast<AllSpikingSynapses*>(pci->synapsesSInput)->preSpikeHit(iSyn, pci->clusterID, iStepOffset);
 
-            BGSIZE iSyn = m_maxSynapsesPerNeuron * iNeuron;
-            if (--m_nISIs[neuronLayoutIndex] <= 0)
-            {
-                // add a spike
-                dynamic_cast<AllSpikingSynapses*>(clr_info->synapsesSInput)->preSpikeHit(iSyn, vtClrInfo[iCluster]->clusterID);
-
-                // update interval counter (exponectially distribution ISIs, Poisson)
-                BGFLOAT isi = -m_lambda * log(clr_info->rng->inRange(0, 1));
-                // delete isi within refractoriness
-                while (clr_info->rng->inRange(0, 1) <= exp(-(isi*isi)/32))
-                    isi = -m_lambda * log(clr_info->rng->inRange(0, 1));
-                // convert isi from msec to steps
-                m_nISIs[neuronLayoutIndex] = static_cast<int>( (isi / 1000) / psi->deltaT + 0.5 );
-            }
-
-            // process synapse & apply psr to the summation point
-            (clr_info->synapsesSInput)->advanceSynapse(iSyn, psi, NULL);
+            // update interval counter (exponectially distribution ISIs, Poisson)
+            BGFLOAT isi = -m_lambda * log(pci->rng->inRange(0, 1));
+            // delete isi within refractoriness
+            while (pci->rng->inRange(0, 1) <= exp(-(isi*isi)/32))
+                isi = -m_lambda * log(pci->rng->inRange(0, 1));
+            // convert isi from msec to steps
+            m_nISIs[neuronLayoutIndex] = static_cast<int>( (isi / 1000) / psi->deltaT + 0.5 );
         }
 
-        // Advances synapses pre spike event queue state of the cluster one simulation step
-        dynamic_cast<AllSpikingSynapses*>(clr_info->synapsesSInput)->advanceSpikeQueue();
+        // process synapse & apply psr to the summation point
+        (pci->synapsesSInput)->advanceSynapse(iSyn, psi, NULL, iStepOffset);
     }
+}
+
+/*
+ * Advance input stimulus state.
+ *
+ * @param[in] pci             ClusterInfo class to read information from.
+ * @param[in] iStep           Simulation steps to advance.
+ */
+void HostSInputPoisson::advanceSInputState(const ClusterInfo *pci, int iStep)
+{
+    // Advances synapses pre spike event queue state of the cluster iStep simulation step
+    dynamic_cast<AllSpikingSynapses*>(pci->synapsesSInput)->advanceSpikeQueue(iStep);
 }

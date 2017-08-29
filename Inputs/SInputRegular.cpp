@@ -49,7 +49,6 @@ SInputRegular::SInputRegular(SimulationInfo* psi, TiXmlElement* parms) :
     m_nStepsDuration = static_cast<int> ( m_duration / psi->deltaT + 0.5 );
     m_nStepsInterval = static_cast<int> ( m_interval / psi->deltaT + 0.5 );
     m_nStepsCycle = m_nStepsDuration + m_nStepsInterval;
-    m_nStepsInCycle = 0;
 
     // read initial values
     if ((temp = parms->FirstChildElement( "Values")) != NULL)
@@ -125,6 +124,11 @@ SInputRegular::~SInputRegular()
  */
 void SInputRegular::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
+    // for each cluster
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++)
+    {
+        vtClrInfo[iCluster]->nStepsInCycle = 0;
+    }
 }
 
 /*

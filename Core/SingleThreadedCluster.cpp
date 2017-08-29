@@ -1,4 +1,5 @@
 #include "SingleThreadedCluster.h"
+#include "ISInput.h"
 
 /*
  *  Constructor
@@ -58,10 +59,20 @@ void SingleThreadedCluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo
  *                   the given collection of neurons.
  * @param clr_info - parameters defining the simulation to be run with 
  *                   the given collection of neurons.
+ * @param iStepOffset - offset from the current simulation step.
  */
-void SingleThreadedCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterInfo *clr_info)
+void SingleThreadedCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterInfo *clr_info, int iStepOffset)
 {
-    m_neurons->advanceNeurons(*m_synapses, sim_info, m_synapseIndexMap, clr_info);
+    m_neurons->advanceNeurons(*m_synapses, sim_info, m_synapseIndexMap, clr_info, iStepOffset);
+}
+
+/*
+ * Transfer spiking data between clusters.
+ *
+ * @param  clr_info  ClusterInfo to refer.
+ */
+void SingleThreadedCluster::processInterClustesSpikes(ClusterInfo *clr_info)
+{
 }
 
 /*
@@ -71,19 +82,28 @@ void SingleThreadedCluster::advanceNeurons(const SimulationInfo *sim_info, Clust
  *                   the given collection of neurons.
  * @param clr_info - parameters defining the simulation to be run with 
  *                   the given collection of neurons.
+ * @param iStepOffset - offset from the current simulation step.
  */
-void SingleThreadedCluster::advanceSynapses(const SimulationInfo *sim_info, ClusterInfo *clr_info)
+void SingleThreadedCluster::advanceSynapses(const SimulationInfo *sim_info, ClusterInfo *clr_info, int iStepOffset)
 {
-    m_synapses->advanceSynapses(sim_info, m_neurons, m_synapseIndexMap);
+    m_synapses->advanceSynapses(sim_info, m_neurons, m_synapseIndexMap, iStepOffset);
 }
 
 /*
- * Advances synapses spike event queue state of the cluster one simulation step.
+ * Advances synapses spike event queue state of the cluster.
  *
+ * @param sim_info - parameters defining the simulation to be run with 
+ *                   the given collection of neurons.
  * @param clr_info - parameters defining the simulation to be run with
  *                   the given collection of neurons.
+ * @param iStep    - simulation steps to advance.
  */
-void SingleThreadedCluster::advanceSpikeQueue(const ClusterInfo *clr_info)
+void SingleThreadedCluster::advanceSpikeQueue(const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStep)
 {
-    (dynamic_cast<AllSpikingSynapses*>(m_synapses))->advanceSpikeQueue();
+    (dynamic_cast<AllSpikingSynapses*>(m_synapses))->advanceSpikeQueue(iStep);
+
+    if (sim_info->pInput != NULL) {
+        // advance input stimulus state
+        sim_info->pInput->advanceSInputState(clr_info, iStep);
+    }
 }

@@ -65,39 +65,34 @@ void GpuSInputPoisson::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInf
  * Apply inputs on summationPoint.
  *
  * @param[in] psi             Pointer to the simulation information.
- * @param[in] vtClrInfo       Vector of ClusterInfo.
+ * @param[in] pci             ClusterInfo class to read information from.
  */
-void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
+void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci)
 {
     if (m_fSInput == false)
         return;
 
-    // for each cluster
-    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) 
-    {
-        ClusterInfo *pci = vtClrInfo[iCluster];
+    // Set device ID
+    checkCudaErrors( cudaSetDevice( pci->deviceId ) );
 
-        // Set device ID
-        checkCudaErrors( cudaSetDevice( pci->deviceId ) );
+    int neuron_count = pci->totalClusterNeurons;
+    int synapse_count = pci->totalClusterNeurons;
 
-        int neuron_count = pci->totalClusterNeurons;
-        int synapse_count = pci->totalClusterNeurons;
+    // CUDA parameters
+    const int threadsPerBlock = 256;
+    int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
-        // CUDA parameters
-        const int threadsPerBlock = 256;
-        int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
+    // add input spikes to each synapse
+    inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->nISIs_d, pci->masks_d, psi->deltaT, m_lambda, pci->devStates_d, pci->allSynapsesDeviceSInput, pci->clusterID );
 
-        // add input spikes to each synapse
-        inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->nISIs_d, pci->masks_d, psi->deltaT, m_lambda, pci->devStates_d, pci->allSynapsesDeviceSInput, pci->clusterID );
+    // advance synapses
+    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, pci->synapseIndexMapDeviceSInput, g_simulationStep, psi->deltaT, (AllSpikingSynapsesDeviceProperties*)pci->allSynapsesDeviceSInput );
 
-        // advance synapses
-        advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, pci->synapseIndexMapDeviceSInput, g_simulationStep, psi->deltaT, (AllSpikingSynapsesDeviceProperties*)pci->allSynapsesDeviceSInput );
+    advanceSpikingSynapsesEventQueueDevice <<< 1, 1 >>> ((AllSpikingSynapsesDeviceProperties*)pci->allSynapsesDeviceSInput);
 
-        advanceSpikingSynapsesEventQueueDevice <<< 1, 1 >>> ((AllSpikingSynapsesDeviceProperties*)pci->allSynapsesDeviceSInput);
-
-        // update summation point
-        applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->allSynapsesDeviceSInput );
-    }
+    // update summation point
+    applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->allSynapsesDeviceSInput );
+    
 }
 
 /*

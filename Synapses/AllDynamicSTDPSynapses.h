@@ -276,8 +276,9 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *
          *  @param  iSyn        Index of the synapse to set.
          *  @param  deltaT      Inner simulation step duration.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT);
+        virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset);
 #endif // defined(USE_GPU)
     public:
         /**

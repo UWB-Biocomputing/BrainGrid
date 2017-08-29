@@ -62,8 +62,9 @@ class InterClustersEventHandler
          *
          * @param idx        The queue index of the collection.
          * @param clusterID  The cluster ID where the event to be added.
+         * @param iStepOffset  offset from the current simulation step.
          */
-        void addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID);
+        void addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID, int iStepOffset);
 
     private:
         //! Vector to store pointers to each cluster's EventQueue.

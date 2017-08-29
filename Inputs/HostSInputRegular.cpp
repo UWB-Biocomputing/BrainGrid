@@ -57,25 +57,33 @@ void HostSInputRegular::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrIn
  * Apply inputs on summationPoint.
  *
  * @param[in] psi             Pointer to the simulation information.
- * @param[in] vtClrInfo       Vector of ClusterInfo.
+ * @param[in] pci             ClusterInfo class to read information from.
+ * @param[in] iStepOffset     Offset from the current simulation step.
  */
-void HostSInputRegular::inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
+void HostSInputRegular::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci, int iStepOffset)
 {
     if (m_fSInput == false)
         return;
 
-    // for each cluster
-    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
-        int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
-        int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
+    int neuronLayoutIndex = pci->clusterNeuronsBegin;
+    int totalClusterNeurons = pci->totalClusterNeurons;
 
-        // add input to each summation point
-        for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++) {
-            if ( (m_nStepsInCycle >= m_nShiftValues[neuronLayoutIndex]) && (m_nStepsInCycle < (m_nShiftValues[neuronLayoutIndex] + m_nStepsDuration ) % m_nStepsCycle) )
-                vtClrInfo[iCluster]->pClusterSummationMap[iNeuron] += m_values[neuronLayoutIndex];
-        }
+    // add input to each summation point
+    for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++) {
+        if ( (pci->nStepsInCycle >= m_nShiftValues[neuronLayoutIndex]) && (pci->nStepsInCycle < (m_nShiftValues[neuronLayoutIndex] + m_nStepsDuration ) % m_nStepsCycle) )
+            pci->pClusterSummationMap[iNeuron] += m_values[neuronLayoutIndex];
     }
 
     // update cycle count 
-    m_nStepsInCycle = (m_nStepsInCycle + 1) % m_nStepsCycle;
+    pci->nStepsInCycle = (pci->nStepsInCycle + 1) % m_nStepsCycle;
+}
+
+/*
+ * Advance input stimulus state.
+ *
+ * @param[in] pci             ClusterInfo class to read information from.
+ * @param[in] iStep           Simulation steps to advance.
+ */
+void HostSInputRegular::advanceSInputState(const ClusterInfo *pci, int iStep)
+{
 }

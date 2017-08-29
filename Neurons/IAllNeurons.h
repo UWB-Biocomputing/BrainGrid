@@ -164,7 +164,8 @@ class IAllNeurons
          *  @param  sim_info         SimulationInfo class to read information from.
          *  @param  synapseIndexMap  Reference to the SynapseIndexMap.
          *  @param  clr_info         ClusterInfo class to read information from.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap, const ClusterInfo *clr_info) = 0;
+        virtual void advanceNeurons(IAllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap, const ClusterInfo *clr_info, int iStepOffset) = 0;
 #endif // defined(USE_GPU)
 };

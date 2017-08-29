@@ -47,6 +47,7 @@ public:
             epochDuration(0),
             maxFiringRate(0),
             maxSynapsesPerNeuron(0),
+            minSynapticTransDelay(9),
             deltaT(DEFAULT_dt),
             maxRate(0),
 	    seed(0),
@@ -110,6 +111,9 @@ public:
 
 	//! Maximum number of synapses per neuron. **Only used by GPU simulation.**
 	int maxSynapsesPerNeuron;
+
+        //! The synaptic transmission delay (minimum), descretized into time steps
+        int minSynapticTransDelay;
 
 	//! Time elapsed between the beginning and end of the simulation step
 	BGFLOAT deltaT; // Inner Simulation Step Duration !!!!!!!!

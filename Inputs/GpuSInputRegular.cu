@@ -77,31 +77,28 @@ void GpuSInputRegular::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInf
  * Process input stimulus for each time step on GPU.
  *
  * @param[in] psi             Pointer to the simulation information.
- * @param[in] vtClrInfo       Vector of ClusterInfo.
+ * @param[in] pci             ClusterInfo class to read information from.
  */
-void GpuSInputRegular::inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
+void GpuSInputRegular::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci)
 {
     if (m_fSInput == false)
         return;
 
     // for each cluster
-    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
-        checkCudaErrors( cudaSetDevice( vtClrInfo[iCluster]->deviceId ) );
+    checkCudaErrors( cudaSetDevice( pci->deviceId ) );
 
-        ClusterInfo *pci = vtClrInfo[iCluster];
-        int neuron_count = pci->totalClusterNeurons;
+    int neuron_count = pci->totalClusterNeurons;
 
-        // CUDA parameters
-        const int threadsPerBlock = 256;
-        int blocksPerGrid; 
+    // CUDA parameters
+    const int threadsPerBlock = 256;
+    int blocksPerGrid; 
 
-        // add input to each summation point
-        blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-        inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->initValues_d, pci->nShiftValues_d, m_nStepsInCycle, m_nStepsCycle, m_nStepsDuration );
-    }
+    // add input to each summation point
+    blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
+    inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->initValues_d, pci->nShiftValues_d, pci->nStepsInCycle, m_nStepsCycle, m_nStepsDuration );
 
     // update cycle count
-    m_nStepsInCycle = (m_nStepsInCycle + 1) % m_nStepsCycle;
+    pci->nStepsInCycle = (pci->nStepsInCycle + 1) % m_nStepsCycle;
 }
 
 /*

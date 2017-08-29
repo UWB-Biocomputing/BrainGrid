@@ -60,9 +60,6 @@ protected:
     //! The number of time steps for one cycle of a stimulation
     int m_nStepsCycle;
 
-    //! The time step within a cycle of stimulation
-    int m_nStepsInCycle;
-
     //! The number of time steps for duration of a pulse.
     int m_nStepsDuration;
 

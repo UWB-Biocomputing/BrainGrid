@@ -282,34 +282,37 @@ void AllSpikingSynapses::createSynapse(const BGSIZE iSyn, int source_index, int 
  *  Checks if there is an input spike in the queue.
  *
  *  @param  iSyn   Index of the Synapse to connect to.
+ *  @param  iStepOffset  Offset from the current simulation step.
  *  @return true if there is an input spike event.
  */
-bool AllSpikingSynapses::isSpikeQueue(const BGSIZE iSyn)
+bool AllSpikingSynapses::isSpikeQueue(const BGSIZE iSyn, int iStepOffset)
 {
     int &total_delay = this->total_delay[iSyn];
 
     // Checks if there is an event in the queue.
-    return preSpikeQueue->checkAnEvent(iSyn, total_delay);
+    return preSpikeQueue->checkAnEvent(iSyn, total_delay, iStepOffset);
 }
 
 /*
  *  Prepares Synapse for a spike hit.
  *
  *  @param  iSyn   Index of the Synapse to update.
+ *  @param  iStepOffset  Offset from the current simulation step.
  *  @param  iCluster  Cluster ID of cluster where the spike is added.
  */
-void AllSpikingSynapses::preSpikeHit(const BGSIZE iSyn, const CLUSTER_INDEX_TYPE iCluster)
+void AllSpikingSynapses::preSpikeHit(const BGSIZE iSyn, const CLUSTER_INDEX_TYPE iCluster, int iStepOffset)
 {
     // Add to spike queue
-    preSpikeQueue->addAnEvent(iSyn, iCluster);
+    preSpikeQueue->addAnEvent(iSyn, iCluster, iStepOffset);
 }
 
 /*
  *  Prepares Synapse for a spike hit (for back propagation).
  *
  *  @param  iSyn   Index of the Synapse to update.
+ *  @param  iStepOffset  Offset from the current simulation step.
  */
-void AllSpikingSynapses::postSpikeHit(const BGSIZE iSyn)
+void AllSpikingSynapses::postSpikeHit(const BGSIZE iSyn, int iStepOffset)
 {
 }
 
@@ -319,18 +322,21 @@ void AllSpikingSynapses::postSpikeHit(const BGSIZE iSyn)
  *  @param  sim_info         SimulationInfo class to read information from.
  *  @param  neurons          The Neuron list to search from.
  *  @param  synapseIndexMap  Pointer to the synapse index map.
+ *  @param  iStepOffset      Offset from the current simulation step.
  */
-void AllSpikingSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap)
+void AllSpikingSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap, int iStepOffset)
 {
-    AllSynapses::advanceSynapses(sim_info, neurons, synapseIndexMap);
+    AllSynapses::advanceSynapses(sim_info, neurons, synapseIndexMap, iStepOffset);
 }
 
 /*
  * Advances synapses spike event queue state of the cluster one simulation step.
+ *
+ * @param iStep     simulation steps to advance.
  */
-void AllSpikingSynapses::advanceSpikeQueue()
+void AllSpikingSynapses::advanceSpikeQueue(int iStep)
 {
-    preSpikeQueue->advanceEventQueue();
+    preSpikeQueue->advanceEventQueue(iStep);
 }
 
 /*
@@ -339,16 +345,17 @@ void AllSpikingSynapses::advanceSpikeQueue()
  *  @param  iSyn      Index of the Synapse to connect to.
  *  @param  sim_info  SimulationInfo class to read information from.
  *  @param  neurons   The Neuron list to search from.
+ *  @param  iStepOffset  Offset from the current simulation step.
  */
-void AllSpikingSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons * neurons)
+void AllSpikingSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons * neurons, int iStepOffset)
 {
     BGFLOAT &decay = this->decay[iSyn];
     BGFLOAT &psr = this->psr[iSyn];
     BGFLOAT &summationPoint = *(this->summationPoint[iSyn]);
 
     // is an input in the queue?
-    if (isSpikeQueue(iSyn)) {
-        changePSR(iSyn, sim_info->deltaT);
+    if (isSpikeQueue(iSyn, iStepOffset)) {
+        changePSR(iSyn, sim_info->deltaT, iStepOffset);
     }
 
     // decay the post spike response
@@ -362,8 +369,9 @@ void AllSpikingSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo 
  *
  *  @param  iSyn        Index of the synapse to set.
  *  @param  deltaT      Inner simulation step duration.
+ *  @param  iStepOffset      Offset from the current simulation step.
  */
-void AllSpikingSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT)
+void AllSpikingSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset)
 {
     BGFLOAT &psr = this->psr[iSyn];
     BGFLOAT &W = this->W[iSyn];

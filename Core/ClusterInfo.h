@@ -125,6 +125,11 @@ class ClusterInfo
         curandState* devStates_d;
 #endif // USE_GPU
 
+        //! variables for stimulus input (Regular)
+
+        //! The time step within a cycle of stimulation
+        int nStepsInCycle;
+
         //! variables for stimulus input (Poisson)
 
         //! List of synapses for stimulus input (Poisson)

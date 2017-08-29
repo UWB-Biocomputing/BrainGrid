@@ -1,10 +1,14 @@
 #include "Cluster.h"
+#include "ISInput.h"
 
 // Initialize the Barrier Synchnonize object for advanceThreads.
 Barrier *Cluster::m_barrierAdvance = NULL;
 
 // Initialize the flag for advanceThreads. true if terminating advanceThreads.
 bool Cluster::m_isAdvanceExit = false;
+
+// Initialize the synaptic transmission delay, descretized into time steps.
+int Cluster::m_nSynapticTransDelay = 0;
 
 /*
  *  Constructor
@@ -110,59 +114,6 @@ void Cluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
 }
 
 /*
- *  Thread for advance a cluster.
- *
- *  @param  sim_info    SimulationInfo class to read information from.
- *  @param  clr_info    ClusterInfo class to read information from.
- */
-void Cluster::advanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info)
-{
-    while (true) {
-        // wait until the main thread notify that the advance is ready to go
-        // or exit if quit is posted.
-        m_barrierAdvance->Sync();
-
-        // Check if Cluster::quitAdvanceThread() is called
-        if (m_isAdvanceExit == true) {
-            break;
-        }
-
-        // Advances neurons network state one simulation step
-        advanceNeurons(sim_info, clr_info);
-
-        // We don't need barrier synchronization between advanceNeurons
-        // and advanceSynapses,
-        // because all incoming synapses should be in the same cluster of
-        // the target neuron. Therefore summation point of the neuron
-        // should not be modified from synapses of other clusters.  
-
-        // The above mention is not true. 
-        // When advanceNeurons and advanceSynapses in different clusters 
-        // are running concurrently, there might be race condition at
-        // event queues. For example, EventQueue::addAnEvent() is called
-        // from advanceNeurons in cluster 0 and EventQueue::checkAnEvent()
-        // is called from advanceSynapses in cluster 1. These functions
-        // contain memory read/write operation at event queue and 
-        // consequntltly data race happens. 
-
-        // wait until all threads are complete 
-        m_barrierAdvance->Sync();
-
-        // Advances synapses network state one simulation step
-        advanceSynapses(sim_info, clr_info);
-
-        // wait until all threads are complete 
-        m_barrierAdvance->Sync();
-
-        // Advance event queue state one simulation step
-        advanceSpikeQueue(clr_info);
-
-        // wait until all threads are complete 
-        m_barrierAdvance->Sync();
-    }
-}
-
-/*
  *  Create an advanceThread.
  *  If barrier synchronize object has not been created, create it.
  *
@@ -186,20 +137,89 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
 }
 
 /*
- *  Run advance of all waiting threads.
+ *  Thread for advance a cluster.
+ *
+ *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  clr_info    ClusterInfo class to read information from.
  */
-void Cluster::runAdvance()
+void Cluster::advanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    // notify all advanceThread that the advanceNeurons is ready to go
+    while (true) {
+        // wait until the main thread notify that the advance is ready to go
+        // or exit if quit is posted.
+        m_barrierAdvance->Sync();
+
+        // Check if Cluster::quitAdvanceThread() is called
+        if (m_isAdvanceExit == true) {
+            break;
+        }
+
+        // Advance neurons and synapses indepedently (without barrier synchronization)
+        // within synaptic transmission delay period. 
+        for (int iStepOffset = 0; iStepOffset < m_nSynapticTransDelay; iStepOffset++) {
+            if (sim_info->pInput != NULL) {
+                // input stimulus
+                sim_info->pInput->inputStimulus(sim_info, clr_info, iStepOffset);
+            }
+
+            // Advances neurons network state one simulation step
+            advanceNeurons(sim_info, clr_info, iStepOffset);
+
+            // When advanceNeurons and advanceSynapses in different clusters 
+            // are running concurrently, there might be race condition at
+            // event queues. For example, EventQueue::addAnEvent() is called
+            // from advanceNeurons in cluster 0 and EventQueue::checkAnEvent()
+            // is called from advanceSynapses in cluster 1. These functions
+            // contain memory read/write operation at event queue and 
+            // consequntltly data race happens. (host version)
+
+            // Now we could eliminate all barrier synchronization within
+            // synaptic transmission delay period, because
+            // EventQueue::addAnEvent() and EventQueue::checkAnEvent() handle
+            // atomic read/write operations.
+
+            // Advances synapses network state one simulation step
+            advanceSynapses(sim_info, clr_info, iStepOffset);
+        } // end synaptic transmission delay loop
+
+        // wait until all threads are complete the synaptic transmission delay loop
+        m_barrierAdvance->Sync();
+
+        // Transfer spiking data between clusters
+        processInterClustesSpikes(clr_info);
+
+        // wait until all threads are complete
+        m_barrierAdvance->Sync();
+
+        // Advance event queue state m_nSynapticTransDelay simulation steps
+        advanceSpikeQueue(sim_info, clr_info, m_nSynapticTransDelay);
+
+        // wait until all threads are complete 
+        m_barrierAdvance->Sync();
+    }
+}
+
+/*
+ *  Run advance of all waiting threads.
+ *
+ *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  iStep       Simulation steps to advance.
+ */
+void Cluster::runAdvance(const SimulationInfo *sim_info, int iStep)
+{
+    // set the synaptic transmission delay
+    m_nSynapticTransDelay = iStep;
+
+    // start advanceThread
     m_barrierAdvance->Sync();
 
-    // notify all advanceThread that the advanceSynapses is ready to go
+    // wait until the advance of all advanceThread complete the synaptic transmission delay loop
     m_barrierAdvance->Sync();
 
-    // notify all advanceThread that the advanceSpikeQueue is ready to go
+    // wait until the transfer spiking data between clusters complete
     m_barrierAdvance->Sync();
 
-    // wait until the advance of all advanceThread complete
+    // wait until the advance of event queue state
     m_barrierAdvance->Sync();
 }
 

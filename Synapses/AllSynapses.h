@@ -184,8 +184,9 @@ class AllSynapses : public IAllSynapses
          *  @param  sim_info         SimulationInfo class to read information from.
          *  @param  neurons          The Neuron list to search from.
          *  @param  synapseIndexMap  Pointer to the synapse index map.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap);
+        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap, int iStepOffset);
 
         /**
          *  Remove a synapse from the network.

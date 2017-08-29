@@ -47,7 +47,10 @@ public:
     virtual void term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     // Process input stimulus for each time step.
-    virtual void inputStimulus(const SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
+    virtual void inputStimulus(const SimulationInfo* psi, ClusterInfo *pci, int iStepOffset);
+
+    // Process input stimulus for each time step.
+    virtual void advanceSInputState(const ClusterInfo *pci, int iStep);
 
 private:
 };

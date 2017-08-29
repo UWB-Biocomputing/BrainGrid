@@ -156,22 +156,26 @@ void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_in
   DEBUG_MID(sim_info->model->logSimStep(sim_info);) // Generic model debug call
 
     while (g_simulationStep < endStep) {
+      // incremental step
+      int iStep = endStep - g_simulationStep;
+      iStep = (iStep < sim_info->minSynapticTransDelay) ? iStep : sim_info->minSynapticTransDelay;
+
       DEBUG_LOW(
 		// Output status once every 10,000 steps
-		if (count % 10000 == 0)
+		if (count % 10000 < static_cast<uint64_t>(iStep))
 		  {
 		    cout << currentStep << "/" << sim_info->maxSteps
 			 << " simulating time: "
-			 << g_simulationStep * sim_info->deltaT << endl;
+			 << static_cast<int>(g_simulationStep * sim_info->deltaT) << endl;
 		    count = 0;
 		  }
-		count++;
+		count += iStep;
 		)
 
       // Advance the Network one time step
-      sim_info->model->advance(sim_info);
+      sim_info->model->advance(sim_info, iStep);
 
-      g_simulationStep++;
+      g_simulationStep += iStep;
     }
 }
 

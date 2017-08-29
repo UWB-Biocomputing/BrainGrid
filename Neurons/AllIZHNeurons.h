@@ -292,16 +292,18 @@ class AllIZHNeurons : public AllIFNeurons
          *  @param  index            Index of the neuron to update.
          *  @param  sim_info         SimulationInfo class to read information from.
          *  @param  clr_info         ClusterInfo class to read information from.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        virtual void advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset);
 
         /**
          *  Initiates a firing of a neuron to connected neurons.
          *
          *  @param  index            Index of the neuron to fire.
          *  @param  sim_info         SimulationInfo class to read information from.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void fire(const int index, const SimulationInfo *sim_info) const;
+        virtual void fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const;
 #endif  // defined(USE_GPU)
 
     protected:

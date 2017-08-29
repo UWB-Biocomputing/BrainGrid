@@ -104,33 +104,36 @@ class Cluster
          *
          * @param sim_info   parameters defining the simulation to be run with 
          *                   the given collection of neurons.
+         * @param clr_info   ClusterInfo to refer.
+         * @param iStepOffset  offset from the current simulation step.
+         */
+        virtual void advanceNeurons(const SimulationInfo *sim_info, ClusterInfo *clr_info, int iStepOffset) = 0;
+
+        /**
+         * Transfer spiking data between clusters.
+         *
          * @param  clr_info  ClusterInfo to refer.
          */
-        virtual void advanceNeurons(const SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
+        virtual void processInterClustesSpikes(ClusterInfo *clr_info) = 0;
 
         /**
          * Advances synapses network state of the cluster one simulation step.
          *
          * @param sim_info - parameters defining the simulation to be run with 
          *                   the given collection of neurons.
-         * @param  clr_info  ClusterInfo to refer.
+         * @param clr_info - ClusterInfo to refer.
+         * @param iStepOffset - offset from the current simulation step.
          */
-        virtual void advanceSynapses(const SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
+        virtual void advanceSynapses(const SimulationInfo *sim_info, ClusterInfo *clr_info, int iStepOffset) = 0;
 
         /**
-         * Advances synapses spike event queue state of the cluster one simulation step.
+         * Advances synapses spike event queue state of the cluster.
          *
-         *  @param  clr_info    ClusterInfo class to read information from.
+         * @param sim_info    - SimulationInfo class to read information from.
+         * @param clr_info    - ClusterInfo class to read information from.
+         * @param iStep       - simulation step to advance.
          */
-        virtual void advanceSpikeQueue(const ClusterInfo *clr_info) = 0;
-
-        /**
-         *  Thread for advance a cluster.
-         *
-         *  @param  sim_info    SimulationInfo class to read information from.
-         *  @param  clr_info    ClusterInfo class to read information from.
-         */
-        void advanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info);
+        virtual void advanceSpikeQueue(const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStep) = 0;
 
         /**
          *  Create an advanceThread.
@@ -143,9 +146,20 @@ class Cluster
         void createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info, int count);
 
         /**
-         *  Run advance of all waiting threads.
+         *  Thread for advance a cluster.
+         *
+         *  @param  sim_info    SimulationInfo class to read information from.
+         *  @param  clr_info    ClusterInfo class to read information from.
          */
-        static void runAdvance();
+        void advanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
+         *  Run advance of all waiting threads.
+         *
+         *  @param  sim_info    SimulationInfo class to read information from.
+         *  @param  iStep       Simulation steps to advance.
+         */
+        static void runAdvance(const SimulationInfo *sim_info, int iStep);
 
         /**
          *  Quit all advanceThread.
@@ -178,4 +192,9 @@ class Cluster
          *  Flag for advanceThreads. true if terminating advanceThreads.
          */
         static bool m_isAdvanceExit;
+
+        /**
+         * The synaptic transmission delay, descretized into time steps
+         */
+        static int m_nSynapticTransDelay;
 };

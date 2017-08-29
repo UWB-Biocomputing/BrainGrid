@@ -255,16 +255,12 @@ Layout* Model::getLayout()
  *  means advancing just the Neurons and Synapses.
  *
  *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  iStep       Simulation steps to advance.
  */
-void Model::advance(const SimulationInfo *sim_info)
+void Model::advance(const SimulationInfo *sim_info, int iStep)
 {
-    // input stimulus
-    if (sim_info->pInput != NULL) {
-      sim_info->pInput->inputStimulus(sim_info, m_vtClrInfo);
-    }
-
     // run advance of all waiting threads
-    Cluster::runAdvance();
+    Cluster::runAdvance(sim_info, iStep);
 }
 
 /*

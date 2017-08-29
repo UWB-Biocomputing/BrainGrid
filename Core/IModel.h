@@ -96,9 +96,10 @@ class IModel {
         /**
          * Advances network state one simulation step.
          *
-         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         * @param sim_info    SimulationInfo class to read information from.
+         * @param  iStep      Simulation steps to advance.
          */
-        virtual void advance(const SimulationInfo *sim_info) = 0;
+        virtual void advance(const SimulationInfo *sim_info, int iStep) = 0;
 
         /**
          * Modifies connections between neurons based on current state of the network and behavior

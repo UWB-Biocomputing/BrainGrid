@@ -119,11 +119,12 @@ class EventQueue
          *
          * @param idx       The queue index of the collection.
          * @param clusterID The cluster ID where the event to be added.
+         * @param iStepOffset  offset from the current simulation step.
          */
 #if !defined(USE_GPU)
-        void addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID);
+        void addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID, int iStepOffset);
 #else // USE_GPU
-        __device__ void addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID);
+        __device__ void addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID, int iStepOffset);
 #endif // USE_GPU
 
         /**
@@ -131,25 +132,28 @@ class EventQueue
          *
          * @param idx   The queue index of the collection.
          * @param delay The delay descretized into time steps when the event will be triggered.
+         * @param iStepOffset  offset from the current simulation step.
          */
-        CUDA_CALLABLE void addAnEvent(const BGSIZE idx, const int delay);
+        CUDA_CALLABLE void addAnEvent(const BGSIZE idx, const int delay, int iStepOffset);
 
         /**
          * Checks if there is an event in the queue.
          *
          * @param idx The queue index of the collection.
+         * @param iStepOffset  offset from the current simulation step.
          * @return true if there is an event.
          */
-        CUDA_CALLABLE bool checkAnEvent(const BGSIZE);
+        CUDA_CALLABLE bool checkAnEvent(const BGSIZE, int iStepOffset);
 
         /**
          * Checks if there is an event in the queue.
          *
          * @param idx   The queue index of the collection.
          * @param delay The delay descretized into time steps when the event will be triggered.
+         * @param iStepOffset  offset from the current simulation step.
          * @return true if there is an event.
          */
-        CUDA_CALLABLE bool checkAnEvent(const BGSIZE idx, const int delay);
+        CUDA_CALLABLE bool checkAnEvent(const BGSIZE idx, const int delay, int iStepOffset);
 
         /**
          * Clears events in the queue.
@@ -161,8 +165,9 @@ class EventQueue
         /**
          * Advance one simulation step.
          *
+         * @param iStep        simulation step to advance.
          */
-        CUDA_CALLABLE void advanceEventQueue();
+        CUDA_CALLABLE void advanceEventQueue(int iStep);
 
         /**
          * Register an event handler.

@@ -281,12 +281,13 @@ synapseType AllSynapses::synapseOrdinalToType(const int type_ordinal)
  *  @param  sim_info         SimulationInfo class to read information from.
  *  @param  neurons          The Neuron list to search from.
  *  @param  synapseIndexMap  Pointer to the synapse index map.
+ *  @param  iStepOffset      Offset from the current simulation step.
  */
-void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap)
+void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap, int iStepOffset)
 {
     for (BGSIZE i = 0; i < total_synapse_counts; i++) {
         BGSIZE iSyn = synapseIndexMap->incomingSynapseIndexMap[i];
-        advanceSynapse(iSyn, sim_info, neurons);
+        advanceSynapse(iSyn, sim_info, neurons, iStepOffset);
     }
 }
 

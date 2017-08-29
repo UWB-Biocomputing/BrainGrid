@@ -614,8 +614,9 @@ void AllIZHNeurons::writeNeuron(ostream& output, int i) const
  *  @param  index       Index of the Neuron to update.
  *  @param  sim_info    SimulationInfo class to read information from.
  *  @param  clr_info    ClusterInfo class to read information from.
+ *  @param  iStepOffset      Offset from the current simulation step.
  */
-void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
 {
     BGFLOAT &Vm = this->Vm[index];
     BGFLOAT &Vthresh = this->Vthresh[index];
@@ -636,7 +637,7 @@ void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
         --nStepsInRefr;
     } else if (Vm >= Vthresh) {
         // should it fire?
-        fire(index, sim_info);
+        fire(index, sim_info, iStepOffset);
     } else {
         summationPoint += I0; // add IO
         // add noise
@@ -680,11 +681,12 @@ void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
  *
  *  @param  index       Index of the Neuron to update.
  *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  iStepOffset      Offset from the current simulation step.
  */
-void AllIZHNeurons::fire(const int index, const SimulationInfo *sim_info) const
+void AllIZHNeurons::fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const
 {
     const BGFLOAT deltaT = sim_info->deltaT;
-    AllSpikingNeurons::fire(index, sim_info);
+    AllSpikingNeurons::fire(index, sim_info, iStepOffset);
 
     // calculate the number of steps in the absolute refractory period
     BGFLOAT &Vm = this->Vm[index];

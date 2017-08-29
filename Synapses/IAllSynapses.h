@@ -247,8 +247,9 @@ class IAllSynapses
          *  @param  sim_info         SimulationInfo class to read information from.
          *  @param  neurons          The Neuron list to search from.
          *  @param  synapseIndexMap  Pointer to the synapse index map.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap) = 0;
+        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap, int iStepOffset) = 0;
 
         /**
          *  Advance one specific Synapse.
@@ -256,8 +257,9 @@ class IAllSynapses
          *  @param  iSyn      Index of the Synapse to connect to.
          *  @param  sim_info  SimulationInfo class to read information from.
          *  @param  neurons   The Neuron list to search from.
+         *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons) = 0;
+        virtual void advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons, int iStepOffset) = 0;
 
         /**
          *  Remove a synapse from the network.

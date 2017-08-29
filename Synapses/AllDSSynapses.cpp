@@ -254,8 +254,9 @@ void AllDSSynapses::createSynapse(const BGSIZE iSyn, int source_index, int dest_
  *
  *  @param  iSyn        Index of the synapse to set.
  *  @param  deltaT      Inner simulation step duration.
+ *  @param  iStepOffset      Offset from the current simulation step.
  */
-void AllDSSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT)
+void AllDSSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset)
 {
     BGFLOAT &psr = this->psr[iSyn];
     BGFLOAT &W = this->W[iSyn];
@@ -268,13 +269,14 @@ void AllDSSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT)
     BGFLOAT &U = this->U[iSyn];
 
     // adjust synapse parameters
+    uint64_t simulationStep = g_simulationStep + iStepOffset;
     if (lastSpike != ULONG_MAX) {
-        BGFLOAT isi = (g_simulationStep - lastSpike) * deltaT ;
+        BGFLOAT isi = (simulationStep - lastSpike) * deltaT ;
         r = 1 + ( r * ( 1 - u ) - 1 ) * exp( -isi / D );
         u = U + u * ( 1 - U ) * exp( -isi / F );
     }
     psr += ( ( W / decay ) * u * r );    // calculate psr
-    lastSpike = g_simulationStep;        // record the time of the spike
+    lastSpike = simulationStep;          // record the time of the spike
 }
 
 #endif // !defined(USE_GPU)

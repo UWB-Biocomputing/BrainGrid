@@ -129,8 +129,9 @@ void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info, const C
  *  @param  sim_info         SimulationInfo class to read information from.
  *  @param  synapseIndexMap  Reference to the SynapseIndexMap.
  *  @param  clr_info         ClusterInfo class to read information from.
+ *  @param  iStepOffset      Offset from the current simulation step.
  */
-void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap, const ClusterInfo *clr_info)
+void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap, const ClusterInfo *clr_info, int iStepOffset)
 {
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
@@ -138,11 +139,11 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
     // For each neuron in the network
     for (int idx = clr_info->totalClusterNeurons - 1; idx >= 0; --idx) {
         // advance neurons
-        advanceNeuron(idx, sim_info, clr_info);
+        advanceNeuron(idx, sim_info, clr_info, iStepOffset);
 
         // notify outgoing/incomming synapses if neuron has fired
         if (hasFired[idx]) {
-            DEBUG_MID(cout << " !! Neuron" << idx << "has Fired @ t: " << g_simulationStep * sim_info->deltaT << endl;)
+            DEBUG_MID(cout << " !! Neuron" << idx << "has Fired @ t: " << (g_simulationStep + iStepOffset) * sim_info->deltaT << endl;)
 
             assert( spikeCount[idx] < max_spikes );
 
@@ -159,7 +160,7 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
                         // outgoing synapse index consists of cluster index + synapse index
                         CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIndex(idx);
                         BGSIZE iSyn = SynapseIndexMap::getSynapseIndex(idx);
-                        spSynapses.preSpikeHit(iSyn, iCluster);
+                        spSynapses.preSpikeHit(iSyn, iCluster, iStepOffset);
                     }
                 }
 
@@ -172,7 +173,7 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
           
                     for ( BGSIZE i = 0; i < synapse_counts; i++ ) {
                         BGSIZE iSyn = incomingMap_begin[i];
-                        spSynapses.postSpikeHit(iSyn);
+                        spSynapses.postSpikeHit(iSyn, iStepOffset);
                     }
                 }
             }
@@ -187,21 +188,23 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
  *
  *  @param  index       Index of the Neuron to update.
  *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  iStepOffset      Offset from the current simulation step.
  */
-void AllSpikingNeurons::fire(const int index, const SimulationInfo *sim_info) const
+void AllSpikingNeurons::fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const
 {
     // Note that the neuron has fired!
     hasFired[index] = true;
     
     // record spike time
+    uint64_t simulationStep = g_simulationStep + iStepOffset;
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
     int idxSp = (spikeCount[index] + spikeCountOffset[index]) % max_spikes;
-    spike_history[index][idxSp] = g_simulationStep;
+    spike_history[index][idxSp] = simulationStep;
 
     DEBUG_SYNAPSE(
         cout << "AllSpikingNeurons::fire:" << endl;
         cout << "          index: " << index << endl;
-        cout << "          g_simulationStep: " << g_simulationStep << endl << endl;
+        cout << "          simulationStep: " << simulationStep << endl << endl;
     );
     
     // increment spike count and total spike count

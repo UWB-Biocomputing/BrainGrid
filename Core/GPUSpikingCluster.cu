@@ -211,11 +211,26 @@ void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterIn
   cudaLapTime(clr_info, clr_info->t_gpu_advanceNeurons);
 #endif // PERFORMANCE_METRICS
 
+}
+
+/*
+ * Transfer spiking data between clusters.
+ *
+ * @param  clr_info  ClusterInfo to refer.
+ */
+void GPUSpikingCluster::processInterClustesSpikes(ClusterInfo *clr_info)
+{
+  // Set device ID
+  checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
+
   // wait until all CUDA related tasks complete
   checkCudaErrors( cudaDeviceSynchronize() );
 
   // process inter clusters outgoing spikes
   dynamic_cast<AllSpikingSynapses*>(m_synapses)->processInterClustesOutgoingSpikes(m_allSynapsesDevice);
+
+  // process inter clusters incoming spikes
+  dynamic_cast<AllSpikingSynapses*>(m_synapses)->processInterClustesIncomingSpikes(m_allSynapsesDevice);
 }
 
 /*
@@ -229,9 +244,6 @@ void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, ClusterI
 {
   // Set device ID
   checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
-
-  // process inter clusters incoming spikes
-  dynamic_cast<AllSpikingSynapses*>(m_synapses)->processInterClustesIncomingSpikes(m_allSynapsesDevice);
 
 #ifdef PERFORMANCE_METRICS
   cudaStartTimer(clr_info);
