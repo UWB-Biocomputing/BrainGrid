@@ -129,4 +129,9 @@ class ClusterInfo
 
         //! List of synapses for stimulus input (Poisson)
         IAllSynapses *synapsesSInput;
+
+#if !defined(USE_GPU)
+        //! A random number generator used in stimulus input (Poisson)
+        MTRand *rng;
+#endif // !USE_GPU
 };

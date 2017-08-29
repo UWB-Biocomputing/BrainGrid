@@ -29,6 +29,9 @@ void SingleThreadedCluster::setupCluster(SimulationInfo *sim_info, Layout *layou
     // Create a normalized random number generator
     // TODO: we will have the way to specify seed value of each cluster separately.
     clr_info->normRand = new Norm(0, 1, clr_info->seed + clr_info->clusterID); 
+
+    // Create a random number generator used in stimulus input (Poisson)
+    clr_info->rng = new MTRand(clr_info->seed + clr_info->clusterID);
 }
 
 /*
@@ -41,6 +44,9 @@ void SingleThreadedCluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo
 {
     // delete a normalized random number generator
     delete clr_info->normRand;
+
+    // delete a random number generator used in stimulus input (Poisson)
+    delete clr_info->rng;
 
     Cluster::cleanupCluster(sim_info, clr_info);
 }

@@ -84,10 +84,10 @@ void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, vector<ClusterI
                 dynamic_cast<AllSpikingSynapses*>(clr_info->synapsesSInput)->preSpikeHit(iSyn, vtClrInfo[iCluster]->clusterID);
 
                 // update interval counter (exponectially distribution ISIs, Poisson)
-                BGFLOAT isi = -m_lambda * log(rng.inRange(0, 1));
+                BGFLOAT isi = -m_lambda * log(clr_info->rng->inRange(0, 1));
                 // delete isi within refractoriness
-                while (rng.inRange(0, 1) <= exp(-(isi*isi)/32))
-                    isi = -m_lambda * log(rng.inRange(0, 1));
+                while (clr_info->rng->inRange(0, 1) <= exp(-(isi*isi)/32))
+                    isi = -m_lambda * log(clr_info->rng->inRange(0, 1));
                 // convert isi from msec to steps
                 m_nISIs[neuronLayoutIndex] = static_cast<int>( (isi / 1000) / psi->deltaT + 0.5 );
             }
