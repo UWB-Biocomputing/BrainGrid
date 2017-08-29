@@ -94,9 +94,9 @@ void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, vector<ClusterI
 
             // process synapse & apply psr to the summation point
             (clr_info->synapsesSInput)->advanceSynapse(iSyn, psi, NULL);
-
-            // Advances synapses pre spike event queue state of the cluster one simulation step
-            dynamic_cast<AllSpikingSynapses*>(clr_info->synapsesSInput)->advanceSpikeQueue();
         }
+
+        // Advances synapses pre spike event queue state of the cluster one simulation step
+        dynamic_cast<AllSpikingSynapses*>(clr_info->synapsesSInput)->advanceSpikeQueue();
     }
 }
