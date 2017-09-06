@@ -78,12 +78,3 @@ void HostSInputRegular::inputStimulus(const SimulationInfo* psi, ClusterInfo *pc
     pci->nStepsInCycle = (pci->nStepsInCycle + 1) % m_nStepsCycle;
 }
 
-/*
- * Advance input stimulus state.
- *
- * @param[in] pci             ClusterInfo class to read information from.
- * @param[in] iStep           Simulation steps to advance.
- */
-void HostSInputRegular::advanceSInputState(const ClusterInfo *pci, int iStep)
-{
-}

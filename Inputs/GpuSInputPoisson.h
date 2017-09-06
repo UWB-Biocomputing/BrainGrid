@@ -49,8 +49,10 @@ public:
     virtual void term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     //! Process input stimulus for each time step.
-    virtual void inputStimulus(const SimulationInfo* psi, ClusterInfo *pci);
+    virtual void inputStimulus(const SimulationInfo* psi, ClusterInfo *pci, int iStepOffset);
 
+    //! Advance input stimulus state.
+    virtual void advanceSInputState(const ClusterInfo *pci, int iStep);
 private:
     //! Allocate GPU device memory and copy values
     void allocDeviceValues( SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo, int *nISIs );
@@ -61,7 +63,7 @@ private:
 
 #if defined(__CUDACC__)
 //! Device function that processes input stimulus for each time step.
-extern __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapsesDeviceProperties* allSynapsesDevice, CLUSTER_INDEX_TYPE clusterID );
+extern __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapsesDeviceProperties* allSynapsesDevice, CLUSTER_INDEX_TYPE clusterID, int iStepOffset );
 extern __global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapsesDeviceProperties* allSynapsesDevice );
 extern __global__ void setupSeeds( int n, curandState* devStates_d, unsigned long seed );
 #endif

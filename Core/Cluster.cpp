@@ -185,8 +185,14 @@ void Cluster::advanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_inf
         // wait until all threads are complete the synaptic transmission delay loop
         m_barrierAdvance->Sync();
 
-        // Transfer spiking data between clusters
-        processInterClustesSpikes(clr_info);
+        // Process outgoing spiking data between clusters
+        processInterClustesOutgoingSpikes(clr_info);
+
+        // wait until all threads are complete
+        m_barrierAdvance->Sync();
+
+        // Process incoming spiking data between clusters
+        processInterClustesIncomingSpikes(clr_info);
 
         // wait until all threads are complete
         m_barrierAdvance->Sync();
@@ -216,7 +222,10 @@ void Cluster::runAdvance(const SimulationInfo *sim_info, int iStep)
     // wait until the advance of all advanceThread complete the synaptic transmission delay loop
     m_barrierAdvance->Sync();
 
-    // wait until the transfer spiking data between clusters complete
+    // wait until the process outgoing spiking data between clusters complete
+    m_barrierAdvance->Sync();
+
+    // wait until the process incoming spiking data between clusters complete
     m_barrierAdvance->Sync();
 
     // wait until the advance of event queue state

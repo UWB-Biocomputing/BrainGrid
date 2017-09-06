@@ -78,8 +78,9 @@ void GpuSInputRegular::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInf
  *
  * @param[in] psi             Pointer to the simulation information.
  * @param[in] pci             ClusterInfo class to read information from.
+ * @param[in] iStepOffset     Offset from the current simulation step.
  */
-void GpuSInputRegular::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci)
+void GpuSInputRegular::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci, int iStepOffset)
 {
     if (m_fSInput == false)
         return;

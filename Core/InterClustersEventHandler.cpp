@@ -47,7 +47,7 @@ void InterClustersEventHandler::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX
 #if !defined(USE_GPU)
     m_vtEventQueue->at(clusterID)->addAnEvent(idx, clusterID, iStepOffset);
 #else // USE_GPU
-    m_vtEventQueue->at(clusterID)->addAnInterClustersIncomingEvent(idx);
+    m_vtEventQueue->at(clusterID)->addAnInterClustersIncomingEvent(idx, iStepOffset);
 #endif // USE_GPU
 }
 

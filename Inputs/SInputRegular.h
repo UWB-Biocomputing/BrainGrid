@@ -47,6 +47,9 @@ public:
     //! Terminate process.
     virtual void term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
+    //! Advance input stimulus state.
+    virtual void advanceSInputState(const ClusterInfo *pci, int iStep);
+
 protected:
     //! True if stimuls input is on.
     bool m_fSInput;

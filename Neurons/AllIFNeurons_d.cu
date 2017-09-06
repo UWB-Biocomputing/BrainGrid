@@ -275,7 +275,8 @@ void AllIFNeurons::copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, co
  *  @param  randNoise              Reference to the random noise array.
  *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
  *  @param  clr_info               ClusterInfo to refer from.
+ *  @param  iStepOffset            Offset from the current simulation step.
  */
-void AllIFNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info )
+void AllIFNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset )
 {
 }

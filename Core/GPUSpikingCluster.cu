@@ -25,6 +25,7 @@
  \** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - **/
 
 #include "GPUSpikingCluster.h"
+#include "ISInput.h"
 
 // ----------------------------------------------------------------------------
 
@@ -185,9 +186,10 @@ void GPUSpikingCluster::deserialize(istream& input, const SimulationInfo *sim_in
  *
  * @param sim_info   parameters defining the simulation to be run with
  *                   the given collection of neurons.
- * @param  clr_info  ClusterInfo to refer.
+ * @param clr_info   ClusterInfo to refer.
+ * @param iStepOffset  Offset from the current simulation step.
  */
-void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterInfo *clr_info)
+void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterInfo *clr_info, int iStepOffset)
 {
   // Set device ID
   checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
@@ -205,7 +207,7 @@ void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterIn
 #endif // PERFORMANCE_METRICS
 
   // Advance neurons ------------->
-  m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoise_d, m_synapseIndexMapDevice, clr_info);
+  m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoise_d, m_synapseIndexMapDevice, clr_info, iStepOffset);
 
 #ifdef PERFORMANCE_METRICS
   cudaLapTime(clr_info, clr_info->t_gpu_advanceNeurons);
@@ -214,11 +216,11 @@ void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterIn
 }
 
 /*
- * Transfer spiking data between clusters.
+ * Process outgoing spiking data between clusters.
  *
  * @param  clr_info  ClusterInfo to refer.
  */
-void GPUSpikingCluster::processInterClustesSpikes(ClusterInfo *clr_info)
+void GPUSpikingCluster::processInterClustesOutgoingSpikes(ClusterInfo *clr_info)
 {
   // Set device ID
   checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
@@ -228,6 +230,20 @@ void GPUSpikingCluster::processInterClustesSpikes(ClusterInfo *clr_info)
 
   // process inter clusters outgoing spikes
   dynamic_cast<AllSpikingSynapses*>(m_synapses)->processInterClustesOutgoingSpikes(m_allSynapsesDevice);
+}
+
+/*
+ * Process incoming spiking data between clusters.
+ *
+ * @param  clr_info  ClusterInfo to refer.
+ */
+void GPUSpikingCluster::processInterClustesIncomingSpikes(ClusterInfo *clr_info)
+{
+  // Set device ID
+  checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
+
+  // wait until all CUDA related tasks complete
+  checkCudaErrors( cudaDeviceSynchronize() );
 
   // process inter clusters incoming spikes
   dynamic_cast<AllSpikingSynapses*>(m_synapses)->processInterClustesIncomingSpikes(m_allSynapsesDevice);
@@ -238,9 +254,10 @@ void GPUSpikingCluster::processInterClustesSpikes(ClusterInfo *clr_info)
  *
  * @param sim_info   parameters defining the simulation to be run with
  *                   the given collection of neurons.
- * @param  clr_info  ClusterInfo to refer.
+ * @param clr_info   ClusterInfo to refer.
+ * @param iStepOffset  Offset from the current simulation step.
  */
-void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, ClusterInfo *clr_info)
+void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, ClusterInfo *clr_info, int iStepOffset)
 {
   // Set device ID
   checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
@@ -250,7 +267,7 @@ void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, ClusterI
 #endif // PERFORMANCE_METRICS
 
   // Advance synapses ------------->
-  m_synapses->advanceSynapses(m_allSynapsesDevice, m_allNeuronsDevice, m_synapseIndexMapDevice, sim_info, clr_info);
+  m_synapses->advanceSynapses(m_allSynapsesDevice, m_allNeuronsDevice, m_synapseIndexMapDevice, sim_info, clr_info, iStepOffset);
 
 #ifdef PERFORMANCE_METRICS
   cudaLapTime(clr_info, clr_info->t_gpu_advanceSynapses);
@@ -271,15 +288,23 @@ void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, ClusterI
 /*
  * Advances synapses spike event queue state of the cluster one simulation step.
  *
+ * @param sim_info - parameters defining the simulation to be run with
+ *                   the given collection of neurons.
  * @param clr_info - parameters defining the simulation to be run with
  *                   the given collection of neurons.
+ * @param iStep    - simulation steps to advance.
  */
-void GPUSpikingCluster::advanceSpikeQueue(const ClusterInfo *clr_info)
+void GPUSpikingCluster::advanceSpikeQueue(const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStep)
 {
   // Set device ID
   checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
 
-  (dynamic_cast<AllSpikingSynapses*>(m_synapses))->advanceSpikeQueue(m_allSynapsesDevice);
+  (dynamic_cast<AllSpikingSynapses*>(m_synapses))->advanceSpikeQueue(m_allSynapsesDevice, iStep);
+
+  if (sim_info->pInput != NULL) {
+      // advance input stimulus state
+      sim_info->pInput->advanceSInputState(clr_info, iStep);
+  }
 
   // wait until all CUDA related tasks complete
   checkCudaErrors( cudaDeviceSynchronize() );

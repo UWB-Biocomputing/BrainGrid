@@ -67,11 +67,20 @@ void SingleThreadedCluster::advanceNeurons(const SimulationInfo *sim_info, Clust
 }
 
 /*
- * Transfer spiking data between clusters.
+ * Process outgoing spiking data between clusters.
  *
  * @param  clr_info  ClusterInfo to refer.
  */
-void SingleThreadedCluster::processInterClustesSpikes(ClusterInfo *clr_info)
+void SingleThreadedCluster::processInterClustesOutgoingSpikes(ClusterInfo *clr_info)
+{
+}
+
+/*
+ * Process incoming spiking data between clusters.
+ *
+ * @param  clr_info  ClusterInfo to refer.
+ */
+void SingleThreadedCluster::processInterClustesIncomingSpikes(ClusterInfo *clr_info)
 {
 }
 

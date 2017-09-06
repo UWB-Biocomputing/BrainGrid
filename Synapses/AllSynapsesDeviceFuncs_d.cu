@@ -37,8 +37,9 @@ __device__ void changeSpikingSynapsesPSRDevice(AllSpikingSynapsesDevicePropertie
  *  @param  iSyn               Index of the synapse to set.
  *  @param  simulationStep     The current simulation step.
  *  @param  deltaT             Inner simulation step duration.
+ *  @param  iStepOffset        Offset from the current simulation step.
  */
-__device__ void changeDSSynapsePSRDevice(AllDSSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
+__device__ void changeDSSynapsePSRDevice(AllDSSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT, int iStepOffset)
 {
     //assert( iSyn < allSynapsesDevice->maxSynapsesPerNeuron * allSynapsesDevice->count_neurons );
 
@@ -54,12 +55,12 @@ __device__ void changeDSSynapsePSRDevice(AllDSSynapsesDeviceProperties* allSynap
 
     // adjust synapse parameters
     if (lastSpike != ULONG_MAX) {
-            BGFLOAT isi = (simulationStep - lastSpike) * deltaT ;
+            BGFLOAT isi = (simulationStep + iStepOffset - lastSpike) * deltaT ;
             r = 1 + ( r * ( 1 - u ) - 1 ) * exp( -isi / D );
             u = U + u * ( 1 - U ) * exp( -isi / F );
     }
     psr += ( ( W / decay ) * u * r );// calculate psr
-    lastSpike = simulationStep; // record the time of the spike
+    lastSpike = simulationStep + iStepOffset; // record the time of the spike
 }
 
 /*     
@@ -68,14 +69,15 @@ __device__ void changeDSSynapsePSRDevice(AllDSSynapsesDeviceProperties* allSynap
  *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
  *                                   on device memory.
  *  @param[in] iSyn                  Index of the Synapse to check.
+ *  @param[in] iStepOffset           Offset from the current simulation step.
  *  @return true if there is an input spike event.
  */
-__device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn)
+__device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn, int iStepOffset)
 {
     int &total_delay = allSynapsesDevice->total_delay[iSyn];
 
     // Checks if there is an event in the queue.
-    return allSynapsesDevice->preSpikeQueue->checkAnEvent(iSyn, total_delay);
+    return allSynapsesDevice->preSpikeQueue->checkAnEvent(iSyn, total_delay, iStepOffset);
 }
 
 /*     
@@ -137,11 +139,12 @@ __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesD
  *  @param[in] allSynapsesDevice     Pointer to AllSTDPSynapsesDeviceProperties structures 
  *                                   on device memory.
  *  @param[in] iSyn                  Index of the Synapse to check.
+ *  @param[in] iStepOffset           Offset from the current simulation step.
  *  @return true if there is an input spike event.
  */
-__device__ bool isSTDPSynapseSpikeQueuePostDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn)
+__device__ bool isSTDPSynapseSpikeQueuePostDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn, int iStepOffset)
 {
-    return allSynapsesDevice->postSpikeQueue->checkAnEvent(iSyn);
+    return allSynapsesDevice->postSpikeQueue->checkAnEvent(iSyn, iStepOffset);
 }
 
 /*
@@ -175,8 +178,9 @@ __device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeuronsDeviceProp
  *  @param[in] deltaT                Inner simulation step duration.
  *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
  *                                   on device memory.
+ *  @param[in] iStepOffset           Offset from the current simulation step.
  */
-__global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
+__global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int iStepOffset ) {
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= total_synapse_counts )
                 return;
@@ -187,7 +191,7 @@ __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, Synapse
         BGFLOAT decay = allSynapsesDevice->decay[iSyn];
 
         // Checks if there is an input spike in the queue.
-        bool isFired = isSpikingSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn);
+        bool isFired = isSpikingSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn, iStepOffset);
 
         // is an input in the queue?
         if (isFired) {
@@ -196,7 +200,7 @@ __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, Synapse
                        changeSpikingSynapsesPSRDevice(static_cast<AllSpikingSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
                         break;
                 case classAllDSSynapses:
-                        changeDSSynapsePSRDevice(static_cast<AllDSSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
+                        changeDSSynapsePSRDevice(static_cast<AllDSSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT, iStepOffset);
                         break;
                 default:
                         assert(false);
@@ -216,8 +220,9 @@ __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, Synapse
  *  @param[in] deltaT                Inner simulation step duration.
  *  @param[in] allSynapsesDevice     Pointer to AllSTDPSynapsesDeviceProperties structures 
  *                                   on device memory.
+ *  @param[in] iStepOffset           Offset from the current simulation step.
  */
-__global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapsesDeviceProperties* allSynapsesDevice, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int max_spikes, int width ) {
+__global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapsesDeviceProperties* allSynapsesDevice, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int max_spikes, int width, int iStepOffset ) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= total_synapse_counts )
             return;
@@ -228,8 +233,8 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
     BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
 
     // is an input in the queue?
-    bool fPre = isSpikingSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn);
-    bool fPost = isSTDPSynapseSpikeQueuePostDevice(allSynapsesDevice, iSyn);
+    bool fPre = isSpikingSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn, iStepOffset);
+    bool fPost = isSTDPSynapseSpikeQueuePostDevice(allSynapsesDevice, iSyn, iStepOffset);
     if (fPre || fPost) {
         BGFLOAT &tauspre = allSynapsesDevice->tauspre[iSyn];
         BGFLOAT &tauspost = allSynapsesDevice->tauspost[iSyn];
@@ -252,7 +257,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
             spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPre, -2, max_spikes);
             if (spikeHistory > 0 && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
-                delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
+                delta = ((int64_t)simulationStep + iStepOffset - spikeHistory) * deltaT;
                 epre = 1.0 - exp(-delta / tauspre);
             } else {
                 epre = 1.0;
@@ -266,7 +271,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                 if (spikeHistory == ULONG_MAX)
                     break;
                 // delta is the spike interval between pre-post spikes
-                delta = (spikeHistory - (int64_t)simulationStep) * deltaT;
+                delta = (spikeHistory - ((int64_t)simulationStep + iStepOffset)) * deltaT;
 
                 DEBUG_SYNAPSE(
                     printf("advanceSTDPSynapsesDevice: fPre\n");
@@ -274,7 +279,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                     printf("          idxPre: %d\n", idxPre);
                     printf("          idxPost: %d\n", idxPost);
                     printf("          spikeHistory: %d\n", spikeHistory);
-                    printf("          simulationStep: %d\n", simulationStep);
+                    printf("          simulationStep: %d\n", simulationStep + iStepOffset);
                     printf("          delta: %f\n\n", delta);
                 );
 
@@ -300,7 +305,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                 // Note: we cast void * over the allSynapsesDevice, then recast it, 
                 // because AllDSSynapsesDeviceProperties inherited properties from 
                 // the AllDSSynapsesDeviceProperties and the AllSTDPSynapsesDeviceProperties.
-                changeDSSynapsePSRDevice(static_cast<AllDSSynapsesDeviceProperties*>((void *)allSynapsesDevice), iSyn, simulationStep, deltaT);
+                changeDSSynapsePSRDevice(static_cast<AllDSSynapsesDeviceProperties*>((void *)allSynapsesDevice), iSyn, simulationStep, deltaT, iStepOffset);
                 break;
             default:
                 assert(false);
@@ -314,7 +319,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
             spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPost, -2, max_spikes);
             if (spikeHistory > 0 && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
-                delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
+                delta = ((int64_t)simulationStep + iStepOffset - spikeHistory) * deltaT;
                 epost = 1.0 - exp(-delta / tauspost);
             } else {
                 epost = 1.0;
@@ -328,7 +333,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                 if (spikeHistory == ULONG_MAX)
                     break;
                 // delta is the spike interval between post-pre spikes
-                delta = ((int64_t)simulationStep - spikeHistory - total_delay) * deltaT;
+                delta = ((int64_t)simulationStep + iStepOffset - spikeHistory - total_delay) * deltaT;
 
                 DEBUG_SYNAPSE(
                     printf("advanceSTDPSynapsesDevice: fPost\n");
@@ -336,7 +341,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                     printf("          idxPre: %d\n", idxPre);
                     printf("          idxPost: %d\n", idxPost);
                     printf("          spikeHistory: %d\n", spikeHistory);
-                    printf("          simulationStep: %d\n", simulationStep);
+                    printf("          simulationStep: %d\n", simulationStep + iStepOffset);
                     printf("          delta: %f\n\n", delta);
                 );
 
@@ -903,10 +908,11 @@ __global__ void initSynapsesDevice( int n, AllDSSynapsesDeviceProperties* allSyn
  *
  *  @param  allSynapsesDevice  Reference to the AllSpikingSynapsesDeviceProperties struct
  *                             on device memory.
+ *  @param  iStep              Simulation steps to advance.
  */
-__global__ void advanceSpikingSynapsesEventQueueDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice)
+__global__ void advanceSpikingSynapsesEventQueueDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int iStep)
 {
-    allSynapsesDevice->preSpikeQueue->advanceEventQueue();
+    allSynapsesDevice->preSpikeQueue->advanceEventQueue(iStep);
 }
 
 /*
@@ -914,9 +920,10 @@ __global__ void advanceSpikingSynapsesEventQueueDevice(AllSpikingSynapsesDeviceP
  *
  *  @param  allSynapsesDevice  Reference to the AllSpikingSynapsesDeviceProperties struct
  *                             on device memory.
+ *  @param  iStep              Simulation steps to advance.
  */
-__global__ void advanceSTDPSynapsesEventQueueDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice)
+__global__ void advanceSTDPSynapsesEventQueueDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, int iStep)
 {
-    allSynapsesDevice->postSpikeQueue->advanceEventQueue();
+    allSynapsesDevice->postSpikeQueue->advanceEventQueue(iStep);
 }
 

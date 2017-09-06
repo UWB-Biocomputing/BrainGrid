@@ -128,16 +128,24 @@ public:
          *
          * @param sim_info - parameters defining the simulation to be run with
          *                   the given collection of neurons.
-         * @param  clr_info  ClusterInfo to refer.
+         * @param clr_info   ClusterInfo to refer.
+         * @param iStepOffset  Offset from the current simulation step.
          */
-        virtual void advanceNeurons(const SimulationInfo *sim_info, ClusterInfo *clr_info);
+        virtual void advanceNeurons(const SimulationInfo *sim_info, ClusterInfo *clr_info, int iStepOffset);
 
         /**
-         * Transfer spiking data between clusters.
+         * Process outgoing spiking data between clusters.
          *
          * @param  clr_info  ClusterInfo to refer.
          */
-        virtual void processInterClustesSpikes(ClusterInfo *clr_info);
+        virtual void processInterClustesOutgoingSpikes(ClusterInfo *clr_info);
+
+        /**
+         * Process incomng spiking data between clusters.
+         *
+         * @param  clr_info  ClusterInfo to refer.
+         */
+        virtual void processInterClustesIncomingSpikes(ClusterInfo *clr_info);
 
         /**
          * Advances synapses network state of the cluster one simulation step.
@@ -145,16 +153,20 @@ public:
          * @param sim_info - parameters defining the simulation to be run with
          *                   the given collection of neurons.
          * @param  clr_info  ClusterInfo to refer.
+         * @param iStepOffset  Offset from the current simulation step.
          */
-        virtual void advanceSynapses(const SimulationInfo *sim_info, ClusterInfo *clr_info);
+        virtual void advanceSynapses(const SimulationInfo *sim_info, ClusterInfo *clr_info, int iStepOffset);
 
         /**
          * Advances synapses spike event queue state of the cluster one simulation step.
          *
+         * @param sim_info - parameters defining the simulation to be run with
+         *                   the given collection of neurons.
          * @param clr_info - parameters defining the simulation to be run with
          *                   the given collection of neurons.
+         * @param iStep    - simulation steps to advance.
          */
-        virtual void advanceSpikeQueue(const ClusterInfo *clr_info);
+        virtual void advanceSpikeQueue(const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStep);
 
 protected:
         /**

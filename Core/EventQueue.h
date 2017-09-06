@@ -33,6 +33,16 @@
 #include "SynapseIndexMap.h"
 #include "InterClustersEventHandler.h"
 
+typedef struct {
+    OUTGOING_SYNAPSE_INDEX_TYPE idxSyn;
+    int iStepOffset;
+}  interClustersOutgoingEvents_t;
+
+typedef struct {
+    BGSIZE idxSyn;
+    int iStepOffset;
+} interClustersIncomingEvents_t;
+            
 class EventQueue
 {
     //! Type of a queue element.
@@ -70,7 +80,7 @@ class EventQueue
          *                                          incoming event queue.
          * @param interClustersIncomingEvents       Pointer to the inter clusters incoming event queue.
          */
-        __device__ void initEventQueue(CLUSTER_INDEX_TYPE clusterID, BGSIZE nMaxEvent, BGQUEUE_ELEMENT* pQueueEvent, int nMaxInterClustersOutgoingEvents, OUTGOING_SYNAPSE_INDEX_TYPE* interClustersOutgoingEvents, int nMaxInterClustersIncomingEvents, BGSIZE* interClustersIncomingEvents);
+        __device__ void initEventQueue(CLUSTER_INDEX_TYPE clusterID, BGSIZE nMaxEvent, BGQUEUE_ELEMENT* pQueueEvent, int nMaxInterClustersOutgoingEvents, interClustersOutgoingEvents_t* interClustersOutgoingEvents, int nMaxInterClustersIncomingEvents, interClustersIncomingEvents_t* interClustersIncomingEvents);
 
         /**
          * Initializes the collection of queue in host memory.
@@ -88,8 +98,9 @@ class EventQueue
          * Add an event in the inter clusters incoming event queue
          *
          * @param idx The queue index of the collection.
+         * @param iStepOffset  offset from the current simulation step.
          */
-        __host__ void addAnInterClustersIncomingEvent(const BGSIZE idx);
+        __host__ void addAnInterClustersIncomingEvent(const BGSIZE idx, int iStepOffset);
 
         /**
          * Process inter clusters outgoing events that are stored in the buffer.
@@ -273,7 +284,7 @@ class EventQueue
          * @param pEventQueue     Pointer to the EventQueue object in device.
          * @param pInterClustersOutgoingEvents_h   Address to the data to get.
          */
-        static void getInterClustersOutgoingEventPointerInDevice(EventQueue* pEventQueue, BGQUEUE_ELEMENT** pInterClustersOutgoingEvents_h);
+        static void getInterClustersOutgoingEventPointerInDevice(EventQueue* pEventQueue, interClustersOutgoingEvents_t** pInterClustersOutgoingEvents_h);
 
         /**
          * Get pointer to the inter clusters incoming event queue in device
@@ -292,7 +303,7 @@ class EventQueue
         int m_nInterClustersOutgoingEvents;
 
         //! Pointer to the inter clusters outgoing event queue.
-        OUTGOING_SYNAPSE_INDEX_TYPE* m_interClustersOutgoingEvents;
+        interClustersOutgoingEvents_t* m_interClustersOutgoingEvents;
 
         //! The maximum number of the inter clusters incoming event queue.
         int m_nMaxInterClustersIncomingEvents;
@@ -301,7 +312,7 @@ class EventQueue
         int m_nInterClustersIncomingEvents;
 
         //! Pointer to the inter clusters incoming event queue.
-        BGSIZE* m_interClustersIncomingEvents;
+        interClustersIncomingEvents_t* m_interClustersIncomingEvents;
 #endif // USE_GPU
 };
 
@@ -325,7 +336,7 @@ class EventQueue
  *                                              incoming event queue.
  * @param[in] interClustersIncomingEvents       Pointer to the inter clusters incoming event queue.
  */
-__global__ void allocEventQueueDevice(EventQueue **pEventQueue, CLUSTER_INDEX_TYPE clusterID, BGSIZE nMaxEvent, BGQUEUE_ELEMENT* pQueueEvent, int nMaxInterClustersOutgoingEvents, OUTGOING_SYNAPSE_INDEX_TYPE* interClustersOutgoingEvents, int nMaxInterClustersIncomingEvents, BGSIZE* interClustersIncomingEvents);
+__global__ void allocEventQueueDevice(EventQueue **pEventQueue, CLUSTER_INDEX_TYPE clusterID, BGSIZE nMaxEvent, BGQUEUE_ELEMENT* pQueueEvent, int nMaxInterClustersOutgoingEvents, interClustersOutgoingEvents_t* interClustersOutgoingEvents, int nMaxInterClustersIncomingEvents, interClustersIncomingEvents_t* interClustersIncomingEvents);
 
 /**
  * Delete a EventQueue object in device memory.
@@ -365,7 +376,7 @@ __global__ void getQueueIndexDevice(EventQueue *pEventQueue, uint32_t *idxQueue)
  * @param[in/out] pInterClustersOutgoingEvents   Buffer to save pointer to inter clusters outgoing
  *                                               event queue data.
  */
-__global__ void getInterClustersOutgoingEventPointerDevice(EventQueue *pEventQueue, OUTGOING_SYNAPSE_INDEX_TYPE **pInterClustersOutgoingEvents);
+__global__ void getInterClustersOutgoingEventPointerDevice(EventQueue *pEventQueue, interClustersOutgoingEvents_t **pInterClustersOutgoingEvents);
 
 /**
  * get the address of inter clusters incoming event queue data in device memory
@@ -374,7 +385,7 @@ __global__ void getInterClustersOutgoingEventPointerDevice(EventQueue *pEventQue
  * @param[in/out] pInterClustersIncomingEvents   Buffer to save pointer to inter clusters incoming
  *                                               event queue data.
  */
-__global__ void getInterClustersIncomingEventPointerDevice(EventQueue *pEventQueue, BGSIZE **pInterClustersIncomingEvents);
+__global__ void getInterClustersIncomingEventPointerDevice(EventQueue *pEventQueue, interClustersIncomingEvents_t **pInterClustersIncomingEvents);
 
 /**
  * get the number events stored in the inter clusters outgoing event queue in device memory

@@ -11,9 +11,10 @@
  *  @param[in] iSyn                  Index of the Synapse to update.
  *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
  *                                   on device memory.
+ *  @param[in] iStepOffset           Offset from the current simulation step.
  */
-__device__ void preSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const CLUSTER_INDEX_TYPE iCluster ) {
-        allSynapsesDevice->preSpikeQueue->addAnEvent(iSyn, iCluster);
+__device__ void preSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const CLUSTER_INDEX_TYPE iCluster, int iStepOffset ) {
+        allSynapsesDevice->preSpikeQueue->addAnEvent(iSyn, iCluster, iStepOffset);
 }
 
 /*
@@ -22,8 +23,9 @@ __device__ void preSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingS
  *  @param[in] iSyn                  Index of the Synapse to update.
  *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
  *                                   on device memory.
+ *  @param[in] iStepOffset           Offset from the current simulation step.
  */
-__device__ void postSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesDeviceProperties* allSynapsesDevice ) {
+__device__ void postSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int iStepOffset ) {
 }
 
 /*
@@ -32,10 +34,11 @@ __device__ void postSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpiking
  *  @param[in] iSyn                  Index of the Synapse to update.
  *  @param[in] allSynapsesDevice     Pointer to AllSTDPSynapsesDeviceProperties structures 
  *                                   on device memory.
+ *  @param[in] iStepOffset           Offset from the current simulation step.
  */
-__device__ void postSTDPSynapseSpikeHitDevice( const BGSIZE iSyn, AllSTDPSynapsesDeviceProperties* allSynapsesDevice ) {
+__device__ void postSTDPSynapseSpikeHitDevice( const BGSIZE iSyn, AllSTDPSynapsesDeviceProperties* allSynapsesDevice, int iStepOffset ) {
         int total_delay = allSynapsesDevice->total_delayPost[iSyn];
-        allSynapsesDevice->postSpikeQueue->addAnEvent(iSyn, total_delay);
+        allSynapsesDevice->postSpikeQueue->addAnEvent(iSyn, total_delay, iStepOffset);
 }
 
 /* -------------------------------------*\
@@ -55,8 +58,9 @@ __device__ void postSTDPSynapseSpikeHitDevice( const BGSIZE iSyn, AllSTDPSynapse
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
  *  @param[in] synapseIndexMap       Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
  *  @param[in] fAllowBackPropagation True if back propagaion is allowed.
+ *  @param[in] iStepOffset           Offset from the current simulation step.
  */
-__global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, bool fAllowBackPropagation ) {
+__global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, bool fAllowBackPropagation, int iStepOffset ) {
         // determine which neuron this thread is processing
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )
@@ -79,13 +83,13 @@ __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int 
 
                 // record spike time
                 int idxSp = (spikeCount + spikeCountOffset) % maxSpikes;
-                allNeuronsDevice->spike_history[idx][idxSp] = simulationStep;
+                allNeuronsDevice->spike_history[idx][idxSp] = simulationStep + iStepOffset;
                 spikeCount++;
 
                 DEBUG_SYNAPSE(
                     printf("advanceLIFNeuronsDevice\n");
                     printf("          index: %d\n", idx);
-                    printf("          simulationStep: %d\n\n", simulationStep);
+                    printf("          simulationStep: %d\n\n", simulationStep + iStepOffset);
                 );
 
                 // calculate the number of steps in the absolute refractory period
@@ -108,7 +112,7 @@ __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int 
                         // outgoing synapse index consists of cluster index + synapse index
                         CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIndex(idx);
                         BGSIZE iSyn = SynapseIndexMap::getSynapseIndex(idx);
-                        preSpikingSynapsesSpikeHitDevice(iSyn, allSynapsesDevice, iCluster);
+                        preSpikingSynapsesSpikeHitDevice(iSyn, allSynapsesDevice, iCluster, iStepOffset);
                     }
                 }
 
@@ -125,14 +129,14 @@ __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int 
                     case classAllSTDPSynapses:
                     case classAllDynamicSTDPSynapses:
                         for (BGSIZE i = 0; i < synapse_counts; i++) {
-                            postSTDPSynapseSpikeHitDevice(incomingMap_begin[i], static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice));
+                            postSTDPSynapseSpikeHitDevice(incomingMap_begin[i], static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice), iStepOffset);
                         } // end for
                         break;
 
                     case classAllSpikingSynapses:
                     case classAllDSSynapses:
                         for (BGSIZE i = 0; i < synapse_counts; i++) {
-                            postSpikingSynapsesSpikeHitDevice(incomingMap_begin[i], allSynapsesDevice);
+                            postSpikingSynapsesSpikeHitDevice(incomingMap_begin[i], allSynapsesDevice, iStepOffset);
                         } // end for
                         break;
 
@@ -165,8 +169,9 @@ __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int 
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
  *  @param[in] synapseIndexMap       Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
  *  @param[in] fAllowBackPropagation True if back propagaion is allowed.
+ *  @param[in] iStepOffset           Offset from the current simulation step.
  */
-__global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, bool fAllowBackPropagation ) {
+__global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, bool fAllowBackPropagation, int iStepOffset ) {
         // determine which neuron this thread is processing
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )
@@ -195,7 +200,7 @@ __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int 
 
                 // record spike time
                 int idxSp = (spikeCount + spikeCountOffset) % maxSpikes;
-                allNeuronsDevice->spike_history[idx][idxSp] = simulationStep;
+                allNeuronsDevice->spike_history[idx][idxSp] = simulationStep + iStepOffset;
                 spikeCount++;
 
                 // calculate the number of steps in the absolute refractory period
@@ -219,7 +224,7 @@ __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int 
                         // outgoing synapse index consists of cluster index + synapse index
                         CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIndex(idx);
                         BGSIZE iSyn = SynapseIndexMap::getSynapseIndex(idx);
-                        preSpikingSynapsesSpikeHitDevice(iSyn, allSynapsesDevice, iCluster);
+                        preSpikingSynapsesSpikeHitDevice(iSyn, allSynapsesDevice, iCluster, iStepOffset);
                     }
                 }
 
@@ -236,14 +241,14 @@ __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int 
                     case classAllSTDPSynapses:
                     case classAllDynamicSTDPSynapses:
                         for (BGSIZE i = 0; i < synapse_counts; i++) {
-                            postSTDPSynapseSpikeHitDevice(incomingMap_begin[i], static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice));
+                            postSTDPSynapseSpikeHitDevice(incomingMap_begin[i], static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice), iStepOffset);
                         } // end for
                         break;
                     
                     case classAllSpikingSynapses:
                     case classAllDSSynapses:
                         for (BGSIZE i = 0; i < synapse_counts; i++) {
-                            postSpikingSynapsesSpikeHitDevice(incomingMap_begin[i], allSynapsesDevice);
+                            postSpikingSynapsesSpikeHitDevice(incomingMap_begin[i], allSynapsesDevice, iStepOffset);
                         } // end for
                         break;
 

@@ -156,3 +156,13 @@ void getValueList(const string& valString, vector<BGFLOAT>* pList)
         pList->push_back(i);
     }
 }
+
+/*
+ * Advance input stimulus state.
+ *
+ * @param[in] pci             ClusterInfo class to read information from.
+ * @param[in] iStep           Simulation steps to advance.
+ */
+void SInputRegular::advanceSInputState(const ClusterInfo *pci, int iStep)
+{
+}

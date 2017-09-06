@@ -257,8 +257,9 @@ void AllSTDPSynapses::copyDeviceToHost( AllSTDPSynapsesDeviceProperties& allSyna
  *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
  *  @param  sim_info               SimulationInfo class to read information from.
  *  @param  clr_info               ClusterInfo to refer from.
+ *  @param  iStepOffset            Offset from the current simulation step.
  */
-void AllSTDPSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+void AllSTDPSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
 {
     DEBUG (
     int deviceId;
@@ -272,7 +273,7 @@ void AllSTDPSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuronsD
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
     // Advance synapses ------------->
-    advanceSTDPSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapsesDeviceProperties*)allSynapsesDevice, (AllSpikingNeuronsDeviceProperties*)allNeuronsDevice, max_spikes, sim_info->width );
+    advanceSTDPSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapsesDeviceProperties*)allSynapsesDevice, (AllSpikingNeuronsDeviceProperties*)allNeuronsDevice, max_spikes, sim_info->width, iStepOffset );
 }
 
 /*
@@ -280,12 +281,13 @@ void AllSTDPSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuronsD
  *
  *  @param  allSynapsesDevice      Reference to the AllSynapsesDeviceProperties struct
  *                                 on device memory.
+ *  @param  iStep                  Simulation steps to advance.
  */
-void AllSTDPSynapses::advanceSpikeQueue(void* allSynapsesDevice)
+void AllSTDPSynapses::advanceSpikeQueue(void* allSynapsesDevice, int iStep)
 {
-    AllSpikingSynapses::advanceSpikeQueue(allSynapsesDevice);
+    AllSpikingSynapses::advanceSpikeQueue(allSynapsesDevice, iStep);
 
-    advanceSTDPSynapsesEventQueueDevice <<< 1, 1 >>> ( (AllSTDPSynapsesDeviceProperties*)allSynapsesDevice );
+    advanceSTDPSynapsesEventQueueDevice <<< 1, 1 >>> ( (AllSTDPSynapsesDeviceProperties*)allSynapsesDevice, iStep );
 }
 
 /**     

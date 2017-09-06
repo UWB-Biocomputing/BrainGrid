@@ -261,16 +261,18 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  sim_info               SimulationInfo class to read information from.
          *  @param  clr_info               ClusterInfo to refer from.
+         *  @param  iStepOffset            Offset from the current simulation step.
          */
-        virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset);
 
         /**
          * Advances synapses spike event queue state of the cluster one simulation step.
          *
          *  @param  allSynapsesDevice      Reference to the AllSynapsesDeviceProperties struct
          *                                 on device memory.
+         *  @param  iStep                  Simulation steps to advance.
          */
-        virtual void advanceSpikeQueue(void* allSynapsesDevice);
+        virtual void advanceSpikeQueue(void* allSynapsesDevice, int iStep);
 
         /**
          *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.

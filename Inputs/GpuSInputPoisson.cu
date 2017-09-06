@@ -9,9 +9,6 @@
 #include "GpuSInputPoisson.h"
 #include <helper_cuda.h>
 
-//! Memory to save global state for curand.
-curandState* devStates_d;
-
 /*
  * constructor
  *
@@ -66,8 +63,9 @@ void GpuSInputPoisson::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInf
  *
  * @param[in] psi             Pointer to the simulation information.
  * @param[in] pci             ClusterInfo class to read information from.
+ * @param[in] iStepOffset     Offset from the current simulation step.
  */
-void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci)
+void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci, int iStepOffset)
 {
     if (m_fSInput == false)
         return;
@@ -83,16 +81,26 @@ void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // add input spikes to each synapse
-    inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->nISIs_d, pci->masks_d, psi->deltaT, m_lambda, pci->devStates_d, pci->allSynapsesDeviceSInput, pci->clusterID );
+    inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->nISIs_d, pci->masks_d, psi->deltaT, m_lambda, pci->devStates_d, pci->allSynapsesDeviceSInput, pci->clusterID, iStepOffset );
 
     // advance synapses
-    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, pci->synapseIndexMapDeviceSInput, g_simulationStep, psi->deltaT, (AllSpikingSynapsesDeviceProperties*)pci->allSynapsesDeviceSInput );
-
-    advanceSpikingSynapsesEventQueueDevice <<< 1, 1 >>> ((AllSpikingSynapsesDeviceProperties*)pci->allSynapsesDeviceSInput);
+    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, pci->synapseIndexMapDeviceSInput, g_simulationStep, psi->deltaT, (AllSpikingSynapsesDeviceProperties*)pci->allSynapsesDeviceSInput, iStepOffset );
 
     // update summation point
     applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->allSynapsesDeviceSInput );
     
+}
+
+/*
+ * Advance input stimulus state.
+ *
+ * @param[in] pci             ClusterInfo class to read information from.
+ * @param[in] iStep           Simulation steps to advance.
+ */
+void GpuSInputPoisson::advanceSInputState(const ClusterInfo *pci, int iStep)
+{
+    // Advances synapses pre spike event queue state of the cluster iStep simulation step
+    advanceSpikingSynapsesEventQueueDevice <<< 1, 1 >>> ((AllSpikingSynapsesDeviceProperties*)pci->allSynapsesDeviceSInput, iStep);
 }
 
 /*
@@ -200,8 +208,9 @@ void GpuSInputPoisson::deleteDeviceValues(vector<ClusterInfo *> &vtClrInfo )
  * @param[in] devStates_d        Curand global state
  * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
  * @param[in] clusterID          Cluster ID.
+ * @param[in] iStepOffset        Offset from the current simulation step.
  */
-__global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapsesDeviceProperties* allSynapsesDevice, CLUSTER_INDEX_TYPE clusterID )
+__global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapsesDeviceProperties* allSynapsesDevice, CLUSTER_INDEX_TYPE clusterID, int iStepOffset )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= n )
@@ -216,7 +225,7 @@ __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT
     if (--rnISIs <= 0)
     {
         // add a spike
-        allSynapsesDevice->preSpikeQueue->addAnEvent(iSyn, clusterID);
+        allSynapsesDevice->preSpikeQueue->addAnEvent(iSyn, clusterID, iStepOffset);
 
         // update interval counter (exponectially distribution ISIs, Poisson)
         curandState localState = devStates_d[idx];

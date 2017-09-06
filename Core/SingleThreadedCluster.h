@@ -79,11 +79,18 @@ class SingleThreadedCluster : public Cluster {
         virtual void advanceNeurons(const SimulationInfo *sim_info, ClusterInfo *clr_info, int iStepOffset);
 
         /**
-         * Transfer spiking data between clusters.
+         * Process outgoing spiking data between clusters.
          *
          * @param  clr_info  ClusterInfo to refer.
          */
-        virtual void processInterClustesSpikes(ClusterInfo *clr_info);
+        virtual void processInterClustesOutgoingSpikes(ClusterInfo *clr_info);
+
+        /**
+         * Process incoming spiking data between clusters.
+         *
+         * @param  clr_info  ClusterInfo to refer.
+         */
+        virtual void processInterClustesIncomingSpikes(ClusterInfo *clr_info);
 
         /**
          * Advances synapses network state of the cluster one simulation step.

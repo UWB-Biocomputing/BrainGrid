@@ -47,9 +47,6 @@ public:
     //! Process input stimulus for each time step.
     virtual void inputStimulus(const SimulationInfo* psi, ClusterInfo *pci, int iStepOffset);
 
-    //! Advance input stimulus state.
-    virtual void advanceSInputState(const ClusterInfo *pci, int iStep);
-
 private:
 };
 
