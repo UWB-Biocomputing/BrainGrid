@@ -984,6 +984,7 @@ public class WorkbenchManager {
     // </editor-fold>
 
     public boolean configureParamsClasses() {
+        //This function will be able to add/modify/delete parameter classes.
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
