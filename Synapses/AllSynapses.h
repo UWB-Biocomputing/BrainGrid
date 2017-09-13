@@ -271,12 +271,12 @@ class AllSynapses : public IAllSynapses
 struct AllSynapsesDeviceProperties 
 {
         /**
-         *  The location of the synapse.
+         *  The location of the source neuron
          */
         int *sourceNeuronLayoutIndex;
 
         /** 
-         *  The coordinates of the summation point.
+         *  The location of the destination neuron
          */
         int *destNeuronLayoutIndex;
 
@@ -323,5 +323,10 @@ struct AllSynapsesDeviceProperties
          *  Usage: Used by destructor
          */
         int count_neurons;
+
+        /**
+         *  A temporary variable used for parallel reduction in calcSummationMapDevice. 
+         */
+        BGFLOAT *summation;
 }; 
 #endif // defined(USE_GPU)

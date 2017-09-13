@@ -172,7 +172,6 @@ class SynapseIndexMap
         //! Indexed by a destination neuron index.
         BGSIZE* incomingSynapseCount;
 
-    private:
         // Number of total neurons.
         BGSIZE num_neurons;
 

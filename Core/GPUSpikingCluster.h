@@ -272,9 +272,17 @@ void normalMTGPU(float * randNoise_d);
 void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, unsigned int nPerRng, unsigned int mt_rng_count); 
 }       
         
+//! Calculate summation point (use parallel reduction method).
+extern __global__ void calcSummationMapDevice(BGSIZE numTotalSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int maxSynapsesPerNeuron, int clusterNeuronsBegin);
+
+//! Helper kernel function for calcSummationMapDevice.
+extern __global__ void reduceSummationMapKernel(BGSIZE numTotalSynapses, unsigned int s, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, BGSIZE* indexMap, BGSIZE* synapseCount, BGSIZE* synapseBegin, int clusterNeuronsBegin);
+
+#if 0
 //! Calculate summation point.
 extern __global__ void calcSummationMapDevice(int totalNeurons,
 		    AllSpikingNeuronsDeviceProperties* __restrict__ allNeurnsDevice,
 		    const SynapseIndexMap* __restrict__ synapseIndexMapDevice,
                     const AllSpikingSynapsesDeviceProperties* __restrict__ allSynapsesDevice );
+#endif
 #endif

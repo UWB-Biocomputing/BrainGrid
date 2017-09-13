@@ -63,6 +63,7 @@ void AllSpikingSynapses::allocDeviceStruct( AllSpikingSynapsesDeviceProperties &
         checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.decay, max_total_synapses * sizeof( BGFLOAT ) ) );
         checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.tau, max_total_synapses * sizeof( BGFLOAT ) ) );
         checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.total_delay, max_total_synapses * sizeof( int ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.summation, max_total_synapses * sizeof( BGFLOAT ) ) );
 
         // create an EventQueue objet in device memory and set the pointer in device
         preSpikeQueue->createEventQueueInDevice(&allSynapses.preSpikeQueue);
@@ -103,6 +104,7 @@ void AllSpikingSynapses::deleteDeviceStruct( AllSpikingSynapsesDeviceProperties&
         checkCudaErrors( cudaFree( allSynapses.decay ) );
         checkCudaErrors( cudaFree( allSynapses.tau ) );
         checkCudaErrors( cudaFree( allSynapses.total_delay ) );
+        checkCudaErrors( cudaFree( allSynapses.summation ) );
 
         // delete EventQueue object in device memory.
         EventQueue::deleteEventQueueInDevice(allSynapses.preSpikeQueue);

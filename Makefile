@@ -87,7 +87,7 @@ CXXFLAGS = -std=c++11 -O2 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDI
 CGPUFLAGS = -std=c++11 -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 CXXLDFLAGS = -lstdc++ -pthread
 LGPUFLAGS = -lstdc++ -L$(CUDALIBDIR) -lcuda -lcudart
-NVCCFLAGS =  -g -arch=sm_30 -rdc=true -DDEBUG_OUT $(INCDIRS) -I/usr/local/cuda/samples/common/inc
+NVCCFLAGS =  -g -arch=sm_35 -rdc=true -DDEBUG_OUT $(INCDIRS) -I/usr/local/cuda/samples/common/inc
 
 ################################################################################
 # Objects
