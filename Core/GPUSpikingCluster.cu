@@ -141,6 +141,20 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
 
   // set some parameters used for advanceSynapsesDevice
   m_synapses->setAdvanceSynapsesDeviceParams();
+
+  // assign an address of summation function
+  // if the number of synapses is bigger than 512, use parallel reduction method
+  // otherwise use sequential addtion method.
+
+  // NOTE: '512' is a tentative number and may be adjusted later.
+  // We may use another way to choose better kernel based on the measurement of
+  // real execution time of each kernel. 
+
+  if (sim_info->maxSynapsesPerNeuron > 512) {
+    clr_info->fpCalcSummationMap = &GPUSpikingCluster::calcSummationMap_1;
+  } else {
+    clr_info->fpCalcSummationMap = &GPUSpikingCluster::calcSummationMap_2;
+  }
 }
 
 /* 
@@ -275,7 +289,7 @@ void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, ClusterI
 #endif // PERFORMANCE_METRICS
 
   // calculate summation point
-  calcSummationMap(sim_info, clr_info);
+  (this->*(clr_info->fpCalcSummationMap))(sim_info, clr_info);
 
 #ifdef PERFORMANCE_METRICS
   cudaLapTime(clr_info, clr_info->t_gpu_calcSummation);
@@ -312,11 +326,12 @@ void GPUSpikingCluster::advanceSpikeQueue(const SimulationInfo *sim_info, const 
 
 /*
  * Add psr of all incoming synapses to summation points.
+ * (parallel reduction base summation)
  *
  * @param[in] sim_info                   Pointer to the simulation information.
  * @param[in] clr_info                   Pointer to the cluster information.
  */
-void GPUSpikingCluster::calcSummationMap(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+void GPUSpikingCluster::calcSummationMap_1(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
 {
   if (m_synapseIndexMap == NULL) {
     return;
@@ -324,15 +339,39 @@ void GPUSpikingCluster::calcSummationMap(const SimulationInfo *sim_info, const C
 
   BGSIZE numTotalSynapses = m_synapseIndexMap->num_incoming_synapses;
 
-  calcSummationMapDevice <<< 1, 1 >>> (numTotalSynapses, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron, clr_info->clusterNeuronsBegin);
+  if (numTotalSynapses == 0) {
+    return;
+  }
 
-#if  0
+  // call parallel reduction base summation kernel
+  calcSummationMapDevice_1 <<< 1, 1 >>> (numTotalSynapses, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron, clr_info->clusterNeuronsBegin);
+}
+
+/*
+ * Add psr of all incoming synapses to summation points.
+ * (sequential addtion base summation)
+ *
+ * @param[in] sim_info                   Pointer to the simulation information.
+ * @param[in] clr_info                   Pointer to the cluster information.
+ */
+void GPUSpikingCluster::calcSummationMap_2(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+{
+  if (m_synapseIndexMap == NULL) {
+    return;
+  }
+
+  BGSIZE numTotalSynapses = m_synapseIndexMap->num_incoming_synapses;
+
+  if (numTotalSynapses == 0) {
+    return;
+  }
+
   // CUDA parameters
   const int threadsPerBlock = 256;
   int blocksPerGrid = ( clr_info->totalClusterNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
 
-  calcSummationMapDevice <<< blocksPerGrid, threadsPerBlock >>> ( clr_info->totalClusterNeurons, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice );
-#endif
+  // call sequential addtion base summation kernel
+  calcSummationMapDevice_2 <<< blocksPerGrid, threadsPerBlock >>> ( clr_info->totalClusterNeurons, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice );
 }
 
 /* ------------------*\
@@ -447,7 +486,7 @@ void GPUSpikingCluster::copySynapseIndexMapHostToDevice(const ClusterInfo *clr_i
  * @param[in] maxSynapsesPerNeuron   Maximum number of synapses per neuron. 
  * @param[in] clusterNeuronsBegin    Start neuron index of the cluster.
  */
-__global__ void calcSummationMapDevice(BGSIZE numTotalSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int maxSynapsesPerNeuron, int clusterNeuronsBegin)
+__global__ void calcSummationMapDevice_1(BGSIZE numTotalSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int maxSynapsesPerNeuron, int clusterNeuronsBegin)
 {
   // CUDA  parameters
   const int threadsPerBlock = 256;
@@ -464,6 +503,10 @@ __global__ void calcSummationMapDevice(BGSIZE numTotalSynapses, AllSpikingNeuron
 
   // do reduction
   for (unsigned int s = 1; s < maxSynapsesPerNeuron; s *= 2) {
+    // Call another CUDA kernel (dynamic parallelism in CUDA) here.
+    // Because CUDA does not have global thread synchronization, we need to invoke
+    // another CUDA kernel function to synchronize reduction steps.
+
     reduceSummationMapKernel <<< blocksPerGrid, threadsPerBlock >>> (numTotalSynapses, s, allSynapsesDevice, allNeuronsDevice, indexMap, synapseCount, synapseBegin, clusterNeuronsBegin);
   }
 }
@@ -537,7 +580,6 @@ __global__ void reduceSummationMapKernel(BGSIZE numTotalSynapses, unsigned int s
   }
 }
 
-#if 0
 /**
  * Calculate the sum of synaptic input to each neuron.
  *
@@ -556,7 +598,7 @@ __global__ void reduceSummationMapKernel(BGSIZE numTotalSynapses, unsigned int s
  * @param[in] synapseIndexMapDevice  Pointer to forward map structures in device memory.
  * @param[in] allSynapsesDevice      Pointer to Synapse structures in device memory.
  */
-__global__ void calcSummationMapDevice(int totalNeurons, 
+__global__ void calcSummationMapDevice_2(int totalNeurons, 
 				       AllSpikingNeuronsDeviceProperties* __restrict__ allNeuronsDevice, 
 				       const SynapseIndexMap* __restrict__ synapseIndexMapDevice, 
 				       const AllSpikingSynapsesDeviceProperties* __restrict__ allSynapsesDevice)
@@ -591,4 +633,3 @@ __global__ void calcSummationMapDevice(int totalNeurons,
     allNeuronsDevice->summation_map[idx] = sum;
   }
 }
-#endif

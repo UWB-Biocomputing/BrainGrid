@@ -35,6 +35,8 @@
 #include "curand_kernel.h"
 class SynapseIndexMap;
 class AllDSSynapsesDeviceProperties;
+class GPUSpikingCluster;
+class SimulationInfo;
 #endif // USE_GPU
 
 class IAllSynapses;
@@ -82,6 +84,10 @@ class ClusterInfo
 #if defined(USE_GPU)
         //! CUDA device ID
         int deviceId;
+
+        //! Function pointer to the summation map function
+        typedef void (GPUSpikingCluster::*FCALCSUM) (const SimulationInfo*, const ClusterInfo*);
+        FCALCSUM fpCalcSummationMap;
 #endif // USE_GPU
 
 #if !defined(USE_GPU)
