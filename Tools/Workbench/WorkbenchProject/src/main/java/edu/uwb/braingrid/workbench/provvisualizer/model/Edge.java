@@ -1,10 +1,13 @@
 package edu.uwb.braingrid.workbench.provvisualizer.model;
 
 public class Edge {
-    private boolean isDirected = false;
+    private boolean directed = false;
     private String fromNodeId;
     private String toNodeId;
     private String relationship ;
+
+    public Edge() {
+    }
 
     public Edge(String fromNodeId, String toNodeId, String relationship) {
         this.fromNodeId = fromNodeId;
@@ -20,31 +23,40 @@ public class Edge {
         return fromNodeId;
     }
 
-    public void setFromNodeId(String fromNodeId) {
+    public Edge setFromNodeId(String fromNodeId) {
         this.fromNodeId = fromNodeId;
+        return this;
     }
 
     public String getToNodeId() {
         return toNodeId;
     }
 
-    public void setToNodeId(String toNodeId) {
+    public Edge setToNodeId(String toNodeId) {
         this.toNodeId = toNodeId;
+        return this;
     }
 
     public String getRelationship() {
         return relationship;
     }
 
-    public void setRelationship(String relationship) {
+    public Edge setRelationship(String relationship) {
         this.relationship = relationship;
+        return this;
     }
 
     public boolean isDirected() {
-        return isDirected;
+        return directed;
     }
 
-    public void setDirected(boolean directed) {
-        isDirected = directed;
+    public Edge setDirected(boolean directed) {
+        this.directed = directed;
+        return this;
+    }
+
+    @Override
+    public Edge clone(){
+        return new Edge(fromNodeId,toNodeId,relationship);
     }
 }
