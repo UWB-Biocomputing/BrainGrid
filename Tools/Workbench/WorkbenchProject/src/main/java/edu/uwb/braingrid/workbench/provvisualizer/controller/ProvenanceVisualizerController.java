@@ -148,7 +148,7 @@ public class ProvenanceVisualizerController {
             @Override
             public void handle(MouseEvent event) {
                 draggedNode = dataProvGraph.getSelectedNode(event.getX() / zoomRatio + displayWindowLocation[0],
-                                                    event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio);
+                        event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio);
                 pressedXY = new double[]{event.getX() / zoomRatio, event.getY() / zoomRatio};
 
                 if(draggedNode == null){
@@ -157,6 +157,17 @@ public class ProvenanceVisualizerController {
             }
         });
 
+        visCanvas.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                Edge edge = dataProvGraph.getSelectedEdge(event.getX() / zoomRatio + displayWindowLocation[0],
+                        event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio);
+
+                if(edge != null){
+                    dataProvGraph.addOrRemoveDispRelationship(edge);
+                }
+            }
+        });
 
         visCanvas.setOnMouseMoved(new EventHandler<MouseEvent>() {
             @Override
@@ -165,23 +176,20 @@ public class ProvenanceVisualizerController {
                         event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio);
 
                 dataProvGraph.setMouseOnNode(node);
-            }
-        });
 
-        visCanvas.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                Node clickedNode = dataProvGraph.getSelectedNode(event.getX() / zoomRatio + displayWindowLocation[0],
+                Edge edge = dataProvGraph.getSelectedEdge(event.getX() / zoomRatio + displayWindowLocation[0],
                         event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio);
-                if(clickedNode != null) {
-                    dataProvGraph.addOrRemoveDispNodeId(clickedNode);
-                }
+
+                dataProvGraph.setMouseOnEdge(edge);
             }
         });
 
         visCanvas.setOnMouseReleased(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                if(draggedNode != null && pressedXY[0] == event.getX() / zoomRatio && pressedXY[1] == event.getY() / zoomRatio){
+                    dataProvGraph.addOrRemoveDispNodeId(draggedNode);
+                }
                 draggedNode = null;
             }
         });

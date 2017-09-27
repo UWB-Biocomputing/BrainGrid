@@ -1,5 +1,7 @@
 package edu.uwb.braingrid.workbench.provvisualizer.model;
 
+import java.util.HashMap;
+
 public class Edge {
     private boolean directed = false;
     private String fromNodeId;
@@ -58,5 +60,68 @@ public class Edge {
     @Override
     public Edge clone(){
         return new Edge(fromNodeId,toNodeId,relationship);
+    }
+
+    public boolean equals(Edge edge){
+        return this.getEdgeId().equals(edge.getEdgeId());
+    }
+
+    public int hashCode(){ return this.getEdgeId().hashCode();}
+
+    /**
+     * Determine if a point(x,y) is on this edge's rectangular buffer area.
+     * 1. Calculate the slope of edge and the slope of the lines perpendicular to the edge.
+     * 2. Using the coordinate of the connected nodes, the slope and the width of the buffer area to find the coordinate
+     *    of the four corners of the buffer area.
+     * 3. Use the slope-intercept form (y = mx +b) to find the range of y-intercepts(b).
+     * 4. If the lines passing through point(x,y) with the same slopes have y-intercepts within the above ranges, the point
+     *    is inside the buffer area, i.e., return true.
+     * @param x
+     * @param y
+     * @param zoomRatio
+     * @return true if the point is in the buffer area.
+     */
+    public boolean isPointOnEdge(HashMap<String,Node> nodes, double x, double y, double zoomRatio){
+        double bufferLength = 4;
+        Node fromNode = nodes.get(fromNodeId);
+        Node toNode = nodes.get(toNodeId);
+        double[] fromNodePoint = new double[]{ fromNode.getX() + fromNode.getSize()/zoomRatio /2, fromNode.getY() + fromNode.getSize()/zoomRatio/2 };
+        double[] toNodePoint = new double[]{ toNode.getX() + toNode.getSize()/zoomRatio / 2, toNode.getY() + toNode.getSize()/zoomRatio/2};
+        double edgeSlope = (toNodePoint[1] - fromNodePoint[1])/(toNodePoint[0] - fromNodePoint[0]);
+        double edgeRightAngleSlope = -1 * (toNodePoint[0] - fromNodePoint[0]) / (toNodePoint[1] - fromNodePoint[1]);
+
+        double[] fromNodePoint1 = new double[]{fromNodePoint[0] + (bufferLength/Math.sqrt(1+edgeRightAngleSlope*edgeRightAngleSlope)),
+                fromNodePoint[1] + (edgeRightAngleSlope*bufferLength)/Math.sqrt(1+edgeRightAngleSlope*edgeRightAngleSlope)};
+        double[] fromNodePoint2 = new double[]{fromNodePoint[0] - (bufferLength/Math.sqrt(1+edgeRightAngleSlope*edgeRightAngleSlope)),
+                fromNodePoint[1] - (edgeRightAngleSlope*bufferLength)/Math.sqrt(1+edgeRightAngleSlope*edgeRightAngleSlope)};
+        double[] toNodePoint1 = new double[]{toNodePoint[0] + (bufferLength/Math.sqrt(1+edgeRightAngleSlope*edgeRightAngleSlope)),
+                toNodePoint[1] + (edgeRightAngleSlope*bufferLength)/Math.sqrt(1+edgeRightAngleSlope*edgeRightAngleSlope)};
+        double[] toNodePoint2 = new double[]{toNodePoint[0] - (bufferLength/Math.sqrt(1+edgeRightAngleSlope*edgeRightAngleSlope)),
+                toNodePoint[1] - (edgeRightAngleSlope*bufferLength)/Math.sqrt(1+edgeRightAngleSlope*edgeRightAngleSlope)};
+
+
+        double[] yInterceptEdgeSlope = new double[]{fromNodePoint2[1] - edgeSlope * fromNodePoint2[0], toNodePoint1[1] - edgeSlope * toNodePoint1[0]};
+        double[] yInterceptEdgeRightAngleSlope = new double[]{fromNodePoint2[1] - edgeRightAngleSlope * fromNodePoint2[0], toNodePoint1[1] - edgeRightAngleSlope * toNodePoint1[0], };
+        if(yInterceptEdgeSlope[0] > yInterceptEdgeSlope[1]){
+            double temp = yInterceptEdgeSlope[0];
+            yInterceptEdgeSlope[0] = yInterceptEdgeSlope[1];
+            yInterceptEdgeSlope[1] = temp;
+        }
+
+        if(yInterceptEdgeRightAngleSlope[0] > yInterceptEdgeRightAngleSlope[1]){
+            double temp = yInterceptEdgeRightAngleSlope[0];
+            yInterceptEdgeRightAngleSlope[0] = yInterceptEdgeRightAngleSlope[1];
+            yInterceptEdgeRightAngleSlope[1] = temp;
+        }
+
+        double pointYInterceptEdgeSlope = y - edgeSlope * x;
+        double pointYInterceptEdgeRightAngleSlope = y - edgeRightAngleSlope * x;
+
+        if(pointYInterceptEdgeSlope >= yInterceptEdgeSlope[0] && pointYInterceptEdgeSlope <= yInterceptEdgeSlope[1] &&
+                pointYInterceptEdgeRightAngleSlope >= yInterceptEdgeRightAngleSlope[0] && pointYInterceptEdgeRightAngleSlope <= yInterceptEdgeRightAngleSlope[1]){
+            return true;
+        }
+
+        return false;
     }
 }

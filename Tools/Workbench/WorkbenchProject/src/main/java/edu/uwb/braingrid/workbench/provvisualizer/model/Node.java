@@ -134,7 +134,7 @@ public class Node {
     }
 
     public boolean equals(Node node){
-        return this.id == node.id;
+        return this.id.equals(node.id);
     }
 
     public int hashCode(){ return this.id.hashCode();}

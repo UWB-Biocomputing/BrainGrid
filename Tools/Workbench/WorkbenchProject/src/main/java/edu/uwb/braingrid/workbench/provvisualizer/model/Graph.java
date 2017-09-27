@@ -21,6 +21,7 @@ public class Graph {
     private HashSet<Edge> dispRelationships = new HashSet<>();
 
     private Node mouseOnNode ;
+    private Edge mouseOnEdge ;
 
     private double c1 = 2;      //default value = 2;
     private double c2 = 1;      //default value = 1;
@@ -191,8 +192,17 @@ public class Graph {
                         toNode.isInDisplayWindow(displayWindowLocation, displayWindowSize)) {
                     double[] transformedFromNodeXY = transformToRelativeXY(fromNode.getX(), fromNode.getY(), displayWindowLocation, zoomRatio);
                     double[] transformedToNodeXY = transformToRelativeXY(toNode.getX(), toNode.getY(), displayWindowLocation, zoomRatio);
+
+                    if(edge == mouseOnEdge){
+                        gc.setLineWidth(3);
+                    }
+
                     gc.strokeLine(transformedFromNodeXY[0] + fromNode.getSize() / 2, transformedFromNodeXY[1] + fromNode.getSize() / 2,
-                            transformedToNodeXY[0] + toNode.getSize() / 2, transformedToNodeXY[1] + toNode.getSize() / 2);
+                                transformedToNodeXY[0] + toNode.getSize() / 2, transformedToNodeXY[1] + toNode.getSize() / 2);
+
+                    if(edge == mouseOnEdge){
+                        gc.setLineWidth(1.0);
+                    }
                 }
             }
         }
@@ -273,6 +283,10 @@ public class Graph {
         if(mouseOnNode != null){
             showNodeId(mouseOnNode, canvas, displayWindowLocation,zoomRatio);
         }
+
+        if(mouseOnEdge != null){
+            showEdgeId(mouseOnEdge, canvas, displayWindowLocation,zoomRatio);
+        }
     }
 
     private void showNodeId(Node node, Canvas canvas, double[] displayWindowLocation, double zoomRatio){
@@ -280,6 +294,19 @@ public class Graph {
         double[] transformedNodeXY = transformToRelativeXY(node.getX(),node.getY(), displayWindowLocation, zoomRatio);
         gc.setFill(Color.BLACK);
         gc.fillText(node.getId(), transformedNodeXY[0], transformedNodeXY[1] + node.getSize() + LABEL_FONT_SIZE);
+    }
+
+    private void showEdgeId(Edge edge, Canvas canvas, double[] displayWindowLocation, double zoomRatio){
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        Node fromNode = nodes.get(edge.getFromNodeId());
+        Node toNode = nodes.get(edge.getToNodeId());
+        double[] transformedFromNodeXY = transformToRelativeXY(fromNode.getX(), fromNode.getY(), displayWindowLocation, zoomRatio);
+        double[] transformedToNodeXY = transformToRelativeXY(toNode.getX(), toNode.getY(), displayWindowLocation, zoomRatio);
+        double[] transformedMidXY = new double[]{(transformedFromNodeXY[0] + transformedToNodeXY[0]) / 2.0,
+                (transformedFromNodeXY[1] + transformedToNodeXY[1]) / 2.0};
+
+        gc.setFill(Color.BROWN);
+        gc.fillText(edge.getRelationship(), transformedMidXY[0], transformedMidXY[1] + LABEL_FONT_SIZE);
     }
 
     private double[] transformToRelativeXY(double x, double y, double[] displayWindowLocation, double zoomRatio){
@@ -294,6 +321,16 @@ public class Graph {
         for(Node node : nodes.values()){
             if(node.isPointOnNode(x, y, zoomRatio)){
                 return node;
+            }
+        }
+        return null;
+    }
+
+
+    public Edge getSelectedEdge(double x, double y, double zoomRatio) {
+        for(Edge edge : edges.values()){
+            if(edge.isPointOnEdge(nodes, x, y, zoomRatio)){
+                return edge;
             }
         }
         return null;
@@ -348,6 +385,15 @@ public class Graph {
         }
     }
 
+    public void addOrRemoveDispRelationship(Edge edge){
+        if(dispRelationships.contains(edge)){
+            dispRelationships.remove(edge);
+        }
+        else{
+            dispRelationships.add(edge);
+        }
+    }
+
     public boolean isShowAllNodeIds() {
         return showAllNodeIds;
     }
@@ -370,5 +416,9 @@ public class Graph {
 
     public void setMouseOnNode(Node mouseOnNode) {
         this.mouseOnNode = mouseOnNode;
+    }
+
+    public void setMouseOnEdge(Edge mouseOnEdge) {
+        this.mouseOnEdge = mouseOnEdge;
     }
 }
