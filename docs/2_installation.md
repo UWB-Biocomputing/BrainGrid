@@ -48,11 +48,13 @@ In order to compile and run BrainGrid, you will need to set up a couple things i
 2. Open **Makefile** and change the following parameters:
 
 	If you are using **CUDA**, 
-   	- change the CUDA library directory: ```CUDALIBDIR = YOUR_CUDA_LIBRARY_PATH``` 
+   	
+	- change the CUDA library directory: ```CUDALIBDIR = YOUR_CUDA_LIBRARY_PATH``` 
    	- you might also need to add your CUDA home directory into the ```PATH``` environment variable 
 
 	If you are using **HDF5**, 
-   	-  change HDF5 home directory: ```H5INCDIR = YOUR_HDF5_HOME_PATH``` 
+   	
+	-  change HDF5 home directory: ```H5INCDIR = YOUR_HDF5_HOME_PATH``` 
    	-  change HDF5 library directory: ```H5LIBDIR = YOUR_HDF5_LIBRARY_PATH```
    	-  make ```CUSEHDF5 = yes``` in line 17 to use HDF5 file format instead of XML
 
