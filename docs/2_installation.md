@@ -49,14 +49,14 @@ In order to compile and run BrainGrid, you will need to set up a couple things i
 
 	If you are using **CUDA**, 
 
-   		- change the CUDA library directory: ```CUDALIBDIR = YOUR_CUDA_LIBRARY_PATH``` 
-   		- you might also need to add your CUDA home directory into the ```PATH``` environment variable 
+   	- change the CUDA library directory: ```CUDALIBDIR = YOUR_CUDA_LIBRARY_PATH``` 
+   	- you might also need to add your CUDA home directory into the ```PATH``` environment variable 
 
 	If you are using **HDF5**, 
 
-   		-  change HDF5 home directory: ```H5INCDIR = YOUR_HDF5_HOME_PATH``` 
-   		-  change HDF5 library directory: ```H5LIBDIR = YOUR_HDF5_LIBRARY_PATH```
-   		-  make ```CUSEHDF5 = yes``` in line 17 to use HDF5 file format instead of XML
+   	-  change HDF5 home directory: ```H5INCDIR = YOUR_HDF5_HOME_PATH``` 
+   	-  change HDF5 library directory: ```H5LIBDIR = YOUR_HDF5_LIBRARY_PATH```
+   	-  make ```CUSEHDF5 = yes``` in line 17 to use HDF5 file format instead of XML
 
 
 3. BrainGrid is written in C++ and CUDA C/C++. Make sure you have all these dependencies in order to compile BrainGrid:
@@ -69,4 +69,4 @@ In order to compile and run BrainGrid, you will need to set up a couple things i
 [>> Next: 3. Quickstart](http://uwb-biocomputing.github.io/BrainGrid/3_quickstart)
 
 ---------
-[<< Go back to home page](http://uwb-biocomputing.github.io/BrainGrid/)
+[<< Go back to BrainGrid Home page](http://uwb-biocomputing.github.io/BrainGrid/)
