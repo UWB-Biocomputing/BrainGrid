@@ -25,8 +25,6 @@ The idea behind the BrainGrid Project is to develop a toolkit/software architect
    3.1 Quick Sanity Test
    
    3.2 Use of Screen
-   
-   3.3 Contribute to BrainGrid
 
 4. [Configuration](http://uwb-biocomputing.github.io/BrainGrid/4_configuration)
 

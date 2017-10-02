@@ -148,4 +148,4 @@ The next set of parameters is the ModelParams. These parameters are specific to 
 [>> Next: 5. Examples]()
 
 ---------
-[>> Previous: 3. Quickstart](http://uwb-biocomputing.github.io/BrainGrid/3_quickstart)
+[<< Go back to BrainGrid Home page](http://uwb-biocomputing.github.io/BrainGrid/)

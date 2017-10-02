@@ -102,46 +102,9 @@ The `screen` command will essentially allow you to start a simulation and then d
 
 6. If it isn't done yet, detach again and come back later.
 
-## 3.3 Contribute to BrainGrid
-
-If you want to make changes and contribute to BrainGrid, we strongly recommend creating new branches on your end. This would make it easier for us to track changes and collaborate with other people.
-
-1. List all branches in the repo 
-
-   ```
-   $ git branch
-   ```
-
-2. Create a new branch to work on [Why](https://help.github.com/articles/creating-and-deleting-branches-within-your-repository/)
-
-   ```
-   $ git checkout -b YOUR_BRANCH_NAME [BASE_BRANCH_NAME]
-   ```
-
-  (Note: BASE_BRANCH_NAME is optional and defaults to master)
-
-1. Commit and push the changes you made locally to your own Github repository
-
-   ```
-   $ git status
-   $ git add FILE_NAME
-   $ git commit -m “MESSAGE”
-   $ git push -u origin YOUR_BRANCH_NAME
-   ```
-
-2. Open a pull request when you are ready to let us know about the changes you've pushed to your repo on Github: [How](https://help.github.com/articles/about-pull-requests/)
-
-- Go to your forked BrainGrid repo page on GitHub. 
-- Click on **Pull Request** button in the repo header
-- Click on the **Head Branch** dropdown and pick the branch you wish to merge with.
-- Enter the **title** and **description** for your pull request. 
-- Lastly, click on the green **Send pull request** button.
-- Once a pull request is sent, collaborators can review and discuss the changes you made.
-
-
 
 -------------
 [>> Next: 4. Configuration](http://uwb-biocomputing.github.io/BrainGrid/4_configuration)
 
 -------------
-[<< Previous: 2. Installation](http://uwb-biocomputing.github.io/BrainGrid/2_installation) 
+[<< Go back to BrainGrid Home page](http://uwb-biocomputing.github.io/BrainGrid/)
