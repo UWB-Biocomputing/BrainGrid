@@ -949,4 +949,3 @@ __global__ void initSynapsesDevice( int n, AllDSSynapsesDeviceProperties* allSyn
     allSynapsesDevice->W[neuron_index] = weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 }
 
-
