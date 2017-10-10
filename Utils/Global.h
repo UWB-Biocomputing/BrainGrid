@@ -6,6 +6,9 @@
  *	@brief Header file for global.h
  *
  */
+// Updated 2012/1/30 Jewel
+// for izh model validation
+
 //! Globally available functions and default parameter values.
 
 #pragma once
@@ -107,7 +110,7 @@ enum synapseType { II = 0, IE = 1, EI = 2, EE = 3, STYPE_UNDEF = -1 };
 //! The default reset voltage.
 #define DEFAULT_Vreset		(-0.06)
 //! The default absolute refractory period.
-#define DEFAULT_Trefract	(3e-3)
+#define DEFAULT_Trefract	(3e-4)
 //! The default synaptic noise.
 #define DEFAULT_Inoise		(0.0)
 //! The default injected current.
@@ -115,14 +118,14 @@ enum synapseType { II = 0, IE = 1, EI = 2, EE = 3, STYPE_UNDEF = -1 };
 //! The default threshold voltage.  If \f$V_m >= V_{thresh}\f$ then the neuron fires.
 #define DEFAULT_Vthresh		(-0.04)
 //! The default time step size.
-#define DEFAULT_dt		(1e-4) // MODEL INDEPENDENT
+#define DEFAULT_dt		(1e-4) // MODEL INDEPENDENT, izh model is 5e-4, LIF 1e-4
 //! The default absolute refractory period for inhibitory neurons.
-#define DEFAULT_InhibTrefract	(2.0e-3)
+#define DEFAULT_InhibTrefract	(3.0e-4)
 //! The default absolute refractory period for excitory neurons.
-#define DEFAULT_ExcitTrefract	(3.0e-3)
+#define DEFAULT_ExcitTrefract	(3.0e-4)
 
 //! The default synaptic time constant.
-#define DEFAULT_tau		(3e-3)
+#define DEFAULT_tau		(3e-2) 		// Cm * Rm
 //! The default synaptic efficiency.
 #define DEFAULT_U		(0.4)
 //! The default synaptic efficiency.
