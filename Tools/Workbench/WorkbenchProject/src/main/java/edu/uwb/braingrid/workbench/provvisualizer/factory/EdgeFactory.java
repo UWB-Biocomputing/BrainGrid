@@ -13,11 +13,10 @@ public class EdgeFactory {
 
     public static EdgeFactory getInstance(){
         if(edgeFactory == null){
-            return new EdgeFactory();
+            edgeFactory = new EdgeFactory();
         }
-        else{
-            return edgeFactory;
-        }
+
+        return edgeFactory;
     }
 
     public Edge createDefaultEdge(){

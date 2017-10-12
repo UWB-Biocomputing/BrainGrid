@@ -114,7 +114,7 @@ public class ProvMgr {
     /**
      * Loads a model from a previously saved turtle file
      *
-     * @param projectName - The base name of the file containing the provenance
+     * @param project - The base name of the file containing the provenance
      * @return true if the file loaded a model properly, otherwise false
      */
     private void load(ProjectMgr project) throws RiotNotFoundException, IOException {
@@ -199,6 +199,7 @@ public class ProvMgr {
      * @param uri - the URI of the entity to be created
      * @param label - optional text used in applying a label to the entity
      * resource (used for group queries)
+     * @param http - True if the resource could be accessed via http protocol.
      * @param remote - True if the remote name space prefix should be used
      * @param replace - True if all instances of existing resources with the
      * specified URI should be removed from the model prior to adding this
@@ -206,10 +207,14 @@ public class ProvMgr {
      * @return The resource representing the entity (used for method chaining or
      * complex construction)
      */
-    public Resource addEntity(String uri, String label, boolean remote, boolean replace) {
+    public Resource addEntity(String uri, String label, boolean http, boolean remote, boolean replace) {
         uri = uri.replaceAll("\\\\", "/");
-        String fullUri = remote ? getProjectFullRemoteURI(uri)
-                : getProjectFullLocalURI(uri);
+        String fullUri = uri;
+        if(!http) {
+            fullUri = remote ? getProjectFullRemoteURI(uri)
+                    : getProjectFullLocalURI(uri);
+        }
+
         if (replace) {
             removeResource(uri);
         }
@@ -224,6 +229,10 @@ public class ProvMgr {
         }
         // provide the resource to the caller for method-chaining
         return entityToAdd;
+    }
+
+    public Resource addEntity(String uri, String label, boolean remote, boolean replace) {
+        return addEntity(uri,label,false,remote,replace);
     }
 
     /**

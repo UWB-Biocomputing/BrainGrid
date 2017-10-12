@@ -1,15 +1,13 @@
 package edu.uwb.braingrid.workbench.provvisualizer.model;
 
-import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Polygon;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 public class Node {
     public enum NodeShape{
         CIRCLE,
+        DOUBLE_CIRCLE,
         SQUARE,
         ROUNDED_SQUARE
     }
@@ -152,8 +150,8 @@ public class Node {
     }
 
     public boolean isInDisplayWindow(double[] displayWindowLocation, double[] displayWindowSize){
-        if (this.x < displayWindowLocation[0] && this.x > displayWindowLocation[0] + displayWindowSize[0] ||
-                this.y < displayWindowLocation[1] && this.y > displayWindowLocation[1] + displayWindowSize[1]){
+        if (this.x < displayWindowLocation[0] || this.x > displayWindowLocation[0] + displayWindowSize[0] ||
+                this.y < displayWindowLocation[1] || this.y > displayWindowLocation[1] + displayWindowSize[1]){
             return false;
         }
         else {

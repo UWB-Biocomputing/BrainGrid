@@ -1,7 +1,9 @@
 package edu.uwb.braingrid.workbench.provvisualizer.factory;
 
-import edu.uwb.braingrid.workbench.provvisualizer.model.Node;
+import edu.uwb.braingrid.workbench.provvisualizer.model.*;
 import javafx.scene.paint.Color;
+
+import javax.swing.text.html.parser.Entity;
 
 public class NodeFactory {
     private static NodeFactory nodeFactory;
@@ -14,22 +16,25 @@ public class NodeFactory {
     private static final double ENTITY_NODE_SIZE = 20;
     private static final Color ENTITY_NODE_COLOR = Color.BLUE;
     private static final Node.NodeShape ENTITY_NODE_SHAPE = Node.NodeShape.CIRCLE;
+    private static final double COMMIT_NODE_SIZE = 25;
+    private static final Color COMMIT_NODE_COLOR = Color.BLUEVIOLET;
+    private static final Node.NodeShape COMMIT_NODE_SHAPE = Node.NodeShape.DOUBLE_CIRCLE;
 
     private Node defaultNode = null;
-    private Node entityNode = null;
-    private Node agentNode = null;
-    private Node activityNode = null;
+    private EntityNode entityNode = null;
+    private AgentNode agentNode = null;
+    private ActivityNode activityNode = null;
+    private CommitNode commitNode = null;
 
     private NodeFactory(){
     }
 
     public static NodeFactory getInstance(){
         if(nodeFactory == null){
-            return new NodeFactory();
+            nodeFactory = new NodeFactory();
         }
-        else{
-            return nodeFactory;
-        }
+
+        return nodeFactory;
     }
 
     public Node createDefaultNode(){
@@ -40,45 +45,63 @@ public class NodeFactory {
         return defaultNode.clone();
     }
 
-    public Node createEntityNode(){
-        if(entityNode == null){
-            entityNode = new Node(ENTITY_NODE_SIZE, ENTITY_NODE_COLOR, ENTITY_NODE_SHAPE);
-        }
-
-        return entityNode.clone();
-    }
-
-    public Node createAgentNode(){
-        if(agentNode == null){
-            agentNode = new Node(AGENT_NODE_SIZE, AGENT_NODE_COLOR, AGENT_NODE_SHAPE);
-        }
-
-        return agentNode.clone();
-    }
-
-    public Node createActivityNode(){
+    public ActivityNode createActivityNode(){
         if(activityNode == null){
-            activityNode = new Node(ACTIVITY_NODE_SIZE, ACTIVITY_NODE_COLOR, ACTIVITY_NODE_SHAPE);
+            activityNode = new ActivityNode(ACTIVITY_NODE_SIZE, ACTIVITY_NODE_COLOR, ACTIVITY_NODE_SHAPE);
         }
 
         return activityNode.clone();
     }
 
-    public Node convertToEntityNode(Node node){
-        node.setSize(ENTITY_NODE_SIZE).setColor(ENTITY_NODE_COLOR).setShape(ENTITY_NODE_SHAPE);
+    public AgentNode createAgentNode(){
+        if(agentNode == null){
+            agentNode = new AgentNode(AGENT_NODE_SIZE, AGENT_NODE_COLOR, AGENT_NODE_SHAPE);
+        }
 
-        return node;
+        return agentNode.clone();
     }
 
-    public Node convertToAgentNode(Node node){
-        node.setSize(AGENT_NODE_SIZE).setColor(AGENT_NODE_COLOR).setShape(AGENT_NODE_SHAPE);
+    public CommitNode createCommitNode(){
+        if(commitNode == null){
+            commitNode = new CommitNode(COMMIT_NODE_SIZE, COMMIT_NODE_COLOR, COMMIT_NODE_SHAPE);
+        }
 
-        return node;
+        return commitNode.clone();
     }
 
-    public Node convertToActivityNode(Node node){
-        node.setSize(ACTIVITY_NODE_SIZE).setColor(ACTIVITY_NODE_COLOR).setShape(ACTIVITY_NODE_SHAPE);
+    public EntityNode createEntityNode(){
+        if(entityNode == null){
+            entityNode = new EntityNode(ENTITY_NODE_SIZE, ENTITY_NODE_COLOR, ENTITY_NODE_SHAPE);
+        }
 
-        return node;
+        return entityNode.clone();
+    }
+
+    public ActivityNode convertToActivityNode(Node node){
+        ActivityNode activityNode = createActivityNode();
+        activityNode.setId(node.getId()).setX(node.getX()).setY(node.getY()).setLabel(node.getLabel());
+
+        return activityNode;
+    }
+
+    public AgentNode convertToAgentNode(Node node){
+        AgentNode agentNode = createAgentNode();
+        agentNode.setId(node.getId()).setX(node.getX()).setY(node.getY()).setLabel(node.getLabel());
+
+        return agentNode;
+    }
+
+    public CommitNode convertToCommitNode(Node node){
+        CommitNode commitNode = createCommitNode();
+        commitNode.setId(node.getId()).setX(node.getX()).setY(node.getY()).setLabel(node.getLabel());
+
+        return commitNode;
+    }
+
+    public EntityNode convertToEntityNode(Node node){
+        EntityNode entityNode = createEntityNode();
+        entityNode.setId(node.getId()).setX(node.getX()).setY(node.getY()).setLabel(node.getLabel());
+
+        return entityNode;
     }
 }

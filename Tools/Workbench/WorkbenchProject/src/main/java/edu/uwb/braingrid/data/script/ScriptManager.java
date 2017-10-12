@@ -710,7 +710,7 @@ public class ScriptManager {
                                             provMgr.addEntity(
                                                     simSpec.getCodeLocation()
                                                     .substring(0, simSpec.getCodeLocation().lastIndexOf("."))
-                                                    + "/commit/" + sha1key, "commit",
+                                                    + "/commit/" + sha1key, "commit", true,
                                                     simSpec.isRemote(), false));
                                 }
                             }

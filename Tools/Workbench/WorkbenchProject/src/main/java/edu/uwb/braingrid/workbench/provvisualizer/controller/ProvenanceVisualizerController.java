@@ -1,7 +1,9 @@
 package edu.uwb.braingrid.workbench.provvisualizer.controller;
 
+import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.EdgeFactory;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.NodeFactory;
+import edu.uwb.braingrid.workbench.provvisualizer.model.ActivityNode;
 import edu.uwb.braingrid.workbench.provvisualizer.model.Edge;
 import edu.uwb.braingrid.workbench.provvisualizer.model.Graph;
 import edu.uwb.braingrid.workbench.provvisualizer.model.Node;
@@ -13,30 +15,17 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Slider;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RDFDataMgr;
 import org.controlsfx.control.ToggleSwitch;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 public class ProvenanceVisualizerController {
-    private static String RDF_SYNTAX_PREFIX = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-    private static String RDF_SCHEME_PREFIX = "http://www.w3.org/2000/01/rdf-schema#";
-    private static String PROV_PREFIX = "http://www.w3.org/ns/prov#";
-    private static String RDF_TYPE = RDF_SYNTAX_PREFIX + "type";
-    private static String RDF_LABEL = RDF_SCHEME_PREFIX + "label";
-    private static String PROV_ACTIVITY = PROV_PREFIX + "Activity";
-    private static String PROV_SW_AGENT = PROV_PREFIX + "SoftwareAgent";
-    private static String PROV_ENTITY = PROV_PREFIX + "Entity";
-    private static final double NODE_SIZE = 20;
-
     private Graph dataProvGraph ;
 
     private GraphicsContext gc ;
@@ -49,7 +38,7 @@ public class ProvenanceVisualizerController {
     private double[] pressedXY ;
 
     private double[] displayWindowLocation = new double[]{ 0, 0 };
-    private double[] displayWindowSize = new double[]{ 0, 0 };
+    private double[] displayWindowSize = new double[]{ 10000, 10000 };
 
     private double[] displayWindowLocationTmp ;
 
@@ -86,6 +75,7 @@ public class ProvenanceVisualizerController {
 
         initMouseEvents();
         initGUIEvents();
+
 
         timer = new AnimationTimer() {
             @Override
@@ -134,12 +124,14 @@ public class ProvenanceVisualizerController {
         visCanvas.setOnMouseDragged(new EventHandler<MouseEvent>(){
             @Override
             public void handle(MouseEvent event) {
-                if (draggedNode != null) { // drag node
-                    draggedNode.setX(event.getX() / zoomRatio + displayWindowLocation[0]);
-                    draggedNode.setY(event.getY() / zoomRatio + displayWindowLocation[1]);
-                }else{
-                    displayWindowLocation[0] = displayWindowLocationTmp[0] + pressedXY[0] - event.getX() / zoomRatio;
-                    displayWindowLocation[1] = displayWindowLocationTmp[1] + pressedXY[1] - event.getY() / zoomRatio;
+                if(event.isPrimaryButtonDown()) {
+                    if (draggedNode != null) { // drag node
+                        draggedNode.setX(event.getX() / zoomRatio + displayWindowLocation[0]);
+                        draggedNode.setY(event.getY() / zoomRatio + displayWindowLocation[1]);
+                    } else {
+                        displayWindowLocation[0] = displayWindowLocationTmp[0] + pressedXY[0] - event.getX() / zoomRatio;
+                        displayWindowLocation[1] = displayWindowLocationTmp[1] + pressedXY[1] - event.getY() / zoomRatio;
+                    }
                 }
             }
         });
@@ -147,12 +139,14 @@ public class ProvenanceVisualizerController {
         visCanvas.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                draggedNode = dataProvGraph.getSelectedNode(event.getX() / zoomRatio + displayWindowLocation[0],
-                        event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio);
-                pressedXY = new double[]{event.getX() / zoomRatio, event.getY() / zoomRatio};
+                if(event.isPrimaryButtonDown()) {
+                    draggedNode = dataProvGraph.getSelectedNode(event.getX() / zoomRatio + displayWindowLocation[0],
+                            event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio);
+                    pressedXY = new double[]{event.getX() / zoomRatio, event.getY() / zoomRatio};
 
-                if(draggedNode == null){
-                    displayWindowLocationTmp = displayWindowLocation.clone();
+                    if (draggedNode == null) {
+                        displayWindowLocationTmp = displayWindowLocation.clone();
+                    }
                 }
             }
         });
@@ -160,11 +154,15 @@ public class ProvenanceVisualizerController {
         visCanvas.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                Edge edge = dataProvGraph.getSelectedEdge(event.getX() / zoomRatio + displayWindowLocation[0],
-                        event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio);
+                if(event.getButton().equals(MouseButton.PRIMARY)) {
+                    if(event.getClickCount() == 1) {
+                        Edge edge = dataProvGraph.getSelectedEdge(event.getX() / zoomRatio + displayWindowLocation[0],
+                                event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio);
 
-                if(edge != null){
-                    dataProvGraph.addOrRemoveDispRelationship(edge);
+                        if (edge != null) {
+                            dataProvGraph.addOrRemoveDispRelationship(edge);
+                        }
+                    }
                 }
             }
         });
@@ -177,6 +175,7 @@ public class ProvenanceVisualizerController {
 
                 dataProvGraph.setMouseOnNode(node);
 
+
                 Edge edge = dataProvGraph.getSelectedEdge(event.getX() / zoomRatio + displayWindowLocation[0],
                         event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio);
 
@@ -187,8 +186,12 @@ public class ProvenanceVisualizerController {
         visCanvas.setOnMouseReleased(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                if(draggedNode != null && pressedXY[0] == event.getX() / zoomRatio && pressedXY[1] == event.getY() / zoomRatio){
+                if (draggedNode != null && pressedXY[0] == event.getX() / zoomRatio && pressedXY[1] == event.getY() / zoomRatio) {
                     dataProvGraph.addOrRemoveDispNodeId(draggedNode);
+
+                    if(draggedNode instanceof ActivityNode){
+                        dataProvGraph.addOrRemoveSelectedActivityNode((ActivityNode)draggedNode);
+                    }
                 }
                 draggedNode = null;
             }
@@ -228,12 +231,12 @@ public class ProvenanceVisualizerController {
         while (iter.hasNext()) {
             stmt = iter.nextStatement();
             String predicateStr = stmt.getPredicate().toString();
-            if(predicateStr.equals(RDF_TYPE)){
+            if(predicateStr.equals(ProvVisGlobal.RDF_TYPE)){
                 String subjectStr = stmt.getSubject().toString();
                 String objectStr = stmt.getObject().toString();
-                if(objectStr.equals(PROV_ACTIVITY)){
+                if(objectStr.equals(ProvVisGlobal.PROV_ACTIVITY)){
                     if(dataProvGraph.isNodeAdded(subjectStr)) {
-                        nodeFactory.convertToActivityNode(dataProvGraph.getNode(subjectStr));
+                        dataProvGraph.addNode(nodeFactory.convertToActivityNode(dataProvGraph.getNode(subjectStr)));
                     }
                     else {
                         //create Activity Node
@@ -244,9 +247,9 @@ public class ProvenanceVisualizerController {
                         dataProvGraph.addNode(activityNode);
                     }
                 }
-                else if(objectStr.equals(PROV_SW_AGENT)){
+                else if(objectStr.equals(ProvVisGlobal.PROV_SW_AGENT)){
                     if(dataProvGraph.isNodeAdded(subjectStr)) {
-                        nodeFactory.convertToAgentNode(dataProvGraph.getNode(subjectStr));
+                        dataProvGraph.addNode(nodeFactory.convertToAgentNode(dataProvGraph.getNode(subjectStr)));
                     }
                     else {
                         //create Agent Node
@@ -257,9 +260,15 @@ public class ProvenanceVisualizerController {
                         dataProvGraph.addNode(agentNode);
                     }
                 }
-                else if(objectStr.equals(PROV_ENTITY)){
+                else if(objectStr.equals(ProvVisGlobal.PROV_ENTITY)){
                     if(dataProvGraph.isNodeAdded(subjectStr)) {
-                        nodeFactory.convertToEntityNode(dataProvGraph.getNode(subjectStr));
+                        if(dataProvGraph.getNode(subjectStr).getLabel().equals("commit")){
+                            //convert to commit node
+                            dataProvGraph.addNode(nodeFactory.convertToCommitNode(dataProvGraph.getNode(subjectStr)));
+                        }
+                        else {
+                            dataProvGraph.addNode(nodeFactory.convertToEntityNode(dataProvGraph.getNode(subjectStr)));
+                        }
                     }
                     else {
                         //create Entity Node
@@ -271,22 +280,42 @@ public class ProvenanceVisualizerController {
                     }
                 }
             }
-            else if(predicateStr.equals(RDF_LABEL)){
+            else if(predicateStr.equals(ProvVisGlobal.RDF_LABEL)){
                 String subjectStr = stmt.getSubject().toString();
+                String objectStr = stmt.getObject().toString();
+
                 if(dataProvGraph.isNodeAdded(subjectStr)) {
-                    dataProvGraph.getNode(subjectStr).setLabel(stmt.getObject().toString());
+                    dataProvGraph.getNode(subjectStr).setLabel(objectStr);
+
+                    if(objectStr.equals("commit")){
+                        //convert to commit node
+                        dataProvGraph.addNode(nodeFactory.convertToCommitNode(dataProvGraph.getNode(subjectStr)));
+                    }
                 }
                 else{
                     //create a Default Node to store the label value.
-                    Node defaultNode = nodeFactory.createDefaultNode();
-                    defaultNode.setId(subjectStr)
+                    Node node = null;
+                    if(objectStr.equals("commit")){
+                        node = nodeFactory.createCommitNode();
+                    }
+                    else {
+                        node = nodeFactory.createDefaultNode();
+                    }
+
+                    node.setId(subjectStr)
                             .setX(Math.random()*visCanvas.getWidth())
                             .setY(Math.random()*visCanvas.getHeight())
-                            .setLabel(stmt.getObject().toString());
-                    dataProvGraph.addNode(defaultNode);
+                            .setLabel(objectStr);
+                    dataProvGraph.addNode(node);
                 }
             }
             else if(stmt.getObject().isURIResource()){
+                //Skip "wasGeneratedBY" edge to avoid duplicate relationship display temporary, will find out a better
+                //way to disply two or more relationship later
+                if(stmt.getPredicate().toString().equals(ProvVisGlobal.PROV_WAS_GENERATED_BY)){
+                    continue;
+                }
+
                 //create a Default Node to store the label value.
                 Edge defaultEdge = edgeFactory.createDefaultEdge();
                 defaultEdge.setFromNodeId(stmt.getSubject().toString())
