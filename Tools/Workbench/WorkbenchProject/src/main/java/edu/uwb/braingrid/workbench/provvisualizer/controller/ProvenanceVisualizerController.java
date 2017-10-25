@@ -54,6 +54,8 @@ public class ProvenanceVisualizerController {
     private ToggleSwitch showNodeIds;
     @FXML
     private ToggleSwitch showRelationships;
+    @FXML
+    private ToggleSwitch showLegend;
 
     /**
      * Initializes the controller.
@@ -115,6 +117,17 @@ public class ProvenanceVisualizerController {
                 }
                 else{
                     dataProvGraph.setShowAllRelationships(false);
+                }
+            }
+        });
+
+        showLegend.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val, Boolean new_val) {
+                if(new_val){
+                    dataProvGraph.setShowLegend(true);
+                }
+                else{
+                    dataProvGraph.setShowLegend(false);
                 }
             }
         });

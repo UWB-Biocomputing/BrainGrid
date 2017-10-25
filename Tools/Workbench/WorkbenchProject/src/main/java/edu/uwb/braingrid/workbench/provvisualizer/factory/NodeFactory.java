@@ -15,6 +15,8 @@ public class NodeFactory {
     private static final Node.NodeShape AGENT_NODE_SHAPE = Node.NodeShape.SQUARE;
     private static final double ENTITY_NODE_SIZE = 20;
     private static final Color ENTITY_NODE_COLOR = Color.BLUE;
+    private static final Color INPUT_ENTITY_NODE_COLOR = Color.LIGHTSKYBLUE;
+    private static final Color OUTPUT_ENTITY_NODE_COLOR = Color.PINK;
     private static final Node.NodeShape ENTITY_NODE_SHAPE = Node.NodeShape.CIRCLE;
     private static final double COMMIT_NODE_SIZE = 25;
     private static final Color COMMIT_NODE_COLOR = Color.BLUEVIOLET;
@@ -103,5 +105,19 @@ public class NodeFactory {
         entityNode.setId(node.getId()).setX(node.getX()).setY(node.getY()).setLabel(node.getLabel());
 
         return entityNode;
+    }
+
+    public EntityNode convertToInputEntityNode(Node node){
+        EntityNode inputEntityNode = (EntityNode)node.clone();
+        inputEntityNode.setColor(INPUT_ENTITY_NODE_COLOR);
+
+        return inputEntityNode;
+    }
+
+    public EntityNode convertToOutputEntityNode(Node node){
+        EntityNode outputEntityNode = (EntityNode)node.clone();
+        outputEntityNode.setColor(OUTPUT_ENTITY_NODE_COLOR);
+
+        return outputEntityNode;
     }
 }

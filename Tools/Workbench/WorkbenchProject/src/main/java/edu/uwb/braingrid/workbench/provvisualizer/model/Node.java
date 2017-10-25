@@ -20,10 +20,12 @@ public class Node {
     private Color color;
     private String label;
     private ArrayList<Node> neighborNodes ;
+    private boolean absoluteXY ;
 
     public Node() {
         this.label = "";
         this.neighborNodes = new ArrayList<>();
+        this.absoluteXY = false;
     }
 
     public Node(double size, Color color, NodeShape nodeShape) {
@@ -32,6 +34,7 @@ public class Node {
         this.shape = nodeShape;
         this.label = "";
         this.neighborNodes = new ArrayList<>();
+        this.absoluteXY = false;
     }
 
     public Node(String id, double x, double y, double size, Color color, NodeShape nodeShape) {
@@ -43,6 +46,7 @@ public class Node {
         this.shape = nodeShape;
         this.label = "";
         this.neighborNodes = new ArrayList<>();
+        this.absoluteXY = false;
     }
 
     public Node(String id, double x, double y, double size, Color color, String label, NodeShape nodeShape) {
@@ -54,6 +58,7 @@ public class Node {
         this.shape = nodeShape;
         this.label = label;
         this.neighborNodes = new ArrayList<>();
+        this.absoluteXY = false;
     }
 
     public double getX() {
@@ -147,6 +152,15 @@ public class Node {
 
     public void setNeighborNodes(ArrayList<Node> neighborNodes) {
         this.neighborNodes = neighborNodes;
+    }
+
+    public boolean isAbsoluteXY() {
+        return absoluteXY;
+    }
+
+    public Node setAbsoluteXY(boolean absoluteXY) {
+        this.absoluteXY = absoluteXY;
+        return this;
     }
 
     public boolean isInDisplayWindow(double[] displayWindowLocation, double[] displayWindowSize){

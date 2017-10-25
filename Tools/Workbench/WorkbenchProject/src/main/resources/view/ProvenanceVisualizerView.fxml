@@ -23,6 +23,7 @@
                   <ToggleSwitch fx:id="stopForces" mnemonicParsing="false" text="Stop Vertices" />
                   <ToggleSwitch fx:id="showNodeIds" mnemonicParsing="false" text="All Vertex IDs" />
                   <ToggleSwitch fx:id="showRelationships" mnemonicParsing="false" text="All Relationships" />
+                  <ToggleSwitch fx:id="showLegend" mnemonicParsing="false" text="Legend" />
                   <HBox prefHeight="62.0" prefWidth="200.0">
                      <children>
                         <Label text="Node Spacing" wrapText="true" />

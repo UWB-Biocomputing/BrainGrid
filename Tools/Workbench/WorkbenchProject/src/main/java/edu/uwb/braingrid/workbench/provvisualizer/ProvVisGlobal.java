@@ -1,5 +1,8 @@
 package edu.uwb.braingrid.workbench.provvisualizer;
 
+import edu.uwb.braingrid.workbench.provvisualizer.model.Node;
+import javafx.scene.paint.Color;
+
 public class ProvVisGlobal {
     public static String RDF_SYNTAX_PREFIX = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     public static String RDF_SCHEME_PREFIX = "http://www.w3.org/2000/01/rdf-schema#";
