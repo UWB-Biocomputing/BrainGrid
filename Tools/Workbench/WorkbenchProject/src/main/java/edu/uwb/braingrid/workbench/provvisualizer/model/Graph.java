@@ -7,6 +7,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -24,6 +25,7 @@ public class Graph {
     private HashSet<Edge> dispRelationships = new HashSet<>();
     private HashSet<ActivityNode> selectedActivityNodes = new HashSet<>();
 
+    private Node comparingNode ;
     private Node mouseOnNode ;
     private Edge mouseOnEdge ;
 
@@ -239,6 +241,14 @@ public class Graph {
                     showNodeId(node, canvas, displayWindowLocation,zoomRatio);
                 }
             }
+
+            if(comparingNode != null){
+                showNodeId(comparingNode, canvas, displayWindowLocation,zoomRatio, Color.YELLOW);
+            }
+
+            if(mouseOnNode != null){
+                showNodeId(mouseOnNode, canvas, displayWindowLocation,zoomRatio);
+            }
         }
 
         //Draw Relationship labels
@@ -256,10 +266,6 @@ public class Graph {
                     }
                 }
             }
-        }
-
-        if(mouseOnNode != null){
-            showNodeId(mouseOnNode, canvas, displayWindowLocation,zoomRatio);
         }
 
         if(mouseOnEdge != null){
@@ -393,6 +399,9 @@ public class Graph {
 
     private void drawNode(GraphicsContext gc, Node node, double[] displayWindowLocation, double zoomRatio, boolean highlight, double nodeSizeRatio){
         double[] nodeXY = null;
+        if(comparingNode != null && node.equals(comparingNode)){
+            node = NodeFactory.getInstance().convertToComparingNode(node);
+        }
         if(node.isAbsoluteXY()){
             nodeXY = new double[]{node.getX(),node.getY()};
         }
@@ -404,8 +413,9 @@ public class Graph {
         Color nodeColor = node.getColor();
         gc.setFill(nodeColor);
         if(highlight){
-            nodeXY[0] -= nodeSize* nodeSizeRatio/4;
-            nodeXY[1] -= nodeSize* nodeSizeRatio/4;
+            //center the node after resizing
+            nodeXY[0] -= (nodeSize* (nodeSizeRatio - 1))/2;
+            nodeXY[1] -= (nodeSize* (nodeSizeRatio - 1))/2;
         }
 
         if(node.getShape() == Node.NodeShape.CIRCLE) {
@@ -464,11 +474,27 @@ public class Graph {
         gc.strokeLine(midPoint[0], midPoint[1], point2[0], point2[1]);
     }
 
+    private void showNodeId(Node node, Canvas canvas, double[] displayWindowLocation, double zoomRatio, Color nodeIdColor){
+        showNodeId(node, canvas, displayWindowLocation, zoomRatio, nodeIdColor, Color.rgb(0,0,0, 0.3));
+    }
+
     private void showNodeId(Node node, Canvas canvas, double[] displayWindowLocation, double zoomRatio){
+        showNodeId(node, canvas, displayWindowLocation, zoomRatio, Color.WHITE, Color.rgb(0,0,0, 0.3));
+    }
+
+    private void showNodeId(Node node, Canvas canvas, double[] displayWindowLocation, double zoomRatio, Color nodeIdColor, Color bgColor){
         GraphicsContext gc = canvas.getGraphicsContext2D();
         double[] transformedNodeXY = transformToRelativeXY(node.getX(),node.getY(), displayWindowLocation, zoomRatio);
-        gc.setFill(Color.BLACK);
-        gc.fillText(node.getId(), transformedNodeXY[0], transformedNodeXY[1] + node.getSize() + LABEL_FONT_SIZE);
+
+        Text tmpText = new Text(node.getDisplayId());
+        tmpText.setFont(gc.getFont());
+        tmpText.applyCss();
+
+        gc.setFill(bgColor);
+        gc.fillRoundRect(transformedNodeXY[0], transformedNodeXY[1] + node.getSize(),tmpText.getLayoutBounds().getWidth(),tmpText.getLayoutBounds().getHeight(),0.5, 0.5);
+
+        gc.setFill(nodeIdColor);
+        gc.fillText(node.getDisplayId(), transformedNodeXY[0], transformedNodeXY[1] + node.getSize() + LABEL_FONT_SIZE);
     }
 
     private void showRelationship(Edge edge, Canvas canvas, double[] displayWindowLocation, double zoomRatio){
@@ -543,15 +569,23 @@ public class Graph {
         return xy;
     }
 
-    public Node getSelectedNode(double x, double y, double zoomRatio) {
+    public Node getSelectedNode(double x, double y, double zoomRatio, boolean withTolerance) {
         for(Node node : nodes.values()){
-            if(node.isPointOnNode(x, y, zoomRatio)){
+            if(node.isPointOnNode(x, y, zoomRatio, withTolerance)){
                 return node;
             }
         }
         return null;
     }
 
+    public Node getComparingNode(double x, double y, Node draggedNode, double zoomRatio, boolean withTolerance) {
+        for(Node node : nodes.values()){
+            if(node != draggedNode && node.isPointOnNode(x, y, zoomRatio, withTolerance)){
+                return node;
+            }
+        }
+        return null;
+    }
 
     public Edge getSelectedEdge(double x, double y, double zoomRatio) {
         for(Edge edge : edges.values()){
@@ -579,7 +613,7 @@ public class Graph {
                 double[] transformedNodeXY = transformToRelativeXY(node.getX(),node.getY(), displayWindowLocation, zoomRatio);
 
                 gc.setFill(Color.BLACK);
-                gc.fillText(node.getId(), transformedNodeXY[0], transformedNodeXY[1] + node.getSize() + LABEL_FONT_SIZE);
+                gc.fillText(node.getDisplayId(), transformedNodeXY[0], transformedNodeXY[1] + node.getSize() + LABEL_FONT_SIZE);
             }
         }
     }
@@ -654,5 +688,13 @@ public class Graph {
 
     public void setShowLegend(boolean showLegend) {
         this.showLegend = showLegend;
+    }
+
+    public Node getComparingNode() {
+        return comparingNode;
+    }
+
+    public void setComparingNode(Node comparingNode) {
+        this.comparingNode = comparingNode;
     }
 }

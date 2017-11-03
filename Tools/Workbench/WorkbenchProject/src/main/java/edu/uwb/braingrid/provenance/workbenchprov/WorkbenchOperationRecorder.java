@@ -52,14 +52,14 @@ public class WorkbenchOperationRecorder {
                 = provMgr.addActivity(activityURI, uploadLabel, false, false);
         // define the local entity that was uploaded
         Resource sourceEntity
-                = provMgr.addEntity(sourceEntityURI, entityLabel, false, false);
+                = provMgr.addEntity(sourceEntityURI, entityLabel, null, null, false);
         // specify time the upload activity started
         provMgr.startedAtTime(uploadActivity, timeUploadStarted);
         // specify time the upload activity ended
         provMgr.endedAtTime(uploadActivity, new Date());
         // add new file created by upload (this is a remote entity)
         Resource destinationEntity
-                = provMgr.addEntity(destinationEntityURI, entityLabel, true, false);
+                = provMgr.addEntity(destinationEntityURI, entityLabel, remoteLocation, null, false);
         // add workbench as an agent
         Resource workbenchAgent
                 = provMgr.addSoftwareAgent(workbenchSoftwareAgentURI, null, false, false);
@@ -99,14 +99,14 @@ public class WorkbenchOperationRecorder {
                 = provMgr.addActivity(activityURI, copyLabel, false, false);
         // define the local entity that was copied
         Resource sourceEntity
-                = provMgr.addEntity(sourceEntityURI, entityLabel, false, false);
+                = provMgr.addEntity(sourceEntityURI, entityLabel, null, null, false);
         // specify time the copy activity started
         provMgr.startedAtTime(copyActivity, timeCopyStarted);
         // specify time the upload activity ended
         provMgr.endedAtTime(copyActivity, new Date());
         // add new file created by upload (this is a local entity)
         Resource destinationEntity = provMgr.addEntity(destinationEntityURI,
-                entityLabel, false, false);
+                entityLabel, null,null, false);
         // add workbench as an agent
         Resource workbenchAgent = provMgr.addSoftwareAgent(
                 workbenchSoftwareAgentURI, null, false, false);

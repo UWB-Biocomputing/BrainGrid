@@ -1,5 +1,6 @@
 package edu.uwb.braingrid.workbench.provvisualizer.model;
 
+import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -12,7 +13,10 @@ public class Node {
         ROUNDED_SQUARE
     }
 
+    private static final double SELECTION_TOLERANCE = 20;
+
     private String id ;
+    private String displayId ;
     private double x ;
     private double y ;
     private NodeShape shape;
@@ -39,6 +43,9 @@ public class Node {
 
     public Node(String id, double x, double y, double size, Color color, NodeShape nodeShape) {
         this.id = id;
+        if(id!=null){
+            this.displayId = id.replaceFirst(ProvVisGlobal.SSH_SCHEME_AND_DOMAIN_REGEX,"");
+        }
         this.x = x;
         this.y = y;
         this.size = size;
@@ -51,6 +58,9 @@ public class Node {
 
     public Node(String id, double x, double y, double size, Color color, String label, NodeShape nodeShape) {
         this.id = id;
+        if(id!=null){
+            this.displayId = id.replaceFirst(ProvVisGlobal.SSH_SCHEME_AND_DOMAIN_REGEX,"");
+        }
         this.x = x;
         this.y = y;
         this.size = size;
@@ -112,6 +122,9 @@ public class Node {
 
     public Node setId(String id) {
         this.id = id;
+        if(id!=null){
+            this.displayId = id.replaceFirst(ProvVisGlobal.SSH_SCHEME_AND_DOMAIN_REGEX,"");
+        }
         return this;
     }
 
@@ -123,8 +136,17 @@ public class Node {
         this.shape = shape;
     }
 
-    public boolean isPointOnNode(double x, double y, double zoomRatio){
-        if(x >= this.x && x <= this.x + this.size / zoomRatio && y >= this.y && y <= this.y + this.size / zoomRatio){
+    public boolean isPointOnNode(double x, double y, double zoomRatio, boolean withTolerance){
+        if(withTolerance &&
+                x >= this.x - SELECTION_TOLERANCE / zoomRatio &&
+                x <= this.x + (this.size + SELECTION_TOLERANCE) / zoomRatio &&
+                y >= this.y - SELECTION_TOLERANCE / zoomRatio &&
+                y <= this.y + (this.size + SELECTION_TOLERANCE) / zoomRatio){
+            return true;
+        }
+
+        if(!withTolerance && x >= this.x && x <= this.x + this.size / zoomRatio && y >= this.y &&
+                y <= this.y + this.size / zoomRatio){
             return true;
         }
 
@@ -161,6 +183,14 @@ public class Node {
     public Node setAbsoluteXY(boolean absoluteXY) {
         this.absoluteXY = absoluteXY;
         return this;
+    }
+
+    public String getDisplayId() {
+        return displayId;
+    }
+
+    public void setDisplayId(String displayId) {
+        this.displayId = displayId;
     }
 
     public boolean isInDisplayWindow(double[] displayWindowLocation, double[] displayWindowSize){

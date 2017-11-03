@@ -128,7 +128,7 @@ public class WorkbenchManager {
                         if (projectMgr.isProvenanceEnabled()) {
                             prov.addFileGeneration("simulation_input_file_generation",
                                     null, "workbench", null, false,
-                                    simulationConfigurationFile, null, false);
+                                    simulationConfigurationFile, null, null);
                         }
                     } else {
                         success = false;

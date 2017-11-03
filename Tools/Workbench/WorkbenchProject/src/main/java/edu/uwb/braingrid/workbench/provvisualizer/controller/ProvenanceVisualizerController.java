@@ -3,10 +3,7 @@ package edu.uwb.braingrid.workbench.provvisualizer.controller;
 import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.EdgeFactory;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.NodeFactory;
-import edu.uwb.braingrid.workbench.provvisualizer.model.ActivityNode;
-import edu.uwb.braingrid.workbench.provvisualizer.model.Edge;
-import edu.uwb.braingrid.workbench.provvisualizer.model.Graph;
-import edu.uwb.braingrid.workbench.provvisualizer.model.Node;
+import edu.uwb.braingrid.workbench.provvisualizer.model.*;
 import edu.uwb.braingrid.workbench.provvisualizer.view.VisCanvas;
 import javafx.animation.AnimationTimer;
 import javafx.beans.value.ChangeListener;
@@ -66,7 +63,7 @@ public class ProvenanceVisualizerController {
         dataProvGraph.setC3(adjustForceSlider.getValue() * 1500);
         gc = visCanvas.getGraphicsContext2D();
 
-        initNodeEdge(System.getProperty("user.dir") + "/projects/haha/provenance/haha.ttl");
+        initNodeEdge(System.getProperty("user.dir") + "/projects/kaka/provenance/kaka.ttl");
 
         //out of memory at iteration# 2718837
         //initNodeEdge("C:/Users/Choi/Desktop/SugarScape_XS.ttl");
@@ -141,6 +138,12 @@ public class ProvenanceVisualizerController {
                     if (draggedNode != null) { // drag node
                         draggedNode.setX(event.getX() / zoomRatio + displayWindowLocation[0]);
                         draggedNode.setY(event.getY() / zoomRatio + displayWindowLocation[1]);
+
+                        Node comparingNode = dataProvGraph.getComparingNode(event.getX() / zoomRatio + displayWindowLocation[0],
+                                event.getY() / zoomRatio + displayWindowLocation[1], draggedNode, zoomRatio, true);
+                        if(comparingNode != null && comparingNode instanceof EntityNode){
+                            dataProvGraph.setComparingNode(comparingNode);
+                        }
                     } else {
                         displayWindowLocation[0] = displayWindowLocationTmp[0] + pressedXY[0] - event.getX() / zoomRatio;
                         displayWindowLocation[1] = displayWindowLocationTmp[1] + pressedXY[1] - event.getY() / zoomRatio;
@@ -154,7 +157,7 @@ public class ProvenanceVisualizerController {
             public void handle(MouseEvent event) {
                 if(event.isPrimaryButtonDown()) {
                     draggedNode = dataProvGraph.getSelectedNode(event.getX() / zoomRatio + displayWindowLocation[0],
-                            event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio);
+                            event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio, false);
                     pressedXY = new double[]{event.getX() / zoomRatio, event.getY() / zoomRatio};
 
                     if (draggedNode == null) {
@@ -184,10 +187,9 @@ public class ProvenanceVisualizerController {
             @Override
             public void handle(MouseEvent event) {
                 Node node = dataProvGraph.getSelectedNode(event.getX() / zoomRatio + displayWindowLocation[0],
-                        event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio);
+                        event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio, false);
 
                 dataProvGraph.setMouseOnNode(node);
-
 
                 Edge edge = dataProvGraph.getSelectedEdge(event.getX() / zoomRatio + displayWindowLocation[0],
                         event.getY() / zoomRatio + displayWindowLocation[1], zoomRatio);
@@ -206,6 +208,7 @@ public class ProvenanceVisualizerController {
                         dataProvGraph.addOrRemoveSelectedActivityNode((ActivityNode)draggedNode);
                     }
                 }
+
                 draggedNode = null;
             }
         });
@@ -322,9 +325,9 @@ public class ProvenanceVisualizerController {
                     dataProvGraph.addNode(node);
                 }
             }
-            else if(stmt.getObject().isURIResource()){
+            else if(!predicateStr.equals(ProvVisGlobal.PROV_AT_LOCATION) && stmt.getObject().isURIResource()){
                 //Skip "wasGeneratedBY" edge to avoid duplicate relationship display temporary, will find out a better
-                //way to disply two or more relationship later
+                //way to display two or more relationship later
                 if(stmt.getPredicate().toString().equals(ProvVisGlobal.PROV_WAS_GENERATED_BY)){
                     continue;
                 }

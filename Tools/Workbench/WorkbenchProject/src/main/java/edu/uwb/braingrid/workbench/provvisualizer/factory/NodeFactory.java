@@ -17,6 +17,7 @@ public class NodeFactory {
     private static final Color ENTITY_NODE_COLOR = Color.BLUE;
     private static final Color INPUT_ENTITY_NODE_COLOR = Color.LIGHTSKYBLUE;
     private static final Color OUTPUT_ENTITY_NODE_COLOR = Color.PINK;
+    private static final Color COMPARING_ENTITY_NODE_COLOR = Color.YELLOW;
     private static final Node.NodeShape ENTITY_NODE_SHAPE = Node.NodeShape.CIRCLE;
     private static final double COMMIT_NODE_SIZE = 25;
     private static final Color COMMIT_NODE_COLOR = Color.BLUEVIOLET;
@@ -119,5 +120,12 @@ public class NodeFactory {
         outputEntityNode.setColor(OUTPUT_ENTITY_NODE_COLOR);
 
         return outputEntityNode;
+    }
+
+    public Node convertToComparingNode(Node node){
+        Node comparingEntityNode = node.clone();
+        comparingEntityNode.setColor(COMPARING_ENTITY_NODE_COLOR);
+
+        return comparingEntityNode;
     }
 }

@@ -199,24 +199,38 @@ public class ProvMgr {
      * @param uri - the URI of the entity to be created
      * @param label - optional text used in applying a label to the entity
      * resource (used for group queries)
-     * @param http - True if the resource could be accessed via http protocol.
-     * @param remote - True if the remote name space prefix should be used
+     * @param remoteHostAddress - The remote host address
+     * @param username - The username to login to the remote host
+     * @param protocol - The protocol used to access the resource.
      * @param replace - True if all instances of existing resources with the
      * specified URI should be removed from the model prior to adding this
      * entity resource
      * @return The resource representing the entity (used for method chaining or
      * complex construction)
      */
-    public Resource addEntity(String uri, String label, boolean http, boolean remote, boolean replace) {
+    public Resource addEntity(String uri, String label, String remoteHostAddress, String username, String protocol, boolean replace) {
         uri = uri.replaceAll("\\\\", "/");
         String fullUri = uri;
-        if(!http) {
-            fullUri = remote ? getProjectFullRemoteURI(uri)
-                    : getProjectFullLocalURI(uri);
+        if(protocol != null && protocol != "") {
+            //fullUri = remote ? getProjectFullRemoteURI(uri) : getProjectFullLocalURI(uri);
+            if(remoteHostAddress != null && remoteHostAddress != ""){
+                if(username != null && username !=""){
+                    fullUri = protocol +"://" + username + "@" + remoteHostAddress + "/" + uri;
+                }
+                else{
+                    fullUri = protocol +"://" + remoteHostAddress + "/" + uri;
+                }
+            }
+            else{
+                fullUri = protocol +"://" + uri;
+            }
+        }
+        else{
+            fullUri = getProjectFullLocalURI(uri);
         }
 
         if (replace) {
-            removeResource(uri);
+            removeResource(fullUri);
         }
         // make parts necessary for defining this particular entity in the model
         Resource entityToAdd = createStatement(fullUri,
@@ -231,8 +245,8 @@ public class ProvMgr {
         return entityToAdd;
     }
 
-    public Resource addEntity(String uri, String label, boolean remote, boolean replace) {
-        return addEntity(uri,label,false,remote,replace);
+    public Resource addEntity(String uri, String label, String remoteHostAddress, String username, boolean replace) {
+        return addEntity(uri,label,remoteHostAddress,username,null, replace);
     }
 
     /**
@@ -313,6 +327,30 @@ public class ProvMgr {
         }
         // provide the resource to the caller for method-chaining
         return agentToAdd;
+    }
+
+    public Resource addLocation(String uri, String label, boolean http, boolean remote, boolean replace) {
+        uri = uri.replaceAll("\\\\", "/");
+        String fullUri = uri;
+        if(!http) {
+            fullUri = remote ? getProjectFullRemoteURI(uri)
+                    : getProjectFullLocalURI(uri);
+        }
+
+        if (replace) {
+            removeResource(uri);
+        }
+        // make parts necessary for defining this particular entity in the model
+        Resource entityToAdd = createStatement(fullUri,
+                ProvOntology.getRDFTypeFullURI(),
+                ProvOntology.getLocationExpandedClassFullURI());
+
+        // add the label
+        if (label != null) {
+            labelResource(entityToAdd, label);
+        }
+        // provide the resource to the caller for method-chaining
+        return entityToAdd;
     }
 
     /**
@@ -443,6 +481,12 @@ public class ProvMgr {
                 instantaneousEvent.getURI());
     }
 
+    public Resource atLocation(Resource entity, Resource location) {
+        return createStatement(entity.getURI(),
+                ProvOntology.getAtLocationExpandedPropertyFullURI(),
+                location.getURI());
+    }
+
     /**
      * Describes when an activity started (use this for activities, use atTime
      * for instantaneous events)
@@ -522,8 +566,7 @@ public class ProvMgr {
      */
     public void removeResource(String resourceURI) {
         Resource resource = model.getResource(resourceURI);
-        StmtIterator si = model.listStatements(resource, (Property) null,
-                (RDFNode) null);
+        StmtIterator si = model.listStatements(resource, (Property) null, (RDFNode) null);
         while (si.hasNext()) {
             Statement s = si.nextStatement();
             model.remove(s);
@@ -599,16 +642,15 @@ public class ProvMgr {
      * @param fileURI - Identifies the file that was generated
      * @param fileLabel - Optional label for the generated file created with
      * fileURI
-     * @param remoteFile - Indicates the locale of the file with respect to the
-     * locale where this activity occurred
+     * @param remoteHostAddress - Address of the remote host
      * @return The resource object associated with the file that was generated
      */
     public Resource addFileGeneration(String activityURI, String activityLabel,
             String agentURI, String agentLabel, boolean remoteAgent,
-            String fileURI, String fileLabel, boolean remoteFile) {
+            String fileURI, String fileLabel, String remoteHostAddress) {
         Resource activity = addActivity(activityURI, activityLabel, remoteAgent, false);
         Resource program = addSoftwareAgent(agentURI, agentLabel, remoteAgent, false);
-        Resource file = addEntity(fileURI, fileLabel, remoteFile, false);
+        Resource file = addEntity(fileURI, fileLabel, remoteHostAddress, null, false);
         generated(activity, file);
         wasAssociatedWith(activity, program);
         return file;

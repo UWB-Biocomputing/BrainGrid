@@ -12,9 +12,12 @@ public class ProvVisGlobal {
     public static String PROV_ACTIVITY = PROV_PREFIX + "Activity";
     public static String PROV_SW_AGENT = PROV_PREFIX + "SoftwareAgent";
     public static String PROV_ENTITY = PROV_PREFIX + "Entity";
+    public static String PROV_AT_LOCATION = PROV_PREFIX + "atLocation";
     public static String PROV_WAS_GENERATED_BY = PROV_PREFIX + "wasGeneratedBy";
     public static String PROV_USED = PROV_PREFIX + "used";
     public static String PROV_GENERATED = PROV_PREFIX + "generated";
     public static String PROV_WAS_ASSOCIATED_WITH = PROV_PREFIX + "wasAssociatedWith";
     public static String PROV_WAS_DERIVED_FROM = PROV_PREFIX + "wasDerivedFrom";
+    public static String SSH_SCHEME_AND_DOMAIN_REGEX = "^(.*/)";
+
 }
