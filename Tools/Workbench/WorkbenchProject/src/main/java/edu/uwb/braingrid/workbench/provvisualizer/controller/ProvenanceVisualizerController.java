@@ -1,6 +1,9 @@
 package edu.uwb.braingrid.workbench.provvisualizer.controller;
 
+import com.jcraft.jsch.*;
 import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
+import edu.uwb.braingrid.workbench.provvisualizer.Utility.ConnectionUtility;
+import edu.uwb.braingrid.workbench.provvisualizer.Utility.FileUtility;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.EdgeFactory;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.NodeFactory;
 import edu.uwb.braingrid.workbench.provvisualizer.model.*;
@@ -10,20 +13,37 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RDFDataMgr;
 import org.controlsfx.control.ToggleSwitch;
 
+import javax.print.DocFlavor;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class ProvenanceVisualizerController {
     private Graph dataProvGraph ;
+    private LinkedHashMap<String,AuthenticationInfo> authInfoCache = new LinkedHashMap<String,AuthenticationInfo>(5, (float)0.75,true);
 
     private GraphicsContext gc ;
     private Model provModel ;
@@ -38,6 +58,8 @@ public class ProvenanceVisualizerController {
     private double[] displayWindowSize = new double[]{ 10000, 10000 };
 
     private double[] displayWindowLocationTmp ;
+
+    private AuthenticationInfo authenticationInfo = null;
 
     @FXML
     private VisCanvas visCanvas;
@@ -141,8 +163,11 @@ public class ProvenanceVisualizerController {
 
                         Node comparingNode = dataProvGraph.getComparingNode(event.getX() / zoomRatio + displayWindowLocation[0],
                                 event.getY() / zoomRatio + displayWindowLocation[1], draggedNode, zoomRatio, true);
-                        if(comparingNode != null && comparingNode instanceof EntityNode){
+                        if(draggedNode instanceof EntityNode && comparingNode != null && comparingNode instanceof EntityNode){
                             dataProvGraph.setComparingNode(comparingNode);
+                        }
+                        else{
+                            dataProvGraph.setComparingNode(null);
                         }
                     } else {
                         displayWindowLocation[0] = displayWindowLocationTmp[0] + pressedXY[0] - event.getX() / zoomRatio;
@@ -209,6 +234,29 @@ public class ProvenanceVisualizerController {
                     }
                 }
 
+                Node comparingNode = dataProvGraph.getComparingNode();
+                if(comparingNode != null){
+                    boolean comparingNodeFileReady = false;
+                    boolean draggedNodeFileReady = false;
+
+                    //check if the files exist in local file system
+                    //download the files if they are not in the file system.
+                    comparingNodeFileReady = checkIfNodeFileExists(comparingNode);
+                    if(!comparingNodeFileReady){
+                        comparingNodeFileReady = downloadNodeFile(comparingNode);
+                    }
+
+                    draggedNodeFileReady = checkIfNodeFileExists(draggedNode);
+                    if(!draggedNodeFileReady){
+                        draggedNodeFileReady = downloadNodeFile(draggedNode);
+                    }
+
+                    if(comparingNodeFileReady && draggedNodeFileReady){
+                        //start comparing files
+                    }
+                }
+
+                dataProvGraph.setComparingNode(null);
                 draggedNode = null;
             }
         });
@@ -235,6 +283,97 @@ public class ProvenanceVisualizerController {
                 }
             }
         });
+    }
+
+    private boolean checkIfNodeFileExists(Node node){
+        File nodeFile = new File(FileUtility.getNodeFileLocalAbsolutePath(node));
+
+        return nodeFile.exists();
+    }
+
+    private boolean downloadNodeFile(Node node) {
+        String protocol = null;
+        String username = null;
+        String hostname = null;
+        String nodeFileRemoteFullPath = node.getId();
+        String[] splitStrs = null;
+        String nodeFileLclPath = FileUtility.getNodeFileLocalAbsolutePath(node);
+        String nodeFileRemoteRelPath = FileUtility.getNodeFileRemoteRelativePath(node);
+        boolean downloadSuccess = false;
+        authenticationInfo = null;
+
+        if(nodeFileRemoteFullPath.contains("://")) {
+            splitStrs = nodeFileRemoteFullPath.split("://");
+            protocol = splitStrs[0];
+        }
+
+        //currently only support download via sftp
+        if(protocol == null || protocol!=null && !protocol.equals("sftp")) return false;
+
+        if(splitStrs[1].contains("@")) {
+            splitStrs = splitStrs[1].split("@");
+            username = splitStrs[0];
+        }
+
+        if(splitStrs[1].contains("/")) {
+            hostname = splitStrs[1].split("/")[0];
+        }
+        String cacheKey = username + "@" + hostname;
+        if(authInfoCache.containsKey(cacheKey)){
+            authenticationInfo = authInfoCache.get(cacheKey);
+        }
+
+        if(authenticationInfo != null){
+            do{
+                downloadSuccess = ConnectionUtility.downloadFileViaSftp(nodeFileRemoteRelPath,nodeFileLclPath, authenticationInfo);
+            }while(!downloadSuccess && requestAuthenticationInfo(hostname,username));
+        }
+        else{
+            while(!downloadSuccess && requestAuthenticationInfo(hostname,username)){
+                downloadSuccess = ConnectionUtility.downloadFileViaSftp(nodeFileRemoteRelPath,nodeFileLclPath, authenticationInfo);
+            };
+        }
+
+        if(downloadSuccess){
+            //save authentication info
+            authInfoCache.put(authenticationInfo.getUsername()+"@"+authenticationInfo.getHostname(), authenticationInfo);
+        }
+
+        return downloadSuccess;
+    }
+
+    private boolean requestAuthenticationInfo(String hostname, String username){
+        Parent parent = null;
+        authenticationInfo = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AuthenticationView.fxml"));
+            parent = loader.load();
+            AuthenticationController controller = loader.getController();
+            controller.setHostname(hostname);
+            controller.setUsername(username);
+
+            controller.setOkBtnCallback(authInfo -> authenticationInfo = authInfo);
+
+            Stage modal_dialog = new Stage(StageStyle.DECORATED);
+            modal_dialog.initModality(Modality.WINDOW_MODAL);
+            modal_dialog.initOwner(canvasPane.getScene().getWindow());
+            Scene scene = new Scene(parent);
+
+            modal_dialog.setScene(scene);
+            modal_dialog.setTitle("Login");
+            modal_dialog.showAndWait();
+
+            if(authenticationInfo != null){
+                return true;
+            }
+            else{
+                return false;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return  false;
     }
 
     private void initNodeEdge(String provFileURI){

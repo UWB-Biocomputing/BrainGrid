@@ -1,6 +1,7 @@
 package edu.uwb.braingrid.workbench.provvisualizer.model;
 
 import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
+import edu.uwb.braingrid.workbench.provvisualizer.Utility.GraphUtility;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.NodeFactory;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;

@@ -1,6 +1,7 @@
 package edu.uwb.braingrid.workbench.provvisualizer.model;
 
 import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
+import edu.uwb.braingrid.workbench.provvisualizer.Utility.FileUtility;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class Node {
     public Node(String id, double x, double y, double size, Color color, NodeShape nodeShape) {
         this.id = id;
         if(id!=null){
-            this.displayId = id.replaceFirst(ProvVisGlobal.SSH_SCHEME_AND_DOMAIN_REGEX,"");
+            this.displayId = id.replaceFirst(FileUtility.FILE_PATH_PREFIX_REGEX,"");
         }
         this.x = x;
         this.y = y;
@@ -59,7 +60,7 @@ public class Node {
     public Node(String id, double x, double y, double size, Color color, String label, NodeShape nodeShape) {
         this.id = id;
         if(id!=null){
-            this.displayId = id.replaceFirst(ProvVisGlobal.SSH_SCHEME_AND_DOMAIN_REGEX,"");
+            this.displayId = id.replaceFirst(FileUtility.FILE_PATH_PREFIX_REGEX,"");
         }
         this.x = x;
         this.y = y;
@@ -123,7 +124,7 @@ public class Node {
     public Node setId(String id) {
         this.id = id;
         if(id!=null){
-            this.displayId = id.replaceFirst(ProvVisGlobal.SSH_SCHEME_AND_DOMAIN_REGEX,"");
+            this.displayId = id.replaceFirst(FileUtility.FILE_PATH_PREFIX_REGEX,"");
         }
         return this;
     }

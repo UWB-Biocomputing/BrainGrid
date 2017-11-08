@@ -1,5 +1,7 @@
 package edu.uwb.braingrid.workbench.provvisualizer.model;
 
+import edu.uwb.braingrid.workbench.provvisualizer.Utility.GraphUtility;
+
 import java.util.HashMap;
 
 public class Edge {
