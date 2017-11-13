@@ -18,7 +18,7 @@ public class ProvenanceVisualizer extends Application {
     public void start(Stage primaryStage) {
         Parent root;
         try {
-            root = FXMLLoader.load(getClass().getResource("/view/ProvenanceVisualizerView.fxml"));
+            root = FXMLLoader.load(getClass().getResource("/provvisualizer/view/ProvenanceVisualizerView.fxml"));
             Scene scene = new Scene(root,1200,600);
             primaryStage.setScene(scene);
             primaryStage.setTitle("Provenance Visualizer");

@@ -1,6 +1,5 @@
 package edu.uwb.braingrid.workbench.provvisualizer.controller;
 
-import com.jcraft.jsch.*;
 import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
 import edu.uwb.braingrid.workbench.provvisualizer.Utility.ConnectionUtility;
 import edu.uwb.braingrid.workbench.provvisualizer.Utility.FileUtility;
@@ -31,15 +30,9 @@ import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RDFDataMgr;
 import org.controlsfx.control.ToggleSwitch;
 
-import javax.print.DocFlavor;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ProvenanceVisualizerController {
     private Graph dataProvGraph ;
@@ -253,6 +246,7 @@ public class ProvenanceVisualizerController {
 
                     if(comparingNodeFileReady && draggedNodeFileReady){
                         //start comparing files
+                        compareNodes(draggedNode,comparingNode);
                     }
                 }
 
@@ -283,6 +277,29 @@ public class ProvenanceVisualizerController {
                 }
             }
         });
+    }
+
+    private void compareNodes(Node node1, Node node2){
+        Parent parent = null;
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/provvisualizer/view/TextComparisonView.fxml"));
+        try {
+            parent = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        TextComparisonController controller = loader.getController();
+        controller.getFileInfoLblLeft().setText(node1.getDisplayId());
+        controller.getFileInfoLblRight().setText(node2.getDisplayId());
+        controller.loadFiles(FileUtility.getNodeFileLocalAbsolutePath(node1),FileUtility.getNodeFileLocalAbsolutePath(node2));
+
+        Stage modal_dialog = new Stage(StageStyle.DECORATED);
+        modal_dialog.initModality(Modality.WINDOW_MODAL);
+        modal_dialog.initOwner(canvasPane.getScene().getWindow());
+        Scene scene = new Scene(parent);
+        modal_dialog.setScene(scene);
+        modal_dialog.setTitle("Comparing " + node1.getDisplayId() + " and " + node2.getDisplayId());
+        modal_dialog.setMaximized(true);
+        modal_dialog.showAndWait();
     }
 
     private boolean checkIfNodeFileExists(Node node){
@@ -346,7 +363,7 @@ public class ProvenanceVisualizerController {
         Parent parent = null;
         authenticationInfo = null;
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AuthenticationView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/provvisualizer/view/AuthenticationView.fxml"));
             parent = loader.load();
             AuthenticationController controller = loader.getController();
             controller.setHostname(hostname);
