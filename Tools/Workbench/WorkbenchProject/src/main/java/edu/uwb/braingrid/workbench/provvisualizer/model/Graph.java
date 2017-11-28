@@ -2,6 +2,7 @@ package edu.uwb.braingrid.workbench.provvisualizer.model;
 
 import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
 import edu.uwb.braingrid.workbench.provvisualizer.Utility.GraphUtility;
+import edu.uwb.braingrid.workbench.provvisualizer.Utility.ProvUtility;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.NodeFactory;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
@@ -9,13 +10,27 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevCommitList;
+import org.eclipse.jgit.revwalk.RevSort;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.filter.RevFilter;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Graph {
     public static final double LABEL_FONT_SIZE = 20;
+
+    Git git = null;
 
     private HashMap<String, Node> nodes = new HashMap<>();
     private HashMap<String, Edge> edges = new HashMap<>();
@@ -25,6 +40,7 @@ public class Graph {
     private HashSet<Node> dispNodeIds = new HashSet<>();
     private HashSet<Edge> dispRelationships = new HashSet<>();
     private HashSet<ActivityNode> selectedActivityNodes = new HashSet<>();
+    private HashSet<Node> commitNodesList= new HashSet<>();
 
     private Node comparingNode ;
     private Node mouseOnNode ;
@@ -40,6 +56,24 @@ public class Graph {
 
 
     public Graph(){
+        String bgReposPath = System.getProperty("user.dir") + File.separator + ProvVisGlobal.BG_REPOSITORY_LOCAL;
+        if(!Files.exists(Paths.get(bgReposPath))) {
+            try {
+                git = Git.cloneRepository()
+                        .setURI(ProvVisGlobal.BG_REPOSITORY_URI)
+                        .setDirectory(new File(bgReposPath))
+                        .call();
+            } catch (GitAPIException e) {
+                e.printStackTrace();
+            }
+        }
+        else{
+            try {
+                git = Git.open(new File(bgReposPath));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public double getC3(){
@@ -52,6 +86,9 @@ public class Graph {
 
     public void addNode(Node node){
         this.nodes.put(node.getId(),node);
+        if(node instanceof CommitNode){
+            commitNodesList.add(node);
+        }
     }
 
     public void addNodes(Node... nodes){
@@ -107,6 +144,52 @@ public class Graph {
         }
         else{
             return false;
+        }
+    }
+
+    public void generateCommitRelationships(double canvasWidth, double canvasHeight){
+        RevWalk walker = new RevWalk(git.getRepository());
+        List<RevCommit> commits = new ArrayList<>();
+        try {
+            for(Node node:commitNodesList){
+                commits.add(walker.parseCommit(ObjectId.fromString(node.getDisplayId())));
+            }
+            walker.markStart(commits);
+            walker.setRevFilter(RevFilter.MERGE_BASE);
+            walker.sort(RevSort.COMMIT_TIME_DESC);
+
+            for(RevCommit revCommit:walker) {
+                if(!commits.contains(revCommit)){
+                    commits.add(revCommit);
+                    Node node = NodeFactory.getInstance()
+                            .createCommitNode()
+                            .setId(ProvUtility.getCommitUri(revCommit.getId().getName()))
+                            .setX(Math.random()*canvasWidth)
+                            .setY(Math.random()*canvasHeight)
+                            .setLabel(ProvUtility.LABEL_COMMIT);
+                    nodes.put(node.getId(),node);
+                }
+            }
+
+            Collections.sort(commits,(commit1, commit2) -> commit2.getCommitTime() - commit1.getCommitTime());
+            LinkedList<RevCommit> branches = new LinkedList<>();
+            for (int i = 0; i < commits.size(); i++){
+                RevCommit commit = commits.get(i);
+                List<RevCommit> removalList = new ArrayList<>();
+                for(RevCommit branchCommit:branches){
+                    if(walker.isMergedInto(commit,branchCommit)){
+                        Node commitNode1 = nodes.get(ProvUtility.getCommitUri(commit.getId().name()));
+                        Node commitNode2 = nodes.get(ProvUtility.getCommitUri(branchCommit.getId().name()));
+                        edges.put(commitNode1.getId() + commitNode2.getId(),
+                                new Edge(commitNode1.getId(),commitNode2.getId(),""));
+                        removalList.add(branchCommit);
+                    }
+                }
+                branches.removeAll(removalList);
+                branches.addLast(commit);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -292,7 +375,7 @@ public class Graph {
         //get used nodes/inputs
         Set<String> keySet = edges.keySet()
                 .stream()
-                .filter(s -> s.startsWith(nodeId + ProvVisGlobal.PROV_USED))
+                .filter(s -> s.startsWith(nodeId + ProvUtility.PROV_USED))
                 .collect(Collectors.toSet());
 
         for(String key : keySet){
@@ -310,7 +393,7 @@ public class Graph {
         //get generated nodes/outputs
         keySet = edges.keySet()
                 .stream()
-                .filter(s -> s.startsWith(nodeId + ProvVisGlobal.PROV_GENERATED))
+                .filter(s -> s.startsWith(nodeId + ProvUtility.PROV_GENERATED))
                 .collect(Collectors.toSet());
 
         for(String key : keySet){
@@ -328,7 +411,7 @@ public class Graph {
         //get software Agent
         keySet = edges.keySet()
                 .stream()
-                .filter(s -> s.startsWith(nodeId + ProvVisGlobal.PROV_WAS_ASSOCIATED_WITH))
+                .filter(s -> s.startsWith(nodeId + ProvUtility.PROV_WAS_ASSOCIATED_WITH))
                 .collect(Collectors.toSet());
 
         for(String key : keySet){
@@ -346,7 +429,7 @@ public class Graph {
             String agentNodeId = agentNode.getId();
             Set<String> agentNodeKeySet = edges.keySet()
                     .stream()
-                    .filter(s -> s.startsWith(agentNodeId + ProvVisGlobal.PROV_WAS_DERIVED_FROM))
+                    .filter(s -> s.startsWith(agentNodeId + ProvUtility.PROV_WAS_DERIVED_FROM))
                     .collect(Collectors.toSet());
 
             for(String agentNodeKey : agentNodeKeySet){
@@ -697,5 +780,13 @@ public class Graph {
 
     public void setComparingNode(Node comparingNode) {
         this.comparingNode = comparingNode;
+    }
+
+    public HashSet<Node> getCommitNodesList() {
+        return commitNodesList;
+    }
+
+    public void setCommitList(HashSet<Node> commitNodesList) {
+        this.commitNodesList = commitNodesList;
     }
 }

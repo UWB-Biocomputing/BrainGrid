@@ -3,7 +3,6 @@ package edu.uwb.braingrid.workbench.provvisualizer.controller;
 import difflib.Delta;
 import difflib.DiffUtils;
 import difflib.Patch;
-import edu.uwb.braingrid.workbench.provvisualizer.Utility.FileUtility;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import org.fxmisc.flowless.VirtualizedScrollPane;

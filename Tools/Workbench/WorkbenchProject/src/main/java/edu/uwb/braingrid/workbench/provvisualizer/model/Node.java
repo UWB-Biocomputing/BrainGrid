@@ -159,10 +159,12 @@ public class Node {
         return new Node(id,x,y,size,color,label,shape);
     }
 
-    public boolean equals(Node node){
-        return this.id.equals(node.id);
+    @Override
+    public boolean equals(Object node){
+        return node instanceof Node && this.id.equals(((Node) node).id);
     }
 
+    @Override
     public int hashCode(){ return this.id.hashCode();}
 
     public boolean isConnected(Node node2) {

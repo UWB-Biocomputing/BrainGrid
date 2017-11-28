@@ -1,8 +1,7 @@
 package edu.uwb.braingrid.workbench.provvisualizer.controller;
-
-import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
 import edu.uwb.braingrid.workbench.provvisualizer.Utility.ConnectionUtility;
 import edu.uwb.braingrid.workbench.provvisualizer.Utility.FileUtility;
+import edu.uwb.braingrid.workbench.provvisualizer.Utility.ProvUtility;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.EdgeFactory;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.NodeFactory;
 import edu.uwb.braingrid.workbench.provvisualizer.model.*;
@@ -10,17 +9,20 @@ import edu.uwb.braingrid.workbench.provvisualizer.view.VisCanvas;
 import javafx.animation.AnimationTimer;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -29,9 +31,15 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RDFDataMgr;
 import org.controlsfx.control.ToggleSwitch;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 
 public class ProvenanceVisualizerController {
@@ -68,6 +76,8 @@ public class ProvenanceVisualizerController {
     private ToggleSwitch showRelationships;
     @FXML
     private ToggleSwitch showLegend;
+    @FXML
+    private Button chooseFileBtn;
 
     /**
      * Initializes the controller.
@@ -78,8 +88,7 @@ public class ProvenanceVisualizerController {
         dataProvGraph.setC3(adjustForceSlider.getValue() * 1500);
         gc = visCanvas.getGraphicsContext2D();
 
-        initNodeEdge(System.getProperty("user.dir") + "/projects/kaka/provenance/kaka.ttl");
-
+        //initNodeEdge(System.getProperty("user.dir") + "/projects/kaka/provenance/kaka.ttl");
         //out of memory at iteration# 2718837
         //initNodeEdge("C:/Users/Choi/Desktop/SugarScape_XS.ttl");
 
@@ -89,7 +98,6 @@ public class ProvenanceVisualizerController {
 
         initMouseEvents();
         initGUIEvents();
-
 
         timer = new AnimationTimer() {
             @Override
@@ -140,6 +148,24 @@ public class ProvenanceVisualizerController {
                 }
                 else{
                     dataProvGraph.setShowLegend(false);
+                }
+            }
+        });
+
+        chooseFileBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Select provenance file");
+                fileChooser.getExtensionFilters().addAll(
+                        new FileChooser.ExtensionFilter("Turtle Files", "*.ttl"));
+                fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+
+                File selectedFile = null;
+                selectedFile = fileChooser.showOpenDialog(canvasPane.getScene().getWindow());
+
+                if(selectedFile != null) {
+                    initNodeEdge(selectedFile.getAbsolutePath());
                 }
             }
         });
@@ -402,11 +428,12 @@ public class ProvenanceVisualizerController {
 
         while (iter.hasNext()) {
             stmt = iter.nextStatement();
+            if(stmt.getSubject().toString().contains("local:"))continue;
             String predicateStr = stmt.getPredicate().toString();
-            if(predicateStr.equals(ProvVisGlobal.RDF_TYPE)){
+            if(predicateStr.equals(ProvUtility.RDF_TYPE)){
                 String subjectStr = stmt.getSubject().toString();
                 String objectStr = stmt.getObject().toString();
-                if(objectStr.equals(ProvVisGlobal.PROV_ACTIVITY)){
+                if(objectStr.equals(ProvUtility.PROV_ACTIVITY)){
                     if(dataProvGraph.isNodeAdded(subjectStr)) {
                         dataProvGraph.addNode(nodeFactory.convertToActivityNode(dataProvGraph.getNode(subjectStr)));
                     }
@@ -419,7 +446,7 @@ public class ProvenanceVisualizerController {
                         dataProvGraph.addNode(activityNode);
                     }
                 }
-                else if(objectStr.equals(ProvVisGlobal.PROV_SW_AGENT)){
+                else if(objectStr.equals(ProvUtility.PROV_SW_AGENT)){
                     if(dataProvGraph.isNodeAdded(subjectStr)) {
                         dataProvGraph.addNode(nodeFactory.convertToAgentNode(dataProvGraph.getNode(subjectStr)));
                     }
@@ -432,7 +459,7 @@ public class ProvenanceVisualizerController {
                         dataProvGraph.addNode(agentNode);
                     }
                 }
-                else if(objectStr.equals(ProvVisGlobal.PROV_ENTITY)){
+                else if(objectStr.equals(ProvUtility.PROV_ENTITY)){
                     if(dataProvGraph.isNodeAdded(subjectStr)) {
                         if(dataProvGraph.getNode(subjectStr).getLabel().equals("commit")){
                             //convert to commit node
@@ -452,7 +479,7 @@ public class ProvenanceVisualizerController {
                     }
                 }
             }
-            else if(predicateStr.equals(ProvVisGlobal.RDF_LABEL)){
+            else if(predicateStr.equals(ProvUtility.RDF_LABEL)){
                 String subjectStr = stmt.getSubject().toString();
                 String objectStr = stmt.getObject().toString();
 
@@ -481,10 +508,10 @@ public class ProvenanceVisualizerController {
                     dataProvGraph.addNode(node);
                 }
             }
-            else if(!predicateStr.equals(ProvVisGlobal.PROV_AT_LOCATION) && stmt.getObject().isURIResource()){
+            else if(!predicateStr.equals(ProvUtility.PROV_AT_LOCATION) && stmt.getObject().isURIResource()){
                 //Skip "wasGeneratedBY" edge to avoid duplicate relationship display temporary, will find out a better
                 //way to display two or more relationship later
-                if(stmt.getPredicate().toString().equals(ProvVisGlobal.PROV_WAS_GENERATED_BY)){
+                if(stmt.getPredicate().toString().equals(ProvUtility.PROV_WAS_GENERATED_BY)){
                     continue;
                 }
 
@@ -498,6 +525,7 @@ public class ProvenanceVisualizerController {
             //System.out.println(stmt.getSubject().toString() + " " + stmt.getPredicate().toString() + " " + stmt.getObject().toString());
         }
 
+        dataProvGraph.generateCommitRelationships(visCanvas.getWidth(),visCanvas.getHeight());
         //set neighbors
         dataProvGraph.setNeighbors();
     }
