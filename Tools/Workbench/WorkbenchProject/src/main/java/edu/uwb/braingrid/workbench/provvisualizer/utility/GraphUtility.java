@@ -1,4 +1,4 @@
-package edu.uwb.braingrid.workbench.provvisualizer.Utility;
+package edu.uwb.braingrid.workbench.provvisualizer.utility;
 
 public class GraphUtility {
     public static double calculateSlope(double[] fromPoint, double[] toPoint){

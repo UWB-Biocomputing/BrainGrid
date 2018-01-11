@@ -1,7 +1,8 @@
 package edu.uwb.braingrid.workbench.provvisualizer.controller;
-import edu.uwb.braingrid.workbench.provvisualizer.Utility.ConnectionUtility;
-import edu.uwb.braingrid.workbench.provvisualizer.Utility.FileUtility;
-import edu.uwb.braingrid.workbench.provvisualizer.Utility.ProvUtility;
+
+import edu.uwb.braingrid.workbench.provvisualizer.utility.ConnectionUtility;
+import edu.uwb.braingrid.workbench.provvisualizer.utility.FileUtility;
+import edu.uwb.braingrid.workbench.provvisualizer.utility.ProvUtility;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.EdgeFactory;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.NodeFactory;
 import edu.uwb.braingrid.workbench.provvisualizer.model.*;
@@ -31,15 +32,9 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RDFDataMgr;
 import org.controlsfx.control.ToggleSwitch;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 
 public class ProvenanceVisualizerController {
@@ -87,10 +82,6 @@ public class ProvenanceVisualizerController {
         dataProvGraph = new Graph();
         dataProvGraph.setC3(adjustForceSlider.getValue() * 1500);
         gc = visCanvas.getGraphicsContext2D();
-
-        //initNodeEdge(System.getProperty("user.dir") + "/projects/kaka/provenance/kaka.ttl");
-        //out of memory at iteration# 2718837
-        //initNodeEdge("C:/Users/Choi/Desktop/SugarScape_XS.ttl");
 
         // Bind canvas size to stack pane size.
         visCanvas.widthProperty().bind(canvasPane.widthProperty());
@@ -435,7 +426,12 @@ public class ProvenanceVisualizerController {
                 String objectStr = stmt.getObject().toString();
                 if(objectStr.equals(ProvUtility.PROV_ACTIVITY)){
                     if(dataProvGraph.isNodeAdded(subjectStr)) {
-                        dataProvGraph.addNode(nodeFactory.convertToActivityNode(dataProvGraph.getNode(subjectStr)));
+                        Node node = dataProvGraph.getNode(subjectStr);
+                        if(!(node instanceof ActivityNode)) {
+                            node = nodeFactory.convertToActivityNode(node);
+                        }
+
+                        dataProvGraph.addNode(node);
                     }
                     else {
                         //create Activity Node
@@ -506,6 +502,54 @@ public class ProvenanceVisualizerController {
                             .setY(Math.random()*visCanvas.getHeight())
                             .setLabel(objectStr);
                     dataProvGraph.addNode(node);
+                }
+            }
+            else if(predicateStr.equals(ProvUtility.PROV_STARTED_AT_TIME)){
+                String subjectStr = stmt.getSubject().toString();
+                String objectStr = stmt.getObject().toString();
+                String dateTime = objectStr.substring(0,objectStr.indexOf("^^"));
+
+                if(dataProvGraph.isNodeAdded(subjectStr)) {
+                    Node node = dataProvGraph.getNode(subjectStr);
+                    if(!(node instanceof ActivityNode)) {
+                        node = nodeFactory.convertToActivityNode(node);
+                    }
+                    ((ActivityNode)node).setStartTime(dateTime);
+
+                    dataProvGraph.addNode(node);
+                }
+                else {
+                    //create Activity Node
+                    ActivityNode activityNode = nodeFactory.createActivityNode();
+                    activityNode.setStartTime(dateTime)
+                            .setId(subjectStr)
+                            .setX(Math.random() * visCanvas.getWidth())
+                            .setY(Math.random() * visCanvas.getHeight());
+                    dataProvGraph.addNode(activityNode);
+                }
+            }
+            else if(predicateStr.equals(ProvUtility.PROV_ENDED_AT_TIME)){
+                String subjectStr = stmt.getSubject().toString();
+                String objectStr = stmt.getObject().toString();
+                String dateTime = objectStr.substring(0,objectStr.indexOf("^^"));
+
+                if(dataProvGraph.isNodeAdded(subjectStr)) {
+                    Node node = dataProvGraph.getNode(subjectStr);
+                    if(!(node instanceof ActivityNode)) {
+                        node = nodeFactory.convertToActivityNode(node);
+                    }
+                    ((ActivityNode)node).setEndTime(dateTime);
+
+                    dataProvGraph.addNode(node);
+                }
+                else {
+                    //create Activity Node
+                    ActivityNode activityNode = nodeFactory.createActivityNode();
+                    activityNode.setEndTime(dateTime)
+                            .setId(subjectStr)
+                            .setX(Math.random() * visCanvas.getWidth())
+                            .setY(Math.random() * visCanvas.getHeight());
+                    dataProvGraph.addNode(activityNode);
                 }
             }
             else if(!predicateStr.equals(ProvUtility.PROV_AT_LOCATION) && stmt.getObject().isURIResource()){

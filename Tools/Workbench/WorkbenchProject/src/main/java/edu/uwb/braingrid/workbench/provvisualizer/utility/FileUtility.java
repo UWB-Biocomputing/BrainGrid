@@ -1,4 +1,4 @@
-package edu.uwb.braingrid.workbench.provvisualizer.Utility;
+package edu.uwb.braingrid.workbench.provvisualizer.utility;
 
 import edu.uwb.braingrid.workbench.provvisualizer.model.Node;
 

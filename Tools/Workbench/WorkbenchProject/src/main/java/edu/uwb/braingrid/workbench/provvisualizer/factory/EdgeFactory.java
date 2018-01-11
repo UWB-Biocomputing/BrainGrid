@@ -7,6 +7,7 @@ public class EdgeFactory {
     private static EdgeFactory edgeFactory;
 
     private Edge defaultEdge = null;
+    private Edge dashEdge = null;
 
     private EdgeFactory(){
     }
@@ -25,5 +26,13 @@ public class EdgeFactory {
         }
 
         return defaultEdge.clone();
+    }
+
+    public Edge createDashEdge(){
+        if(dashEdge == null){
+            dashEdge = new Edge(true);
+        }
+
+        return dashEdge.clone();
     }
 }

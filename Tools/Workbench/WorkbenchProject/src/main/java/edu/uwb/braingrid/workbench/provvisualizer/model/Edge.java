@@ -1,11 +1,11 @@
 package edu.uwb.braingrid.workbench.provvisualizer.model;
 
-import edu.uwb.braingrid.workbench.provvisualizer.Utility.GraphUtility;
+import edu.uwb.braingrid.workbench.provvisualizer.utility.GraphUtility;
 
 import java.util.HashMap;
 
 public class Edge {
-    private boolean directed = false;
+    private boolean dashline = false;
     private String fromNodeId;
     private String toNodeId;
     private String relationship ;
@@ -13,10 +13,22 @@ public class Edge {
     public Edge() {
     }
 
+    public Edge(boolean dashline) {
+        this.dashline = dashline;
+    }
+
     public Edge(String fromNodeId, String toNodeId, String relationship) {
         this.fromNodeId = fromNodeId;
         this.toNodeId = toNodeId;
         this.relationship = relationship;
+        this.dashline = false;
+    }
+
+    public Edge(String fromNodeId, String toNodeId, String relationship, boolean dashline) {
+        this.fromNodeId = fromNodeId;
+        this.toNodeId = toNodeId;
+        this.relationship = relationship;
+        this.dashline = dashline;
     }
 
     public String getEdgeId(){
@@ -61,18 +73,18 @@ public class Edge {
         return this;
     }
 
-    public boolean isDirected() {
-        return directed;
+    public boolean isDashline() {
+        return dashline;
     }
 
-    public Edge setDirected(boolean directed) {
-        this.directed = directed;
+    public Edge setDashline(boolean dashline) {
+        this.dashline = dashline;
         return this;
     }
 
     @Override
     public Edge clone(){
-        return new Edge(fromNodeId,toNodeId,relationship);
+        return new Edge(fromNodeId,toNodeId,relationship,dashline);
     }
 
     public boolean equals(Edge edge){
@@ -98,19 +110,16 @@ public class Edge {
         double bufferLength = 5;
         Node fromNode = nodes.get(fromNodeId);
         Node toNode = nodes.get(toNodeId);
-        double[] fromNodePoint = new double[]{ fromNode.getX() + fromNode.getSize()/zoomRatio /2, fromNode.getY() + fromNode.getSize()/zoomRatio/2 };
-        double[] toNodePoint = new double[]{ toNode.getX() + toNode.getSize()/zoomRatio / 2, toNode.getY() + toNode.getSize()/zoomRatio/2};
+        double[] fromNodePoint = new double[]{ fromNode.getX(), fromNode.getY()};
+        double[] toNodePoint = new double[]{ toNode.getX(), toNode.getY()};
 
         double edgeSlope = GraphUtility.calculateSlope(fromNodePoint,toNodePoint);
         double edgeSlopeAngle = Math.atan(edgeSlope);
         double edgeRightAngleSlope = -1 / edgeSlope;
 
-
         //only need diagonal points
-        //double[] fromNodePoint1 = GraphUtility.findPointWithAngleDistance(fromNodePoint, edgeSlopeAngle + Math.PI/2, bufferLength);
         double[] fromNodePoint2 = GraphUtility.findPointWithAngleDistance(fromNodePoint, edgeSlopeAngle - Math.PI/2, bufferLength);
         double[] toNodePoint1 = GraphUtility.findPointWithAngleDistance(toNodePoint, edgeSlopeAngle + Math.PI/2, bufferLength);
-        //double[] toNodePoint2 = GraphUtility.findPointWithAngleDistance(toNodePoint, edgeSlopeAngle - Math.PI/2, bufferLength);
 
         double[] yInterceptEdgeSlope = new double[]{fromNodePoint2[1] - edgeSlope * fromNodePoint2[0], toNodePoint1[1] - edgeSlope * toNodePoint1[0]};
         double[] yInterceptEdgeRightAngleSlope = new double[]{fromNodePoint2[1] - edgeRightAngleSlope * fromNodePoint2[0], toNodePoint1[1] - edgeRightAngleSlope * toNodePoint1[0], };

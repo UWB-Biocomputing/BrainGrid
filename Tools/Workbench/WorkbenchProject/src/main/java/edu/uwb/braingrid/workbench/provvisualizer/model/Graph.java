@@ -1,10 +1,10 @@
 package edu.uwb.braingrid.workbench.provvisualizer.model;
 
 import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
-import edu.uwb.braingrid.workbench.provvisualizer.Utility.GraphUtility;
-import edu.uwb.braingrid.workbench.provvisualizer.Utility.ProvUtility;
+import edu.uwb.braingrid.workbench.provvisualizer.utility.GraphUtility;
+import edu.uwb.braingrid.workbench.provvisualizer.utility.ProvUtility;
+import edu.uwb.braingrid.workbench.provvisualizer.factory.EdgeFactory;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.NodeFactory;
-import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -14,7 +14,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevCommitList;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
@@ -24,7 +23,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Graph {
@@ -180,8 +178,23 @@ public class Graph {
                     if(walker.isMergedInto(commit,branchCommit)){
                         Node commitNode1 = nodes.get(ProvUtility.getCommitUri(commit.getId().name()));
                         Node commitNode2 = nodes.get(ProvUtility.getCommitUri(branchCommit.getId().name()));
-                        edges.put(commitNode1.getId() + commitNode2.getId(),
-                                new Edge(commitNode1.getId(),commitNode2.getId(),""));
+                        EdgeFactory edgeFactory = EdgeFactory.getInstance();
+                        Edge edge = null;
+                        if(Arrays.binarySearch(branchCommit.getParents(),commit) >= 0){
+                            edge = edgeFactory.createDefaultEdge()
+                                    .setFromNodeId(commitNode1.getId())
+                                    .setToNodeId(commitNode2.getId())
+                                    .setRelationship("");
+                        }
+                        else{
+                            edge = edgeFactory.createDashEdge()
+                                    .setFromNodeId(commitNode1.getId())
+                                    .setToNodeId(commitNode2.getId())
+                                    .setRelationship("");
+                        }
+
+                        edges.put(commitNode1.getId() + commitNode2.getId(),edge);
+
                         removalList.add(branchCommit);
                     }
                 }
@@ -294,7 +307,7 @@ public class Graph {
             if(fromNode != null && toNode != null) {
                 if (fromNode.isInDisplayWindow(displayWindowLocation, displayWindowSize) ||
                         toNode.isInDisplayWindow(displayWindowLocation, displayWindowSize)) {
-                    drawEdge(gc, fromNode, toNode, displayWindowLocation, zoomRatio,edge == mouseOnEdge);
+                    drawEdge(gc, fromNode, toNode, edge.isDashline(), displayWindowLocation, zoomRatio,edge == mouseOnEdge);
                 }
             }
         }
@@ -307,17 +320,17 @@ public class Graph {
         }
 
         if(mouseOnNode instanceof ActivityNode){
-            highlightSelectedActivityCluster(gc, mouseOnNode, displayWindowLocation, zoomRatio);
+            highlightSelectedActivityCluster(canvas, mouseOnNode, displayWindowLocation, zoomRatio);
         }
 
         //Highlight Activity node and corresponding nodes
         for(ActivityNode node : selectedActivityNodes){
-            highlightSelectedActivityCluster(gc, node, displayWindowLocation, zoomRatio);
+            highlightSelectedActivityCluster(canvas, node, displayWindowLocation, zoomRatio);
         }
 
         //Draw Node/Vertices ID labels
         if(showAllNodeIds){
-            showAllNodeIds(gc, displayWindowLocation, displayWindowSize, zoomRatio);
+            showAllNodeIds(canvas, displayWindowLocation, displayWindowSize, zoomRatio);
         }
         else {
             for (Node node : dispNodeIds) {
@@ -337,7 +350,7 @@ public class Graph {
 
         //Draw Relationship labels
         if(showAllRelationships){
-            showAllRelationships(gc, displayWindowLocation, displayWindowSize, zoomRatio);
+            showAllRelationships(canvas, displayWindowLocation, displayWindowSize, zoomRatio);
         }
         else {
             for (Edge edge : dispRelationships) {
@@ -362,12 +375,12 @@ public class Graph {
         }
     }
 
-    private void highlightSelectedActivityCluster(GraphicsContext gc, Node node, double[] displayWindowLocation, double zoomRatio){
-        highlightSelectedActivityCluster(gc,node,displayWindowLocation,zoomRatio,true);
-        highlightSelectedActivityCluster(gc,node,displayWindowLocation,zoomRatio,false);
-    }
+    private void highlightSelectedActivityCluster(Canvas canvas, Node node, double[] displayWindowLocation, double zoomRatio){
+        List<Node> tmpNodes = new LinkedList<>();
+        List<Edge> tmpEdges = new LinkedList<>();
+        GraphicsContext gc = canvas.getGraphicsContext2D();
 
-    private void highlightSelectedActivityCluster(GraphicsContext gc, Node node, double[] displayWindowLocation, double zoomRatio, boolean drawEdges){
+        tmpNodes.add(node);
         drawNode(gc, node, displayWindowLocation, zoomRatio, true, 1.5);
 
         NodeFactory nodeFactory = NodeFactory.getInstance();
@@ -380,14 +393,10 @@ public class Graph {
 
         for(String key : keySet){
             Edge edge = edges.get(key);
-            Node toNode = nodes.get(edge.getToNodeId());
-
-            if(drawEdges) {
-                drawEdge(gc, node, toNode, displayWindowLocation, zoomRatio, true, 5, Color.GREENYELLOW);
-            }
-            else{
-                drawNode(gc,nodeFactory.convertToInputEntityNode(toNode),displayWindowLocation,zoomRatio, true, 1.5);
-            }
+            tmpEdges.add(edge);
+            Node inputNode = nodes.get(edge.getToNodeId());
+            inputNode = nodeFactory.convertToInputEntityNode(inputNode);
+            tmpNodes.add(inputNode);
         }
 
         //get generated nodes/outputs
@@ -398,14 +407,10 @@ public class Graph {
 
         for(String key : keySet){
             Edge edge = edges.get(key);
-            Node toNode = nodes.get(edge.getToNodeId());
-
-            if(drawEdges) {
-                drawEdge(gc, node, toNode, displayWindowLocation, zoomRatio, true, 5,Color.GREENYELLOW);
-            }
-            else{
-                drawNode(gc,nodeFactory.convertToOutputEntityNode(toNode),displayWindowLocation,zoomRatio, true, 1.5);
-            }
+            tmpEdges.add(edge);
+            Node outputNode = nodes.get(edge.getToNodeId());
+            outputNode = nodeFactory.convertToOutputEntityNode(outputNode);
+            tmpNodes.add(outputNode);
         }
 
         //get software Agent
@@ -416,14 +421,9 @@ public class Graph {
 
         for(String key : keySet){
             Edge edge = edges.get(key);
+            tmpEdges.add(edge);
             Node agentNode = nodes.get(edge.getToNodeId());
-
-            if(drawEdges) {
-                drawEdge(gc, node, agentNode, displayWindowLocation, zoomRatio, true, 5,Color.GREENYELLOW);
-            }
-            else{
-                drawNode(gc,agentNode,displayWindowLocation,zoomRatio, true, 1.5);
-            }
+            tmpNodes.add(agentNode);
 
             //get commit
             String agentNodeId = agentNode.getId();
@@ -433,34 +433,57 @@ public class Graph {
                     .collect(Collectors.toSet());
 
             for(String agentNodeKey : agentNodeKeySet){
-                Edge agentNodeEdge = edges.get(agentNodeKey);
-                Node commitNode = nodes.get(agentNodeEdge.getToNodeId());
-
-                if(drawEdges) {
-                    drawEdge(gc, agentNode, commitNode, displayWindowLocation, zoomRatio, true, 5,Color.GREENYELLOW);
-                }
-                else{
-                    drawNode(gc,commitNode,displayWindowLocation,zoomRatio, true, 1.5);
-                }
+                Edge agentNodeEdge = edges.get(key);
+                tmpEdges.add(agentNodeEdge);
+                Node commitNode = nodes.get(edge.getToNodeId());
+                tmpNodes.add(commitNode);
             }
+        }
+
+        for(Edge tmpEdge: tmpEdges){
+            drawEdge(gc, tmpEdge, tmpEdge.isDashline(), displayWindowLocation, zoomRatio, true, 5,Color.GREENYELLOW);
+        }
+
+        for(Node tmpNode: tmpNodes){
+            drawNode(gc,tmpNode,displayWindowLocation,zoomRatio,true,1.5);
+        }
+
+        for(Edge tmpEdge: tmpEdges){
+            showRelationship(tmpEdge,canvas,displayWindowLocation,zoomRatio);
+        }
+
+        for(Node tmpNode: tmpNodes){
+            showNodeId(tmpNode,canvas,displayWindowLocation,zoomRatio);
         }
     }
 
-    private void drawEdge(GraphicsContext gc, Node fromNode, Node toNode, double[] displayWindowLocation, double zoomRatio, boolean highlight){
-        drawEdge(gc,fromNode,toNode,displayWindowLocation,zoomRatio,highlight, 3);
+    private void drawEdge(GraphicsContext gc, Edge edge, boolean dashedLine, double[] displayWindowLocation, double zoomRatio, boolean highlight){
+        drawEdge(gc,edge, dashedLine,displayWindowLocation,zoomRatio,highlight, 3);
     }
 
-    private void drawEdge(GraphicsContext gc, Node fromNode, Node toNode, double[] displayWindowLocation, double zoomRatio, boolean highlight, double lineWidth){
-        drawEdge(gc,fromNode,toNode,displayWindowLocation,zoomRatio,highlight, lineWidth, Color.BLACK);
+    private void drawEdge(GraphicsContext gc, Node fromNode, Node toNode, boolean dashedLine, double[] displayWindowLocation, double zoomRatio, boolean highlight){
+        drawEdge(gc,fromNode,toNode, dashedLine,displayWindowLocation,zoomRatio,highlight, 3);
     }
 
-    private void drawEdge(GraphicsContext gc, Node fromNode, Node toNode, double[] displayWindowLocation, double zoomRatio, boolean highlight, double lineWidth, Color lineColor){
-        double[] transformedFromNodeXY = transformToRelativeXY(fromNode.getX(), fromNode.getY(), displayWindowLocation, zoomRatio);
-        double[] transformedToNodeXY = transformToRelativeXY(toNode.getX(), toNode.getY(), displayWindowLocation, zoomRatio);
+    private void drawEdge(GraphicsContext gc, Edge edge, boolean dashedLine, double[] displayWindowLocation, double zoomRatio, boolean highlight, double lineWidth) {
+        drawEdge(gc,edge, dashedLine,displayWindowLocation,zoomRatio,highlight, lineWidth, Color.BLACK);
+    }
 
-        double[] fromPoint = new double[]{transformedFromNodeXY[0] + fromNode.getSize() / 2.0, transformedFromNodeXY[1] + fromNode.getSize() / 2.0};
-        double[] toPoint = new double[]{transformedToNodeXY[0] + toNode.getSize() / 2.0, transformedToNodeXY[1] + toNode.getSize() / 2.0};
+    private void drawEdge(GraphicsContext gc, Node fromNode, Node toNode, boolean dashedLine, double[] displayWindowLocation, double zoomRatio, boolean highlight, double lineWidth){
+        drawEdge(gc,fromNode,toNode, dashedLine,displayWindowLocation,zoomRatio,highlight, lineWidth, Color.BLACK);
+    }
 
+    private void drawEdge(GraphicsContext gc, Edge edge, boolean dashedLine, double[] displayWindowLocation, double zoomRatio, boolean highlight, double lineWidth, Color lineColor) {
+        Node fromNode = nodes.get(edge.getFromNodeId());
+        Node toNode = nodes.get(edge.getToNodeId());
+        drawEdge(gc,fromNode,toNode, dashedLine,displayWindowLocation,zoomRatio,highlight, lineWidth,lineColor);
+    }
+
+    private void drawEdge(GraphicsContext gc, Node fromNode, Node toNode, boolean dashedLine, double[] displayWindowLocation, double zoomRatio, boolean highlight, double lineWidth, Color lineColor){
+        double[] fromPoint = transformToRelativeXY(fromNode.getX(), fromNode.getY(), displayWindowLocation, zoomRatio);
+        double[] toPoint = transformToRelativeXY(toNode.getX(), toNode.getY(), displayWindowLocation, zoomRatio);
+
+        if(dashedLine)gc.setLineDashes(2);
         if(highlight){
             gc.setLineWidth(lineWidth);
             gc.setStroke(lineColor);
@@ -475,6 +498,8 @@ public class Graph {
             gc.setLineWidth(1.0);
             gc.setStroke(Color.BLACK);
         }
+
+        if(dashedLine)gc.setLineDashes(null);
     }
 
     private void drawNode(GraphicsContext gc, Node node, double[] displayWindowLocation, double zoomRatio, boolean highlight) {
@@ -493,57 +518,63 @@ public class Graph {
             nodeXY = transformToRelativeXY(node.getX(),node.getY(), displayWindowLocation, zoomRatio);
         }
 
-        double nodeSize = node.getSize();
+        double nodeWidth = node.getWidth();
+        double nodeHeight = node.getHeight();
         Color nodeColor = node.getColor();
         gc.setFill(nodeColor);
         if(highlight){
             //center the node after resizing
-            nodeXY[0] -= (nodeSize* (nodeSizeRatio - 1))/2;
-            nodeXY[1] -= (nodeSize* (nodeSizeRatio - 1))/2;
+            nodeWidth *= nodeSizeRatio;
+            nodeHeight *= nodeSizeRatio;
         }
 
-        if(node.getShape() == Node.NodeShape.CIRCLE) {
-            if(highlight){
-                gc.fillOval(nodeXY[0], nodeXY[1], nodeSize * nodeSizeRatio, nodeSize * nodeSizeRatio);
-                gc.strokeOval(nodeXY[0], nodeXY[1], nodeSize * nodeSizeRatio, nodeSize * nodeSizeRatio);
-            }
-            else{
-                gc.fillOval(nodeXY[0], nodeXY[1], nodeSize, nodeSize);
-            }
-        }
-        else if(node.getShape() == Node.NodeShape.SQUARE){
-            if(highlight){
-                gc.fillRect(nodeXY[0], nodeXY[1], nodeSize * nodeSizeRatio, nodeSize * nodeSizeRatio);
-                gc.strokeRect(nodeXY[0], nodeXY[1], nodeSize * nodeSizeRatio, nodeSize * nodeSizeRatio);
-            }
-            else {
-                gc.fillRect(nodeXY[0], nodeXY[1], nodeSize, nodeSize);
-            }
-        }
-        else if(node.getShape() == Node.NodeShape.ROUNDED_SQUARE){
-            if(highlight){
-                gc.fillRoundRect(nodeXY[0], nodeXY[1], nodeSize * nodeSizeRatio, nodeSize * nodeSizeRatio, 0.7 * nodeSize, 0.7 * nodeSize);
-                gc.strokeRoundRect(nodeXY[0], nodeXY[1], nodeSize * nodeSizeRatio, nodeSize * nodeSizeRatio, 0.7 * nodeSize, 0.7 * nodeSize);
-            }
-            else{
-                gc.fillRoundRect(nodeXY[0], nodeXY[1], nodeSize, nodeSize, 0.7 * nodeSize, 0.7 * nodeSize);
-            }
-        }
-        else if(node.getShape() == Node.NodeShape.DOUBLE_CIRCLE){
-            if(highlight){
-                gc.setFill(nodeColor.brighter().brighter().desaturate());
-                gc.fillOval(nodeXY[0], nodeXY[1] , nodeSize * nodeSizeRatio, nodeSize * nodeSizeRatio);
-                gc.strokeOval(nodeXY[0], nodeXY[1], nodeSize * nodeSizeRatio, nodeSize * nodeSizeRatio);
+        nodeXY[0] -= nodeWidth/2;
+        nodeXY[1] -= nodeHeight/2;
 
-                gc.setFill(nodeColor);
-                gc.fillOval(nodeXY[0] + nodeSize* nodeSizeRatio/4, nodeXY[1] + nodeSize* nodeSizeRatio/4, nodeSize * nodeSizeRatio/2, nodeSize * nodeSizeRatio/2);
-            }
-            else{
-                gc.setFill(nodeColor.brighter().brighter().desaturate());
-                gc.fillOval(nodeXY[0], nodeXY[1], nodeSize, nodeSize);
+        if(node instanceof EntityNode) {
+            gc.setFill(nodeColor);
+            gc.fillRoundRect(nodeXY[0], nodeXY[1] , nodeWidth, nodeHeight,nodeWidth *0.75, nodeHeight *0.75);
 
-                gc.setFill(nodeColor);
-                gc.fillOval(nodeXY[0] + nodeSize/4, nodeXY[1] + nodeSize/4, nodeSize/2, nodeSize/2);
+            if(highlight){
+                gc.strokeRoundRect(nodeXY[0], nodeXY[1], nodeWidth, nodeHeight,nodeWidth*0.75, nodeHeight*0.75);
+            }
+        }
+        else if(node instanceof AgentNode){
+            double[] xs = new double[5];
+            double[] ys = new double[5];
+            xs[0] = nodeXY[0];
+            ys[0] = nodeXY[1];
+            xs[1] = xs[0] + nodeWidth / 2;
+            ys[1] = ys[0] - nodeHeight / 3;
+            xs[2] = xs[0] + nodeWidth;
+            ys[2] = ys[0];
+            xs[3] = xs[2];
+            ys[3] = ys[2] + nodeHeight;
+            xs[4] = xs[0];
+            ys[4] = ys[3];
+
+            gc.fillPolygon(xs,ys,5);
+            if(highlight){
+                gc.strokePolygon(xs,ys,5);
+            }
+        }
+        else if(node instanceof ActivityNode){
+            gc.fillRect(nodeXY[0], nodeXY[1], nodeWidth, nodeHeight);
+
+            if(highlight){
+                gc.strokeRect(nodeXY[0], nodeXY[1], nodeWidth, nodeHeight);
+            }
+        }
+        else if(node instanceof CommitNode){
+            gc.setFill(nodeColor.brighter().brighter().desaturate());
+            gc.fillRoundRect(nodeXY[0], nodeXY[1] , nodeWidth, nodeHeight,nodeWidth *0.75, nodeHeight *0.75);
+
+            gc.setFill(nodeColor);
+            gc.fillRoundRect(nodeXY[0] + nodeWidth/4, nodeXY[1] + nodeHeight/4,
+                    nodeWidth/2, nodeHeight/2,nodeWidth*0.75, nodeHeight*0.75);
+
+            if(highlight){
+                gc.strokeRoundRect(nodeXY[0], nodeXY[1], nodeWidth, nodeHeight,nodeWidth*0.75, nodeHeight*0.75);
             }
         }
     }
@@ -569,19 +600,34 @@ public class Graph {
     private void showNodeId(Node node, Canvas canvas, double[] displayWindowLocation, double zoomRatio, Color nodeIdColor, Color bgColor){
         GraphicsContext gc = canvas.getGraphicsContext2D();
         double[] transformedNodeXY = transformToRelativeXY(node.getX(),node.getY(), displayWindowLocation, zoomRatio);
+        StringBuilder displayTextBuilder = new StringBuilder();
 
-        Text tmpText = new Text(node.getDisplayId());
+        displayTextBuilder.append(node.getDisplayId());
+        if(node instanceof ActivityNode){
+            displayTextBuilder.append(System.lineSeparator() + "Start Time: " + ((ActivityNode) node).getStartTime());
+            displayTextBuilder.append(System.lineSeparator() + "End Time: " + ((ActivityNode) node).getEndTime());
+        }
+
+        Text tmpText = new Text(displayTextBuilder.toString());
         tmpText.setFont(gc.getFont());
         tmpText.applyCss();
 
         gc.setFill(bgColor);
-        gc.fillRoundRect(transformedNodeXY[0], transformedNodeXY[1] + node.getSize(),tmpText.getLayoutBounds().getWidth(),tmpText.getLayoutBounds().getHeight(),0.5, 0.5);
+        gc.fillRoundRect(transformedNodeXY[0], transformedNodeXY[1] + node.getHeight(),tmpText.getLayoutBounds().getWidth(),tmpText.getLayoutBounds().getHeight(),0.5, 0.5);
 
         gc.setFill(nodeIdColor);
-        gc.fillText(node.getDisplayId(), transformedNodeXY[0], transformedNodeXY[1] + node.getSize() + LABEL_FONT_SIZE);
+        gc.fillText(displayTextBuilder.toString(), transformedNodeXY[0], transformedNodeXY[1] + node.getHeight() + LABEL_FONT_SIZE);
+    }
+
+    private void showRelationship(Edge edge, Canvas canvas, double[] displayWindowLocation, double zoomRatio, Color nodeIdColor){
+        showRelationship(edge, canvas, displayWindowLocation, zoomRatio, nodeIdColor, Color.rgb(0,0,0, 0.3));
     }
 
     private void showRelationship(Edge edge, Canvas canvas, double[] displayWindowLocation, double zoomRatio){
+        showRelationship(edge, canvas, displayWindowLocation, zoomRatio, Color.WHITE, Color.rgb(0,0,0, 0.3));
+    }
+
+    private void showRelationship(Edge edge, Canvas canvas, double[] displayWindowLocation, double zoomRatio,Color relationshipColor, Color bgColor){
         GraphicsContext gc = canvas.getGraphicsContext2D();
         Node fromNode = nodes.get(edge.getFromNodeId());
         Node toNode = nodes.get(edge.getToNodeId());
@@ -590,7 +636,15 @@ public class Graph {
         double[] transformedMidXY = new double[]{(transformedFromNodeXY[0] + transformedToNodeXY[0]) / 2.0,
                 (transformedFromNodeXY[1] + transformedToNodeXY[1]) / 2.0};
 
-        gc.setFill(Color.BROWN);
+        Text tmpText = new Text(edge.getShortRelationship());
+        tmpText.setFont(gc.getFont());
+        tmpText.applyCss();
+
+        gc.setFill(bgColor);
+        gc.fillRoundRect(transformedMidXY[0], transformedMidXY[1],tmpText.getLayoutBounds().getWidth(),tmpText.getLayoutBounds().getHeight(),0.5, 0.5);
+
+
+        gc.setFill(Color.YELLOW);
         gc.fillText(edge.getShortRelationship(), transformedMidXY[0], transformedMidXY[1] + LABEL_FONT_SIZE);
     }
 
@@ -605,34 +659,34 @@ public class Graph {
 
         NodeFactory factory = NodeFactory.getInstance();
         ActivityNode activityNode = factory.createActivityNode();
-        activityNode.setX(penXY[0]).setY(penXY[1]).setAbsoluteXY(true);
+        activityNode.setX(penXY[0]).setY(penXY[1]+activityNode.getHeight()/2).setAbsoluteXY(true);
         descNodeMap.put("Activity", activityNode);
-        penXY[1] += activityNode.getSize() + rowSpace;
+        penXY[1] += activityNode.getHeight() + rowSpace;
 
         AgentNode agentNode = factory.createAgentNode();
-        agentNode.setX(penXY[0]).setY(penXY[1]).setAbsoluteXY(true);
+        agentNode.setX(penXY[0]).setY(penXY[1]+agentNode.getHeight()/2).setAbsoluteXY(true);
         descNodeMap.put("Software Agent", agentNode);
-        penXY[1] += agentNode.getSize() + rowSpace;
+        penXY[1] += agentNode.getHeight() + rowSpace;
 
         EntityNode entityNode = factory.createEntityNode();
-        entityNode.setX(penXY[0]).setY(penXY[1]).setAbsoluteXY(true);
+        entityNode.setX(penXY[0]).setY(penXY[1]+entityNode.getHeight()/2).setAbsoluteXY(true);
         descNodeMap.put("Entity", entityNode);
-        penXY[1] += entityNode.getSize() + rowSpace;
+        penXY[1] += entityNode.getHeight() + rowSpace;
 
         CommitNode commitNode = factory.createCommitNode();
-        commitNode.setX(penXY[0]).setY(penXY[1]).setAbsoluteXY(true);
+        commitNode.setX(penXY[0]).setY(penXY[1]+commitNode.getHeight()/2).setAbsoluteXY(true);
         descNodeMap.put("Commit", commitNode);
-        penXY[1] += commitNode.getSize() + rowSpace;
+        penXY[1] += commitNode.getHeight() + rowSpace;
 
         EntityNode inputEntityNode = factory.convertToInputEntityNode(entityNode);
-        inputEntityNode.setX(penXY[0]).setY(penXY[1]).setAbsoluteXY(true);
+        inputEntityNode.setX(penXY[0]).setY(penXY[1]+entityNode.getHeight()/2).setAbsoluteXY(true);
         descNodeMap.put("Input Entity", inputEntityNode);
-        penXY[1] += inputEntityNode.getSize() + rowSpace;
+        penXY[1] += inputEntityNode.getHeight() + rowSpace;
 
         EntityNode outputEntityNode = factory.convertToOutputEntityNode(entityNode);
-        outputEntityNode.setX(penXY[0]).setY(penXY[1]).setAbsoluteXY(true);
+        outputEntityNode.setX(penXY[0]).setY(penXY[1]+entityNode.getHeight()/2).setAbsoluteXY(true);
         descNodeMap.put("Output Entity", outputEntityNode);
-        penXY[1] += outputEntityNode.getSize() + rowSpace;
+        penXY[1] += outputEntityNode.getHeight() + rowSpace;
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.rgb(0,0,0, 0.3));
@@ -641,7 +695,7 @@ public class Graph {
         for(String key: descNodeMap.keySet()){
             Node node = descNodeMap.get(key);
             drawNode(gc,node,displayWindowLocation,zoomRatio,false);
-            gc.fillText(key,node.getX() + node.getSize() + colSpace,node.getY() + node.getSize());
+            gc.fillText(key,node.getX() + node.getWidth()/2 + colSpace,node.getY() + node.getHeight()/2);
         }
     }
 
@@ -691,32 +745,17 @@ public class Graph {
         }
     }
 
-    public void showAllNodeIds(GraphicsContext gc, double[] displayWindowLocation, double[] displayWindowSize, double zoomRatio) {
+    public void showAllNodeIds(Canvas canvas, double[] displayWindowLocation, double[] displayWindowSize, double zoomRatio) {
         for(Node node : nodes.values()){
             if(node.isInDisplayWindow(displayWindowLocation, displayWindowSize)) {
-                double[] transformedNodeXY = transformToRelativeXY(node.getX(),node.getY(), displayWindowLocation, zoomRatio);
-
-                gc.setFill(Color.BLACK);
-                gc.fillText(node.getDisplayId(), transformedNodeXY[0], transformedNodeXY[1] + node.getSize() + LABEL_FONT_SIZE);
+                showNodeId(node,canvas,displayWindowLocation,zoomRatio);
             }
         }
     }
 
-    public void showAllRelationships(GraphicsContext gc, double[] displayWindowLocation, double[] displayWindowSize, double zoomRatio) {
+    public void showAllRelationships(Canvas canvas, double[] displayWindowLocation, double[] displayWindowSize, double zoomRatio) {
         for(Edge edge : edges.values()){
-            Node fromNode = nodes.get(edge.getFromNodeId());
-            Node toNode = nodes.get(edge.getToNodeId());
-            if(fromNode != null && toNode != null) {
-                if (fromNode.isInDisplayWindow(displayWindowLocation, displayWindowSize) || toNode.isInDisplayWindow(displayWindowLocation, displayWindowSize)) {
-                    double[] transformedFromNodeXY = transformToRelativeXY(fromNode.getX(), fromNode.getY(), displayWindowLocation, zoomRatio);
-                    double[] transformedToNodeXY = transformToRelativeXY(toNode.getX(), toNode.getY(), displayWindowLocation, zoomRatio);
-                    double[] transformedMidXY = new double[]{(transformedFromNodeXY[0] + transformedToNodeXY[0]) / 2.0,
-                            (transformedFromNodeXY[1] + transformedToNodeXY[1]) / 2.0};
-
-                    gc.setFill(Color.BROWN);
-                    gc.fillText(edge.getShortRelationship(), transformedMidXY[0], transformedMidXY[1] + LABEL_FONT_SIZE);
-                }
-            }
+            showRelationship(edge,canvas,displayWindowLocation,zoomRatio);
         }
     }
 

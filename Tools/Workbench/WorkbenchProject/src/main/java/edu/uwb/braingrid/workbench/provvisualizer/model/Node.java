@@ -1,27 +1,19 @@
 package edu.uwb.braingrid.workbench.provvisualizer.model;
 
-import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
-import edu.uwb.braingrid.workbench.provvisualizer.Utility.FileUtility;
+import edu.uwb.braingrid.workbench.provvisualizer.utility.FileUtility;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 
 public class Node {
-    public enum NodeShape{
-        CIRCLE,
-        DOUBLE_CIRCLE,
-        SQUARE,
-        ROUNDED_SQUARE
-    }
-
     private static final double SELECTION_TOLERANCE = 20;
 
     private String id ;
     private String displayId ;
     private double x ;
     private double y ;
-    private NodeShape shape;
-    private double size;
+    private double width;
+    private double height;
     private Color color;
     private String label;
     private ArrayList<Node> neighborNodes ;
@@ -33,40 +25,40 @@ public class Node {
         this.absoluteXY = false;
     }
 
-    public Node(double size, Color color, NodeShape nodeShape) {
-        this.size = size;
+    public Node(double width, double height, Color color) {
+        this.width = width;
+        this.height = height;
         this.color = color;
-        this.shape = nodeShape;
         this.label = "";
         this.neighborNodes = new ArrayList<>();
         this.absoluteXY = false;
     }
 
-    public Node(String id, double x, double y, double size, Color color, NodeShape nodeShape) {
+    public Node(String id, double x, double y, double width, double height, Color color) {
         this.id = id;
         if(id!=null){
             this.displayId = id.replaceFirst(FileUtility.FILE_PATH_PREFIX_REGEX,"");
         }
         this.x = x;
         this.y = y;
-        this.size = size;
+        this.width = width;
+        this.height = height;
         this.color = color;
-        this.shape = nodeShape;
         this.label = "";
         this.neighborNodes = new ArrayList<>();
         this.absoluteXY = false;
     }
 
-    public Node(String id, double x, double y, double size, Color color, String label, NodeShape nodeShape) {
+    public Node(String id, double x, double y, double width, double height, Color color, String label) {
         this.id = id;
         if(id!=null){
             this.displayId = id.replaceFirst(FileUtility.FILE_PATH_PREFIX_REGEX,"");
         }
         this.x = x;
         this.y = y;
-        this.size = size;
+        this.width = width;
+        this.height = height;
         this.color = color;
-        this.shape = nodeShape;
         this.label = label;
         this.neighborNodes = new ArrayList<>();
         this.absoluteXY = false;
@@ -87,15 +79,6 @@ public class Node {
 
     public Node setY(double y) {
         this.y = y;
-        return this;
-    }
-
-    public double getSize() {
-        return size;
-    }
-
-    public Node setSize(double size) {
-        this.size = size;
         return this;
     }
 
@@ -129,25 +112,19 @@ public class Node {
         return this;
     }
 
-    public NodeShape getShape() {
-        return shape;
-    }
-
-    public void setShape(NodeShape shape) {
-        this.shape = shape;
-    }
-
     public boolean isPointOnNode(double x, double y, double zoomRatio, boolean withTolerance){
+        double cornerX = this.x - this.width/zoomRatio/2;
+        double cornerY = this.y - this.height/zoomRatio/2;
         if(withTolerance &&
-                x >= this.x - SELECTION_TOLERANCE / zoomRatio &&
-                x <= this.x + (this.size + SELECTION_TOLERANCE) / zoomRatio &&
-                y >= this.y - SELECTION_TOLERANCE / zoomRatio &&
-                y <= this.y + (this.size + SELECTION_TOLERANCE) / zoomRatio){
+                x >= cornerX - SELECTION_TOLERANCE / zoomRatio &&
+                x <= cornerX + (this.width + SELECTION_TOLERANCE) / zoomRatio &&
+                y >= cornerY - SELECTION_TOLERANCE / zoomRatio &&
+                y <= cornerY + (this.height + SELECTION_TOLERANCE) / zoomRatio){
             return true;
         }
 
-        if(!withTolerance && x >= this.x && x <= this.x + this.size / zoomRatio && y >= this.y &&
-                y <= this.y + this.size / zoomRatio){
+        if(!withTolerance && x >= cornerX && x <= cornerX + this.width / zoomRatio && y >= cornerY &&
+                y <= cornerY + this.height / zoomRatio){
             return true;
         }
 
@@ -156,7 +133,7 @@ public class Node {
 
     @Override
     public Node clone(){
-        return new Node(id,x,y,size,color,label,shape);
+        return new Node(id,x,y,width,height,color,label);
     }
 
     @Override
@@ -196,9 +173,27 @@ public class Node {
         this.displayId = displayId;
     }
 
+    public double getWidth() {
+        return width;
+    }
+
+    public void setWidth(double width) {
+        this.width = width;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
     public boolean isInDisplayWindow(double[] displayWindowLocation, double[] displayWindowSize){
-        if (this.x < displayWindowLocation[0] || this.x > displayWindowLocation[0] + displayWindowSize[0] ||
-                this.y < displayWindowLocation[1] || this.y > displayWindowLocation[1] + displayWindowSize[1]){
+        double cornerX = this.x - this.width/2;
+        double cornerY = this.y - this.height/2;
+        if (cornerX < displayWindowLocation[0] || cornerX > displayWindowLocation[0] + displayWindowSize[0] ||
+                cornerY < displayWindowLocation[1] || cornerY > displayWindowLocation[1] + displayWindowSize[1]){
             return false;
         }
         else {

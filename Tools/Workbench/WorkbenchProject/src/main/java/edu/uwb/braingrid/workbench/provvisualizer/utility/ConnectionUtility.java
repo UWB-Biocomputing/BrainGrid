@@ -1,7 +1,6 @@
-package edu.uwb.braingrid.workbench.provvisualizer.Utility;
+package edu.uwb.braingrid.workbench.provvisualizer.utility;
 
 import com.jcraft.jsch.*;
-import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
 import edu.uwb.braingrid.workbench.provvisualizer.model.AuthenticationInfo;
 
 import java.io.IOException;

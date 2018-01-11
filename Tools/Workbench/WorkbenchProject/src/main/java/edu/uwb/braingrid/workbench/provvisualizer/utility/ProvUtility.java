@@ -1,4 +1,4 @@
-package edu.uwb.braingrid.workbench.provvisualizer.Utility;
+package edu.uwb.braingrid.workbench.provvisualizer.utility;
 
 public class ProvUtility {
     public static final String RDF_SYNTAX_PREFIX = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -15,6 +15,8 @@ public class ProvUtility {
     public static final String PROV_GENERATED = PROV_PREFIX + "generated";
     public static final String PROV_WAS_ASSOCIATED_WITH = PROV_PREFIX + "wasAssociatedWith";
     public static final String PROV_WAS_DERIVED_FROM = PROV_PREFIX + "wasDerivedFrom";
+    public static final String PROV_STARTED_AT_TIME = PROV_PREFIX + "startedAtTime";
+    public static final String PROV_ENDED_AT_TIME = PROV_PREFIX + "endedAtTime";
 
     public static final String LABEL_COMMIT = "commit";
     public static final String COMMIT_URI_PREFIX = "https://github.com/UWB-Biocomputing/BrainGrid/commit/";
