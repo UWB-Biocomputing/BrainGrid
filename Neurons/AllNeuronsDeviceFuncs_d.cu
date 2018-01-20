@@ -1,11 +1,3 @@
-/*
- * AllNeuronsDeviceFuncs.cpp
- *
- */
-// Updated 2/8/2017 Jewel 
-// look for "IZH03" for modifications
-
-
 #include "AllNeuronsDeviceFuncs.h"
 #include "AllSynapsesDeviceFuncs.h"
 
@@ -202,7 +194,8 @@ __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int 
 __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, bool fAllowBackPropagation ) {
         // determine which neuron this thread is processing
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
-        if ( idx >= totalNeurons ) return;
+        if ( idx >= totalNeurons )
+                return;
 
         allNeuronsDevice->hasFired[idx] = false;
         BGFLOAT& sp = allNeuronsDevice->summation_map[idx];
@@ -231,12 +224,10 @@ __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int 
                 spikeCount++;
 
                 // calculate the number of steps in the absolute refractory period
-                //allNeuronsDevice->nStepsInRefr[idx] = static_cast<int> ( allNeuronsDevice->Trefract[idx] / deltaT + 0.5 );
-				// IZH03: make nStepsInRefr = 0; no refractory period  
-                allNeuronsDevice->nStepsInRefr[idx] = 0;
+                allNeuronsDevice->nStepsInRefr[idx] = static_cast<int> ( allNeuronsDevice->Trefract[idx] / deltaT + 0.5 );
 
                 // reset to 'Vreset'
-                vm = allNeuronsDevice->Cconst[idx] * 0.001;	
+                vm = allNeuronsDevice->Cconst[idx] * 0.001;
                 u = r_u + allNeuronsDevice->Dconst[idx];
 
                 // notify outgoing synapses of spike
@@ -282,14 +273,21 @@ __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int 
                     } // end switch
                 }
         } else {
-                // add noisy thalamic input
-                r_sp += (randNoise[idx] * allNeuronsDevice->Inoise[idx]); 
-				// IZH03: Izhikevich model integration step
+                r_sp += allNeuronsDevice->I0[idx]; // add IO
+
+                // Random number alg. goes here
+                r_sp += (randNoise[idx] * allNeuronsDevice->Inoise[idx]); // add cheap noise
+
                 BGFLOAT Vint = r_vm * 1000;
-             	Vint = Vint + deltaT * 1000 * (0.04 * Vint * Vint + 5 * Vint + 140 - u + r_sp);
-                u = r_u + r_a * (r_b * Vint - r_u);
-                vm = Vint * 0.001;  // add inputs
+
+                // Izhikevich model integration step
+                BGFLOAT Vb = Vint + allNeuronsDevice->C3[idx] * (0.04 * Vint * Vint + 5 * Vint + 140 - u);
+                u = r_u + allNeuronsDevice->C3[idx] * r_a * (r_b * Vint - r_u);
+
+                vm = Vb * 0.001 + allNeuronsDevice->C2[idx] * r_sp;  // add inputs
         }
+
         // clear synaptic input for next time step
         sp = 0;
 }
+

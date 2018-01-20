@@ -1,13 +1,5 @@
-/*
- * AllIZHNeurons.cpp
- *
- */
-// Updated 2/8/2017 by Jewel 
-// look for "IZH03" for modifications
-
 #include "AllIZHNeurons.h"
 #include "ParseParamError.h"
-#include <stdlib.h>
 
 // Default constructor
 AllIZHNeurons::AllIZHNeurons() : AllIFNeurons()
@@ -17,6 +9,7 @@ AllIZHNeurons::AllIZHNeurons() : AllIFNeurons()
     Cconst = NULL;
     Dconst = NULL;
     u = NULL;
+    C3 = NULL;
 }
 
 AllIZHNeurons::~AllIZHNeurons()
@@ -38,6 +31,7 @@ void AllIZHNeurons::setupNeurons(SimulationInfo *sim_info)
     Cconst = new BGFLOAT[size];
     Dconst = new BGFLOAT[size];
     u = new BGFLOAT[size];
+    C3 = new BGFLOAT[size];
 }
 
 /*
@@ -60,6 +54,7 @@ void AllIZHNeurons::freeResources()
         delete[] Cconst;
         delete[] Dconst;
         delete[] u;
+        delete[] C3;
     }
 
     Aconst = NULL;
@@ -67,10 +62,11 @@ void AllIZHNeurons::freeResources()
     Cconst = NULL;
     Dconst = NULL;
     u = NULL;
+    C3 = NULL;
 }
 
 /*
- * Checks the number of required parameters.
+ *  Checks the number of required parameters.
  *
  * @return true if all required parameters were successfully read, false otherwise.
  */
@@ -435,14 +431,15 @@ void AllIZHNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Lay
         Cconst[neuron_index] = rng.inRange(m_inhCconst[0], m_inhCconst[1]); 
         Dconst[neuron_index] = rng.inRange(m_inhDconst[0], m_inhDconst[1]); 
     }
-	// IZH03: initial value u = b*v instead of = 0 
-    u[neuron_index] = Bconst[neuron_index] * Vm[neuron_index] * 1000;
+ 
+    u[neuron_index] = 0;
 
     DEBUG_HI(cout << "CREATE NEURON[" << neuron_index << "] {" << endl
             << "\tAconst = " << Aconst[neuron_index] << endl
             << "\tBconst = " << Bconst[neuron_index] << endl
             << "\tCconst = " << Cconst[neuron_index] << endl
             << "\tDconst = " << Dconst[neuron_index] << endl
+            << "\tC3 = " << C3[neuron_index] << endl
             << "}" << endl
     ;)
 
@@ -472,6 +469,9 @@ void AllIZHNeurons::setNeuronDefaults(const int index)
 void AllIZHNeurons::initNeuronConstsFromParamValues(int neuron_index, const BGFLOAT deltaT)
 {
     AllIFNeurons::initNeuronConstsFromParamValues(neuron_index, deltaT);
+
+    BGFLOAT &C3 = this->C3[neuron_index];
+    C3 = deltaT * 1000; 
 }
 
 /*
@@ -491,6 +491,7 @@ string AllIZHNeurons::toString(const int i) const
     ss << "Cconst: " << Cconst[i] << " ";
     ss << "Dconst: " << Dconst[i] << " ";
     ss << "u: " << u[i] << " ";
+    ss << "C3: " << C3[i] << " ";
     return ss.str( );
 }
 
@@ -523,6 +524,7 @@ void AllIZHNeurons::readNeuron(istream &input, const SimulationInfo *sim_info, i
     input >> Cconst[i]; input.ignore();
     input >> Dconst[i]; input.ignore();
     input >> u[i]; input.ignore();
+    input >> C3[i]; input.ignore();
 }
 
 /*
@@ -554,32 +556,26 @@ void AllIZHNeurons::writeNeuron(ostream& output, const SimulationInfo *sim_info,
     output << Cconst[i] << ends;
     output << Dconst[i] << ends;
     output << u[i] << ends;
+    output << C3[i] << ends;
 }
 
 #if !defined(USE_GPU)
 /*
  *  Update internal state of the indexed Neuron (called by every simulation step).
- * 	
+ *
  *  @param  index       Index of the Neuron to update.
  *  @param  sim_info    SimulationInfo class to read information from.
- * 
- *  Modifications made to match Izhikevich matlab implementation:
- *  - remove I0 
- *  - use Simple Euler function instead of Exponential Euler
- * 		- remove C1, C2	
- *  - no refractory period: nStepsInRefr = 0 
- *  - unit conversion V -> mV, s -> ms to match dimensionless izh integration 
  */
 void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info)
 {
-    const BGFLOAT deltaT = sim_info->deltaT;
     BGFLOAT &Vm = this->Vm[index];
     BGFLOAT &Vthresh = this->Vthresh[index];
     BGFLOAT &summationPoint = this->summation_map[index];
-    //BGFLOAT &I0 = this->I0[index];
+    BGFLOAT &I0 = this->I0[index];
     BGFLOAT &Inoise = this->Inoise[index];
-    //BGFLOAT &C1 = this->C1[index];
-    //BGFLOAT &C2 = this->C2[index];
+    BGFLOAT &C1 = this->C1[index];
+    BGFLOAT &C2 = this->C2[index];
+    BGFLOAT &C3 = this->C3[index];
     int &nStepsInRefr = this->nStepsInRefr[index];
 
     BGFLOAT &a = Aconst[index];
@@ -592,21 +588,20 @@ void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
     } else if (Vm >= Vthresh) {
         // should it fire?
         fire(index, sim_info);
-		//cout << "FIRE FIRE FIRE!! index: " << index << " ################# " << endl;
     } else {
-        // add noisy thalamic input
+        summationPoint += I0; // add IO
+        // add noise
         BGFLOAT noise = (*rgNormrnd[0])();
-        //DEBUG_MID(cout << "ADVANCE NEURON[" << index << "] :: noise = " << noise << endl;)
-        //cout << "ADVANCE NEURON[" << index << "] :: noise = " << noise << endl;
-		//BGFLOAT noise = (rand() %2);
-        summationPoint += noise * Inoise; 
-        //cout << "\tsummationPoint = " << summationPoint << endl;
-        
-		// IZH03: Izhikevich model integration step
-        BGFLOAT Vint = Vm * 1000; 
-		Vint = Vint + deltaT * 1000 * (0.04 * Vint * Vint + 5 * Vint + 140 - u + summationPoint);
-        u = u + a * (b * Vint - u);
-        Vm = Vint * 0.001 ; 
+        DEBUG_MID(cout << "ADVANCE NEURON[" << index << "] :: noise = " << noise << endl;)
+        summationPoint += noise * Inoise; // add noise
+
+        BGFLOAT Vint = Vm * 1000;
+
+        // Izhikevich model integration step
+        BGFLOAT Vb = Vint + C3 * (0.04 * Vint * Vint + 5 * Vint + 140 - u);
+        u = u + C3 * a * (b * Vint - u);
+
+        Vm = Vb * 0.001 + C2 * summationPoint;  // add inputs
     }
 
     DEBUG_MID(cout << index << " " << Vm << endl;)
@@ -619,7 +614,11 @@ void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
             << "\tu = " << u << endl
             << "\tVthresh = " << Vthresh << endl
             << "\tsummationPoint = " << summationPoint << endl
+            << "\tI0 = " << I0 << endl
             << "\tInoise = " << Inoise << endl
+            << "\tC1 = " << C1 << endl
+            << "\tC2 = " << C2 << endl
+            << "\tC3 = " << C3 << endl
             << "}" << endl
     ;)
 
@@ -635,24 +634,22 @@ void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
  */
 void AllIZHNeurons::fire(const int index, const SimulationInfo *sim_info) const
 {
-    //const BGFLOAT deltaT = sim_info->deltaT;
+    const BGFLOAT deltaT = sim_info->deltaT;
     AllSpikingNeurons::fire(index, sim_info);
 
     // calculate the number of steps in the absolute refractory period
     BGFLOAT &Vm = this->Vm[index];
     int &nStepsInRefr = this->nStepsInRefr[index];
-    //BGFLOAT &Trefract = this->Trefract[index];
+    BGFLOAT &Trefract = this->Trefract[index];
 
     BGFLOAT &c = Cconst[index];
     BGFLOAT &d = Dconst[index];
     BGFLOAT &u = this->u[index];
-	// IZH03: make nStepsInRefr = 0; no refractory period
-    // nStepsInRefr = static_cast<int> ( Trefract / deltaT + 0.5 );
-    nStepsInRefr = 0; 
+
+    nStepsInRefr = static_cast<int> ( Trefract / deltaT + 0.5 );
 
     // reset to 'Vreset'
     Vm = c * 0.001;
     u = u + d;
-
 }
 #endif
