@@ -1,3 +1,7 @@
+// Updated 2/18 by Jewel                                  
+// look for "IZH03" for modifications
+
+
 #include "AllSynapsesDeviceFuncs.h"
 #include "AllSynapses.h"
 #include "AllSTDPSynapses.h"
@@ -23,10 +27,10 @@ __device__ enumClassSynapses classSynapses_d = undefClassSynapses;
 __device__ void changeSpikingSynapsesPSRDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
 {
     BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
-    BGFLOAT &W = allSynapsesDevice->W[iSyn];
-    BGFLOAT &decay = allSynapsesDevice->decay[iSyn];
-
-    psr += ( W / decay );    // calculate psr
+	BGFLOAT &W = allSynapsesDevice->W[iSyn];
+    //BGFLOAT &decay = allSynapsesDevice->decay[iSyn];
+// IZH03: 
+    psr +=  W ;    // calculate psr
 }
 
 /*
@@ -421,48 +425,53 @@ __device__ int synSign( synapseType t )
  */
 __device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_offset, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
-    BGFLOAT delay;
+    //BGFLOAT delay;
     BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
     BGSIZE iSyn = max_synapses * neuron_index + synapse_offset;
 
     allSynapsesDevice->in_use[iSyn] = true;
     allSynapsesDevice->destNeuronIndex[iSyn] = dest_index;
     allSynapsesDevice->sourceNeuronIndex[iSyn] = source_index;
-    allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
+	allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
     
     allSynapsesDevice->delayQueue[iSyn] = 0;
     allSynapsesDevice->delayIdx[iSyn] = 0;
     allSynapsesDevice->ldelayQueue[iSyn] = LENGTH_OF_DELAYQUEUE;
 
     allSynapsesDevice->psr[iSyn] = 0.0;
-    allSynapsesDevice->type[iSyn] = type;
-
+// IZH03: 
+    //allSynapsesDevice->type[iSyn] = type;
+    BGFLOAT delay = 5e-4;
     allSynapsesDevice->tau[iSyn] = DEFAULT_tau;
-
+/*
     BGFLOAT tau;
     switch (type) {
         case II:
-            tau = 6e-3;
-            delay = 0.8e-3;
+            //tau = 6e-3;
+            //delay = 0.8e-3;
+            delay = 5e-4;
             break;
         case IE:
-            tau = 6e-3;
-            delay = 0.8e-3;
+            //tau = 6e-3;
+            //delay = 0.8e-3;
+            delay = 5e-4;
             break;
         case EI:
-            tau = 3e-3;
-            delay = 0.8e-3;
+            //tau = 3e-3;
+            //delay = 0.8e-3;
+            delay = 5e-4;
             break;
         case EE:
-            tau = 3e-3;
-            delay = 1.5e-3;
+            //tau = 3e-3;
+            //delay = 1.5e-3;
+            delay = 5e-4;
             break;
         default:
             break;
     }
-
     allSynapsesDevice->tau[iSyn] = tau;
-    allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
+*/
+    //allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
     uint32_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
@@ -860,8 +869,8 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BG
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= num_neurons )
         return;
-
-    int adjusted = 0;
+    
+	int adjusted = 0;
     //int could_have_been_removed = 0; // TODO: use this value
     int removed = 0;
     int added = 0;
@@ -939,4 +948,5 @@ __global__ void initSynapsesDevice( int n, AllDSSynapsesDeviceProperties* allSyn
     createDSSynapse(allSynapsesDevice, neuron_index, 0, 0, neuron_index, sum_point, deltaT, type );
     allSynapsesDevice->W[neuron_index] = weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 }
+
 
