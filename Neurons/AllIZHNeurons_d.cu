@@ -2,6 +2,10 @@
  * AllIZHNeurons.cu
  *
  */
+// Updated 2017/2/8 Jewel 
+// look for "IZH03" for modificaitons 
+// (remove C3 from all functions)
+
 
 #include "AllSpikingSynapses.h"
 #include "AllIZHNeurons.h"
@@ -43,7 +47,8 @@ void AllIZHNeurons::allocDeviceStruct( AllIZHNeuronsDeviceProperties &allNeurons
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeurons.Cconst, count * sizeof( BGFLOAT ) ) );
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeurons.Dconst, count * sizeof( BGFLOAT ) ) );
 	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeurons.u, count * sizeof( BGFLOAT ) ) );
-	HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeurons.C3, count * sizeof( BGFLOAT ) ) );
+	//IZH03:
+	//HANDLE_ERROR( cudaMalloc( ( void ** ) &allNeurons.C3, count * sizeof( BGFLOAT ) ) );
 }
 
 /*
@@ -76,7 +81,8 @@ void AllIZHNeurons::deleteDeviceStruct( AllIZHNeuronsDeviceProperties& allNeuron
 	HANDLE_ERROR( cudaFree( allNeurons.Cconst ) );
 	HANDLE_ERROR( cudaFree( allNeurons.Dconst ) );
 	HANDLE_ERROR( cudaFree( allNeurons.u ) );
-	HANDLE_ERROR( cudaFree( allNeurons.C3 ) );
+	//IZH03:
+	//HANDLE_ERROR( cudaFree( allNeurons.C3 ) );
 
 	AllIFNeurons::deleteDeviceStruct( allNeurons, sim_info );
 }
@@ -112,7 +118,8 @@ void AllIZHNeurons::copyHostToDevice( AllIZHNeuronsDeviceProperties& allNeurons,
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.Cconst, Cconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.Dconst, Dconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 	HANDLE_ERROR( cudaMemcpy ( allNeurons.u, u, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
-	HANDLE_ERROR( cudaMemcpy ( allNeurons.C3, C3, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+	//IZH03:
+	//HANDLE_ERROR( cudaMemcpy ( allNeurons.C3, C3, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 }
 
 /*
@@ -146,7 +153,8 @@ void AllIZHNeurons::copyDeviceToHost( AllIZHNeuronsDeviceProperties& allNeurons,
 	HANDLE_ERROR( cudaMemcpy ( Cconst, allNeurons.Cconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 	HANDLE_ERROR( cudaMemcpy ( Dconst, allNeurons.Dconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 	HANDLE_ERROR( cudaMemcpy ( u, allNeurons.u, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-	HANDLE_ERROR( cudaMemcpy ( C3, allNeurons.C3, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+	//IZH03:
+	//HANDLE_ERROR( cudaMemcpy ( C3, allNeurons.C3, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 }
 
 /*
