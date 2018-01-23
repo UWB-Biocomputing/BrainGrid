@@ -81,9 +81,6 @@ public class TextComparisonController {
         List<String> right  = Arrays.asList(codeAreaRight.getText().split("\\R"));
         Patch<String> patches = DiffUtils.diff(left,right);
 
-        int leftCaret = 0;
-        int rightCaret = 0;
-
         for(Delta<String> delta : patches.getDeltas()){
             if(delta.getType() == Delta.TYPE.INSERT){
                 for(int i = 0; i < delta.getRevised().size(); i++){

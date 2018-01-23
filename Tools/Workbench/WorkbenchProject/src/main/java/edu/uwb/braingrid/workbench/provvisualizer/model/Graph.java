@@ -68,6 +68,7 @@ public class Graph {
         else{
             try {
                 git = Git.open(new File(bgReposPath));
+                git.pull();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -176,24 +177,24 @@ public class Graph {
                 List<RevCommit> removalList = new ArrayList<>();
                 for(RevCommit branchCommit:branches){
                     if(walker.isMergedInto(commit,branchCommit)){
-                        Node commitNode1 = nodes.get(ProvUtility.getCommitUri(commit.getId().name()));
-                        Node commitNode2 = nodes.get(ProvUtility.getCommitUri(branchCommit.getId().name()));
+                        Node commitNode1 = nodes.get(ProvUtility.getCommitUri(branchCommit.getId().name()));
+                        Node commitNode2 = nodes.get(ProvUtility.getCommitUri(commit.getId().name()));
                         EdgeFactory edgeFactory = EdgeFactory.getInstance();
                         Edge edge = null;
                         if(Arrays.binarySearch(branchCommit.getParents(),commit) >= 0){
                             edge = edgeFactory.createDefaultEdge()
                                     .setFromNodeId(commitNode1.getId())
                                     .setToNodeId(commitNode2.getId())
-                                    .setRelationship("");
+                                    .setRelationship(ProvUtility.PROV_WAS_DERIVED_FROM);
                         }
                         else{
                             edge = edgeFactory.createDashEdge()
                                     .setFromNodeId(commitNode1.getId())
                                     .setToNodeId(commitNode2.getId())
-                                    .setRelationship("");
+                                    .setRelationship(ProvUtility.PROV_WAS_DERIVED_FROM);
                         }
 
-                        edges.put(commitNode1.getId() + commitNode2.getId(),edge);
+                        edges.put(commitNode1.getId() + ProvUtility.PROV_WAS_DERIVED_FROM + commitNode2.getId(),edge);
 
                         removalList.add(branchCommit);
                     }
@@ -433,9 +434,9 @@ public class Graph {
                     .collect(Collectors.toSet());
 
             for(String agentNodeKey : agentNodeKeySet){
-                Edge agentNodeEdge = edges.get(key);
+                Edge agentNodeEdge = edges.get(agentNodeKey);
                 tmpEdges.add(agentNodeEdge);
-                Node commitNode = nodes.get(edge.getToNodeId());
+                Node commitNode = nodes.get(agentNodeEdge.getToNodeId());
                 tmpNodes.add(commitNode);
             }
         }
@@ -446,10 +447,6 @@ public class Graph {
 
         for(Node tmpNode: tmpNodes){
             drawNode(gc,tmpNode,displayWindowLocation,zoomRatio,true,1.5);
-        }
-
-        for(Edge tmpEdge: tmpEdges){
-            showRelationship(tmpEdge,canvas,displayWindowLocation,zoomRatio);
         }
 
         for(Node tmpNode: tmpNodes){
@@ -659,32 +656,32 @@ public class Graph {
 
         NodeFactory factory = NodeFactory.getInstance();
         ActivityNode activityNode = factory.createActivityNode();
-        activityNode.setX(penXY[0]).setY(penXY[1]+activityNode.getHeight()/2).setAbsoluteXY(true);
+        activityNode.setId("").setX(penXY[0]).setY(penXY[1]+activityNode.getHeight()/2).setAbsoluteXY(true);
         descNodeMap.put("Activity", activityNode);
         penXY[1] += activityNode.getHeight() + rowSpace;
 
         AgentNode agentNode = factory.createAgentNode();
-        agentNode.setX(penXY[0]).setY(penXY[1]+agentNode.getHeight()/2).setAbsoluteXY(true);
+        agentNode.setId("").setX(penXY[0]).setY(penXY[1]+agentNode.getHeight()/2).setAbsoluteXY(true);
         descNodeMap.put("Software Agent", agentNode);
         penXY[1] += agentNode.getHeight() + rowSpace;
 
         EntityNode entityNode = factory.createEntityNode();
-        entityNode.setX(penXY[0]).setY(penXY[1]+entityNode.getHeight()/2).setAbsoluteXY(true);
+        entityNode.setId("").setX(penXY[0]).setY(penXY[1]+entityNode.getHeight()/2).setAbsoluteXY(true);
         descNodeMap.put("Entity", entityNode);
         penXY[1] += entityNode.getHeight() + rowSpace;
 
         CommitNode commitNode = factory.createCommitNode();
-        commitNode.setX(penXY[0]).setY(penXY[1]+commitNode.getHeight()/2).setAbsoluteXY(true);
+        commitNode.setId("").setX(penXY[0]).setY(penXY[1]+commitNode.getHeight()/2).setAbsoluteXY(true);
         descNodeMap.put("Commit", commitNode);
         penXY[1] += commitNode.getHeight() + rowSpace;
 
         EntityNode inputEntityNode = factory.convertToInputEntityNode(entityNode);
-        inputEntityNode.setX(penXY[0]).setY(penXY[1]+entityNode.getHeight()/2).setAbsoluteXY(true);
+        inputEntityNode.setId("").setX(penXY[0]).setY(penXY[1]+entityNode.getHeight()/2).setAbsoluteXY(true);
         descNodeMap.put("Input Entity", inputEntityNode);
         penXY[1] += inputEntityNode.getHeight() + rowSpace;
 
         EntityNode outputEntityNode = factory.convertToOutputEntityNode(entityNode);
-        outputEntityNode.setX(penXY[0]).setY(penXY[1]+entityNode.getHeight()/2).setAbsoluteXY(true);
+        outputEntityNode.setId("").setX(penXY[0]).setY(penXY[1]+entityNode.getHeight()/2).setAbsoluteXY(true);
         descNodeMap.put("Output Entity", outputEntityNode);
         penXY[1] += outputEntityNode.getHeight() + rowSpace;
 
