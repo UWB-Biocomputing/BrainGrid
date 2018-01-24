@@ -483,7 +483,7 @@ public class Graph {
         double[] fromPoint = transformToRelativeXY(fromNode.getX(), fromNode.getY(), displayWindowLocation, zoomRatio);
         double[] toPoint = transformToRelativeXY(toNode.getX(), toNode.getY(), displayWindowLocation, zoomRatio);
 
-        if(dashedLine)gc.setLineDashes(2);
+        if(dashedLine)gc.setLineDashes(5,5);
         if(highlight){
             gc.setLineWidth(lineWidth);
             gc.setStroke(lineColor);
