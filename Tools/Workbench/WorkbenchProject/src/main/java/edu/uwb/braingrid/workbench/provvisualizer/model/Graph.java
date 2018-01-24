@@ -128,6 +128,11 @@ public class Graph {
         }
     }
 
+    public void clearNodesNEdges(){
+        nodes.clear();
+        edges.clear();
+    }
+
     public void generateCommitRelationships(double canvasWidth, double canvasHeight){
         String bgReposPath = System.getProperty("user.dir") + File.separator + ProvVisGlobal.BG_REPOSITORY_LOCAL;
         if(!Files.exists(Paths.get(bgReposPath))) {

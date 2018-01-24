@@ -21,7 +21,7 @@ public class ProvenanceVisualizer extends Application {
             root = FXMLLoader.load(getClass().getResource("/provvisualizer/view/ProvenanceVisualizerView.fxml"));
             Scene scene = new Scene(root,1200,600);
             primaryStage.setScene(scene);
-            primaryStage.setTitle("Provenance Visualizer");
+            primaryStage.setTitle("BrainGrid Dashboard");
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();

@@ -156,6 +156,7 @@ public class ProvenanceVisualizerController {
                 selectedFile = fileChooser.showOpenDialog(canvasPane.getScene().getWindow());
 
                 if(selectedFile != null) {
+                    dataProvGraph.clearNodesNEdges();
                     initNodeEdge(selectedFile.getAbsolutePath());
                 }
             }
