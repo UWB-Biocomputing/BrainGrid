@@ -11,7 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.*;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
@@ -47,7 +47,7 @@ public class Graph {
     private double c1 = 2;      //default value = 2;
     private double c2 = 1;      //default value = 1;
     private double c3 = 1;   //default value = 1;
-    private double c4 = 5;    //default value = 0.1;
+    private double c4 = 1;    //default value = 0.1;
 
     private double edgeArrowAngle = (3.4/4) * Math.PI;
     private double edgeArrowSize = 8;
@@ -143,8 +143,26 @@ public class Graph {
         else{
             try {
                 git = Git.open(new File(bgReposPath));
-                git.pull();
+                git.pull().call();
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (RefNotAdvertisedException e) {
+                e.printStackTrace();
+            } catch (NoHeadException e) {
+                e.printStackTrace();
+            } catch (TransportException e) {
+                e.printStackTrace();
+            } catch (InvalidConfigurationException e) {
+                e.printStackTrace();
+            } catch (InvalidRemoteException e) {
+                e.printStackTrace();
+            } catch (CanceledException e) {
+                e.printStackTrace();
+            } catch (WrongRepositoryStateException e) {
+                e.printStackTrace();
+            } catch (RefNotFoundException e) {
+                e.printStackTrace();
+            } catch (GitAPIException e) {
                 e.printStackTrace();
             }
         }
