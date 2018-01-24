@@ -46,33 +46,15 @@ public class Graph {
 
     private double c1 = 2;      //default value = 2;
     private double c2 = 1;      //default value = 1;
-    private double c3 = 5000;   //default value = 1;
-    private double c4 = 0.1;    //default value = 0.1;
+    private double c3 = 1;   //default value = 1;
+    private double c4 = 5;    //default value = 0.1;
 
     private double edgeArrowAngle = (3.4/4) * Math.PI;
     private double edgeArrowSize = 8;
 
 
     public Graph(){
-        String bgReposPath = System.getProperty("user.dir") + File.separator + ProvVisGlobal.BG_REPOSITORY_LOCAL;
-        if(!Files.exists(Paths.get(bgReposPath))) {
-            try {
-                git = Git.cloneRepository()
-                        .setURI(ProvVisGlobal.BG_REPOSITORY_URI)
-                        .setDirectory(new File(bgReposPath))
-                        .call();
-            } catch (GitAPIException e) {
-                e.printStackTrace();
-            }
-        }
-        else{
-            try {
-                git = Git.open(new File(bgReposPath));
-                git.pull();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+
     }
 
     public double getC3(){
@@ -147,6 +129,25 @@ public class Graph {
     }
 
     public void generateCommitRelationships(double canvasWidth, double canvasHeight){
+        String bgReposPath = System.getProperty("user.dir") + File.separator + ProvVisGlobal.BG_REPOSITORY_LOCAL;
+        if(!Files.exists(Paths.get(bgReposPath))) {
+            try {
+                git = Git.cloneRepository()
+                        .setURI(ProvVisGlobal.BG_REPOSITORY_URI)
+                        .setDirectory(new File(bgReposPath))
+                        .call();
+            } catch (GitAPIException e) {
+                e.printStackTrace();
+            }
+        }
+        else{
+            try {
+                git = Git.open(new File(bgReposPath));
+                git.pull();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         RevWalk walker = new RevWalk(git.getRepository());
         List<RevCommit> commits = new ArrayList<>();
         try {
@@ -172,29 +173,28 @@ public class Graph {
 
             Collections.sort(commits,(commit1, commit2) -> commit2.getCommitTime() - commit1.getCommitTime());
             LinkedList<RevCommit> branches = new LinkedList<>();
-            for (int i = 0; i < commits.size(); i++){
+            for (int i = 0; i < commits.size(); i++) {
                 RevCommit commit = commits.get(i);
                 List<RevCommit> removalList = new ArrayList<>();
-                for(RevCommit branchCommit:branches){
-                    if(walker.isMergedInto(commit,branchCommit)){
+                for (RevCommit branchCommit : branches) {
+                    if (walker.isMergedInto(commit, branchCommit)) {
                         Node commitNode1 = nodes.get(ProvUtility.getCommitUri(branchCommit.getId().name()));
                         Node commitNode2 = nodes.get(ProvUtility.getCommitUri(commit.getId().name()));
                         EdgeFactory edgeFactory = EdgeFactory.getInstance();
                         Edge edge = null;
-                        if(Arrays.binarySearch(branchCommit.getParents(),commit) >= 0){
+                        if (Arrays.binarySearch(branchCommit.getParents(), commit) >= 0) {
                             edge = edgeFactory.createDefaultEdge()
                                     .setFromNodeId(commitNode1.getId())
                                     .setToNodeId(commitNode2.getId())
                                     .setRelationship(ProvUtility.PROV_WAS_DERIVED_FROM);
-                        }
-                        else{
+                        } else {
                             edge = edgeFactory.createDashEdge()
                                     .setFromNodeId(commitNode1.getId())
                                     .setToNodeId(commitNode2.getId())
                                     .setRelationship(ProvUtility.PROV_WAS_DERIVED_FROM);
                         }
 
-                        edges.put(commitNode1.getId() + ProvUtility.PROV_WAS_DERIVED_FROM + commitNode2.getId(),edge);
+                        edges.put(commitNode1.getId() + ProvUtility.PROV_WAS_DERIVED_FROM + commitNode2.getId(), edge);
 
                         removalList.add(branchCommit);
                     }
@@ -204,6 +204,9 @@ public class Graph {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        finally {
+            git.close();
         }
     }
 
