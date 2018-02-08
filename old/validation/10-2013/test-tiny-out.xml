@@ -1,0 +1,41 @@
+<?xml version="1.0" standalone="no"?>
+<!-- State output file for the DCT growth modeling-->
+<SimState>
+   <Matrix name="radiiHistory" type="complete" rows="2" columns="4" multiplier="1.0">
+   0.4 0.4 0.4 0.4 
+0.3999 0.4001 0.4001 0.4001 
+
+</Matrix>
+   <Matrix name="ratesHistory" type="complete" rows="2" columns="4" multiplier="1.0">
+   0 0 0 0 
+5 0 0 0 
+
+</Matrix>
+   <Matrix name="burstinessHist" type="complete" rows="1" columns="1" multiplier="1.0">
+   5 
+</Matrix>
+   <Matrix name="spikesHistory" type="complete" rows="1" columns="100" multiplier="1.0">
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 
+</Matrix>
+   <Matrix name="xloc" type="complete" rows="1" columns="4" multiplier="1.0">
+   0 1 0 1 
+</Matrix>
+   <Matrix name="yloc" type="complete" rows="1" columns="4" multiplier="1.0">
+   0 0 1 1 
+</Matrix>
+   <Matrix name="neuronTypes" type="complete" rows="1" columns="4" multiplier="1.0">
+   2 1 2 2 
+</Matrix>
+   <Matrix name="starterNeurons" type="complete" rows="1" columns="1" multiplier="1.0">
+   0 
+</Matrix>
+   <Matrix name="neuronThresh" type="complete" rows="1" columns="4" multiplier="1.0">
+   0.0135922 0.015 0.015 0.015 
+</Matrix>
+   <Matrix name="Tsim" type="complete" rows="1" columns="1" multiplier="1.0">
+   1
+</Matrix>
+   <Matrix name="simulationEndTime" type="complete" rows="1" columns="1" multiplier="1.0">
+   1
+</Matrix>
+</SimState>

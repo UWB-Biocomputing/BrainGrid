@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NeuronsParams name="NeuronsParams" class="AllIZHNeurons">
+            <Iinject name="Iinject">
+                <min name="min">13.5e-09</min>
+                <max name="max">13.5e-09</max>
+            </Iinject>
+            <Inoise name="Inoise">
+                <min name="min">0.5e-06</min>
+                <max name="max">0.7329e-06</max>
+            </Inoise>
+            <Vthresh name="Vthresh">
+                <min name="min">30.0e-03</min>
+                <max name="max">30.0e-03</max>
+            </Vthresh>
+            <Vresting name="Vresting">
+                <min name="min">0.0</min>
+                <max name="max">0.0</max>
+            </Vresting>
+            <Vreset name="Vreset">
+                <min name="min">-0.065</min>
+                <max name="max">-0.065</max>
+            </Vreset>
+            <Vinit name="Vinit">
+                <min name="min">-0.065</min>
+                <max name="max">-0.065</max>
+            </Vinit>
+            <starter_vthresh name="starter_vthresh">
+                <min name="min">13.565e-3</min>
+                <max name="max">13.655e-3</max>
+            </starter_vthresh>
+            <starter_vreset name="starter_vreset">
+                <min name="min">13.0e-3</min>
+                <max name="max">13.0e-3</max>
+            </starter_vreset>
+            <!-- Izhikevich neuron parameters -->
+            <Aconst name="Aconst">
+                <minExc name="minExc">0.02</minExc>
+                <maxExc name="maxExc">0.02</maxExc>
+                <minInh name="minInh">0.02</minInh>
+                <maxInh name="maxInh">0.1</maxInh>
+            </Aconst>
+            <Bconst name="Bconst">
+                <minExc name="minExc">0.2</minExc>
+                <maxExc name="maxExc">0.2</maxExc>
+                <minInh name="minInh">0.2</minInh>
+                <maxInh name="maxInh">0.25</maxInh>
+            </Bconst>
+            <Cconst name="Cconst">
+                <minExc name="minExc">-65</minExc>
+                <maxExc name="maxExc">-50</maxExc>
+                <minInh name="minInh">-65</minInh>
+                <maxInh name="maxInh">-65</maxInh>
+            </Cconst>
+            <Dconst name="Dconst">
+                <minExc name="minExc">2</minExc>
+                <maxExc name="maxExc">8</maxExc>
+                <minInh name="minInh">2</minInh>
+                <maxInh name="maxInh">2</maxInh>
+            </Dconst>
+</NeuronsParams>

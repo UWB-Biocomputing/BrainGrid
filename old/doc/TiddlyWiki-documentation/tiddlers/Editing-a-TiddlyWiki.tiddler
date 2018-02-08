@@ -1,0 +1,68 @@
+Getting Started With TiddlyWiki
+
+!Escaping Wiki Markup
+To escape Wiki-style markup, simply insert the string in triple-double quotes {{{""" """}}} 
+"""*""" I should probably mention that I used the inline code markup to escape the escape markup :P
+
+!Tables
+Here is an examples of a table:
+|! Header 1|! Header 2 |
+| ''content 1(centered)'' | content 2 |
+
+!Headers
+"""!Headers"""
+!!Header 2
+"""!!Header 2"""
+!!!Header 3
+"""!!!Header 3"""
+!!!!Header 4
+"""!!!Header 4"""
+
+!Lists
+!!!!Unordered List
+* Bullet 1
+** Bullet 2
+
+!!!!Ordered Lists
+# Ordered Level 1
+## Ordered Level 2
+### Ordered Level 3
+
+!Text Formatting
+|!Appearance|!Wiki-Markup|
+|''Bold Text'' |"""''Bold Text''""" |
+|//Italics Text// |"""//Italics Text//""" |
+|__Underlined Text__ |"""__Underlined Text__""" |
+|--Strike Through-- |"""--Strike Through--""" |
+|This is ^^Superscript^^ |"""This is ^^Superscript^^""" |
+|This is ~~Subscript~~ |"""This is ~~Subscript~~""" |
+|@@Highlighted Text@@ |"""@@Highlighted Text@@""" |
+|-- |"""--""" |
+
+
+!Divider Line
+----
+"""----"""
+
+!Block Quotes
+>Block Quote Level 1
+""">Block Quote Level 1"""
+>>Block Quote Level 2
+""">>Block Quote Level 2"""
+>>>Block Quote Level 3
+""">>>Block Quote Level 3"""
+
+!Code Formatting
+!!!!Code Box
+{{{
+int main() {
+    // This is an example of some code
+}
+}}}
+
+!!!!In-line Code
+This is some {{{int main() /*in-line code */ {}}} 
+
+!Macros
+!!!!List of Shadowed Tiddlers
+<<list shadowed>>
