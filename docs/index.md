@@ -1,4 +1,6 @@
+[![DOI](https://zenodo.org/badge/6034062.svg)](https://zenodo.org/badge/latestdoi/6034062)
 ## About BrainGrid Project
+
 
 The idea behind the BrainGrid Project is to develop a toolkit/software architecture to ease creating **high-performance neural network simulators**. It is particularly focused on facilitating biologically realistic modeling. 
 
@@ -25,8 +27,6 @@ The idea behind the BrainGrid Project is to develop a toolkit/software architect
    3.1 Quick Sanity Test
    
    3.2 Use of Screen
-   
-   3.3 Contribute to BrainGrid
 
 4. [Configuration](http://uwb-biocomputing.github.io/BrainGrid/4_configuration)
 

@@ -1,0 +1,100 @@
+================================================================================
+Git Crash Course
+================================================================================
+
+Introduction:
+=============
+This crash course is not designed to be comprehensive by any stretch of the imagination.  Entire courses could be structured around teaching Git.  The goal here is to provide you just enough understanding that you can get started.
+
+Git is nothing more than "yet another version control system".  What this means is that all changes you make to your data from the beginning of time (well, the beginning of the repository creation) are tracked.  More specifically, you create a repository, add some files, make changes to those files, and every time you commit those changes to the repository, they are tracked...forever.  Git was created by Linus Torvalds, the creator of the Linux Kernel, for the development of the Linux Kernel.  It is a fairly new tool, dating back only to 2005.  
+
+Git is known as a decentralized repository system.  While at first glance it will seem that many repositories do have a central repository, this isn't *really* the case.  What do I mean by that?  Every time you clone a repository you have created a new repository for that code base.  You are then free to make whatever changes you would like to your personal copy.  Then you can send pull requests to other repositories and vice-versa.  The huge advantage here is that it is neigh impossible to completely corrupt a project.  One would simultaneously have to corrupt every clone of the repository in order to succeed in such an undertaking.  As such, it is an excellent fit for large and sensitive projects such as the Linux Kernel.  
+
+
+
+Branches vs Forks:
+==================
+Git also heavily uses branches and you are encouraged to make as much use of this feature as possible.  Ideally your project should have one or two primary branches and many secondary branches.  Typically these should be a "master" branch from which you can indiscriminantly pull release snapshots from.  Ideally the "master" branch should always be the most stable of the branches.  Next you might have a "development" branch off of the master branch.  This is where you will work on merge in new features and test them.  Once features have been verified in the "development" branch, then they get merged into the master branch for the next release.  Off of the "development" branch, you might have multiple other branches each of which is targeted at adding a particular feature, or fixing a particular bug.  Here is a graphic representing the above, I hope it is clear.
+
+	master     --------------------------------------------------------
+	dev            \------------------------/  \-----------------------
+	feature x              \   \---/              /
+	bug y	                \--------------------/
+
+Ideally, your development and master branches should never see specific changes done on the branch itself.  What I mean by this is that if you want to rename a variable in a file in your development branch, then you should create a new branch off of the development branch, make the changes there, test the changes, and then merge that branch back into the development branch. The main reason for enforcing this is that it forces people to only push complete fixes.  If you're just making micro changes to the development branch and you get in the habit of pushing these frequently, then it becomes a broken mess.  Not following this procedure has plagued BrainGrid since it started using Git, and is largely the reason the repository is in the shape its in.  At one point we had a perfectly working refactor branch, however, too many people kept pushing partial changes to it without ever testing that those changes were working.  As a result, the refactor branch (which was our development branch and on the verge of being merged back into the master as the new head) became convoluted and broken with multiple partial implementations of things and major changes to the basic functionality.  As a result, a new branch was created called "refactor-stable" to ensure that we known working point in the code.  The head of "refactor-stable" should 1.) compile and 2.) have 100% identical output to the single threaded simulation in the master branch.
+
+If there are a large number of people working on the project, it is easy for you to become out of sync with the main repository.  If you try to perform any merges (this includes a push or a pull), then git may fail to merge the repositories presenting you with a merge conflict.  You will then be asked to resolve each of the conflicts by hand.  
+
+In Github, there is what is known as a fork.  This is nothing more than a clone of a repository on the Github servers.  Its nothing more than if you had chosen to clone a repository to your local machine.  
+
+In short: branch, branch, branch!
+
+
+Common Commands:
+================
+Here are some common commands you will likely need:
+
+	git clone		Clones the given repository
+	git add			Adds the specified files to your workspace
+	git commit		Commits all changes to your local repository
+	git push		Pushes all commits in your local repository to the repository at "origin"
+	git pull		Pulls the latest changes from the repository at "origin" to your local repository
+	git branch		Lists the current branches on your local repository.  Note that by default it only lists the branches which you have explicitly checked out.
+	git log			Shows the commit history to the current branch
+	git checkout	Checks out the specified branch.
+	git merge		Merges the specified branch into the currently checked out branch
+
+
+
+
+Hypothetical Workflow:
+======================
+
+	- clone BrainGrid
+	- checkout refactor-stable
+	- create new branch for adding cuda
+	- add new files
+	- make changes
+	- commit changes
+	- push changes to repository for the time being (someone else wants to work on the cuda branch as well)
+	- pull changes the next day (so that you're up to date)
+	- make some more changes
+	- commit them
+	- looks like you're done, so test your branch
+	- looks good, so merge your branch into the refactor-stable
+	- push changes
+	- you realize that a file has a bad name choice
+	- pull in any changes to the repository
+	- create a new branch off of refactor-stable
+	- change the file name
+	- commit the changes
+	- test the changes
+	- merge the changes back into refactor-stable
+	- push to the remote repository
+
+
+
+Gotchas:
+========
+Not too many, just be careful with merge conflicts, and checking out a branch when you still have uncommited changes to the current branch.
+
+
+
+Good Resources:
+===============
+Since this short clip doesn't nearly do git any justice, I will provide some useful resources which I think are indispensable to understanding git:
+
+	Official Git Website (Complete with documentation!)
+	http://git-scm.com/
+
+	Git Branching and Merging (Official Book):
+	http://git-scm.com/book/en/Git-Branching-Basic-Branching-and-Merging
+	
+	Git Visual Cheat Sheet:
+	http://ndpsoftware.com/git-cheatsheet.html
+	
+	Linus Torvalds Addressing Google Developers on Git:
+	http://www.youtube.com/watch?v=4XpnKHJAok8
+	
+	
+

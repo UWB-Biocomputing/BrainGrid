@@ -1,0 +1,59 @@
+\section{Tools}
+\subsection{GitHub}
+\mdseries GitHub is a source-control system oriented towards the open source community. It offers multiple different features that are advantageous for the project, the most important of which the ability to manage multiple separate versions of the project’s code. This allows the project’s developers the ability to tackle multiple different features and/or bugs.
+
+\noindent \mdseries In order to use GitHub, several tools have been released. The Microsoft Windows, Apple Macintosh software are available on their website.  On Linux distributions, the console is used to manipulate code. As such, the following are instructions on how to install and use GitHub on Linux distributions, focusing on the Ubuntu variety. These instructions assume that the user has already registered with GitHub.
+
+\noindent \mdseries First, the operating system must be updated, and then use apt-get to install GitHub:
+
+\begin{verbatim}
+sudo apt-get update
+sudo apt-get install git
+\end{verbatim}
+
+\noindent \mdseries Next, the username and email settings must be configured properly. 
+\begin{verbatim}
+git config --global user.name <USERNAME HERE>
+git config --global user.email <EMAIL HERE>
+\end{verbatim}
+
+\noindent This is when the source code needs to be downloaded from the remote repository. Navigate to the folder where the source code is to be held:
+\begin{verbatim}
+git clone git://github.com/UWB-Biocomputing/BrainGrid.git
+\end{verbatim}
+
+\noindent \mdseries Once the source code is downloaded, the BrainGrid subfolder will be where all the code modifications will occur. Navigate to this subfolder, and use:
+\begin{verbatim}
+git branch -r
+\end{verbatim}
+
+\noindent \mdseries To view the multiple available remote branches (different variations of the code that exist outside the local computer). The GitHub webpage will contain more information about each branch, and how the source code varies in between them. In order to checkout a remote branch, use:
+\begin{verbatim}
+git branch <LOCAL NAME> origin/<REMOTE BRANCH NAME>
+\end{verbatim}
+
+\noindent \mdseries Where \verb|<LOCAL NAME>| is the name that will represent the local copy of the code. Once this is done, switching in between different local branches can be done by using:
+\begin{verbatim}
+git checkout <LOCAL NAME> 
+\end{verbatim}
+
+\noindent \mdseries To update a local branch with code on the remote version of the branch, use:
+\begin{verbatim}
+git pull
+\end{verbatim}
+
+\noindent \mdseries To save the modifications to the local branch, use:
+\begin{verbatim}
+git commit -a -m "`<MESSAGE HERE>"'
+\end{verbatim}
+
+\noindent \mdseries To move those changes to the remote branch, use:
+\begin{verbatim}
+git push
+\end{verbatim}
+
+\noindent \mdseries Note that Git will prompt the user for additional information.
+
+\subsection{Matlab}
+\mdseries For users with MathWork's MATLAB, a subfolder is included with the some sample files that correctly parse BrainGrid's output for use in MATLAB. The project currently only supports output generation during the end of the simulation, but pseudo real-time output may be implemented in the future.
+\pagebreak

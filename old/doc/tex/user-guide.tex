@@ -1,0 +1,17 @@
+\section{User Guide}
+\subsection{Linux Distributions}
+\mdseries Upon downloading and extracting the contents of the project, the following steps should be followed to run the simulation.
+\begin{enumerate}
+	\item	In a terminal window, navigate to the main project folder. 
+	\item Run the \verb|make growth| command, which will compile the entire project.
+	\item Upon completion, run the command \verb|./growth -t <input file>| where \verb|<input file>| is the full address of the configuration file, examples of which were in the \verb|config| folder.
+	\item The program will then run and display the current step and epoc of the simulation. The output of the simulation (after the end of the simulation) will be saved in the \verb|output| folder. 
+\end{enumerate}
+\subsubsection{Advanced Use}
+\mdseries Use of the UNIX command \verb|screen| is recommended in order to allow the process to run in the background. As the simulation is running, the \verb|Ctrl+A and D| keys will detach the currently running screen. The simulation will continue running in the background, while recording the output of the simulation to the seperate screen. At this point the user is free to log out of the machine.  To resume viewing the seperate screen, log back into the machine and use the command \verb|screen -r|.  This reattaches the screen.  As you might imagine using the unix \verb|screen| tool is essential to running the simulation on a remote machine. 
+
+\noindent \mdseries For advanced users, the GCC compiler offers multiple optimization options that may provide some additional speed boost for the CPU-side simulation. It is recommended that, for each level of optimization, the output be verified against unoptimized/less optimized output. The BrainGrid team \bfseries DOES NOT \mdseries recommend using any optimization levels above -02. This level of optimization seems to be unstable, and does not seem to maintain consistent output results.   
+
+\subsection{Microsoft Windows}
+TODO
+\pagebreak
