@@ -77,7 +77,7 @@
     <LayoutFiles name="LayoutFiles">
         <activeNListFileName name="activeNListFileName" type="InputFile">NList/ActiveNList2x2.xml</activeNListFileName>
         <inhNListFileName name="inhNListFileName" type="InputFile">NList/InhibitoryNList2x2.xml</inhNListFileName>
-        <prbNListFileName name="prbNListFileName" type="InputFile">NList/ProbedNList2x2.xml</prbNListFileName>
+        <prbNListFileName name="prbNListFileName" type="InputFile">NList/ProbedNList-empty.xml</prbNListFileName>
     </LayoutFiles>
 </LayoutParams>
     </ModelParams>

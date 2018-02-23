@@ -1,73 +1,84 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Parameter file for the DCT growth modeling -->
-<!-- This file holds constants, not state information -->
-<SimInfoParams>
-   <!-- size of pool of neurons [x y z] -->
-   <PoolSize x="30" y="30" z="1"/>
-   <!-- Simulation Parameters -->
-   <SimParams Tsim="100.0" numSims="20"/>
-   <!-- Simulation Configuration Parameters -->
-   <SimConfig maxFiringRate="200" maxSynapsesPerNeuron="200"/>
-   <!-- Random seed - set to zero to use /dev/random -->
-   <!-- TODO: implement support for this -->
-   <Seed value="1"/>
-   <!-- State output file name, this name will be overwritten if -o option is specified -->
-   <OutputParams stateOutputFileName="test-medium-2-out.xml"/>
-</SimInfoParams>
+<BGSimParams>
+  <SimInfoParams name="SimInfoParams">
+    <PoolSize name="PoolSize">
+      <x name="x">30</x>
+      <y name="y">30</y>
+      <z name="z">1</z>
+    </PoolSize>
+    <SimParams name="SimParams">
+      <Tsim name="Tsim">100.0</Tsim>
+      <numSims name="numSims">20</numSims>
+    </SimParams>
+    <SimConfig name="SimConfig">
+      <maxFiringRate name="maxFiringRate">200</maxFiringRate>
+      <maxSynapsesPerNeuron name="maxSynapsesPerNeuron">200</maxSynapsesPerNeuron>
+    </SimConfig>
+    <Seed name="Seed">
+      <value name="value">1</value>
+    </Seed>
+    <OutputParams name="OutputParams">
+      <stateOutputFileName name="stateOutputFileName">results/test-medium-2-out.xml</stateOutputFileName>
+    </OutputParams>
+  </SimInfoParams>
 
-<ModelParams>
-   <NeuronsParams class="AllLIFNeurons">
-      <!-- Interval of constant injected current -->
-      <Iinject min="13.5e-09" max="13.5e-09"/>
-      <!-- Interval of STD of (gaussian) noise current -->
-      <Inoise min="1.0e-09" max="1.5e-09"/>
-      <!-- Interval of firing threshold -->
-      <Vthresh min="15.0e-03" max="15.0e-03"/>
-      <!-- Interval of asymptotic voltage -->
-      <Vresting min="0.0" max="0.0"/>
-      <!-- Interval of reset voltage -->
-      <Vreset min="13.5e-03" max="13.5e-03"/>
-      <!-- Interval of initial membrance voltage -->
-      <Vinit min="13.0e-03" max="13.0e-03"/>
-      <!-- Starter firing threshold -->
-      <starter_vthresh min="13.565e-3" max="13.655e-3"/>
-      <!-- Starter reset voltage -->
-      <starter_vreset min="13.0e-3" max="13.0e-3"/>
-   </NeuronsParams>
-   
-   <SynapsesParams class="AllDSSynapses">
-   </SynapsesParams>
-   
-   <ConnectionsParams class="ConnGrowth">
+  <ModelParams>
+    <NeuronsParams class="AllLIFNeurons" name="NeuronsParams">
+      <Iinject name="Iinject">
+        <min name="min">13.5e-09</min>
+        <max name="max">13.5e-09</max>
+      </Iinject>
+      <Inoise name="Inoise">
+        <min name="min">1.0e-09</min>
+        <max name="max">1.5e-09</max>
+      </Inoise>
+      <Vthresh name="Vthresh">
+        <min name="min">15.0e-03</min>
+        <max name="max">15.0e-03</max>
+      </Vthresh>
+      <Vresting name="Vresting">
+        <min name="min">0.0</min>
+        <max name="max">0.0</max>
+      </Vresting>
+      <Vreset name="Vreset">
+        <min name="min">13.5e-03</min>
+        <max name="max">13.5e-03</max>
+      </Vreset>
+      <Vinit name="Vinit">
+        <min name="min">13.0e-03</min>
+        <max name="max">13.0e-03</max>
+      </Vinit>
+      <starter_vthresh name="starter_vthresh">
+        <min name="min">13.565e-3</min>
+        <max name="max">13.655e-3</max>
+      </starter_vthresh>
+      <starter_vreset name="starter_vreset">
+        <min name="min">13.0e-3</min>
+        <max name="max">13.0e-3</max>
+      </starter_vreset>
+    </NeuronsParams>
+
+    <SynapsesParams class="AllDSSynapses" name="SynapsesParams">
+    </SynapsesParams>
+
+    <ConnectionsParams class="ConnGrowth" name="ConnectionsParams">
       <!-- Growth parameters -->
-      <GrowthParams epsilon="0.60" beta="0.10" rho="0.0001" targetRate="1.9" minRadius="0.1" startRadius="0.4"/>
-   </ConnectionsParams>
+      <GrowthParams name="GrowthParams">
+        <epsilon name="epsilon">0.60</epsilon>
+        <beta name="beta">0.10</beta>
+        <rho name="rho">0.0001</rho>
+        <targetRate name="targetRate">1.9</targetRate>
+        <minRadius name="minRadius">0.1</minRadius>
+        <startRadius name="startRadius">0.4</startRadius>
+      </GrowthParams>
+    </ConnectionsParams>
 
-   <LayoutParams class="FixedLayout">
-
-      <!-- If FixedLayout is present, the grid will be laid out according to the positions below, rather than randomly based on LsmParams -->
-      <FixedLayoutParams>
-         <!-- 0-indexed positions of endogenously active neurons in the list -->
-         <A>7 17 27 307 317 327 607 617 627 31 41 51 331 341 351 631 641 651 34 44 54 334 344 354 634 644 654 97 107 117 397 407 417 697 707 717 121 131 141 421 431 441 721 731 741 124 134 144 424 434 444 724 734 744 187 197 207 487 497 507 787 797 807 211 221 231 511 521 531 811 821 831 214 224 234 514 524 534 814 824 834 277 287 297 577 587 597 877 887 897</A>
-
-         <!-- 0-indexed positions of inhibitory neurons in the list -->
-         <I>93 103 113 393 403 413 693 703 713 186 196 206 486 496 506 786 796 806</I>
-
-
-         <!--
-         original 10x10 (not updated for 30x30)
-            9 . . . . . . . A . .
-            8 . . . . . . . . . .
-            7 . A . . A . . . . .
-            6 . . . . . . I A . .
-            5 . . . . . . . . . .
-            4 . A . . A . . . . .
-            3 . . . I . . . A . .
-            2 . . . . . . . . . .
-            1 . A . . A . . . . .
-            0 . . . . . . . A . .
-              0 1 2 3 4 5 6 7 8 9
-         -->
-      </FixedLayoutParams>
-   </LayoutParams>
-</ModelParams>
+    <LayoutParams class="FixedLayout" name="LayoutParams">
+      <LayoutFiles name="LayoutFiles">
+        <activeNListFileName name="activeNListFileName" type="InputFile">NList/ActiveNList30x30-0.1.xml</activeNListFileName>
+        <inhNListFileName name="inhNListFileName" type="InputFile">NList/InhibitoryNList30x30-0.02.xml</inhNListFileName>
+        <prbNListFileName name="prbNListFileName" type="InputFile">NList/ProbedNList-empty.xml</prbNListFileName>
+      </LayoutFiles>
+    </LayoutParams>
+  </ModelParams>
+</BGSimParams>
