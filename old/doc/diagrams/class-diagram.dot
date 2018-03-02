@@ -1,0 +1,246 @@
+// BrainGrid class diagram
+// Written in the Dot language (see Graphviz)
+// 
+// To generate an image perform the following:
+//     - Ensure that Graphviz is installed
+//     - Open a terminal and change directory into the containing folder
+//     - Run the following command which will generate a SVG (Scalable Vector
+//       Graphics) image.
+//       
+//            dot class-diagram.dot -Tsvg -oclass-diagram.svg
+//
+// @author Chris Burgess
+
+
+digraph {
+
+	node [
+		shape = "record"
+	]
+
+
+//##############################################################################
+// Data Structures and Global Data
+//##############################################################################
+
+	AllSynapses [
+		label = "{" + "AllSynapses\n\<\<struct\>\>" +
+				"|" +
+				"summationCoord : Coordinate** \l" + 
+				"W : BGFLOAT** \l" + 
+				"summationPoint : BGFLOAT*** \l" + 
+				"synapseCoord : Coordinate** \l" + 
+				"deltaT : BGFLOAT**\l" + 
+				"psr : BGFLOAT** \l" + 
+				"decay : BGFLOAT** \l" + 
+				"total_delay : int** \l" + 
+				"delayQueue : uint32_t*** \l" + 
+				"delayIdx : int** \l" + 
+				"ldelayQueue : int** \l" + 
+				"type : synapseType** \l" + 
+				"tau : BGFLOAT** \l" + 
+				"r : BGFLOAT** \l" + 
+				"u : BGFLOAT** \l" + 
+				"D : BGFLOAT** \l" + 
+				"U : BGFLOAT** \l" + 
+				"F : BGFLOAT** \l" + 
+				"lastSpike : uint64_t** \l" + 
+				"in_use : bool** \l" + 
+				"synapse_counts :size_t* \l" + 
+				"count_neurons : int \l" + 
+				"max_synapses : size_t \l" + 
+				"|" + "}"
+	];
+	
+	AllNeurons [
+		label = "{" + "AllNeurons\n\<\<struct\>\>" +
+				"|" +
+				"size : int \l" +
+				"hasFired : bool* \l" +
+				"Trefract : BGFLOAT* \l" +
+				"Vthresh : BGFLOAT* \l" +
+				"Vrest : BGFLOAT* \l" +
+				"Vreset : BGFLOAT* \l" +
+				"Vinit : BGFLOAT* \l" +
+				"deltaT : BGFLOAT* \l" +
+				"Cm : BGFLOAT* \l" +
+				"Rm : BGFLOAT* \l" +
+				"Inoise : BGFLOAT* \l" +
+				"Iinject : BGFLOAT* \l" +
+				"Isyn : BGFLOAT* \l" +
+				"nStepsInRefr : int* \l" +
+				"C1 : BGFLOAT* \l" +
+				"C2 : BGFLOAT* \l" +
+				"I0 : BGFLOAT* \l" +
+				"Vm : BGFLOAT* \l" +
+				"Tau : BGFLOAT* \l" +
+				"spikeCount : int* \l" +
+				"totalSpikeCount : int* \l" +
+				"spikeHistory : uint64_t** \l" +
+				"neuron_type_map : neuronType* \l" +
+				"summation_map : BGFLOAT* \l" +
+				"starter_map : bool* \l" +
+				"|" + "}"
+	];
+
+	
+	SimulationInfo [
+		label = "{" + "SimulationInfo" +
+				"|" +
+				"width : int \l" +
+				"height : int \l" +
+				"cNeurons : int \l" +
+				"currentStep : int \l" +
+				"maxSteps : int \l" +
+				"epochDuration : BGFLOAT \l" +
+				"maxFiringRate : int \l" +
+				"maxSynapsesPerNeuron : int \l" +
+				"deltaT : BGFLOAT \l" +
+				"rgNeuronTypeMap : neuronType* \l" +
+				"rgEndogeneouslyActiveNeuronMap : bool* \l" +
+				"epsilon : BGFLOAT \l" +
+				"beta : BGFLOAT \l" +
+				"rho : BGFLOAT \l" +
+				"maxRate :  BGFLOAT \l" +
+				"minRadius : BGFLOAT \l" +
+				"startRadius : BGFLOAT \l" +
+				"pSummationMap : BGFLOAT* \l" +
+				"seed : long \l" +
+				"|" + "}"
+	];
+
+
+//##############################################################################
+// Model Classes
+//##############################################################################
+	Model [
+		label = "{" + "Model\n\<\<interface\>\>" +
+				"|" +
+				"" +
+				"|" +
+				"bool readParameters(...) \l" +
+				"void printParameters(...) \l" +
+				"void loadMemory(...) \l" + 
+				"void saveMemory(...) \l" +
+				"void saveState(...) \l" +
+				"void createAllNeurons(...) \l" +
+				"void setupSim(...) \l" +
+				"void advance(...) \l" + 
+				"void updateConnections(...) \l" + 
+				"void cleanupSim(...) \l" +
+				"void logSimStep(...) \l" + "}"
+	];
+	
+	LIFModel [
+		label = "{" + "LIFModel" +
+				"|" +
+				"|" + "}"
+	];
+	
+	LIFModelST [
+		label = "{" + "LIFModelST" +
+				"|" +
+				"|" + "}"
+	];
+
+	LIFModelCUDA [
+		label = "{" + "LIFModelCUDA" +
+				"|" +
+				"|" + "}"
+	];
+
+	LIFModelMT [
+		label = "{" + "LIFModelMT" +
+				"|" +
+				"|" + "}"
+	];
+
+//#############################################################################
+// Network Classes
+//#############################################################################
+	Network [
+		label = "{" + "Network" +
+				"|" +
+				"m_model : *Model \l" +
+				"neurons : AllNeurons \l" +
+				"synapses : AllSynapses \l" +
+				"m_sin_info : SimulationInfo \l" +
+				"|" +
+				"void freeResources() \l" + 
+				"void reset() \l" +
+				"void saveState(...) \l" + 
+				"void writeSimMemory(...) \l" +
+				"void readsimMemory(...) \l" +
+				"void setup(...) \l" + 
+				"void finish(...) \l" +
+				"void advance() \l" + 
+				"void updateConnections(...) \l" +
+				"void logSimStep() \l" + "}"
+	];
+
+
+//#############################################################################
+// Simulator Classes
+//#############################################################################
+	Simulator [
+		label = "{" + "Simulator\n\<\<interface\>\>" +
+				"|" +
+				"" +
+				"|" +
+				"void simulate() \l" +
+				"void advanceUntilGrowth(...) \l" +
+				"void saveState(...) \l" +
+				"void readMemory(...) \l" +
+				"void saveMemory(...) \l" + "}"
+	];
+
+	STSimulator [
+		label = "{" + "STSimulator" +
+				"|" +
+				"" +
+				"|" +
+				"" + "}"
+	];
+	
+	CUDASimulator [
+		label = "{" + "CUDASimulator" +
+				"|" +
+				"" +
+				"|" +
+				"" + "}"
+	];
+
+	MTSimulator [
+		label = "{" + "MTSimulator" +
+				"|" +
+				"" +
+				"|" +
+				"" + "}"
+	];
+
+//#############################################################################
+// Set the Layout of the Classes Above 
+//#############################################################################
+	rankdir = BT;		// Rank Direction Bottom to Top
+	nodesep = 0.75;		// Node Separation 0.75 inches
+	{rank = same;	SimulationInfo	Network;		Simulator;		Model;}
+	{rank = same;	LIFModelST;		LIFModelMT;		LIFModelCUDA;
+					MTSimulator;	CUDASimulator;	STSimulator;}
+	{rank = same;	AllNeurons;		AllSynapses;}
+
+	LIFModel -> Model [arrowhead=empty];
+	LIFModelST -> LIFModel [arrowhead=empty];
+	LIFModelMT -> LIFModel [arrowhead=empty];
+	LIFModelCUDA -> LIFModel [arrowhead=empty];
+
+	STSimulator -> Simulator [arrowhead=empty];
+	MTSimulator -> Simulator [arrowhead=empty];
+	CUDASimulator -> Simulator [arrowhead=empty];
+	
+	Model -> Network [arrowhead=ediamond];
+	Network -> Simulator [arrowhead=ediamond];
+
+	// Set invisible edges to force the layout of the "floating" classes.
+	AllSynapses -> AllNeurons -> SimulationInfo [style=invis];
+
+}

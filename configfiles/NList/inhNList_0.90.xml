@@ -1,6 +1,5 @@
-<!-- 0-indexed positions of inhibitory neurons in the list -->
-
-    <I>2 25 28 32 55 58 62 85 88 92</I>
+<?xml version="1.0" encoding="UTF-8"?>
+<I>2 25 28 32 55 58 62 85 88 92</I>
 
     <!--
        9 . . I . . . . A . .

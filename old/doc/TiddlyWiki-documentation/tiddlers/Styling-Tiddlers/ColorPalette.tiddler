@@ -1,0 +1,21 @@
+Background: #fff
+Foreground: #000
+PrimaryPale: #aef
+PrimaryLight: #8ad
+PrimaryMid: #38c
+PrimaryDark: #026
+SecondaryPale: #ffc
+SecondaryLight: #fe8
+SecondaryMid: #db4
+SecondaryDark: #841
+TertiaryPale: #eee
+TertiaryLight: #ccc
+TertiaryMid: #999
+TertiaryDark: #666
+QuaternaryPale: #cf8
+QuaternaryLight: #8f1
+QuaternaryMid: #4b0
+QuaternaryDark: #140
+UWPurple: #39275B
+Error: #f88
+

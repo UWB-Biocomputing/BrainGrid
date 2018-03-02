@@ -1,0 +1,7 @@
+This installation guideline will assume that you are using Ubuntu as your primary Linux (sorry, GNU/Linux) operating system.  The basic steps however, should translate across most distros.
+
+# Download CUDA from nVidia
+# Install any needed libraries and tools (e.g. gcc, linux-source, etc.)
+# Install nVidia Driver
+# Update your PATH, and LD_LIBRARY_PATH prior to installing
+# Install CUDA

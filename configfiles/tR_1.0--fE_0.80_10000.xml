@@ -1,55 +1,84 @@
-<?xml version="1.0" standalone=no?>
-<!-- Parameter file for for the DCT growth modeling -->
-<!-- This file holds constants, not state information -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<BGSimParams>
+   <SimInfoParams name="SimInfoParams">
+      <PoolSize name="PoolSize">
+         <x name="x">100</x>
+         <y name="y">100</y>
+         <z name="z">1</z>
+      </PoolSize>
+      <SimParams name="SimParams">
+         <Tsim name="Tsim">100.0</Tsim>
+         <numSims name="numSims">600</numSims>
+      </SimParams>
+      <SimConfig name="SimConfig">
+         <maxFiringRate name="maxFiringRate">200</maxFiringRate>
+         <maxSynapsesPerNeuron name="maxSynapsesPerNeuron">200</maxSynapsesPerNeuron>
+      </SimConfig>
+      <Seed name="Seed">
+         <value name="value">777</value>
+      </Seed>
+      <OutputParams name="OutputParams">
+         <stateOutputFileName name="stateOutputFileName">results/tR_1.0--fE_0.80_10000_historyDump.h5</stateOutputFileName>
+      </OutputParams>
+   </SimInfoParams>
 
-<SimInfoParams>
-    <!-- size of pool of neurons [x y z] -->
-    <PoolSize x="100" y="100" z="1"/>
-    <!-- Simulation Parameters -->
-    <SimParams Tsim="100.0" numSims="600"/>
-    <!-- Simulation Configuration Parameters -->
-    <SimConfig maxFiringRate="200" maxSynapsesPerNeuron="200"/>
-    <!-- Random seed - set to zero to use /dev/random -->
-    <Seed value="777" />
-    <!-- State output file name, this name will be overwritten if -o option is specified -->
-    <OutputParams stateOutputFileName="results/tR_1.0--fE_0.80_10000_historyDump.h5"/>
-</SimInfoParams>
+    <ModelParams>
+        <NeuronsParams class="AllLIFNeurons" name="NeuronsParams">
+    <Iinject name="Iinject">
+        <min name="min">13.5e-09</min>
+        <max name="max">13.5e-09</max>
+    </Iinject>
+    <Inoise name="Inoise">
+        <min name="min">1.0e-09</min>
+        <max name="max">1.5e-09</max>
+    </Inoise>
+    <Vthresh name="Vthresh">
+        <min name="min">15.0e-03</min>
+        <max name="max">15.0e-03</max>
+    </Vthresh>
+    <Vresting name="Vresting">
+        <min name="min">0.0</min>
+        <max name="max">0.0</max>
+    </Vresting>
+    <Vreset name="Vreset">
+        <min name="min">13.5e-03</min>
+        <max name="max">13.5e-03</max>
+    </Vreset>
+    <Vinit name="Vinit">
+        <min name="min">13.0e-03</min>
+        <max name="max">13.0e-03</max>
+    </Vinit>
+    <starter_vthresh name="starter_vthresh">
+        <min name="min">13.565e-3</min>
+        <max name="max">13.655e-3</max>
+    </starter_vthresh>
+    <starter_vreset name="starter_vreset">
+        <min name="min">13.0e-3</min>
+        <max name="max">13.0e-3</max>
+    </starter_vreset>
+</NeuronsParams>
 
-<ModelParams>
-    <NeuronsParams class="AllLIFNeurons">
-        <!-- Interval of constant injected current -->
-        <Iinject min="13.5e-09" max="13.5e-09"/>
-        <!-- Interval of STD of (gaussian) noise current -->
-        <Inoise min="1.0e-09" max="1.5e-09"/>
-        <!-- Interval of firing threshold -->
-        <Vthresh min="15.0e-03" max="15.0e-03"/>
-        <!-- Interval of asymptotic voltage -->
-        <Vresting min="0.0" max="0.0"/>
-        <!-- Interval of reset voltage -->
-        <Vreset min="13.5e-03" max="13.5e-03"/>
-        <!-- Interval of initial membrance voltage -->
-        <Vinit min="13.0e-03" max="13.0e-03"/>
-        <!-- Starter firing threshold -->
-        <starter_vthresh min="13.565e-3" max="13.655e-3"/>
-        <!-- Starter reset voltage -->
-        <starter_vreset min="13.0e-3" max="13.0e-3"/>
-    </NeuronsParams>
+        <SynapsesParams class="AllDSSynapses" name="SynapsesParams">
+</SynapsesParams>
 
-    <SynapsesParams class="AllLIFNeurons">
-    </SynapsesParams>
+        <ConnectionsParams class="ConnGrowth" name="ConnectionsParams">
+    <!-- Growth parameters -->
+    <GrowthParams name="GrowthParams">
+        <epsilon name="epsilon">0.60</epsilon>
+        <beta name="beta">0.10</beta>
+        <rho name="rho">0.0001</rho>
+        <targetRate name="targetRate">1.0</targetRate>
+        <minRadius name="minRadius">0.1</minRadius>
+        <startRadius name="startRadius">0.4</startRadius>
+     </GrowthParams>
+</ConnectionsParams>
 
-    <ConnectionsParams class="ConnGrowth">
-        <!-- Growth parameters -->
-        <GrowthParams epsilon="0.60" beta="0.10" rho="0.0001" targetRate="1.0" minRadius="0.1" startRadius="0.4"/>
-    </ConnectionsParams>
-
-    <LayoutParams class="FixedLayout">
-            <!-- Parameters for Dynamic Layout -->
-            <!-- DynamicLayoutParams frac_EXC="0.80" starter_neurons="0.10"/-->
-            <!-- If FixedLayout is present, the grid will be laid out according to the positions below, rather than randomly based on LsmParams -->
-            <FixedLayoutParams>
-                <LayoutFiles activeNListFileName="NList/activeNList_0.10_10000_2.xml" inhNListFileName="NList/inhNList_0.80_10000.xml"/>
-            </FixedLayoutParams>
-    </LayoutParams>
-</ModelParams>
-
+        <LayoutParams class="FixedLayout" name="LayoutParams">
+    <LayoutFiles name="LayoutFiles">
+        <activeNListFileName name="activeNListFileName" type="InputFile">NList/activeNList_0.10_10000_2.xml</activeNListFileName>
+        <inhNListFileName name="inhNListFileName" type="InputFile">NList/inhNList_0.80_10000.xml</inhNListFileName>
+        <prbNListFileName name="prbNListFileName" type="InputFile"/>
+    </LayoutFiles>
+</LayoutParams>
+    </ModelParams>
+</BGSimParams>

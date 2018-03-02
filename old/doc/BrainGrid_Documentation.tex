@@ -1,0 +1,90 @@
+\documentclass[11pt]{article}
+\usepackage[pdftex]{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{listings}
+\usepackage[T1]{fontenc}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{tabularx}
+
+
+\DeclareCaptionFont{white}{\color{white}}
+\DeclareCaptionFormat{listing}{%
+	\parbox{\textwidth}{\colorbox{gray}{\parbox{\textwidth}{#1#2#3}}\vskip-4pt}}
+\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white}
+\lstset{frame=lrb,xleftmargin=\fboxsep,xrightmargin=-\fboxsep}
+
+
+
+
+% Set the default font
+\renewcommand*{\familydefault}{\sfdefault}
+
+% Enable Hyperlinking of TOC entries
+\usepackage{hyperref}
+\hypersetup{
+    linktoc=all
+}
+
+
+% Set margins
+\setlength{\textheight}{8in}
+\setlength{\oddsidemargin}{.125in}
+\setlength{\textwidth}{6.25in}
+
+% Set up BrainGrid Logo as Background Picture (for use in the Title Page)
+\usepackage{eso-pic}
+\newcommand\BackgroundPic{%
+\put(0,0){%
+\parbox[b][\paperheight]{\paperwidth}{%
+\vfill
+\centering
+\includegraphics[width=\textwidth,height=4.00in,% % Come up with a better way to restrict the height of the image so that it is below the 
+keepaspectratio]{./logos/logo.png}%
+\vfill
+}}}
+
+\mdseries 
+\begin{document}
+\AddToShipoutPicture*{\BackgroundPic}
+\title{BrainGrid\\Documentation}
+\author{Kawasaki, Fumitaka \and Stiber, Michael}
+\date{} %Doesn't show the date
+
+\maketitle
+
+\pagebreak
+
+%------------------------------------- Abstract Section
+\input{./tex/abstract.tex}
+
+%------------------------------------- Table of Contents
+\tableofcontents
+\pagebreak
+
+%------------------------------------- Linux Crash Course
+\input{./tex/linux-crash-course.tex}
+
+%------------------------------------- Design Section
+\input{./tex/simulation-design.tex}
+
+%------------------------------------- Features Section
+\input{./tex/features.tex}
+
+%------------------------------------- User Guide Section
+\input{./tex/user-guide.tex}
+
+%------------------------------------- Implementing Other Models Section
+\input{./tex/implement-other-models.tex}
+
+%------------------------------------- Tools Section
+\input{./tex/tools.tex}
+
+%------------------------------------- FAQ
+\input{./tex/faq.tex}
+
+%------------------------------------- Acknowledgements
+\input{./tex/acknowledgements.tex}
+
+\end{document}

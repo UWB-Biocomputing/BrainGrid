@@ -1,0 +1,42 @@
+!What You Will Need (read: "Which Software")
+In order to run BrainGrid and the additional utilities you will need the following software:
+* GNU/Linux^^1^^
+* Python^^2^^
+* CUDA
+* Matlab or Octave
+* Vim^^3^^
+
+^^1^^ We want to appease the great Richard Stallman, it's "GNU/Linux" not just Linux!
+^^2^^ This is for running some of the scripts
+^^3^^ If you're going to be doing any remote editing, then a terminal based editor is a necessity.  An alternative to Vim is Nano.
+
+!Cloning the BrainGrid Repository
+Chances are if you're reading this, then you've already managed to clone our repository.  But we here at BrainGrid don't like to be presumptuous.  Maybe somebody just passed this along to you. Or maybe you figured out that the documentation was essentially a single self-contained HTML file with a Wiki engine written completely in Javascript and that you didn't need to clone the whole repository to get at it; so instead you chose to download this one file clinging to the hope that we would explain how to clone the repository. Well, here it is!
+
+{{{
+$ git clone https://github.com/UWB-Biocomputing/BrainGrid
+}}}
+
+
+!Running BrainGrid
+To run the single threaded simulation just follow these steps
+# Change into the BrainGrid folder <br>{{{$ cd ~/BrainGrid}}}
+# Check out the stable refactored branch <br>{{{$ git checkout refactor-stable}}}
+# Compile the single threaded branch <br>{{{$ make growth}}}
+# Run it with one of our numerous test files <br>{{{$ ./growth -t ./config/test.xml}}}
+
+If you're running BrainGrid remotely, then you may very well be interested in the {{{screen}}} command.  This is of course only if you have an aversion to watching text scrolling past your screen for the better part of two-weeks, or if you have a potentially unstable network connection.  If neither of these things applies to you, then by all means skip this section, otherwise read on!
+
+The {{{screen}}} command will essentially allow you to start a simulation and then detach it so that it runs in the background.  This has the huge advantage of allowing you to log out of the server you are remotely connected to.  Here is how you might go about doing this:
+
+# Log into the server of your choice<br>{{{$ ssh bobjoe@foo.bar.edu}}}
+# Change into the BrainGrid repository<br>{{{$ cd ~/BrainGrid}}}
+# Compile the (single threaded) simulation<br>{{{$ make growth}}}
+# Start a screen<br>{{{$ screen}}}
+# Start the Simulation<br>{{{$ ./growth -t ./config/test.xml}}}
+# Detach the screen by pressing the following key combinations:<br>{{{"Ctrl+A"}}} then {{{"Ctrl+D"}}}
+# Allow the simulation to run to completion *cue crickets*
+# Reattach the screen^^1^^<br>{{{$ screen -r}}}
+
+^^1^^ This command reattaches the last screen that was detached.  It should also be noted that if you let it run to completion, then reattaching the screen isn't necessary to view the output.  
+

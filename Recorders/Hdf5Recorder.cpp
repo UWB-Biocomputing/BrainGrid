@@ -319,8 +319,17 @@ void Hdf5Recorder::saveSimData(const IAllNeurons &neurons)
         }
 
         // Write the neuron location matrices
-        dataSetXloc->write(m_model->getLayout()->xloc, PredType::NATIVE_INT);
-        dataSetYloc->write(m_model->getLayout()->yloc, PredType::NATIVE_INT);
+        int* iXloc = new int[m_sim_info->totalNeurons];
+        int* iYloc = new int[m_sim_info->totalNeurons];
+        for (int i = 0; i < m_sim_info->totalNeurons; i++) {
+            // convert VectorMatrix to int array
+            iXloc[i] = (*m_model->getLayout()->xloc)[i];
+            iYloc[i] = (*m_model->getLayout()->yloc)[i];
+        }
+        dataSetXloc->write(iXloc, PredType::NATIVE_INT);
+        dataSetYloc->write(iYloc, PredType::NATIVE_INT);
+        delete[] iXloc;
+        delete[] iYloc;
 
         int* iNeuronTypes = new int[m_sim_info->totalNeurons];
         for (int i = 0; i < m_sim_info->totalNeurons; i++)

@@ -1,0 +1,59 @@
+================================================================================
+Documentation TODO
+================================================================================
+	[X] Merge Current LaTeX Documentation into the repository
+	
+	[ ] Create a README in the root folder:
+		- What you need installed:
+			- CUDA
+			- latex
+			- *python
+			- Qt / PyQt (specifically version 4)
+			- Linux System (for bash scripts)
+		- Generating a pdf of the documentation
+		- Building simulator
+		
+	[X] Split the current documentation into multiple files
+	[X] Add a Makefile to make the documentation pdf and clean up aftwards.
+	[X] Create Hypelinks in the TOC.
+	
+	[ ] Expand FAQ
+		[ ] Supported Versions of CUDA
+		[ ] Supported Graphics Cards
+		[ ] Unsupported Graphics Cards
+		[ ] What is the current performance of the refactored implementation?
+		[ ] What other models will be supported?
+		[ ] 
+	
+	[ ] Expand on the Design
+		[ ] Run through the current implementation of the LIFModel
+			- General form
+			- Class Structure
+		[ ] Run through the simulation sequence in detail
+			- parameter checking
+			- xml file import
+			- Setting up the network
+			- Sequence Diagram
+			- advanceUntilGrowth
+			- advance
+			- advanceNeurons --> advanceNeuron
+			- advanceSynapses --> advanceSynapse
+			- 
+			
+	[ ] Add Future Features
+		[ ] External Input to Neurons
+		[ ] Unsupervised Learning Applications Are Being Investigated
+		
+	[ ] Expand Tools / Features
+		[ ] Bench Script
+		[ ] 
+		
+	[ ] Improve the Supported Operating Systems
+		- Disclaimer that Linux is the primary targeted system.
+		
+	[ ] Expand on the User Guide Section
+		[ ] Making and running the simulation
+		[ ] Test Files
+		[ ] Verification Files
+		[ ] Advanced Usage (running the simulation on a remote machine)
+		
