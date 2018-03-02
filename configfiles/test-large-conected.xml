@@ -75,9 +75,9 @@
 
     <LayoutParams class="FixedLayout" name="LayoutParams">
       <LayoutFiles name="LayoutFiles">
-        <activeNListFileName name="activeNListFileName" type="InputFile">NList/ActiveNList100x100-0.1.xml</activeNListFileName>
-        <inhNListFileName name="inhNListFileName" type="InputFile">NList/InhibitoryNList100x100-0.1.xml</inhNListFileName>
-        <prbNListFileName name="prbNListFileName" type="InputFile">NList/ProbedNList-empty.xml</prbNListFileName>
+        <activeNListFileName name="activeNListFileName" type="InputFile">configfiles/NList/ActiveNList100x100-0.1.xml</activeNListFileName>
+        <inhNListFileName name="inhNListFileName" type="InputFile">configfiles/NList/InhibitoryNList100x100-0.1.xml</inhNListFileName>
+        <probedNListFileName name="prbNListFileName" type="InputFile">configfiles/NList/ProbedNList-empty.xml</prbNListFileName>
       </LayoutFiles>
     </LayoutParams>
   </ModelParams>
