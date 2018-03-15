@@ -39,9 +39,9 @@ CUDALIBDIR = /usr/local/cuda/lib64
 
 # hdf5
 ifeq ($(CUSEHDF5), yes)
-	H5INCDIR = /usr/include/hdf5/serial		   			# include dir
-	H5LIBDIR = /usr/lib/x86_64-linux-gnu/hdf5/serial/  	# library dir
-	#H5LIBDIR = /usr/lib/x86_64-linux-gnu/	 	   		# another library dir
+	H5INCDIR = /usr/include/hdf5/serial		   # include dir
+	H5LIBDIR = /usr/lib/x86_64-linux-gnu/hdf5/serial/  # library dir
+	#H5LIBDIR = /usr/lib/x86_64-linux-gnu/	 	   # another library dir
 else
 	H5INCDIR = .
 endif
@@ -109,8 +109,6 @@ CUDAOBJS =   \
 		$(SYNAPSEDIR)/AllSynapses_cuda.o \
 		$(SYNAPSEDIR)/AllSpikingSynapses_cuda.o \
 		$(SYNAPSEDIR)/AllSpikingSynapses_d.o \
-		$(SYNAPSEDIR)/AllIZHSpikingSynapses_cuda.o \
-		$(SYNAPSEDIR)/AllIZHSpikingSynapses_d.o \
 		$(SYNAPSEDIR)/AllDSSynapses_cuda.o \
 		$(SYNAPSEDIR)/AllDSSynapses_d.o \
 		$(SYNAPSEDIR)/AllSTDPSynapses_cuda.o \
@@ -180,7 +178,6 @@ SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
 		$(NEURONDIR)/AllIZHNeurons.o \
 		$(SYNAPSEDIR)/AllSynapses.o \
 		$(SYNAPSEDIR)/AllSpikingSynapses.o \
-		$(SYNAPSEDIR)/AllIZHSpikingSynapses.o \
 		$(SYNAPSEDIR)/AllDSSynapses.o \
 		$(SYNAPSEDIR)/AllSTDPSynapses.o \
 		$(SYNAPSEDIR)/AllDynamicSTDPSynapses.o \
@@ -251,11 +248,6 @@ $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o: $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d
 $(SYNAPSEDIR)/AllSpikingSynapses_d.o: $(SYNAPSEDIR)/AllSpikingSynapses_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllSpikingSynapses.h
 	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSpikingSynapses_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSpikingSynapses_d.o
 
-# IZH03
-$(SYNAPSEDIR)/AllIZHSpikingSynapses_d.o: $(SYNAPSEDIR)/AllIZHSpikingSynapses_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllIZHSpikingSynapses.h
-	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllIZHSpikingSynapses_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllIZHSpikingSynapses_d.o
-#
-
 $(SYNAPSEDIR)/AllDSSynapses_d.o: $(SYNAPSEDIR)/AllDSSynapses_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllDSSynapses.h
 	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllDSSynapses_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllDSSynapses_d.o
 
@@ -291,12 +283,6 @@ $(SYNAPSEDIR)/AllSynapses_cuda.o: $(SYNAPSEDIR)/AllSynapses.cpp $(SYNAPSEDIR)/Al
 
 $(SYNAPSEDIR)/AllSpikingSynapses_cuda.o: $(SYNAPSEDIR)/AllSpikingSynapses.cpp $(SYNAPSEDIR)/AllSpikingSynapses.h $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(SYNAPSEDIR)/AllSpikingSynapses.cpp -o $(SYNAPSEDIR)/AllSpikingSynapses_cuda.o
-
-# IZH03
-$(SYNAPSEDIR)/AllIZHSpikingSynapses_cuda.o: $(SYNAPSEDIR)/AllIZHSpikingSynapses.cpp $(SYNAPSEDIR)/AllIZHSpikingSynapses.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(SYNAPSEDIR)/AllIZHSpikingSynapses.cpp -o $(SYNAPSEDIR)/AllIZHSpikingSynapses_cuda.o
-#
-
 
 $(SYNAPSEDIR)/AllDSSynapses_cuda.o: $(SYNAPSEDIR)/AllDSSynapses.cpp $(SYNAPSEDIR)/AllDSSynapses.h $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(SYNAPSEDIR)/AllDSSynapses.cpp -o $(SYNAPSEDIR)/AllDSSynapses_cuda.o
@@ -346,11 +332,6 @@ $(SYNAPSEDIR)/AllSynapses.o: $(SYNAPSEDIR)/AllSynapses.cpp $(SYNAPSEDIR)/AllSyna
 
 $(SYNAPSEDIR)/AllSpikingSynapses.o: $(SYNAPSEDIR)/AllSpikingSynapses.cpp $(SYNAPSEDIR)/AllSpikingSynapses.h $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(SYNAPSEDIR)/AllSpikingSynapses.cpp -o $(SYNAPSEDIR)/AllSpikingSynapses.o
-
-# IZH03
-$(SYNAPSEDIR)/AllIZHSpikingSynapses.o: $(SYNAPSEDIR)/AllIZHSpikingSynapses.cpp $(SYNAPSEDIR)/AllIZHSpikingSynapses.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(SYNAPSEDIR)/AllIZHSpikingSynapses.cpp -o $(SYNAPSEDIR)/AllIZHSpikingSynapses.o
-#
 
 $(SYNAPSEDIR)/AllDSSynapses.o: $(SYNAPSEDIR)/AllDSSynapses.cpp $(SYNAPSEDIR)/AllDSSynapses.h $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(SYNAPSEDIR)/AllDSSynapses.cpp -o $(SYNAPSEDIR)/AllDSSynapses.o
