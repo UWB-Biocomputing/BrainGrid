@@ -12,7 +12,6 @@
 #include "AllDSSynapses.h"
 #include "AllSTDPSynapses.h"
 #include "AllDynamicSTDPSynapses.h"
-#include "AllIZHSpikingSynapses.h"
 #include "ConnGrowth.h"
 #include "ConnStatic.h"
 #include "FixedLayout.h"
@@ -40,7 +39,6 @@ FClassOfCategory::FClassOfCategory() :
     registerNeurons("AllIZHNeurons", &AllIZHNeurons::Create);
 
     // register synapses classes
-    registerSynapses("AllIZHSpikingSynapses", &AllIZHSpikingSynapses::Create);
     registerSynapses("AllSpikingSynapses", &AllSpikingSynapses::Create);
     registerSynapses("AllDSSynapses", &AllDSSynapses::Create);
     registerSynapses("AllSTDPSynapses", &AllSTDPSynapses::Create);
