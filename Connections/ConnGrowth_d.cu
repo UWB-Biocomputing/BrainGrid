@@ -60,7 +60,8 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
     int blocksPerGrid;
 
     // allocate host memory for weight data
-    BGSIZE W_d_size = sim_info->totalNeurons * sim_info->totalNeurons * sizeof (BGFLOAT);
+    // W_d_size may exceed 4GB, so the type should be 64bits integer
+    uint64_t W_d_size = sim_info->totalNeurons * sim_info->totalNeurons * sizeof (BGFLOAT);
     BGFLOAT* W_h = new BGFLOAT[W_d_size];
 
     // and initialize it

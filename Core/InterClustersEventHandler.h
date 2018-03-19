@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include "BGTypes.h"
+#include "Global.h"
 #include <vector>
 
 class EventQueue;

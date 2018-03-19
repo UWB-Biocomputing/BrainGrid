@@ -33,7 +33,7 @@ bool DynamicLayout::readParameters(const TiXmlElement& element)
         return true;
     }
 
-    if (element. ValueStr().compare("LayoutFiles") == 0){
+    if (element. ValueStr().compare("LayoutNeurons") == 0){
 	nParams++;
 	return true;
     }
@@ -56,7 +56,7 @@ bool DynamicLayout::readParameters(const TiXmlElement& element)
         return true;
     }
 */
-    if(element.Parent()->ValueStr().compare("LayoutFiles") == 0){
+    if(element.Parent()->ValueStr().compare("LayoutNeurons") == 0){
 	if(element.ValueStr().compare("frac_EXC") == 0){
 	    m_frac_excitatory_neurons = atof(element.GetText());
 
@@ -71,6 +71,8 @@ bool DynamicLayout::readParameters(const TiXmlElement& element)
                 throw ParseParamError("starter_neurons", "Invalid range for a fraction.");
             }
 	}
+
+        return true;
     }
 
     return false;
@@ -104,7 +106,7 @@ void DynamicLayout::generateNeuronTypeMap(int num_neurons)
 
     DEBUG(cout << "Total neurons: " << num_neurons << endl;)
     DEBUG(cout << "Inhibitory Neurons: " << num_inhibitory_neurons << endl;)
-    DEBUG(cout << "Excitatory Neurons: " << num_inhibitory_neurons << endl;)
+    DEBUG(cout << "Excitatory Neurons: " << num_excititory_neurons << endl;)
 
     DEBUG(cout << endl << "Randomly selecting inhibitory neurons..." << endl;)
 
@@ -157,7 +159,7 @@ void DynamicLayout::initStarterMap(const int num_neurons)
         if (neuron_type_map[i] == EXC && starter_map[i] == false) {
             starter_map[i] = true;
             starters_allocated++;
-            DEBUG(cout << "allocated EA neuron at random index [" << i << "]" << endl;);
+            DEBUG_MID(cout << "allocated EA neuron at random index [" << i << "]" << endl;);
         }
     }
 

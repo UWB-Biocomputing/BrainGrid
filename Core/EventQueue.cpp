@@ -525,7 +525,7 @@ void EventQueue::deleteEventQueueInDevice(EventQueue* pEventQueue_d)
 {
     BGQUEUE_ELEMENT *pQueueEvent_h;
     interClustersOutgoingEvents_t *pInterClustersOutgoingEvents_h;
-    BGSIZE *pInterClustersIncomingEvents_h;
+    BGQUEUE_ELEMENT *pInterClustersIncomingEvents_h;
 
     // get pointers to the queue data buffers in device memory
     getQueueEventPointerInDevice(pEventQueue_d, &pQueueEvent_h);

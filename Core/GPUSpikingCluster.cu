@@ -53,6 +53,27 @@ GPUSpikingCluster::~GPUSpikingCluster()
  */
 void GPUSpikingCluster::allocDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
+  DEBUG(
+    {
+        // Report GPU memory usage
+        printf("\n");
+
+        size_t free_byte;
+        size_t total_byte;
+
+        checkCudaErrors( cudaMemGetInfo( &free_byte, &total_byte ) );
+
+        double free_db = (double)free_byte;
+        double total_db = (double)total_byte;
+        double used_db = total_db - free_db;
+
+        printf("Before allocating GPU memories\n");
+        printf("GPU memory usage: device ID = %d, used = %5.3f MB, free = %5.3f MB, total = %5.3f MB\n", clr_info->deviceId, used_db / 1024.0 / 1024.0, free_db / 1024.0 / 1024.0, total_db / 1024.0 / 1024.0);
+
+        printf("\n");
+    }
+  ) // end  DEBUG
+
   // Allocate Neurons and Synapses strucs on GPU device memory
   m_neurons->allocNeuronDeviceStruct( allNeuronsDevice, sim_info, clr_info );
   m_synapses->allocSynapseDeviceStruct( allSynapsesDevice, sim_info, clr_info );
@@ -70,6 +91,28 @@ void GPUSpikingCluster::allocDeviceStruct(void** allNeuronsDevice, void** allSyn
 
   // allocate synapse index map in device memory
   allocSynapseImap( neuron_count );
+
+  DEBUG(
+    {
+        // Report GPU memory usage
+        printf("\n");
+
+        size_t free_byte;
+        size_t total_byte;
+
+        checkCudaErrors( cudaMemGetInfo( &free_byte, &total_byte ) );
+
+        double free_db = (double)free_byte;
+        double total_db = (double)total_byte;
+        double used_db = total_db - free_db;
+
+        printf("After allocating GPU memories\n");
+        printf("GPU memory usage: device ID = %d, used = %5.3f MB, free = %5.3f MB, total = %5.3f MB\n",
+                    clr_info->deviceId, used_db / 1024.0 / 1024.0, free_db / 1024.0 / 1024.0, total_db / 1024.0 / 1024.0);
+
+        printf("\n");
+    }
+  ) // end  DEBUG
 }
 
 /*
@@ -463,6 +506,27 @@ void GPUSpikingCluster::copySynapseIndexMapHostToDevice(const ClusterInfo *clr_i
   checkCudaErrors( cudaMemcpy ( synapseIndexMap.incomingSynapseIndexMap, synapseIndexMapHost->incomingSynapseIndexMap, total_synapse_counts * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
 
   checkCudaErrors( cudaMemcpy ( synapseIndexMapDevice, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
+
+  DEBUG(
+        {
+            // Report GPU memory usage
+            printf("\n");
+
+            size_t free_byte;
+            size_t total_byte;
+
+            checkCudaErrors( cudaMemGetInfo( &free_byte, &total_byte ) );
+
+            double free_db = (double)free_byte;
+            double total_db = (double)total_byte;
+            double used_db = total_db - free_db;
+
+            printf("After creating SynapseIndexMap\n");
+            printf("GPU memory usage: device ID = %d, used = %5.3f MB, free = %5.3f MB, total = %5.3f MB\n", clr_info->deviceId, used_db / 1024.0 / 1024.0, free_db / 1024.0 / 1024.0, total_db / 1024.0 / 1024.0);
+
+            printf("\n");
+        }
+  ) // end  DEBUG
 }
 
    /* ------------------*\

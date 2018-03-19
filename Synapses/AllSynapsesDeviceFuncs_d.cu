@@ -726,6 +726,7 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
 __device__ void addSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, synapseType type, const int neuron_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons)
 {
     if (allSynapsesDevice->synapse_counts[neuron_index] >= allSynapsesDevice->maxSynapsesPerNeuron) {
+        assert(false);
         return; // TODO: ERROR!
     }
 
