@@ -56,13 +56,19 @@ As a quick start and sanity test, let's run a small, prepackaged simulation to m
 4. Run it with one of our numerous test files 
 
    ```shell
-   $ ./growth -t ./validation/test-small.xml
+   $ ./growth -t ./configfiles/test-small.xml
    ```
 
    or run with GPU support:
 
    ```shell
-   $ ./growth_cuda -t ./validation/test-small.xml
+   $ ./growth_cuda -t ./configfiles/test-small.xml
+   ```
+   
+   or run in multithreaded mode:
+   
+   ```shell
+   $ ./growth -c # ./configfiles/test-small.xml
    ```
 
 5. The program will then run and display the current step and epoch of the simulation. The output of the simulation (after the end of the simulation) will be saved in the ```output``` folder.
