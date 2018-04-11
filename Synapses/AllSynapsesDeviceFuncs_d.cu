@@ -720,10 +720,9 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
  * @param dest_index             Layout index of the destination neuron.
  * @param sum_point              Pointer to the summation point.
  * @param deltaT                 The time step size.
- * @param W_d                    Array of synapse weight.
- * @param num_neurons            The total number of neurons.
+ * @param weight                 Synapse weight.
  */
-__device__ void addSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, synapseType type, const int neuron_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT* W_d, int num_neurons)
+__device__ void addSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, synapseType type, const int neuron_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT weight)
 {
     if (allSynapsesDevice->synapse_counts[neuron_index] >= allSynapsesDevice->maxSynapsesPerNeuron) {
         assert(false);
@@ -759,7 +758,7 @@ __device__ void addSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapse
     default:
         assert(false);
     }
-    allSynapsesDevice->W[synapseBegin + synapse_index] = W_d[source_index * num_neurons + dest_index] * synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+    allSynapsesDevice->W[synapseBegin + synapse_index] = weight * synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 }
 
 /*
@@ -814,7 +813,7 @@ __device__ synapseType synType( neuronType* neuron_type_map_d, const int src_neu
  * @param[in] maxSynapses        Maximum number of synapses per neuron.
  * @param[in] allNeuronsDevice   Pointer to the Neuron structures in device memory.
  * @param[in] allSynapsesDevice  Pointer to the Synapse structures in device memory.
-* @param[in] neuron_type_map_d   Pointer to the neurons type map in device memory.
+ * @param[in] neuron_type_map_d   Pointer to the neurons type map in device memory.
  * @param[in] totalClusterNeurons  Total number of neurons in the cluster.
  * @param[in] clusterNeuronsBegin  Begin neuron index of the cluster.
  */
@@ -854,14 +853,16 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BG
                     // adjust the strength of the synapse or remove
                     // it from the synapse map if it has gone below
                     // zero.
-                    if (W_d[src_neuron * num_neurons + dest_neuron] < 0) {
+
+                    // W_d[] is indexed by (dest_neuron (local index) * totalNeurons + src_neuron)
+                    if (W_d[iNeuron * num_neurons + src_neuron] < 0) {
                         removed++;
                         eraseSpikingSynapse(allSynapsesDevice, iNeuron, synapse_index, maxSynapses);
                     } else {
                         // adjust
                         // g_synapseStrengthAdjustmentConstant is 1.0e-8;
-                        allSynapsesDevice->W[iSyn] = W_d[src_neuron * num_neurons
-                            + dest_neuron] * synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+                        allSynapsesDevice->W[iSyn] = W_d[iNeuron * num_neurons
+                            + src_neuron] * synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
                     }
                 }
                 existing_synapses_checked++;
@@ -869,12 +870,12 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BG
         }
 
         // if not connected and weight(a,b) > 0, add a new synapse from a to b
-        if (!connected && (W_d[src_neuron * num_neurons +  dest_neuron] > 0)) {
+        if (!connected && (W_d[iNeuron * num_neurons +  src_neuron] > 0)) {
             // locate summation point
             BGFLOAT* sum_point = &( allNeuronsDevice->summation_map[iNeuron] );
             added++;
 
-            addSpikingSynapse(allSynapsesDevice, type, iNeuron, src_neuron, dest_neuron, sum_point, deltaT, W_d, num_neurons);
+            addSpikingSynapse(allSynapsesDevice, type, iNeuron, src_neuron, dest_neuron, sum_point, deltaT, W_d[iNeuron * num_neurons + src_neuron]);
         }
     }
 }

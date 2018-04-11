@@ -67,23 +67,28 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
     // and initialize it
     for ( int i = 0 ; i < sim_info->totalNeurons; i++ )
         for ( int j = 0; j < sim_info->totalNeurons; j++ )
-            W_h[i * sim_info->totalNeurons + j] = (*W)(i, j);
+            // W_h[] is indexed by (dest_neuron * totalNeurons + src_neuron)
+            W_h[i * sim_info->totalNeurons + j] = (*W)(j, i);
 
     // destination neurons of each cluster
     for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
         // Set device ID
         checkCudaErrors( cudaSetDevice( vtClrInfo[iCluster]->deviceId ) );
 
-        // TODO: OPTIMIZATION: Device memories for weight data and neuron type map
-        // must be allocated for each device; however, they can be
+        // OPTIMIZATION: Device memories for weight data 
+        // is allocated for each device; therefore, it can be
         // devided for each cluster.
 
-        // allocate device memories for weight data 
+        int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
+        int clusterNeuronsBegin = vtClrInfo[iCluster]->clusterNeuronsBegin;
+
+        // allocate device memories for weight data of the cluster
         BGFLOAT* W_d;
-        checkCudaErrors( cudaMalloc ( ( void ** ) &W_d, W_d_size ) );
+        uint64_t W_d_c_size = sim_info->totalNeurons * totalClusterNeurons * sizeof (BGFLOAT);
+        checkCudaErrors( cudaMalloc ( ( void ** ) &W_d, W_d_c_size ) );
 
         // and initialize it
-        checkCudaErrors( cudaMemcpy ( W_d, W_h, W_d_size, cudaMemcpyHostToDevice ) );
+        checkCudaErrors( cudaMemcpy ( W_d, W_h + clusterNeuronsBegin * totalClusterNeurons * sizeof (BGFLOAT), W_d_c_size, cudaMemcpyHostToDevice ) );
 
         // allocate device memory for neuron type map
         neuronType* neuron_type_map_d;
@@ -92,8 +97,6 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
         // and initialize it
         checkCudaErrors( cudaMemcpy ( neuron_type_map_d, layout->neuron_type_map, sim_info->totalNeurons * sizeof( neuronType ), cudaMemcpyHostToDevice ) );
 
-        int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
-        int clusterNeuronsBegin = vtClrInfo[iCluster]->clusterNeuronsBegin;
         GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(vtClr[iCluster]);
         AllSpikingNeuronsDeviceProperties* allNeuronsDevice = GPUClr->m_allNeuronsDevice;
         AllSpikingSynapsesDeviceProperties* allSynapsesDevice = GPUClr->m_allSynapsesDevice;
@@ -107,6 +110,27 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
 
         // copy device sourceNeuronLayoutIndex and in_use to host memory
         synapses->copyDeviceSourceNeuronIdxToHost(allSynapsesDevice, sim_info, vtClrInfo[iCluster]);
+
+  DEBUG(
+        {
+            // Report GPU memory usage
+            printf("\n");
+
+            size_t free_byte;
+            size_t total_byte;
+
+            checkCudaErrors( cudaMemGetInfo( &free_byte, &total_byte ) );
+
+            double free_db = (double)free_byte;
+            double total_db = (double)total_byte;
+            double used_db = total_db - free_db;
+
+            printf("Updating Synapse Weights\n");
+            printf("GPU memory usage: device ID = %d, used = %5.3f MB, free = %5.3f MB, total = %5.3f MB\n", vtClrInfo[iCluster]->deviceId, used_db / 1024.0 / 1024.0, free_db / 1024.0 / 1024.0, total_db / 1024.0 / 1024.0);
+
+            printf("\n");
+        }
+  ) // end  DEBUG
 
         // free device memories
         checkCudaErrors( cudaFree( W_d ) );
