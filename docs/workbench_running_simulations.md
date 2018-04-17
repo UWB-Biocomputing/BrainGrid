@@ -1,58 +1,6 @@
-# 1. BrainGrid Workbench
-
-## 1.1. What is BrainGrid Workbench?
-
-BrainGrid Workbench is designed for a desktop application with a Graphical User Interface (GUI)
-
-## 1.2. Getting Started
-### 1.2.1. Clone the BrainGrid repository from GitHub.
-* Make sure “Git” is installed in your operating system. Check https://git-scm.com/ for more information about Git.
-
-* Clone the repository to a local folder by typing the following command.
-```shell
-git clone https://github.com/UWB-Biocomputing/BrainGrid.git [folder_name]
-```
-* If you would like to checkout a specific branch or commit, use the following command.
-```shell
-git checkout [branch_name/commit_number]
-```
-
-### 1.2.2. Compile and build the Workbench.
-#### 1.2.2.1. Compile in command line.
-
-* Make sure Maven is installed by checking Maven version using the following command.
-```shell
-mvn -v
-```
-
-* If Maven is installed, the output will be like the screen dump below.
-
-![alt text](images/CheckMavenVersion.png "Maven is installed.")
-
-* Type the following Maven command under the directory "Tools/Workbench/WorkbenchProject" to compile and create executable JAR file.
-```shell
-mvn clean install
-```
-* After the project is built successfully, a JAR file "BrainGridWorkbench-1.0-SNAPSHOT.jar " will be created under the directory "Tools/Workbench/WorkbenchProject/target". Run this JAR file to start using the Workbench.
-
-#### 1.2.2.1. Compile in NetBeans.
-
-* Create a New Project in NetBeans. Then, select "Maven" under project categories and choose the option "Project with existing POM". And, press “Next”.
-
-![alt text](images/NetbeansNewMavenProject.png "New Netbeans Project with existing POM.")
- 
-* After pressing the "Finish" button, choose "Tools/Workbench/WorkbenchProject", then press the “Open Project” button.
-
-![alt text](images/NetbeansNewProjectFinish.png "Press the finsih button.")
-
-![alt text](images/NetbeansOpenProject.png "Open the Maven project.")
-
-* After the project is opened, you can compile and build it by pressing the "Clean and Build Project" Menu option in NetBeans. Or, you can run the program directly.
- 
-* After the project is built successfully, it will generate a JAR file " BrainGridWorkbench-1.0-SNAPSHOT.jar " under the directory "Tools/Workbench/WorkbenchProject/target". Run this JAR file to start using the Workbench.
-
-### 1.2.3. Using BrainGrid Workbench to run neural simulation
-* If it is the first time running BrainGrid Workbench, copy “BaseTemplates”, “ParamsClassTemplateConfig” and “BaseTemplateConfig.xml” – under directory "Tools/Workbench/TemplateSelectionConfig" to the working directory berfore running BrainGrid Workbench.
+# 2. Running Simulations
+## 2.1. The workflow
+* If it is the first time running BrainGrid Workbench, copy “BaseTemplates”, “ParamsClassTemplateConfig” and “BaseTemplateConfig.xml” – under directory "Tools/Workbench/TemplateSelectionConfig" to the work directory berfore running BrainGrid Workbench.
 
 ![alt text](images/FilesToCopy.png "Copy files")
  
@@ -119,7 +67,7 @@ mvn clean install
  
 ![alt text](images/WorkbenchResultDownloadFail.png "Fail")
 
-### 1.2.4. About the generated script files
+## 1.2. About the generated script files
 The generated script files do the following steps.
 1. Make an empty directory and clone the BrainGrid repository.
 2. Checkout the revision specified in SHA1 field of the script configuration dialog.
