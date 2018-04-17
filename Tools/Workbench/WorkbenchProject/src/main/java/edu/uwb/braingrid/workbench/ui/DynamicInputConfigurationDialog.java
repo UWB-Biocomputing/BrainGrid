@@ -235,6 +235,10 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
                 File configFile = new File(configFilename);
                 configFilename_textField.setText(configFile.getName());
             }
+            else{
+                File configFile = new File(projectName + ".xml");
+                configFilename_textField.setText(configFile.getName());
+            }
             setPreferredSize(new Dimension(700, 365));
             okButton.setEnabled(false);
 

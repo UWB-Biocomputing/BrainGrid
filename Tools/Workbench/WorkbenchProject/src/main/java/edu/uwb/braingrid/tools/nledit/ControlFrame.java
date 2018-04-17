@@ -906,7 +906,7 @@ public class ControlFrame extends JFrame implements ActionListener {
                         "InhibitoryNeuronListExport" + java.util.UUID.randomUUID(),
                         "neuronListExport", "NLEdit", null, false,
                         myPanel.tfields[ExportPanel.idxInhList].getText(), null,
-                        false);
+                        null);
                 accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
             }
 
@@ -920,7 +920,7 @@ public class ControlFrame extends JFrame implements ActionListener {
                         "ActiveNeuronListExport" + java.util.UUID.randomUUID(),
                         "neuronListExport", "NLEdit", null, false,
                         myPanel.tfields[ExportPanel.idxActList].getText(), null,
-                        false);
+                        null);
                 accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
             }
 
@@ -934,7 +934,7 @@ public class ControlFrame extends JFrame implements ActionListener {
                         "ProbedNeuronListExport" + java.util.UUID.randomUUID(),
                         "neuronListExport", "NLEdit", null, false,
                         myPanel.tfields[ExportPanel.idxPrbList].getText(), null,
-                        false);
+                        null);
                 accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
             }
         }
