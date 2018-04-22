@@ -26,6 +26,7 @@
 
 #include "GPUSpikingCluster.h"
 #include "ISInput.h"
+#include "MersenneTwister_d.h"
 
 // ----------------------------------------------------------------------------
 
@@ -78,18 +79,12 @@ void GPUSpikingCluster::allocDeviceStruct(void** allNeuronsDevice, void** allSyn
   m_neurons->allocNeuronDeviceStruct( allNeuronsDevice, sim_info, clr_info );
   m_synapses->allocSynapseDeviceStruct( allSynapsesDevice, sim_info, clr_info );
 
-  // Allocate memory for random noise array
-  int neuron_count = clr_info->totalClusterNeurons;
-  // neuron_count must be a multiple of 100
-  neuron_count = ((( neuron_count - 1 ) / 100 ) + 1 ) * 100;
-  BGSIZE randNoise_d_size = neuron_count * sizeof (float);	// size of random noise array
-  checkCudaErrors( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
-
   // Copy host neuron and synapse arrays into GPU device
   m_neurons->copyNeuronHostToDevice( *allNeuronsDevice, sim_info, clr_info );
   m_synapses->copySynapseHostToDevice( *allSynapsesDevice, sim_info, clr_info );
 
   // allocate synapse index map in device memory
+  int neuron_count = clr_info->totalClusterNeurons;
   allocSynapseImap( neuron_count );
 
   DEBUG(
@@ -155,16 +150,35 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
 
   Cluster::setupCluster(sim_info, layout, clr_info);
 
-  //initialize Mersenne Twister
-  //assuming neuron_count >= 100 and is a multiple of 100. Note rng_mt_rng_count must be <= MT_RNG_COUNT
-  int rng_blocks = 25; //# of blocks the kernel will use
-  int rng_nPerRng = 4; //# of iterations per thread (thread granularity, # of rands generated per thread)
-  int neuron_count = clr_info->totalClusterNeurons;
-  // neuron_count must be a multiple of 100
-  neuron_count = ((( neuron_count - 1 ) / 100 ) + 1 ) * 100;
-  int rng_mt_rng_count = neuron_count/rng_nPerRng; //# of threads to generate for neuron_count rand #s
-  int rng_threads = rng_mt_rng_count/rng_blocks; //# threads per block needed
+  // initialize Mersenne Twister
+ 
+  // rng_mt_rng_count is the number of threads to be created in Mersenne Twister,
+  // maximum number of which is defined by MT_RNG_COUNT.
+  // rng_mt_rng_count must be a multiple of the number of warp for coaleased write.
+  // rng_nPerRng is the thread granularity. Therefore, the number of random numbers 
+  // generated is (rng_mt_rng_count * rng_nPerRng).
+  // rng_nPerRn must be even.
+  // Here we find a minimum rng_nPerRng that satisfies 
+  // (rng_mt_rng_count * rng_nPerRng) >= neuron_count.
+
+  int neuron_count = clr_info->totalClusterNeurons;  // # of total neurons in the cluster
+  int rng_threads = 128;  // # of threads per block (must be a multiple of # of warp for coaleased write)
+  int rng_nPerRng = 0;    // # of iterations per thread (thread granularity, # of rands generated per thread, must be even)
+  int rng_mt_rng_count;   // # of threads to generate for neuron_count rand #s
+  int rng_blocks;         // # of blocks the kernel will use
+
+  do {
+    rng_nPerRng += 2;
+    rng_mt_rng_count = (neuron_count - 1) / rng_nPerRng + 1; 
+    rng_blocks = (rng_mt_rng_count + rng_threads - 1) / rng_threads; 
+    rng_mt_rng_count = rng_threads * rng_blocks; // # of threads must be a multiple of # of threads per block
+  } while (rng_mt_rng_count > MT_RNG_COUNT);     // rng_mt_rng_count must be <= MT_RNG_COUNT
+
   initMTGPU(clr_info->seed, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
+
+  // Allocate memory for random noise array
+  BGSIZE randNoise_d_size = rng_mt_rng_count * rng_nPerRng * sizeof (float);	// size of random noise array
+  checkCudaErrors( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
 
 #ifdef PERFORMANCE_METRICS
   cudaEventCreate( &clr_info->start );
