@@ -1,3 +1,8 @@
+/*
+ * AllIZHNeurons.cpp
+ *
+ */
+
 #include "AllIZHNeurons.h"
 #include "ParseParamError.h"
 
@@ -113,7 +118,7 @@ void AllIZHNeurons::freeResources()
 }
 
 /*
- *  Checks the number of required parameters.
+ * Checks the number of required parameters.
  *
  * @return true if all required parameters were successfully read, false otherwise.
  */
@@ -158,7 +163,6 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         if (m_excAconst[0] > m_excAconst[1]) {
             throw ParseParamError("Aconst maxExc", "Invalid range for Aconst value.");
         }
-
         // Min/max values of Aconst for inhibitory neurons.
         if (element.QueryFLOATAttribute("minInh", &m_inhAconst[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Aconst minInh", "Aconst missing minimum value in XML.");
@@ -175,7 +179,6 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         nParams++;
         return true;
     }
-
     if (element.ValueStr().compare("Bconst") == 0) {
         // Min/max values of Bconst for excitatory neurons.
         if (element.QueryFLOATAttribute("minExc", &m_excBconst[0]) != TIXML_SUCCESS) {
@@ -187,7 +190,6 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         if (m_excBconst[0] > m_excBconst[1]) {
             throw ParseParamError("Bconst maxExc", "Invalid range for Bconst value.");
         }
-
         // Min/max values of Bconst for inhibitory neurons.
         if (element.QueryFLOATAttribute("minInh", &m_inhBconst[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Bconst minInh", "Bconst missing minimum value in XML.");
@@ -201,7 +203,6 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         nParams++;
         return true;
     }
-
     if (element.ValueStr().compare("Cconst") == 0) {
         // Min/max values of Cconst for excitatory neurons. 
         if (element.QueryFLOATAttribute("minExc", &m_excCconst[0]) != TIXML_SUCCESS) {
@@ -213,7 +214,6 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         if (m_excCconst[0] > m_excCconst[1]) {
             throw ParseParamError("Cconst maxExc", "Invalid range for Cconst value.");
         }
-
         // Min/max values of Cconst for inhibitory neurons.
         if (element.QueryFLOATAttribute("minInh", &m_inhCconst[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Cconst minInh", "Cconst missing minimum value in XML.");
@@ -227,7 +227,6 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         nParams++;
         return true;
     }
-
     if (element.ValueStr().compare("Dconst") == 0) {
         // Min/max values of Dconst for excitatory neurons.
         if (element.QueryFLOATAttribute("minExc", &m_excDconst[0]) != TIXML_SUCCESS) {
@@ -242,7 +241,6 @@ bool AllIZHNeurons::readParameters(const TiXmlElement& element)
         if (m_excDconst[0] > m_excDconst[1]) {
             throw ParseParamError("Dconst maxExc", "Invalid range for Dconst value.");
         }
-
         // Min/max values of Dconst for inhibitory neurons.
         if (element.QueryFLOATAttribute("minInh", &m_inhDconst[0]) != TIXML_SUCCESS) {
             throw ParseParamError("Dconst minInh", "Dconst missing minimum value in XML.");
@@ -503,6 +501,9 @@ void AllIZHNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Lay
 void AllIZHNeurons::setNeuronDefaults(const int index)
 {
     AllIFNeurons::setNeuronDefaults(index);
+
+    // no refractory period
+    Trefract[index] = 0;
 
     Aconst[index] = DEFAULT_a;
     Bconst[index] = DEFAULT_b;

@@ -289,12 +289,12 @@ public class ProvOntology {
 
     /* RDF Property Getter (limited to those commonly used with prov) */
     public static String getRDFTypePrefixedURI() {
-        return RDFS_PREFIX + RDF_TYPE_PROPERTY;
+        return RDF_PREFIX + RDF_TYPE_PROPERTY;
     }
 
     /* RDF Property Getter (limited to those commonly used with prov) */
     public static String getRDFTypeFullURI() {
-        return RDFS_NS + RDF_TYPE_PROPERTY;
+        return RDF_NS + RDF_TYPE_PROPERTY;
     }
 
     /* RDFS Property Getter (limited to those commonly used with prov) */

@@ -1,3 +1,8 @@
+/*
+ * AllNeuronsDeviceFuncs_d.cu
+ *
+ */
+
 #include "AllNeuronsDeviceFuncs.h"
 #include "AllSynapsesDeviceFuncs.h"
 
@@ -274,4 +279,3 @@ __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int 
         // clear synaptic input for next time step
         sp = 0;
 }
-
