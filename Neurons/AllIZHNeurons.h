@@ -84,7 +84,6 @@
 
 #include "Global.h"
 #include "AllIFNeurons.h"
-#include <stdlib.h>
 
 struct AllIZHNeuronsDeviceProperties;
 
