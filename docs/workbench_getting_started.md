@@ -1,5 +1,5 @@
-# 1. Getting Started
-## 1.1. Clone the repository from GitHub
+## 1. Getting Started
+### 1.1. Clone the repository from GitHub
 * Make sure “Git” is installed in your operating system. Check https://git-scm.com/ for more information about Git.
 
 * Clone the repository to a local folder by typing the following command.
@@ -11,8 +11,8 @@ git clone https://github.com/UWB-Biocomputing/BrainGrid.git [folder_name]
 git checkout [branch_name/commit_id]
 ```
 
-## 1.2. Compile and build
-### 1.2.1. Maven
+### 1.2. Compile and build
+#### 1.2.1. Maven
 
 * Make sure Maven is installed by checking Maven version using the following command.
 ```shell
@@ -29,7 +29,7 @@ mvn clean install
 ```
 * After the project is built successfully, a JAR file "BrainGridWorkbench-1.0-SNAPSHOT.jar " will be created under the directory "Tools/Workbench/WorkbenchProject/target". Run this JAR file to start using the Workbench.
 
-### 1.2.1. NetBeans
+#### 1.2.1. NetBeans
 
 * Create a New Project in NetBeans. Then, select "Maven" under project categories and choose the option "Project with existing POM". And, press “Next”.
 

@@ -1,5 +1,5 @@
-# 2. Running Simulations
-## 2.1. The workflow
+## 2. Running Simulations
+### 2.1. The workflow
 * If it is the first time running BrainGrid Workbench, copy “BaseTemplates”, “ParamsClassTemplateConfig” and “BaseTemplateConfig.xml” – under directory "Tools/Workbench/TemplateSelectionConfig" to the work directory berfore running BrainGrid Workbench.
 
 ![alt text](images/FilesToCopy.png "Copy files")
@@ -67,7 +67,7 @@
  
 ![alt text](images/WorkbenchResultDownloadFail.png "Fail")
 
-## 1.2. About the generated script files
+### 1.2. About the generated script files
 The generated script files do the following steps.
 1. Make an empty directory and clone the BrainGrid repository.
 2. Checkout the revision specified in SHA1 field of the script configuration dialog.
