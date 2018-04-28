@@ -53,11 +53,13 @@
 #include "Layout.h"
 #include <thread>
 #include "Barrier.hpp"
+#include <sched.h>
 
 class Cluster
 {
     public:
         Cluster(IAllNeurons *neurons, IAllSynapses *synapses);
+        int assignedCore;
         virtual ~Cluster();
 
         /**

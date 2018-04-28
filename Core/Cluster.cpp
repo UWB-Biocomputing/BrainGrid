@@ -130,7 +130,14 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     }
 
     // Create an advanceThread
-    std::thread thAdvance(&Cluster::advanceThread, this, sim_info, clr_info);
+    int lockedCore = clr_info->assignedCore;
+
+    cpu_set_t my_set;
+    CPU_ZERO(&my_set);  //https://stackoverflow.com/questions/10490756/how-to-use-sched-getaffinity2-and-sched-setaffinity2-please-give-code-samp
+    CPU_SET(lockedCore, &my_set);
+    std::thread thAdvance(&Cluster::advanceThread, this, sim_info, clr_info);   //Schedule this!
+    int myPid = thAdvance.getid();
+    sched_setaffinity(myPid, sizeof(cpu_set_t), &my_set);
 
     // Leave it running
     thAdvance.detach();
@@ -154,7 +161,7 @@ void Cluster::advanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_inf
             break;
         }
 
-        // Advance neurons and synapses indepedently (without barrier synchronization)
+        // Advance neurons and synapses independently (without barrier synchronization)
         // within synaptic transmission delay period. 
         for (int iStepOffset = 0; iStepOffset < m_nSynapticTransDelay; iStepOffset++) {
             if (sim_info->pInput != NULL) {

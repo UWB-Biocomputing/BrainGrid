@@ -75,6 +75,9 @@ class ClusterInfo
         //! Count of neurons in the cluster
         int totalClusterNeurons;
 
+        //! Core to which this cluster is locked
+        int assignedCore;
+
         //! List of summation points (either host or device memory)
         BGFLOAT* pClusterSummationMap;
 
