@@ -9,41 +9,16 @@ The original idea behind the BrainGrid Project is to develop a toolkit/software 
 - It provides a programming interface to minimize code changes needed to port the simulation to single or multiple GPUs. In effect, we've already optimized the simulator for GPUs (this addresses the "high performance" aspect).
 - We provide a (Java based) Workbench that allows the investigator to download, build, and run the simulator; the Workbench captures all software and data provenance information, so that later the investigator can compare different results generated at different times and see how they differ in terms of not only their input parameters but also their simulator versions. This helps one to determine whether two simulations are comparable, whether one or more are invalid due to simulator bugs, etc. (This also connects to the idea of "high quality".)
 
-## Table of Contents
+### [BrainGrid](braingrid_index)
 
-1. [Introduction](http://uwb-biocomputing.github.io/BrainGrid/1_introduction)
+### [Workbench](workbench_index)
 
-   1.1 What is BrainGrid?
-   
-   1.2 What is BrainGrid for?
-   
-   1.3 Why do we need BrainGrid?
 
-2. [Installation](http://uwb-biocomputing.github.io/BrainGrid/2_installation)
+### Examples [under construction]
 
-   2.1 Necessary Hardware/Software
-   
-   2.2 Download BrainGrid
-   
-   2.3 Install BrainGrid
+### [Lab Publication](lab-publication) 
 
-3. [Quickstart](http://uwb-biocomputing.github.io/BrainGrid/3_quickstart)
-
-   3.1 Quick Sanity Test
-   
-   3.2 Use of Screen
-
-4. [Configuration](http://uwb-biocomputing.github.io/BrainGrid/4_configuration)
-
-   4.1 Use built-in models
-   
-   4.2 Configuring the model
-
-5. Examples [under construction]
-
-6. [Lab Publication](http://uwb-biocomputing.github.io/BrainGrid/6_lab-publication) 
-
-7. [Acknowledgements](http://uwb-biocomputing.github.io/BrainGrid/7_acknowledgements)
+### [Acknowledgements](acknowledgements)
 
 ---------
 ### Multiple simulation architectures:

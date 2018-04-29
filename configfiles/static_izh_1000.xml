@@ -104,7 +104,7 @@
             <LayoutFiles name="LayoutFiles">
                 <activeNListFileName name="activeNListFileName" type="InputFile"/>
                 <inhNListFileName name="inhNListFileName" type="InputFile">configfiles/NList/inhNList__1000.xml</inhNListFileName>
-                <probedNListFileName name="probedNListFileName" type="InputFile">configfiles/NList/probedNList_1000.xml</probedNListFileName>
+                <probedNListFileName name="prbNListFileName" type="InputFile">configfiles/NList/probedNList_1000.xml</probedNListFileName>
             </LayoutFiles>
         </LayoutParams>
     </ModelParams>

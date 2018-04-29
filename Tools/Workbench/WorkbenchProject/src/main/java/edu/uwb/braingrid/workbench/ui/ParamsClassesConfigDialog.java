@@ -1194,8 +1194,7 @@ public class ParamsClassesConfigDialog extends javax.swing.JDialog {
      * 
      * @param projectName
      * @param modal
-     * @param configFilename 
-     * @param aIcm 
+     * @param templateInfoFile
      */
     public ParamsClassesConfigDialog(String projectName, boolean modal,
             String templateInfoFile) {
@@ -1236,30 +1235,6 @@ public class ParamsClassesConfigDialog extends javax.swing.JDialog {
                     GroupLayout subLayout = new GroupLayout(subPanel);
                     subPanel.setLayout(subLayout);
                     subLayout.setAutoCreateGaps(true);
-                   /* 
-                    JTextField nameField = new JTextField(((Element)param).getAttribute("name"));
-                    JTextField pathField = new JTextField(param.getTextContent());
-
-                    JButton button = new JButton("Import");
-                    button.addActionListener(new ImportFileButtonListener(directory,pathField));
-
-                    pathField.setMaximumSize(new Dimension(Integer.MAX_VALUE, pathField.getPreferredSize().height));
-                    subLayout.setHorizontalGroup(
-                            subLayout.createSequentialGroup()
-                            .addComponent(nameField)
-                            .addComponent(pathField)
-                            .addComponent(button)
-                    );
-                    subLayout.setVerticalGroup(
-                            subLayout.createSequentialGroup()
-                            .addGroup(subLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                    .addComponent(nameField)
-                                    .addComponent(pathField)
-                                    .addComponent(button))
-                    );
-
-                    contentPanel.add(subPanel);
-*/
                 }
             }
         }  
