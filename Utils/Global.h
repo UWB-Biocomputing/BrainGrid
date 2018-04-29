@@ -123,11 +123,7 @@ enum synapseType { II = 0, IE = 1, EI = 2, EE = 3, STYPE_UNDEF = -1 };
 #define DEFAULT_ExcitTrefract	(3.0e-3)
 
 //! The default synaptic time constant.
-<<<<<<< HEAD
 #define DEFAULT_tau		(3e-3)
-=======
-#define DEFAULT_tau		(3e-3)          // Cm * Rm
->>>>>>> 65c1cf1ae531c42564f81e9747367f711136a3fd
 //! The default synaptic efficiency.
 #define DEFAULT_U		(0.4)
 //! The default synaptic efficiency.
