@@ -132,13 +132,13 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     // Create an advanceThread
     int lockedCore = clr_info->assignedCore;
 
-    cpu_set_t my_set;
+    cpu_set_t my_set;   //http://man7.org/linux/man-pages/man3/pthread_setaffinity_np.3.html
     CPU_ZERO(&my_set);  //https://stackoverflow.com/questions/10490756/how-to-use-sched-getaffinity2-and-sched-setaffinity2-please-give-code-samp
     CPU_SET(lockedCore, &my_set);
     std::thread thAdvance(&Cluster::advanceThread, this, sim_info, clr_info);   //Schedule this!
     int myPid = thAdvance.getid();
-    sched_setaffinity(myPid, sizeof(cpu_set_t), &my_set);
-    cout << "thread " << myPid << " locked to core: " << assignedCore << endl;
+    pthread_setaffinity_np(thAdvance, sizeof(cpu_set_t), &my_set);
+    cout << "thread "  << " locked to core: " << assignedCore << endl;
 
     // Leave it running
     thAdvance.detach();
