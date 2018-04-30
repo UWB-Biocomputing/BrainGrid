@@ -138,6 +138,7 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     std::thread thAdvance(&Cluster::advanceThread, this, sim_info, clr_info);   //Schedule this!
     int myPid = thAdvance.getid();
     sched_setaffinity(myPid, sizeof(cpu_set_t), &my_set);
+    cout << "thread " << myPid << " locked to core: " << assignedCore << endl;
 
     // Leave it running
     thAdvance.detach();

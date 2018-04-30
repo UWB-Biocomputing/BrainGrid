@@ -231,6 +231,7 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
         }
         clusterInfo->assignedCore = (jumpPerThread * coreAssigner);
         coreAssigner++;
+
         clusterInfo->clusterNeuronsBegin = numClusterNeurons * iCluster;
         if (iCluster == g_numClusters - 1) {
             clusterInfo->totalClusterNeurons = simInfo->totalNeurons - numClusterNeurons * (g_numClusters - 1);
