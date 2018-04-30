@@ -1,5 +1,6 @@
 #include "Cluster.h"
 #include "ISInput.h"
+#include <sstream>
 
 // Initialize the Barrier Synchnonize object for advanceThreads.
 Barrier *Cluster::m_barrierAdvance = NULL;
@@ -136,9 +137,10 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     CPU_ZERO(&my_set);  //https://stackoverflow.com/questions/10490756/how-to-use-sched-getaffinity2-and-sched-setaffinity2-please-give-code-samp
     CPU_SET(lockedCore, &my_set);
     std::thread thAdvance(&Cluster::advanceThread, this, sim_info, clr_info);   //Schedule this!
-    int myPid = thAdvance.getid();
-    pthread_setaffinity_np(thAdvance, sizeof(cpu_set_t), &my_set);
-    cout << "thread "  << " locked to core: " << assignedCore << endl;
+    pthread_setaffinity_np(thAdvance.native_handle(), sizeof(cpu_set_t), &my_set);
+    stringstream ss;
+    ss << thAdvance.get_id();
+    cout << "thread " << ss.str()  << " locked to core: " << assignedCore << endl;
 
     // Leave it running
     thAdvance.detach();
