@@ -75,9 +75,9 @@
 
         <LayoutParams class="FixedLayout" name="LayoutParams">
     <LayoutFiles name="LayoutFiles">
-        <activeNListFileName name="activeNListFileName" type="InputFile">NList/ActiveNList2x2.xml</activeNListFileName>
-        <inhNListFileName name="inhNListFileName" type="InputFile">NList/InhibitoryNList2x2.xml</inhNListFileName>
-        <prbNListFileName name="prbNListFileName" type="InputFile">NList/ProbedNList-empty.xml</prbNListFileName>
+        <activeNListFileName name="activeNListFileName" type="InputFile">/CSSDIV/students/stantp2/497/Nonproblem/BrainGrid-multi-clusters-sim/configfiles/NList/ActiveNList2x2.xml</activeNListFileName>
+     <inhNListFileName name="inhNListFileName" type="InputFile">configfiles/NList/InhibitoryNList2x2.xml</inhNListFileName>  
+        <probedNListFileName name="prbNListFileName" type="InputFile"/>
     </LayoutFiles>
 </LayoutParams>
     </ModelParams>

@@ -2,8 +2,8 @@
 <BGSimParams>
    <SimInfoParams name="SimInfoParams">
       <PoolSize name="PoolSize">
-         <x name="x">10</x>
-         <y name="y">10</y>
+         <x name="x">100</x>
+         <y name="y">100</y>
          <z name="z">1</z>
       </PoolSize>
       <SimParams name="SimParams">
@@ -18,7 +18,7 @@
          <value name="value">777</value>
       </Seed>
       <OutputParams name="OutputParams">
-         <stateOutputFileName name="stateOutputFileName">results/tR_0.1--fE_0.90.h5</stateOutputFileName>
+         <stateOutputFileName name="stateOutputFileName">/tmp/0214_tR_1.9--fE_0.98_10000.h5</stateOutputFileName>
       </OutputParams>
    </SimInfoParams>
 
@@ -67,7 +67,7 @@
         <epsilon name="epsilon">0.60</epsilon>
         <beta name="beta">0.10</beta>
         <rho name="rho">0.0001</rho>
-        <targetRate name="targetRate">0.1</targetRate>
+        <targetRate name="targetRate">1.9</targetRate>
         <minRadius name="minRadius">0.1</minRadius>
         <startRadius name="startRadius">0.4</startRadius>
      </GrowthParams>
@@ -75,9 +75,9 @@
 
         <LayoutParams class="FixedLayout" name="LayoutParams">
     <LayoutFiles name="LayoutFiles">
-        <activeNListFileName name="activeNListFileName" type="InputFile">configfiles/NList/activeNList_0.10.xml</activeNListFileName>
-        <inhNListFileName name="inhNListFileName" type="InputFile">configfiles/NList/inhNList_0.90.xml</inhNListFileName>
-        <probedNListFileName name="prbNListFileName" type="InputFile"/>
+        <activeNListFileName name="activeNListFileName" type="InputFile">configfiles/NList/activeNList_0.10_10000.xml</activeNListFileName>
+        <inhNListFileName name="inhNListFileName" type="InputFile">configfiles/NList/inhNList_0.98_10000.xml</inhNListFileName>
+        <probedNListFileName name="prbNListFileName" type="InputFile">configfiles/NList/probedNList_10000.xml</probedNListFileName>
     </LayoutFiles>
 </LayoutParams>
     </ModelParams>
