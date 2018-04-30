@@ -140,7 +140,7 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     pthread_setaffinity_np(thAdvance.native_handle(), sizeof(cpu_set_t), &my_set);
     stringstream ss;
     ss << thAdvance.get_id();
-    cout << "thread " << ss.str()  << " locked to core: " << assignedCore << endl;
+    cout << "thread " << ss.str()  << " locked to core: " << lockedCore << endl;
 
     // Leave it running
     thAdvance.detach();
