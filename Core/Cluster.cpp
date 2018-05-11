@@ -2,7 +2,7 @@
 #include "ISInput.h"
 #include <sstream>
 
-// Initialize the Barrier Synchnonize object for advanceThreads.
+// Initialize the Barrier Synchronize object for advanceThreads.
 Barrier *Cluster::m_barrierAdvance = NULL;
 
 // Initialize the flag for advanceThreads. true if terminating advanceThreads.
@@ -10,6 +10,12 @@ bool Cluster::m_isAdvanceExit = false;
 
 // Initialize the synaptic transmission delay, descretized into time steps.
 int Cluster::m_nSynapticTransDelay = 0;
+
+unsigned int threadID = 0;
+
+cpu_set_t internalSet;
+
+std::thread* threadReference = nullptr;
 
 /*
  *  Constructor
@@ -136,10 +142,12 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     cpu_set_t my_set;   //http://man7.org/linux/man-pages/man3/pthread_setaffinity_np.3.html
     CPU_ZERO(&my_set);  //https://stackoverflow.com/questions/10490756/how-to-use-sched-getaffinity2-and-sched-setaffinity2-please-give-code-samp
     CPU_SET(lockedCore, &my_set);
+    internalSet = my_set;
     std::thread thAdvance(&Cluster::advanceThread, this, sim_info, clr_info);   //Schedule this!
     pthread_setaffinity_np(thAdvance.native_handle(), sizeof(cpu_set_t), &my_set);
     stringstream ss;
-    ss << thAdvance.get_id();
+    ss << threadID << thAdvance.get_id();
+    threadReference = thAdvance;
     cout << "thread " << ss.str()  << " locked to core: " << lockedCore << endl;
 
     // Leave it running

@@ -60,7 +60,10 @@ class Cluster
     public:
         Cluster(IAllNeurons *neurons, IAllSynapses *synapses);
         int assignedCore;
+        unsigned int threadID;
         virtual ~Cluster();
+        cpu_set_t internalSet;
+        std::thread* threadReference;
 
         /**
          * Deserializes internal state from a prior run of the simulation.
