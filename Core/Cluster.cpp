@@ -1,6 +1,9 @@
 #include "Cluster.h"
 #include "ISInput.h"
 #include <sstream>
+#define _GNU_SOURCE             /* See feature_test_macros(7) */
+#include <sched.h>
+
 
 // Initialize the Barrier Synchronize object for advanceThreads.
 Barrier *Cluster::m_barrierAdvance = NULL;
@@ -13,7 +16,7 @@ int Cluster::m_nSynapticTransDelay = 0;
 
 unsigned int threadID = 0;
 
-cpu_set_t internalSet = CPU_ZERO;
+cpu_set_t internalSet;
 
 std::thread* threadReference = nullptr;
 
@@ -120,6 +123,10 @@ void Cluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
     m_synapses->cleanupSynapses();
 }
 
+unsigned int Cluster::getThreadID() {
+    return threadID;
+}
+
 /*
  *  Create an advanceThread.
  *  If barrier synchronize object has not been created, create it.
@@ -139,6 +146,7 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     // Create an advanceThread
     int lockedCore = clr_info->assignedCore;
 
+    CPU_ZERO(&internalSet);
     cpu_set_t my_set;   //http://man7.org/linux/man-pages/man3/pthread_setaffinity_np.3.html
     CPU_ZERO(&my_set);  //https://stackoverflow.com/questions/10490756/how-to-use-sched-getaffinity2-and-sched-setaffinity2-please-give-code-samp
     CPU_SET(lockedCore, &my_set);

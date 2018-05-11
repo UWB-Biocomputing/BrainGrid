@@ -54,6 +54,8 @@
 #include <thread>
 #include "Barrier.hpp"
 #include <sched.h>
+#define _GNU_SOURCE             /* See feature_test_macros(7) */
+
 
 class Cluster
 {
@@ -172,9 +174,7 @@ class Cluster
          *  @param  iStep       Simulation steps to advance.
          */
 
-        static unsigned int getThreadID() {
-            return threadID;
-        }
+        static unsigned int getThreadID();
 
         static void runAdvance(const SimulationInfo *sim_info, int iStep);
 
