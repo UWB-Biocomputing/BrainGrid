@@ -292,8 +292,13 @@ void Model::updateConnections(const SimulationInfo *sim_info)
 void Model::printThreadCoreData(){
     //stuff
     for (unsigned i = 0; i < m_vtClr.size(); i++){
+
+        cpu_set_t internalSet;
+        CPU_ZERO(&internalSet);
+        CPU_SET(m_vtClrInfo[i]->assignedCore, internalSet);
+
         cout << "Thread " << m_vtClr[i]->getThreadID() << " is running on core: " << pthread_getaffinity_np(m_vtClr[i]->threadReference->native_handle(),
-        sizeOf(m_vtClr[i]->internalSet, m_vtClr[i]->interalSet));
+        sizeOf(internalSet, internalSet));
 
     }
 }

@@ -16,8 +16,6 @@ int Cluster::m_nSynapticTransDelay = 0;
 
 unsigned int threadID = 0;
 
-cpu_set_t internalSet;
-
 std::thread* threadReference = nullptr;
 
 /*
@@ -146,11 +144,9 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     // Create an advanceThread
     int lockedCore = clr_info->assignedCore;
 
-    CPU_ZERO(&internalSet);
     cpu_set_t my_set;   //http://man7.org/linux/man-pages/man3/pthread_setaffinity_np.3.html
     CPU_ZERO(&my_set);  //https://stackoverflow.com/questions/10490756/how-to-use-sched-getaffinity2-and-sched-setaffinity2-please-give-code-samp
     CPU_SET(lockedCore, &my_set);
-    internalSet = my_set;
     std::thread thAdvance(&Cluster::advanceThread, this, sim_info, clr_info);   //Schedule this!
     pthread_setaffinity_np(thAdvance.native_handle(), sizeof(cpu_set_t), &my_set);
     stringstream ss;

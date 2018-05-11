@@ -64,7 +64,6 @@ class Cluster
         int assignedCore;
         unsigned int threadID;
         virtual ~Cluster();
-        cpu_set_t internalSet;
         std::thread* threadReference;
 
         /**
@@ -174,7 +173,7 @@ class Cluster
          *  @param  iStep       Simulation steps to advance.
          */
 
-        static unsigned int getThreadID();
+        unsigned int getThreadID();
 
         static void runAdvance(const SimulationInfo *sim_info, int iStep);
 
