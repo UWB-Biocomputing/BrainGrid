@@ -13,7 +13,7 @@ int Cluster::m_nSynapticTransDelay = 0;
 
 unsigned int threadID = 0;
 
-cpu_set_t internalSet;
+cpu_set_t internalSet = CPU_ZERO;
 
 std::thread* threadReference = nullptr;
 
@@ -147,7 +147,7 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     pthread_setaffinity_np(thAdvance.native_handle(), sizeof(cpu_set_t), &my_set);
     stringstream ss;
     ss << threadID << thAdvance.get_id();
-    threadReference = thAdvance;
+    threadReference = &thAdvance;
     cout << "thread " << ss.str()  << " locked to core: " << lockedCore << endl;
 
     // Leave it running

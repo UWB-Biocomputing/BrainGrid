@@ -171,6 +171,11 @@ class Cluster
          *  @param  sim_info    SimulationInfo class to read information from.
          *  @param  iStep       Simulation steps to advance.
          */
+
+        static unsigned int getThreadID() {
+            return threadID;
+        }
+
         static void runAdvance(const SimulationInfo *sim_info, int iStep);
 
         /**
