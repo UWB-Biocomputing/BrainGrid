@@ -8,6 +8,7 @@
 #define _GNU_SOURCE             /* See feature_test_macros(7) */
 #include <sched.h>
 #include "ISInput.h"
+#include <iostream>
 #if defined(USE_GPU)
 #include "GPUSpikingCluster.h"
 #endif
@@ -297,7 +298,7 @@ void Model::printThreadCoreData(){
         CPU_ZERO(&internalSet);
         CPU_SET(m_vtClrInfo[i]->assignedCore, &internalSet);
 
-        cout << "Thread " << m_vtClr[i].getThreadID() << " is running on core: " << pthread_getaffinity_np(m_vtClr[i].threadReference->native_handle(),
+        cout << "Thread " << m_vtClr[i]->getThreadID() << " is running on core: " << pthread_getaffinity_np(m_vtClr[i]->threadReference->native_handle(),
         sizeOf(internalSet, &internalSet));
 
     }
