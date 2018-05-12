@@ -95,8 +95,6 @@ class Model : public IModel
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          * @param simRecorder    Pointer to the simulation recordig object.
          */
-         virtual void printThreadCoreData();
-
 
         virtual void setupSim(SimulationInfo *sim_info);
 
@@ -112,6 +110,10 @@ class Model : public IModel
          *
          *  @return Pointer to the Connections class object.
          */
+
+        virtual void printThreadCoreData();
+
+
         virtual Connections* getConnections();
 
         /**

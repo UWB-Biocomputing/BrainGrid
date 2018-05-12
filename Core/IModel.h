@@ -109,7 +109,7 @@ class IModel {
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
 
-        virtual void printThreadCoreData();
+        virtual void printThreadCoreData() = 0;
 
         virtual void updateConnections(const SimulationInfo *sim_info) = 0;
 
