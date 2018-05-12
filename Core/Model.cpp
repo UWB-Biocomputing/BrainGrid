@@ -5,7 +5,6 @@
 #include "ParseParamError.h"
 #include "Util.h"
 #include "ConnGrowth.h"
-#define _GNU_SOURCE             /* See feature_test_macros(7) */
 #include <sched.h>
 #include "ISInput.h"
 #include <iostream>
@@ -299,7 +298,7 @@ void Model::printThreadCoreData(){
         CPU_SET(m_vtClrInfo[i]->assignedCore, &internalSet);
 
         cout << "Thread " << m_vtClr[i]->getThreadID() << " is running on core: " << pthread_getaffinity_np(m_vtClr[i]->threadReference->native_handle(),
-        sizeOf(internalSet, &internalSet));
+        sizeof(internalSet, &internalSet));
 
     }
 }
