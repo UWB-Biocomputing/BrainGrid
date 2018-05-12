@@ -13,7 +13,7 @@ bool Cluster::m_isAdvanceExit = false;
 // Initialize the synaptic transmission delay, descretized into time steps.
 int Cluster::m_nSynapticTransDelay = 0;
 
-unsigned int threadID = 0;
+unsigned long threadID = 0;
 
 std::thread* threadReference = nullptr;
 

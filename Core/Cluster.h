@@ -61,7 +61,7 @@ class Cluster
     public:
         Cluster(IAllNeurons *neurons, IAllSynapses *synapses);
         int assignedCore;
-        unsigned int threadID;
+        unsigned long threadID;
         virtual ~Cluster();
         std::thread* threadReference;
 
