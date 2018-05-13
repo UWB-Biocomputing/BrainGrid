@@ -63,7 +63,7 @@ class Cluster
         int assignedCore;
         unsigned long threadID;
         virtual ~Cluster();
-        std::thread* threadReference;
+        std::thread threadReference;
 
         /**
          * Deserializes internal state from a prior run of the simulation.

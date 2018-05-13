@@ -152,6 +152,8 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     ss << threadID << thAdvance.get_id();
     threadReference = &thAdvance;
     cout << "thread " << ss.str()  << " locked to core: " << lockedCore << endl;
+    cout << "CONFIRMATION THREAD " << threadReference->get_id() << " is running on core " <<
+        pthread_getaffinity_np(threadReference->native_handle(),sizeof(cpu_set_t), &my_set) << endl;
 
     // Leave it running
     thAdvance.detach();
