@@ -147,13 +147,15 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     CPU_ZERO(&my_set);  //https://stackoverflow.com/questions/10490756/how-to-use-sched-getaffinity2-and-sched-setaffinity2-please-give-code-samp
     CPU_SET(lockedCore, &my_set);
     std::thread thAdvance(&Cluster::advanceThread, this, sim_info, clr_info);   //Schedule this!
-    pthread_setaffinity_np(thAdvance.native_handle(), sizeof(cpu_set_t), &my_set);
+    sched_setaffinity(thAdvance.native_handle(), sizeof(cpu_set_t), &my_set);
     stringstream ss;
     ss << threadID << thAdvance.get_id();
     threadReference = &thAdvance;
     cout << "thread " << ss.str()  << " locked to core: " << lockedCore << endl;
-    cout << "CONFIRMATION THREAD " << threadReference->get_id() << " is running on core " <<
-        pthread_getaffinity_np(threadReference->native_handle(),sizeof(cpu_set_t), &my_set) << endl;
+    stringstream tt;
+    threadReference->get_id();
+    cout << "CONFIRMATION THREAD " << tt.str() << " is running on core " <<
+        sched_setaffinity(threadReference->native_handle(),sizeof(cpu_set_t), &my_set) << endl;
 
     // Leave it running
     thAdvance.detach();

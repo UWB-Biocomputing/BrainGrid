@@ -297,7 +297,7 @@ void Model::printThreadCoreData(){
         CPU_ZERO(&internalSet);
         CPU_SET(m_vtClrInfo[i]->assignedCore, &internalSet);
 
-        cout << "Thread " << m_vtClr[i]->getThreadID() << " is running on core: " << pthread_getaffinity_np(m_vtClr[i]->threadReference->native_handle(),
+        cout << "Thread " << m_vtClr[i]->getThreadID() << " is running on core: " << sched_setaffinity(m_vtClr[i]->threadReference->native_handle(),
         sizeof(internalSet,&internalSet), &internalSet) << endl;
 
     }
