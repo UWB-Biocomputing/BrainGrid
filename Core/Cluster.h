@@ -54,6 +54,9 @@
 #include <thread>
 #include "Barrier.hpp"
 #include <sched.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 
 
 class Cluster

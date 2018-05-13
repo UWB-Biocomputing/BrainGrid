@@ -8,6 +8,9 @@
 #include <sched.h>
 #include "ISInput.h"
 #include <iostream>
+#include <sys/types.h>
+#include <unistd.h>
+
 #if defined(USE_GPU)
 #include "GPUSpikingCluster.h"
 #endif
@@ -297,8 +300,8 @@ void Model::printThreadCoreData(){
         CPU_ZERO(&internalSet);
         CPU_SET(m_vtClrInfo[i]->assignedCore, &internalSet);
 
-        cout << "Thread " << m_vtClr[i]->getThreadID() << " is running on core: " << sched_setaffinity(m_vtClr[i]->threadReference->native_handle(),
-        sizeof(internalSet,&internalSet), &internalSet) << endl;
+        cout << "Thread " << m_vtClr[i]->getThreadID() << " is running on core: " << sched_setaffinity(m_vtClr[i]->threadReference->getpid(),
+        sizeof(internalSet), &internalSet) << endl;
 
     }
 }
