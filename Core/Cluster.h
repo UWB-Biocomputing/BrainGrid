@@ -68,6 +68,8 @@ class Cluster
         virtual ~Cluster();
         std::thread* threadReference;
 
+        pid_t mypidt;
+
         /**
          * Deserializes internal state from a prior run of the simulation.
          * This allows simulations to be continued from a particular point, to be restarted, or to be
@@ -166,6 +168,10 @@ class Cluster
          *  @param  sim_info    SimulationInfo class to read information from.
          *  @param  clr_info    ClusterInfo class to read information from.
          */
+
+        void processAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+
         void advanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
