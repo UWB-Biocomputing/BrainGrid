@@ -64,7 +64,6 @@ class Cluster
     public:
         Cluster(IAllNeurons *neurons, IAllSynapses *synapses);
         int assignedCore;
-        unsigned long threadID;
         virtual ~Cluster();
         std::thread* threadReference;
 
@@ -180,8 +179,6 @@ class Cluster
          *  @param  sim_info    SimulationInfo class to read information from.
          *  @param  iStep       Simulation steps to advance.
          */
-
-        unsigned int getThreadID();
 
         static void runAdvance(const SimulationInfo *sim_info, int iStep);
 

@@ -125,10 +125,6 @@ void Cluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
     m_synapses->cleanupSynapses();
 }
 
-unsigned int Cluster::getThreadID() {
-    return threadID;
-}
-
 /*
  *  Create an advanceThread.
  *  If barrier synchronize object has not been created, create it.
@@ -152,15 +148,12 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     CPU_ZERO(&my_set);  //https://stackoverflow.com/questions/10490756/how-to-use-sched-getaffinity2-and-sched-setaffinity2-please-give-code-samp
     CPU_SET(lockedCore, &my_set);
     std::thread thAdvance(&Cluster::processAdvanceThread, this, sim_info, clr_info);   //Schedule this!
+    cout << "mypidt is now "  << mypidt << endl;
     sched_setaffinity(mypidt, sizeof(cpu_set_t), &my_set);
-    stringstream ss;
-    ss << threadID << mypidt;
     threadReference = &thAdvance;
-    cout << "thread " << ss.str()  << " locked to core: " << lockedCore << endl;
-    stringstream tt;
-    threadReference->mypidt;
-    cout << "CONFIRMATION THREAD " << tt.str() << " is running on core " <<
-        sched_getaffinity(threadReference->mypidt,sizeof(cpu_set_t), &my_set) << endl;
+    cout << "thread " << mypidt  << " locked to core: " << lockedCore << endl;
+    cout << "CONFIRMATION THREAD " << mypidt << " is running on core " <<
+        sched_getaffinity(mypidt,sizeof(cpu_set_t), &my_set) << endl;
 
     // Leave it running
     thAdvance.detach();
@@ -168,7 +161,7 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
 
 void Cluster::processAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info) {
     mypidt = syscall(__NR_gettid);
-    advanceThread(*sim_info, *clr_info);
+    advanceThread(sim_info, clr_info);
 }
 
 /*
