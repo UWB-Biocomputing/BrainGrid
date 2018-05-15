@@ -56,6 +56,7 @@
 #include <sched.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <condition_variable>
 
 
 
@@ -66,10 +67,11 @@ class Cluster
         int assignedCore;
         virtual ~Cluster();
         std::thread* threadReference;
-        bool doneID;
-        cool ready;
         mutex m;
         condition_variable cv;
+
+        bool ready;
+        bool done;
 
 
     pid_t mypidt;

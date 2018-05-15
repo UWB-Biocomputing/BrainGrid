@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <mutex>
 #include <condition_variable>
+#include <sys/syscall.h>
 
 
 
@@ -25,12 +26,12 @@ std::thread* threadReference = nullptr;
 
 pid_t mypidt;
 
-bool doneID = false;
-bool ready = false;
-
 mutex m;
 
 condition_variable cv;
+
+bool ready = false;
+bool done = false;
 
 
 /*
@@ -160,16 +161,16 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     CPU_SET(lockedCore, &my_set);
     std::thread thAdvance(&Cluster::processAdvanceThread, this, sim_info, clr_info, my_set);   //Schedule this!
 
+
     {
         std::lock_guard<std::mutex> lk(m);
         ready = true;
         std::cout << "main() signals data ready for processing\n";
     }
-    cv.notify_one();
-
+    cv.notify_one;
     {
         std::unique_lock<std::mutex> lk(m);
-        cv.wait(lk, []{return processed;});
+        cv.wait(lk, []{return done;});
     }
 
 
