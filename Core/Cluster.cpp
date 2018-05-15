@@ -4,6 +4,9 @@
 #include <sched.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <mutex>
+#include <condition_variable>
+
 
 
 
@@ -21,6 +24,14 @@ unsigned long threadID = 0;
 std::thread* threadReference = nullptr;
 
 pid_t mypidt;
+
+bool doneID = false;
+bool ready = false;
+
+mutex m;
+
+condition_variable cv;
+
 
 /*
  *  Constructor
@@ -147,9 +158,22 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     cpu_set_t my_set;   //http://man7.org/linux/man-pages/man3/pthread_setaffinity_np.3.html
     CPU_ZERO(&my_set);  //https://stackoverflow.com/questions/10490756/how-to-use-sched-getaffinity2-and-sched-setaffinity2-please-give-code-samp
     CPU_SET(lockedCore, &my_set);
-    std::thread thAdvance(&Cluster::processAdvanceThread, this, sim_info, clr_info);   //Schedule this!
+    std::thread thAdvance(&Cluster::processAdvanceThread, this, sim_info, clr_info, my_set);   //Schedule this!
+
+    {
+        std::lock_guard<std::mutex> lk(m);
+        ready = true;
+        std::cout << "main() signals data ready for processing\n";
+    }
+    cv.notify_one();
+
+    {
+        std::unique_lock<std::mutex> lk(m);
+        cv.wait(lk, []{return processed;});
+    }
+
+
     cout << "mypidt is now "  << mypidt << endl;
-    sched_setaffinity(mypidt, sizeof(cpu_set_t), &my_set);
     threadReference = &thAdvance;
     cout << "thread " << mypidt  << " locked to core: " << lockedCore << endl;
     cout << "CONFIRMATION THREAD " << mypidt << " is running on core " <<
@@ -159,8 +183,21 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     thAdvance.detach();
 }
 
-void Cluster::processAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info) {
+void Cluster::processAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info, cpu_set_t my_set) {
+    std::unique_lock<std::mutex> lk(m);
+    cv.wait(lk, []{return ready;});
+
     mypidt = syscall(__NR_gettid);
+
+    doneID = true;
+    sched_setaffinity(mypidt, sizeof(cpu_set_t), &my_set);
+
+
+    lk.unlock();
+    cv.notify_one();
+
+
+
     advanceThread(sim_info, clr_info);
 }
 

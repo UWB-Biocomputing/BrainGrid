@@ -66,8 +66,13 @@ class Cluster
         int assignedCore;
         virtual ~Cluster();
         std::thread* threadReference;
+        bool doneID;
+        cool ready;
+        mutex m;
+        condition_variable cv;
 
-        pid_t mypidt;
+
+    pid_t mypidt;
 
         /**
          * Deserializes internal state from a prior run of the simulation.
@@ -168,7 +173,7 @@ class Cluster
          *  @param  clr_info    ClusterInfo class to read information from.
          */
 
-        void processAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info);
+        void processAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info, cpu_set_t my_set);
 
 
         void advanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info);
