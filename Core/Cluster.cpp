@@ -167,10 +167,10 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
         ready = true;
         std::cout << "main() signals data ready for processing\n";
     }
-    cv.notify_one;
+    cv.notify_one();
     {
         std::unique_lock<std::mutex> lk(m);
-        cv.wait(lk, []{return done;});
+        cv.wait(lk, [&]{return done;});
     }
 
 
@@ -186,11 +186,11 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
 
 void Cluster::processAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info, cpu_set_t my_set) {
     std::unique_lock<std::mutex> lk(m);
-    cv.wait(lk, []{return ready;});
+    cv.wait(lk, [&]{return ready;});
 
     mypidt = syscall(__NR_gettid);
 
-    doneID = true;
+    done = true;
     sched_setaffinity(mypidt, sizeof(cpu_set_t), &my_set);
 
 
