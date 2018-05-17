@@ -298,11 +298,14 @@ void Model::printThreadCoreData(){
 
         cpu_set_t internalSet;
         CPU_ZERO(&internalSet);
-        CPU_SET(m_vtClrInfo[i]->assignedCore, &internalSet);
+ //       CPU_SET(m_vtClrInfo[i]->assignedCore, &internalSet);
 
-        cout << "Thread " << m_vtClr[i]->mypidt << " is running on core: " << sched_getaffinity(m_vtClr[i]->mypidt,
-        sizeof(internalSet), &internalSet) << endl;
-
+        sched_getaffinity(m_vtClr[i]->mypidt, sizeof(internalSet), &internalSet);
+        for(int j = 0; j <= 16; j++) {
+            if(CPU_ISSET(j, &internalSet)) {
+                cout << "Cluster " << i << " is running on core " << j << endl;
+            }
+        }
     }
 }
 

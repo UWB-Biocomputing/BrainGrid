@@ -165,7 +165,7 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     {
         std::lock_guard<std::mutex> lk(m);
         ready = true;
-        std::cout << "main() signals data ready for processing\n";
+        std::cout << "main thread signals AdvanceThread\n";
     }
     cv.notify_one();
     {
@@ -176,10 +176,16 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
 
     cout << "mypidt is now "  << mypidt << endl;
     threadReference = &thAdvance;
-    cout << "thread " << mypidt  << " locked to core: " << lockedCore << endl;
-    cout << "CONFIRMATION THREAD " << mypidt << " is running on core " <<
-        sched_getaffinity(mypidt,sizeof(cpu_set_t), &my_set) << endl;
+   // cout << "thread " << mypidt  << " locked to core: " << lockedCore << endl;
+   // cout << "CONFIRMATION THREAD " << mypidt << " is running on core " <<
+    int success  = sched_getaffinity(mypidt,sizeof(cpu_set_t), &my_set);
 
+
+   for(int i = 0; i <= 16; i++) {
+    if(CPU_ISSET(i, &my_set) == 1) {
+        cout << "Core " << i << " member of this mask? " << CPU_ISSET(i, &my_set) << endl;
+       }
+    }
     // Leave it running
     thAdvance.detach();
 }
@@ -188,11 +194,12 @@ void Cluster::processAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *
     std::unique_lock<std::mutex> lk(m);
     cv.wait(lk, [&]{return ready;});
 
-    mypidt = syscall(__NR_gettid);
+    mypidt = syscall(SYS_gettid);
 
     done = true;
     sched_setaffinity(mypidt, sizeof(cpu_set_t), &my_set);
 
+    cout << "Set thread to core is finished for " << mypidt << " total cores " << CPU_COUNT(& my_set) << endl;
 
     lk.unlock();
     cv.notify_one();
