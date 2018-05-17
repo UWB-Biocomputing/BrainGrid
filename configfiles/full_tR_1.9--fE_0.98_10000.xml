@@ -18,7 +18,7 @@
          <value name="value">777</value>
       </Seed>
       <OutputParams name="OutputParams">
-         <stateOutputFileName name="stateOutputFileName">/tmp/0514_tR_1.9--fE_0.98_cerberus.h5</stateOutputFileName>
+         <stateOutputFileName name="stateOutputFileName">/tmp/0516_tR_1.9--fE_0.98_raiju.h5</stateOutputFileName>
       </OutputParams>
    </SimInfoParams>
 
