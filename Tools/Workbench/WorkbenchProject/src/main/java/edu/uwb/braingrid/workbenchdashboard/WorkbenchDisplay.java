@@ -22,6 +22,7 @@ import javax.swing.JTextField;
 
 import edu.uwb.braingrid.tools.nledit.LayoutPanel;
 import edu.uwb.braingrid.workbenchdashboard.nledit.NLedit;
+import edu.uwb.braingrid.workbenchdashboard.setup.SimStarter;
 import edu.uwb.braingrid.workbenchdashboard.welcome.Welcome;
 import javafx.application.Application;
 import javafx.embed.swing.SwingNode;
@@ -90,6 +91,10 @@ public class WorkbenchDisplay extends BorderPane {
 	
 	void pushWeclomePage() {
 		new WorkbenchTab("Welcome!", new Welcome(), this);
+	}
+	
+	void pushSimStarterPage() {
+		new WorkbenchTab("SimStarter!", new SimStarter(), this);
 	}
 	
 	void pushWorkbenchControlFrame() {

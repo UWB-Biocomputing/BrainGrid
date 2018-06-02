@@ -1,6 +1,5 @@
 package edu.uwb.braingrid.workbenchdashboard.welcome;
 
-import edu.uwb.braingrid.workbenchdashboard.TabToPane;
 import edu.uwb.braingrid.workbenchdashboard.WorkbenchApp;
 import javafx.geometry.Pos;
 import javafx.scene.Node;

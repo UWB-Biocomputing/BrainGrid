@@ -69,6 +69,7 @@ public class NLedit extends WorkbenchApp {
 	public BorderPane getBP() {
 		return bp_;
 	}
+	
 	private void generateSimulator() {
 		NeuronsLayout neurons_layout = new NeuronsLayout();
 		neurons_layout_ =  neurons_layout;
