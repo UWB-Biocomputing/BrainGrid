@@ -203,9 +203,6 @@ void Cluster::processAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *
 
     lk.unlock();
     cv.notify_one();
-
-
-
     advanceThread(sim_info, clr_info);
 }
 
