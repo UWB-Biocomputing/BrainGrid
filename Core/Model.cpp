@@ -293,13 +293,11 @@ void Model::updateConnections(const SimulationInfo *sim_info)
 }
 
 void Model::printThreadCoreData(){
-    //stuff
     for (unsigned i = 0; i < m_vtClr.size(); i++){
 
         cpu_set_t internalSet;
         CPU_ZERO(&internalSet);
- //       CPU_SET(m_vtClrInfo[i]->assignedCore, &internalSet);
-
+        
         sched_getaffinity(m_vtClr[i]->mypidt, sizeof(internalSet), &internalSet);
         for(int j = 0; j <= 16; j++) {
             if(CPU_ISSET(j, &internalSet)) {
