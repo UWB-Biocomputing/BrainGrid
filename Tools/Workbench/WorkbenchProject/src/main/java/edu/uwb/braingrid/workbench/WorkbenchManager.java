@@ -128,7 +128,7 @@ public class WorkbenchManager {
                         if (projectMgr.isProvenanceEnabled()) {
                             prov.addFileGeneration("simulation_input_file_generation",
                                     null, "workbench", null, false,
-                                    simulationConfigurationFile, null, false);
+                                    simulationConfigurationFile, null, null);
                         }
                     } else {
                         success = false;
@@ -668,7 +668,7 @@ public class WorkbenchManager {
     /**
      * Sets the ScriptRan attribute of the Project to false. Run invalidation
      * should occur whenever the script specification or simulation
-     * specification changes. This attribute is used by the view to update
+     * specification changes. This attribute is used by the provvisualizer.view to update
      * workflow state (which buttons are enabled and what text is shown to the
      * user)
      */
@@ -689,7 +689,7 @@ public class WorkbenchManager {
     /**
      * Sets the time when the script completed execution to an error code.
      * Invalidation should occur whenever script specification or simulation
-     * specification occurs. This is a safety measure for the view in updating
+     * specification occurs. This is a safety measure for the provvisualizer.view in updating
      * the overview of script output analysis.
      */
     public void invalidateScriptAnalyzed() {
@@ -984,6 +984,7 @@ public class WorkbenchManager {
     // </editor-fold>
 
     public boolean configureParamsClasses() {
+        //This function will be able to add/modify/delete parameter classes.
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
