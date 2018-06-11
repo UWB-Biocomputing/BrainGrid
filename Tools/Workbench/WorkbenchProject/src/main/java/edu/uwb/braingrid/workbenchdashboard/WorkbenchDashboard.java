@@ -68,6 +68,9 @@ public class WorkbenchDashboard extends Application {
 				if(arg0.getCode() == KeyCode.S && ctrl) {
 					workbench_display_.pushSimStarterPage();
 				}
+				if(arg0.getCode() == KeyCode.P && ctrl) {
+					workbench_display_.pushProVisStarterPage();
+				}
 			}
 		});
 		

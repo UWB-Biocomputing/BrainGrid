@@ -22,6 +22,7 @@ import javax.swing.JTextField;
 
 import edu.uwb.braingrid.tools.nledit.LayoutPanel;
 import edu.uwb.braingrid.workbenchdashboard.nledit.NLedit;
+import edu.uwb.braingrid.workbenchdashboard.provis.ProVis;
 import edu.uwb.braingrid.workbenchdashboard.setup.SimStarter;
 import edu.uwb.braingrid.workbenchdashboard.welcome.Welcome;
 import javafx.application.Application;
@@ -53,7 +54,7 @@ public class WorkbenchDisplay extends BorderPane {
 	}
 
 	public MenuBar getMenuBar() {
-		
+
 		return menu_bar_;
 	}
 
@@ -79,25 +80,43 @@ public class WorkbenchDisplay extends BorderPane {
 		gsle.setOnAction(event -> {
 			pushGSLEPane();
 		});
-		
+
+		// Generate Items
+		MenuItem simstarter = new MenuItem("_Simulation Starter");
+
+		// Define Functionality
+		simstarter.setOnAction(event -> {
+			pushSimStarterPage();
+		});
+
+		// Generate Items
+		MenuItem provis = new MenuItem("_Pro Vis");
+
+		// Define Functionality
+		provis.setOnAction(event -> {
+			pushProVisStarterPage();
+		});
+
 		// Add
 		new_menu.getItems().add(gsle);
+		new_menu.getItems().add(simstarter);
+		new_menu.getItems().add(provis);
 		return new_menu;
 	}
-	
+
 	void pushGSLEPane() {
-		new WorkbenchTab("GSLE", new NLedit() , this);
+		new WorkbenchTab("GSLE", new NLedit(), this);
 	}
-	
+
 	void pushWeclomePage() {
 		new WorkbenchTab("Welcome!", new Welcome(), this);
 	}
-	
+
 	void pushSimStarterPage() {
 		new WorkbenchTab("SimStarter!", new SimStarter(), this);
 	}
-	
-	void pushWorkbenchControlFrame() {
 
+	void pushProVisStarterPage() {
+		new WorkbenchTab("ProVis!", new ProVis(), this);
 	}
 }

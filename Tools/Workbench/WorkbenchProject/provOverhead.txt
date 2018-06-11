@@ -1,0 +1,41 @@
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:1800
+WorkbenchManager.initProject;total prov overhead:1632
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:207
+WorkbenchManager.initProject;total prov overhead:205
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:973
+WorkbenchManager.initProject;total prov overhead:826
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:3997
+WorkbenchManager.initProject;total prov overhead:3865
+WorkbenchManager.openProject;provEnabled=true;total milliseconds:2197
+WorkbenchManager.openProject;total prov overhead:0
+WorkbenchManager.openProject;provEnabled=true;total milliseconds:73316
+WorkbenchManager.openProject;total prov overhead:443
+ProvenanceQueryDialog.searchButtonActionPerformed;provEnabled=true;total milliseconds:22
+ProvenanceQueryDialog.searchButtonActionPerformed;provEnabled=true;total milliseconds:10
+ProvenanceQueryDialog.searchButtonActionPerformed;provEnabled=true;total milliseconds:6
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:1797
+WorkbenchManager.initProject;total prov overhead:1661
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:907
+WorkbenchManager.initProject;total prov overhead:782
+ScriptManager.runLocalScript;provEnabled=true;total milliseconds:879
+ScriptManager.runLocalScript;total prov overhead:6
+ScriptManager.runLocalScript;provEnabled=true;total milliseconds:97
+ScriptManager.runLocalScript;total prov overhead:2
+ScriptManager.runLocalScript;provEnabled=true;total milliseconds:92
+ScriptManager.runLocalScript;total prov overhead:3
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:1346
+WorkbenchManager.initProject;total prov overhead:1205
+ScriptManager.runLocalScript;provEnabled=true;total milliseconds:145
+ScriptManager.runLocalScript;total prov overhead:7
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:924
+WorkbenchManager.initProject;total prov overhead:797
+ScriptManager.runLocalScript;provEnabled=true;total milliseconds:22
+ScriptManager.runLocalScript;total prov overhead:7
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:898
+WorkbenchManager.initProject;total prov overhead:772
+ScriptManager.runLocalScript;provEnabled=true;total milliseconds:21
+ScriptManager.runLocalScript;total prov overhead:7
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:914
+WorkbenchManager.initProject;total prov overhead:785
+ScriptManager.runLocalScript;provEnabled=true;total milliseconds:30
+ScriptManager.runLocalScript;total prov overhead:8

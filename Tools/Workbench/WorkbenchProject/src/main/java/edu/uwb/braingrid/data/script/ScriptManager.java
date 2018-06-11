@@ -562,9 +562,12 @@ public class ScriptManager {
         try {
             if (Desktop.isDesktopSupported() && fm.isWindowsSystem()) {
                 Desktop dt = Desktop.getDesktop();
-                dt.open(scriptTargetPath.toFile());
+               //  dt.open(scriptTargetPath.toFile());
+                System.out.println(cmd);
+                Runtime.getRuntime().exec("cmd.exe /c start " + cmd); // Windows
             } else {
-                Runtime.getRuntime().exec(cmd);
+                Runtime.getRuntime().exec(cmd); // Unix ?
+               
             }
         } catch (SecurityException e) {
             success = false;
