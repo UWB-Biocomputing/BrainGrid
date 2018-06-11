@@ -14,11 +14,8 @@ public class ProVis extends WorkbenchApp {
 	public ProVis() {
 		 //Parent root;
 		
-		// In order for eclipse to recompile the code when the fxml file is changed.
-		int x = 111;
-		
 	        try {
-	            root_ = FXMLLoader.load(getClass().getResource("/provvisualizer/view/ProvenanceVisualizerView.fxml"));
+	            root_ = FXMLLoader.load(getClass().getResource("/provvisualizer/view/ProvenanceVisualizerView2.fxml"));
 	        } catch (IOException e) {
 	        	root_ = new TextArea();
 	        	((TextArea) root_).setText(e.toString());

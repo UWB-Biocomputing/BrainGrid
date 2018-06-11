@@ -1,38 +1,13 @@
 package edu.uwb.braingrid.workbenchdashboard;
 
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-
-import edu.uwb.braingrid.tools.nledit.LayoutPanel;
-import edu.uwb.braingrid.workbenchdashboard.nledit.NLedit;
 import javafx.application.Application;
-import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
-import javafx.geometry.Pos;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 
 public class WorkbenchDashboard extends Application {
 	/**
@@ -48,11 +23,17 @@ public class WorkbenchDashboard extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		primaryStage.setTitle("Workbench Dashboard");
-		
+
+				Path currentRelativePath = Paths.get("");
+		String s = currentRelativePath.toAbsolutePath().toString();
+		System.out.println("Current relative path is: " + s);
+
 		workbench_display_ = new WorkbenchDisplay(primaryStage);
-		
 		Scene scene = new Scene(workbench_display_, 900, 600);
+		
+		scene.getStylesheets().add("/simstarter/css/temp.css");
+		scene.getStylesheets().add("/simstarter/css/tempII.css");
+		
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent arg0) {
