@@ -5,7 +5,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import edu.uwb.braingrid.workbenchdashboard.nledit.NLedit;
-import edu.uwb.braingrid.workbenchdashboard.provis.ProVis;
+import edu.uwb.braingrid.workbenchdashboard.provis.ProVisOld;
 import edu.uwb.braingrid.workbenchdashboard.setup.SimStarter;
 import edu.uwb.braingrid.workbenchdashboard.welcome.Welcome;
 import javafx.stage.Stage;
@@ -90,6 +90,6 @@ public class WorkbenchDisplay extends BorderPane {
 	}
 
 	void pushProVisStarterPage() {
-		new WorkbenchTab("ProVis!", new ProVis(), this);
+		new WorkbenchTab("ProVis!", new ProVisOld(), this);
 	}
 }

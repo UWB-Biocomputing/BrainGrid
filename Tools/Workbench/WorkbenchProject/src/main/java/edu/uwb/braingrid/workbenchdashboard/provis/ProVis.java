@@ -1,38 +1,20 @@
 package edu.uwb.braingrid.workbenchdashboard.provis;
 
-import java.io.IOException;
-
 import edu.uwb.braingrid.workbenchdashboard.WorkbenchApp;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.control.TextArea;
 
 public class ProVis extends WorkbenchApp {
 
-	Parent root_;
-	public ProVis() {
-		 //Parent root;
-		
-	        try {
-	            root_ = FXMLLoader.load(getClass().getResource("/provvisualizer/view/ProvenanceVisualizerView2.fxml"));
-	        } catch (IOException e) {
-	        	root_ = new TextArea();
-	        	((TextArea) root_).setText(e.toString());
-	            //e.printStackTrace();
-	        }
-	}
-	
 	@Override
 	public boolean close() {
 		// TODO Auto-generated method stub
-		return true;
+		return false;
 	}
 
 	@Override
 	public Node getDisplay() {
 		// TODO Auto-generated method stub
-		return root_;
+		return null;
 	}
 
 }
