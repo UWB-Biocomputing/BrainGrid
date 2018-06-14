@@ -6,22 +6,16 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import edu.uwb.braingrid.workbenchdashboard.nledit.NLedit;
 import edu.uwb.braingrid.workbenchdashboard.provis.ProVis;
-import edu.uwb.braingrid.workbenchdashboard.provis.ProVisOld;
 import edu.uwb.braingrid.workbenchdashboard.setup.SimStarter;
 import edu.uwb.braingrid.workbenchdashboard.welcome.Welcome;
 import javafx.stage.Stage;
 
-public class WorkbenchDisplay extends BorderPane {
-	/**
-	 * GSLE Growth Simulation Layout Editor
-	 */
-	private BorderPane main_border_pane_;
+public class WorkbenchDisplay extends BorderPane {	
 
 	private MenuBar menu_bar_;
 	private Stage primaryStage_;
 
 	public WorkbenchDisplay(Stage primary_stage) {
-		main_border_pane_ = new BorderPane();
 		primaryStage_ = primary_stage;
 		generateMenuBar(primaryStage_);
 		pushWeclomePage();

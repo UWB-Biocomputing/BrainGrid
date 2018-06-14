@@ -35,7 +35,6 @@ public class ProVis extends WorkbenchApp {
 		VBox vb = new VBox(stop_forces_, show_node_ids_, show_relationships_, show_legend_, adjust_force_slider_, choose_file_btn_);
 		bp_.setCenter(canvas_pane_);
 		bp_.setRight(vb);
-		//bp_.getItem().addAll(canvas_pane_, fp);
 	}
 	
 	@Override
