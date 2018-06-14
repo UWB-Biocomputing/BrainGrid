@@ -42,6 +42,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 public class NLedit extends WorkbenchApp {
 	
@@ -51,6 +52,7 @@ public class NLedit extends WorkbenchApp {
 		workbenchMgr = new WorkbenchManager();
 		initSettingsPanel();
 		initMenu();
+		initEditBar();
 		generateSimulator();
 	}
 
@@ -104,10 +106,19 @@ public class NLedit extends WorkbenchApp {
 		}
 		return LayoutPanel.OTR;
 	}
-
-	private void initTools() {
+	
+	private void initEditBar() {
+		inhNItem.setToggleGroup(editGroup);
+		activeNItem.setToggleGroup(editGroup);
+		probedNItem.setToggleGroup(editGroup);
+		probedNItem.setOnAction(event -> {
+		});
+		inhNItem.setSelected(true);
 		
+		VBox vbox = new VBox(inhNItem, activeNItem, probedNItem);
+		bp_.setLeft(vbox);
 	}
+	
 	private void initMenu() {
 
 		// build menu items
@@ -140,17 +151,7 @@ public class NLedit extends WorkbenchApp {
 		exitItem.setOnAction(event -> {
 		});
 
-		// Edit menu
-		menuBar.getMenus().add(editMenu);
-		inhNItem.setToggleGroup(editGroup);
-		editMenu.getItems().add(inhNItem);
-		activeNItem.setToggleGroup(editGroup);
-		editMenu.getItems().add(activeNItem);
-		probedNItem.setToggleGroup(editGroup);
-		editMenu.getItems().add(probedNItem);
-		probedNItem.setOnAction(event -> {
-		});
-		inhNItem.setSelected(true);
+
 
 		// Layout menu
 		menuBar.getMenus().add(layoutMenu);
@@ -551,17 +552,16 @@ public class NLedit extends WorkbenchApp {
 	private MenuItem exitItem = new MenuItem("E_xit");
 
 	// Edit menu
-	private Menu editMenu = new Menu("Edit");
+	// private Menu editMenu = new Menu("Edit");
 	private ToggleGroup editGroup = new ToggleGroup();
-	private RadioMenuItem inhNItem = new RadioMenuItem("Inhibitory neurons");
-	private RadioMenuItem activeNItem = new RadioMenuItem("Active neurons");
-	private RadioMenuItem probedNItem = new RadioMenuItem("Probed neurons");
+	private RadioButton inhNItem = new RadioButton("Inhibitory neurons");
+	private RadioButton activeNItem = new RadioButton("Active neurons");
+	private RadioButton probedNItem = new RadioButton("Probed neurons");
 
 	// Layout menu
 	private Menu layoutMenu = new Menu("Layout");
 	private MenuItem bcellItem = new MenuItem("_Bigger cells");
 	private MenuItem scellItem = new MenuItem("_Smaller cells");
-	private MenuItem csizeItem = new MenuItem("_Modify size...");
 	private MenuItem gpatItem = new MenuItem("_Generate pattern...");
 	private MenuItem aprbItem = new MenuItem("_Arrange probes...");
 	private MenuItem sdatItem = new MenuItem("Statistical _data...");

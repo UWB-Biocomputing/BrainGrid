@@ -3,6 +3,9 @@ package edu.uwb.braingrid.workbenchdashboard;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SingleSelectionModel;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import edu.uwb.braingrid.workbenchdashboard.nledit.NLedit;
 import edu.uwb.braingrid.workbenchdashboard.provis.ProVis;
@@ -14,15 +17,16 @@ public class WorkbenchDisplay extends BorderPane {
 
 	private MenuBar menu_bar_;
 	private Stage primaryStage_;
-
+	private TabPane tp_ = new TabPane();
+	
 	public WorkbenchDisplay(Stage primary_stage) {
 		primaryStage_ = primary_stage;
-		generateMenuBar(primaryStage_);
+		setTop(generateMenuBar(primaryStage_));
 		pushWeclomePage();
+		setCenter(tp_);
 	}
 
 	public MenuBar getMenuBar() {
-
 		return menu_bar_;
 	}
 
@@ -73,18 +77,31 @@ public class WorkbenchDisplay extends BorderPane {
 	}
 
 	void pushGSLEPane() {
-		new WorkbenchTab("GSLE", new NLedit(), this);
+		pushNewTab("NL Edit", new NLedit());
+		//new WorkbenchTab("GSLE", new NLedit(), this);
 	}
 
 	void pushWeclomePage() {
-		new WorkbenchTab("Welcome!", new Welcome(), this);
+		pushNewTab("Welcome!", new Welcome());
+		//new WorkbenchTab("Welcome!", new Welcome(), this);
 	}
 
 	void pushSimStarterPage() {
-		new WorkbenchTab("SimStarter!", new SimStarter(), this);
+		pushNewTab("SimStarter!", new SimStarter());
+		//new WorkbenchTab("SimStarter!", new SimStarter(), this);
 	}
 
 	void pushProVisStarterPage() {
-		new WorkbenchTab("ProVis!", new ProVis(), this);
+		pushNewTab("ProVis!", new ProVis());
+		//new WorkbenchTab("ProVis!", new ProVis(), this);
+	}
+	
+	private void pushNewTab(String name, WorkbenchApp wbapp) {
+		Tab tab = new Tab();
+		tab.setText(name);
+		tab.setContent(wbapp.getDisplay());
+		tp_.getTabs().add(tab);
+		SingleSelectionModel<Tab> selectionModel = tp_.getSelectionModel();
+		selectionModel.select(tab);
 	}
 }

@@ -49,3 +49,5 @@ WorkbenchManager.initProject;provEnabled=true;total milliseconds:926
 WorkbenchManager.initProject;total prov overhead:822
 ScriptManager.runLocalScript;provEnabled=true;total milliseconds:23
 ScriptManager.runLocalScript;total prov overhead:7
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:1110
+WorkbenchManager.initProject;total prov overhead:903
