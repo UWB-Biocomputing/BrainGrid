@@ -71,7 +71,7 @@ public class ProVisCtrl {
 
 	public ProVisCtrl(VisCanvas visCanvas, AnchorPane canvasPane, Slider adjustForceSlider, ToggleSwitch stopForces,
 			ToggleSwitch showNodeIds, ToggleSwitch showRelationships, ToggleSwitch showLegend, Button chooseFileBtn) {
-		initialize();
+		
 		this.visCanvas = visCanvas;
 		this.canvasPane = canvasPane;
 		this.adjustForceSlider = adjustForceSlider;
@@ -80,6 +80,7 @@ public class ProVisCtrl {
 		this.showRelationships = showRelationships;
 		this.showLegend = showLegend;
 		this.chooseFileBtn = chooseFileBtn;
+		initialize();
 	}
 
 	/**
