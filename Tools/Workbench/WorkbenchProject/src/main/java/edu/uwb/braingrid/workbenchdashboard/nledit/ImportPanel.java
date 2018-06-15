@@ -1,193 +1,159 @@
 package edu.uwb.braingrid.workbenchdashboard.nledit;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
-/**
- * The ImportPanel class handles import xml neurons list files dialog window.
- * The window contains four input fields and Browse buttons, each of which
- * corresponds width four different kinds of files, configuration, inhibitory
- * neuron list, active neuron list, and probed neuron list files. When a
- * configuration file is specified, the content of the file is parsed, and
- * extract names of neurons list files, and show them in the corresponding
- * fields.
- *
- * @author Fumitaka Kawasaki
- * @version 1.2
- */
-@SuppressWarnings("serial")
-public class ImportPanel extends JPanel implements ActionListener {
+import edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard;
+import edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.FileChooser.ExtensionFilter;
 
-    static final int nFields = 4; // number of input fields
-    static final int idxConfigFile = 0; // field index of configuration file
+public class ImportPanel extends Pane implements EventHandler<ActionEvent> {
+	static final int nFields = 4; // number of input fields
+	static final int idxConfigFile = 0; // field index of configuration file
 
-    /**
-     * field index of inhibitory neurons list file
-     */
-    public static final int idxInhList = 1;
-    /**
-     * field index of active neurons list file
-     */
-    public static final int idxActList = 2;
-    /**
-     * field index of probed neurons list file
-     */
-    public static final int idxPrbList = 3;
+	/**
+	 * field index of inhibitory neurons list file
+	 */
+	public static final int idxInhList = 1;
+	/**
+	 * field index of active neurons list file
+	 */
+	public static final int idxActList = 2;
+	/**
+	 * field index of probed neurons list file
+	 */
+	public static final int idxPrbList = 3;
 
-    private JLabel[] labels = new JLabel[nFields];
-    public JTextField[] tfields = new JTextField[nFields];
-    private JButton[] btns = new JButton[nFields];
+	private Label[] labels = new Label[nFields];
+	public TextField[] tfields = new TextField[nFields];
+	private Button[] btns = new Button[nFields];
 
-    private static String configDir = "."; // directory for configuration file
-    public static String nlistDir = "."; // directory for neurons list file
+	private static String configDir = "."; // directory for configuration file
+	public static String nlistDir = "."; // directory for neurons list file
 
-    /**
-     * A class constructor, which creates UI components, and registers action
-     * listener.
-     */
-    public ImportPanel() {
-        labels[idxConfigFile] = new JLabel("Configuration file:");
-        labels[idxInhList] = new JLabel("Inhibitory neurons list:");
-        labels[idxActList] = new JLabel("Active neurons list:");
-        labels[idxPrbList] = new JLabel("Probed neurons list:");
+	public ImportPanel() {
+		GridPane gp = new GridPane();
 
-        for (int i = 0; i < nFields; i++) {
-            tfields[i] = new JTextField(20);
-            tfields[i].setEditable(true);
-            btns[i] = new JButton("Browse...");
-            btns[i].addActionListener(this);
-        }
+		labels[idxConfigFile] = new Label("Configuration file:");
+		labels[idxInhList] = new Label("Inhibitory neurons list:");
+		labels[idxActList] = new Label("Active neurons list:");
+		labels[idxPrbList] = new Label("Probed neurons list:");
+		gp.getChildren().addAll(labels[idxConfigFile], labels[idxInhList], labels[idxActList], labels[idxPrbList]);
+		GridPane.setConstraints(labels[idxConfigFile], 0, 0);
+		GridPane.setConstraints(labels[idxInhList], 0, 1);
+		GridPane.setConstraints(labels[idxActList], 0, 2);
+		GridPane.setConstraints(labels[idxPrbList], 0, 3);
+		for (int i = 0; i < nFields; i++) {
+			tfields[i] = new TextField();
+			tfields[i].setEditable(true);
+			gp.getChildren().add(tfields[i]);
+			GridPane.setConstraints(tfields[i], 1, i);
+			btns[i] = new Button("Browse...");
+			btns[i].setOnAction(this);
+			gp.getChildren().add(btns[i]);
+			GridPane.setConstraints(btns[i], 2, i);
+		}
+		getChildren().add(gp);
+	}
 
-        GroupLayout layout = new GroupLayout(this);
-        setLayout(layout);
+	private void importFiles(ActionEvent e) {
+		int iSource = 0;
+		for (int i = 0; i < nFields; i++) {
+			if (e.getSource() == btns[i]) {
+				iSource = i;
+				break;
+			}
+		}
+		// create a file chooser
+		String curDir;
+		if (iSource == idxConfigFile) {
+			curDir = configDir;
+		} else {
+			curDir = nlistDir;
+		}
 
-        // create vertical sequential group
-        GroupLayout.SequentialGroup vgroup = layout.createSequentialGroup();
-        for (int i = 0; i < nFields; i++) {
-            GroupLayout.ParallelGroup group2 = layout
-                    .createParallelGroup(Alignment.BASELINE);
-            group2.addComponent(labels[i]);
-            group2.addComponent(tfields[i]);
-            group2.addComponent(btns[i]);
-            vgroup.addGroup(group2);
-        }
+		FileChooser chooser = new FileChooser();
+		chooser.setTitle("Open File");
+		//fileChooser.showOpenDialog(stage);
+		ExtensionFilter filter = new ExtensionFilter(
+				"XML file (*.xml)", "xml");
+		chooser.setSelectedExtensionFilter(filter);
+		String dialogTitle = "";
+		switch (iSource) {
+		case idxConfigFile:
+			dialogTitle = "Configuration file";
+			break;
+		case idxInhList:
+			dialogTitle = "Inhibitory neurons list";
+			break;
+		case idxActList:
+			dialogTitle = "Active neurons list";
+			break;
+		case idxPrbList:
+			dialogTitle = "Probed neurons list";
+			break;
+		}
+		chooser.setTitle(dialogTitle);
+		
+		File option = chooser.showOpenDialog(WorkbenchDashboard.primaryStage_);
+		if (option != null) {
+			tfields[iSource].setText(option.getAbsolutePath());
+			if (iSource == idxConfigFile) { // configuration files is specified.
+				// parse config file, extract names of neurons list files, and
+				// show them in the corresponding fields
+				String configFile = option.getAbsolutePath();
+				configDir = option.getParent();
+				nlistDir = configDir;
+				try {
+					Document doc = new SAXBuilder().build(new File(configFile));
+					Element root = doc.getRootElement();
+					Element layout = root.getChild("FixedLayout").getChild("LayoutFiles");
+					org.jdom2.Attribute attr;
+					if ((attr = layout.getAttribute("activeNListFileName")) != null) {
+						tfields[idxActList].setText(configDir + "/" + attr.getValue());
+					}
+					if ((attr = layout.getAttribute("inhNListFileName")) != null) {
+						tfields[idxInhList].setText(configDir + "/" + attr.getValue());
+					}
+					if ((attr = layout.getAttribute("probedNListFileName")) != null) {
+						tfields[idxPrbList].setText(configDir + "/" + attr.getValue());
+					}
+				} catch (JDOMException je) {
+					// System.err.println(je);
+				} catch (IOException ie) {
+					// System.err.println(ie);
+				}
+			} else {
+				nlistDir = option.getParent();
+			}
+		}
+	}
 
-        // create horizontal sequential group
-        GroupLayout.SequentialGroup hgroup = layout.createSequentialGroup();
-        GroupLayout.ParallelGroup groupLabel = layout.createParallelGroup();
-        GroupLayout.ParallelGroup groupTField = layout.createParallelGroup();
-        GroupLayout.ParallelGroup groupBtn = layout.createParallelGroup();
-        for (int i = 0; i < nFields; i++) {
-            groupLabel.addComponent(labels[i]);
-            groupTField.addComponent(tfields[i]);
-            groupBtn.addComponent(btns[i]);
-        }
-        hgroup.addGroup(groupLabel);
-        hgroup.addGroup(groupTField);
-        hgroup.addGroup(groupBtn);
-
-        // set horizontal and vertical group
-        layout.setVerticalGroup(vgroup);
-        layout.setHorizontalGroup(hgroup);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e) {
-        int iSource = 0;
-        for (int i = 0; i < nFields; i++) {
-            if (e.getSource() == btns[i]) {
-                iSource = i;
-                break;
-            }
-        }
-        // create a file chooser
-        String curDir;
-        if (iSource == idxConfigFile) {
-            curDir = configDir;
-        } else {
-            curDir = nlistDir;
-        }
-
-        JFileChooser chooser = new JFileChooser(curDir);
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "XML file (*.xml)", "xml");
-        chooser.addChoosableFileFilter(filter);
-        chooser.setMultiSelectionEnabled(false);
-        String dialogTitle = "";
-        switch (iSource) {
-            case idxConfigFile:
-                dialogTitle = "Configuration file";
-                break;
-            case idxInhList:
-                dialogTitle = "Inhibitory neurons list";
-                break;
-            case idxActList:
-                dialogTitle = "Active neurons list";
-                break;
-            case idxPrbList:
-                dialogTitle = "Probed neurons list";
-                break;
-        }
-        chooser.setDialogTitle(dialogTitle);
-        int option = chooser.showOpenDialog(this);
-        if (option == JFileChooser.APPROVE_OPTION) {
-            tfields[iSource].setText(chooser.getSelectedFile()
-                    .getAbsolutePath());
-            if (iSource == idxConfigFile) { // configuration files is specified.
-                // parse config file, extract names of neurons list files, and
-                // show them in the corresponding fields
-                String configFile = chooser.getSelectedFile().getAbsolutePath();
-                configDir = chooser.getSelectedFile().getParent();
-                nlistDir = configDir;
-                try {
-                    Document doc = new SAXBuilder().build(new File(configFile));
-                    Element root = doc.getRootElement();
-                    Element layout = root.getChild("FixedLayout").getChild(
-                            "LayoutFiles");
-                    org.jdom2.Attribute attr;
-                    if ((attr = layout.getAttribute("activeNListFileName"))
-                            != null) {
-                        tfields[idxActList].setText(configDir + "/"
-                                + attr.getValue());
-                    }
-                    if ((attr = layout.getAttribute("inhNListFileName")) != null) {
-                        tfields[idxInhList].setText(configDir + "/"
-                                + attr.getValue());
-                    }
-                    if ((attr = layout.getAttribute("probedNListFileName"))
-                            != null) {
-                        tfields[idxPrbList].setText(configDir + "/"
-                                + attr.getValue());
-                    }
-                } catch (JDOMException je) {
-                    // System.err.println(je);
-                } catch (IOException ie) {
-                    // System.err.println(ie);
-                }
-            } else {
-                nlistDir = chooser.getSelectedFile().getParent();
-            }
-        }
-    }
+	@Override
+	public void handle(ActionEvent arg0) {
+		// TODO Auto-generated method stub
+		importFiles(arg0);
+	}
 }

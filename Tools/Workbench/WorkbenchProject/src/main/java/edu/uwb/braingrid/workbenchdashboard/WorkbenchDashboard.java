@@ -14,7 +14,8 @@ public class WorkbenchDashboard extends Application {
 	 * GSLE Growth Simulation Layout Editor
 	 */
 	private WorkbenchDisplay workbench_display_;
-
+	public static Stage primaryStage_; // Not good, needs refactoring to send the stage everywhere private
+	
 	public static void main(String[] args) {
 		launch(args);
 	}

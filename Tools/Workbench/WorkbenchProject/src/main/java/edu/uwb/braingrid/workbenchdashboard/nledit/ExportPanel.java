@@ -1,16 +1,16 @@
 package edu.uwb.braingrid.workbenchdashboard.nledit;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.File;
 
-import javax.swing.GroupLayout;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard;
+import javafx.event.EventHandler;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 
 /**
  * The ExportPanel class handles export xml neurons list files dialog window.
@@ -21,11 +21,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author Fumitaka Kawasaki
  * @version 1.2
  */
-@SuppressWarnings("serial")
-public class ExportPanel extends JPanel implements ActionListener {
-	private JLabel[] labels = new JLabel[3];
-	public JTextField[] tfields = new JTextField[3];
-	private JButton[] btns = new JButton[3];
+public class ExportPanel extends Pane implements EventHandler<javafx.event.ActionEvent> {
+	private Label[] labels = new Label[3];
+	public TextField[] tfields = new TextField[3];
+	private Button[] btns = new Button[3];
 	private static String nlistDir = "."; // directory for neurons list file
 
 	static final int nFields = 3; // number of input fields
@@ -44,71 +43,45 @@ public class ExportPanel extends JPanel implements ActionListener {
 	 *            directory for neurons list file
 	 */
 	public ExportPanel(String dir) {
+		GridPane gp = new GridPane();
 		nlistDir = dir;
 
-		labels[idxInhList] = new JLabel("Inhibitory neurons list:");
-		labels[idxActList] = new JLabel("Active neurons list:");
-		labels[idxPrbList] = new JLabel("Probed neurons list:");
+		labels[idxInhList] = new Label("Inhibitory neurons list:");
+		labels[idxActList] = new Label("Active neurons list:");
+		labels[idxPrbList] = new Label("Probed neurons list:");
+
+		gp.getChildren().addAll(labels[idxInhList], labels[idxActList], labels[idxPrbList]);
+		GridPane.setConstraints(labels[idxInhList], 0, 0);
+		GridPane.setConstraints(labels[idxActList], 0, 1);
+		GridPane.setConstraints(labels[idxPrbList], 0, 2);
 
 		for (int i = 0; i < nFields; i++) {
-			tfields[i] = new JTextField(20);
+			tfields[i] = new TextField();
 			tfields[i].setEditable(true);
-			btns[i] = new JButton("Browse...");
-			btns[i].addActionListener(this);
+			btns[i] = new Button("Browse...");
+			btns[i].setOnAction(this);
+			gp.getChildren().addAll(tfields[i], btns[i]);
+			GridPane.setConstraints(tfields[i], 1, i);
+			GridPane.setConstraints(btns[i], 2, i);
 		}
-
-		GroupLayout layout = new GroupLayout(this);
-		setLayout(layout);
-
-		// create vertical sequential group
-		GroupLayout.SequentialGroup vgroup = layout.createSequentialGroup();
-		for (int i = 0; i < nFields; i++) {
-			GroupLayout.ParallelGroup group2 = layout
-					.createParallelGroup(Alignment.BASELINE);
-			group2.addComponent(labels[i]);
-			group2.addComponent(tfields[i]);
-			group2.addComponent(btns[i]);
-			vgroup.addGroup(group2);
-		}
-
-		// create horizontal sequential group
-		GroupLayout.SequentialGroup hgroup = layout.createSequentialGroup();
-		GroupLayout.ParallelGroup groupLabel = layout.createParallelGroup();
-		GroupLayout.ParallelGroup groupTField = layout.createParallelGroup();
-		GroupLayout.ParallelGroup groupBtn = layout.createParallelGroup();
-		for (int i = 0; i < nFields; i++) {
-			groupLabel.addComponent(labels[i]);
-			groupTField.addComponent(tfields[i]);
-			groupBtn.addComponent(btns[i]);
-		}
-		hgroup.addGroup(groupLabel);
-		hgroup.addGroup(groupTField);
-		hgroup.addGroup(groupBtn);
-
-		// set horizontal and vertical group
-		layout.setVerticalGroup(vgroup);
-		layout.setHorizontalGroup(hgroup);
+		getChildren().add(gp);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent e) {
+	@Override
+	public void handle(javafx.event.ActionEvent arg0) {
 		int iSource = 0;
 		for (int i = 0; i < nFields; i++) {
-			if (e.getSource() == btns[i]) {
+			if (arg0.getSource() == btns[i]) {
 				iSource = i;
 				break;
 			}
 		}
 		// create a file chooser
-		JFileChooser chooser = new JFileChooser(nlistDir);
-		FileNameExtensionFilter filter = new FileNameExtensionFilter(
-				"XML file (*.xml)", "xml");
-		chooser.addChoosableFileFilter(filter);
+		FileChooser chooser = new FileChooser();
+		chooser.setTitle("Save File");
+
+		ExtensionFilter filter = new ExtensionFilter("XML file (*.xml)", "xml");
+		chooser.setSelectedExtensionFilter(filter);
 		String dialogTitle = "";
 		switch (iSource) {
 		case idxInhList:
@@ -121,12 +94,10 @@ public class ExportPanel extends JPanel implements ActionListener {
 			dialogTitle = "Probed neurons list";
 			break;
 		}
-		chooser.setDialogTitle(dialogTitle);
-		int option = chooser.showSaveDialog(this);
-		if (option == JFileChooser.APPROVE_OPTION) {
-			tfields[iSource].setText(chooser.getSelectedFile()
-					.getAbsolutePath());
-			nlistDir = chooser.getSelectedFile().getParent();
+		File option = chooser.showSaveDialog(WorkbenchDashboard.primaryStage_);
+		if (option != null) {
+			tfields[iSource].setText(option.getAbsolutePath());
+			nlistDir = option.getParent();
 		}
 	}
 }

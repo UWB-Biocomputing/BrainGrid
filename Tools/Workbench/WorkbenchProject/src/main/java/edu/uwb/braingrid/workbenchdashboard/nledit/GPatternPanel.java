@@ -12,7 +12,35 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import java.io.File;
+import java.io.IOException;
 
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+
+import edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard;
+import edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay;
+import javafx.event.EventHandler;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.FileChooser.ExtensionFilter;
 /*
  * The GPatternPanel class handles generate pattern dialog window.
  * The dialog window contains two radio buttons to choose distribution patern,
@@ -23,10 +51,10 @@ import javax.swing.JTextField;
  * @version 1.2
  */
 @SuppressWarnings({ "unused", "serial" })
-public class GPatternPanel extends JPanel {
-	public JRadioButton[] btns = new JRadioButton[2];
-	private JLabel[] labels = new JLabel[2];
-	public JTextField[] tfields = new JTextField[2];
+public class GPatternPanel extends Pane {
+	public RadioButton[] btns = new RadioButton[2];
+	private Label[] labels = new Label[2];
+	public TextField[] tfields = new TextField[2];
 
 	public static final int idxREG = 0;
 	public static final int idxRND = 1;
@@ -34,35 +62,24 @@ public class GPatternPanel extends JPanel {
 	public static final int idxACT = 1;
 
 	public GPatternPanel() {
-		btns[idxREG] = new JRadioButton("Regular pattern");
-		btns[idxRND] = new JRadioButton("Random pattern");
 
-		tfields[idxINH] = new JTextField();
-		labels[idxINH] = new JLabel("<html>Inhibitory<br>neurons ratio:</html>");
-		tfields[idxACT] = new JTextField();
-		labels[idxACT] = new JLabel("<html>Active<br>neurons ratio:</html>");
-
-		JPanel cboxPanel = new JPanel();
-		cboxPanel.setLayout(new GridLayout(2, 1));
-		cboxPanel.add(btns[idxREG]);
-		cboxPanel.add(btns[idxRND]);
-		ButtonGroup bgroup = new ButtonGroup();
-		bgroup.add(btns[idxREG]);
-		bgroup.add(btns[idxRND]);
+		ToggleGroup bgroup = new ToggleGroup();
+		btns[idxREG] = new RadioButton("Regular pattern");
+		btns[idxRND] = new RadioButton("Random pattern");
+		btns[idxREG].setToggleGroup(bgroup);
+		btns[idxRND].setToggleGroup(bgroup);
+		VBox vb_radio_btns = new VBox(btns[idxREG], btns[idxRND]);
 		btns[idxREG].setSelected(true);
-		;
-
-		JPanel ratioPanel = new JPanel();
-		ratioPanel.setLayout(new GridLayout(2, 2));
-		ratioPanel.add(labels[idxREG]);
-		ratioPanel.add(tfields[idxREG]);
-		ratioPanel.add(labels[idxRND]);
-		ratioPanel.add(tfields[idxRND]);
-		ratioPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory
-				.createEtchedBorder()));
-
-		setLayout(new GridLayout(1, 2));
-		add(cboxPanel);
-		add(ratioPanel);
+		
+		tfields[idxINH] = new TextField();
+		labels[idxINH] = new Label("<html>Inhibitory<br>neurons ratio:</html>");
+		tfields[idxACT] = new TextField();
+		labels[idxACT] = new Label("<html>Active<br>neurons ratio:</html>");
+		VBox vb_lbls = new VBox(labels[idxINH], labels[idxACT]);
+		VBox vb_tfield = new VBox(tfields[idxINH], tfields[idxACT]);
+		
+		HBox hbox = new HBox(vb_radio_btns, vb_lbls, vb_tfield);
+		getChildren().add(hbox);
+		
 	}
 }

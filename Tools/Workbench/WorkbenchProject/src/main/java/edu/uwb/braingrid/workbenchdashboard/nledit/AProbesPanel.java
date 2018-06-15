@@ -1,10 +1,9 @@
 package edu.uwb.braingrid.workbenchdashboard.nledit;
 
-import java.awt.GridLayout;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 
 /**
  * The AProbesPanel class handles arrange probed neurons dialog window. The
@@ -13,14 +12,13 @@ import javax.swing.JTextField;
  * @author Fumitaka Kawasaki
  * @version 1.2
  */
-@SuppressWarnings("serial")
-public class AProbesPanel extends JPanel {
-	private JLabel label = new JLabel("<html>Number of probes:</html>");;
-	public JTextField tfield = new JTextField();;
+
+public class AProbesPanel extends Pane {
+	private Label label = new Label("<html>Number of probes:</html>");;
+	public TextField tfield = new TextField();;
 
 	public AProbesPanel() {
-		setLayout(new GridLayout(2, 1));
-		add(label);
-		add(tfield);
+		HBox hbox = new HBox(label, tfield);
+		getChildren().add(hbox);
 	}
 }

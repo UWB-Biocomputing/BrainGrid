@@ -435,31 +435,7 @@ public class NL_Sim_Util {
 		return avgNN / estANN;
 	}
 	
-	/**
-	 * The 'Arrange probes' menu handler.
-	 */
-	public void actionArrangeProbes() {
-		AProbesPanel aprbPanel = new AProbesPanel();
-		int result = JOptionPane.showConfirmDialog(layout_panel_, aprbPanel, "Arrange probes", JOptionPane.OK_CANCEL_OPTION);
-		if (result == JOptionPane.OK_OPTION) { // Afirmative
-			try {
-				int numProbes = Integer.parseInt(aprbPanel.tfield.getText());
 
-				// validate number
-				Dimension dim = layout_panel_.getLayoutSize();
-				if (numProbes > dim.height * dim.width) {
-					throw new NumberFormatException();
-				}
-
-				genProbes(numProbes);
-
-				Graphics g = layout_panel_.getGraphics();
-				layout_panel_.writeToGraphics(g);
-			} catch (NumberFormatException ne) {
-				JOptionPane.showMessageDialog(null, "Invalid number.");
-			}
-		}
-	}
 	
 	/**
 	 * The function genProbes generates a indexes list of probes of specified
