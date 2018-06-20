@@ -61,7 +61,7 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
 
     // allocate host memory for weight data
     // W_d_size may exceed 4GB, so the type should be 64bits integer
-    uint64_t W_d_size = sim_info->totalNeurons * sim_info->totalNeurons * sizeof (BGFLOAT);
+    uint64_t W_d_size = sim_info->totalNeurons * sim_info->totalNeurons;
     BGFLOAT* W_h = new BGFLOAT[W_d_size];
 
     // and initialize it
@@ -88,7 +88,7 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
         checkCudaErrors( cudaMalloc ( ( void ** ) &W_d, W_d_c_size ) );
 
         // and initialize it
-        checkCudaErrors( cudaMemcpy ( W_d, W_h + clusterNeuronsBegin * totalClusterNeurons * sizeof (BGFLOAT), W_d_c_size, cudaMemcpyHostToDevice ) );
+        checkCudaErrors( cudaMemcpy ( W_d, &W_h[clusterNeuronsBegin * sim_info->totalNeurons], W_d_c_size, cudaMemcpyHostToDevice ) );
 
         // allocate device memory for neuron type map
         neuronType* neuron_type_map_d;
