@@ -1,7 +1,17 @@
 #include "Cluster.h"
 #include "ISInput.h"
+#include <sstream>
+#include <sched.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <mutex>
+#include <condition_variable>
+#include <sys/syscall.h>
 
-// Initialize the Barrier Synchnonize object for advanceThreads.
+
+
+
+// Initialize the Barrier Synchronize object for advanceThreads.
 Barrier *Cluster::m_barrierAdvance = NULL;
 
 // Initialize the flag for advanceThreads. true if terminating advanceThreads.
@@ -9,6 +19,20 @@ bool Cluster::m_isAdvanceExit = false;
 
 // Initialize the synaptic transmission delay, descretized into time steps.
 int Cluster::m_nSynapticTransDelay = 0;
+
+unsigned long threadID = 0;
+
+std::thread* threadReference = nullptr;
+
+pid_t mypidt;
+
+mutex m;
+
+condition_variable cv;
+
+bool ready = false;
+bool done = false;
+
 
 /*
  *  Constructor
@@ -130,10 +154,56 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     }
 
     // Create an advanceThread
-    std::thread thAdvance(&Cluster::advanceThread, this, sim_info, clr_info);
+    int lockedCore = clr_info->assignedCore;
 
+    cpu_set_t my_set;   //http://man7.org/linux/man-pages/man3/pthread_setaffinity_np.3.html
+    CPU_ZERO(&my_set);  //https://stackoverflow.com/questions/10490756/how-to-use-sched-getaffinity2-and-sched-setaffinity2-please-give-code-samp
+    CPU_SET(lockedCore, &my_set);
+    std::thread thAdvance(&Cluster::processAdvanceThread, this, sim_info, clr_info, my_set);   //Schedule this!
+
+
+    {
+        std::lock_guard<std::mutex> lk(m);
+        ready = true;
+        std::cout << "main thread signals AdvanceThread\n";
+    }
+    cv.notify_one();
+    {
+        std::unique_lock<std::mutex> lk(m);
+        cv.wait(lk, [&]{return done;});
+    }
+
+
+    cout << "mypidt is now "  << mypidt << endl;
+    threadReference = &thAdvance;
+   // cout << "thread " << mypidt  << " locked to core: " << lockedCore << endl;
+   // cout << "CONFIRMATION THREAD " << mypidt << " is running on core " <<
+    int success  = sched_getaffinity(mypidt,sizeof(cpu_set_t), &my_set);
+
+
+   for(int i = 0; i <= 16; i++) {
+    if(CPU_ISSET(i, &my_set) == 1) {
+        cout << "Core " << i << " member of this mask? " << CPU_ISSET(i, &my_set) << endl;
+       }
+    }
     // Leave it running
     thAdvance.detach();
+}
+
+void Cluster::processAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info, cpu_set_t my_set) {
+    std::unique_lock<std::mutex> lk(m);
+    cv.wait(lk, [&]{return ready;});
+
+    mypidt = syscall(SYS_gettid);
+
+    done = true;
+    sched_setaffinity(mypidt, sizeof(cpu_set_t), &my_set);
+
+    cout << "Set thread to core is finished for " << mypidt << " total cores " << CPU_COUNT(& my_set) << endl;
+
+    lk.unlock();
+    cv.notify_one();
+    advanceThread(sim_info, clr_info);
 }
 
 /*
@@ -154,7 +224,7 @@ void Cluster::advanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_inf
             break;
         }
 
-        // Advance neurons and synapses indepedently (without barrier synchronization)
+        // Advance neurons and synapses independently (without barrier synchronization)
         // within synaptic transmission delay period. 
         for (int iStepOffset = 0; iStepOffset < m_nSynapticTransDelay; iStepOffset++) {
             if (sim_info->pInput != NULL) {

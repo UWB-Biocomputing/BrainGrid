@@ -98,7 +98,8 @@ void Simulator::simulate(SimulationInfo *sim_info)
 
   // Main simulation loop - execute maxGrowthSteps
   for (int currentStep = 1; currentStep <= sim_info->maxSteps; currentStep++) {
-
+    //grab cluster stuff here.
+    sim_info->model->printThreadCoreData();
     DEBUG(cout << endl << endl;)
       DEBUG(cout << "Performing simulation number " << currentStep << endl;)
       DEBUG(cout << "Begin network state:" << endl;)

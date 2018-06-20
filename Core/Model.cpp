@@ -5,7 +5,12 @@
 #include "ParseParamError.h"
 #include "Util.h"
 #include "ConnGrowth.h"
+#include <sched.h>
 #include "ISInput.h"
+#include <iostream>
+#include <sys/types.h>
+#include <unistd.h>
+
 #if defined(USE_GPU)
 #include "GPUSpikingCluster.h"
 #endif
@@ -284,6 +289,21 @@ void Model::updateConnections(const SimulationInfo *sim_info)
     // Update Connections data
     if (m_conns->updateConnections(sim_info, m_layout, m_vtClr, m_vtClrInfo)) {
         m_conns->updateSynapsesWeights(sim_info, m_layout, m_vtClr, m_vtClrInfo);
+    }
+}
+
+void Model::printThreadCoreData(){
+    for (unsigned i = 0; i < m_vtClr.size(); i++){
+
+        cpu_set_t internalSet;
+        CPU_ZERO(&internalSet);
+        
+        sched_getaffinity(m_vtClr[i]->mypidt, sizeof(internalSet), &internalSet);
+        for(int j = 0; j <= 16; j++) {
+            if(CPU_ISSET(j, &internalSet)) {
+                cout << "Cluster " << i << " is running on core " << j << endl;
+            }
+        }
     }
 }
 

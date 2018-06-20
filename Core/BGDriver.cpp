@@ -216,10 +216,22 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
     // create clusters
     int numClusterNeurons = simInfo->totalNeurons / g_numClusters;	// number of neurons in cluster
 
-    for (int iCluster = 0; iCluster < g_numClusters; iCluster++) {
+            //https://stackoverflow.com/questions/150355/programmatically-find-the-number-of-cores-on-a-machine
+    unsigned int nCores = std::thread::hardware_concurrency();
+    int jumpPerThread = nCores / g_numClusters;
+    int coreAssigner = 0;
+
+
+    for (int iCluster = 0; iCluster < g_numClusters; iCluster++) {      // This is looping from 0 to num of threads.
         // create a cluster information
         ClusterInfo *clusterInfo = new ClusterInfo();
         clusterInfo->clusterID = iCluster;
+        if(iCluster > nCores) {
+            coreAssigner = 0;
+        }
+        clusterInfo->assignedCore = (jumpPerThread * coreAssigner);
+        coreAssigner++;
+
         clusterInfo->clusterNeuronsBegin = numClusterNeurons * iCluster;
         if (iCluster == g_numClusters - 1) {
             clusterInfo->totalClusterNeurons = simInfo->totalNeurons - numClusterNeurons * (g_numClusters - 1);

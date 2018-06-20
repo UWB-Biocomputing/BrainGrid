@@ -53,12 +53,28 @@
 #include "Layout.h"
 #include <thread>
 #include "Barrier.hpp"
+#include <sched.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <condition_variable>
+
+
 
 class Cluster
 {
     public:
         Cluster(IAllNeurons *neurons, IAllSynapses *synapses);
+        int assignedCore;
         virtual ~Cluster();
+        std::thread* threadReference;
+        mutex m;
+        condition_variable cv;
+
+        bool ready;
+        bool done;
+
+
+    pid_t mypidt;
 
         /**
          * Deserializes internal state from a prior run of the simulation.
@@ -158,6 +174,10 @@ class Cluster
          *  @param  sim_info    SimulationInfo class to read information from.
          *  @param  clr_info    ClusterInfo class to read information from.
          */
+
+        void processAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info, cpu_set_t my_set);
+
+
         void advanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
@@ -166,6 +186,7 @@ class Cluster
          *  @param  sim_info    SimulationInfo class to read information from.
          *  @param  iStep       Simulation steps to advance.
          */
+
         static void runAdvance(const SimulationInfo *sim_info, int iStep);
 
         /**
