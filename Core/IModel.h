@@ -145,6 +145,11 @@ class IModel {
          */
         virtual void updateHistory(const SimulationInfo *sim_info) = 0;
 
+        /**
+         *  Print cluster physical CPU core assignment data.
+         */
+        virtual void printThreadCoreData() = 0;
+
 #if defined(PERFORMANCE_METRICS)
         /**
          *  Print performance metrics statistics

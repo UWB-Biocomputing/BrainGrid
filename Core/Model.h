@@ -140,6 +140,11 @@ class Model : public IModel
          */
         virtual void updateConnections(const SimulationInfo *sim_info);
 
+        /**
+         *  Print cluster physical CPU core assignment data.
+         */
+        virtual void printThreadCoreData();
+
 #if defined(PERFORMANCE_METRICS)
         /**
          *  Print performance metrics statistics

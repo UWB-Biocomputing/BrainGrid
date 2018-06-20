@@ -216,6 +216,10 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
     // create clusters
     int numClusterNeurons = simInfo->totalNeurons / g_numClusters;	// number of neurons in cluster
 
+    // get the number of physical cores on a machine
+    unsigned int nCores = std::thread::hardware_concurrency();
+    unsigned int coresPerThread = max(nCores / g_numClusters, (unsigned int)1);
+
     for (int iCluster = 0; iCluster < g_numClusters; iCluster++) {
         // create a cluster information
         ClusterInfo *clusterInfo = new ClusterInfo();
@@ -230,6 +234,9 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
 #if defined(USE_GPU)
         clusterInfo->deviceId = g_deviceId + iCluster;
 #endif // USE_GPU
+
+        // set the core ID to which this cluster is locked
+        clusterInfo->assignedCore = (iCluster * coresPerThread) % nCores;
 
         // save the cluser information to the vector
         vtClrInfo.push_back(clusterInfo); 

@@ -86,8 +86,8 @@ INCDIRS = -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) \
 CXXFLAGS = -std=c++11 -O2 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS)
 CGPUFLAGS = -std=c++11 -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 CXXLDFLAGS = -lstdc++ -pthread
-LGPUFLAGS = -lstdc++ -L$(CUDALIBDIR) -lcuda -lcudart
-NVCCFLAGS =  -g -arch=sm_35 -rdc=true -DDEBUG_OUT $(INCDIRS) -I/usr/local/cuda/samples/common/inc
+LGPUFLAGS = -lstdc++ -Xcompiler="-pthread" -L$(CUDALIBDIR) -lcuda -lcudart
+NVCCFLAGS =  -Xcompiler="-pthread" -g -arch=sm_35 -rdc=true -DDEBUG_OUT $(INCDIRS) -I/usr/local/cuda/samples/common/inc
 
 ################################################################################
 # Objects

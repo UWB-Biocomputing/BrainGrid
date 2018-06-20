@@ -100,25 +100,28 @@ void Simulator::simulate(SimulationInfo *sim_info)
   for (int currentStep = 1; currentStep <= sim_info->maxSteps; currentStep++) {
 
     DEBUG(cout << endl << endl;)
-      DEBUG(cout << "Performing simulation number " << currentStep << endl;)
-      DEBUG(cout << "Begin network state:" << endl;)
+    DEBUG(cout << "Performing simulation number " << currentStep << endl;)
+    DEBUG(cout << "Begin network state:" << endl;)
 
-      // Init SimulationInfo parameters
-      sim_info->currentStep = currentStep;
+    // Print cluster physical CPU core assignment data.
+    DEBUG(sim_info->model->printThreadCoreData();)
+
+    // Init SimulationInfo parameters
+    sim_info->currentStep = currentStep;
 
     // Advance simulation to next growth cycle
     advanceUntilGrowth(currentStep, sim_info);
 
     DEBUG(cout << endl << endl;)
-      DEBUG(
+    DEBUG(
             cout << "Done with simulation cycle, beginning growth update "
 	    << currentStep << endl;
-	    )
+    )
 
-      // Update the neuron network
+    // Update the neuron network
 #ifdef PERFORMANCE_METRICS
-      // Start timer for connection update
-      short_timer.start();
+    // Start timer for connection update
+    short_timer.start();
 #endif
     sim_info->model->updateConnections(sim_info);
 

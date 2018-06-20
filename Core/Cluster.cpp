@@ -132,6 +132,14 @@ void Cluster::createAdvanceThread(const SimulationInfo *sim_info, ClusterInfo *c
     // Create an advanceThread
     std::thread thAdvance(&Cluster::advanceThread, this, sim_info, clr_info);
 
+    // Set CPU affinity
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+
+    CPU_SET(clr_info->assignedCore, &cpuset);
+    clr_info->thread_native = thAdvance.native_handle();
+    pthread_setaffinity_np(clr_info->thread_native, sizeof(cpu_set_t), &cpuset);
+
     // Leave it running
     thAdvance.detach();
 }

@@ -60,7 +60,8 @@ class ClusterInfo
             masks_d(NULL),            
             devStates_d(NULL),
 #endif // USE_GPU
-            synapsesSInput(NULL)
+            synapsesSInput(NULL),
+            assignedCore(0)
         {
         }
 
@@ -145,4 +146,12 @@ class ClusterInfo
         //! A random number generator used in stimulus input (Poisson)
         MTRand *rng;
 #endif // !USE_GPU
+
+        //! variables used for set and get a thread's CPU affinity mask
+
+        //! Core to which this cluster is locked
+        int assignedCore;
+
+        //! Naive thread ID of the cluster
+        pthread_t thread_native;
 };

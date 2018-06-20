@@ -287,6 +287,29 @@ void Model::updateConnections(const SimulationInfo *sim_info)
     }
 }
 
+/*
+ *  Print cluster physical CPU core assignment data.
+ */
+void Model::printThreadCoreData(){
+    // get the number of physical cores on a machine
+    unsigned int nCores = std::thread::hardware_concurrency();
+
+    cout << endl;
+    for (unsigned i = 0; i < m_vtClr.size(); i++) {
+        cpu_set_t cpuset;
+        CPU_ZERO(&cpuset);
+
+        pthread_getaffinity_np(m_vtClrInfo[i]->thread_native, sizeof(cpu_set_t), &cpuset);
+
+        for(unsigned int j = 0; j < nCores; j++) {
+            if (CPU_ISSET(j, &cpuset)) {
+                cout << "Cluster " << i << " is running on core " << j << endl;
+            }
+        }
+    }
+    cout << endl;
+}
+
 #if defined(PERFORMANCE_METRICS)
 
 /*
