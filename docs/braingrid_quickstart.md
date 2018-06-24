@@ -39,7 +39,7 @@ As a quick start and sanity test, let's run a small, prepackaged simulation to m
    </OutputParams>
    ```
 
-   The details of configuration file will be discussed in the next section [4. Configuration](http://uwb-biocomputing.github.io/BrainGrid/4_configuration).
+   The details of configuration file will be discussed in the next section [4. Configuration](braingrid_configuration).
 
 3. Compile the single threaded version
 
