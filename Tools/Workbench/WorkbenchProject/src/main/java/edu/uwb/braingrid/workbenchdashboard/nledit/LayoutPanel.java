@@ -132,6 +132,7 @@ public class LayoutPanel extends JPanel implements MouseListener {
 	 *            a graphic object to draw
 	 */
 	public void writeToGraphics(Graphics g) {
+		//System.out.println(NLedit.HEADER + "Start Repaint");
 		for (int j = 0; j < ylen; j++) {
 			for (int i = 0; i < xlen; i++) {
 				if (true) {
@@ -154,6 +155,11 @@ public class LayoutPanel extends JPanel implements MouseListener {
 				}
 			}
 		}
+		//System.out.println(NLedit.HEADER + "End Repaint");
+	}
+	
+	public void repaintScrollpane() {
+		scrollPane.repaint();
 	}
 
 	/*
@@ -164,9 +170,12 @@ public class LayoutPanel extends JPanel implements MouseListener {
 	public void paintComponent(Graphics g) {
 		if (g != null) {
 			writeToGraphics(g);
-			scrollPane.repaint();
+			
 		}
-
+	}
+	
+	private void repaintNeuron(int x, int y) {
+		
 	}
 
 	/*
@@ -176,18 +185,7 @@ public class LayoutPanel extends JPanel implements MouseListener {
 	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 	 */
 	public void mouseClicked(MouseEvent e) {
-		// find a point to click
-		Point pt = e.getPoint();
-		int i = (pt.x - theInsets.left) / cellWidth;
-		int j = (pt.y - theInsets.top) / cellWidth;
-		Integer index = j * xlen + i;
-
-		int neuronType = nledit_.getNeuronType();
-
-		neurons_layout_.changeIndex(neuronType, index);
 		
-		Graphics g = getGraphics();
-		writeToGraphics(g);
 	}
 
 	public void mouseEntered(MouseEvent e) {
@@ -200,14 +198,35 @@ public class LayoutPanel extends JPanel implements MouseListener {
 
 	}
 
+	boolean mousePressed = false;
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
-
+		if(!mousePressed) {
+			Point pt = e.getPoint();
+			int i = (pt.x - theInsets.left) / cellWidth;
+			int j = (pt.y - theInsets.top) / cellWidth;
+			if(i >= xlen || j >= ylen) {
+				System.out.println("Out of bounds");
+			} else {
+				Integer index = j * xlen + i;
+		
+				int neuronType = nledit_.getNeuronType();
+		
+				neurons_layout_.changeIndex(neuronType, index);
+				
+				Graphics g = getGraphics();
+				writeToGraphics(g);
+	
+				System.out.println(NLedit.HEADER + NeuronsLayout.getNeuronTypeName(neuronType) + " placed at " + i + ", " + j);
+				scrollPane.repaint();
+			}
+		}
 	}
 
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
-
+		// find a point to click
+		mousePressed = false;
 	}
 
 	/**

@@ -40,6 +40,23 @@ public class NeuronsLayout {
 		return cIndex;
 	}
 	
+	static public String getNeuronTypeName(int index) {
+		switch (index) {
+			case NeuronsLayout.OTR: /* neuron type index for other neurons */
+				return "other neuron";
+			case NeuronsLayout.INH: /* neuron type index for inhibitory neurons */
+				return "inhibitory neuron";
+			case NeuronsLayout.ACT: /* neuron type index for active neurons */
+				return "active neuron";
+			case NeuronsLayout.PRB: /* neuron type index for probed neurons */
+				return "probed neuron";
+			case NeuronsLayout.OVP: /* neuron type index for overlapping INH and ACT neurons */
+				return "overlapping IHH and ACT neuron";
+			default:
+				return "unknown neuron";
+		}
+	}
+	
 	public boolean isProbed(int index) {
 		return probedNList.contains(index);
 	}
@@ -51,10 +68,10 @@ public class NeuronsLayout {
 				inhNList.add(index);
 				Collections.sort(inhNList);
 				if (activeNList.contains(index)) {
-					activeNList.remove(index);
+					activeNList.remove((Integer)index);
 				}
 			} else {
-				inhNList.remove(index);
+				inhNList.remove((Integer)index);
 			}
 			break;
 
@@ -63,10 +80,10 @@ public class NeuronsLayout {
 				activeNList.add(index);
 				Collections.sort(activeNList);
 				if (inhNList.contains(index)) {
-					inhNList.remove(index);
+					inhNList.remove((Integer)index);
 				}
 			} else {
-				activeNList.remove(index);
+				activeNList.remove((Integer)index);
 			}
 			break;
 
@@ -75,9 +92,10 @@ public class NeuronsLayout {
 				probedNList.add(index);
 				Collections.sort(probedNList);
 			} else {
-				probedNList.remove(index);
+				probedNList.remove((Integer)index);
 			}
 			break;
 		}
+		System.out.println(NLedit.HEADER + getNeuronTypeName(neuronType) + " placed at index " + index);
 	}
 }

@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 
 import javax.swing.JScrollPane;
 
+import org.apache.jena.rdf.model.Resource;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -51,14 +52,16 @@ import javafx.stage.Stage;
 
 public class NLedit extends WorkbenchApp {
 
+	public static final String HEADER = "NLEDIT -- ";
 	private BorderPane bp_ = new BorderPane();
 
 	public NLedit() {
 		workbenchMgr = new WorkbenchManager();
 		initSettingsPanel();
-		initMenu();
+		initToolbar();
 		initEditBar();
 		generateSimulator();
+		System.out.println(NLedit.HEADER + "new NLedit tab opened");
 	}
 
 	@Override
@@ -124,65 +127,60 @@ public class NLedit extends WorkbenchApp {
 		bp_.setLeft(vbox);
 	}
 
-	private void initMenu() {
+	// File menu
+	private Button import_item_btn_ = new Button("_Import...");
+	private Button export_item_btn_ = new Button("_Export...");
+	private Button clear_item_btn_ = new Button("_Clear");
+	private Button print_item_btn_ = new Button("_Print...");
 
-		// build menu items
-		// File menu
-		menuBar.getMenus().add(fileMenu);
-		fileMenu.getItems().add(clearItem);
+	// Layout menu
+	private Button bcell_item_btn_ = new Button("_Bigger cells");
+	private Button scell_item_btn_ = new Button("_Smaller cells");
+	private Button gpat_item_btn_ = new Button("_Generate pattern...");
+	private Button aprb_item_btn_ = new Button("_Arrange probes...");
+	private Button sdat_item_btn_ = new Button("Statistical _data..");
 
-		clearItem.setOnAction(event -> {
+	private void initToolbar() {
+
+		clear_item_btn_.setOnAction(event -> {
 			actionClear();
 		});
 
-		fileMenu.getItems().add(new SeparatorMenuItem());
-		fileMenu.getItems().add(importItem);
-
-		importItem.setOnAction(event -> {
+		import_item_btn_.setOnAction(event -> {
 			actionImport();
 		});
-		fileMenu.getItems().add(exportItem);
 
-		exportItem.setOnAction(event -> {
+		export_item_btn_.setOnAction(event -> {
 			actionExport();
 		});
-		fileMenu.getItems().add(new SeparatorMenuItem());
-		fileMenu.getItems().add(printItem);
-		printItem.setOnAction(event -> {
+
+		 print_item_btn_.setOnAction(event -> {
 			actionPrint();
 		});
-		fileMenu.getItems().add(new SeparatorMenuItem());
-		fileMenu.getItems().add(exitItem);
-		exitItem.setOnAction(event -> {
-		});
 
-		// Layout menu
-		menuBar.getMenus().add(layoutMenu);
-		layoutMenu.getItems().add(bcellItem);
-		bcellItem.setOnAction(event -> {
+		 bcell_item_btn_.setOnAction(event -> {
 			actionBiggerCells();
 		});
-		layoutMenu.getItems().add(scellItem);
-		scellItem.setOnAction(event -> {
+
+		 scell_item_btn_.setOnAction(event -> {
 			actionSmallerCells();
 		});
-		layoutMenu.getItems().add(new SeparatorMenuItem());
-		layoutMenu.getItems().add(new SeparatorMenuItem());
-		layoutMenu.getItems().add(gpatItem);
-		gpatItem.setOnAction(event -> {
+
+		 gpat_item_btn_.setOnAction(event -> {
 			actionGeneratePattern();
 		});
-		layoutMenu.getItems().add(aprbItem);
-		aprbItem.setOnAction(event -> {
+
+		 aprb_item_btn_.setOnAction(event -> {
 			actionArrangeProbes();
 		});
-		layoutMenu.getItems().add(new SeparatorMenuItem());
-		layoutMenu.getItems().add(sdatItem);
-		sdatItem.setOnAction(event -> {
+
+		 sdat_item_btn_.setOnAction(event -> {
 			actionStatisticalData();
 		});
 
-		bp_.setTop(menuBar);
+		HBox toolbar = new HBox(import_item_btn_, export_item_btn_, clear_item_btn_, print_item_btn_,
+				bcell_item_btn_, scell_item_btn_, gpat_item_btn_, aprb_item_btn_, sdat_item_btn_);
+		bp_.setTop(toolbar);
 	}
 
 	private void initSettingsPanel() {
@@ -253,35 +251,13 @@ public class NLedit extends WorkbenchApp {
 		neurons_layout_.activeNList.clear();
 		neurons_layout_.probedNList.clear();
 
-		Graphics g = layoutPanel.getGraphics();
-		layoutPanel.writeToGraphics(g);
+		layoutPanel.repaintScrollpane();
 	}
 
 	/**
 	 * The 'Import...' menu handler.
 	 */
 	private void actionImport() {
-		// ImportPanel myPanel = new ImportPanel();
-		//
-		// Dialog dialog = new Dialog<String>();
-		// //int result = JOptionPane.showConfirmDialog(this, myPanel, "Import",
-		// JOptionPane.OK_CANCEL_OPTION);
-		// int result = JOptionPane.showConfirmDialog(layoutPanel, myPanel, "Import",
-		// JOptionPane.OK_CANCEL_OPTION);
-		// if (result == JOptionPane.OK_OPTION) { // Afirmative
-		// readNeuronListFromFile(myPanel.tfields[ImportPanel.idxInhList].getText(),
-		// neurons_layout_.inhNList,
-		// LayoutPanel.INH);
-		// readNeuronListFromFile(myPanel.tfields[ImportPanel.idxActList].getText(),
-		// neurons_layout_.activeNList,
-		// LayoutPanel.ACT);
-		// readNeuronListFromFile(myPanel.tfields[ImportPanel.idxPrbList].getText(),
-		// neurons_layout_.probedNList,
-		// LayoutPanel.PRB);
-		//
-		// Graphics g = layoutPanel.getGraphics();
-		// layoutPanel.writeToGraphics(g);
-		// }
 		importPopup();
 	}
 
@@ -404,9 +380,17 @@ public class NLedit extends WorkbenchApp {
 				// add to workbench project
 				if (null != workbenchMgr && workbenchMgr.isProvEnabled()) {
 					Long startTime = System.currentTimeMillis();
-					workbenchMgr.getProvMgr().addFileGeneration(
+					Resource file = workbenchMgr.getProvMgr().addFileGeneration(
 							"InhibitoryNeuronListExport" + java.util.UUID.randomUUID(), "neuronListExport", "NLEdit",
 							null, false, myPanel.tfields[ExportPanel.idxInhList].getText(), null, null);
+
+					// Tell Java to stop considering the file to be in it's control
+					try {
+						((FileOutputStream) file).close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 
 					accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
 				}
@@ -416,10 +400,18 @@ public class NLedit extends WorkbenchApp {
 				// add to workbench project
 				if (null != workbenchMgr && workbenchMgr.isProvEnabled()) {
 					Long startTime = System.currentTimeMillis();
-					workbenchMgr.getProvMgr().addFileGeneration("ActiveNeuronListExport" + java.util.UUID.randomUUID(),
-							"neuronListExport", "NLEdit", null, false,
-							myPanel.tfields[ExportPanel.idxActList].getText(), null, null);
+					Resource file = workbenchMgr.getProvMgr().addFileGeneration(
+							"ActiveNeuronListExport" + java.util.UUID.randomUUID(), "neuronListExport", "NLEdit", null,
+							false, myPanel.tfields[ExportPanel.idxActList].getText(), null, null);
 					accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
+
+					// Tell Java to stop considering the file to be in it's control
+					try {
+						((FileOutputStream) file).close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 
 				writeNeuronListToFile(myPanel.tfields[ExportPanel.idxPrbList].getText(), neurons_layout_.probedNList,
@@ -427,10 +419,18 @@ public class NLedit extends WorkbenchApp {
 				// add to workbench project
 				if (null != workbenchMgr && workbenchMgr.isProvEnabled()) {
 					Long startTime = System.currentTimeMillis();
-					workbenchMgr.getProvMgr().addFileGeneration("ProbedNeuronListExport" + java.util.UUID.randomUUID(),
-							"neuronListExport", "NLEdit", null, false,
-							myPanel.tfields[ExportPanel.idxPrbList].getText(), null, null);
+					Resource file = workbenchMgr.getProvMgr().addFileGeneration(
+							"ProbedNeuronListExport" + java.util.UUID.randomUUID(), "neuronListExport", "NLEdit", null,
+							false, myPanel.tfields[ExportPanel.idxPrbList].getText(), null, null);
 					accumulatedTime = DateTime.sumProvTiming(startTime, accumulatedTime);
+
+					// Tell Java to stop considering the file to be in it's control
+					try {
+						((FileOutputStream) file).close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 
 				// In the original function this executed at the end of the popup regarless of
@@ -515,6 +515,7 @@ public class NLedit extends WorkbenchApp {
 	 */
 	private void actionBiggerCells() {
 		layoutPanel.changeCellSize(true);
+
 	}
 
 	/**
@@ -644,14 +645,15 @@ public class NLedit extends WorkbenchApp {
 		dialog.setScene(dialogScene);
 		dialog.show();
 	}
-	
+
 	/**
 	 * The 'Arrange probes' menu handler.
 	 */
 	public void actionArrangeProbes() {
 		arrangeProbesPopup();
+
 	}
-	
+
 	public void arrangeProbesPopup() {
 		AProbesPanel myPanel = new AProbesPanel();
 
@@ -680,10 +682,11 @@ public class NLedit extends WorkbenchApp {
 					Graphics g = layoutPanel.getGraphics();
 					layoutPanel.writeToGraphics(g);
 					dialog.close();
+					layoutPanel.repaintScrollpane();
 				} catch (NumberFormatException ne) {
 					JOptionPane.showMessageDialog(null, "Invalid number.");
 				}
-				
+
 			}
 		});
 		no.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
