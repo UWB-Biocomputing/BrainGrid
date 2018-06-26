@@ -34,6 +34,7 @@ public class WorkbenchDashboard extends Application {
 		
 		scene.getStylesheets().add("/simstarter/css/temp.css");
 		scene.getStylesheets().add("/simstarter/css/tempII.css");
+		scene.getStylesheets().add("/nledit/css/design.css");
 		
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override

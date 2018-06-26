@@ -43,6 +43,9 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -142,26 +145,32 @@ public class NLedit extends WorkbenchApp {
 
 	private void initToolbar() {
 
+		primeButton(clear_item_btn_, "/icons/baseline-clear-black-18/1x/baseline_clear_black_18dp.png", "Clear Neurons");
 		clear_item_btn_.setOnAction(event -> {
 			actionClear();
 		});
 
+		primeButton(import_item_btn_,  "/icons/baseline-input-black-18/1x/baseline_input_black_18dp.png", "Import Neuron Layout");
 		import_item_btn_.setOnAction(event -> {
 			actionImport();
 		});
 
+		primeButton(export_item_btn_, "/icons/baseline-save-black-18/1x/baseline_save_black_18dp.png", "Export Neuron Layout");
 		export_item_btn_.setOnAction(event -> {
 			actionExport();
 		});
 
+		primeButton(print_item_btn_, "/icons/baseline-local_printshop-black-18/1x/baseline_local_printshop_black_18dp.png", "Print");
 		 print_item_btn_.setOnAction(event -> {
 			actionPrint();
 		});
 
+		 primeButton(bcell_item_btn_, "/icons/baseline-zoom_in-black-18/1x/baseline_zoom_in_black_18dp.png", "Zoom In");
 		 bcell_item_btn_.setOnAction(event -> {
 			actionBiggerCells();
 		});
 
+		 primeButton(scell_item_btn_, "/icons/baseline-zoom_out-black-18/1x/baseline_zoom_out_black_18dp.png", "Zoom Out");
 		 scell_item_btn_.setOnAction(event -> {
 			actionSmallerCells();
 		});
@@ -174,6 +183,8 @@ public class NLedit extends WorkbenchApp {
 			actionArrangeProbes();
 		});
 
+		 
+		 primeButton(sdat_item_btn_, "/icons/baseline-data_usage-black-18/1x/baseline_data_usage_black_18dp.png", "Stats");
 		 sdat_item_btn_.setOnAction(event -> {
 			actionStatisticalData();
 		});
@@ -183,6 +194,15 @@ public class NLedit extends WorkbenchApp {
 		bp_.setTop(toolbar);
 	}
 
+	private void primeButton(Button button, String image_path, String tooltip) {
+		setButtonImage(button, image_path);
+		button.setTooltip(new Tooltip(tooltip));
+	}
+	private void setButtonImage(Button button, String path) {
+
+		Image image = new Image(getClass().getResourceAsStream(path));
+		button.setGraphic(new ImageView(image));
+	}
 	private void initSettingsPanel() {
 		Label lbl_sizeX = new Label("Size x:");
 		Label lbl_sizeY = new Label("Size y:");
