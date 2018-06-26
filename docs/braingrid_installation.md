@@ -66,7 +66,7 @@ In order to compile and run BrainGrid, you will need to set up a couple things i
    - [nvcc](http://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/#axzz4ftSRZe00): if you are using GPU for high performance, nvcc is the compiler by Nvidia for use with CUDA
 
 ---------
-[>> Next: 3. Quickstart](http://uwb-biocomputing.github.io/BrainGrid/3_quickstart)
+[>> Next: 3. Quickstart](braingrid_quickstart)
 
 ---------
 [<< Go back to BrainGrid Home page](http://uwb-biocomputing.github.io/BrainGrid/)
