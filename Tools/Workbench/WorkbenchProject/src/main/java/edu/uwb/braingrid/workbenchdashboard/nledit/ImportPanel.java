@@ -10,6 +10,7 @@ import org.jdom2.input.SAXBuilder;
 
 import edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard;
 import edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay;
+import edu.uwb.braingrid.workbenchdashboard.utils.FileSelectorDirMgr;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -77,6 +78,8 @@ public class ImportPanel extends Pane implements EventHandler<ActionEvent> {
 		}
 		getChildren().add(gp);
 	}
+	
+	FileSelectorDirMgr filemgr = new FileSelectorDirMgr();
 
 	private void importFiles(ActionEvent e) {
 		int iSource = 0;
@@ -94,7 +97,10 @@ public class ImportPanel extends Pane implements EventHandler<ActionEvent> {
 			curDir = nlistDir;
 		}
 
+		
 		FileChooser chooser = new FileChooser();
+		chooser.setInitialDirectory(filemgr.getLastDir());
+		
 		chooser.setTitle("Open File");
 		//fileChooser.showOpenDialog(stage);
 		ExtensionFilter filter = new ExtensionFilter(
@@ -103,15 +109,19 @@ public class ImportPanel extends Pane implements EventHandler<ActionEvent> {
 		String dialogTitle = "";
 		switch (iSource) {
 		case idxConfigFile:
+			chooser.setInitialFileName("config");
 			dialogTitle = "Configuration file";
 			break;
 		case idxInhList:
+			chooser.setInitialFileName("inh");
 			dialogTitle = "Inhibitory neurons list";
 			break;
 		case idxActList:
+			chooser.setInitialFileName("act");
 			dialogTitle = "Active neurons list";
 			break;
 		case idxPrbList:
+			chooser.setInitialFileName("prb");
 			dialogTitle = "Probed neurons list";
 			break;
 		}
@@ -120,6 +130,7 @@ public class ImportPanel extends Pane implements EventHandler<ActionEvent> {
 		File option = chooser.showOpenDialog(WorkbenchDashboard.primaryStage_);
 		if (option != null) {
 			tfields[iSource].setText(option.getAbsolutePath());
+			filemgr.add(option.getParentFile());
 			if (iSource == idxConfigFile) { // configuration files is specified.
 				// parse config file, extract names of neurons list files, and
 				// show them in the corresponding fields

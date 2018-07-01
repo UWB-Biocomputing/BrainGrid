@@ -1,26 +1,32 @@
-package edu.uwb.braingrid.workbenchdashboard.setup;
+package edu.uwb.braingrid.workbenchdashboard.simstarter;
 
 import javax.swing.JFileChooser;
 
 import edu.uwb.braingrid.workbench.WorkbenchManager;
 import edu.uwb.braingrid.workbenchdashboard.WorkbenchApp;
+import edu.uwb.braingrid.workbenchdashboard.welcome.Welcome;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class SimStarter extends WorkbenchApp {
-
-	public SimStarter() {
+	public static final String HEADER = "SIMSTARTER --\t";
+	
+	public SimStarter(Tab tab) {
+		super(tab);
+		System.out.println(SimStarter.HEADER + "new SimStarter tab opened");
 		// initMenu();
 		ssas_ = new SimStarterAttributesSelector(this, workbenchMgr);
 		sim_starter_tool_bar_ = new SimStarterToolBar(this);
 		bp_.setTop(sim_starter_tool_bar_);
 		disableProjectAttributeRelatedButtons();
 		initCenter();
+		super.setTitle("SimStarter");
 	}
 
 	@Override

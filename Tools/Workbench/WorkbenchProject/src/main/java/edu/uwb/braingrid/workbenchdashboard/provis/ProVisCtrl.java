@@ -18,7 +18,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseButton;
@@ -44,12 +43,13 @@ public class ProVisCtrl {
 	private LinkedHashMap<String, AuthenticationInfo> authInfoCache = new LinkedHashMap<String, AuthenticationInfo>(5,
 			(float) 0.75, true);
 
-	private GraphicsContext gc;
+//	private GraphicsContext gc;
 	private Model provModel;
 	private AnimationTimer timer;
 	private double zoomRatio = 1;
 	private Node draggedNode;
 	private double zoomSpeed = .2;
+	private ProVis proVis_;
 
 	private double[] pressedXY;
 
@@ -69,9 +69,9 @@ public class ProVisCtrl {
 	private ToggleSwitch showLegend;
 	private Button chooseFileBtn;
 
-	public ProVisCtrl(VisCanvas visCanvas, AnchorPane canvasPane, Slider adjustForceSlider, ToggleSwitch stopForces,
+	public ProVisCtrl(ProVis proVis, VisCanvas visCanvas, AnchorPane canvasPane, Slider adjustForceSlider, ToggleSwitch stopForces,
 			ToggleSwitch showNodeIds, ToggleSwitch showRelationships, ToggleSwitch showLegend, Button chooseFileBtn) {
-		
+		this.proVis_ = proVis;
 		this.visCanvas = visCanvas;
 		this.canvasPane = canvasPane;
 		this.adjustForceSlider = adjustForceSlider;
@@ -90,7 +90,7 @@ public class ProVisCtrl {
 	public void initialize() {
 		dataProvGraph = new Graph();
 		dataProvGraph.setC3(adjustForceSlider.getValue() * 1500);
-		gc = visCanvas.getGraphicsContext2D();
+//		gc = visCanvas.getGraphicsContext2D();
 
 		// Bind canvas size to stack pane size.
 		visCanvas.widthProperty().bind(canvasPane.widthProperty());
@@ -163,6 +163,7 @@ public class ProVisCtrl {
 				if (selectedFile != null) {
 					dataProvGraph.clearNodesNEdges();
 					initNodeEdge(selectedFile.getAbsolutePath());
+					proVis_.setTitle(selectedFile.getName());
 				}
 			}
 		});

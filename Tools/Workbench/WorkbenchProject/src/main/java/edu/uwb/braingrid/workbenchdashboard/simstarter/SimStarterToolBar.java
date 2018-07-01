@@ -1,4 +1,4 @@
-package edu.uwb.braingrid.workbenchdashboard.setup;
+package edu.uwb.braingrid.workbenchdashboard.simstarter;
 
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;

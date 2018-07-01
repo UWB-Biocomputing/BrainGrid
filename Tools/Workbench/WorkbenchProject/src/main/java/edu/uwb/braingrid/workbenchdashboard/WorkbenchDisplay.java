@@ -9,7 +9,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import edu.uwb.braingrid.workbenchdashboard.nledit.NLedit;
 import edu.uwb.braingrid.workbenchdashboard.provis.ProVis;
-import edu.uwb.braingrid.workbenchdashboard.setup.SimStarter;
+import edu.uwb.braingrid.workbenchdashboard.simstarter.SimStarter;
 import edu.uwb.braingrid.workbenchdashboard.welcome.Welcome;
 import javafx.stage.Stage;
 
@@ -35,11 +35,18 @@ public class WorkbenchDisplay extends BorderPane {
 		menu_bar_.getMenus().add(generateMenuFile(primary_stage));
 		return menu_bar_;
 	}
-
+	
 	private Menu generateMenuFile(Stage primary_stage) {
 		Menu file_menu = new Menu("_File");
 		file_menu.getItems().add(generateMenuNew(primary_stage));
+		file_menu.getItems().add(new MenuItem("Open"));
+		file_menu.getItems().add(generateMenuRecentProjects());
 		return file_menu;
+	}
+
+	private Menu generateMenuRecentProjects() {
+		Menu recent_proj_menu = new Menu("Recent Projects");
+		return recent_proj_menu;
 	}
 
 	private Menu generateMenuNew(Stage primary_stage) {
@@ -77,31 +84,56 @@ public class WorkbenchDisplay extends BorderPane {
 	}
 
 	void pushGSLEPane() {
-		pushNewTab("NL Edit", new NLedit());
+//		pushNewTab("NL Edit", new NLedit());
 		//new WorkbenchTab("GSLE", new NLedit(), this);
-	}
-
-	void pushWeclomePage() {
-		pushNewTab("Welcome!", new Welcome());
-		//new WorkbenchTab("Welcome!", new Welcome(), this);
-	}
-
-	void pushSimStarterPage() {
-		pushNewTab("SimStarter!", new SimStarter());
-		//new WorkbenchTab("SimStarter!", new SimStarter(), this);
-	}
-
-	void pushProVisStarterPage() {
-		pushNewTab("ProVis!", new ProVis());
-		//new WorkbenchTab("ProVis!", new ProVis(), this);
-	}
-	
-	private void pushNewTab(String name, WorkbenchApp wbapp) {
 		Tab tab = new Tab();
-		tab.setText(name);
-		tab.setContent(wbapp.getDisplay());
+		NLedit pv = new NLedit(tab);
+		tab.setContent(pv.getDisplay());
 		tp_.getTabs().add(tab);
 		SingleSelectionModel<Tab> selectionModel = tp_.getSelectionModel();
 		selectionModel.select(tab);
 	}
+
+	void pushWeclomePage() {
+//		pushNewTab("Welcome!", new Welcome());
+		//new WorkbenchTab("Welcome!", new Welcome(), this);
+		Tab tab = new Tab();
+		Welcome pv = new Welcome(tab);
+		tab.setContent(pv.getDisplay());
+		tp_.getTabs().add(tab);
+		SingleSelectionModel<Tab> selectionModel = tp_.getSelectionModel();
+		selectionModel.select(tab);
+	}
+
+	void pushSimStarterPage() {
+//		pushNewTab("SimStarter!", new SimStarter());
+		//new WorkbenchTab("SimStarter!", new SimStarter(), this);
+		Tab tab = new Tab();
+		SimStarter pv = new SimStarter(tab);
+		tab.setContent(pv.getDisplay());
+		tp_.getTabs().add(tab);
+		SingleSelectionModel<Tab> selectionModel = tp_.getSelectionModel();
+		selectionModel.select(tab);
+	}
+
+	void pushProVisStarterPage() {
+//		pushNewTab("ProVis!", new ProVis());
+		//new WorkbenchTab("ProVis!", new ProVis(), this);
+		
+		Tab tab = new Tab();
+		ProVis pv = new ProVis(tab);
+		tab.setContent(pv.getDisplay());
+		tp_.getTabs().add(tab);
+		SingleSelectionModel<Tab> selectionModel = tp_.getSelectionModel();
+		selectionModel.select(tab);
+	}
+	
+//	private void pushNewTab(String name, WorkbenchApp wbapp) {
+//		Tab tab = new Tab();
+//		tab.setText(name);
+//		tab.setContent(wbapp.getDisplay());
+//		tp_.getTabs().add(tab);
+//		SingleSelectionModel<Tab> selectionModel = tp_.getSelectionModel();
+//		selectionModel.select(tab);
+//	}
 }

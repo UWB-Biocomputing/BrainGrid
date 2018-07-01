@@ -2,7 +2,10 @@ package edu.uwb.braingrid.workbenchdashboard.nledit;
 
 import java.io.File;
 
+import org.apache.commons.io.FilenameUtils;
+
 import edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard;
+import edu.uwb.braingrid.workbenchdashboard.utils.FileSelectorDirMgr;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -67,6 +70,8 @@ public class ExportPanel extends Pane implements EventHandler<javafx.event.Actio
 		getChildren().add(gp);
 	}
 
+	FileSelectorDirMgr filemgr = new FileSelectorDirMgr();
+	
 	@Override
 	public void handle(javafx.event.ActionEvent arg0) {
 		int iSource = 0;
@@ -77,27 +82,37 @@ public class ExportPanel extends Pane implements EventHandler<javafx.event.Actio
 			}
 		}
 		// create a file chooser
+		
 		FileChooser chooser = new FileChooser();
+		chooser.setInitialDirectory(filemgr.getLastDir());
 		chooser.setTitle("Save File");
 
 		ExtensionFilter filter = new ExtensionFilter("XML file (*.xml)", "xml");
 		chooser.setSelectedExtensionFilter(filter);
+		
 		String dialogTitle = "";
 		switch (iSource) {
 		case idxInhList:
+			chooser.setInitialFileName("inh.xml");
 			dialogTitle = "Inhibitory neurons list";
 			break;
 		case idxActList:
+			chooser.setInitialFileName("act.xml");
 			dialogTitle = "Active neurons list";
 			break;
 		case idxPrbList:
+			chooser.setInitialFileName("prb.xml");
 			dialogTitle = "Probed neurons list";
 			break;
 		}
+
 		File option = chooser.showSaveDialog(WorkbenchDashboard.primaryStage_);
+		
 		if (option != null) {
+
 			tfields[iSource].setText(option.getAbsolutePath());
 			nlistDir = option.getParent();
+			filemgr.add(option.getParentFile());
 		}
 	}
 }

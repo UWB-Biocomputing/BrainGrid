@@ -2,16 +2,19 @@ package edu.uwb.braingrid.workbenchdashboard.nledit;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-
+import java.awt.Toolkit;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 
 import java.util.Iterator;
 
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import javax.swing.JScrollPane;
@@ -36,11 +39,8 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
@@ -55,16 +55,18 @@ import javafx.stage.Stage;
 
 public class NLedit extends WorkbenchApp {
 
-	public static final String HEADER = "NLEDIT -- ";
+	public static final String HEADER = "NLEDIT --\t";
 	private BorderPane bp_ = new BorderPane();
 
-	public NLedit() {
+	public NLedit(Tab tab) {
+		super(tab);
+		System.out.println(NLedit.HEADER + "new NLedit tab opened");
 		workbenchMgr = new WorkbenchManager();
 		initSettingsPanel();
 		initToolbar();
 		initEditBar();
 		generateSimulator();
-		System.out.println(NLedit.HEADER + "new NLedit tab opened");
+		super.setTitle("NLEdit");
 	}
 
 	@Override
@@ -130,20 +132,19 @@ public class NLedit extends WorkbenchApp {
 		bp_.setLeft(vbox);
 	}
 
-	// File menu
-	private Button import_item_btn_ = new Button("_Import...");
-	private Button export_item_btn_ = new Button("_Export...");
-	private Button clear_item_btn_ = new Button("_Clear");
-	private Button print_item_btn_ = new Button("_Print...");
 
-	// Layout menu
-	private Button bcell_item_btn_ = new Button("_Bigger cells");
-	private Button scell_item_btn_ = new Button("_Smaller cells");
-	private Button gpat_item_btn_ = new Button("_Generate pattern...");
-	private Button aprb_item_btn_ = new Button("_Arrange probes...");
-	private Button sdat_item_btn_ = new Button("Statistical _data..");
 
 	private void initToolbar() {
+		
+		primeButton(open_item_btn_,  "/icons/baseline-input-black-18/1x/baseline_input_black_18dp.png", "Open Project");
+		import_item_btn_.setOnAction(event -> {
+
+		});
+
+		primeButton(save_item_btn_, "/icons/baseline-save-black-18/1x/baseline_save_black_18dp.png", "Save Project");
+		export_item_btn_.setOnAction(event -> {
+
+		});
 
 		primeButton(clear_item_btn_, "/icons/baseline-clear-black-18/1x/baseline_clear_black_18dp.png", "Clear Neurons");
 		clear_item_btn_.setOnAction(event -> {
@@ -189,7 +190,7 @@ public class NLedit extends WorkbenchApp {
 			actionStatisticalData();
 		});
 
-		HBox toolbar = new HBox(import_item_btn_, export_item_btn_, clear_item_btn_, print_item_btn_,
+		HBox toolbar = new HBox(open_item_btn_, save_item_btn_, import_item_btn_, export_item_btn_, clear_item_btn_, print_item_btn_,
 				bcell_item_btn_, scell_item_btn_, gpat_item_btn_, aprb_item_btn_, sdat_item_btn_);
 		bp_.setTop(toolbar);
 	}
@@ -198,11 +199,17 @@ public class NLedit extends WorkbenchApp {
 		setButtonImage(button, image_path);
 		button.setTooltip(new Tooltip(tooltip));
 	}
+	
 	private void setButtonImage(Button button, String path) {
-
-		Image image = new Image(getClass().getResourceAsStream(path));
-		button.setGraphic(new ImageView(image));
+		String url = "resources" + path;
+		try {
+			Image image = new Image(this.getClass().getClassLoader().getResourceAsStream(url));
+			button.setGraphic(new ImageView(image));
+		} catch(NullPointerException e) {
+			System.out.println(e.toString());
+		}
 	}
+	
 	private void initSettingsPanel() {
 		Label lbl_sizeX = new Label("Size x:");
 		Label lbl_sizeY = new Label("Size y:");
@@ -738,31 +745,25 @@ public class NLedit extends WorkbenchApp {
 	private LayoutPanel layoutPanel; // reference to the layout panel
 	NL_Sim_Util nl_sim_util_;
 
-	// menus
-	private MenuBar menuBar = new MenuBar();
 
-	// File menu
-	private Menu fileMenu = new Menu("File");
-	private MenuItem importItem = new MenuItem("_Import...");
-	private MenuItem exportItem = new MenuItem("_Export...");
-	private MenuItem clearItem = new MenuItem("_Clear");
-	private MenuItem printItem = new MenuItem("_Print...");
-	private MenuItem exitItem = new MenuItem("E_xit");
+	// Toolbar
+	private Button open_item_btn_ = new Button("_Open");
+	private Button save_item_btn_ = new Button("_Save");
+	private Button import_item_btn_ = new Button("_Import...");
+	private Button export_item_btn_ = new Button("_Export...");
+	private Button clear_item_btn_ = new Button("_Clear");
+	private Button print_item_btn_ = new Button("_Print...");
+	private Button bcell_item_btn_ = new Button();
+	private Button scell_item_btn_ = new Button();
+	private Button gpat_item_btn_ = new Button("_Generate pattern...");
+	private Button aprb_item_btn_ = new Button("_Arrange probes...");
+	private Button sdat_item_btn_ = new Button("Statistical _data..");
 
-	// Edit menu
-	// private Menu editMenu = new Menu("Edit");
+
 	private ToggleGroup editGroup = new ToggleGroup();
 	private RadioButton inhNItem = new RadioButton("Inhibitory neurons");
 	private RadioButton activeNItem = new RadioButton("Active neurons");
 	private RadioButton probedNItem = new RadioButton("Probed neurons");
-
-	// Layout menu
-	private Menu layoutMenu = new Menu("Layout");
-	private MenuItem bcellItem = new MenuItem("_Bigger cells");
-	private MenuItem scellItem = new MenuItem("_Smaller cells");
-	private MenuItem gpatItem = new MenuItem("_Generate pattern...");
-	private MenuItem aprbItem = new MenuItem("_Arrange probes...");
-	private MenuItem sdatItem = new MenuItem("Statistical _data...");
 
 	// Reference to workbench (or other frame code launching NLEdit)
 	private WorkbenchManager workbenchMgr;

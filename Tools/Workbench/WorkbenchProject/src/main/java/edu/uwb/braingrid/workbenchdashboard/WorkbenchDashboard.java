@@ -25,16 +25,12 @@ public class WorkbenchDashboard extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-				Path currentRelativePath = Paths.get("");
-		String s = currentRelativePath.toAbsolutePath().toString();
-		System.out.println("Current relative path is: " + s);
-
 		workbench_display_ = new WorkbenchDisplay(primaryStage);
 		Scene scene = new Scene(workbench_display_, 900, 600);
 		
-		scene.getStylesheets().add("/simstarter/css/temp.css");
-		scene.getStylesheets().add("/simstarter/css/tempII.css");
-		scene.getStylesheets().add("/nledit/css/design.css");
+		scene.getStylesheets().add("resources/simstarter/css/temp.css");
+		scene.getStylesheets().add("resources/simstarter/css/tempII.css");
+		scene.getStylesheets().add("resources/nledit/css/design.css");
 		
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
