@@ -1,0 +1,10 @@
+package edu.uwb.braingrid.workbenchdashboard.utils;
+
+public class FileSelectorDirMgr {
+	
+	ArrayList<String> dirs = new ArrayList<String>;
+	public FileSelectorDirMgr() {
+		
+	}
+
+}

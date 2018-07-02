@@ -1,0 +1,13 @@
+package edu.uwb.braingrid.workbenchdashboard.utils;
+
+import java.util.ArrayList;
+
+public class FileSelectorDirMgr {
+	
+	ArrayList<String> dirs = new ArrayList<String>;
+	
+	public FileSelectorDirMgr() {
+		
+	}
+
+}

@@ -1,0 +1,9 @@
+.toggle-button {
+  -fx-background-image: url('http://icons.iconarchive.com/icons/aha-soft/desktop-buffet/128/Pizza-icon.png');
+  -fx-background-repeat: no-repeat;
+  -fx-background-position: center;
+}
+
+.toggle-button:selected {
+  -fx-background-image: url('http://icons.iconarchive.com/icons/aha-soft/desktop-buffet/128/Piece-of-cake-icon.png');
+}

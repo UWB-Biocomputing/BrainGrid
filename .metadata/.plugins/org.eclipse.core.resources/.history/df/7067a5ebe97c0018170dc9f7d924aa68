@@ -1,0 +1,13 @@
+package edu.uwb.braingrid.workbenchdashboard.utils;
+
+public class Log {
+	
+	private Log() {
+		
+	}
+	
+	public static log(String log) {
+		System.out.println(log);
+	}
+
+}

@@ -1,0 +1,1 @@
+mvn install -DdescriptorId=jar-with-dependencies
