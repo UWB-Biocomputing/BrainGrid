@@ -7,6 +7,9 @@ import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
+
+import java.util.logging.Logger;
+
 import edu.uwb.braingrid.workbenchdashboard.nledit.NLedit;
 import edu.uwb.braingrid.workbenchdashboard.provis.ProVis;
 import edu.uwb.braingrid.workbenchdashboard.simstarter.SimStarter;
@@ -14,12 +17,13 @@ import edu.uwb.braingrid.workbenchdashboard.welcome.Welcome;
 import javafx.stage.Stage;
 
 public class WorkbenchDisplay extends BorderPane {	
-
+	private static final Logger LOG = Logger.getLogger(WorkbenchDisplay.class.getName());
 	private MenuBar menu_bar_;
 	private Stage primaryStage_;
 	private TabPane tp_ = new TabPane();
 	
 	public WorkbenchDisplay(Stage primary_stage) {
+		LOG.info("new " + getClass().getName());
 		primaryStage_ = primary_stage;
 		setTop(generateMenuBar(primaryStage_));
 		pushWeclomePage();

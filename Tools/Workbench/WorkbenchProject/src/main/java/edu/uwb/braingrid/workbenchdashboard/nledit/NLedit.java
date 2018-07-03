@@ -2,23 +2,17 @@ package edu.uwb.braingrid.workbenchdashboard.nledit;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Toolkit;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
-
 import java.util.Iterator;
+import java.util.logging.Logger;
 
-import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-
 import javax.swing.JScrollPane;
-
 import org.apache.jena.rdf.model.Resource;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -26,9 +20,7 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
-
 import edu.uwb.braingrid.workbench.WorkbenchManager;
-
 import edu.uwb.braingrid.workbench.utils.DateTime;
 import edu.uwb.braingrid.workbenchdashboard.WorkbenchApp;
 import edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard;
@@ -54,13 +46,13 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class NLedit extends WorkbenchApp {
+	private static final Logger LOG = Logger.getLogger(NLedit.class.getName());
 
-	public static final String HEADER = "NLEDIT --\t";
 	private BorderPane bp_ = new BorderPane();
 
 	public NLedit(Tab tab) {
 		super(tab);
-		System.out.println(NLedit.HEADER + "new NLedit tab opened");
+		LOG.info("new " + getClass().getName());
 		workbenchMgr = new WorkbenchManager();
 		initSettingsPanel();
 		initToolbar();
@@ -132,11 +124,9 @@ public class NLedit extends WorkbenchApp {
 		bp_.setLeft(vbox);
 	}
 
-
-
 	private void initToolbar() {
-		
-		primeButton(open_item_btn_,  "/icons/baseline-input-black-18/1x/baseline_input_black_18dp.png", "Open Project");
+
+		primeButton(open_item_btn_, "/icons/baseline-input-black-18/1x/baseline_input_black_18dp.png", "Open Project");
 		import_item_btn_.setOnAction(event -> {
 
 		});
@@ -146,52 +136,57 @@ public class NLedit extends WorkbenchApp {
 
 		});
 
-		primeButton(clear_item_btn_, "/icons/baseline-clear-black-18/1x/baseline_clear_black_18dp.png", "Clear Neurons");
+		primeButton(clear_item_btn_, "/icons/baseline-clear-black-18/1x/baseline_clear_black_18dp.png",
+				"Clear Neurons");
 		clear_item_btn_.setOnAction(event -> {
 			actionClear();
 		});
 
-		primeButton(import_item_btn_,  "/icons/baseline-input-black-18/1x/baseline_input_black_18dp.png", "Import Neuron Layout");
+		primeButton(import_item_btn_, "/icons/baseline-input-black-18/1x/baseline_input_black_18dp.png",
+				"Import Neuron Layout");
 		import_item_btn_.setOnAction(event -> {
 			actionImport();
 		});
 
-		primeButton(export_item_btn_, "/icons/baseline-save-black-18/1x/baseline_save_black_18dp.png", "Export Neuron Layout");
+		primeButton(export_item_btn_, "/icons/baseline-save-black-18/1x/baseline_save_black_18dp.png",
+				"Export Neuron Layout");
 		export_item_btn_.setOnAction(event -> {
 			actionExport();
 		});
 
-		primeButton(print_item_btn_, "/icons/baseline-local_printshop-black-18/1x/baseline_local_printshop_black_18dp.png", "Print");
-		 print_item_btn_.setOnAction(event -> {
+		primeButton(print_item_btn_,
+				"/icons/baseline-local_printshop-black-18/1x/baseline_local_printshop_black_18dp.png", "Print");
+		print_item_btn_.setOnAction(event -> {
 			actionPrint();
 		});
 
-		 primeButton(bcell_item_btn_, "/icons/baseline-zoom_in-black-18/1x/baseline_zoom_in_black_18dp.png", "Zoom In");
-		 bcell_item_btn_.setOnAction(event -> {
+		primeButton(bcell_item_btn_, "/icons/baseline-zoom_in-black-18/1x/baseline_zoom_in_black_18dp.png", "Zoom In");
+		bcell_item_btn_.setOnAction(event -> {
 			actionBiggerCells();
 		});
 
-		 primeButton(scell_item_btn_, "/icons/baseline-zoom_out-black-18/1x/baseline_zoom_out_black_18dp.png", "Zoom Out");
-		 scell_item_btn_.setOnAction(event -> {
+		primeButton(scell_item_btn_, "/icons/baseline-zoom_out-black-18/1x/baseline_zoom_out_black_18dp.png",
+				"Zoom Out");
+		scell_item_btn_.setOnAction(event -> {
 			actionSmallerCells();
 		});
 
-		 gpat_item_btn_.setOnAction(event -> {
+		gpat_item_btn_.setOnAction(event -> {
 			actionGeneratePattern();
 		});
 
-		 aprb_item_btn_.setOnAction(event -> {
+		aprb_item_btn_.setOnAction(event -> {
 			actionArrangeProbes();
 		});
 
-		 
-		 primeButton(sdat_item_btn_, "/icons/baseline-data_usage-black-18/1x/baseline_data_usage_black_18dp.png", "Stats");
-		 sdat_item_btn_.setOnAction(event -> {
+		primeButton(sdat_item_btn_, "/icons/baseline-data_usage-black-18/1x/baseline_data_usage_black_18dp.png",
+				"Stats");
+		sdat_item_btn_.setOnAction(event -> {
 			actionStatisticalData();
 		});
 
-		HBox toolbar = new HBox(open_item_btn_, save_item_btn_, import_item_btn_, export_item_btn_, clear_item_btn_, print_item_btn_,
-				bcell_item_btn_, scell_item_btn_, gpat_item_btn_, aprb_item_btn_, sdat_item_btn_);
+		HBox toolbar = new HBox(open_item_btn_, save_item_btn_, import_item_btn_, export_item_btn_, clear_item_btn_,
+				print_item_btn_, bcell_item_btn_, scell_item_btn_, gpat_item_btn_, aprb_item_btn_, sdat_item_btn_);
 		bp_.setTop(toolbar);
 	}
 
@@ -199,17 +194,17 @@ public class NLedit extends WorkbenchApp {
 		setButtonImage(button, image_path);
 		button.setTooltip(new Tooltip(tooltip));
 	}
-	
+
 	private void setButtonImage(Button button, String path) {
 		String url = "resources" + path;
 		try {
 			Image image = new Image(this.getClass().getClassLoader().getResourceAsStream(url));
 			button.setGraphic(new ImageView(image));
-		} catch(NullPointerException e) {
+		} catch (NullPointerException e) {
 			System.out.println(e.toString());
 		}
 	}
-	
+
 	private void initSettingsPanel() {
 		Label lbl_sizeX = new Label("Size x:");
 		Label lbl_sizeY = new Label("Size y:");
@@ -659,7 +654,6 @@ public class NLedit extends WorkbenchApp {
 		no.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent e) {
-
 				dialog.close();
 			}
 		});
@@ -745,7 +739,6 @@ public class NLedit extends WorkbenchApp {
 	private LayoutPanel layoutPanel; // reference to the layout panel
 	NL_Sim_Util nl_sim_util_;
 
-
 	// Toolbar
 	private Button open_item_btn_ = new Button("_Open");
 	private Button save_item_btn_ = new Button("_Save");
@@ -758,7 +751,6 @@ public class NLedit extends WorkbenchApp {
 	private Button gpat_item_btn_ = new Button("_Generate pattern...");
 	private Button aprb_item_btn_ = new Button("_Arrange probes...");
 	private Button sdat_item_btn_ = new Button("Statistical _data..");
-
 
 	private ToggleGroup editGroup = new ToggleGroup();
 	private RadioButton inhNItem = new RadioButton("Inhibitory neurons");

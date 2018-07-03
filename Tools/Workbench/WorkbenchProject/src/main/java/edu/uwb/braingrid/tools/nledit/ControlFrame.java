@@ -157,7 +157,8 @@ public class ControlFrame extends JFrame implements ActionListener {
      * @param sizeX width of the layout panel.
      * @param sizeY height of the layout panel.
      */
-    public void init(int sizeX, int sizeY) {
+    @SuppressWarnings("deprecation")
+	public void init(int sizeX, int sizeY) {
         Container c = getContentPane();
 
         // build menu items

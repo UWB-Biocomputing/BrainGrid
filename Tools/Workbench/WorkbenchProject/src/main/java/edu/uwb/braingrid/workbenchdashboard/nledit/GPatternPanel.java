@@ -50,7 +50,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
  * @author Fumitaka Kawasaki
  * @version 1.2
  */
-@SuppressWarnings({ "unused", "serial" })
+@SuppressWarnings({ "unused" })
 public class GPatternPanel extends Pane {
 	public RadioButton[] btns = new RadioButton[2];
 	private Label[] labels = new Label[2];

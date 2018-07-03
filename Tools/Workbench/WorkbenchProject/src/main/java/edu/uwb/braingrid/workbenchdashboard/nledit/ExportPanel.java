@@ -2,8 +2,6 @@ package edu.uwb.braingrid.workbenchdashboard.nledit;
 
 import java.io.File;
 
-import org.apache.commons.io.FilenameUtils;
-
 import edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard;
 import edu.uwb.braingrid.workbenchdashboard.utils.FileSelectorDirMgr;
 import javafx.event.EventHandler;
@@ -28,7 +26,7 @@ public class ExportPanel extends Pane implements EventHandler<javafx.event.Actio
 	private Label[] labels = new Label[3];
 	public TextField[] tfields = new TextField[3];
 	private Button[] btns = new Button[3];
-	private static String nlistDir = "."; // directory for neurons list file
+//	private static String nlistDir = "."; // directory for neurons list file
 
 	static final int nFields = 3; // number of input fields
 	/** field index of inhibitory neurons list file */
@@ -47,7 +45,7 @@ public class ExportPanel extends Pane implements EventHandler<javafx.event.Actio
 	 */
 	public ExportPanel(String dir) {
 		GridPane gp = new GridPane();
-		nlistDir = dir;
+//		nlistDir = dir;
 
 		labels[idxInhList] = new Label("Inhibitory neurons list:");
 		labels[idxActList] = new Label("Active neurons list:");
@@ -90,19 +88,19 @@ public class ExportPanel extends Pane implements EventHandler<javafx.event.Actio
 		ExtensionFilter filter = new ExtensionFilter("XML file (*.xml)", "xml");
 		chooser.setSelectedExtensionFilter(filter);
 		
-		String dialogTitle = "";
+//		String dialogTitle = "";
 		switch (iSource) {
 		case idxInhList:
 			chooser.setInitialFileName("inh.xml");
-			dialogTitle = "Inhibitory neurons list";
+//			dialogTitle = "Inhibitory neurons list";
 			break;
 		case idxActList:
 			chooser.setInitialFileName("act.xml");
-			dialogTitle = "Active neurons list";
+//			dialogTitle = "Active neurons list";
 			break;
 		case idxPrbList:
 			chooser.setInitialFileName("prb.xml");
-			dialogTitle = "Probed neurons list";
+//			dialogTitle = "Probed neurons list";
 			break;
 		}
 
@@ -111,7 +109,7 @@ public class ExportPanel extends Pane implements EventHandler<javafx.event.Actio
 		if (option != null) {
 
 			tfields[iSource].setText(option.getAbsolutePath());
-			nlistDir = option.getParent();
+//			nlistDir = option.getParent();
 			filemgr.add(option.getParentFile());
 		}
 	}

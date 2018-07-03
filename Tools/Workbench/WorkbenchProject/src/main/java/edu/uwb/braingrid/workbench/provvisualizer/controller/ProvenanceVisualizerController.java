@@ -42,7 +42,7 @@ public class ProvenanceVisualizerController {
 	private LinkedHashMap<String, AuthenticationInfo> authInfoCache = new LinkedHashMap<String, AuthenticationInfo>(5,
 			(float) 0.75, true);
 
-	private GraphicsContext gc;
+//	private GraphicsContext gc;
 	private Model provModel;
 	private AnimationTimer timer;
 	private double zoomRatio = 1;
@@ -82,7 +82,7 @@ public class ProvenanceVisualizerController {
 	public void initialize() {
 		dataProvGraph = new Graph();
 		dataProvGraph.setC3(adjustForceSlider.getValue() * 1500);
-		gc = visCanvas.getGraphicsContext2D();
+//		gc = visCanvas.getGraphicsContext2D();
 
 		// Bind canvas size to stack pane size.
 		visCanvas.widthProperty().bind(canvasPane.widthProperty());

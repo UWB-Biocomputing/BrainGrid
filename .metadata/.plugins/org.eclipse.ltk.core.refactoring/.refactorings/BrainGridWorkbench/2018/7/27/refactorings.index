@@ -1,2 +1,13 @@
 1530405162033	Rename package 'edu.uwb.braingrid.workbenchdashboard.setup'
 1530474428044	Delete element
+1530572292012	Rename type 'OS'
+1530575356987	Delete element
+1530576218566	Delete element
+1530584000094	Rename type 'OSType'
+1530584017574	Rename field 'OS_TYPE_'
+1530584025001	Rename field 'OS_'
+1530584030880	Rename field 'OS_TY_'
+1530584039636	Rename field 'OS_Type_'
+1530584109665	Rename method 'getOSTypeByString'
+1530585112532	Encapsulate field 'OS_TYPE_USER_DEF'
+1530585116348	Encapsulate field 'OS_USER_DEF_'

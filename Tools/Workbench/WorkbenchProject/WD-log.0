@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2018-07-03T02:22:01.725603300Z</date>
+  <millis>1530584521725</millis>
+  <nanos>603300</nanos>
+  <sequence>0</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard</class>
+  <method>start</method>
+  <thread>15</thread>
+  <message>Starting Application</message>
+</record>
+<record>
+  <date>2018-07-03T02:22:01.994439200Z</date>
+  <millis>1530584521994</millis>
+  <nanos>439200</nanos>
+  <sequence>1</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>new edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay</message>
+</record>
+<record>
+  <date>2018-07-03T02:22:02.019423100Z</date>
+  <millis>1530584522019</millis>
+  <nanos>423100</nanos>
+  <sequence>2</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.welcome.Welcome</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.welcome.Welcome</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>new edu.uwb.braingrid.workbenchdashboard.welcome.Welcome</message>
+</record>
+<record>
+  <date>2018-07-03T02:22:02.611060Z</date>
+  <millis>1530584522611</millis>
+  <nanos>60000</nanos>
+  <sequence>3</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>new SystemProperties</message>
+</record>
+<record>
+  <date>2018-07-03T02:22:02.612058700Z</date>
+  <millis>1530584522612</millis>
+  <nanos>58700</nanos>
+  <sequence>4</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties</class>
+  <method>informOSType</method>
+  <thread>15</thread>
+  <message>OS found - Windows 10</message>
+</record>
+</log>

@@ -1,10 +1,11 @@
 package edu.uwb.braingrid.workbenchdashboard.simstarter;
 
+import java.util.logging.Logger;
+
 import javax.swing.JFileChooser;
 
 import edu.uwb.braingrid.workbench.WorkbenchManager;
 import edu.uwb.braingrid.workbenchdashboard.WorkbenchApp;
-import edu.uwb.braingrid.workbenchdashboard.welcome.Welcome;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -15,11 +16,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class SimStarter extends WorkbenchApp {
-	public static final String HEADER = "SIMSTARTER --\t";
+	private static final Logger LOG = Logger.getLogger(SimStarter.class.getName());
 	
 	public SimStarter(Tab tab) {
 		super(tab);
-		System.out.println(SimStarter.HEADER + "new SimStarter tab opened");
+		LOG.info("new " + getClass().getName());
 		// initMenu();
 		ssas_ = new SimStarterAttributesSelector(this, workbenchMgr);
 		sim_starter_tool_bar_ = new SimStarterToolBar(this);
@@ -119,6 +120,7 @@ public class SimStarter extends WorkbenchApp {
 		msgText.setText(workbenchMgr.getMessages());
 	}
 
+	
 	private BorderPane bp_ = new BorderPane();
 
 	private Label project_title_label_ = new Label();

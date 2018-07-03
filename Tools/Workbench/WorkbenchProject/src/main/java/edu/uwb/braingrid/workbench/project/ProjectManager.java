@@ -12,9 +12,6 @@ import java.util.Date;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Element;
-import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
@@ -42,7 +39,7 @@ public class ProjectManager {
     private static final String provTagName = "provenance";
 
     // FIX THIS : Find where this is used
-    private static final String provLocationTagName = "location";
+//    private static final String provLocationTagName = "location";
 
     private static final String provEnabledAttributeName = "enabled";
     private static final String simulatorTagName = "simulator";
@@ -55,7 +52,7 @@ public class ProjectManager {
             = "sourceCodeUpdating";
     private static final String SHA1KeyTagName = "SHA1Key";
     private static final String buildOptionTagName = "BuildOption";
-    private static final String scriptVersionTagName = "scriptVersion";
+//    private static final String scriptVersionTagName = "scriptVersion";
     private static final String scriptVersionVersionTagName = "version";
     private static final String simulatorVersionAnnotationTagName = "version";
     private static final String simulatorCodeLocationTagName = "repository";
@@ -63,7 +60,7 @@ public class ProjectManager {
     private static final String scriptFileTagName = "file";
     private static final String scriptRanRunAttributeName = "ran";
     private static final String scriptRanAtAttributeName = "atMillis";
-    private static final String scriptHostnameTagName = "hostname";
+//    private static final String scriptHostnameTagName = "hostname";
     private static final String scriptCompletedAtAttributeName = "completedAt";
     private static final String scriptAnalyzedAttributeName = "outputAnalyzed";
     private static final String simConfigFileTagName = "simConfigFile";

@@ -9,25 +9,15 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
 import edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard;
-import edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay;
 import edu.uwb.braingrid.workbenchdashboard.utils.FileSelectorDirMgr;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 public class ImportPanel extends Pane implements EventHandler<ActionEvent> {
@@ -78,7 +68,7 @@ public class ImportPanel extends Pane implements EventHandler<ActionEvent> {
 		}
 		getChildren().add(gp);
 	}
-	
+
 	FileSelectorDirMgr filemgr = new FileSelectorDirMgr();
 
 	private void importFiles(ActionEvent e) {
@@ -90,21 +80,19 @@ public class ImportPanel extends Pane implements EventHandler<ActionEvent> {
 			}
 		}
 		// create a file chooser
-		String curDir;
-		if (iSource == idxConfigFile) {
-			curDir = configDir;
-		} else {
-			curDir = nlistDir;
-		}
+		// String curDir;
+		// if (iSource == idxConfigFile) {
+		// curDir = configDir;
+		// } else {
+		// curDir = nlistDir;
+		// }
 
-		
 		FileChooser chooser = new FileChooser();
 		chooser.setInitialDirectory(filemgr.getLastDir());
-		
+
 		chooser.setTitle("Open File");
-		//fileChooser.showOpenDialog(stage);
-		ExtensionFilter filter = new ExtensionFilter(
-				"XML file (*.xml)", "xml");
+		// fileChooser.showOpenDialog(stage);
+		ExtensionFilter filter = new ExtensionFilter("XML file (*.xml)", "xml");
 		chooser.setSelectedExtensionFilter(filter);
 		String dialogTitle = "";
 		switch (iSource) {
@@ -126,7 +114,7 @@ public class ImportPanel extends Pane implements EventHandler<ActionEvent> {
 			break;
 		}
 		chooser.setTitle(dialogTitle);
-		
+
 		File option = chooser.showOpenDialog(WorkbenchDashboard.primaryStage_);
 		if (option != null) {
 			tfields[iSource].setText(option.getAbsolutePath());

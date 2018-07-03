@@ -96,6 +96,5 @@ public class NeuronsLayout {
 			}
 			break;
 		}
-		System.out.println(NLedit.HEADER + getNeuronTypeName(neuronType) + " placed at index " + index);
 	}
 }

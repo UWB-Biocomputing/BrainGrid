@@ -1,7 +1,8 @@
 package edu.uwb.braingrid.workbenchdashboard.welcome;
 
+import java.util.logging.Logger;
+
 import edu.uwb.braingrid.workbenchdashboard.WorkbenchApp;
-import edu.uwb.braingrid.workbenchdashboard.nledit.NLedit;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -9,12 +10,13 @@ import javafx.scene.control.Tab;
 import javafx.scene.layout.HBox;
 
 public class Welcome extends WorkbenchApp {
-	public static final String HEADER = "WELCOME --\t";
+	private static final Logger LOG = Logger.getLogger(Welcome.class.getName());
+	
 	private HBox display_ = new HBox();
 	
 	public Welcome(Tab tab) {
 		super(tab);
-		System.out.println(Welcome.HEADER + "new Welcome tab opened");
+		LOG.info("new " + getClass().getName());
 		Label proof = new Label("Welcome!");
 		proof.setAlignment(Pos.CENTER);
 		display_.getChildren().add(proof);
@@ -32,5 +34,4 @@ public class Welcome extends WorkbenchApp {
 		// TODO Auto-generated method stub
 		return display_;
 	}
-
 }

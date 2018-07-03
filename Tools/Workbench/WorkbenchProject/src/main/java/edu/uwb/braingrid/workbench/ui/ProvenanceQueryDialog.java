@@ -17,7 +17,12 @@ import java.util.List;
 public class ProvenanceQueryDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Auto-Generated Code">
 
-    @SuppressWarnings("unchecked")
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -144,7 +149,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
         ProvenanceStatement resultStatement;
         for (int i = 0, im = results.size(); i < im; i++) {
             resultStatement = results.get(i);
-            String objectURI = resultStatement.getObjectURI();
+//            String objectURI = resultStatement.getObjectURI();
             String fullObjectWord = resultStatement.getObjectURI();
             int ssIdx = fullObjectWord.lastIndexOf("#");
             String objectWord = fullObjectWord;
@@ -201,7 +206,7 @@ public class ProvenanceQueryDialog extends javax.swing.JDialog {
 
     // <editor-fold defaultstate="collapsed" desc="Custom Members">
     private final ProvMgr provMgr;
-    private final String lineDelimiter = "\n";
+//    private final String lineDelimiter = "\n";
     List<String> predicateFullURIs = new ArrayList<>();
     // </editor-fold>
 
