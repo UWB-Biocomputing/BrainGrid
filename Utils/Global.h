@@ -142,6 +142,7 @@ string neuronTypeToString(neuronType t);
 
 #ifdef PERFORMANCE_METRICS
 // All times in seconds
+extern double t_host_advance;
 extern double t_host_adjustSynapses;
 #endif // PERFORMANCE_METRICS
 

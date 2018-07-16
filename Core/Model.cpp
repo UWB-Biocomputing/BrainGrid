@@ -313,6 +313,9 @@ void Model::printPerformanceMetrics(double total_time, int steps)
            << m_vtClrInfo[iCluster]->t_gpu_calcSummation / total_time * 100 << "%)" << endl;
     }
 #endif
+    cout << "\nHost advance: " << t_host_advance << " seconds ("
+       << t_host_advance / total_time * 100 << "%)" << endl;
+
     cout << "\nHost adjustSynapses: " << t_host_adjustSynapses << " seconds ("
        << t_host_adjustSynapses / total_time * 100 << "%)" << endl;
 

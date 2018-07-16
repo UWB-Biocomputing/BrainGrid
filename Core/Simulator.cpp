@@ -91,6 +91,7 @@ void Simulator::simulate(SimulationInfo *sim_info)
 #ifdef PERFORMANCE_METRICS
   // Start overall simulation timer
   cerr << "Starting main timer... ";
+  t_host_advance = 0.0;
   t_host_adjustSynapses = 0.0;
   timer.start();
   cerr << "done." << endl;
@@ -106,8 +107,16 @@ void Simulator::simulate(SimulationInfo *sim_info)
       // Init SimulationInfo parameters
       sim_info->currentStep = currentStep;
 
+#ifdef PERFORMANCE_METRICS
+      // Start timer for advance
+      short_timer.start();
+#endif
     // Advance simulation to next growth cycle
     advanceUntilGrowth(currentStep, sim_info);
+#ifdef PERFORMANCE_METRICS
+    // Time to advance
+    t_host_advance += short_timer.lap() / 1000000.0;
+#endif
 
     DEBUG(cout << endl << endl;)
       DEBUG(

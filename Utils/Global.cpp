@@ -85,6 +85,7 @@ const BGFLOAT pi = 3.1415926536;
 
 #ifdef PERFORMANCE_METRICS
 // All times in seconds
+double t_host_advance;
 double t_host_adjustSynapses;
 #endif // PERFORMANCE_METRICS 
 
