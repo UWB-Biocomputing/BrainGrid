@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-    <fullyQualifiedTypeName name="java.awt.Menu"/>
-    <fullyQualifiedTypeName name="java.awt.MenuItem"/>
-    <fullyQualifiedTypeName name="javafx.scene.control.Menu"/>
-    <fullyQualifiedTypeName name="javafx.scene.control.MenuItem"/>
-    <fullyQualifiedTypeName name="java.awt.Label"/>
-    <fullyQualifiedTypeName name="javafx.scene.control.ProgressBar"/>
-    <fullyQualifiedTypeName name="javafx.scene.control.TextArea"/>
-    <fullyQualifiedTypeName name="javafx.scene.layout.TilePane"/>
     <fullyQualifiedTypeName name="javafx.scene.layout.AnchorPane"/>
     <fullyQualifiedTypeName name="javafx.geometry.Insets"/>
     <fullyQualifiedTypeName name="edu.uwb.braingrid.workbenchdashboard.WorkbenchApp"/>
@@ -60,4 +52,12 @@
     <fullyQualifiedTypeName name="java.awt.Toolkit"/>
     <fullyQualifiedTypeName name="javafx.scene.control.Button"/>
     <fullyQualifiedTypeName name="edu.uwb.braingrid.workbenchdashboard.utils.Log"/>
+    <fullyQualifiedTypeName name="org.apache.log4j.Logger"/>
+    <fullyQualifiedTypeName name="java.util.logging.Logger"/>
+    <fullyQualifiedTypeName name="java.util.logging.Handler"/>
+    <fullyQualifiedTypeName name="java.util.logging.ConsoleHandler"/>
+    <fullyQualifiedTypeName name="java.util.logging.Level"/>
+    <fullyQualifiedTypeName name="java.util.logging.FileHandler"/>
+    <fullyQualifiedTypeName name="com.sun.deploy.config.OSType"/>
+    <fullyQualifiedTypeName name="edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties"/>
 </qualifiedTypeNameHistroy>
