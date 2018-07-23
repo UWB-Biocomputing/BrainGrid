@@ -56,20 +56,7 @@ Connections::~Connections()
  *  @param  vtClrInfo   Vector of ClusterInfo.
  *  @return true if successful, false otherwise.
  */
-bool Connections::updateConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
+void Connections::updateConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
-    return false;
 }
 
-/*
- *  Update the weight of the Synapses in the simulation.
- *  Note: Platform Dependent.
- *
- *  @param  sim_info    SimulationInfo to refer from.
- *  @param  layout      Layout information of the neunal network.
- *  @param  vtClr       Vector of Cluster class objects.
- *  @param  vtClrInfo   Vector of ClusterInfo.
- */
-void Connections::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
-{
-}

@@ -80,6 +80,9 @@
 #include "SimulationInfo.h"
 #include <vector>
 #include <iostream>
+#if defined(USE_GPU)
+class Barrier;
+#endif // USE_GPU
 
 using namespace std;
 
@@ -151,9 +154,8 @@ class ConnGrowth : public Connections
          *  @param  layout      Layout information of the neunal network.
          *  @param  vtClr       Vector of Cluster class objects.
          *  @param  vtClrInfo   Vector of ClusterInfo.
-         *  @return true if successful, false otherwise.
          */
-        virtual bool updateConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
+        virtual void updateConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 
         /**
          *  Creates a recorder class object for the connection.
@@ -164,19 +166,32 @@ class ConnGrowth : public Connections
          *  @return Pointer to the recorder class object.
          */
         virtual IRecorder* createRecorder(const SimulationInfo *sim_info);
-    public:
+
+    private:
         /**
          *  Update the weight of the Synapses in the simulation.
-         *  Note: Platform Dependent.
+         *  Creates a thread for each cluster and transfer the task.
          *
          *  @param  sim_info    SimulationInfo to refer from.
          *  @param  layout      Layout information of the neunal network.
          *  @param  vtClr       Vector of Cluster class objects.
          *  @param  vtClrInfo   Vector of ClusterInfo.
          */
-        virtual void updateSynapsesWeights(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
+        void updateSynapsesWeights(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
+  
+#if defined(USE_GPU)
+        /**
+         *  Thread for Updating the weight of the Synapses in the simulation.
+         *  Executes a CUDA kernel function to do the task.
+         *
+         *  @param  sim_info    SimulationInfo to refer from.
+         *  @param  layout      Layout information of the neunal network.
+         *  @param  clr         Pointer to cluster class to read information from.
+         *  @param  clr_info    Pointer to clusterInfo class to read information from.
+         */
+        void updateSynapsesWeightsThread(const SimulationInfo *sim_info, Layout *layout, Cluster *clr, ClusterInfo *clr_info);
+#endif
 
-    private:
         /**
          *  Calculates firing rates, neuron radii change and assign new values.
          *
@@ -186,6 +201,19 @@ class ConnGrowth : public Connections
          */
         void updateConns(const SimulationInfo *sim_info, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 
+#if defined(USE_GPU)
+        /**
+         *  Thread for calculating firing rates, neuron radii change and assign new values.
+         *  Executes a CUDA kernel function to do the task.
+         *
+         *  @param  sim_info    SimulationInfo class to read information from.
+         *  @param  clr         Pointer to cluster class to read information from.
+         *  @param  clr_info    Pointer to clusterInfo class to read information from.
+         */
+        void updateConnsThread(const SimulationInfo *sim_info, Cluster *clr, ClusterInfo *clr_info);
+#endif
+
+#if !defined(USE_GPU)
         /**
          *  Update the distance between frontiers of Neurons.
          *
@@ -201,6 +229,7 @@ class ConnGrowth : public Connections
          *  @param  layout      Layout information of the neunal network.
          */
         void updateOverlap(BGFLOAT num_neurons, Layout *layout);
+#endif // !USE_GPU
 
     public:
         struct GrowthParams
@@ -221,14 +250,17 @@ class ConnGrowth : public Connections
         //! spike count for each epoch
         int *spikeCounts;
 
-        //! synapse weight
-        CompleteMatrix *W;
-
         //! neuron radii
-        VectorMatrix *radii;
+        BGFLOAT *radii;
+        //VectorMatrix *radii;
 
         //! spiking rate
-        VectorMatrix *rates;
+        BGFLOAT *rates;
+        //VectorMatrix *rates;
+
+#if !defined(USE_GPU)
+        //! synapse weight
+        CompleteMatrix *W;
 
         //! distance between connection frontiers
         CompleteMatrix *delta;
@@ -241,5 +273,28 @@ class ConnGrowth : public Connections
 
         //! displacement of neuron radii
         VectorMatrix *deltaR;
+#endif // !USE_GPU
 
+private:
+#if defined(USE_GPU)
+        static Barrier *m_barrierUpdateConnections;
+#endif // USE_GPU
 };
+
+#if defined(USE_GPU) && defined(__CUDACC__)
+/**
+ *  CUDA kernel function for calculating firing rates, neuron radii change and assign new values.
+ *
+ *  @param  allNeuronsDevice       Pointer to Neuron structures in device memory.
+ *  @param  totalClusterNeurons    Number of neurons in the cluster.
+ *  @param  max_spikes             Maximum firing rate.
+ *  @param  epochDuration          One epoch duration in second.
+ *  @param  maxRate                Growth parameter (= targetRate / epsilon)
+ *  @param  beta                   Growth parameter (sensitivity of outgrowth to firing rate)
+ *  @param  rho                    Growth parameter (outgrowth rate constant)
+ *  @param  epsilona               Growth parameter (null firing rate(zero outgrowth))
+ *  @param  rates_d                Pointer to rates data array.
+ *  @param  radii_d                Pointer to radii data array.
+ */
+extern __global__ void updateConnsDevice( AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int totalClusterNeurons, int max_spikes, BGFLOAT epochDuration, BGFLOAT maxRate, BGFLOAT beta, BGFLOAT rho, BGFLOAT epsilon, BGFLOAT* rates_d, BGFLOAT* radii_d );
+#endif // USE_GPU && __CUDACC__

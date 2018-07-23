@@ -48,8 +48,11 @@ extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, Syn
  * @param[in] neuron_type_map_d  Pointer to the neurons type map in device memory.
  * @param[in] totalClusterNeurons  Total number of neurons in the cluster.
  * @param[in] clusterNeuronsBegin  Begin neuron index of the cluster.
+ * @param[in] radii_d            Pointer to the rates data array.
+ * @param[in] xloc_d             Pointer to the neuron's x location array.
+ * @param[in] yloc_d             Pointer to the neuron's y location array.
  */
-extern __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BGFLOAT* W_d, int maxSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, neuronType* neuron_type_map_d, int totalClusterNeurons, int clusterNeuronsBegin );
+extern __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, int maxSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, neuronType* neuron_type_map_d, int totalClusterNeurons, int clusterNeuronsBegin, BGFLOAT* radii_d, BGFLOAT* xloc_d,  BGFLOAT* yloc_d );
 
 /** 
  * Adds a synapse to the network.  Requires the locations of the source and

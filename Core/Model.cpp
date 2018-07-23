@@ -197,7 +197,7 @@ void Model::logSimStep(const SimulationInfo *sim_info) const
                 break;
             }
 
-            ss << " " << (*pConnGrowth->radii)[x + y * sim_info->width];
+            ss << " " << pConnGrowth->radii[x + y * sim_info->width];
 
             if (x + 1 < sim_info->width) {
                 ss.width(2);
@@ -282,9 +282,7 @@ void Model::updateConnections(const SimulationInfo *sim_info)
 #endif // USE_GPU
 
     // Update Connections data
-    if (m_conns->updateConnections(sim_info, m_layout, m_vtClr, m_vtClrInfo)) {
-        m_conns->updateSynapsesWeights(sim_info, m_layout, m_vtClr, m_vtClrInfo);
-    }
+    m_conns->updateConnections(sim_info, m_layout, m_vtClr, m_vtClrInfo);
 }
 
 #if defined(PERFORMANCE_METRICS)
@@ -335,8 +333,6 @@ void Model::printPerformanceMetrics(double total_time, int steps)
        << " seconds/epoch" << endl;
     }
 #endif
-    cout << "Host adjustSynapses: " << t_host_adjustSynapses/steps
-       << " seconds/epoch" << endl;
 }
 
 #endif // PERFORMANCE_METRICS
