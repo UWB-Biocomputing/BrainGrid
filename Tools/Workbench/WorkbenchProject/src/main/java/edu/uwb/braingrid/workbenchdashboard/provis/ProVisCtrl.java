@@ -28,10 +28,13 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import jdk.internal.jline.internal.Log;
+
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.log4j.Logger;
 import org.controlsfx.control.ToggleSwitch;
 
 import java.io.File;
@@ -419,7 +422,6 @@ public class ProVisCtrl {
 			} else {
 				return false;
 			}
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -427,6 +429,7 @@ public class ProVisCtrl {
 	}
 
 	private void initNodeEdge(String provFileURI) {
+		LOG.info("Init Node Edge");
 		provModel = RDFDataMgr.loadModel(provFileURI);
 		StmtIterator iter = provModel.listStatements();
 		NodeFactory nodeFactory = NodeFactory.getInstance();
@@ -567,5 +570,8 @@ public class ProVisCtrl {
 		dataProvGraph.generateCommitRelationships(visCanvas.getWidth(), visCanvas.getHeight());
 		// set neighbors
 		dataProvGraph.setNeighbors();
+		LOG.info("End Node Edge");
 	}
+	
+	private static Logger LOG = Logger.getLogger(ProVisCtrl.class.getName());
 }

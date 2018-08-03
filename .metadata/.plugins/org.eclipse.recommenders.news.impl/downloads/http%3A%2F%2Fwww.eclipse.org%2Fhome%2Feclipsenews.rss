@@ -9,7 +9,63 @@
       <title>eclipse.org</title>
       <link>http://www.eclipse.org</link>
     </image>
-      <item>
+    <item>
+      <title><![CDATA[Eclipse Newsletter | Embedded Development]]></title>
+      <link><![CDATA[https://www.eclipse.org/community/eclipse_newsletter/2018/july/]]></link>
+      <description><![CDATA[This month's newsletter features five articles that focus on Embedded Development. Read it now.]]></description>
+      <pubDate>Thu, 26 Jul 2018 8:30:00 EST</pubDate>
+      <category>news</category>
+      <pressrelease>0</pressrelease>
+    </item>
+    <item>
+      <title><![CDATA[Eclipse IoT Day Singapore Announced]]></title>
+      <link><![CDATA[https://iot.eclipse.org/eclipse-iot-day-singapore-2018/]]></link>
+      <description><![CDATA[The very first Eclipse IoT Day Singapore will take place Sept. 18 in co-location with IoT World Asia 2018.]]></description>
+      <pubDate>Tue, 24 Jul 2018 6:00:00 EST</pubDate>
+      <category>news</category>
+      <pressrelease>0</pressrelease>
+    </item>
+     <item>
+      <title><![CDATA[New Working Group and Charter at the Eclipse Foundation: OpenMobility]]></title>
+      <link><![CDATA[https://www.eclipse.org/org/workinggroups/openmobility_charter.php]]></link>
+      <description><![CDATA[OpenMobility will drive the evolution and broad adoption of mobility modelling and simulation technologies.]]></description>
+      <pubDate>Fri, 20 Jul 2018 12:00:00 EST</pubDate>
+      <category>news</category>
+      <pressrelease>0</pressrelease>
+    </item>
+    <item>
+      <title><![CDATA[Call for submissions for EclipseCon Europe 2018]]></title>
+      <link><![CDATA[https://www.eclipsecon.org/europe2018]]></link>
+      <description><![CDATA[Be part of the EclipseCon Europe program. Submit your talks by July 16th.]]></description>
+      <pubDate>Fri, 06 Jul 2018 10:00:00 EST</pubDate>
+      <category>news</category>
+      <pressrelease>0</pressrelease>
+    </item>
+     <item>
+      <title><![CDATA[Eclipse Foundation Annual Community Report]]></title>
+      <link><![CDATA[https://www.eclipse.org/org/foundation/reports/2018_annual_report.php]]></link>
+      <description><![CDATA[The Eclipse Foundation's 2018 Annual Community Report has been published, and is now available.]]></description>
+      <pubDate>Tue, 03 Jul 2018 15:00:00 EST</pubDate>
+      <category>news</category>
+      <pressrelease>0</pressrelease>
+    </item>
+    <item>
+      <title><![CDATA[Eclipse Newsletter | Eclipse Photon]]></title>
+      <link><![CDATA[https://www.eclipse.org/community/eclipse_newsletter/2018/june/]]></link>
+      <description><![CDATA[Naturally, this issue of the newsletter features some of the things that are new in Eclipse Photon!]]></description>
+      <pubDate>Tue, 03 Jul 2018 12:00:00 EST</pubDate>
+      <category>news</category>
+      <pressrelease>0</pressrelease>
+    </item>
+    <item>
+      <title><![CDATA[Take Your Code to the Next Level With Eclipse Photon]]></title>
+      <link><![CDATA[https://blogs.eclipse.org/post/thabang-mashologu/take-your-code-next-level-eclipse-photon]]></link>
+      <description><![CDATA[Join over 4 million active users of the Eclipse IDE and take your coding to the next level with Eclipse Photon.]]></description>
+      <pubDate>Thu, 28 June 2018 12:00:00 EST</pubDate>
+      <category>news</category>
+      <pressrelease>0</pressrelease>
+    </item>
+    <item>
       <title><![CDATA[New Photon Release of Eclipse IDE Ships With Full Rust Support]]></title>
       <link><![CDATA[https://www.eclipse.org/org/press-release/20180627_new-photon-release-of-eclipse-ide-ships-with-full-rust-support.php]]></link>
       <description><![CDATA[The Eclipse Foundation today announced the Eclipse Photon simultaneous release.]]></description>

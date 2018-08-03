@@ -382,7 +382,7 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
 						Path destFilePath = new File(destPathText).toPath();
 						if (FileManager.copyFile(sourceFilePath, destFilePath)) {
 							field.setText(
-									"workbenchconfigfiles/NList/" + fm.getSimpleFilename(destFilePath.toString()));
+									"configfiles/NList/" + fm.getSimpleFilename(destFilePath.toString()));
 						}
 					} else {
 						messageLabelText.setText("<html><span style=\"color:orange\">"

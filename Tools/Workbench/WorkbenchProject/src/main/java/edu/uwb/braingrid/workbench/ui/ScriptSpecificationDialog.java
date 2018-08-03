@@ -871,6 +871,7 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
 			sourceCodeUpdatingComboBox.setEnabled(false);
 		} else {
 			sourceCodeUpdatingComboBox.setEnabled(true);
+			
 		}
 	}
 }

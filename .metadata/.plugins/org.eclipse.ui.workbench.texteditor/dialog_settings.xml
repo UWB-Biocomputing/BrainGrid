@@ -2,27 +2,27 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="" key="selection"/>
+		<item value="specifySimulator" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
-			<item value="git"/>
-			<item value="System"/>
-			<item value="log"/>
-			<item value="loh"/>
-			<item value="javax.swing.JComboBox"/>
-			<item value="workbench"/>
-			<item value="main"/>
-			<item value="click"/>
-			<item value="System.out.println"/>
-			<item value="directory"/>
-			<item value="c"/>
-			<item value="configureSimulationButtonActionPerformed"/>
-			<item value="tempII.css"/>
-			<item value="temp"/>
-			<item value="bigger"/>
+			<item value="specifySimulator"/>
+			<item value="okButtonActionPerformed"/>
+			<item value="simulatorSpecification"/>
+			<item value="sourceCodeUpdatingComboBox"/>
+			<item value="updateStateOnBuildOptionChange()"/>
+			<item value="ScriptSpecificationDialog"/>
+			<item value="specifyScript()"/>
+			<item value="simSpec"/>
+			<item value="specifyScriptButtonActionPerformed()"/>
+			<item value="Pull"/>
+			<item value="pull"/>
+			<item value="getNeuronListFilePath"/>
+			<item value="configureSimulation()"/>
+			<item value="updateProjectOverview()"/>
+			<item value="invalidateScriptAnalyzed()"/>
 		</list>
 		<list key="replacehistory">
 			<item value="javax.swing.JComboBox&lt;&gt;"/>
@@ -33,7 +33,7 @@
 		<item value="282" key="DIALOG_WIDTH"/>
 		<item value="1|Segoe UI|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI" key="DIALOG_FONT_NAME"/>
 		<item value="369" key="DIALOG_HEIGHT"/>
-		<item value="-737" key="DIALOG_X_ORIGIN"/>
-		<item value="174" key="DIALOG_Y_ORIGIN"/>
+		<item value="-1200" key="DIALOG_X_ORIGIN"/>
+		<item value="254" key="DIALOG_Y_ORIGIN"/>
 	</section>
 </section>

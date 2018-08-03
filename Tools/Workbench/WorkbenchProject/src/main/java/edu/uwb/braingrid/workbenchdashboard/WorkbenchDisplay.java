@@ -16,12 +16,28 @@ import edu.uwb.braingrid.workbenchdashboard.simstarter.SimStarter;
 import edu.uwb.braingrid.workbenchdashboard.welcome.Welcome;
 import javafx.stage.Stage;
 
+/**
+ * Defines the main display of the screen along with global functionality.
+ * @author Max Wright
+ */
 public class WorkbenchDisplay extends BorderPane {	
 	private static final Logger LOG = Logger.getLogger(WorkbenchDisplay.class.getName());
+	
+	/**
+	 * The top menu bar of the screen.
+	 */
 	private MenuBar menu_bar_;
 	private Stage primaryStage_;
+	
+	/**
+	 * The main content of the screen
+	 */
 	private TabPane tp_ = new TabPane();
 	
+	/**
+	 * 
+	 * @param primary_stage The Stage object of the fx instance.
+	 */
 	public WorkbenchDisplay(Stage primary_stage) {
 		LOG.info("new " + getClass().getName());
 		primaryStage_ = primary_stage;
@@ -40,6 +56,11 @@ public class WorkbenchDisplay extends BorderPane {
 		return menu_bar_;
 	}
 	
+	/**
+	 * Generates all functionality associated with the "File" tab of the menu bar.
+	 * @param primary_stage The Stage of the FX program
+	 * @return A complete menu.
+	 */
 	private Menu generateMenuFile(Stage primary_stage) {
 		Menu file_menu = new Menu("_File");
 		file_menu.getItems().add(generateMenuNew(primary_stage));
@@ -87,9 +108,10 @@ public class WorkbenchDisplay extends BorderPane {
 		return new_menu;
 	}
 
+	/**
+	 * Adds a new Growth Simulator Layout Editor tab
+	 */
 	void pushGSLEPane() {
-//		pushNewTab("NL Edit", new NLedit());
-		//new WorkbenchTab("GSLE", new NLedit(), this);
 		Tab tab = new Tab();
 		NLedit pv = new NLedit(tab);
 		tab.setContent(pv.getDisplay());
@@ -97,10 +119,11 @@ public class WorkbenchDisplay extends BorderPane {
 		SingleSelectionModel<Tab> selectionModel = tp_.getSelectionModel();
 		selectionModel.select(tab);
 	}
-
+	
+	/**
+	 * Adds a new Welcome tab
+	 */
 	void pushWeclomePage() {
-//		pushNewTab("Welcome!", new Welcome());
-		//new WorkbenchTab("Welcome!", new Welcome(), this);
 		Tab tab = new Tab();
 		Welcome pv = new Welcome(tab);
 		tab.setContent(pv.getDisplay());
@@ -109,9 +132,10 @@ public class WorkbenchDisplay extends BorderPane {
 		selectionModel.select(tab);
 	}
 
+	/**
+	 * Adds a new Simulator Starter tab
+	 */
 	void pushSimStarterPage() {
-//		pushNewTab("SimStarter!", new SimStarter());
-		//new WorkbenchTab("SimStarter!", new SimStarter(), this);
 		Tab tab = new Tab();
 		SimStarter pv = new SimStarter(tab);
 		tab.setContent(pv.getDisplay());
@@ -120,10 +144,10 @@ public class WorkbenchDisplay extends BorderPane {
 		selectionModel.select(tab);
 	}
 
+	/**
+	 * Add a new Providence Visualizer tab
+	 */
 	void pushProVisStarterPage() {
-//		pushNewTab("ProVis!", new ProVis());
-		//new WorkbenchTab("ProVis!", new ProVis(), this);
-		
 		Tab tab = new Tab();
 		ProVis pv = new ProVis(tab);
 		tab.setContent(pv.getDisplay());
@@ -131,13 +155,4 @@ public class WorkbenchDisplay extends BorderPane {
 		SingleSelectionModel<Tab> selectionModel = tp_.getSelectionModel();
 		selectionModel.select(tab);
 	}
-	
-//	private void pushNewTab(String name, WorkbenchApp wbapp) {
-//		Tab tab = new Tab();
-//		tab.setText(name);
-//		tab.setContent(wbapp.getDisplay());
-//		tp_.getTabs().add(tab);
-//		SingleSelectionModel<Tab> selectionModel = tp_.getSelectionModel();
-//		selectionModel.select(tab);
-//	}
 }

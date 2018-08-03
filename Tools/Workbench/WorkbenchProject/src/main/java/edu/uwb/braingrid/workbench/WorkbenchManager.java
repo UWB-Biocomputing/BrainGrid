@@ -52,7 +52,7 @@ public class WorkbenchManager {
     private final String folderDelimiter;
     private final String rootDir;
     private final String projectsDir;
-    private SimulationSpecification simSpec;
+    private SimulationSpecification simulatorSpecification;
 
     /**
      * Value indicating that an exception occurred during an operation
@@ -74,7 +74,7 @@ public class WorkbenchManager {
         projectsDir = folderDelimiter + "projects" + folderDelimiter;
         prov = null;
         projectMgr = null;
-        simSpec = null;
+        simulatorSpecification = null;
     }
     // </editor-fold>
 
@@ -205,7 +205,7 @@ public class WorkbenchManager {
                     choice = EXCEPTION_OPTION;
                     projectMgr = null;
                     prov = null;
-                    simSpec = null;
+                    simulatorSpecification = null;
                     messageAccumulator += "\n"
                             + "Project did not load correctly!\n"
                             + ex1.getClass().getSimpleName() + "..."
@@ -350,29 +350,29 @@ public class WorkbenchManager {
     public boolean specifyScript() {
         String hostAddr;
         ScriptSpecificationDialog spd;
-        if (simSpec != null) {
-            spd = new ScriptSpecificationDialog(true, simSpec);
+        if (simulatorSpecification != null) {
+            spd = new ScriptSpecificationDialog(true, simulatorSpecification);
         } else {
             spd = new ScriptSpecificationDialog(true);
         }
         boolean success = spd.getSuccess();
         if (success) {
-            simSpec = spd.toSimulatorSpecification();
-            String locale = simSpec.getSimulationLocale();
+            simulatorSpecification = spd.toSimulatorSpecification();
+            String locale = simulatorSpecification.getSimulationLocale();
             String remote = SimulationSpecification.REMOTE_EXECUTION;
             if (locale.equals(remote)) {
-                hostAddr = simSpec.getHostAddr();
+                hostAddr = simulatorSpecification.getHostAddr();
             } else {
                 hostAddr = "";
             }
             projectMgr.addSimulator(locale,
-                    hostAddr, simSpec.getSimulatorFolder(),
-                    simSpec.getSimulationType(),
-                    simSpec.getCodeLocation(),
-                    simSpec.getVersionAnnotation(),
-                    simSpec.getSourceCodeUpdating(),
-                    simSpec.getSHA1CheckoutKey(),
-                    simSpec.getBuildOption());
+                    hostAddr, simulatorSpecification.getSimulatorFolder(),
+                    simulatorSpecification.getSimulationType(),
+                    simulatorSpecification.getCodeLocation(),
+                    simulatorSpecification.getVersionAnnotation(),
+                    simulatorSpecification.getSourceCodeUpdating(),
+                    simulatorSpecification.getSHA1CheckoutKey(),
+                    simulatorSpecification.getBuildOption());
             updateSimSpec();
             messageAccumulator += "\n" + "New simulation specified\n";
         } else {
@@ -400,7 +400,7 @@ public class WorkbenchManager {
                             + "Gathering simulation provenance...\n";
                     String targetFolder = ScriptManager.getScriptFolder(
                             projectMgr.determineProjectOutputLocation());
-                    timeCompleted = scriptMgr.analyzeScriptOutput(simSpec,
+                    timeCompleted = scriptMgr.analyzeScriptOutput(simulatorSpecification,
                             projectMgr, prov, targetFolder);
                     if (timeCompleted != DateTime.ERROR_TIME) {
                         projectMgr.setScriptCompletedAt(timeCompleted);
@@ -440,7 +440,7 @@ public class WorkbenchManager {
         boolean success;
         success = false;
         Script script = ScriptManager.
-                generateScript(projectMgr.getName(), projectMgr.getNextScriptVersion(), simSpec, projectMgr.getSimConfigFilename());
+                generateScript(projectMgr.getName(), projectMgr.getNextScriptVersion(), simulatorSpecification, projectMgr.getSimConfigFilename());
         if (script != null) {
             try {
                 String projectFolder
@@ -488,7 +488,7 @@ public class WorkbenchManager {
             String scriptPath = projectMgr.getScriptCanonicalFilePath();
             String[] neuronLists
                     = FileManager.getFileManager().getNeuronListFilenames(projectMgr.getName());
-            success = sm.runScript(prov, simSpec, scriptPath,
+            success = sm.runScript(prov, simulatorSpecification, scriptPath,
                     projectMgr.getScriptVersion(), neuronLists,
                     projectMgr.getSimConfigFilename());
             projectMgr.setScriptRan(success);
@@ -802,11 +802,11 @@ public class WorkbenchManager {
      * @return The current simulation specification for the current project
      */
     public SimulationSpecification getSimulationSpecification() {
-        return simSpec;
+        return simulatorSpecification;
     }
 
     private void updateSimSpec() {
-        simSpec = projectMgr.getSimulationSpecification();
+        simulatorSpecification = projectMgr.getSimulationSpecification();
     }
 
     /**
@@ -878,16 +878,16 @@ public class WorkbenchManager {
      */
     public String getSimulationOverview() {
         String overview = "<html>None";
-        if (simSpec != null) {
+        if (simulatorSpecification != null) {
             overview = "<html>";
-            String simFoldername = simSpec.getSimulatorFolder();
-            String simVersionAnnotation = simSpec.getVersionAnnotation();
-            String simCodeLocation = simSpec.getCodeLocation();
+            String simFoldername = simulatorSpecification.getSimulatorFolder();
+            String simVersionAnnotation = simulatorSpecification.getVersionAnnotation();
+            String simCodeLocation = simulatorSpecification.getCodeLocation();
             boolean simAttributeAddedToText = false;
             if (simFoldername != null) {
                 FileManager fm = FileManager.getFileManager();
                 String home;
-                if (simSpec.isRemote()) {
+                if (simulatorSpecification.isRemote()) {
                     home = "~/";
                 } else {
                     home = fm.getUserDir();

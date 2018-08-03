@@ -7,12 +7,18 @@ import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties;
 
+/**
+ * Workbench Dashboard Application, contains main
+ * @author Max Wright
+ *
+ */
 public class WorkbenchDashboard extends Application {
 	/**
 	 * GSLE Growth Simulation Layout Editor
@@ -20,32 +26,61 @@ public class WorkbenchDashboard extends Application {
 	private WorkbenchDisplay workbench_display_;
 
 	private static final Logger LOG = Logger.getLogger(WorkbenchDashboard.class.getName());
+	
+	/**
+	 * Sets a global standard for what is logged by the logger object
+	 */
 	public static Level MIN_LOG_LEVEL = Level.ALL;
 
-	public static Stage primaryStage_; // Not good, needs refactoring to send the stage everywhere private
-
+	
+	/**
+	 * Probably shouldn't exist
+	 * TODO: Refactor to to send the stage everywhere private
+	 */
+	public static Stage primaryStage_;
+	
+	/**
+	 * WorkbenchDashboard main executable.
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		launch(args);
 	}
-
-	boolean ctrl = false;
-
+	
+	private void initFileOutput() {
+		FileHandler handler = null;
+		try {
+			handler = new FileHandler("WD-log.%u");
+		} catch (SecurityException | IOException e) {
+			LOG.severe("");
+			e.printStackTrace();
+		}
+		if(handler != null) {
+			LOG.getParent().getHandlers()[0].setLevel(MIN_LOG_LEVEL);
+			LOG.getParent().addHandler(handler);
+		}
+	}
+	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		FileHandler handler = new FileHandler("WD-log.%u");
-		
+		// Setup Logger
 		LOG.setLevel(MIN_LOG_LEVEL);
-		LOG.getParent().getHandlers()[0].setLevel(MIN_LOG_LEVEL);
-		LOG.getParent().addHandler(handler);
+		initFileOutput();
 		
+		// Get system
+		SystemProperties.getSysProperties();
+		
+		// Start Application
 		LOG.info("Starting Application");
-		workbench_display_ = new WorkbenchDisplay(primaryStage);
-		Scene scene = new Scene(workbench_display_, 900, 600);
+		workbench_display_ = new WorkbenchDisplay(primaryStage);  // Create main display
+		Scene scene = new Scene(workbench_display_, 900, 600); // Create a scene out of the display.
 
+		// Add CSS files
 		scene.getStylesheets().add("resources/simstarter/css/temp.css");
 		scene.getStylesheets().add("resources/simstarter/css/tempII.css");
 		scene.getStylesheets().add("resources/nledit/css/design.css");
 
+		// Create Events
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent arg0) {
@@ -79,9 +114,12 @@ public class WorkbenchDashboard extends Application {
 
 		primaryStage.setScene(scene);
 		primaryStage.setMaximized(true);
-
 		primaryStage.show();
 		
-		SystemProperties.getSysProperties();
 	}
+	
+	/**
+	 * True only if ctrl has been pressed.
+	 */
+	private boolean ctrl = false;
 }

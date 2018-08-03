@@ -26,29 +26,6 @@ enum OS {
 	UNKNOWN
 }
 
-//public enum BluesGenreType {
-//
-//    Pop,
-//    RandB,
-//    BoogieWoogie,
-//    Clasical,
-//    Country,
-//    Ragtime;
-//
-//    static String [] names = {
-//        "Blues Pop",
-//        "Blues R&B",
-//        "Boogie-Woogie",
-//        "Classical Blues",
-//        "Country Blues",
-//        "Ragtime Blues"
-//    };
-//
-//    public String getName() {
-//        return names[this.ordinal()];
-//    }
-//}
-
 public class SystemProperties {
 	
 	public static OS getOS() {

@@ -1,9 +1,0 @@
-package edu.uwb.braingrid.workbenchdashboard.utils;
-
-public class FileSelectorDirMgr {
-	
-	public FileSelectorDirMgr() {
-		
-	}
-
-}

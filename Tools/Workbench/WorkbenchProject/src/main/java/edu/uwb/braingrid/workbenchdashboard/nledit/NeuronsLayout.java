@@ -27,6 +27,13 @@ public class NeuronsLayout {
 		
 	}
 	
+	/**
+	 * Returns the NeuronType of the index given
+	 * TODO: This needs to be turned into an enums. There are parts in the code (somewhere) that uses the int values to make decisions. 
+	 * Use getOrdinal() and other properties of enums to fix this.
+	 * @param index
+	 * @return
+	 */
 	public int getNeuronType(int index) {
 		int cIndex = OTR;
 		if (activeNList.contains(index)
@@ -61,6 +68,7 @@ public class NeuronsLayout {
 		return probedNList.contains(index);
 	}
 	
+
 	public void changeIndex(int neuronType, int index) {
 		switch (neuronType) {
 		case INH: // inhibitory neurons edit mode
@@ -80,6 +88,7 @@ public class NeuronsLayout {
 				activeNList.add(index);
 				Collections.sort(activeNList);
 				if (inhNList.contains(index)) {
+					// The casting is necessary. Otherwise is uses .remove(<index in the array>) vs. .remove(<an object equal to this>);
 					inhNList.remove((Integer)index);
 				}
 			} else {
