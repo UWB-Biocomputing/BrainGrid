@@ -252,11 +252,9 @@ class ConnGrowth : public Connections
 
         //! neuron radii
         BGFLOAT *radii;
-        //VectorMatrix *radii;
 
         //! spiking rate
         BGFLOAT *rates;
-        //VectorMatrix *rates;
 
 #if !defined(USE_GPU)
         //! synapse weight

@@ -309,13 +309,27 @@ void Model::printPerformanceMetrics(double total_time, int steps)
            << m_vtClrInfo[iCluster]->t_gpu_advanceSynapses / total_time * 100 << "%)" << endl;
         cout << "GPU calcSummation: " << m_vtClrInfo[iCluster]->t_gpu_calcSummation << " seconds ("
            << m_vtClrInfo[iCluster]->t_gpu_calcSummation / total_time * 100 << "%)" << endl;
+        cout << "GPU updateConns: " << m_vtClrInfo[iCluster]->t_gpu_updateConns << " seconds ("
+           << m_vtClrInfo[iCluster]->t_gpu_updateConns / total_time * 100 << "%)" << endl;
+        cout << "GPU updateSynapsesWeights: " << m_vtClrInfo[iCluster]->t_gpu_updateSynapsesWeights << " seconds ("
+           << m_vtClrInfo[iCluster]->t_gpu_updateSynapsesWeights / total_time * 100 << "%)" << endl;
+        cout << "GPU processInterClustesOutgoingSpikes: " << m_vtClrInfo[iCluster]->t_gpu_processInterClustesOutgoingSpikes << " seconds ("
+           << m_vtClrInfo[iCluster]->t_gpu_processInterClustesOutgoingSpikes / total_time * 100 << "%)" << endl;
+        cout << "GPU processInterClustesIncomingSpikes: " << m_vtClrInfo[iCluster]->t_gpu_processInterClustesIncomingSpikes << " seconds ("
+           << m_vtClrInfo[iCluster]->t_gpu_processInterClustesIncomingSpikes / total_time * 100 << "%)" << endl;
     }
 #endif
+    cout << "\nHost initialization: " << t_host_initialization << " seconds ("
+       << t_host_initialization / total_time * 100 << "%)" << endl;
+
     cout << "\nHost advance: " << t_host_advance << " seconds ("
        << t_host_advance / total_time * 100 << "%)" << endl;
 
     cout << "\nHost adjustSynapses: " << t_host_adjustSynapses << " seconds ("
        << t_host_adjustSynapses / total_time * 100 << "%)" << endl;
+
+    cout << "\nHost createSynapseImap: " << t_host_createSynapseImap << " seconds ("
+       << t_host_createSynapseImap / total_time * 100 << "%)" << endl;
 
     cout << "\nAverage time per simulation epoch:" << endl;
 #ifdef USE_GPU
@@ -330,7 +344,15 @@ void Model::printPerformanceMetrics(double total_time, int steps)
         cout << "GPU advanceSynapses: " << m_vtClrInfo[iCluster]->t_gpu_advanceSynapses/steps
            << " seconds/epoch" << endl;
         cout << "GPU calcSummation: " << m_vtClrInfo[iCluster]->t_gpu_calcSummation/steps
-       << " seconds/epoch" << endl;
+           << " seconds/epoch" << endl;
+        cout << "GPU updateConns: " << m_vtClrInfo[iCluster]->t_gpu_updateConns/steps
+           << " seconds/epoch" << endl;
+        cout << "GPU updateSynapsesWeights: " << m_vtClrInfo[iCluster]->t_gpu_updateSynapsesWeights/steps
+           << " seconds/epoch" << endl;
+        cout << "GPU processInterClustesOutgoingSpikes: " << m_vtClrInfo[iCluster]->t_gpu_processInterClustesOutgoingSpikes/steps
+           << " seconds/epoch" << endl;
+        cout << "GPU processInterClustesIncomingSpikes: " << m_vtClrInfo[iCluster]->t_gpu_processInterClustesIncomingSpikes/steps
+           << " seconds/epoch" << endl;
     }
 #endif
 }

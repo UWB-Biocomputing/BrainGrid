@@ -103,6 +103,10 @@ class ClusterInfo
         double t_gpu_advanceNeurons;
         double t_gpu_advanceSynapses;
         double t_gpu_calcSummation;
+        double t_gpu_updateConns;
+        double t_gpu_updateSynapsesWeights;
+        double t_gpu_processInterClustesOutgoingSpikes;
+        double t_gpu_processInterClustesIncomingSpikes;
 #endif // USE_GPU && PERFORMANCE_METRICS
 
         //! Pointer to the multi clusters event handler

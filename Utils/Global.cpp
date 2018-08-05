@@ -85,8 +85,10 @@ const BGFLOAT pi = 3.1415926536;
 
 #ifdef PERFORMANCE_METRICS
 // All times in seconds
+double t_host_initialization;
 double t_host_advance;
 double t_host_adjustSynapses;
+double t_host_createSynapseImap;
 #endif // PERFORMANCE_METRICS 
 
 // TODO comment

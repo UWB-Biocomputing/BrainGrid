@@ -32,9 +32,30 @@ Simulator::~Simulator()
  */
 void Simulator::setup(SimulationInfo *sim_info)
 {
+#ifdef PERFORMANCE_METRICS
+  // Start overall simulation timer
+  cerr << "Starting main timer... ";
+  t_host_initialization = 0.0;
+  t_host_advance = 0.0;
+  t_host_adjustSynapses = 0.0;
+  t_host_createSynapseImap = 0.0;
+  timer.start();
+  cerr << "done." << endl;
+#endif
+
+#ifdef PERFORMANCE_METRICS
+  // Start timer for initialization
+  short_timer.start();
+#endif
+
   DEBUG(cerr << "Initializing models in network... ";)
   sim_info->model->setupSim(sim_info);
   DEBUG(cerr << "\ndone init models." << endl;)
+
+#ifdef PERFORMANCE_METRICS
+  // Time to initialization
+  t_host_initialization += short_timer.lap() / 1000000.0;
+#endif
 }
 
 /*
@@ -58,8 +79,8 @@ void Simulator::reset(SimulationInfo *sim_info)
 {
   DEBUG(cout << "\nEntering Simulator::reset()" << endl;)
 
-    // Terminate the simulator
-    sim_info->model->cleanupSim(sim_info);
+  // Terminate the simulator
+  sim_info->model->cleanupSim(sim_info);
 
   // Clean up objects
   freeResources();
@@ -71,7 +92,7 @@ void Simulator::reset(SimulationInfo *sim_info)
   sim_info->model->setupSim(sim_info);
 
   DEBUG(cout << "\nExiting Simulator::reset()" << endl;)
-    }
+}
 
 /*
  *  Clean up objects.
@@ -87,16 +108,6 @@ void Simulator::freeResources()
  */
 void Simulator::simulate(SimulationInfo *sim_info)
 {
-
-#ifdef PERFORMANCE_METRICS
-  // Start overall simulation timer
-  cerr << "Starting main timer... ";
-  t_host_advance = 0.0;
-  t_host_adjustSynapses = 0.0;
-  timer.start();
-  cerr << "done." << endl;
-#endif
-
   // Main simulation loop - execute maxGrowthSteps
   for (int currentStep = 1; currentStep <= sim_info->maxSteps; currentStep++) {
 

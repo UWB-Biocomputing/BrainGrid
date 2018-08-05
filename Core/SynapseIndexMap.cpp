@@ -12,6 +12,9 @@
 #if defined(USE_GPU)
 #include "GPUSpikingCluster.h"
 #endif
+#ifdef PERFORMANCE_METRICS
+#include "Timer.h"
+#endif
 
 /**
  *  Get cluster index from neuron layout index.
@@ -51,6 +54,11 @@ int SynapseIndexMap::getNeuronIdxFromNeuronLayoutIdx(int iNeuron, vector<Cluster
  */
 void SynapseIndexMap::createSynapseImap(const SimulationInfo* sim_info, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
+#ifdef PERFORMANCE_METRICS
+    Timer imap_timer;
+    imap_timer.start();
+#endif
+
     // allocate memories for forward map
     int totalNeurons = sim_info->totalNeurons;
     vector<OUTGOING_SYNAPSE_INDEX_TYPE>* rgSynapseSynapseIndexMap = new vector<OUTGOING_SYNAPSE_INDEX_TYPE>[totalNeurons];
@@ -249,5 +257,11 @@ void SynapseIndexMap::createSynapseImap(const SimulationInfo* sim_info, vector<C
         }
     }
     ) // end DEBUG
+
+#ifdef PERFORMANCE_METRICS
+    // Time to initialization
+    t_host_createSynapseImap += imap_timer.lap() / 1000000.0;
+#endif
+
 }
 

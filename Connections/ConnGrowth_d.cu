@@ -91,8 +91,17 @@ void ConnGrowth::updateConnsThread(const SimulationInfo *sim_info, Cluster *clr,
     GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(clr);
     AllSpikingNeuronsDeviceProperties* allNeuronsDevice = GPUClr->m_allNeuronsDevice;      
 
+#ifdef PERFORMANCE_METRICS
+    // Reset CUDA timer to start measurement of GPU operation
+    cudaStartTimer(clr_info);
+#endif // PERFORMANCE_METRICS
+
     blockPerGrid = ( totalClusterNeurons + threadsPerBlock - 1) / threadsPerBlock;
     updateConnsDevice <<< blockPerGrid, threadsPerBlock >>> (allNeuronsDevice, totalClusterNeurons, max_spikes, sim_info->epochDuration, m_growth.maxRate, m_growth.beta, m_growth.rho, m_growth.epsilon, rates_d, radii_d );
+
+#ifdef PERFORMANCE_METRICS
+    cudaLapTime(clr_info, clr_info->t_gpu_updateConns);
+#endif // PERFORMANCE_METRICS
 
     // copy rates and radii data back to host
     checkCudaErrors( cudaMemcpy ( &rates[clusterNeuronsBegin], rates_d, totalClusterNeurons * sizeof (BGFLOAT), cudaMemcpyDeviceToHost ) );
@@ -189,8 +198,17 @@ void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Lay
     AllSpikingNeuronsDeviceProperties* allNeuronsDevice = GPUClr->m_allNeuronsDevice;
     AllSpikingSynapsesDeviceProperties* allSynapsesDevice = GPUClr->m_allSynapsesDevice;
 
+#ifdef PERFORMANCE_METRICS
+    // Reset CUDA timer to start measurement of GPU operation
+    cudaStartTimer(clr_info);
+#endif // PERFORMANCE_METRICS
+
     blocksPerGrid = ( totalClusterNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
     updateSynapsesWeightsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, deltaT, sim_info->maxSynapsesPerNeuron, allNeuronsDevice, allSynapsesDevice, neuron_type_map_d, totalClusterNeurons, clusterNeuronsBegin, radii_d, xloc_d, yloc_d );
+
+#ifdef PERFORMANCE_METRICS
+    cudaLapTime(clr_info, clr_info->t_gpu_updateSynapsesWeights);
+#endif // PERFORMANCE_METRICS
 
     // copy device synapse count to host memory
     AllSynapses *synapses = dynamic_cast<AllSynapses*>(clr->m_synapses);
