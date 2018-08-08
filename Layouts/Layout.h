@@ -88,15 +88,15 @@ class Layout
         synapseType synType(const int src_neuron, const int dest_neuron);
 
         //! Store neuron i's x location.
-        VectorMatrix *xloc;
+        BGFLOAT *xloc;
 
         //! Store neuron i's y location.
-        VectorMatrix *yloc;
+        BGFLOAT *yloc;
 
-        // Inter-neuron distance squared.
+        // Inter-neuron distance squared. (not used on GPU)
         CompleteMatrix *dist2;
 
-        //! The true inter-neuron distance.
+        //! The true inter-neuron distance. (not used on GPU)
         CompleteMatrix *dist;
 
         //! Probed neurons list.

@@ -120,6 +120,8 @@ CUDAOBJS =   \
 		$(CONNDIR)/ConnGrowth_cuda.o \
 		$(CONNDIR)/ConnStatic_cuda.o \
 		$(CONNDIR)/ConnGrowth_d.o \
+		$(CONNDIR)/ConnStatic_d.o \
+		$(LAYOUTDIR)/Layout_cuda.o \
 		$(RNGDIR)/MersenneTwister_d.o \
 		$(COREDIR)/BGDriver_cuda.o \
 		$(INPUTDIR)/GpuSInputRegular.o \
@@ -138,7 +140,6 @@ LIBOBJS =   \
 		$(COREDIR)/Simulator.o \
 		$(COREDIR)/SimulationInfo.o \
 		$(COREDIR)/Cluster.o \
-		$(LAYOUTDIR)/Layout.o \
 		$(LAYOUTDIR)/FixedLayout.o \
 		$(LAYOUTDIR)/DynamicLayout.o \
 		$(UTILDIR)/ParseParamError.o \
@@ -153,7 +154,6 @@ LIBOBJS =   \
 		$(COREDIR)/Simulator.o \
 		$(COREDIR)/SimulationInfo.o \
 		$(COREDIR)/Cluster.o \
-		$(LAYOUTDIR)/Layout.o \
 		$(LAYOUTDIR)/FixedLayout.o \
 		$(LAYOUTDIR)/DynamicLayout.o \
 		$(UTILDIR)/ParseParamError.o \
@@ -198,6 +198,7 @@ SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
 		$(CONNDIR)/Connections.o \
 		$(CONNDIR)/ConnGrowth.o \
 		$(CONNDIR)/ConnStatic.o \
+		$(LAYOUTDIR)/Layout.o \
 		$(UTILDIR)/Global.o 
 
 XMLOBJS =	$(XMLDIR)/tinyxml.o \
@@ -269,6 +270,9 @@ $(SYNAPSEDIR)/AllDynamicSTDPSynapses_d.o: $(SYNAPSEDIR)/AllDynamicSTDPSynapses_d
 $(CONNDIR)/ConnGrowth_d.o: $(CONNDIR)/ConnGrowth_d.cu $(UTILDIR)/Global.h $(CONNDIR)/ConnGrowth.h
 	nvcc -c $(NVCCFLAGS) $(CONNDIR)/ConnGrowth_d.cu $(CGPUFLAGS) -o $(CONNDIR)/ConnGrowth_d.o
 
+$(CONNDIR)/ConnStatic_d.o: $(CONNDIR)/ConnStatic_d.cu $(UTILDIR)/Global.h $(CONNDIR)/ConnStatic.h
+	nvcc -c $(NVCCFLAGS) $(CONNDIR)/ConnStatic_d.cu $(CGPUFLAGS) -o $(CONNDIR)/ConnStatic_d.o
+
 $(COREDIR)/BGDriver_cuda.o: $(COREDIR)/BGDriver.cpp $(UTILDIR)/Global.h $(COREDIR)/IModel.h $(NEURONDIR)/AllIFNeurons.h $(SYNAPSEDIR)/AllSynapses.h 
 	nvcc -c $(NVCCFLAGS) $(COREDIR)/BGDriver.cpp -x cu $(CGPUFLAGS) -o $(COREDIR)/BGDriver_cuda.o
 
@@ -310,6 +314,9 @@ $(CONNDIR)/ConnGrowth_cuda.o: $(CONNDIR)/ConnGrowth.cpp $(CONNDIR)/ConnGrowth.h 
 
 $(CONNDIR)/ConnStatic_cuda.o: $(CONNDIR)/ConnStatic.cpp $(CONNDIR)/ConnStatic.h $(UTILDIR)/Global.h
 	nvcc -c $(NVCCFLAGS) $(CONNDIR)/ConnStatic.cpp -x cu $(CGPUFLAGS) -o $(CONNDIR)/ConnStatic_cuda.o 
+
+$(LAYOUTDIR)/Layout_cuda.o: $(LAYOUTDIR)/Layout.cpp $(LAYOUTDIR)/Layout.h 
+	nvcc -c $(NVCCFLAGS) $(LAYOUTDIR)/Layout.cpp -o $(LAYOUTDIR)/Layout_cuda.o
 
 $(UTILDIR)/Global_cuda.o: $(UTILDIR)/Global.cpp $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(CGPUFLAGS) $(UTILDIR)/Global.cpp -o $(UTILDIR)/Global_cuda.o

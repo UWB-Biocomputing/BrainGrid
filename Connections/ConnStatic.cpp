@@ -6,9 +6,6 @@
 #include "Hdf5Recorder.h"
 #endif
 #include <algorithm>
-#if defined(USE_GPU)
-#include "GPUSpikingCluster.h"
-#endif // USE_GPU
 
 ConnStatic::ConnStatic() : Connections()
 {
@@ -22,6 +19,7 @@ ConnStatic::~ConnStatic()
     cleanupConnections();
 }
 
+#if !defined(USE_GPU)
 /*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *  Initialize the small world network characterized by parameters: 
@@ -42,26 +40,26 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
 
     DEBUG(cout << "Initializing connections" << endl;)
 
-    for (int src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
-        distDestNeurons[src_neuron].clear(); 
+    for (int dest_neuron = 0; dest_neuron < num_neurons; dest_neuron++) {
+        distDestNeurons[dest_neuron].clear(); 
         // pick the connections shorter than threshConnsRadius
-        for (int dest_neuron = 0; dest_neuron < num_neurons; dest_neuron++) {
+        for (int src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
             if (src_neuron != dest_neuron) {
                 BGFLOAT dist = (*layout->dist)(src_neuron, dest_neuron);
                 if (dist <= m_threshConnsRadius) {
                     DistDestNeuron distDestNeuron;
                     distDestNeuron.dist = dist;
-                    distDestNeuron.dest_neuron = dest_neuron;
-                    distDestNeurons[src_neuron].push_back(distDestNeuron);
+                    distDestNeuron.src_neuron = src_neuron;
+                    distDestNeurons[dest_neuron].push_back(distDestNeuron);
                 }
             }
         }
 
         // sort ascendant
-        sort(distDestNeurons[src_neuron].begin(), distDestNeurons[src_neuron].end());
+        sort(distDestNeurons[dest_neuron].begin(), distDestNeurons[dest_neuron].end());
         // pick the shortest m_nConnsPerNeuron connections
-        for (BGSIZE i = 0; i < distDestNeurons[src_neuron].size() && (int)i < m_nConnsPerNeuron; i++) {
-            int dest_neuron = distDestNeurons[src_neuron][i].dest_neuron;
+        for (BGSIZE i = 0; i < distDestNeurons[dest_neuron].size() && (int)i < m_nConnsPerNeuron; i++) {
+            int src_neuron = distDestNeurons[dest_neuron][i].src_neuron;
             synapseType type = layout->synType(src_neuron, dest_neuron);
 
             // create a synapse at the cluster of the destination neuron
@@ -98,19 +96,8 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
 
     // Create synapse index maps
     SynapseIndexMap::createSynapseImap(sim_info, vtClr, vtClrInfo);
-
-#if defined(USE_GPU)
-    // copy host synapse arrays into GPU device
-    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
-        // Set device ID
-        checkCudaErrors( cudaSetDevice( vtClrInfo[iCluster]->deviceId ) );
-
-        AllSynapses *synapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
-        AllSpikingSynapsesDeviceProperties* allSynapsesDevice = dynamic_cast<GPUSpikingCluster*>(vtClr[iCluster])->m_allSynapsesDevice;
-        synapses->copySynapseHostToDevice( allSynapsesDevice, sim_info, vtClrInfo[iCluster] );
-    }
-#endif // USE_GPU
 }
+#endif // !USE_GPU
 
 /*
  *  Cleanup the class.

@@ -275,6 +275,7 @@ class ConnGrowth : public Connections
 
 private:
 #if defined(USE_GPU)
+        //! Barrier Synchnonize object for updateConnections
         static Barrier *m_barrierUpdateConnections;
 #endif // USE_GPU
 };

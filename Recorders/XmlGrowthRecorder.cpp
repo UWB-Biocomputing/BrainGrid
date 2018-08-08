@@ -128,14 +128,24 @@ void XmlGrowthRecorder::saveSimData(vector<Cluster *> &vtClr, vector<ClusterInfo
     //stateOut << version; TODO: version
 
     // Write the core state information:
+    VectorMatrix* xloc = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons);
+    VectorMatrix* yloc = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons);
+    for (int i = 0; i < m_sim_info->totalNeurons; i++) {
+        (*xloc)[i] = m_model->getLayout()->xloc[i];    
+        (*yloc)[i] = m_model->getLayout()->yloc[i];    
+    }
+
     stateOut << "<SimState>\n";
     stateOut << "   " << radiiHistory.toXML("radiiHistory") << endl;
     stateOut << "   " << ratesHistory.toXML("ratesHistory") << endl;
     stateOut << "   " << burstinessHist.toXML("burstinessHist") << endl;
     stateOut << "   " << spikesHistory.toXML("spikesHistory") << endl;
-    stateOut << "   " << m_model->getLayout()->xloc->toXML("xloc") << endl;
-    stateOut << "   " << m_model->getLayout()->yloc->toXML("yloc") << endl;
+    stateOut << "   " << xloc->toXML("xloc") << endl;
+    stateOut << "   " << yloc->toXML("yloc") << endl;
     stateOut << "   " << neuronTypes.toXML("neuronTypes") << endl;
+
+    delete xloc;
+    delete yloc;
 
     // create starter nuerons matrix
     int num_starter_neurons = static_cast<int>(m_model->getLayout()->num_endogenously_active_neurons);

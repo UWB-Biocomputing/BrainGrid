@@ -96,6 +96,7 @@ void ConnGrowth::updateConnsThread(const SimulationInfo *sim_info, Cluster *clr,
     cudaStartTimer(clr_info);
 #endif // PERFORMANCE_METRICS
 
+    // CUDA kernel function for calculating firing rates, neuron radii change and assign new values
     blockPerGrid = ( totalClusterNeurons + threadsPerBlock - 1) / threadsPerBlock;
     updateConnsDevice <<< blockPerGrid, threadsPerBlock >>> (allNeuronsDevice, totalClusterNeurons, max_spikes, sim_info->epochDuration, m_growth.maxRate, m_growth.beta, m_growth.rho, m_growth.epsilon, rates_d, radii_d );
 
@@ -177,21 +178,13 @@ void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Lay
     checkCudaErrors( cudaMemcpy ( neuron_type_map_d, layout->neuron_type_map, sim_info->totalNeurons * sizeof( neuronType ), cudaMemcpyHostToDevice ) );
 
     // allocate device memory for neuron's location data and initialize it
-    BGFLOAT* xloc_h = new BGFLOAT[sim_info->totalNeurons];
-    BGFLOAT* yloc_h = new BGFLOAT[sim_info->totalNeurons];
-
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        xloc_h[i] = (*layout->xloc)[i];
-        yloc_h[i] = (*layout->yloc)[i];
-    }
-
     BGFLOAT* xloc_d;
     BGFLOAT* yloc_d;
     checkCudaErrors( cudaMalloc( ( void ** ) &xloc_d, sim_info->totalNeurons * sizeof( BGFLOAT ) ) );
     checkCudaErrors( cudaMalloc( ( void ** ) &yloc_d, sim_info->totalNeurons * sizeof( BGFLOAT ) ) );
 
-    checkCudaErrors( cudaMemcpy ( xloc_d, xloc_h, sim_info->totalNeurons * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
-    checkCudaErrors( cudaMemcpy ( yloc_d, yloc_h, sim_info->totalNeurons * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( xloc_d, layout->xloc, sim_info->totalNeurons * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( yloc_d, layout->yloc, sim_info->totalNeurons * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 
     // executes a CUDA kernel function
     GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(clr);
@@ -239,16 +232,12 @@ void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Lay
   ) // end  DEBUG
 
     // free device memories
-    //checkCudaErrors( cudaFree( W_d ) );
     checkCudaErrors( cudaFree( neuron_type_map_d ) );
 
     checkCudaErrors( cudaFree( xloc_d ) );
     checkCudaErrors( cudaFree( yloc_d ) );
 
     checkCudaErrors( cudaFree( radii_d ) );
-
-    delete[] xloc_h;
-    delete[] yloc_h;
 
     // tell this thread's task has finished
     m_barrierUpdateConnections->Sync();

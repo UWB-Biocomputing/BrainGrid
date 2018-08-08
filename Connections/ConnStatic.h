@@ -42,6 +42,9 @@
 #include "SimulationInfo.h"
 #include <vector>
 #include <iostream>
+#if defined(USE_GPU)
+class Barrier;
+#endif // USE_GPU
 
 using namespace std;
 
@@ -65,6 +68,18 @@ class ConnStatic : public Connections
          *  @param  vtClrInfo   Vector of ClusterInfo.
          */
         virtual void setupConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
+
+#if defined(USE_GPU)
+        /**
+         *  Thread for setting the internal structure of the class (allocate memories and initialize them).
+         *
+         *  @param  sim_info    SimulationInfo class to read information from.
+         *  @param  layout      Layout information of the neunal network.
+         *  @param  clr         Pointer to cluster class to read information from.
+         *  @param  clr_info    Pointer to clusterInfo class to read information from.
+         */
+        void setupConnectionsThread(const SimulationInfo *sim_info, Layout *layout, Cluster * clr, ClusterInfo * clr_info);
+#endif // USE_GPU
 
         /**
          *  Cleanup the class.
@@ -134,11 +149,17 @@ class ConnStatic : public Connections
 
         //! Min/max values of inhibitory neuron's synapse weight
         BGFLOAT m_inhWeight[2];
+
+#if defined(USE_GPU)
+        //! Barrier Synchnonize object for setupConnections
+        static Barrier *m_barrierSetupConnections;
+#endif // USE_GPU
  
+public:
         struct DistDestNeuron
         {
             BGFLOAT dist;     // destance to the destination neuron
-            int dest_neuron;  // index of the destination neuron
+            int src_neuron;  // index of the destination neuron
 
             bool operator<(const DistDestNeuron& other) const
             {
@@ -146,3 +167,16 @@ class ConnStatic : public Connections
             }
         };
 };
+
+#if defined(USE_GPU)
+/**
+ *  CUDA kernel function for calculating distance between n eurons.
+ *
+ *  @param  num_neurons      Number of total neurons.
+ *  @param  dest_neuron      Destination neuron layout index.
+ *  @param  xloc_d           Neurons x locations.
+ *  @param  yloc_d           Neurons y locations.
+ *  @param  dist_d           Pointer to the array where results are stored.
+ */
+extern __global__ void calcNeuronsDistanceDevice ( int num_neurons, int dest_neuron, BGFLOAT* xloc_d, BGFLOAT* yloc_d, BGFLOAT* dist_d );
+#endif // USE_GPU

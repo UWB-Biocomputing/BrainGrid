@@ -337,8 +337,8 @@ void Hdf5Recorder::saveSimData(vector<Cluster *> &vtClr, vector<ClusterInfo *> &
         int* iYloc = new int[m_sim_info->totalNeurons];
         for (int i = 0; i < m_sim_info->totalNeurons; i++) {
             // convert VectorMatrix to int array
-            iXloc[i] = (*m_model->getLayout()->xloc)[i];
-            iYloc[i] = (*m_model->getLayout()->yloc)[i];
+            iXloc[i] = m_model->getLayout()->xloc[i];
+            iYloc[i] = m_model->getLayout()->yloc[i];
         }
         dataSetXloc->write(iXloc, PredType::NATIVE_INT);
         dataSetYloc->write(iYloc, PredType::NATIVE_INT);
