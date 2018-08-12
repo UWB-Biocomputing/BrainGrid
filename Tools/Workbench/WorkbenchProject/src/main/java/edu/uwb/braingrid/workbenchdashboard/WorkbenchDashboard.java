@@ -6,12 +6,22 @@ import javafx.scene.input.KeyEvent;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
+import jdk.internal.loader.Resource;
+import jdk.nashorn.internal.parser.JSONParser;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.uwb.braingrid.workbenchdashboard.threads.RunInit;
+import edu.uwb.braingrid.workbenchdashboard.userModel.User;
+import edu.uwb.braingrid.workbenchdashboard.utils.Init;
+import edu.uwb.braingrid.workbenchdashboard.utils.RepoManager;
 import edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties;
 
 /**
@@ -44,6 +54,7 @@ public class WorkbenchDashboard extends Application {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
 		launch(args);
 	}
 	
@@ -63,12 +74,20 @@ public class WorkbenchDashboard extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		
+		// Init
+		RunInit runInit = new RunInit();
+		runInit.start();
+		
 		// Setup Logger
 		LOG.setLevel(MIN_LOG_LEVEL);
 		initFileOutput();
 		
 		// Get system
 		SystemProperties.getSysProperties();
+		
+		//Load User
+		User.load();
 		
 		// Start Application
 		LOG.info("Starting Application");
@@ -98,6 +117,9 @@ public class WorkbenchDashboard extends Application {
 				}
 				if (arg0.getCode() == KeyCode.P && ctrl) {
 					workbench_display_.pushProVisStarterPage();
+				}
+				if (arg0.getCode() == KeyCode.U && ctrl) {
+					workbench_display_.pushUserViewPage();
 				}
 			}
 		});

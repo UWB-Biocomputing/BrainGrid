@@ -58,3 +58,9 @@ ControlFrame.actionExport;provEnabled=false;total milliseconds:25779
 ControlFrame.actionExport;provEnabled=false;total milliseconds:25016
 ControlFrame.actionExport;provEnabled=false;total milliseconds:32484
 ControlFrame.actionExport;provEnabled=false;total milliseconds:27808
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:1104
+WorkbenchManager.initProject;total prov overhead:834
+ScriptManager.runLocalScript;provEnabled=true;total milliseconds:49
+ScriptManager.runLocalScript;total prov overhead:5
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:11744
+WorkbenchManager.initProject;total prov overhead:11635

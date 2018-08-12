@@ -2,46 +2,10 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2018-08-02T00:06:29.670520800Z</date>
-  <millis>1533168389670</millis>
-  <nanos>520800</nanos>
-  <sequence>0</sequence>
-  <logger>edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard</logger>
-  <level>INFO</level>
-  <class>edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard</class>
-  <method>start</method>
-  <thread>15</thread>
-  <message>Starting Application</message>
-</record>
-<record>
-  <date>2018-08-02T00:06:30.081267800Z</date>
-  <millis>1533168390081</millis>
-  <nanos>267800</nanos>
-  <sequence>1</sequence>
-  <logger>edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay</logger>
-  <level>INFO</level>
-  <class>edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay</class>
-  <method>&lt;init&gt;</method>
-  <thread>15</thread>
-  <message>new edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay</message>
-</record>
-<record>
-  <date>2018-08-02T00:06:30.099257100Z</date>
-  <millis>1533168390099</millis>
-  <nanos>257100</nanos>
-  <sequence>2</sequence>
-  <logger>edu.uwb.braingrid.workbenchdashboard.welcome.Welcome</logger>
-  <level>INFO</level>
-  <class>edu.uwb.braingrid.workbenchdashboard.welcome.Welcome</class>
-  <method>&lt;init&gt;</method>
-  <thread>15</thread>
-  <message>new edu.uwb.braingrid.workbenchdashboard.welcome.Welcome</message>
-</record>
-<record>
-  <date>2018-08-02T00:06:30.787833800Z</date>
-  <millis>1533168390787</millis>
-  <nanos>833800</nanos>
-  <sequence>3</sequence>
+  <date>2018-08-12T19:53:04.052814900Z</date>
+  <millis>1534103584052</millis>
+  <nanos>814900</nanos>
+  <sequence>26</sequence>
   <logger>edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties</logger>
   <level>INFO</level>
   <class>edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties</class>
@@ -50,10 +14,10 @@
   <message>new SystemProperties</message>
 </record>
 <record>
-  <date>2018-08-02T00:06:30.788833Z</date>
-  <millis>1533168390788</millis>
-  <nanos>833000</nanos>
-  <sequence>4</sequence>
+  <date>2018-08-12T19:53:04.060625600Z</date>
+  <millis>1534103584060</millis>
+  <nanos>625600</nanos>
+  <sequence>27</sequence>
   <logger>edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties</logger>
   <level>INFO</level>
   <class>edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties</class>
@@ -61,4 +25,687 @@
   <thread>15</thread>
   <message>OS found - Windows 10</message>
 </record>
-</log>
+<record>
+  <date>2018-08-12T19:53:04.061601800Z</date>
+  <millis>1534103584061</millis>
+  <nanos>601800</nanos>
+  <sequence>28</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.userModel.User</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.userModel.User</class>
+  <method>load</method>
+  <thread>15</thread>
+  <message>Loading User Information</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:04.330081300Z</date>
+  <millis>1534103584330</millis>
+  <nanos>81300</nanos>
+  <sequence>29</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.userModel.User</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.userModel.User</class>
+  <method>load</method>
+  <thread>15</thread>
+  <message>User info loaded: {"brainGridRepoDirectory":"C:\\Users\\Max\\Documents\\DOCUMENTS\\Braingrid-WD\\BrainGrid\\Tools\\Workbench\\WorkbenchProject\\BrainGridRepos","rootDir":"C:\\Users\\Max\\Documents\\DOCUMENTS\\Braingrid-WD\\BrainGrid\\Tools\\Workbench\\WorkbenchProject"}</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:04.331057900Z</date>
+  <millis>1534103584331</millis>
+  <nanos>57900</nanos>
+  <sequence>30</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard</class>
+  <method>start</method>
+  <thread>15</thread>
+  <message>Starting Application</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:04.478478500Z</date>
+  <millis>1534103584478</millis>
+  <nanos>478500</nanos>
+  <sequence>31</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>new edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:04.513624300Z</date>
+  <millis>1534103584513</millis>
+  <nanos>624300</nanos>
+  <sequence>32</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.welcome.Welcome</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.welcome.Welcome</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>new edu.uwb.braingrid.workbenchdashboard.welcome.Welcome</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:06.723007300Z</date>
+  <millis>1534103586723</millis>
+  <nanos>7300</nanos>
+  <sequence>33</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.simstarter.SimStarter</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.simstarter.SimStarter</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>new edu.uwb.braingrid.workbenchdashboard.simstarter.SimStarter</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:08.178794500Z</date>
+  <millis>1534103588178</millis>
+  <nanos>794500</nanos>
+  <sequence>34</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.provis.ProVis</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.provis.ProVis</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>new edu.uwb.braingrid.workbenchdashboard.provis.ProVis</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:13.593936400Z</date>
+  <millis>1534103593593</millis>
+  <nanos>936400</nanos>
+  <sequence>35</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.NLedit</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.NLedit</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>new edu.uwb.braingrid.workbenchdashboard.nledit.NLedit</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:14.335214800Z</date>
+  <millis>1534103594335</millis>
+  <nanos>214800</nanos>
+  <sequence>36</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>new edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:37.101619200Z</date>
+  <millis>1534103617101</millis>
+  <nanos>619200</nanos>
+  <sequence>37</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:38.681694Z</date>
+  <millis>1534103618681</millis>
+  <nanos>694000</nanos>
+  <sequence>38</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:39.326033800Z</date>
+  <millis>1534103619326</millis>
+  <nanos>33800</nanos>
+  <sequence>39</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:39.714489100Z</date>
+  <millis>1534103619714</millis>
+  <nanos>489100</nanos>
+  <sequence>40</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:40.118236Z</date>
+  <millis>1534103620118</millis>
+  <nanos>236000</nanos>
+  <sequence>41</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:40.536276500Z</date>
+  <millis>1534103620536</millis>
+  <nanos>276500</nanos>
+  <sequence>42</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:40.861345300Z</date>
+  <millis>1534103620861</millis>
+  <nanos>345300</nanos>
+  <sequence>43</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:41.225637200Z</date>
+  <millis>1534103621225</millis>
+  <nanos>637200</nanos>
+  <sequence>44</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:41.551813200Z</date>
+  <millis>1534103621551</millis>
+  <nanos>813200</nanos>
+  <sequence>45</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:41.918857500Z</date>
+  <millis>1534103621918</millis>
+  <nanos>857500</nanos>
+  <sequence>46</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:42.661735100Z</date>
+  <millis>1534103622661</millis>
+  <nanos>735100</nanos>
+  <sequence>47</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:42.934199500Z</date>
+  <millis>1534103622934</millis>
+  <nanos>199500</nanos>
+  <sequence>48</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:43.289785Z</date>
+  <millis>1534103623289</millis>
+  <nanos>785000</nanos>
+  <sequence>49</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:43.662291200Z</date>
+  <millis>1534103623662</millis>
+  <nanos>291200</nanos>
+  <sequence>50</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:43.980294500Z</date>
+  <millis>1534103623980</millis>
+  <nanos>294500</nanos>
+  <sequence>51</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:44.282276Z</date>
+  <millis>1534103624282</millis>
+  <nanos>276000</nanos>
+  <sequence>52</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:44.608185800Z</date>
+  <millis>1534103624608</millis>
+  <nanos>185800</nanos>
+  <sequence>53</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:44.918547700Z</date>
+  <millis>1534103624918</millis>
+  <nanos>547700</nanos>
+  <sequence>54</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:45.251891200Z</date>
+  <millis>1534103625251</millis>
+  <nanos>891200</nanos>
+  <sequence>55</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:45.501896500Z</date>
+  <millis>1534103625501</millis>
+  <nanos>896500</nanos>
+  <sequence>56</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:46.774774200Z</date>
+  <millis>1534103626774</millis>
+  <nanos>774200</nanos>
+  <sequence>57</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>active neuron placed at 3, 3</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:46.952775300Z</date>
+  <millis>1534103626952</millis>
+  <nanos>775300</nanos>
+  <sequence>58</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>active neuron placed at 8, 6</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:47.131428600Z</date>
+  <millis>1534103627131</millis>
+  <nanos>428600</nanos>
+  <sequence>59</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>active neuron placed at 7, 3</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:47.292959400Z</date>
+  <millis>1534103627292</millis>
+  <nanos>959400</nanos>
+  <sequence>60</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>active neuron placed at 5, 2</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:47.448099300Z</date>
+  <millis>1534103627448</millis>
+  <nanos>99300</nanos>
+  <sequence>61</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>active neuron placed at 6, 4</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:48.123611200Z</date>
+  <millis>1534103628123</millis>
+  <nanos>611200</nanos>
+  <sequence>62</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>probed neuron placed at 4, 4</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:48.310779900Z</date>
+  <millis>1534103628310</millis>
+  <nanos>779900</nanos>
+  <sequence>63</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>probed neuron placed at 3, 5</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:48.489783700Z</date>
+  <millis>1534103628489</millis>
+  <nanos>783700</nanos>
+  <sequence>64</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>probed neuron placed at 3, 4</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:48.659651600Z</date>
+  <millis>1534103628659</millis>
+  <nanos>651600</nanos>
+  <sequence>65</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>probed neuron placed at 5, 7</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:48.821489100Z</date>
+  <millis>1534103628821</millis>
+  <nanos>489100</nanos>
+  <sequence>66</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>probed neuron placed at 4, 8</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:49.014479500Z</date>
+  <millis>1534103629014</millis>
+  <nanos>479500</nanos>
+  <sequence>67</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>probed neuron placed at 5, 2</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:49.178224700Z</date>
+  <millis>1534103629178</millis>
+  <nanos>224700</nanos>
+  <sequence>68</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>probed neuron placed at 4, 1</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:49.326721200Z</date>
+  <millis>1534103629326</millis>
+  <nanos>721200</nanos>
+  <sequence>69</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>probed neuron placed at 2, 2</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:50.131761700Z</date>
+  <millis>1534103630131</millis>
+  <nanos>761700</nanos>
+  <sequence>70</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>inhibitory neuron placed at 5, 2</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:50.301730200Z</date>
+  <millis>1534103630301</millis>
+  <nanos>730200</nanos>
+  <sequence>71</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>inhibitory neuron placed at 3, 5</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:50.480199700Z</date>
+  <millis>1534103630480</millis>
+  <nanos>199700</nanos>
+  <sequence>72</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>inhibitory neuron placed at 5, 2</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:50.661372800Z</date>
+  <millis>1534103630661</millis>
+  <nanos>372800</nanos>
+  <sequence>73</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>inhibitory neuron placed at 3, 1</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:50.837731800Z</date>
+  <millis>1534103630837</millis>
+  <nanos>731800</nanos>
+  <sequence>74</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>inhibitory neuron placed at 8, 6</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:51.007809700Z</date>
+  <millis>1534103631007</millis>
+  <nanos>809700</nanos>
+  <sequence>75</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>Out of bounds</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:51.194419500Z</date>
+  <millis>1534103631194</millis>
+  <nanos>419500</nanos>
+  <sequence>76</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>inhibitory neuron placed at 4, 4</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:51.381196300Z</date>
+  <millis>1534103631381</millis>
+  <nanos>196300</nanos>
+  <sequence>77</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>inhibitory neuron placed at 5, 1</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:51.529359700Z</date>
+  <millis>1534103631529</millis>
+  <nanos>359700</nanos>
+  <sequence>78</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>inhibitory neuron placed at 6, 1</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:51.698338500Z</date>
+  <millis>1534103631698</millis>
+  <nanos>338500</nanos>
+  <sequence>79</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>inhibitory neuron placed at 6, 4</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:51.847691200Z</date>
+  <millis>1534103631847</millis>
+  <nanos>691200</nanos>
+  <sequence>80</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>inhibitory neuron placed at 7, 6</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:52.016147800Z</date>
+  <millis>1534103632016</millis>
+  <nanos>147800</nanos>
+  <sequence>81</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>inhibitory neuron placed at 4, 6</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:52.189571800Z</date>
+  <millis>1534103632189</millis>
+  <nanos>571800</nanos>
+  <sequence>82</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>inhibitory neuron placed at 2, 2</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:52.374056200Z</date>
+  <millis>1534103632374</millis>
+  <nanos>56200</nanos>
+  <sequence>83</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>inhibitory neuron placed at 2, 6</message>
+</record>
+<record>
+  <date>2018-08-12T19:53:52.543845800Z</date>
+  <millis>1534103632543</millis>
+  <nanos>845800</nanos>
+  <sequence>84</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.nledit.LayoutPanel</class>
+  <method>mousePressed</method>
+  <thread>25</thread>
+  <message>inhibitory neuron placed at 7, 8</message>
+</record>

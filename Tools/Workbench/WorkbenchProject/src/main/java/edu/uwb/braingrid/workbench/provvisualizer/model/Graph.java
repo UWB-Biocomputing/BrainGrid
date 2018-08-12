@@ -3,6 +3,9 @@ package edu.uwb.braingrid.workbench.provvisualizer.model;
 import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
 import edu.uwb.braingrid.workbench.provvisualizer.utility.GraphUtility;
 import edu.uwb.braingrid.workbench.provvisualizer.utility.ProvUtility;
+import edu.uwb.braingrid.workbenchdashboard.userModel.DirMgr;
+import edu.uwb.braingrid.workbenchdashboard.userModel.User;
+import edu.uwb.braingrid.workbenchdashboard.utils.RepoManager;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.EdgeFactory;
 import edu.uwb.braingrid.workbench.provvisualizer.factory.NodeFactory;
 import javafx.scene.canvas.Canvas;
@@ -134,11 +137,11 @@ public class Graph {
     }
 
     public void generateCommitRelationships(double canvasWidth, double canvasHeight){
-        String bgReposPath = System.getProperty("user.dir") + File.separator + ProvVisGlobal.BG_REPOSITORY_LOCAL;
+        String bgReposPath = User.user.getBrainGridRepoDirectory();
         if(!Files.exists(Paths.get(bgReposPath))) {
             try {
                 git = Git.cloneRepository()
-                        .setURI(ProvVisGlobal.BG_REPOSITORY_URI)
+                        .setURI(RepoManager.getMasterBranchDirectory())
                         .setDirectory(new File(bgReposPath))
                         .call();
             } catch (GitAPIException e) {

@@ -8,13 +8,23 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.logging.Logger;
 
+import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
 import edu.uwb.braingrid.workbenchdashboard.nledit.NLedit;
 import edu.uwb.braingrid.workbenchdashboard.provis.ProVis;
 import edu.uwb.braingrid.workbenchdashboard.simstarter.SimStarter;
+import edu.uwb.braingrid.workbenchdashboard.userModel.User;
+import edu.uwb.braingrid.workbenchdashboard.userView.UserView;
+import edu.uwb.braingrid.workbenchdashboard.utils.RepoManager;
 import edu.uwb.braingrid.workbenchdashboard.welcome.Welcome;
 import javafx.stage.Stage;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
 
 /**
  * Defines the main display of the screen along with global functionality.
@@ -33,7 +43,7 @@ public class WorkbenchDisplay extends BorderPane {
 	 * The main content of the screen
 	 */
 	private TabPane tp_ = new TabPane();
-	
+
 	/**
 	 * 
 	 * @param primary_stage The Stage object of the fx instance.
@@ -42,6 +52,7 @@ public class WorkbenchDisplay extends BorderPane {
 		LOG.info("new " + getClass().getName());
 		primaryStage_ = primary_stage;
 		setTop(generateMenuBar(primaryStage_));
+		setBottom(new WorkbenchStatusBar());
 		pushWeclomePage();
 		setCenter(tp_);
 	}
@@ -53,6 +64,7 @@ public class WorkbenchDisplay extends BorderPane {
 	private MenuBar generateMenuBar(Stage primary_stage) {
 		menu_bar_ = new MenuBar();
 		menu_bar_.getMenus().add(generateMenuFile(primary_stage));
+		menu_bar_.getMenus().add(generateMenuRepo());
 		return menu_bar_;
 	}
 	
@@ -107,6 +119,21 @@ public class WorkbenchDisplay extends BorderPane {
 		new_menu.getItems().add(provis);
 		return new_menu;
 	}
+	
+	private Menu generateMenuRepo() {
+		Menu repo_menu = new Menu("_Repo");
+		MenuItem updateMain = new MenuItem("Update Main");
+		
+		updateMain.setOnAction(event -> {
+			RepoManager.getMasterBranch();
+		});
+		
+		repo_menu.getItems().add(updateMain);
+		
+		return repo_menu;
+	}
+	
+	
 
 	/**
 	 * Adds a new Growth Simulator Layout Editor tab
@@ -151,6 +178,15 @@ public class WorkbenchDisplay extends BorderPane {
 		Tab tab = new Tab();
 		ProVis pv = new ProVis(tab);
 		tab.setContent(pv.getDisplay());
+		tp_.getTabs().add(tab);
+		SingleSelectionModel<Tab> selectionModel = tp_.getSelectionModel();
+		selectionModel.select(tab);
+	}
+	
+	void pushUserViewPage() {
+		Tab tab = new Tab();
+		UserView uv = new UserView(tab);
+		tab.setContent(uv.getDisplay());
 		tp_.getTabs().add(tab);
 		SingleSelectionModel<Tab> selectionModel = tp_.getSelectionModel();
 		selectionModel.select(tab);

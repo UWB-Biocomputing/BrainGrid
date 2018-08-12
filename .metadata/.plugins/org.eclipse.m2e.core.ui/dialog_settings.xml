@@ -14,6 +14,7 @@
 	</section>
 	<section name="MavenProjectImportWizardPage">
 		<list key="rootDirectory">
+			<item value="C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\main\java\edu\uwb\braingrid\workbenchdashboard"/>
 			<item value="C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid"/>
 		</list>
 		<list key="projectNameTemplate">
