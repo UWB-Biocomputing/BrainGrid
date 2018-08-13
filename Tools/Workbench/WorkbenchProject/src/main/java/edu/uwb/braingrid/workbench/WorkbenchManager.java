@@ -17,14 +17,19 @@ import edu.uwb.braingrid.workbench.ui.ProvenanceQueryDialog;
 import edu.uwb.braingrid.workbench.ui.ScriptSpecificationDialog;
 import edu.uwb.braingrid.workbench.ui.WorkbenchControlFrame;
 import edu.uwb.braingrid.workbench.utils.DateTime;
+import jdk.internal.jline.internal.Log;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Logger;
+
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+
 import org.xml.sax.SAXException;
 
 /**
@@ -53,7 +58,7 @@ public class WorkbenchManager {
     private final String rootDir;
     private final String projectsDir;
     private SimulationSpecification simulatorSpecification;
-
+    private final static Logger LOG = Logger.getLogger(WorkbenchManager.class.getName());
     /**
      * Value indicating that an exception occurred during an operation
      */
@@ -87,6 +92,7 @@ public class WorkbenchManager {
      * difference being the messages that will be delivered through getMsg
      */
     public boolean newProject() {
+    	LOG.info("Making New Project");
         boolean success;
         // Ask the user for a new project name (validation in dialogue)
         
@@ -108,8 +114,10 @@ public class WorkbenchManager {
      * the user canceled the specification.
      */
     public boolean configureSimulation() {
+    	String projectName = getProjectName();
+    	LOG.info("Configuring Simulation for " + projectName);
         boolean success = true;
-        String projectName = getProjectName();
+       
         if (!projectName.equals("None")) {
             String configFilename = projectMgr.getSimConfigFilename();
             InputConfigClassSelectionDialog iccsd
@@ -348,6 +356,7 @@ public class WorkbenchManager {
      * for the action to be performed)
      */
     public boolean specifyScript() {
+    	LOG.info("Specifying Script");
         String hostAddr;
         ScriptSpecificationDialog spd;
         if (simulatorSpecification != null) {
@@ -437,6 +446,7 @@ public class WorkbenchManager {
      * otherwise false
      */
     public boolean generateScript() {
+    	LOG.info("Generate Script for " + projectMgr.getName());
         boolean success;
         success = false;
         Script script = ScriptManager.
@@ -519,6 +529,8 @@ public class WorkbenchManager {
      * @return
      */
     public boolean initProject(String name, boolean provEnabled) {
+ 
+    	LOG.info("Initializing a New Project: " + name);
         Long functionStartTime = System.currentTimeMillis();
         Long accumulatedTime = 0L;
         boolean success = true;

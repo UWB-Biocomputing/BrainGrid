@@ -32,8 +32,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
+
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RiotNotFoundException;
+
 
 /**
  * <h2>Manages provenance for projects specified within the Brain Grid Toolbox
@@ -66,7 +69,7 @@ public class ProvMgr {
     public static final String ipServiceURL = "http://checkip.amazonaws.com/";
     public static String REMOTE_NS_PREFIX = "remote";
     public static String LOCAL_NS_PREFIX = "local";
-
+    private Logger LOG = Logger.getLogger(ProvMgr.class.getName());
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction">
@@ -81,6 +84,7 @@ public class ProvMgr {
      * @throws java.io.IOException, RiotNotFoundException
      */
     public ProvMgr(ProjectMgr project, boolean load) throws IOException {
+    	LOG.info("New Provenance Manager for " + project.getName());
         if (load) {
             load(project);
         } else {

@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.logging.Logger;
 
+import edu.uwb.braingrid.workbench.SystemConfig;
+
 public class Init {
 	
 	public static void init() {
@@ -21,6 +23,7 @@ public class Init {
 	}
 
 	private static void initBaseTemplates() throws IOException {
+
 		String folderName = "BaseTemplates";
 		File file = new File("./" + folderName);
 		if(!file.exists()) {
@@ -74,7 +77,8 @@ public class Init {
 	
 	private static void initRootFiles() throws IOException {
 		LOG.info("Initializing Root Files");
-		Init.copyResourceToFile("/init/BaseTemplateConfig.xml", "./BaseTemplateConfig.xml");
+		String filename = SystemConfig.BASE_TEMPLATE_INFO_XML_File_URL;
+		Init.copyResourceToFile("/init/" + filename, "./" + filename);
 		Init.copyResourceToFile("/init/README.TXT", "./README.TXT");
 	}
 	

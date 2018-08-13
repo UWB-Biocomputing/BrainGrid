@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -19,6 +21,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -80,6 +83,7 @@ public class ProjectMgr {
     private static final String simConfigFileTagName = "simConfigFile";
     private static final String simulationConfigurationFileAttributeName
             = "simulationConfigurationFile";
+    private static final Logger LOG = Logger.getLogger(ProjectMgr.class.getName());
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction">
@@ -96,6 +100,7 @@ public class ProjectMgr {
      */
     public ProjectMgr(String rootNodeName, boolean load)
             throws ParserConfigurationException, IOException, SAXException {
+    	LOG.info("New Project Manager for project: " + name);
         initState();
         name = rootNodeName.split("\\.")[0];
         if (load) {

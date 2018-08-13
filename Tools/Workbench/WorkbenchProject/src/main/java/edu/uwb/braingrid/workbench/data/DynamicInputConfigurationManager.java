@@ -11,6 +11,7 @@ import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import java.util.logging.Logger;
 
 /**
  * Manages the construction of input configuration files.
@@ -35,6 +36,7 @@ public class DynamicInputConfigurationManager {
      */
     public DynamicInputConfigurationManager(String configFilename) throws SAXException,
             IOException, ParserConfigurationException, Exception {
+    	LOG.info("New " + getClass().getName());
         inputConfigBuilder = new DynamicInputConfigurationBuilder();
         if (configFilename != null) {
             inputConfig = inputConfigBuilder.load(configFilename);
@@ -94,4 +96,6 @@ public class DynamicInputConfigurationManager {
             
         return fullPath;
     }
+    
+    private static final Logger LOG = Logger.getLogger(DynamicInputConfigurationManager.class.getName());
 }

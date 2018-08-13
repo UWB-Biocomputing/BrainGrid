@@ -29,6 +29,7 @@ public class User {
 		LOG.info("Initializing User Data");
 		User.user.setRootDir(System.getProperty("user.dir"));
 		User.user.setBrainGridRepoDirectory(User.user.getRootDir() + File.separator + ProvVisGlobal.BG_REPOSITORY_LOCAL);
+		User.user.setHomeDir(System.getProperty("user.home"));
 		save();
 	}
 	
@@ -83,10 +84,20 @@ public class User {
 		this.brainGridRepoDirectory = brainGridRepoDirectory;
 	}
 	
-	
+
+	public String getHomeDir() {
+		return homeDir;
+	}
+
+	public void setHomeDir(String homeDir) {
+		this.homeDir = homeDir;
+	}
+
+
 
 	private String brainGridRepoDirectory = "";
 	private String rootDir = "";
+	private String homeDir = "";
 	private final static Logger LOG = Logger.getLogger(User.class.getName());
 	private static final String USER_DATA_PATH = "./user.json";
 }

@@ -4,6 +4,8 @@ package edu.uwb.braingrid.workbench.model;
 import edu.uwb.braingrid.workbench.SystemConfig;
 import java.io.File;
 import java.util.*;
+import java.util.logging.Logger;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.*;
 
@@ -16,6 +18,7 @@ public class DynamicInputConfiguration {
 
 	private Document inputConfig;
 	private ArrayList<Node> paramValues;
+	private static Logger LOG =Logger.getLogger(DynamicInputConfiguration.class.getName());
 
 	/**
 	 * Responsible for initializing containers for parameters/values and their
@@ -24,6 +27,7 @@ public class DynamicInputConfiguration {
 	 * @throws java.lang.Exception
 	 */
 	public DynamicInputConfiguration() throws Exception {
+		LOG.info("New " + getClass().getName());
 		Document baseTemplateInfoDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
 				.parse(System.getProperty("user.dir") + File.separator + SystemConfig.BASE_TEMPLATE_INFO_XML_File_URL);
 		Node baseTemplateNode = baseTemplateInfoDoc.getFirstChild();

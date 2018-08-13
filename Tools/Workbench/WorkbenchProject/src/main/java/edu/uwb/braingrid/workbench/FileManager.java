@@ -7,6 +7,8 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.logging.Logger;
+
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -32,7 +34,7 @@ public final class FileManager {
     private final String projectsFolderName = "projects";
     private final String configFilesFolderName = "configfiles";
     private final String neuronListFolderName = "NList";
-
+    private static final Logger LOG = Logger.getLogger(FileManager.class.getName());
     /**
      * This is here to make sure that classes from other packages cannot
      * instantiate the file manager. This is to ensure that only one file
@@ -40,6 +42,7 @@ public final class FileManager {
      * thread.
      */
     private FileManager() {
+    	LOG.info("New " + getClass().getName());
         String osName = System.getProperty("os.name").toLowerCase();
         isWindowsSystem = osName.startsWith("windows");
         folderDelimiter = isWindowsSystem ? "\\" : "/";

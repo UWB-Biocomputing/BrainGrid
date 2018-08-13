@@ -5,6 +5,9 @@ import edu.uwb.braingrid.workbench.SystemConfig;
 import edu.uwb.braingrid.workbench.data.DynamicInputConfigurationManager;
 import edu.uwb.braingrid.workbench.data.InputAnalyzer;
 import edu.uwb.braingrid.workbench.data.InputAnalyzer.InputType;
+import edu.uwb.braingrid.workbenchdashboard.utils.FileSelectorDirMgr;
+import jdk.internal.jline.internal.Log;
+
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -13,10 +16,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.logging.Logger;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+
+
 import org.w3c.dom.*;
 import javax.xml.xpath.*;
 import org.xml.sax.SAXException;
@@ -191,6 +198,7 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
 	private String lastStateOutputFileName = null;
 	private String projectName = null;
 	private ArrayList<String> tabPaths = new ArrayList<>();
+	private static final Logger LOG = Logger.getLogger(DynamicInputConfigurationDialog.class.getName());
 	// </editor-fold>
 
 	// <editor-fold defaultstate="collapsed" desc="Construction">
@@ -203,6 +211,7 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
 	 */
 	public DynamicInputConfigurationDialog(String projectName, boolean modal, String configFilename,
 			DynamicInputConfigurationManager aIcm) {
+		LOG.info("New " + getClass().getName() + " for " + projectName);
 		initComponents();
 		setModal(modal);
 		this.projectName = projectName;
@@ -245,7 +254,7 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
 	}
 
 	/**
-	 * Build the GUI according to the input XML File.
+	 * Build the GUI according to the input XML File. This is the second part of the configure popup.
 	 * 
 	 * @param aDoc
 	 * @throws javax.xml.xpath.XPathExpressionException
@@ -339,12 +348,14 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
 		icm.setInputParamElements(inputElements);
 	}
 
+	private FileSelectorDirMgr dirMgr = new FileSelectorDirMgr();
 	// File Button Listener used to handle the copy of the file and set the path
 	private class ImportFileButtonListener implements ActionListener {
 		InputType type = null;
 		JTextField field = null;
-
+		
 		ImportFileButtonListener(InputType aType, JTextField aField) {
+			LOG.info("New " + getClass().getName() + " Type: " + aType.toString());
 			type = aType;
 			field = aField;
 		}
@@ -359,7 +370,11 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
 			// get starting folder
 			String simConfFilesDir;
 			try {
-				simConfFilesDir = fm.getSimConfigDirectoryPath(projectName, true);
+				if(dirMgr.getLastDir() == dirMgr.getDefault()) {
+					simConfFilesDir = fm.getSimConfigDirectoryPath(projectName, true);
+				} else {
+					simConfFilesDir = dirMgr.getLastDir().getAbsolutePath();
+				}
 			} catch (IOException e) {
 				messageLabelText.setText(
 						"<html><span style=\"color:red\">" + e.getClass() + "occurred, import failed...</span></html>");
@@ -383,10 +398,13 @@ public class DynamicInputConfigurationDialog extends javax.swing.JDialog {
 						if (FileManager.copyFile(sourceFilePath, destFilePath)) {
 							field.setText(
 									"configfiles/NList/" + fm.getSimpleFilename(destFilePath.toString()));
+							dirMgr.add(file.getParentFile());
 						}
+						messageLabelText.setText("<html><span style=\"color:green\">"
+									+ "Good!</span></html>");
 					} else {
 						messageLabelText.setText("<html><span style=\"color:orange\">"
-								+ "The selected file did not match the type: " + type.toString() + "</span></html>");
+									+ "The selected file did not match the type: " + type.toString() + "</span></html>");
 					}
 				} catch (ParserConfigurationException | SAXException | IOException ex) {
 					messageLabelText.setText("<html><span style=\"color:red\">" + ex.getClass()

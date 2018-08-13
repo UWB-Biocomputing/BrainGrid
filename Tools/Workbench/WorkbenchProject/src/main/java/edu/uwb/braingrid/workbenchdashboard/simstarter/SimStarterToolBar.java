@@ -9,6 +9,7 @@ public class SimStarterToolBar extends MenuBar {
 	public SimStarterToolBar(SimStarter simstarter) {
 		simstarter_ = simstarter;
 		initMenu();
+		disableProvidence(true);
 	}
 
 	public void disableSave(boolean val) {

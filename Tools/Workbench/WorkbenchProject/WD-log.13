@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2018-08-12T23:14:15.228949100Z</date>
+  <millis>1534115655228</millis>
+  <nanos>949100</nanos>
+  <sequence>1</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/BaseTemplates/BaseTemplateDefault.xml to: C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\.\BaseTemplates/BaseTemplateDefault.xml</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.229924700Z</date>
+  <millis>1534115655229</millis>
+  <nanos>924700</nanos>
+  <sequence>2</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>new SystemProperties</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.238711600Z</date>
+  <millis>1534115655238</millis>
+  <nanos>711600</nanos>
+  <sequence>3</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.SystemProperties</class>
+  <method>informOSType</method>
+  <thread>15</thread>
+  <message>OS found - Windows 10</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.240665400Z</date>
+  <millis>1534115655240</millis>
+  <nanos>665400</nanos>
+  <sequence>4</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.userModel.User</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.userModel.User</class>
+  <method>load</method>
+  <thread>15</thread>
+  <message>Loading User Information</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.245545700Z</date>
+  <millis>1534115655245</millis>
+  <nanos>545700</nanos>
+  <sequence>5</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>initParamsClassTemplateConfig</method>
+  <thread>19</thread>
+  <message>Making Folder: ./ParamsClassTemplateConfig/ConnectionsParamsClass</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.246521600Z</date>
+  <millis>1534115655246</millis>
+  <nanos>521600</nanos>
+  <sequence>6</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>initParamsClassTemplateConfig</method>
+  <thread>19</thread>
+  <message>Making Folder: ./ParamsClassTemplateConfig/LayoutParamsClass</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.247497900Z</date>
+  <millis>1534115655247</millis>
+  <nanos>497900</nanos>
+  <sequence>7</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>initParamsClassTemplateConfig</method>
+  <thread>19</thread>
+  <message>Making Folder: ./ParamsClassTemplateConfig/NeuronsParamsClass</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.248473800Z</date>
+  <millis>1534115655248</millis>
+  <nanos>473800</nanos>
+  <sequence>8</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>initParamsClassTemplateConfig</method>
+  <thread>19</thread>
+  <message>Making Folder: ./ParamsClassTemplateConfig/SynapsesParamsClass</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.251403500Z</date>
+  <millis>1534115655251</millis>
+  <nanos>403500</nanos>
+  <sequence>9</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>initParamsClassTemplateConfig</method>
+  <thread>19</thread>
+  <message>Initializing ParamsClassTemplateConfig resources</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.253356700Z</date>
+  <millis>1534115655253</millis>
+  <nanos>356700</nanos>
+  <sequence>10</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/ParamsClassTemplateConfig/AllParamsClasses.xml to: ./ParamsClassTemplateConfig/AllParamsClasses.xml</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.264095400Z</date>
+  <millis>1534115655264</millis>
+  <nanos>95400</nanos>
+  <sequence>11</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/ParamsClassTemplateConfig/AllParamsClasses.xsd to: ./ParamsClassTemplateConfig/AllParamsClasses.xsd</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.267024500Z</date>
+  <millis>1534115655267</millis>
+  <nanos>24500</nanos>
+  <sequence>12</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>initParamsClassTemplateConfig</method>
+  <thread>19</thread>
+  <message>Initializing ConnectionsParamsClass resources</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.268000100Z</date>
+  <millis>1534115655268</millis>
+  <nanos>100</nanos>
+  <sequence>13</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/ParamsClassTemplateConfig/ConnectionsParamsClass/ConnGrowth.xml to: ./ParamsClassTemplateConfig/ConnectionsParamsClass/ConnGrowth.xml</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.270929800Z</date>
+  <millis>1534115655270</millis>
+  <nanos>929800</nanos>
+  <sequence>14</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/ParamsClassTemplateConfig/ConnectionsParamsClass/ConnStatic.xml to: ./ParamsClassTemplateConfig/ConnectionsParamsClass/ConnStatic.xml</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.277764200Z</date>
+  <millis>1534115655277</millis>
+  <nanos>764200</nanos>
+  <sequence>15</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>initParamsClassTemplateConfig</method>
+  <thread>19</thread>
+  <message>Initializing LayoutParamsClass resources</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.278740200Z</date>
+  <millis>1534115655278</millis>
+  <nanos>740200</nanos>
+  <sequence>16</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/ParamsClassTemplateConfig/LayoutParamsClass/DynamicLayout.xml to: ./ParamsClassTemplateConfig/LayoutParamsClass/DynamicLayout.xml</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.282645200Z</date>
+  <millis>1534115655282</millis>
+  <nanos>645200</nanos>
+  <sequence>17</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/ParamsClassTemplateConfig/LayoutParamsClass/FixedLayout.xml to: ./ParamsClassTemplateConfig/LayoutParamsClass/FixedLayout.xml</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.288502400Z</date>
+  <millis>1534115655288</millis>
+  <nanos>502400</nanos>
+  <sequence>18</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/ParamsClassTemplateConfig/LayoutParamsClass/LayoutParamsClass1.xml to: ./ParamsClassTemplateConfig/LayoutParamsClass/LayoutParamsClass1.xml</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.291431500Z</date>
+  <millis>1534115655291</millis>
+  <nanos>431500</nanos>
+  <sequence>19</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>initParamsClassTemplateConfig</method>
+  <thread>19</thread>
+  <message>Initializing NeuronsParamsClass resources</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.292407700Z</date>
+  <millis>1534115655292</millis>
+  <nanos>407700</nanos>
+  <sequence>20</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/ParamsClassTemplateConfig/NeuronsParamsClass/AllIZHNeurons.xml to: ./ParamsClassTemplateConfig/NeuronsParamsClass/AllIZHNeurons.xml</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.302170900Z</date>
+  <millis>1534115655302</millis>
+  <nanos>170900</nanos>
+  <sequence>21</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/ParamsClassTemplateConfig/NeuronsParamsClass/AllLIFNeurons.xml to: ./ParamsClassTemplateConfig/NeuronsParamsClass/AllLIFNeurons.xml</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.314862400Z</date>
+  <millis>1534115655314</millis>
+  <nanos>862400</nanos>
+  <sequence>22</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>initParamsClassTemplateConfig</method>
+  <thread>19</thread>
+  <message>Initializing SynapsesParamsClass resources</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.315839600Z</date>
+  <millis>1534115655315</millis>
+  <nanos>839600</nanos>
+  <sequence>23</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/ParamsClassTemplateConfig/SynapsesParamsClass/AllDSSynapses.xml to: ./ParamsClassTemplateConfig/SynapsesParamsClass/AllDSSynapses.xml</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.322672800Z</date>
+  <millis>1534115655322</millis>
+  <nanos>672800</nanos>
+  <sequence>24</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/ParamsClassTemplateConfig/SynapsesParamsClass/AllDynamicSTDPSynapses.xml to: ./ParamsClassTemplateConfig/SynapsesParamsClass/AllDynamicSTDPSynapses.xml</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.326579Z</date>
+  <millis>1534115655326</millis>
+  <nanos>579000</nanos>
+  <sequence>25</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/ParamsClassTemplateConfig/SynapsesParamsClass/AllSpikingSynapses.xml to: ./ParamsClassTemplateConfig/SynapsesParamsClass/AllSpikingSynapses.xml</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.329506900Z</date>
+  <millis>1534115655329</millis>
+  <nanos>506900</nanos>
+  <sequence>26</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/ParamsClassTemplateConfig/SynapsesParamsClass/AllSTDPSynapses.xml to: ./ParamsClassTemplateConfig/SynapsesParamsClass/AllSTDPSynapses.xml</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.359772600Z</date>
+  <millis>1534115655359</millis>
+  <nanos>772600</nanos>
+  <sequence>27</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>initRootFiles</method>
+  <thread>19</thread>
+  <message>Initializing Root Files</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.371487300Z</date>
+  <millis>1534115655371</millis>
+  <nanos>487300</nanos>
+  <sequence>28</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/BaseTemplateConfig.xml to: ./BaseTemplateConfig.xml</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.375392900Z</date>
+  <millis>1534115655375</millis>
+  <nanos>392900</nanos>
+  <sequence>29</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.Init</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.Init</class>
+  <method>copyResourceToFile</method>
+  <thread>19</thread>
+  <message>Copying: /init/README.TXT to: ./README.TXT</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.381251100Z</date>
+  <millis>1534115655381</millis>
+  <nanos>251100</nanos>
+  <sequence>30</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.utils.ThreadManager</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.utils.ThreadManager</class>
+  <method>removeThread</method>
+  <thread>19</thread>
+  <message>Removing Thread: Init</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.545266800Z</date>
+  <millis>1534115655545</millis>
+  <nanos>266800</nanos>
+  <sequence>31</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.userModel.User</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.userModel.User</class>
+  <method>load</method>
+  <thread>15</thread>
+  <message>User info loaded: {"brainGridRepoDirectory":"C:\\Users\\Max\\Documents\\DOCUMENTS\\Braingrid-WD\\BrainGrid\\Tools\\Workbench\\WorkbenchProject\\BrainGridRepos","rootDir":"C:\\Users\\Max\\Documents\\DOCUMENTS\\Braingrid-WD\\BrainGrid\\Tools\\Workbench\\WorkbenchProject"}</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.545266800Z</date>
+  <millis>1534115655545</millis>
+  <nanos>266800</nanos>
+  <sequence>32</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard</class>
+  <method>start</method>
+  <thread>15</thread>
+  <message>Starting Application</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.701474100Z</date>
+  <millis>1534115655701</millis>
+  <nanos>474100</nanos>
+  <sequence>33</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>new edu.uwb.braingrid.workbenchdashboard.WorkbenchDisplay</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:15.725881300Z</date>
+  <millis>1534115655725</millis>
+  <nanos>881300</nanos>
+  <sequence>34</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.welcome.Welcome</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.welcome.Welcome</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>new edu.uwb.braingrid.workbenchdashboard.welcome.Welcome</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:17.586693300Z</date>
+  <millis>1534115657586</millis>
+  <nanos>693300</nanos>
+  <sequence>35</sequence>
+  <logger>edu.uwb.braingrid.workbenchdashboard.simstarter.SimStarter</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbenchdashboard.simstarter.SimStarter</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>new edu.uwb.braingrid.workbenchdashboard.simstarter.SimStarter</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:19.148361400Z</date>
+  <millis>1534115659148</millis>
+  <nanos>361400</nanos>
+  <sequence>36</sequence>
+  <logger>edu.uwb.braingrid.workbench.WorkbenchManager</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.WorkbenchManager</class>
+  <method>newProject</method>
+  <thread>15</thread>
+  <message>Making New Project</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:19.307495900Z</date>
+  <millis>1534115659307</millis>
+  <nanos>495900</nanos>
+  <sequence>37</sequence>
+  <logger>edu.uwb.braingrid.workbench.ui.NewProjectDialog</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.ui.NewProjectDialog</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>Opening New Project Dialog for Sim Starter</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:21.962206Z</date>
+  <millis>1534115661962</millis>
+  <nanos>206000</nanos>
+  <sequence>38</sequence>
+  <logger>edu.uwb.braingrid.workbench.WorkbenchManager</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.WorkbenchManager</class>
+  <method>initProject</method>
+  <thread>15</thread>
+  <message>Initializing a New Project: Example</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:21.965134100Z</date>
+  <millis>1534115661965</millis>
+  <nanos>134100</nanos>
+  <sequence>39</sequence>
+  <logger>edu.uwb.braingrid.workbench.project.ProjectMgr</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.project.ProjectMgr</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>New Project Manager for project: null</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:22.067644400Z</date>
+  <millis>1534115662067</millis>
+  <nanos>644400</nanos>
+  <sequence>40</sequence>
+  <logger>edu.uwb.braingrid.provenance.ProvMgr</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.provenance.ProvMgr</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>New Provenance Manager for Example</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:23.166373800Z</date>
+  <millis>1534115663166</millis>
+  <nanos>373800</nanos>
+  <sequence>41</sequence>
+  <logger>edu.uwb.braingrid.workbench.WorkbenchManager</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.WorkbenchManager</class>
+  <method>configureSimulation</method>
+  <thread>15</thread>
+  <message>Configuring Simulation for Example</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:23.171256Z</date>
+  <millis>1534115663171</millis>
+  <nanos>256000</nanos>
+  <sequence>42</sequence>
+  <logger>edu.uwb.braingrid.workbench.ui.InputConfigClassSelectionDialog</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.ui.InputConfigClassSelectionDialog</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>New InputConfigClassSelectionDialog for Example</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:23.234713900Z</date>
+  <millis>1534115663234</millis>
+  <nanos>713900</nanos>
+  <sequence>43</sequence>
+  <logger>edu.uwb.braingrid.workbench.data.DynamicInputConfigurationManager</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.data.DynamicInputConfigurationManager</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>New edu.uwb.braingrid.workbench.data.DynamicInputConfigurationManager</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:23.236667400Z</date>
+  <millis>1534115663236</millis>
+  <nanos>667400</nanos>
+  <sequence>44</sequence>
+  <logger>edu.uwb.braingrid.workbench.model.DynamicInputConfiguration</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.model.DynamicInputConfiguration</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>New edu.uwb.braingrid.workbench.model.DynamicInputConfiguration</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:26.333368600Z</date>
+  <millis>1534115666333</millis>
+  <nanos>368600</nanos>
+  <sequence>45</sequence>
+  <logger>edu.uwb.braingrid.workbench.ui.InputConfigClassSelectionDialog</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.ui.InputConfigClassSelectionDialog</class>
+  <method>okButtonActionPerformed</method>
+  <thread>26</thread>
+  <message>Ok Button Clicked</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:26.334343Z</date>
+  <millis>1534115666334</millis>
+  <nanos>343000</nanos>
+  <sequence>46</sequence>
+  <logger>edu.uwb.braingrid.workbench.ui.InputConfigClassSelectionDialog</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.ui.InputConfigClassSelectionDialog</class>
+  <method>setConfigXMLDoc</method>
+  <thread>26</thread>
+  <message>Start setConfigXMLDoc</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:26.355821800Z</date>
+  <millis>1534115666355</millis>
+  <nanos>821800</nanos>
+  <sequence>47</sequence>
+  <logger>edu.uwb.braingrid.workbench.ui.InputConfigClassSelectionDialog</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.ui.InputConfigClassSelectionDialog</class>
+  <method>setConfigXMLDoc</method>
+  <thread>26</thread>
+  <message>End setConfigXMLDoc</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:26.358750300Z</date>
+  <millis>1534115666358</millis>
+  <nanos>750300</nanos>
+  <sequence>48</sequence>
+  <logger>edu.uwb.braingrid.workbench.ui.InputConfigClassSelectionDialog</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.ui.InputConfigClassSelectionDialog</class>
+  <method>okButtonActionPerformed</method>
+  <thread>26</thread>
+  <message>Ok Button ended</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:26.364608400Z</date>
+  <millis>1534115666364</millis>
+  <nanos>608400</nanos>
+  <sequence>49</sequence>
+  <logger>edu.uwb.braingrid.workbench.ui.DynamicInputConfigurationDialog</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.ui.DynamicInputConfigurationDialog</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>New edu.uwb.braingrid.workbench.ui.DynamicInputConfigurationDialog for Example</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:26.453450800Z</date>
+  <millis>1534115666453</millis>
+  <nanos>450800</nanos>
+  <sequence>50</sequence>
+  <logger>edu.uwb.braingrid.workbench.ui.DynamicInputConfigurationDialog</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.ui.DynamicInputConfigurationDialog$ImportFileButtonListener</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>New edu.uwb.braingrid.workbench.ui.DynamicInputConfigurationDialog$ImportFileButtonListener Type: ACTIVE</message>
+</record>
+<record>
+  <date>2018-08-12T23:14:26.457356500Z</date>
+  <millis>1534115666457</millis>
+  <nanos>356500</nanos>
+  <sequence>51</sequence>
+  <logger>edu.uwb.braingrid.workbench.ui.DynamicInputConfigurationDialog</logger>
+  <level>INFO</level>
+  <class>edu.uwb.braingrid.workbench.ui.DynamicInputConfigurationDialog$ImportFileButtonListener</class>
+  <method>&lt;init&gt;</method>
+  <thread>15</thread>
+  <message>New edu.uwb.braingrid.workbench.ui.DynamicInputConfigurationDialog$ImportFileButtonListener Type: INHIBITORY</message>
+</record>

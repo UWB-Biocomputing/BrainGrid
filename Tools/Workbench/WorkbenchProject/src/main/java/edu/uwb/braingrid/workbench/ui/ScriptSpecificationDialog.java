@@ -2,6 +2,8 @@ package edu.uwb.braingrid.workbench.ui;
 
 import edu.uwb.braingrid.workbench.comm.SecureFileTransfer;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
+import jdk.internal.jline.internal.Log;
+
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -479,6 +481,7 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
 	 *            dialog is visible
 	 */
 	public ScriptSpecificationDialog(boolean modal) {
+		Log.info("New ScriptSpecificationDialog");
 		setModal(modal);
 		initComponents();
 		simulatorLocationTextField.setText("BrainGrid");
@@ -492,6 +495,7 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
 	}
 
 	public ScriptSpecificationDialog(boolean modal, SimulationSpecification simSpec) {
+		Log.info("New ScriptSpecificationDialog with SimulationSpecification");
 		setModal(modal);
 		initComponents();
 

@@ -17,7 +17,6 @@ import javafx.scene.layout.VBox;
 
 public class SimStarter extends WorkbenchApp {
 	private static final Logger LOG = Logger.getLogger(SimStarter.class.getName());
-	
 	public SimStarter(Tab tab) {
 		super(tab);
 		LOG.info("new " + getClass().getName());
@@ -50,6 +49,7 @@ public class SimStarter extends WorkbenchApp {
 			ssas_.disableConfigure(false);
 			ssas_.disableSpecifyScript(false);
 			sim_starter_tool_bar_.disableSave(false);
+			super.setTitle(workbenchMgr.getProjectName());
 		}
 		setMsg();
 	}

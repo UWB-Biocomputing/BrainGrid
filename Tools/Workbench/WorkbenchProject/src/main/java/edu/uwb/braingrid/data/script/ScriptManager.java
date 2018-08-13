@@ -1,6 +1,8 @@
 package edu.uwb.braingrid.data.script;
 /////////////////CLEANED
 import org.apache.jena.rdf.model.Resource;
+
+
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import edu.uwb.braingrid.provenance.ProvMgr;
@@ -25,6 +27,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Scanner;
 import java.util.UUID;
+import java.util.logging.Logger;
+
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
@@ -441,6 +445,7 @@ public class ScriptManager {
             SimulationSpecification simSpec, String scriptLocation,
             String scriptVersion, String[] inputFilenames,
             String simConfigFilename) {
+    	LOG.info("Running Local Script");
         Long functionStartTime = System.currentTimeMillis();
         Long accumulatedTime = 0L;
         boolean success = true;
@@ -1001,4 +1006,6 @@ public class ScriptManager {
         }
         return lastLine;
     }
+    
+    private Logger LOG = Logger.getLogger(ScriptManager.class.getName());
 }

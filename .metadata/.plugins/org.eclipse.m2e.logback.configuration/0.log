@@ -15602,3 +15602,751 @@
 2018-08-12 13:17:16,327 [Worker-22: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
 2018-08-12 13:17:16,338 [Worker-22: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
 2018-08-12 13:17:16,339 [Worker-22: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 13:36:25,684 [Worker-42: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 13:36:25,684 [Worker-42: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 13:36:25,688 [Worker-42: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 13:36:25,689 [Worker-42: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 13:39:12,790 [Worker-39: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 13:39:12,791 [Worker-39: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 13:39:12,791 [Worker-39: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 13:39:12,792 [Worker-39: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:01:06,623 [Worker-51: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:01:06,640 [Worker-51: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:01:06,653 [Worker-51: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:01:06,656 [Worker-51: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:01:07,687 [Worker-55: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:01:07,688 [Worker-55: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 14:01:07,688 [Worker-55: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:01:07,689 [Worker-55: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:01:11,264 [Worker-48: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:01:11,286 [Worker-48: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:01:11,295 [Worker-48: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:01:11,304 [Worker-48: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:02:11,437 [Worker-54: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:02:11,452 [Worker-54: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:02:11,459 [Worker-54: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:02:11,460 [Worker-54: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:09:33,260 [Worker-56: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:09:33,261 [Worker-56: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 14:09:33,262 [Worker-56: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:09:33,263 [Worker-56: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:12:28,402 [Worker-57: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:12:28,416 [Worker-57: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:12:28,427 [Worker-57: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:12:28,428 [Worker-57: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:12:30,716 [Worker-48: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:12:30,731 [Worker-48: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:12:30,738 [Worker-48: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:12:30,739 [Worker-48: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:13:17,022 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:13:17,036 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:13:17,044 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:13:17,045 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:13:22,377 [Worker-56: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:13:22,390 [Worker-56: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:13:22,398 [Worker-56: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:13:22,399 [Worker-56: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:14:14,813 [Worker-48: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:14:14,828 [Worker-48: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:14:14,837 [Worker-48: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:14:14,838 [Worker-48: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:14:24,309 [Worker-60: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:14:24,323 [Worker-60: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:14:24,333 [Worker-60: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:14:24,334 [Worker-60: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:15:54,270 [Worker-60: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:15:54,285 [Worker-60: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:15:54,294 [Worker-60: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:15:54,294 [Worker-60: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:16:49,663 [Worker-61: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:16:49,678 [Worker-61: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:16:49,689 [Worker-61: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:16:49,690 [Worker-61: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:16:57,308 [Worker-61: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:16:57,322 [Worker-61: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:16:57,329 [Worker-61: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:16:57,330 [Worker-61: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:17:11,146 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:17:11,162 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:17:11,170 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:17:11,171 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:18:32,144 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:18:32,159 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:18:32,169 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:18:32,170 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:18:52,438 [Worker-63: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:18:52,453 [Worker-63: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:18:52,463 [Worker-63: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:18:52,464 [Worker-63: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:18:58,206 [Worker-56: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:18:58,221 [Worker-56: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:18:58,229 [Worker-56: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:18:58,230 [Worker-56: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:19:00,201 [Worker-62: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:19:00,232 [Worker-62: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:19:00,268 [Worker-62: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:19:00,272 [Worker-62: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:19:08,439 [Worker-61: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:19:08,454 [Worker-61: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:19:08,461 [Worker-61: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:19:08,462 [Worker-61: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:19:18,614 [Worker-62: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:19:18,629 [Worker-62: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:19:18,637 [Worker-62: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:19:18,638 [Worker-62: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:19:26,157 [Worker-65: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:19:26,174 [Worker-65: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:19:26,186 [Worker-65: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:19:26,187 [Worker-65: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:19:43,874 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:19:43,889 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:19:43,898 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:19:43,899 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:21:41,515 [Worker-58: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:21:41,529 [Worker-58: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:21:41,537 [Worker-58: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:21:41,538 [Worker-58: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:22:03,491 [Worker-62: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:22:03,506 [Worker-62: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:22:03,518 [Worker-62: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:22:03,519 [Worker-62: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:26:23,026 [Worker-60: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:26:23,044 [Worker-60: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:26:23,054 [Worker-60: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:26:23,055 [Worker-60: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:27:04,184 [Worker-64: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:27:04,199 [Worker-64: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:27:04,207 [Worker-64: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:27:04,208 [Worker-64: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:27:06,179 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:27:06,193 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:27:06,203 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:27:06,204 [Worker-59: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:30:53,477 [Worker-71: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:30:53,491 [Worker-71: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:30:53,500 [Worker-71: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:30:53,501 [Worker-71: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:30:54,586 [Worker-76: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:30:54,586 [Worker-76: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 14:30:54,587 [Worker-76: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:30:54,588 [Worker-76: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:30:57,746 [Worker-70: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:30:57,802 [Worker-70: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:30:57,813 [Worker-70: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:30:57,830 [Worker-70: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:31:54,296 [Worker-76: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:31:54,310 [Worker-76: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:31:54,319 [Worker-76: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:31:54,324 [Worker-76: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:32:05,324 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:32:05,381 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:32:05,400 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:32:05,401 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:32:24,388 [Worker-76: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:32:24,401 [Worker-76: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:32:24,454 [Worker-76: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:32:24,455 [Worker-76: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:36:18,035 [Worker-75: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:36:18,050 [Worker-75: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:36:18,061 [Worker-75: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:36:18,062 [Worker-75: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:37:23,727 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:37:23,744 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:37:23,755 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:37:23,756 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:39:11,183 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:39:11,197 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:39:11,205 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:39:11,205 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:39:23,760 [Worker-71: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:39:23,774 [Worker-71: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:39:23,785 [Worker-71: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:39:23,786 [Worker-71: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:42:35,223 [Worker-77: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:42:35,236 [Worker-77: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:42:35,248 [Worker-77: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:42:35,248 [Worker-77: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:44:24,751 [Worker-77: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:44:24,765 [Worker-77: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:44:24,776 [Worker-77: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:44:24,777 [Worker-77: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:44:41,631 [Worker-67: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:44:41,646 [Worker-67: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:44:41,657 [Worker-67: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:44:41,658 [Worker-67: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:44:44,965 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:44:44,978 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:44:44,986 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:44:44,987 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:44:52,917 [Worker-77: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:44:52,930 [Worker-77: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:44:52,939 [Worker-77: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:44:52,940 [Worker-77: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:47:07,981 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:47:07,994 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:47:08,005 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:47:08,005 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:47:17,074 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:47:17,088 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:47:17,095 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:47:17,096 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:48:00,716 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:48:00,729 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:48:00,736 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:48:00,737 [Worker-74: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:48:50,978 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:48:50,993 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:48:51,002 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:48:51,002 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:49:00,930 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:49:00,943 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:49:00,950 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:49:00,951 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:49:17,964 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:49:17,979 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:49:17,987 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:49:17,989 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:49:21,798 [Worker-82: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:49:21,812 [Worker-82: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:49:21,822 [Worker-82: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:49:21,823 [Worker-82: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:49:31,219 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:49:31,235 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:49:31,242 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:49:31,243 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 14:49:34,745 [Worker-67: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:49:34,758 [Worker-67: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 14:49:34,765 [Worker-67: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 14:49:34,766 [Worker-67: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:04:46,509 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:04:46,522 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:04:46,533 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:04:46,534 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:09:18,183 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:09:18,198 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:09:18,208 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:09:18,209 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:09:19,292 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:09:19,293 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 15:09:19,295 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:09:19,297 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:10:02,681 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:10:02,694 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:10:02,702 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:10:02,702 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:10:59,803 [Worker-87: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:10:59,817 [Worker-87: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:10:59,829 [Worker-87: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:10:59,830 [Worker-87: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:11:14,510 [Worker-87: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:11:14,523 [Worker-87: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:11:14,531 [Worker-87: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:11:14,532 [Worker-87: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:11:18,621 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:11:18,645 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:11:18,699 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:11:18,700 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:11:47,698 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:11:47,722 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:11:47,734 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:11:47,735 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:12:36,846 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:12:36,861 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:12:36,872 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:12:36,872 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:12:37,914 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:12:37,914 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 15:12:37,915 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:12:37,916 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:12:38,968 [Worker-87: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:12:39,000 [Worker-87: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:12:39,009 [Worker-87: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:12:39,010 [Worker-87: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:12:45,232 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:12:45,247 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:12:45,253 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:12:45,254 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:12:51,117 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:12:51,132 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:12:51,140 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:12:51,141 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:16:01,173 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:16:01,187 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:16:01,198 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:16:01,199 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:16:02,236 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:16:02,242 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 15:16:02,244 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:16:02,245 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:16:06,733 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:16:06,746 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:16:06,753 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:16:06,754 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:16:19,494 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:16:19,518 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:16:19,533 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:16:19,535 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:16:25,534 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:16:25,548 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:16:25,556 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:16:25,557 [Worker-86: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:17:56,324 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:17:56,339 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:17:56,349 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:17:56,350 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:21:14,833 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:21:14,847 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:21:14,854 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:21:14,855 [Worker-81: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:21:36,381 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:21:36,383 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 15:21:36,384 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:21:36,385 [Worker-83: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:22:22,260 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:22:22,276 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:22:22,286 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:22:22,293 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:22:25,636 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:22:25,652 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:22:25,706 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:22:25,707 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:23:28,021 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:23:28,035 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:23:28,045 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:23:28,045 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:23:29,478 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:23:29,494 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 15:23:29,495 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:23:29,517 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:23:50,724 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:23:50,739 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:23:50,746 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:23:50,747 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:23:53,132 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:23:53,145 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:23:53,153 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:23:53,154 [Worker-84: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:25:32,811 [Worker-88: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:25:32,823 [Worker-88: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:25:32,833 [Worker-88: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:25:32,833 [Worker-88: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:26:15,976 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:26:15,991 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:26:15,999 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:26:16,000 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:27:05,621 [Worker-88: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:27:05,636 [Worker-88: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:27:05,647 [Worker-88: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:27:05,648 [Worker-88: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:27:06,839 [Worker-88: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:27:06,840 [Worker-88: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 15:27:06,842 [Worker-88: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:27:06,844 [Worker-88: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:31:20,466 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:31:20,467 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 15:31:20,467 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:31:20,468 [Worker-90: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:36:51,916 [Worker-92: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:36:51,917 [Worker-92: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 15:36:51,919 [Worker-92: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:36:51,919 [Worker-92: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:37:33,317 [Worker-92: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:37:33,331 [Worker-92: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:37:33,341 [Worker-92: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:37:33,342 [Worker-92: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:38:16,833 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:38:16,847 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:38:16,855 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:38:16,855 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:42:04,225 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:42:04,237 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:42:04,248 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:42:04,249 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:42:08,088 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:42:08,102 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:42:08,109 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:42:08,110 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:42:27,709 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:42:27,723 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:42:27,734 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:42:27,735 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:42:38,121 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:42:38,135 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:42:38,146 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:42:38,147 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:42:57,023 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:42:57,036 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:42:57,047 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:42:57,048 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:43:04,208 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:43:04,222 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:43:04,233 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:43:04,234 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:43:32,385 [Worker-99: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:43:32,399 [Worker-99: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:43:32,410 [Worker-99: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:43:32,411 [Worker-99: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:43:58,814 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:43:58,828 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:43:58,859 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:43:58,859 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:44:05,563 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:44:05,578 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:44:05,595 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:44:05,595 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:44:22,128 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:44:22,143 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:44:22,154 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:44:22,158 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:44:39,669 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:44:39,684 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:44:39,691 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:44:39,692 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:44:51,630 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:44:51,644 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:44:51,651 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:44:51,652 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:46:33,952 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:46:33,965 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:46:33,977 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:46:33,978 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:46:37,618 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:46:37,632 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:46:37,640 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:46:37,641 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:46:50,742 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:46:50,754 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:46:50,765 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:46:50,766 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:47:06,189 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:47:06,204 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:47:06,211 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:47:06,211 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:47:18,395 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:47:18,409 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:47:18,416 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:47:18,417 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:48:00,071 [Worker-99: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:48:00,072 [Worker-99: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 15:48:00,073 [Worker-99: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:48:00,074 [Worker-99: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:48:05,870 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:48:05,884 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:48:05,894 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:48:05,895 [Worker-97: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:48:40,611 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:48:40,625 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:48:40,633 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:48:40,634 [Worker-94: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:48:43,237 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:48:43,251 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:48:43,258 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:48:43,259 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:50:09,775 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:50:09,790 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:50:09,801 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:50:09,801 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:53:28,437 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:53:28,451 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:53:28,458 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:53:28,458 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:55:12,411 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:55:12,426 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:55:12,436 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:55:12,437 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:55:20,856 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:55:20,869 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:55:20,876 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:55:20,877 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:55:24,943 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:55:24,957 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:55:24,966 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:55:24,966 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:55:42,048 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:55:42,062 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:55:42,070 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:55:42,070 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:56:01,903 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:56:01,918 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:56:01,927 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:56:01,928 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:56:09,463 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:56:09,477 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:56:09,489 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:56:09,497 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:56:17,855 [Worker-99: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:56:17,870 [Worker-99: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:56:17,882 [Worker-99: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:56:17,883 [Worker-99: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:56:22,280 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:56:22,294 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:56:22,305 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:56:22,306 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:56:37,318 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:56:37,339 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:56:37,350 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:56:37,354 [Worker-98: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:56:43,067 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:56:43,081 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:56:43,092 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:56:43,093 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:57:37,775 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:57:37,790 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:57:37,801 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:57:37,803 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:58:20,116 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:58:20,130 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:58:20,139 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:58:20,140 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:58:27,428 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:58:27,442 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:58:27,450 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:58:27,451 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 15:59:52,102 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:59:52,115 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 15:59:52,125 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 15:59:52,126 [Worker-93: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:00:25,023 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:00:25,037 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:00:25,047 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:00:25,048 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:00:42,379 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:00:42,393 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:00:42,403 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:00:42,405 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:00:48,354 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:00:48,369 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:00:48,378 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:00:48,379 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:00:54,519 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:00:54,533 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:00:54,543 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:00:54,544 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:01:11,573 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:01:11,589 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:01:11,599 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:01:11,602 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:01:17,896 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:01:17,909 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:01:17,916 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:01:17,917 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:01:24,094 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:01:24,110 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:01:24,125 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:01:24,126 [Worker-100: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:02:48,974 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:02:48,987 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:02:48,998 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:02:48,999 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:02:50,538 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:02:50,547 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 16:02:50,549 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:02:50,550 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:03:08,774 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:03:08,788 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:03:08,795 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:03:08,796 [Worker-96: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:07:41,152 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:07:41,165 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:07:41,177 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:07:41,178 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:07:42,937 [Worker-102: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:07:42,937 [Worker-102: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 16:07:42,938 [Worker-102: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:07:42,972 [Worker-102: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:07:44,644 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:07:44,689 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 16:07:44,690 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:07:44,718 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:10:19,998 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:10:20,012 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:10:20,021 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:10:20,022 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:10:21,658 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:10:21,660 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 16:10:21,661 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:10:21,662 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:10:40,561 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:10:40,574 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:10:40,585 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:10:40,586 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:12:28,706 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:12:28,707 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 16:12:28,708 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:12:28,709 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:13:54,238 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:13:54,252 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:13:54,262 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:13:54,263 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:14:04,759 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:14:04,775 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:14:04,783 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:14:04,783 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:14:09,727 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:14:09,741 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:14:09,748 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:14:09,749 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:14:51,065 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:14:51,079 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:14:51,090 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:14:51,091 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:14:53,061 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:14:53,061 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 16:14:53,062 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:14:53,062 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:14:59,454 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:14:59,469 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:14:59,477 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:14:59,478 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:16:01,759 [Worker-103: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:01,773 [Worker-103: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:16:01,785 [Worker-103: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:01,786 [Worker-103: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:16:03,674 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:03,675 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 16:16:03,677 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:03,677 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:16:08,079 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:08,093 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:16:08,100 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:08,101 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:16:12,075 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:12,090 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:16:12,097 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:12,098 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:16:22,347 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:22,361 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:16:22,367 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:22,368 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:16:25,139 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:25,154 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:16:25,169 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:25,176 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:16:38,545 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:38,559 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:16:38,566 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:38,567 [Worker-106: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:16:47,776 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:47,790 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:16:47,798 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:47,798 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:16:58,349 [Worker-107: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:58,363 [Worker-107: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:16:58,370 [Worker-107: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:16:58,371 [Worker-107: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:17:06,035 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:17:06,049 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:17:06,056 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:17:06,057 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:17:10,278 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:17:10,292 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:17:10,299 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:17:10,300 [Worker-91: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:17:39,111 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:17:39,125 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:17:39,134 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:17:39,135 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:18:10,989 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:18:11,003 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:18:11,010 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:18:11,011 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:18:34,381 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:18:34,394 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:18:34,405 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:18:34,408 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:18:36,503 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:18:36,503 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 16:18:36,504 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:18:36,535 [Worker-105: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:18:41,326 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:18:41,341 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:18:41,349 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:18:41,349 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:18:53,589 [Worker-103: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:18:53,603 [Worker-103: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:18:53,610 [Worker-103: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:18:53,611 [Worker-103: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:22:51,391 [Worker-107: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:22:51,405 [Worker-107: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:22:51,416 [Worker-107: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:22:51,416 [Worker-107: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:26:56,769 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:26:56,783 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:26:56,793 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:26:56,794 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:27:06,408 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:27:06,422 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:27:06,430 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:27:06,431 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:27:09,531 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:27:09,545 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:27:09,552 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:27:09,553 [Worker-101: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:27:29,932 [Worker-109: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:27:29,947 [Worker-109: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:27:29,955 [Worker-109: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:27:29,955 [Worker-109: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:30:55,823 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:30:55,837 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:30:55,844 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:30:55,845 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:31:20,405 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:31:20,427 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:31:20,440 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:31:20,441 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:31:30,554 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:31:30,567 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:31:30,575 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:31:30,576 [Worker-108: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:31:34,469 [Worker-111: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:31:34,482 [Worker-111: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:31:34,493 [Worker-111: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:31:34,494 [Worker-111: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:32:00,498 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:32:00,512 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:32:00,519 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:32:00,520 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:33:23,458 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:33:23,459 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2018-08-12 16:33:23,460 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:33:23,461 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:33:50,462 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:33:50,476 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:33:50,487 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:33:50,487 [Worker-80: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:33:57,458 [Worker-107: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:33:57,472 [Worker-107: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:33:57,480 [Worker-107: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:33:57,481 [Worker-107: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:54:07,283 [Worker-112: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:54:07,298 [Worker-112: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:54:07,310 [Worker-112: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:54:07,311 [Worker-112: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:54:32,967 [Worker-111: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:54:32,982 [Worker-111: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:54:32,990 [Worker-111: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:54:32,990 [Worker-111: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:54:35,138 [Worker-112: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:54:35,153 [Worker-112: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:54:35,161 [Worker-112: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:54:35,162 [Worker-112: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:54:46,195 [Worker-114: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:54:46,209 [Worker-114: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:54:46,220 [Worker-114: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:54:46,221 [Worker-114: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:54:55,038 [Worker-113: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:54:55,051 [Worker-113: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:54:55,059 [Worker-113: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:54:55,060 [Worker-113: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:55:02,022 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:55:02,036 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:55:02,044 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:55:02,045 [Worker-110: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:55:11,767 [Worker-111: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:55:11,780 [Worker-111: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:55:11,786 [Worker-111: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:55:11,787 [Worker-111: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources
+2018-08-12 16:55:15,856 [Worker-113: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:55:15,871 [Worker-113: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 49 resources
+2018-08-12 16:55:15,880 [Worker-113: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2018-08-12 16:55:15,881 [Worker-113: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\resources

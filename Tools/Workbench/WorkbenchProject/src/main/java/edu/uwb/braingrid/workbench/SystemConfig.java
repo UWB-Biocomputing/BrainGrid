@@ -41,14 +41,21 @@ public class SystemConfig {
 			put("activeNListFileName", InputAnalyzer.InputType.ACTIVE);
 			put("inhNListFileName", InputAnalyzer.InputType.INHIBITORY);
 			put("probedNListFileName", InputAnalyzer.InputType.PROBED);
+			put("prbNListFileName", InputAnalyzer.InputType.PROBED);
+			
 		}
 	};
 
 	// Get Base Template Info Document
 	public static final Document getBaseTemplateInfoDoc() throws Exception {
 		return DocumentBuilderFactory.newInstance().newDocumentBuilder()
-				.parse(System.getProperty("user.dir") + File.separator + SystemConfig.BASE_TEMPLATE_INFO_XML_File_URL);
+				.parse(getBaseTemplateInfoDocPath());
 	}
+	
+	public static String getBaseTemplateInfoDocPath() {
+		return System.getProperty("user.dir") + File.separator + SystemConfig.BASE_TEMPLATE_INFO_XML_File_URL;
+	}
+	
 
 	// get the file path of the all params classes info file stored in Base Template
 	// Info Document

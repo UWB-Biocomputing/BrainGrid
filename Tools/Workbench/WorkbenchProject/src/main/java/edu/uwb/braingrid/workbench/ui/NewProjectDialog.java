@@ -3,6 +3,7 @@ package edu.uwb.braingrid.workbench.ui;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +21,7 @@ public class NewProjectDialog extends javax.swing.JDialog {
 	 */
 	private static final long serialVersionUID = 1L;
 	private boolean isRunning = false;
+	private Logger LOG = Logger.getLogger(NewProjectDialog.class.getName());
 
 	// <editor-fold defaultstate="collapsed" desc="Auto-Generated Code">
 
@@ -190,6 +192,7 @@ public class NewProjectDialog extends javax.swing.JDialog {
 	 *            otherwise false
 	 */
 	public NewProjectDialog(boolean modal) {
+		LOG.info("Opening New Project Dialog for Sim Starter");
 		initComponents();
 		setModal(modal);
 		isRunning = true;

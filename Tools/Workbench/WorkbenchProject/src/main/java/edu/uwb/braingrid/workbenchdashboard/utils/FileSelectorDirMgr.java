@@ -31,7 +31,7 @@ public class FileSelectorDirMgr {
 		dirs.add(newdir);
 	}
 	
-	private File getDefault() {
+	public File getDefault() {
 		return new File(User.user.getRootDir());
 	}
 	

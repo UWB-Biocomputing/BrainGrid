@@ -2,6 +2,8 @@ package edu.uwb.braingrid.workbench.ui;
 
 import edu.uwb.braingrid.workbench.SystemConfig;
 import edu.uwb.braingrid.workbench.data.DynamicInputConfigurationManager;
+import jdk.internal.jline.internal.Log;
+
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
@@ -150,13 +152,15 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
 	}// </editor-fold>//GEN-END:initComponents
 
 	private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_okButtonActionPerformed
+		LOG.info("Ok Button Clicked");
 		try {
 			setConfigXMLDoc();
 		} catch (Exception ex) {
-			Logger.getLogger(InputConfigClassSelectionDialog.class.getName()).log(Level.SEVERE, null, ex);
+			LOG.log(Level.SEVERE, null, ex);
 		}
 		okClicked = true;
 		setVisible(false);
+		LOG.info("Ok Button ended");
 	}// GEN-LAST:event_okButtonActionPerformed
 
 	private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_cancelButtonActionPerformed
@@ -196,7 +200,7 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
 	private String synapsesParamsClass = null;
 	private String connectionsParamsClass = null;
 	private String layoutParamsClass = null;
-
+	private static final Logger LOG = Logger.getLogger(InputConfigClassSelectionDialog.class.getName());
 	// </editor-fold>
 
 	// <editor-fold defaultstate="collapsed" desc="Construction">
@@ -207,6 +211,7 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
 	 * @param configFilename
 	 */
 	public InputConfigClassSelectionDialog(String projectName, boolean modal, String configFilename) {
+		LOG.info("New InputConfigClassSelectionDialog for " + projectName);
 		initComponents();
 		setModal(modal);
 		try {
@@ -239,7 +244,7 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
 	}
 
 	/**
-	 * setup Parameter classes combo boxes
+	 * setup Parameter classes combo boxes. This is the first part of the popup you see.
 	 * 
 	 * @param aXMLFilePath
 	 * @throws IOException
@@ -355,6 +360,7 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
 	 * @throws Exception
 	 */
 	private void setConfigXMLDoc() throws Exception {
+		LOG.info("Start setConfigXMLDoc");
 		// get neurons Params Node from the path
 		XPathExpression xpath = XPathFactory.newInstance().newXPath().compile(neuronsParamsNodePath);
 		NodeList nodeList = (NodeList) xpath.evaluate(xmlDoc, XPathConstants.NODESET);
@@ -406,6 +412,7 @@ public class InputConfigClassSelectionDialog extends javax.swing.JDialog {
 			Node newNode = xmlDoc.importNode(templateNode.getFirstChild(), true);
 			parentNode.replaceChild(newNode, node);
 		}
+		LOG.info("End setConfigXMLDoc");
 	}
 
 	// </editor-fold>
