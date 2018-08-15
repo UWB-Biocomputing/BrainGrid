@@ -759,7 +759,7 @@ __device__ void addSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapse
     default:
         assert(false);
     }
-    allSynapsesDevice->W[synapseBegin + synapse_index] = weight * synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+    allSynapsesDevice->W[synapseBegin + synapse_index] = weight;
 }
 
 /*
@@ -906,8 +906,99 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, in
             BGFLOAT* sum_point = &( allNeuronsDevice->summation_map[iNeuron] );
             added++;
 
-            addSpikingSynapse(allSynapsesDevice, type, iNeuron, src_neuron, dest_neuron, sum_point, deltaT, area);
+            BGFLOAT weight = area * synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+            addSpikingSynapse(allSynapsesDevice, type, iNeuron, src_neuron, dest_neuron, sum_point, deltaT, weight);
         }
+    }
+}
+
+/*
+ *  CUDA kernel function for setting up connections.
+ *  Setup the internal structure of the class (allocate memories and initialize them).
+ *  Initialize the small world network characterized by parameters:
+ *  number of maximum connections per neurons, connection radius threshold, and
+ *  small-world rewiring probability.
+ *
+ *  @param  num_neurons         Number of total neurons.
+ *  @param  totalClusterNeurons	Total number of neurons in the cluster.
+ *  @param  clusterNeuronsBegin Begin neuron index of the cluster.
+ *  @param  xloc_d              Pointer to the neuron's x location array.
+ *  @param  yloc_d              Pointer to the neuron's y location array.
+ *  @param  nConnsPerNeuron     Number of maximum connections per neurons.
+ *  @param  threshConnsRadius   Connection radius threshold.
+ *  @param  neuron_type_map_d   Pointer to the neurons type map in device memory.
+ *  @param  rDistDestNeuron_d   Pointer to the DistDestNeuron structure array.
+ *  @param  deltaT              The time step size.
+ *  @param  allNeuronsDevice    Pointer to the Neuron structures in device memory.
+ *  @param  allSynapsesDevice   Pointer to the Synapse structures in device memory.
+ *  @param  minExcWeight        Min values of excitatory neuron's synapse weight.
+ *  @param  maxExcWeight        Max values of excitatory neuron's synapse weight.
+ *  @param  minInhWeight        Min values of inhibitory neuron's synapse weight.
+ *  @param  maxInhWeight        Max values of inhibitory neuron's synapse weight.
+ *  @param  devStates_d         Curand global state.
+ *  @param  seed                Seed for curand.
+ */
+__global__ void setupConnectionsDevice( int num_neurons, int totalClusterNeurons, int clusterNeuronsBegin, BGFLOAT* xloc_d, BGFLOAT* yloc_d, int nConnsPerNeuron, int threshConnsRadius, neuronType* neuron_type_map_d, ConnStatic::DistDestNeuron *rDistDestNeuron_d, BGFLOAT deltaT, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, BGFLOAT minExcWeight, BGFLOAT maxExcWeight, BGFLOAT minInhWeight, BGFLOAT maxInhWeight, curandState* devStates_d, unsigned long seed )
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( idx >= totalClusterNeurons )
+        return;
+
+    int iNeuron = idx;
+    int dest_neuron = iNeuron + clusterNeuronsBegin;
+
+    // pick the connections shorter than threshConnsRadius
+    BGSIZE iArrayBegin = num_neurons * iNeuron, iArrayEnd, iArray;
+    iArray = iArrayBegin;
+    for (int src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
+        if (src_neuron != dest_neuron) {
+            BGFLOAT distX = xloc_d[dest_neuron] - xloc_d[src_neuron];
+            BGFLOAT distY = yloc_d[dest_neuron] - yloc_d[src_neuron];
+            BGFLOAT dist2 = distX * distX + distY * distY;
+            BGFLOAT dist = sqrt(dist2);
+
+            if (dist <= threshConnsRadius) {
+                ConnStatic::DistDestNeuron distDestNeuron;
+                distDestNeuron.dist = dist;
+                distDestNeuron.src_neuron = src_neuron;
+                rDistDestNeuron_d[iArray++] = distDestNeuron;
+            }
+        }
+    }
+
+    // sort ascendant
+    iArrayEnd = iArray;
+    thrust::sort(thrust::seq, &rDistDestNeuron_d[iArrayBegin], &rDistDestNeuron_d[iArrayEnd]);
+
+    // set up an initial state for curand
+    curand_init( seed, iNeuron, 0, &devStates_d[iNeuron] );
+
+    // pick the shortest nConnsPerNeuron connections
+    iArray = iArrayBegin;
+    for (BGSIZE i = 0; iArray < iArrayEnd && (int)i < nConnsPerNeuron; iArray++, i++) {
+        ConnStatic::DistDestNeuron distDestNeuron = rDistDestNeuron_d[iArray];
+        int src_neuron = distDestNeuron.src_neuron;
+        synapseType type = synType(neuron_type_map_d, src_neuron, dest_neuron);
+
+        // create a synapse at the cluster of the destination neuron
+
+        DEBUG_MID ( printf("source: %d dest: %d dist: %d\n", src_neuron, dest_neuron, distDestNeuron.dist); )
+
+        // set synapse weight
+        // TODO: we need another synaptic weight distibution mode (normal distribution)
+        BGFLOAT weight;
+        curandState localState = devStates_d[iNeuron];
+        if (synSign(type) > 0) {
+            weight = minExcWeight + curand_uniform( &localState ) * (maxExcWeight - minExcWeight);
+        }
+        else {
+            weight = minInhWeight + curand_uniform( &localState ) * (maxInhWeight - minInhWeight);
+        }
+        devStates_d[iNeuron] = localState;
+
+        BGFLOAT* sum_point = &( allNeuronsDevice->summation_map[iNeuron] );
+        addSpikingSynapse(allSynapsesDevice, type, iNeuron, src_neuron, dest_neuron, sum_point, deltaT, weight);
+
     }
 }
 

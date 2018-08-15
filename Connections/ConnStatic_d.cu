@@ -1,5 +1,6 @@
 #include "ConnStatic.h"
 #include "GPUSpikingCluster.h"
+#include "AllSynapsesDeviceFuncs.h"
 #include <helper_cuda.h>
 #include <algorithm>
 
@@ -63,13 +64,12 @@ void ConnStatic::setupConnectionsThread(const SimulationInfo *sim_info, Layout *
     int totalClusterNeurons = clr_info->totalClusterNeurons;
     int clusterNeuronsBegin = clr_info->clusterNeuronsBegin;
 
-    // allocate host memory for distance between neurons
-    vector<DistDestNeuron> h_distDestNeurons;
-    BGFLOAT* dist_h = new BGFLOAT[num_neurons];
-    
-    // allocate GPU memory for distance between neurons
-    BGFLOAT* dist_d;
-    checkCudaErrors( cudaMalloc( ( void **) &dist_d, num_neurons * sizeof (BGFLOAT) ) );
+    // allocate device memory for neuron type map
+    neuronType* neuron_type_map_d;
+    checkCudaErrors( cudaMalloc( ( void ** ) &neuron_type_map_d, sim_info->totalNeurons * sizeof( neuronType ) ) );
+
+    // and initialize it
+    checkCudaErrors( cudaMemcpy ( neuron_type_map_d, layout->neuron_type_map, sim_info->totalNeurons * sizeof( neuronType ), cudaMemcpyHostToDevice ) );
 
     // allocate device memory for neuron's location data and initialize it
     BGFLOAT* xloc_d;
@@ -80,102 +80,45 @@ void ConnStatic::setupConnectionsThread(const SimulationInfo *sim_info, Layout *
     checkCudaErrors( cudaMemcpy ( xloc_d, layout->xloc, num_neurons * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
     checkCudaErrors( cudaMemcpy ( yloc_d, layout->yloc, num_neurons * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 
+    // allocate memory for curand global state & setup it
+    curandState* devStates_d;
+    checkCudaErrors( cudaMalloc ( &(devStates_d), totalClusterNeurons * sizeof( curandState ) ) );
+
+    // allocate working memory for setup connections
+    DistDestNeuron *rDistDestNeuron_d;
+    checkCudaErrors( cudaMalloc ( &(rDistDestNeuron_d), num_neurons * totalClusterNeurons * sizeof( DistDestNeuron ) ) );
+     
     int added = 0;
 
     // for each destination neuron in the cluster
-    for (int dest_neuron = clusterNeuronsBegin, iNeuron = 0; iNeuron < totalClusterNeurons; dest_neuron++, iNeuron++) {
-        h_distDestNeurons.clear();
+    GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(clr);
+    AllSpikingNeuronsDeviceProperties* allNeuronsDevice = GPUClr->m_allNeuronsDevice;
+    AllSpikingSynapsesDeviceProperties* allSynapsesDevice = GPUClr->m_allSynapsesDevice;
 
-        // calculate the distance between neurons
-        blocksPerGrid = ( num_neurons + threadsPerBlock - 1 ) / threadsPerBlock;
-        calcNeuronsDistanceDevice <<< blocksPerGrid, threadsPerBlock >>> ( num_neurons, dest_neuron, xloc_d, yloc_d, dist_d );
-        
-        // copy distance data from device to host
-        checkCudaErrors( cudaMemcpy ( dist_h, dist_d, num_neurons * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    blocksPerGrid = ( totalClusterNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
+    setupConnectionsDevice <<< blocksPerGrid, threadsPerBlock >>> (num_neurons, totalClusterNeurons, clusterNeuronsBegin, xloc_d, yloc_d, m_nConnsPerNeuron, m_threshConnsRadius, neuron_type_map_d, rDistDestNeuron_d, sim_info->deltaT, allNeuronsDevice, allSynapsesDevice, m_excWeight[0], m_excWeight[1], m_inhWeight[0], m_inhWeight[1], devStates_d, time(NULL));
 
-        // pick the connections shorter than threshConnsRadius
-        for (int src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
-            if (src_neuron != dest_neuron) {
-                if (dist_h[src_neuron] <= m_threshConnsRadius) {
-                    DistDestNeuron distDestNeuron;
-                    distDestNeuron.dist = dist_h[src_neuron];
-                    distDestNeuron.src_neuron = src_neuron;
-                    h_distDestNeurons.push_back(distDestNeuron);
-                }
-            }
-        }
-
-        // sort ascendant
-        sort(h_distDestNeurons.begin(), h_distDestNeurons.end());
-
-        // pick the shortest m_nConnsPerNeuron connections
-        for (BGSIZE i = 0; i < h_distDestNeurons.size() && (int)i < m_nConnsPerNeuron; i++) {
-            int src_neuron = h_distDestNeurons[i].src_neuron;
-            synapseType type = layout->synType(src_neuron, dest_neuron);
-
-            // create a synapse at the cluster of the destination neuron
-            IAllNeurons *neurons = clr->m_neurons;
-            IAllSynapses *synapses = clr->m_synapses;
-
-            DEBUG_MID (cout << "source: " << src_neuron << " dest: " << dest_neuron << " dist: " << h_distDestNeurons[i].dist << endl;)
-
-            BGFLOAT* sum_point = &( dynamic_cast<AllNeurons*>(neurons)->summation_map[iNeuron] );
-            BGSIZE iSyn;
-            synapses->addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT, clr_info);
-            added++;
-
-            // set synapse weight
-            // TODO: we need another synaptic weight distibution mode (normal distribution)
-            if (synapses->synSign(type) > 0) {
-                dynamic_cast<AllSynapses*>(synapses)->W[iSyn] = rng.inRange(m_excWeight[0], m_excWeight[1]);
-            }
-            else {
-                dynamic_cast<AllSynapses*>(synapses)->W[iSyn] = rng.inRange(m_inhWeight[0], m_inhWeight[1]);
-            }
-        }
-    }
-
-    // free memories
-    delete[] dist_h;
-
-    checkCudaErrors( cudaFree( dist_d ) );
+    // free device memories
+    checkCudaErrors( cudaFree( rDistDestNeuron_d ) );
+    checkCudaErrors( cudaFree( devStates_d ) );
+    checkCudaErrors( cudaFree( neuron_type_map_d ) );
     checkCudaErrors( cudaFree( xloc_d ) );
     checkCudaErrors( cudaFree( yloc_d ) );
 
+    // TODO: need to implement rewiring
     int nRewiring = added * m_pRewiring;
 
     DEBUG(cout << "Rewiring connections: " << nRewiring << endl;)
 
     DEBUG (cout << "added connections: " << added << endl << endl << endl;)
 
-    // copy host synapse arrays into GPU device
+    // copy device synapse count to host memory
     AllSynapses *synapses = dynamic_cast<AllSynapses*>(clr->m_synapses);
-    AllSpikingSynapsesDeviceProperties* allSynapsesDevice = dynamic_cast<GPUSpikingCluster*>(clr)->m_allSynapsesDevice;
-    synapses->copySynapseHostToDevice( allSynapsesDevice, sim_info, clr_info );
+    synapses->copyDeviceSynapseCountsToHost(allSynapsesDevice, clr_info);
+
+    // copy device sourceNeuronLayoutIndex and in_use to host memory
+    synapses->copyDeviceSourceNeuronIdxToHost(allSynapsesDevice, sim_info, clr_info);
 
     // tell this thread's task has finished
     m_barrierSetupConnections->Sync();
 } 
-
-/*
- *  CUDA kernel function for calculating distance between n eurons.
- *
- *  @param  num_neurons      Number of total neurons.
- *  @param  dest_neuron      Destination neuron layout index.
- *  @param  xloc_d           Neurons x locations.
- *  @param  yloc_d           Neurons y locations.
- *  @param  dist_d           Pointer to the array where results are stored.
- */
-__global__ void calcNeuronsDistanceDevice( int num_neurons, int dest_neuron, BGFLOAT* xloc_d, BGFLOAT* yloc_d, BGFLOAT* dist_d )
-{
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if ( idx >= num_neurons )
-        return;
-
-    int src_neuron = idx;
-
-    BGFLOAT distX = xloc_d[dest_neuron] - xloc_d[src_neuron];
-    BGFLOAT distY = yloc_d[dest_neuron] - yloc_d[src_neuron];
-    BGFLOAT dist2 = distX * distX + distY * distY;
-    dist_d[src_neuron] = sqrt(dist2);
-}

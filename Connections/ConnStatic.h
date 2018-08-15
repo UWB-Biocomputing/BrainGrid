@@ -161,22 +161,12 @@ public:
             BGFLOAT dist;     // destance to the destination neuron
             int src_neuron;  // index of the destination neuron
 
+#if defined(USE_GPU) && defined(__CUDACC__)
+            __device__ __host__
+#endif // USE_GPU
             bool operator<(const DistDestNeuron& other) const
             {
                 return (dist < other.dist);
             }
         };
 };
-
-#if defined(USE_GPU)
-/**
- *  CUDA kernel function for calculating distance between n eurons.
- *
- *  @param  num_neurons      Number of total neurons.
- *  @param  dest_neuron      Destination neuron layout index.
- *  @param  xloc_d           Neurons x locations.
- *  @param  yloc_d           Neurons y locations.
- *  @param  dist_d           Pointer to the array where results are stored.
- */
-extern __global__ void calcNeuronsDistanceDevice ( int num_neurons, int dest_neuron, BGFLOAT* xloc_d, BGFLOAT* yloc_d, BGFLOAT* dist_d );
-#endif // USE_GPU
