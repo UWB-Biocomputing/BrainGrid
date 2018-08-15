@@ -10,13 +10,15 @@ import java.util.logging.Logger;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.uwb.braingrid.workbench.FileManager;
+import edu.uwb.braingrid.workbench.FileManagerShared;
 import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
 
 /**
  * @author Max
  *
  */
-public class User {
+public class User implements FileManagerShared {
 	
 	public static User user = new User();
 
@@ -42,6 +44,7 @@ public class User {
 			try {
 				json = mapper.readTree(file);
 				User.user = mapper.readValue(new File(User.USER_DATA_PATH), User.class);
+				FileManager.updateStaticVals(User.user);
 			} catch (IOException e) {
 				LOG.severe(e.getMessage());
 				return false;
@@ -81,6 +84,7 @@ public class User {
 	}
 
 	public void setBrainGridRepoDirectory(String brainGridRepoDirectory) {
+		FileManager.setBrainGridRepoDirectory(brainGridRepoDirectory);
 		this.brainGridRepoDirectory = brainGridRepoDirectory;
 	}
 	

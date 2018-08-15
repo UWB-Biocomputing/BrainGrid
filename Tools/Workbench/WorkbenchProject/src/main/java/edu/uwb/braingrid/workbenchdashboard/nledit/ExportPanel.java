@@ -2,8 +2,8 @@ package edu.uwb.braingrid.workbenchdashboard.nledit;
 
 import java.io.File;
 
+import edu.uwb.braingrid.general.FileSelectorDirMgr;
 import edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard;
-import edu.uwb.braingrid.workbenchdashboard.utils.FileSelectorDirMgr;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

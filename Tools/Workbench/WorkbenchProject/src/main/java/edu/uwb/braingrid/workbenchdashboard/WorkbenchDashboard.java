@@ -1,6 +1,7 @@
 package edu.uwb.braingrid.workbenchdashboard;
 
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.application.Application;
@@ -18,6 +19,7 @@ import java.util.logging.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.uwb.braingrid.general.LoggerHelper;
 import edu.uwb.braingrid.workbenchdashboard.threads.RunInit;
 import edu.uwb.braingrid.workbenchdashboard.userModel.User;
 import edu.uwb.braingrid.workbenchdashboard.utils.Init;
@@ -36,11 +38,6 @@ public class WorkbenchDashboard extends Application {
 	private WorkbenchDisplay workbench_display_;
 
 	private static final Logger LOG = Logger.getLogger(WorkbenchDashboard.class.getName());
-	
-	/**
-	 * Sets a global standard for what is logged by the logger object
-	 */
-	public static Level MIN_LOG_LEVEL = Level.ALL;
 
 	
 	/**
@@ -67,20 +64,15 @@ public class WorkbenchDashboard extends Application {
 			e.printStackTrace();
 		}
 		if(handler != null) {
-			LOG.getParent().getHandlers()[0].setLevel(MIN_LOG_LEVEL);
+			LOG.getParent().getHandlers()[0].setLevel(LoggerHelper.MIN_LOG_LEVEL);
 			LOG.getParent().addHandler(handler);
 		}
 	}
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		
-		// Init
-		RunInit runInit = new RunInit();
-		runInit.start();
-		
 		// Setup Logger
-		LOG.setLevel(MIN_LOG_LEVEL);
+		LOG.setLevel(LoggerHelper.MIN_LOG_LEVEL);
 		initFileOutput();
 		
 		// Get system
@@ -98,7 +90,8 @@ public class WorkbenchDashboard extends Application {
 		scene.getStylesheets().add("resources/simstarter/css/temp.css");
 		scene.getStylesheets().add("resources/simstarter/css/tempII.css");
 		scene.getStylesheets().add("resources/nledit/css/design.css");
-
+		scene.getStylesheets().add("resources/workbenchdisplay/css/design.css");
+		scene.getStylesheets().add("resources/provvisualizer/css/design.css");
 		// Create Events
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
@@ -131,12 +124,19 @@ public class WorkbenchDashboard extends Application {
 					ctrl = false;
 				}
 			}
-
+			
 		});
 
+		Image image = new Image(this.getClass().getClassLoader().getResourceAsStream("resources/braingrid/color-logo.png"));
+		primaryStage.getIcons().add(image);
+		
 		primaryStage.setScene(scene);
 		primaryStage.setMaximized(true);
 		primaryStage.show();
+		
+		// Init
+		RunInit runInit = new RunInit();
+		runInit.start();
 		
 	}
 	

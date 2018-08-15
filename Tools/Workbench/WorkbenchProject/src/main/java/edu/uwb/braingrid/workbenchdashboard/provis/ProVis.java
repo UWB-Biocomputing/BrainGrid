@@ -22,7 +22,7 @@ public class ProVis extends WorkbenchApp {
 		LOG.info("new " + getClass().getName());
 		adjust_force_slider_.setBlockIncrement(20);
 		adjust_force_slider_.setMajorTickUnit(20);
-		adjust_force_slider_.setMinorTickCount(1);
+		//adjust_force_slider_.setMinorTickCount(1);
 		adjust_force_slider_.setShowTickLabels(true);
 		adjust_force_slider_.setShowTickMarks(true);
 		adjust_force_slider_.setSnapToTicks(true);
@@ -39,6 +39,7 @@ public class ProVis extends WorkbenchApp {
 
 		VBox vb = new VBox(stop_forces_, show_node_ids_, show_relationships_, show_legend_, adjust_force_slider_,
 				choose_file_btn_);
+		vb.getStyleClass().add("controls");
 		bp_.setCenter(canvas_pane_);
 		bp_.setRight(vb);
 
@@ -60,7 +61,7 @@ public class ProVis extends WorkbenchApp {
 	// private SplitPane sp_ = new SplitPane();
 	BorderPane bp_ = new BorderPane();
 	private VisCanvas vis_canvas_ = new VisCanvas();
-	private AnchorPane canvas_pane_ = new AnchorPane();
+	private BorderPane canvas_pane_ = new BorderPane();
 	private Slider adjust_force_slider_ = new Slider(1.0, 100, 10);
 	private ToggleSwitch stop_forces_ = new ToggleSwitch("Stop Vertices");
 	private ToggleSwitch show_node_ids_ = new ToggleSwitch("All Vertex IDs");

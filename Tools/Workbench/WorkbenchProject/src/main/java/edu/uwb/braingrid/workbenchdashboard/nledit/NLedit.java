@@ -39,8 +39,11 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -88,7 +91,6 @@ public class NLedit extends WorkbenchApp {
 
 		SwingNode scroll_pane_node = new SwingNode();
 		scroll_pane_node.setContent(scrollpane);
-
 		bp_.setCenter(scroll_pane_node);
 		nl_sim_util_ = new NL_Sim_Util(layoutPanel, neurons_layout);
 	}
@@ -121,10 +123,16 @@ public class NLedit extends WorkbenchApp {
 		inhNItem.setSelected(true);
 
 		VBox vbox = new VBox(inhNItem, activeNItem, probedNItem);
+		vbox.getStyleClass().add("neuronbox");
 		bp_.setLeft(vbox);
 	}
 
 	private void initToolbar() {
+		
+		primeButton(new_project_btn_, "/icons/baseline-create_new_folder-black-18/1x/baseline_create_new_folder_black_18dp.png", "New Project");
+		new_project_btn_.setOnAction(event -> {
+			newProject();
+		});
 
 		primeButton(open_item_btn_, "/icons/baseline-input-black-18/1x/baseline_input_black_18dp.png", "Open Project");
 		import_item_btn_.setOnAction(event -> {
@@ -138,6 +146,7 @@ public class NLedit extends WorkbenchApp {
 
 		primeButton(clear_item_btn_, "/icons/baseline-clear-black-18/1x/baseline_clear_black_18dp.png",
 				"Clear Neurons");
+		clear_item_btn_.getStyleClass().add("clear-button");
 		clear_item_btn_.setOnAction(event -> {
 			actionClear();
 		});
@@ -148,7 +157,7 @@ public class NLedit extends WorkbenchApp {
 			actionImport();
 		});
 
-		primeButton(export_item_btn_, "/icons/baseline-save-black-18/1x/baseline_save_black_18dp.png",
+		primeButton(export_item_btn_, "/icons/baseline-save_alt-black-18/1x/baseline_save_alt_black_18dp.png",
 				"Export Neuron Layout");
 		export_item_btn_.setOnAction(event -> {
 			actionExport();
@@ -171,22 +180,19 @@ public class NLedit extends WorkbenchApp {
 			actionSmallerCells();
 		});
 
-		gpat_item_btn_.setOnAction(event -> {
-			actionGeneratePattern();
-		});
-
-		aprb_item_btn_.setOnAction(event -> {
-			actionArrangeProbes();
-		});
-
 		primeButton(sdat_item_btn_, "/icons/baseline-data_usage-black-18/1x/baseline_data_usage_black_18dp.png",
 				"Stats");
 		sdat_item_btn_.setOnAction(event -> {
 			actionStatisticalData();
 		});
 
-		HBox toolbar = new HBox(open_item_btn_, save_item_btn_, import_item_btn_, export_item_btn_, clear_item_btn_,
-				print_item_btn_, bcell_item_btn_, scell_item_btn_, gpat_item_btn_, aprb_item_btn_, sdat_item_btn_);
+	
+		
+		HBox toolbar = new HBox(new_project_btn_, open_item_btn_, save_item_btn_, import_item_btn_, export_item_btn_,
+				bcell_item_btn_, scell_item_btn_, print_item_btn_, sdat_item_btn_, clear_item_btn_);
+
+		toolbar.getStyleClass().add("toolbar");
+
 		bp_.setTop(toolbar);
 	}
 
@@ -197,6 +203,7 @@ public class NLedit extends WorkbenchApp {
 
 	private void setButtonImage(Button button, String path) {
 		String url = "resources" + path;
+		button.getStyleClass().add("toolbar-button");
 		try {
 			Image image = new Image(this.getClass().getClassLoader().getResourceAsStream(url));
 			button.setGraphic(new ImageView(image));
@@ -253,6 +260,15 @@ public class NLedit extends WorkbenchApp {
 			}
 
 		});
+		
+		gpat_item_btn_.setOnAction(event -> {
+			actionGeneratePattern();
+		});
+
+		aprb_item_btn_.setOnAction(event -> {
+			actionArrangeProbes();
+		});
+		
 
 		toggle_group = new ToggleGroup();
 
@@ -261,7 +277,8 @@ public class NLedit extends WorkbenchApp {
 		altButton.setToggleGroup(toggle_group);
 
 		HBox hbox_bottom = new HBox(lbl_sizeX, txtfld_x, lbl_sizeY, txtfld_y, btn_submit, newButton, rptButton,
-				altButton);
+				altButton, gpat_item_btn_, aprb_item_btn_);
+		hbox_bottom.getStyleClass().add("sizebox");
 		bp_.setBottom(hbox_bottom);
 	}
 
@@ -726,6 +743,10 @@ public class NLedit extends WorkbenchApp {
 		dialog.setScene(dialogScene);
 		dialog.show();
 	}
+	
+	public void newProject() {
+		
+	}
 
 	/**
 	 * The 'Statistical data...' menu handler.
@@ -740,17 +761,18 @@ public class NLedit extends WorkbenchApp {
 	NL_Sim_Util nl_sim_util_;
 
 	// Toolbar
-	private Button open_item_btn_ = new Button("_Open");
-	private Button save_item_btn_ = new Button("_Save");
-	private Button import_item_btn_ = new Button("_Import...");
-	private Button export_item_btn_ = new Button("_Export...");
-	private Button clear_item_btn_ = new Button("_Clear");
-	private Button print_item_btn_ = new Button("_Print...");
+	private Button new_project_btn_ = new Button();
+	private Button open_item_btn_ = new Button();
+	private Button save_item_btn_ = new Button();
+	private Button import_item_btn_ = new Button();
+	private Button export_item_btn_ = new Button();
+	private Button clear_item_btn_ = new Button();
+	private Button print_item_btn_ = new Button();
 	private Button bcell_item_btn_ = new Button();
 	private Button scell_item_btn_ = new Button();
 	private Button gpat_item_btn_ = new Button("_Generate pattern...");
 	private Button aprb_item_btn_ = new Button("_Arrange probes...");
-	private Button sdat_item_btn_ = new Button("Statistical _data..");
+	private Button sdat_item_btn_ = new Button();
 
 	private ToggleGroup editGroup = new ToggleGroup();
 	private RadioButton inhNItem = new RadioButton("Inhibitory neurons");

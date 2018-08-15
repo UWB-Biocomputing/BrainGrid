@@ -1,4 +1,4 @@
-package edu.uwb.braingrid.data.script;
+package edu.uwb.braingrid.workbench.script;
 /////////////////CLEANED
 import org.apache.jena.rdf.model.Resource;
 
@@ -275,14 +275,17 @@ public class ScriptManager {
             String scriptPath, String scriptVersion, String[] nListFilenames,
             String simConfigFilename)
             throws JSchException, FileNotFoundException, SftpException {
+    	
         boolean success;
         String executionMachine = simSpec.getSimulationLocale();
         String remoteExecution = SimulationSpecification.REMOTE_EXECUTION;
         // run script remotely?
         if (executionMachine.equals(remoteExecution)) {
+        	LOG.info("Running Remote Script: " + scriptPath);
             success = runRemoteScript(provMgr, simSpec, scriptPath,
                     scriptVersion, nListFilenames, simConfigFilename);
         } else { // or run it locally
+        	LOG.info("Running Local Script " + scriptPath);
             success = runLocalScript(provMgr, simSpec, scriptPath,
                     scriptVersion, nListFilenames, simConfigFilename);
         }
@@ -571,8 +574,8 @@ public class ScriptManager {
                 System.out.println(cmd);
                 Runtime.getRuntime().exec("cmd.exe /c start " + cmd); // Windows
             } else {
+            	LOG.info("Running in Console: " + cmd);
                 Runtime.getRuntime().exec(cmd); // Unix ?
-               
             }
         } catch (SecurityException e) {
             success = false;
@@ -580,6 +583,7 @@ public class ScriptManager {
                     + "A SecurityException prevented the script from execution"
                     + "\nAt: " + scriptTargetPath
                     + "\n";
+            LOG.info(e.getMessage());
         } catch (IOException e) {
             success = false;
             outstandingMessages += "\n"
@@ -587,6 +591,7 @@ public class ScriptManager {
                     + "\n" + scriptTargetPath
                     + "\n";
             e.printStackTrace();
+            LOG.info(e.getMessage());
         } finally {
             System.setProperty("user.dir", oldWrkDir);
         }
@@ -597,6 +602,12 @@ public class ScriptManager {
             DateTime.recordAccumulatedProvTiming("ScriptManager", "runLocalScript",
                     accumulatedTime);
         }
+        if(success) {
+        	LOG.info("Script " + scriptTargetPath + " Ran Succsesfully");
+        } else {
+        	LOG.info("Script " + scriptTargetPath + " Failed");
+        }
+        
         return success;
     }
 

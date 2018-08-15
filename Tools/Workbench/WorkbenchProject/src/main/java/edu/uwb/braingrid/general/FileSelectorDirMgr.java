@@ -1,4 +1,4 @@
-package edu.uwb.braingrid.workbenchdashboard.utils;
+package edu.uwb.braingrid.general;
 
 import java.io.File;
 import java.util.ArrayList;

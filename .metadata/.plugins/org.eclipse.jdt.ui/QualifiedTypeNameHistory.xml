@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-    <fullyQualifiedTypeName name="jdk.nashorn.internal.parser.JSONParser"/>
-    <fullyQualifiedTypeName name="com.fasterxml.jackson.databind.ObjectMapper"/>
-    <fullyQualifiedTypeName name="jdk.internal.loader.Resource"/>
-    <fullyQualifiedTypeName name="lombok.Getter"/>
-    <fullyQualifiedTypeName name="lombok.Setter"/>
-    <fullyQualifiedTypeName name="lombok.NoArgsConstructor"/>
     <fullyQualifiedTypeName name="edu.uwb.braingrid.workbenchdashboard.user.User"/>
     <fullyQualifiedTypeName name="com.fasterxml.jackson.databind.JsonNode"/>
     <fullyQualifiedTypeName name="edu.uwb.braingrid.workbenchdashboard.WorkbenchApp"/>
@@ -60,4 +54,10 @@
     <fullyQualifiedTypeName name="java.lang.System"/>
     <fullyQualifiedTypeName name="org.apache.log4j.Logger"/>
     <fullyQualifiedTypeName name="java.util.logging.Logger"/>
+    <fullyQualifiedTypeName name="edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard"/>
+    <fullyQualifiedTypeName name="edu.uwb.braingrid.general.LoggerHelper"/>
+    <fullyQualifiedTypeName name="edu.uwb.braingrid.general.GlobalDirMgr"/>
+    <fullyQualifiedTypeName name="edu.uwb.braingrid.general.DirMgr"/>
+    <fullyQualifiedTypeName name="edu.uwb.braingrid.workbench.FileManagerShared"/>
+    <fullyQualifiedTypeName name="edu.uwb.braingrid.workbench.FileManager"/>
 </qualifiedTypeNameHistroy>

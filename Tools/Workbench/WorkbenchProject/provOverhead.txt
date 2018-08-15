@@ -90,3 +90,4 @@ WorkbenchManager.initProject;provEnabled=true;total milliseconds:809
 WorkbenchManager.initProject;total prov overhead:707
 WorkbenchManager.initProject;provEnabled=true;total milliseconds:773
 WorkbenchManager.initProject;total prov overhead:675
+ControlFrame.actionExport;provEnabled=false;total milliseconds:42837

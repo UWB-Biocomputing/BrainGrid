@@ -11,6 +11,10 @@ import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
 
+import edu.uwb.braingrid.general.DirMgr;
+import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
+import edu.uwb.braingrid.workbenchdashboard.userModel.User;
+
 /**
  * Handles all file operations for the workbench. The purpose behind this
  * singleton manager is two-fold: 1. Provides conditional support between
@@ -35,6 +39,7 @@ public final class FileManager {
     private final String configFilesFolderName = "configfiles";
     private final String neuronListFolderName = "NList";
     private static final Logger LOG = Logger.getLogger(FileManager.class.getName());
+ 
     /**
      * This is here to make sure that classes from other packages cannot
      * instantiate the file manager. This is to ensure that only one file
@@ -323,4 +328,18 @@ public final class FileManager {
     public String toBashValidNotation(String stmt) {
         return stmt.replaceAll("\\\\", "/");
     }
+    
+    public static void updateStaticVals(FileManagerShared obj) {
+    	setBrainGridRepoDirectory(obj.getBrainGridRepoDirectory());
+    }
+    
+    public static String getBrainGridRepoDirectory() {
+		return FileManager.brainGridRepoDirectory;
+	}
+
+	public static void setBrainGridRepoDirectory(String brainGridRepoDirectory) {
+		FileManager.brainGridRepoDirectory = brainGridRepoDirectory;
+	}
+
+	private static String brainGridRepoDirectory = DirMgr.getBrainGridRepoDirectory() ;
 }

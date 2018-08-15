@@ -1,4 +1,4 @@
-package edu.uwb.braingrid.data.script;
+package edu.uwb.braingrid.workbench.script;
 /////////////////CLEANED
 
 import java.io.File;

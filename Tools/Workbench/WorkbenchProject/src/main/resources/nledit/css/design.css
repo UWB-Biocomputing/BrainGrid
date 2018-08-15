@@ -1,9 +1,25 @@
-.toggle-button {
-  -fx-background-image: url('http://icons.iconarchive.com/icons/aha-soft/desktop-buffet/128/Pizza-icon.png');
-  -fx-background-repeat: no-repeat;
-  -fx-background-position: center;
+.neuronbox {
+  -fx-padding: 5;
 }
 
-.toggle-button:selected {
-  -fx-background-image: url('http://icons.iconarchive.com/icons/aha-soft/desktop-buffet/128/Piece-of-cake-icon.png');
+.sizebox {
+-fx-alignment: center;
+-fx-padding: 5;
+}
+
+.toolbar {
+-fx-spacing: 10;
+-fx-padding: 5;
+}
+
+.toolbar-button {
+-fx-inset: 10 5 10 5;
+}
+
+.toolbar-button:hover {
+-fx-cursor: hand;
+}
+
+.clear-button {
+-fx-background-color: red;
 }

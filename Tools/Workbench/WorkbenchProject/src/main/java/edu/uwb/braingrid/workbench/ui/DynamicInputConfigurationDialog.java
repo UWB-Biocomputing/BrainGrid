@@ -1,11 +1,11 @@
 package edu.uwb.braingrid.workbench.ui;
 
+import edu.uwb.braingrid.general.FileSelectorDirMgr;
 import edu.uwb.braingrid.workbench.FileManager;
 import edu.uwb.braingrid.workbench.SystemConfig;
 import edu.uwb.braingrid.workbench.data.DynamicInputConfigurationManager;
 import edu.uwb.braingrid.workbench.data.InputAnalyzer;
 import edu.uwb.braingrid.workbench.data.InputAnalyzer.InputType;
-import edu.uwb.braingrid.workbenchdashboard.utils.FileSelectorDirMgr;
 import jdk.internal.jline.internal.Log;
 
 import java.awt.Dimension;

@@ -24,7 +24,7 @@ public class WorkbenchStatusBar extends HBox {
 		);
 		timeline.setCycleCount(Timeline.INDEFINITE);
 		timeline.play();
-			
+		getStyleClass().add("updates-bar");
 	}
 
 

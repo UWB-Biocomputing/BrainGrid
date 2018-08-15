@@ -3,12 +3,14 @@ package edu.uwb.braingrid.workbench;
 
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import edu.uwb.braingrid.data.script.Script;
-import edu.uwb.braingrid.data.script.ScriptManager;
+
+import edu.uwb.braingrid.general.LoggerHelper;
 import edu.uwb.braingrid.provenance.ProvMgr;
 import edu.uwb.braingrid.tools.nledit.ControlFrame;
 import edu.uwb.braingrid.workbench.data.InputAnalyzer;
 import edu.uwb.braingrid.workbench.project.ProjectMgr;
+import edu.uwb.braingrid.workbench.script.Script;
+import edu.uwb.braingrid.workbench.script.ScriptManager;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
 import edu.uwb.braingrid.workbench.ui.DynamicInputConfigurationDialog;
 import edu.uwb.braingrid.workbench.ui.InputConfigClassSelectionDialog;
@@ -17,12 +19,14 @@ import edu.uwb.braingrid.workbench.ui.ProvenanceQueryDialog;
 import edu.uwb.braingrid.workbench.ui.ScriptSpecificationDialog;
 import edu.uwb.braingrid.workbench.ui.WorkbenchControlFrame;
 import edu.uwb.braingrid.workbench.utils.DateTime;
+import edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard;
 import jdk.internal.jline.internal.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 import javax.swing.JFileChooser;
@@ -80,7 +84,23 @@ public class WorkbenchManager {
         prov = null;
         projectMgr = null;
         simulatorSpecification = null;
+        initFileOutput();
     }
+    
+    private void initFileOutput() {
+		FileHandler handler = null;
+		try {
+			handler = new FileHandler("WD-WorkbenchManager-log.%u");
+		} catch (SecurityException | IOException e) {
+			LOG.severe("");
+			e.printStackTrace();
+		}
+		if(handler != null) {
+			LOG.getParent().getHandlers()[0].setLevel(LoggerHelper.MIN_LOG_LEVEL);
+			LOG.getParent().addHandler(handler);
+		}
+	}
+    
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Action Helpers">

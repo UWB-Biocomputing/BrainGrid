@@ -3,11 +3,13 @@ package edu.uwb.braingrid.workbenchdashboard.nledit;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -116,6 +118,8 @@ public class LayoutPanel extends JPanel implements MouseListener {
 		Graphics g = getGraphics();
 		g.setColor(bgColor);
 		g.fillRect(theInsets.left, theInsets.top, xlen * cellWidth, ylen * cellWidth);
+		
+		
 	}
 
 	/**
@@ -126,22 +130,26 @@ public class LayoutPanel extends JPanel implements MouseListener {
 	 */
 	public void writeToGraphics(Graphics g) {
 		// System.out.println(NLedit.HEADER + "Start Repaint");
+		Graphics2D g2 = (Graphics2D)g;
+		g2.setRenderingHint(
+                RenderingHints.KEY_ANTIALIASING, 
+                RenderingHints.VALUE_ANTIALIAS_ON);
 		for (int j = 0; j < ylen; j++) {
 			for (int i = 0; i < xlen; i++) {
 				if (true) {
 
 					int cIndex = neurons_layout_.getNeuronType(j * xlen + i);
-					g.setColor(nColor[cIndex]);
+					g2.setColor(nColor[cIndex]);
 					int x = theInsets.left + i * cellWidth;
 					int y = theInsets.top + j * cellWidth;
 					g.fillOval(x, y, cellWidth, cellWidth);
 
 					if (neurons_layout_.isProbed(j * xlen + i)) {
-						g.setColor(nColor[PRB]);
-						g.drawOval(x, y, cellWidth, cellWidth);
+						g2.setColor(nColor[PRB]);
+						g2.drawOval(x, y, cellWidth, cellWidth);
 						if (cellWidth >= minCellWidth) { // MyPrintable may set
 															// smaller cellWidth
-							g.drawOval(x + 1, y + 1, cellWidth - 2, cellWidth - 2);
+							g2.drawOval(x + 1, y + 1, cellWidth - 2, cellWidth - 2);
 						}
 					}
 				}

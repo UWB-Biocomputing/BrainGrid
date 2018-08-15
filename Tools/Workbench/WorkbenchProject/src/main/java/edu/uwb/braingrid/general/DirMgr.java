@@ -1,15 +1,12 @@
-package edu.uwb.braingrid.workbenchdashboard.userModel;
+package edu.uwb.braingrid.general;
 
 import java.io.File;
-
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 
 import edu.uwb.braingrid.workbench.provvisualizer.ProvVisGlobal;
 
 public class DirMgr {
 	private static Logger LOG = Logger.getLogger(DirMgr.class.getName());
-	
-	
 	
 	public static String getRootPath() {
 		LOG.info("Root Path: " + System.getProperty("user.dir"));

@@ -24,6 +24,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -64,7 +65,7 @@ public class ProVisCtrl {
 	private AuthenticationInfo authenticationInfo = null;
 
 	private VisCanvas visCanvas;
-	private AnchorPane canvasPane;
+	private BorderPane canvasPane;
 	private Slider adjustForceSlider;
 	private ToggleSwitch stopForces;
 	private ToggleSwitch showNodeIds;
@@ -72,7 +73,7 @@ public class ProVisCtrl {
 	private ToggleSwitch showLegend;
 	private Button chooseFileBtn;
 
-	public ProVisCtrl(ProVis proVis, VisCanvas visCanvas, AnchorPane canvasPane, Slider adjustForceSlider, ToggleSwitch stopForces,
+	public ProVisCtrl(ProVis proVis, VisCanvas visCanvas, BorderPane canvasPane, Slider adjustForceSlider, ToggleSwitch stopForces,
 			ToggleSwitch showNodeIds, ToggleSwitch showRelationships, ToggleSwitch showLegend, Button chooseFileBtn) {
 		this.proVis_ = proVis;
 		this.visCanvas = visCanvas;

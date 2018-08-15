@@ -1,8 +1,8 @@
 package edu.uwb.braingrid.workbench.data;
 // CLEANED
 
-import edu.uwb.braingrid.data.script.Script;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
+import edu.uwb.braingrid.workbench.script.Script;
 import edu.uwb.braingrid.workbench.model.ExecutedCommand;
 import edu.uwb.braingrid.workbench.utils.DateTime;
 import java.io.File;

@@ -8,8 +8,8 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
+import edu.uwb.braingrid.general.FileSelectorDirMgr;
 import edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard;
-import edu.uwb.braingrid.workbenchdashboard.utils.FileSelectorDirMgr;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
