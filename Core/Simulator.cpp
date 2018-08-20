@@ -35,27 +35,19 @@ void Simulator::setup(SimulationInfo *sim_info)
 #ifdef PERFORMANCE_METRICS
   // Start overall simulation timer
   cerr << "Starting main timer... ";
-  t_host_initialization = 0.0;
+  t_host_initialization_layout = 0.0;
+  t_host_initialization_clusters = 0.0;
+  t_host_initialization_connections = 0.0;
   t_host_advance = 0.0;
   t_host_adjustSynapses = 0.0;
   t_host_createSynapseImap = 0.0;
-  timer.start();
+  sim_info->timer.start();
   cerr << "done." << endl;
-#endif
-
-#ifdef PERFORMANCE_METRICS
-  // Start timer for initialization
-  short_timer.start();
 #endif
 
   DEBUG(cerr << "Initializing models in network... ";)
   sim_info->model->setupSim(sim_info);
   DEBUG(cerr << "\ndone init models." << endl;)
-
-#ifdef PERFORMANCE_METRICS
-  // Time to initialization
-  t_host_initialization += short_timer.lap() / 1000000.0;
-#endif
 }
 
 /*
@@ -120,13 +112,13 @@ void Simulator::simulate(SimulationInfo *sim_info)
 
 #ifdef PERFORMANCE_METRICS
       // Start timer for advance
-      short_timer.start();
+      sim_info->short_timer.start();
 #endif
     // Advance simulation to next growth cycle
     advanceUntilGrowth(currentStep, sim_info);
 #ifdef PERFORMANCE_METRICS
     // Time to advance
-    t_host_advance += short_timer.lap() / 1000000.0;
+    t_host_advance += sim_info->short_timer.lap() / 1000000.0;
 #endif
 
     DEBUG(cout << endl << endl;)
@@ -138,7 +130,7 @@ void Simulator::simulate(SimulationInfo *sim_info)
       // Update the neuron network
 #ifdef PERFORMANCE_METRICS
       // Start timer for connection update
-      short_timer.start();
+      sim_info->short_timer.start();
 #endif
     sim_info->model->updateConnections(sim_info);
 
@@ -147,9 +139,9 @@ void Simulator::simulate(SimulationInfo *sim_info)
 #ifdef PERFORMANCE_METRICS
     // Times converted from microseconds to seconds
     // Time to update synapses
-    t_host_adjustSynapses += short_timer.lap() / 1000000.0;
+    t_host_adjustSynapses += sim_info->short_timer.lap() / 1000000.0;
     // Time since start of simulation
-    double total_time = timer.lap() / 1000000.0;
+    double total_time = sim_info->timer.lap() / 1000000.0;
 
     cout << "\ntotal_time: " << total_time << " seconds" << endl;
     sim_info->model->printPerformanceMetrics(total_time, currentStep);

@@ -142,7 +142,9 @@ string neuronTypeToString(neuronType t);
 
 #ifdef PERFORMANCE_METRICS
 // All times in seconds
-extern double t_host_initialization;
+extern double t_host_initialization_layout;
+extern double t_host_initialization_clusters;
+extern double t_host_initialization_connections;
 extern double t_host_advance;
 extern double t_host_adjustSynapses;
 extern double t_host_createSynapseImap;

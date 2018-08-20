@@ -189,6 +189,7 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
   clr_info->t_gpu_advanceSynapses = 0.0;
   clr_info->t_gpu_calcSummation = 0.0;
   clr_info->t_gpu_updateConns = 0.0;
+  clr_info->t_gpu_setupConns = 0.0;
   clr_info->t_gpu_updateSynapsesWeights = 0.0;
   clr_info->t_gpu_processInterClustesOutgoingSpikes = 0.0;
   clr_info->t_gpu_processInterClustesIncomingSpikes = 0.0;

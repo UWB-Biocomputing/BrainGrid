@@ -99,10 +99,23 @@ void Model::saveData(SimulationInfo *sim_info)
  */
 void Model::setupClusters(SimulationInfo *sim_info)
 {
+#ifdef PERFORMANCE_METRICS
+    // Start timer for initialization
+    sim_info->short_timer.start();
+#endif
+
     // init neuron's map with layout
     m_layout->setupLayout(sim_info);
     m_layout->generateNeuronTypeMap(sim_info->totalNeurons);
     m_layout->initStarterMap(sim_info->totalNeurons);
+
+#ifdef PERFORMANCE_METRICS
+    // Time to initialization (layout)
+    t_host_initialization_layout += sim_info->short_timer.lap() / 1000000.0;
+
+    // Start timer for initialization
+    sim_info->short_timer.start();
+#endif
 
     // create & initialize InterClustersEventHandler
     m_eventHandler = new InterClustersEventHandler();
@@ -119,8 +132,21 @@ void Model::setupClusters(SimulationInfo *sim_info)
         m_vtClr[i]->createAdvanceThread(sim_info, m_vtClrInfo[i], m_vtClrInfo.size());
     }
 
+#ifdef PERFORMANCE_METRICS
+    // Time to initialization (clusters)
+    t_host_initialization_clusters += sim_info->short_timer.lap() / 1000000.0;
+
+    // Start timer for initialization
+    sim_info->short_timer.start();
+#endif
+
     // set up the connection of all the Neurons and Synapses of the simulation
     m_conns->setupConnections(sim_info, m_layout, m_vtClr, m_vtClrInfo);
+
+#ifdef PERFORMANCE_METRICS
+    // Time to initialization (connections)
+    t_host_initialization_connections += sim_info->short_timer.lap() / 1000000.0;
+#endif
 }
 
 /*
@@ -311,6 +337,8 @@ void Model::printPerformanceMetrics(double total_time, int steps)
            << m_vtClrInfo[iCluster]->t_gpu_calcSummation / total_time * 100 << "%)" << endl;
         cout << "GPU updateConns: " << m_vtClrInfo[iCluster]->t_gpu_updateConns << " seconds ("
            << m_vtClrInfo[iCluster]->t_gpu_updateConns / total_time * 100 << "%)" << endl;
+        cout << "GPU setupConns: " << m_vtClrInfo[iCluster]->t_gpu_setupConns << " seconds ("
+           << m_vtClrInfo[iCluster]->t_gpu_setupConns / total_time * 100 << "%)" << endl;
         cout << "GPU updateSynapsesWeights: " << m_vtClrInfo[iCluster]->t_gpu_updateSynapsesWeights << " seconds ("
            << m_vtClrInfo[iCluster]->t_gpu_updateSynapsesWeights / total_time * 100 << "%)" << endl;
         cout << "GPU processInterClustesOutgoingSpikes: " << m_vtClrInfo[iCluster]->t_gpu_processInterClustesOutgoingSpikes << " seconds ("
@@ -319,8 +347,14 @@ void Model::printPerformanceMetrics(double total_time, int steps)
            << m_vtClrInfo[iCluster]->t_gpu_processInterClustesIncomingSpikes / total_time * 100 << "%)" << endl;
     }
 #endif
-    cout << "\nHost initialization: " << t_host_initialization << " seconds ("
-       << t_host_initialization / total_time * 100 << "%)" << endl;
+    cout << "\nHost initialization (layout): " << t_host_initialization_layout << " seconds ("
+       << t_host_initialization_layout / total_time * 100 << "%)" << endl;
+
+    cout << "\nHost initialization (clusters): " << t_host_initialization_clusters << " seconds ("
+       << t_host_initialization_clusters / total_time * 100 << "%)" << endl;
+
+    cout << "\nHost initialization (connections): " << t_host_initialization_connections << " seconds ("
+       << t_host_initialization_connections / total_time * 100 << "%)" << endl;
 
     cout << "\nHost advance: " << t_host_advance << " seconds ("
        << t_host_advance / total_time * 100 << "%)" << endl;
@@ -346,6 +380,8 @@ void Model::printPerformanceMetrics(double total_time, int steps)
         cout << "GPU calcSummation: " << m_vtClrInfo[iCluster]->t_gpu_calcSummation/steps
            << " seconds/epoch" << endl;
         cout << "GPU updateConns: " << m_vtClrInfo[iCluster]->t_gpu_updateConns/steps
+           << " seconds/epoch" << endl;
+        cout << "GPU setupConns: " << m_vtClrInfo[iCluster]->t_gpu_setupConns/steps
            << " seconds/epoch" << endl;
         cout << "GPU updateSynapsesWeights: " << m_vtClrInfo[iCluster]->t_gpu_updateSynapsesWeights/steps
            << " seconds/epoch" << endl;

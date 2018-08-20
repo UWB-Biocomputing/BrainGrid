@@ -104,6 +104,7 @@ class ClusterInfo
         double t_gpu_advanceSynapses;
         double t_gpu_calcSummation;
         double t_gpu_updateConns;
+        double t_gpu_setupConns;
         double t_gpu_updateSynapsesWeights;
         double t_gpu_processInterClustesOutgoingSpikes;
         double t_gpu_processInterClustesIncomingSpikes;
