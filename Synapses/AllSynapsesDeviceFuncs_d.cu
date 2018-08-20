@@ -3,6 +3,7 @@
 #include "AllSTDPSynapses.h"
 #include "AllDynamicSTDPSynapses.h"
 #include "math_constants.h"
+#include "HeapSort.hpp"
 
 
 // a device variable to store synapse class ID.
@@ -966,9 +967,16 @@ __global__ void setupConnectionsDevice( int num_neurons, int totalClusterNeurons
         }
     }
 
+
     // sort ascendant
     iArrayEnd = iArray;
-    thrust::sort(thrust::seq, &rDistDestNeuron_d[iArrayBegin], &rDistDestNeuron_d[iArrayEnd]);
+    int size = iArrayEnd - iArrayBegin;
+    // CUDA thrust sort consumes heap memory, and when sorting large contents
+    // it may cause an error "temporary_buffer::allocate: get_temporary_buffer failed".
+    // Therefore we use local implementation of heap sort.
+    // NOTE: Heap sort is an in-palce algoprithm (memory requirement is 1).
+    // Its implementation is not stable. Time complexity is O(n*logn).
+    heapSort(&rDistDestNeuron_d[iArrayBegin], size);
 
     // set up an initial state for curand
     curand_init( seed, iNeuron, 0, &devStates_d[iNeuron] );
