@@ -208,13 +208,18 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
   // if the number of synapses is bigger than 512, use parallel reduction method
   // otherwise use sequential addtion method.
 
-  // NOTE: '512' is a tentative number and may be adjusted later.
+  // NOTE: When the number of synapses per neuron is smaller, parallel reduction
+  // method exhibits poor performance. The coefficient K is a tentative value,
+  // and needs to be adjusted.
   // We may use another way to choose better kernel based on the measurement of
   // real execution time of each kernel. 
 
-  if (sim_info->maxSynapsesPerNeuron > 512) {
+  BGFLOAT K = 1.0;
+  if (sim_info->maxSynapsesPerNeuron * K > clr_info->totalClusterNeurons) {
+    // parallel reduction base summation
     clr_info->fpCalcSummationMap = &GPUSpikingCluster::calcSummationMap_1;
   } else {
+    // sequential addtion base summation
     clr_info->fpCalcSummationMap = &GPUSpikingCluster::calcSummationMap_2;
   }
 }
