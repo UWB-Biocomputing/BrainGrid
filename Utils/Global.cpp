@@ -90,19 +90,27 @@ uint64_t g_simulationStep = 0;
 const BGFLOAT pi = 3.1415926536;
 
 #ifdef PERFORMANCE_METRICS
-float t_gpu_rndGeneration;
-float t_gpu_advanceNeurons;
-float t_gpu_advanceSynapses;
-float t_gpu_calcSummation;
-float t_host_adjustSynapses;
+double t_gpu_rndGeneration;
+double t_gpu_advanceNeurons;
+double t_gpu_advanceSynapses;
+double t_gpu_calcSummation;
+double t_host_adjustSynapses;
 
-void printPerformanceMetrics(const float total_time)
+void printPerformanceMetrics(const float total_time, int steps)
 {
     cout << "t_gpu_rndGeneration: " << t_gpu_rndGeneration << " ms (" << t_gpu_rndGeneration / total_time * 100 << "%)" << endl;
     cout << "t_gpu_advanceNeurons: " << t_gpu_advanceNeurons << " ms (" << t_gpu_advanceNeurons / total_time * 100 << "%)" << endl;
     cout << "t_gpu_advanceSynapses: " << t_gpu_advanceSynapses << " ms (" << t_gpu_advanceSynapses / total_time * 100 << "%)" << endl;
     cout << "t_gpu_calcSummation: " << t_gpu_calcSummation << " ms (" << t_gpu_calcSummation / total_time * 100 << "%)" << endl;
     cout << "t_host_adjustSynapses: " << t_host_adjustSynapses << " ms (" << t_host_adjustSynapses / total_time * 100 << "%)" << endl;
+
+    cout << "\nAverage time per simulation epoch:" << endl;
+
+    cout << "t_gpu_rndGeneration: " << t_gpu_rndGeneration/steps << " ms/epoch" << endl;
+    cout << "t_gpu_advanceNeurons: " << t_gpu_advanceNeurons/steps << " ms/epoch" << endl;
+    cout << "t_gpu_advanceSynapses: " << t_gpu_advanceSynapses/steps << " ms/epoch" << endl;
+    cout << "t_gpu_calcSummation: " << t_gpu_calcSummation/steps << " ms/epoch" << endl;
+    cout << "t_host_adjustSynapses: " << t_host_adjustSynapses/steps << " ms/epoch" << endl;
 }
 #endif // PERFORMANCE_METRICS
 
