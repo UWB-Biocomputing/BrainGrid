@@ -149,7 +149,7 @@ __device__ void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYP
         // save the inter clusters outgoing events in the outgoing events queue
         OUTGOING_SYNAPSE_INDEX_TYPE idxOutSyn = SynapseIndexMap::getOutgoingSynapseIndex(clusterID, idx);
 
-        // Because the function in mlti-threads try to save events concurrently, we need to 
+        // Because the function in multi-threads try to save events concurrently, we need to 
         // atomicaly store events data.
         int oldEventIdx, newEventIdx, currEventIdx  = m_nInterClustersOutgoingEvents;
         do {
@@ -206,7 +206,7 @@ __device__ void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYP
  */
 __host__ void EventQueue::addAnInterClustersIncomingEvent(const BGSIZE idx, int iStepOffset)
 {
-    // Because the function in mlti-threads try to save events concurrently, we need to
+    // Because the function in multi-threads try to save events concurrently, we need to
     // atomicaly store events data.
     int oldEventIdx, newEventIdx, currEventIdx  = m_nInterClustersIncomingEvents;
     do {

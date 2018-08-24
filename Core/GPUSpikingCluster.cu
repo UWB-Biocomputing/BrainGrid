@@ -205,8 +205,6 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
   m_synapses->setAdvanceSynapsesDeviceParams();
 
   // assign an address of summation function
-  // if the number of synapses is bigger than 512, use parallel reduction method
-  // otherwise use sequential addtion method.
 
   // NOTE: When the number of synapses per neuron is smaller, parallel reduction
   // method exhibits poor performance. The coefficient K is a tentative value,
