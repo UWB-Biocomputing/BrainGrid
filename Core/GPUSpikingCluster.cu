@@ -212,6 +212,13 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
   // We may use another way to choose better kernel based on the measurement of
   // real execution time of each kernel. 
 
+  // sequential addtion base summation
+  clr_info->fpCalcSummationMap = &GPUSpikingCluster::calcSummationMap_2;
+
+#if 0
+  // Disabled parallel reduction base summatio kernel. 
+  // In most case, sequential addtion base summation kernel exhibits better 
+  // performance.
   BGFLOAT K = 1.0;
   if (sim_info->maxSynapsesPerNeuron * K > clr_info->totalClusterNeurons) {
     // parallel reduction base summation
@@ -220,6 +227,7 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
     // sequential addtion base summation
     clr_info->fpCalcSummationMap = &GPUSpikingCluster::calcSummationMap_2;
   }
+#endif
 }
 
 /* 
