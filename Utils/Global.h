@@ -140,11 +140,16 @@ string coordToString(int x, int y, int z);
 string neuronTypeToString(neuronType t);
 
 #ifdef PERFORMANCE_METRICS
+// All times in seconds
+extern double t_host_initialization_layout;
+extern double t_host_initialization_connections;
+extern double t_host_advance;
+extern double t_host_adjustSynapses;
+
 extern double t_gpu_rndGeneration;
 extern double t_gpu_advanceNeurons;
 extern double t_gpu_advanceSynapses;
 extern double t_gpu_calcSummation;
-extern double t_host_adjustSynapses;
 
 void printPerformanceMetrics(const float total_time, int steps);
 #endif // PERFORMANCE_METRICS

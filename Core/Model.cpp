@@ -139,9 +139,17 @@ void Model::setupSim(SimulationInfo *sim_info)
     m_neurons->setupNeurons(sim_info);
     DEBUG(cerr << "done.\n\tSetting up synapses....";)
     m_synapses->setupSynapses(sim_info);
+#ifdef PERFORMANCE_METRICS
+    // Start timer for initialization
+    sim_info->short_timer.start();
+#endif
     DEBUG(cerr << "done.\n\tSetting up layout....";)
     m_layout->setupLayout(sim_info);
     DEBUG(cerr << "done." << endl;)
+#ifdef PERFORMANCE_METRICS
+    // Time to initialization (layout)
+    t_host_initialization_layout += sim_info->short_timer.lap() / 1000000.0;
+#endif
 
     // Init radii and rates history matrices with default values
     if (sim_info->simRecorder != NULL) {
@@ -151,7 +159,15 @@ void Model::setupSim(SimulationInfo *sim_info)
     // Creates all the Neurons and generates data for them.
     createAllNeurons(sim_info);
 
+#ifdef PERFORMANCE_METRICS
+    // Start timer for initialization
+    sim_info->short_timer.start();
+#endif
     m_conns->setupConnections(sim_info, m_layout, m_neurons, m_synapses);
+#ifdef PERFORMANCE_METRICS
+    // Time to initialization (connections)
+    t_host_initialization_connections += sim_info->short_timer.lap() / 1000000.0;
+#endif
 
     // create a synapse index map 
     m_synapses->createSynapseImap(m_synapseIndexMap, sim_info);

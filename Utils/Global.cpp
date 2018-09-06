@@ -90,11 +90,16 @@ uint64_t g_simulationStep = 0;
 const BGFLOAT pi = 3.1415926536;
 
 #ifdef PERFORMANCE_METRICS
+// All times in seconds
+double t_host_initialization_layout;
+double t_host_initialization_connections;
+double t_host_advance;
+double t_host_adjustSynapses;
+
 double t_gpu_rndGeneration;
 double t_gpu_advanceNeurons;
 double t_gpu_advanceSynapses;
 double t_gpu_calcSummation;
-double t_host_adjustSynapses;
 
 void printPerformanceMetrics(const float total_time, int steps)
 {
@@ -102,7 +107,18 @@ void printPerformanceMetrics(const float total_time, int steps)
     cout << "t_gpu_advanceNeurons: " << t_gpu_advanceNeurons << " ms (" << t_gpu_advanceNeurons / total_time * 100 << "%)" << endl;
     cout << "t_gpu_advanceSynapses: " << t_gpu_advanceSynapses << " ms (" << t_gpu_advanceSynapses / total_time * 100 << "%)" << endl;
     cout << "t_gpu_calcSummation: " << t_gpu_calcSummation << " ms (" << t_gpu_calcSummation / total_time * 100 << "%)" << endl;
-    cout << "t_host_adjustSynapses: " << t_host_adjustSynapses << " ms (" << t_host_adjustSynapses / total_time * 100 << "%)" << endl;
+
+    cout << "\nHost initialization (layout): " << t_host_initialization_layout << " seconds ("
+       << t_host_initialization_layout / total_time * 100 << "%)" << endl;
+
+    cout << "\nHost initialization (connections): " << t_host_initialization_connections << " seconds ("
+       << t_host_initialization_connections / total_time * 100 << "%)" << endl;
+
+    cout << "\nHost advance: " << t_host_advance << " seconds ("
+       << t_host_advance / total_time * 100 << "%)" << endl;
+
+    cout << "\nHost adjustSynapses: " << t_host_adjustSynapses << " seconds ("
+       << t_host_adjustSynapses / total_time * 100 << "%)" << endl;
 
     cout << "\nAverage time per simulation epoch:" << endl;
 
@@ -110,7 +126,6 @@ void printPerformanceMetrics(const float total_time, int steps)
     cout << "t_gpu_advanceNeurons: " << t_gpu_advanceNeurons/steps << " ms/epoch" << endl;
     cout << "t_gpu_advanceSynapses: " << t_gpu_advanceSynapses/steps << " ms/epoch" << endl;
     cout << "t_gpu_calcSummation: " << t_gpu_calcSummation/steps << " ms/epoch" << endl;
-    cout << "t_host_adjustSynapses: " << t_host_adjustSynapses/steps << " ms/epoch" << endl;
 }
 #endif // PERFORMANCE_METRICS
 

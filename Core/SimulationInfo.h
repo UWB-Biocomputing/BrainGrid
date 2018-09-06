@@ -33,6 +33,10 @@
 class IModel;
 class IRecorder;
 class ISInput;
+#ifdef PERFORMANCE_METRICS
+// Home-brewed performance measurement
+#include "Timer.h"
+#endif
 
 //! Class design to hold all of the parameters of the simulation.
 class SimulationInfo : public TiXmlVisitor
@@ -154,6 +158,17 @@ public:
         //! Stimulus input object.
         ISInput* pInput;
     
+#ifdef PERFORMANCE_METRICS
+        /**
+         * Timer for measuring performance of an epoch.
+         */
+        Timer timer;
+        /**
+         * Timer for measuring performance of connection update.
+         */
+        Timer short_timer;
+#endif
+
     private:
         /**
          *  Checks the number of required parameters to read.
