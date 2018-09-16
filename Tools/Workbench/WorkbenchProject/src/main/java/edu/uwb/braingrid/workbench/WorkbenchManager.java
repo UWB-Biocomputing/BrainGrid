@@ -19,8 +19,6 @@ import edu.uwb.braingrid.workbench.ui.ProvenanceQueryDialog;
 import edu.uwb.braingrid.workbench.ui.ScriptSpecificationDialog;
 import edu.uwb.braingrid.workbench.ui.WorkbenchControlFrame;
 import edu.uwb.braingrid.workbench.utils.DateTime;
-import edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard;
-import jdk.internal.jline.internal.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -92,8 +90,7 @@ public class WorkbenchManager {
 		try {
 			handler = new FileHandler("WD-WorkbenchManager-log.%u");
 		} catch (SecurityException | IOException e) {
-			LOG.severe("");
-			e.printStackTrace();
+			LOG.severe(e.getMessage());
 		}
 		if(handler != null) {
 			LOG.getParent().getHandlers()[0].setLevel(LoggerHelper.MIN_LOG_LEVEL);
@@ -113,7 +110,7 @@ public class WorkbenchManager {
      */
     public boolean newProject() {
     	LOG.info("Making New Project");
-        boolean success;
+        boolean success = false;
         // Ask the user for a new project name (validation in dialogue)
         
         NewProjectDialog npd = new NewProjectDialog(true);

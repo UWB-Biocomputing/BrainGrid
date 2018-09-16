@@ -5,21 +5,36 @@ import java.util.ArrayList;
 
 import edu.uwb.braingrid.workbenchdashboard.userModel.User;
 
+/**
+ * A class to manage starting directories the file explore opens.
+ */
 public class FileSelectorDirMgr {
 	
 	ArrayList<File> dirs = new ArrayList<File>();
-	
+
+	/**
+	 *
+	 */
 	public FileSelectorDirMgr() {
 		
 	}
-	
+
+	/**
+	 *
+	 * @return The last directory
+	 */
 	public File getLastDir() {
 		if(dirs.isEmpty()) {
 			return getDefault();
 		}
 		return dirs.get(dirs.size() - 1);
 	}
-	
+
+	/**
+	 *
+	 * @param index
+	 * @return
+	 */
 	public File getDir(int index) {
 		if(dirs.isEmpty() || index >= dirs.size()) {
 			return getDefault();

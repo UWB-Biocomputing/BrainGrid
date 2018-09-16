@@ -284,7 +284,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="testConnectionButton">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Test Connection"/>
+        <Property name="text" type="java.lang.String" value="StartTest Connection"/>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>

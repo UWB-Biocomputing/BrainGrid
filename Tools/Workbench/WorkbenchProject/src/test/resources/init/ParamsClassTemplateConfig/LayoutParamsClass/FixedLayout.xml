@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LayoutParams name="LayoutParams" class="FixedLayout">
+    <LayoutFiles name="LayoutFiles">
+        <activeNListFileName name="activeNListFileName" type="InputFile">workbenchconfigfiles/NList/ActiveNList.xml</activeNListFileName>
+        <inhNListFileName name="inhNListFileName" type="InputFile">workbenchconfigfiles/NList/InhibitoryNList.xml</inhNListFileName>
+        <prbNListFileName name="prbNListFileName" type="InputFile">workbenchconfigfiles/NList/ProbedNList.xml</prbNListFileName>
+    </LayoutFiles>
+</LayoutParams>

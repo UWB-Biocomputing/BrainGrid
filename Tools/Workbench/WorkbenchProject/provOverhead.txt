@@ -91,3 +91,15 @@ WorkbenchManager.initProject;total prov overhead:707
 WorkbenchManager.initProject;provEnabled=true;total milliseconds:773
 WorkbenchManager.initProject;total prov overhead:675
 ControlFrame.actionExport;provEnabled=false;total milliseconds:42837
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:2175
+WorkbenchManager.initProject;total prov overhead:1906
+WorkbenchManager.initProject;provEnabled=false;total milliseconds:5
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:103
+WorkbenchManager.initProject;total prov overhead:93
+WorkbenchManager.initProject;provEnabled=false;total milliseconds:3
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:1266
+WorkbenchManager.initProject;total prov overhead:1077
+WorkbenchManager.initProject;provEnabled=false;total milliseconds:3
+WorkbenchManager.initProject;provEnabled=true;total milliseconds:96
+WorkbenchManager.initProject;total prov overhead:92
+WorkbenchManager.initProject;provEnabled=false;total milliseconds:3

@@ -1,0 +1,25 @@
+.neuronbox {
+  -fx-padding: 5;
+}
+
+.sizebox {
+-fx-alignment: center;
+-fx-padding: 5;
+}
+
+.toolbar {
+-fx-spacing: 10;
+-fx-padding: 5;
+}
+
+.toolbar-button {
+-fx-inset: 10 5 10 5;
+}
+
+.toolbar-button:hover {
+-fx-cursor: hand;
+}
+
+.clear-button {
+-fx-background-color: red;
+}

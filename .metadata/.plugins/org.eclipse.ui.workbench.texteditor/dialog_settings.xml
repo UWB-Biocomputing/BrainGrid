@@ -2,12 +2,15 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="InputConfig" key="selection"/>
+		<item value="canvasPane" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
+			<item value="canvasPane"/>
+			<item value="actionImport()"/>
+			<item value="import"/>
 			<item value="inputConfig"/>
 			<item value="getInputConfigDoc"/>
 			<item value="neuronsParamsNodePath"/>
@@ -20,9 +23,6 @@
 			<item value="configure"/>
 			<item value="simulatorSpecification"/>
 			<item value="specifyScript()"/>
-			<item value="initProject"/>
-			<item value="setProvenanceEnabled"/>
-			<item value="getSuccess"/>
 		</list>
 		<list key="replacehistory">
 			<item value="javax.swing.JComboBox&lt;&gt;"/>

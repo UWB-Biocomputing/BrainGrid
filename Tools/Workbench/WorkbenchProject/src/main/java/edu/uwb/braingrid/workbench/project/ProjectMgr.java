@@ -5,6 +5,7 @@ package edu.uwb.braingrid.workbench.project;
 import edu.uwb.braingrid.workbench.FileManager;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
 import edu.uwb.braingrid.workbench.utils.DateTime;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Manages a Brain Grid the project specified within the Brain Grid Workbench
- *
+ * <p>
  * Note: Provenance support is dealt with after the project manager is
  * constructed
  *
@@ -87,27 +88,33 @@ public class ProjectMgr {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Construction">
+
     /**
      * Constructs a project including the XML document that constitutes the
      * project, as well as project members
      *
      * @param rootNodeName - Name of the project. Name given to the root node
-     * @param load - True if the project should be loaded from disk, false
-     * otherwise
+     * @param load         - True if the project should be loaded from disk, false
+     *                     otherwise
      * @throws ParserConfigurationException
      * @throws java.io.IOException
      * @throws org.xml.sax.SAXException
      */
     public ProjectMgr(String rootNodeName, boolean load)
-            throws ParserConfigurationException, IOException, SAXException {
-    	LOG.info("New Project Manager for project: " + name);
+            throws ParserConfigurationException, IOException, SAXException, NullPointerException {
+        if (rootNodeName == null) {
+            throw new NullPointerException();
+        }
         initState();
         name = rootNodeName.split("\\.")[0];
+        LOG.info("New Project Manager for project: " + name);
         if (load) {
             load(determineProjectOutputLocation() + name + ".xml");
         } else {
             initXML(rootNodeName);
         }
+
+
     }
 
     private void initState() {
@@ -222,6 +229,7 @@ public class ProjectMgr {
     //</editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Persistence">
+
     /**
      * Writes the document representing this project to disk
      *
@@ -253,6 +261,7 @@ public class ProjectMgr {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="ProjectMgr Configuration">
+
     /**
      * Determines the folder location for storing provenance data for a given
      * project
@@ -318,6 +327,7 @@ public class ProjectMgr {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Getters/Setters">
+
     /**
      * Sets the project's name. This will also modify the name attribute for the
      * project element of the project XML model
@@ -373,6 +383,7 @@ public class ProjectMgr {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Data Manipulation">
+
     /**
      * Provides the current simulation specification based on the content of the
      * elements in the project XML document
@@ -450,7 +461,7 @@ public class ProjectMgr {
     /**
      * Provides the folder location where the simulator code is moved to and the
      * simulator is built and executed.
-     *
+     * <p>
      * Note: This may be an absolute or canonical path on the local file system,
      * or it may be a path on a remote machine relative to the starting path of
      * a remote connection.
@@ -507,8 +518,7 @@ public class ProjectMgr {
      *
      * @return The simulation type associated with the simulation for this
      * project
-     * @see
-     * edu.uwb.braingrid.workbench.model.SimulationSpecification.SimulatorType
+     * @see edu.uwb.braingrid.workbench.model.SimulationSpecification.SimulatorType
      */
     public String getSimulationType() {
         return getFirstChildTextContent(simulator, simulationTypeTagName);
@@ -568,7 +578,7 @@ public class ProjectMgr {
 
     /**
      * Determines whether or not the script has been executed
-     *
+     * <p>
      * Note: This should not be used to determine if the script has completed
      * execution
      *
@@ -595,12 +605,12 @@ public class ProjectMgr {
 
     /**
      * Sets the attribute used to determine when the script completed execution.
-     *
+     * <p>
      * Note: This should be verified through the OutputAnalyzer class first.
      *
      * @param timeCompleted - The number of milliseconds since January 1, 1970,
-     * 00:00:00 GMT when execution completed for the script associated with this
-     * project
+     *                      00:00:00 GMT when execution completed for the script associated with this
+     *                      project
      */
     public void setScriptCompletedAt(long timeCompleted) {
         if (script != null) {
@@ -721,7 +731,7 @@ public class ProjectMgr {
     }
 
     private boolean createChildWithTextContent(Element parent,
-            String childTagName, String textContent) {
+                                               String childTagName, String textContent) {
         boolean success = true;
         if (parent != null) {
             try {
@@ -738,7 +748,7 @@ public class ProjectMgr {
     }
 
     private boolean setFirstChildTextContent(Element parent,
-            String childTagName, String textContent) {
+                                             String childTagName, String textContent) {
         boolean success = true;
         if (parent != null) {
             NodeList nl = parent.getElementsByTagName(childTagName);
@@ -755,7 +765,7 @@ public class ProjectMgr {
     }
 
     private String getFirstChildTextContent(Element parent,
-            String textElementTagName) {
+                                            String textElementTagName) {
         String textContent = null;
         if (parent != null) {
             NodeList nl = parent.getElementsByTagName(textElementTagName);
@@ -832,29 +842,29 @@ public class ProjectMgr {
      * execution script as well as where it will be executed
      *
      * @param simulatorExecutionLocation - Indicates where the simulator will be
-     * executed (e.g. Remote, or Local)
-     * @param hostname - The name of the remote host, if the simulator will be
-     * executed remotely
-     * @param simFolder - The top folder where the script will be deployed to.
-     * This also serves as the parent folder of the local copy of the simulator
-     * source code.
-     * @param simulationType - Indicates which version of the simulator will be
-     * executed (e.g. growth, or growth_CUDA
-     * @param versionAnnotation - A human interpretable note regarding the
-     * version of the simulator that will be executed.
-     * @param codeLocation - The location of the repository that contains the
-     * code for the simulator
-     * @param sourceCodeUpdating - Whether the source code should be updated
-     * prior to execution (e.g. Pull, or None). If sourceCodeUpdating is set to
-     * first do a pull on the repository, a clone will be attempted first in
-     * case the repository has yet to be cloned.
+     *                                   executed (e.g. Remote, or Local)
+     * @param hostname                   - The name of the remote host, if the simulator will be
+     *                                   executed remotely
+     * @param simFolder                  - The top folder where the script will be deployed to.
+     *                                   This also serves as the parent folder of the local copy of the simulator
+     *                                   source code.
+     * @param simulationType             - Indicates which version of the simulator will be
+     *                                   executed (e.g. growth, or growth_CUDA
+     * @param versionAnnotation          - A human interpretable note regarding the
+     *                                   version of the simulator that will be executed.
+     * @param codeLocation               - The location of the repository that contains the
+     *                                   code for the simulator
+     * @param sourceCodeUpdating         - Whether the source code should be updated
+     *                                   prior to execution (e.g. Pull, or None). If sourceCodeUpdating is set to
+     *                                   first do a pull on the repository, a clone will be attempted first in
+     *                                   case the repository has yet to be cloned.
      * @return True if the simulator was added to the model correctly, false if
      * not
      */
     public boolean addSimulator(String simulatorExecutionLocation,
-            String hostname, String simFolder, String simulationType,
-            String codeLocation, String versionAnnotation,
-            String sourceCodeUpdating, String SHA1Key, String buildOption) {
+                                String hostname, String simFolder, String simulationType,
+                                String codeLocation, String versionAnnotation,
+                                String sourceCodeUpdating, String SHA1Key, String buildOption) {
         boolean success = true;
         // remove previously defined simulator
         removeSimulator();
@@ -950,7 +960,7 @@ public class ProjectMgr {
      * Adds a generated script file to the project
      *
      * @param scriptBasename - The base-name of the file path
-     * @param extension - The extension of the file path
+     * @param extension      - The extension of the file path
      * @return True if the script was added to the model correctly, false if not
      */
     public boolean addScript(String scriptBasename, String extension) {
@@ -1035,7 +1045,7 @@ public class ProjectMgr {
      * script version has been analyzed
      *
      * @param analyzed - indication of whether or not the analysis has been
-     * completed
+     *                 completed
      */
     public void setScriptAnalyzed(boolean analyzed) {
         if (script != null) {

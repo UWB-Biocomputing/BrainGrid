@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BookmarkManager">
+    <bookmark url="file://$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbench/WorkbenchManager.java" line="418" mnemonic="1" />
+    <bookmark url="file://$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbench/WorkbenchManager.java" line="547" mnemonic="2" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="6eb808c8-9803-4645-ab58-970ebcbdb173" name="Default" comment="" />
+    <list default="true" id="f469c3e1-7948-4d64-99f7-b919d142c0cb" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -11,43 +15,134 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="BrainGridRepoMgr.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uwb/workbenchdashboard/update/BrainGridRepoMgr.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="51">
-              <caret line="3" column="13" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="WorkbenchDashboard.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbenchdashboard/WorkbenchDashboard.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="459">
-              <caret line="46" column="24" selection-start-line="46" selection-start-column="24" selection-end-line="46" selection-end-column="24" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ProVisCtrl.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbenchdashboard/provis/ProVisCtrl.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="309">
-              <caret line="56" column="31" lean-forward="true" selection-start-line="56" selection-start-column="31" selection-end-line="56" selection-end-column="31" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <splitter split-orientation="horizontal" split-proportion="0.41468126">
+      <split-first>
+        <leaf>
+          <file leaf-file-name="ProjectMgr.java" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbench/project/ProjectMgr.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="246">
+                  <caret line="132" column="57" lean-forward="true" selection-start-line="132" selection-start-column="57" selection-end-line="132" selection-end-column="57" />
+                  <folding>
+                    <element signature="e#1348#1404#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="WorkbenchManager.java" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbench/WorkbenchManager.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-570">
+                  <caret line="420" column="16" lean-forward="true" selection-start-line="420" selection-start-column="16" selection-end-line="420" selection-end-column="16" />
+                  <folding>
+                    <element signature="imports" expanded="true" />
+                    <element signature="e#1594#1661#0" expanded="true" />
+                    <element signature="e#2466#2528#0" expanded="true" />
+                    <element signature="e#6666#6667#0" expanded="true" />
+                    <element signature="e#6747#6748#0" expanded="true" />
+                    <element signature="e#23076#23150#0" expanded="true" />
+                    <element signature="e#26827#26893#0" expanded="true" />
+                    <element signature="e#30715#30779#0" expanded="true" />
+                    <element signature="e#39742#39808#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file leaf-file-name="ProjectMgrTest.java" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/project/ProjectMgrTest.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="425">
+                  <caret line="27" column="37" lean-forward="true" selection-start-line="27" selection-start-column="37" selection-end-line="27" selection-end-column="37" />
+                  <folding>
+                    <element signature="imports" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>initProject</find>
+    </findStrings>
+  </component>
+  <component name="GradleLocalSettings">
+    <option name="projectSyncType">
+      <map>
+        <entry key="C:/Projects/gcalendar" value="PREVIEW" />
+      </map>
+    </option>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbenchdashboard/provis/ProVisCtrl.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/provvisualizer/model/NodeTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/provvisualizer/utility/ConnectionUtilityTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/provvisualizer/utility/FileUtilityTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/provvisualizer/utility/GraphUtilityTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/provvisualizer/utility/ProvUtilityTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/provvisualizer/view/VisCanvasTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/script/ScriptManagerTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/script/ScriptTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/DynamicInputConfigurationDialogTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/InputConfigClassSelectionDialogTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/LoginCredentialsDialogTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/NewProjectDialogTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/ParamsClassesConfigDialogTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/ProvenanceQueryDialogTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/ScriptSpecificationDialogTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/WorkbenchControlFrameTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/utils/DateTimeTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/provvisualizer/FileManagerTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/provvisualizer/FileManagerSharedTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/provvisualizer/ProvenanceVisualizerTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/provvisualizer/ProVisGlobalTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/SystemConfigTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/AProbesPanelTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/MyPrintableTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/NeuronsLayoutTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/NL_Sim_UtilTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/NLeditTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/ProjectTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/provis/ProVisTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/provis/ProVisCtrlTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/simstarter/SimStarterTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/simstarter/SimStarterAttributeSelectorTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/simstarter/SimStarterToolBar.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/threads/RunInitTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/threads/RunUpdateRepoTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/userModel/UserTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/userView/UserViewTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/utils/InitTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/utils/RepoManagerTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/utils/SystemPropertiesTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/utils/ThreadManagerTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/welcome/WelcomeTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/WorkbenchAppTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/WorkbenchDashboardTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/WorkbenchDisplayTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/WorkbenchStatusBarTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/WorkbenchTest.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbench/WorkbenchManager.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/WorkbenchManagerTest.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbench/project/ProjectMgr.java" />
+        <option value="$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/project/ProjectMgrTest.java" />
       </list>
     </option>
   </component>
@@ -60,19 +155,17 @@
   <component name="NodePackageJsonFileManager">
     <packageJsonPaths />
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="39" />
-    <option name="y" value="18" />
-    <option name="width" value="1851" />
-    <option name="height" value="983" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="1936" />
+    <option name="height" value="1056" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
-      <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -104,15 +197,6 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="uwb" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="BrainGridWorkbench" type="b2602c69:ProjectViewProjectNode" />
-              <item name="WorkbenchProject" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="uwb" type="462c0819:PsiDirectoryNode" />
               <item name="braingrid" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -121,7 +205,44 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="uwb" type="462c0819:PsiDirectoryNode" />
+              <item name="braingrid" type="462c0819:PsiDirectoryNode" />
+              <item name="provenance" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="BrainGridWorkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="WorkbenchProject" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="braingrid" type="462c0819:PsiDirectoryNode" />
+              <item name="workbench" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="BrainGridWorkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="WorkbenchProject" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="braingrid" type="462c0819:PsiDirectoryNode" />
+              <item name="workbench" type="462c0819:PsiDirectoryNode" />
+              <item name="project" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="BrainGridWorkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="WorkbenchProject" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="braingrid" type="462c0819:PsiDirectoryNode" />
+              <item name="workbench" type="462c0819:PsiDirectoryNode" />
+              <item name="ui" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="BrainGridWorkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="WorkbenchProject" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="braingrid" type="462c0819:PsiDirectoryNode" />
               <item name="workbenchdashboard" type="462c0819:PsiDirectoryNode" />
             </path>
@@ -129,27 +250,72 @@
               <item name="BrainGridWorkbench" type="b2602c69:ProjectViewProjectNode" />
               <item name="WorkbenchProject" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="BrainGridWorkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="WorkbenchProject" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="uwb" type="462c0819:PsiDirectoryNode" />
-              <item name="update" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="BrainGridWorkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="WorkbenchProject" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="braingrid" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="BrainGridWorkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="WorkbenchProject" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="braingrid" type="462c0819:PsiDirectoryNode" />
+              <item name="workbench" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="BrainGridWorkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="WorkbenchProject" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="braingrid" type="462c0819:PsiDirectoryNode" />
+              <item name="workbench" type="462c0819:PsiDirectoryNode" />
+              <item name="project" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
       <pane id="Scope" />
+      <pane id="AndroidView" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/pom.xml" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="edu.uwb.braingrid.workbench" />
+      <recent name="edu.uwb.braingrid.workbench.project" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="edu.uwb.braingrid.workbenchdashboard.nledit" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Max\Documents\DOCUMENTS\Braingrid-WD\BrainGrid\Tools\Workbench\WorkbenchProject\src\test\java\edu\uwb\braingrid\workbenchdashboard\nledit" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -164,17 +330,6 @@
     </option>
   </component>
   <component name="RunManager">
-    <configuration name="WorkbenchDashboard" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="edu.uwb.braingrid.workbenchdashboard.WorkbenchDashboard" />
-      <module name="BrainGridWorkbench" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="edu.uwb.braingrid.workbenchdashboard.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-    </configuration>
     <configuration default="true" type="Application" factoryName="Application">
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     </configuration>
@@ -216,56 +371,51 @@
       <properties />
       <listeners />
     </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Application.WorkbenchDashboard" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="6eb808c8-9803-4645-ab58-970ebcbdb173" name="Default" comment="" />
-      <created>1533942244288</created>
+      <changelist id="f469c3e1-7948-4d64-99f7-b919d142c0cb" name="Default" comment="" />
+      <created>1537039223967</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1533942244288</updated>
-      <workItem from="1533942245896" duration="112000" />
+      <updated>1537039223967</updated>
+      <workItem from="1537039225276" duration="11935000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="112000" />
+    <option name="totallyTimeSpent" value="11935000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="39" y="18" width="1851" height="983" extended-state="0" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Messages" weight="0.30082256" />
       <window_info anchor="right" id="Palette&#9;" />
       <window_info id="Image Layers" />
       <window_info anchor="right" id="Capture Analysis" />
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="right" id="Maven Projects" />
       <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32902467" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.03787879" />
       <window_info anchor="bottom" id="Version Control" show_stripe_button="false" />
       <window_info anchor="bottom" id="Terminal" />
       <window_info id="Capture Tool" />
       <window_info id="Designer" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24958123" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17217484" />
+      <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
       <window_info anchor="right" id="Database" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32957393" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info id="UI Designer" />
       <window_info anchor="right" id="Theme Preview" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info id="Favorites" side_tool="true" />
-      <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -279,25 +429,524 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <option name="time" value="2" />
+    </breakpoint-manager>
+  </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uwb/workbenchdashboard/update/BrainGridRepoMgr.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/InputConfigClassSelectionDialogTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="13" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbenchdashboard/WorkbenchDashboard.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/LoginCredentialsDialogTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="46" column="24" selection-start-line="46" selection-start-column="24" selection-end-line="46" selection-end-column="24" />
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbenchdashboard/provis/ProVisCtrl.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/NewProjectDialogTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="309">
-          <caret line="56" column="31" lean-forward="true" selection-start-line="56" selection-start-column="31" selection-end-line="56" selection-end-column="31" />
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/ParamsClassesConfigDialogTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/ProvenanceQueryDialogTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/ScriptSpecificationDialogTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/ui/WorkbenchControlFrameTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/utils/DateTimeTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/provvisualizer/ProvenanceVisualizerTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/provvisualizer/ProVisGlobalTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/FileManagerTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/FileManagerSharedTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/SystemConfigTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/GPatternPanelTest.java">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/LayoutPanelTest.java">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/CSizePanelTest.java">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/ImportPanelTest.java">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/ControlFrameTest.java">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/ExportPanelTest.java">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/AProbesPanelTest.java">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/MyPrintableTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="6" selection-start-line="6" selection-end-line="9" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/NeuronsLayoutTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/NL_Sim_UtilTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/NLeditTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/nledit/ProjectTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/provis/ProVisTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/provis/ProVisCtrlTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/simstarter/SimStarterTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/simstarter/SimStarterAttributeSelectorTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/simstarter/SimStarterToolBar.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/threads/RunInitTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/threads/RunUpdateRepoTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/userModel/UserTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/userView/UserViewTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/utils/InitTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/utils/RepoManagerTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/utils/SystemPropertiesTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/utils/ThreadManagerTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/welcome/WelcomeTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/WorkbenchAppTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/WorkbenchDashboardTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/WorkbenchStatusBarTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbenchdashboard/WorkbenchDisplayTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/provenance/ProvMgr.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1224">
+          <caret line="85" column="25" selection-start-line="85" selection-start-column="25" selection-end-line="85" selection-end-column="25" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbench/ui/NewProjectDialog.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="231" column="32" lean-forward="true" selection-start-line="231" selection-start-column="32" selection-end-line="231" selection-end-column="32" />
+          <folding>
+            <element signature="e#8334#8395#0" expanded="true" />
+            <element signature="e#10488#10544#0" expanded="true" />
+            <element signature="e#11350#11416#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/WorkbenchTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="26" selection-start-line="9" selection-start-column="26" selection-end-line="9" selection-end-column="26" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbench/Workbench.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="720">
+          <caret line="57" column="9" selection-start-line="57" selection-start-column="9" selection-end-line="57" selection-end-column="9" />
+          <folding>
+            <element signature="e#1136#1223#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/WorkbenchManagerTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4318">
+          <caret line="256" column="18" selection-start-line="256" selection-start-column="18" selection-end-line="256" selection-end-column="18" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1708#1709#0" expanded="true" />
+            <element signature="e#1730#1731#0" expanded="true" />
+            <element signature="e#1849#1850#0" expanded="true" />
+            <element signature="e#1871#1872#0" expanded="true" />
+            <element signature="e#1982#1983#0" expanded="true" />
+            <element signature="e#2004#2005#0" expanded="true" />
+            <element signature="e#2115#2116#0" expanded="true" />
+            <element signature="e#2137#2138#0" expanded="true" />
+            <element signature="e#1772#1773#0" expanded="true" />
+            <element signature="e#1794#1795#0" expanded="true" />
+            <element signature="e#1839#1840#0" expanded="true" />
+            <element signature="e#1861#1862#0" expanded="true" />
+            <element signature="e#2065#2066#0" expanded="true" />
+            <element signature="e#2087#2088#0" expanded="true" />
+            <element signature="e#2138#2139#0" expanded="true" />
+            <element signature="e#2160#2161#0" expanded="true" />
+            <element signature="e#2211#2212#0" expanded="true" />
+            <element signature="e#2233#2234#0" expanded="true" />
+            <element signature="e#2289#2290#0" expanded="true" />
+            <element signature="e#2311#2312#0" expanded="true" />
+            <element signature="e#2360#2361#0" expanded="true" />
+            <element signature="e#2382#2383#0" expanded="true" />
+            <element signature="e#2435#2436#0" expanded="true" />
+            <element signature="e#2457#2458#0" expanded="true" />
+            <element signature="e#2517#2518#0" expanded="true" />
+            <element signature="e#2539#2540#0" expanded="true" />
+            <element signature="e#2601#2602#0" expanded="true" />
+            <element signature="e#2623#2624#0" expanded="true" />
+            <element signature="e#2672#2673#0" expanded="true" />
+            <element signature="e#2694#2695#0" expanded="true" />
+            <element signature="e#2755#2756#0" expanded="true" />
+            <element signature="e#2777#2778#0" expanded="true" />
+            <element signature="e#2822#2823#0" expanded="true" />
+            <element signature="e#2844#2845#0" expanded="true" />
+            <element signature="e#2894#2895#0" expanded="true" />
+            <element signature="e#2916#2917#0" expanded="true" />
+            <element signature="e#2973#2974#0" expanded="true" />
+            <element signature="e#2995#2996#0" expanded="true" />
+            <element signature="e#3051#3052#0" expanded="true" />
+            <element signature="e#3073#3074#0" expanded="true" />
+            <element signature="e#3134#3135#0" expanded="true" />
+            <element signature="e#3156#3157#0" expanded="true" />
+            <element signature="e#3202#3203#0" expanded="true" />
+            <element signature="e#3224#3225#0" expanded="true" />
+            <element signature="e#3271#3272#0" expanded="true" />
+            <element signature="e#3293#3294#0" expanded="true" />
+            <element signature="e#3351#3352#0" expanded="true" />
+            <element signature="e#3373#3374#0" expanded="true" />
+            <element signature="e#4000#4001#0" expanded="true" />
+            <element signature="e#4045#4046#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbench/WorkbenchManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-570">
+          <caret line="420" column="16" lean-forward="true" selection-start-line="420" selection-start-column="16" selection-end-line="420" selection-end-column="16" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1594#1661#0" expanded="true" />
+            <element signature="e#2466#2528#0" expanded="true" />
+            <element signature="e#6666#6667#0" expanded="true" />
+            <element signature="e#6747#6748#0" expanded="true" />
+            <element signature="e#23076#23150#0" expanded="true" />
+            <element signature="e#26827#26893#0" expanded="true" />
+            <element signature="e#30715#30779#0" expanded="true" />
+            <element signature="e#39742#39808#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uwb/braingrid/workbench/project/ProjectMgr.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="246">
+          <caret line="132" column="57" lean-forward="true" selection-start-line="132" selection-start-column="57" selection-end-line="132" selection-end-column="57" />
+          <folding>
+            <element signature="e#1348#1404#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/edu/uwb/braingrid/workbench/project/ProjectMgrTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="27" column="37" lean-forward="true" selection-start-line="27" selection-start-column="37" selection-end-line="27" selection-end-column="37" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

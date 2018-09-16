@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-    <fullyQualifiedTypeName name="edu.uwb.braingrid.workbenchdashboard.user.User"/>
-    <fullyQualifiedTypeName name="com.fasterxml.jackson.databind.JsonNode"/>
-    <fullyQualifiedTypeName name="edu.uwb.braingrid.workbenchdashboard.WorkbenchApp"/>
-    <fullyQualifiedTypeName name="javafx.scene.layout.VBox"/>
     <fullyQualifiedTypeName name="javafx.scene.control.Label"/>
     <fullyQualifiedTypeName name="javafx.scene.control.TextField"/>
     <fullyQualifiedTypeName name="edu.uwb.braingrid.workbenchdashboard.userView.UserView"/>
@@ -60,4 +56,8 @@
     <fullyQualifiedTypeName name="edu.uwb.braingrid.general.DirMgr"/>
     <fullyQualifiedTypeName name="edu.uwb.braingrid.workbench.FileManagerShared"/>
     <fullyQualifiedTypeName name="edu.uwb.braingrid.workbench.FileManager"/>
+    <fullyQualifiedTypeName name="javafx.scene.layout.BorderPane"/>
+    <fullyQualifiedTypeName name="javafx.scene.layout.AnchorPane"/>
+    <fullyQualifiedTypeName name="javafx.scene.layout.GridPane"/>
+    <fullyQualifiedTypeName name="javafx.scene.layout.TilePane"/>
 </qualifiedTypeNameHistroy>
