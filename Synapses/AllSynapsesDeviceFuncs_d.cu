@@ -835,6 +835,11 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, in
     int dest_neuron = clusterNeuronsBegin + idx;
 
     for (int src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
+        if (dest_neuron == src_neuron) {
+            // we don't create a synapse between the same neuron.
+            continue;
+        }
+
         // Update the areas of overlap in between Neurons
         BGFLOAT distX = xloc_d[dest_neuron] - xloc_d[src_neuron];
         BGFLOAT distY = yloc_d[dest_neuron] - yloc_d[src_neuron];
