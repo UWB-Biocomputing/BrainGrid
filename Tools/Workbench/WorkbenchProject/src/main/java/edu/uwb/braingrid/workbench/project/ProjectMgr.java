@@ -174,8 +174,11 @@ public class ProjectMgr {
      */
     public final void load(String filename)
             throws ParserConfigurationException, SAXException, IOException {
+
         /* Load the Document */
         File file = new File(filename);
+
+        // ParserConfigurationException and SAXException possibly thrown here
         doc = DocumentBuilderFactory.newInstance().
                 newDocumentBuilder().parse(file);
         doc.getDocumentElement().normalize();
@@ -290,7 +293,7 @@ public class ProjectMgr {
         String workingDirectory = FileManager.getCanonicalWorkingDirectory();
         String ps = FileManager.getFileManager().getFolderDelimiter();
         String projectDirectory = workingDirectory + ps + "projects" + ps
-                + name + ps;
+                + this.getName() + ps;
         return projectDirectory;
     }
 
@@ -322,7 +325,7 @@ public class ProjectMgr {
             throw new IOException();
         }
         return determineProjectOutputLocation()
-                + name + ".xml";
+                + this.getName() + ".xml";
     }
     // </editor-fold>
 
@@ -332,9 +335,12 @@ public class ProjectMgr {
      * Sets the project's name. This will also modify the name attribute for the
      * project element of the project XML model
      *
+     * Do not give a null string. For now, I don't have time to fix it right now. -Max
+     * TODO: Refactor project and allow this to throw a nullpointer exception
+     *
      * @param name The name given to the project
      */
-    public void setName(String name) {
+    public void setName (String name) {
         this.name = name;
         root.setAttribute(projectNameAttribute, name);
     }
