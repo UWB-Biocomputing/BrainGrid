@@ -2,12 +2,13 @@ package edu.uwb.braingrid.workbench.ui;
 
 import edu.uwb.braingrid.workbench.comm.SecureFileTransfer;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
-import jdk.internal.jline.internal.Log;
+//import jdk.internal.jline.internal.Log;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -468,6 +469,7 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
 	private String DEFAULT_REPO_URI = "https://github.com/UWB-Biocomputing/BrainGrid.git";
 	private boolean okButtonClicked = false;
 	private boolean connectionTestSuccessful = false;
+	private Logger LOG = Logger.getLogger(ScriptSpecificationDialog.class.getName());
 	// </editor-fold>
 
 	// <editor-fold defaultstate="collapsed" desc="Construction">
@@ -481,7 +483,7 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
 	 *            dialog is visible
 	 */
 	public ScriptSpecificationDialog(boolean modal) {
-		Log.info("New ScriptSpecificationDialog");
+		LOG.info("New ScriptSpecificationDialog");
 		setModal(modal);
 		initComponents();
 		simulatorLocationTextField.setText("BrainGrid");
@@ -495,7 +497,7 @@ public class ScriptSpecificationDialog extends javax.swing.JDialog {
 	}
 
 	public ScriptSpecificationDialog(boolean modal, SimulationSpecification simSpec) {
-		Log.info("New ScriptSpecificationDialog with SimulationSpecification");
+		LOG.info("New ScriptSpecificationDialog with SimulationSpecification");
 		setModal(modal);
 		initComponents();
 

@@ -1,8 +1,11 @@
 package edu.uwb.braingrid.workbench.model;
 // CLEANED
 
+import edu.uwb.braingrid.workbench.project.ProjectMgr;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Data model for a simulation. Contains parameters recorded at the beginning of
@@ -18,8 +21,8 @@ public class SimulationSpecification {
     public static final int GIT_PULL_AND_CLONE_INDEX = 1;
     public static final String GIT_NONE = "None";
     public static final int GIT_NONE_INDEX = 0;
-    public static final String REMOTE_EXECUTION = "Remote";
-    public static final String LOCAL_EXECUTION = "Local";
+    public static final String REMOTE_EXECUTION = ProjectMgr.REMOTE_EXECUTION;
+    public static final String LOCAL_EXECUTION = ProjectMgr.LOCAL_EXECUTION;
     public static final String SEQUENTIAL_SIMULATION = "Sequential";
     public static final String BUILD_BUILD_OPTION = "Build";
     public static final String PRE_BUILT_BUILD_OPTION = "Pre-built";
@@ -201,6 +204,8 @@ public class SimulationSpecification {
      * that there is no need to update the source code prior to executing the
      * simulator file.
      *
+     * TODO: Move GIT_PULL_CLONE to enum
+     *
      * @return The description of the source code updating type.
      */
     public String getSourceCodeUpdating() {
@@ -234,6 +239,9 @@ public class SimulationSpecification {
      * prior to starting the simulation. If this value is
      * PRE_BUILT_BUILD_OPTION, then the script should simply start the
      * simulation without first building the simulator.
+     *
+     *
+     * TODO: Move to enum -Max
      *
      * @return The build option for the script
      */
@@ -290,6 +298,8 @@ public class SimulationSpecification {
     /**
      * Sets the locale for the simulation. This can be remote or local, but
      * should be set based on the related static strings from this class.
+     *
+     * TODO: Make this an enum? -Max, or atleast move the values of REMOTE_EXECUTION and LOCAL_EXECUTION to ProjectMgr
      *
      * @param locale - The locale for the simulation. One of the following
      * values: SimulationSpecification.REMOTE_EXECUTION or
@@ -455,5 +465,31 @@ public class SimulationSpecification {
      */
     public boolean hasCommitCheckout() {
         return SHA1Key != null && !SHA1Key.isEmpty();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SimulationSpecification)) return false;
+        SimulationSpecification that = (SimulationSpecification) o;
+        return Objects.equals(getUsername(), that.getUsername()) &&
+                Objects.equals(hostAddress, that.hostAddress) &&
+                Objects.equals(SHA1Key, that.SHA1Key) &&
+                Objects.equals(getBuildOption(), that.getBuildOption()) &&
+                Objects.equals(getSourceCodeUpdating(), that.getSourceCodeUpdating()) &&
+                Objects.equals(getSimulationType(), that.getSimulationType()) &&
+                Objects.equals(getSimulationLocale(), that.getSimulationLocale()) &&
+                Objects.equals(simulationFolder, that.simulationFolder) &&
+                Objects.equals(getVersionAnnotation(), that.getVersionAnnotation()) &&
+                Objects.equals(codeRepositoryLocation, that.codeRepositoryLocation) &&
+                Objects.equals(getSimExecutable(), that.getSimExecutable()) &&
+                Objects.equals(getSimInputs(), that.getSimInputs()) &&
+                Objects.equals(getSimOutputs(), that.getSimOutputs());
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(getUsername(), hostAddress, SHA1Key, getBuildOption(), getSourceCodeUpdating(), getSimulationType(), getSimulationLocale(), simulationFolder, getVersionAnnotation(), codeRepositoryLocation, getSimExecutable(), getSimInputs(), getSimOutputs());
     }
 }

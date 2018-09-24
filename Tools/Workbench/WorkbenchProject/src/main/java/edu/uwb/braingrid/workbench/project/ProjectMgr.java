@@ -84,6 +84,10 @@ public class ProjectMgr {
     private static final String simConfigFileTagName = "simConfigFile";
     private static final String simulationConfigurationFileAttributeName
             = "simulationConfigurationFile";
+
+    public static final String REMOTE_EXECUTION = "Remote";
+    public static final String LOCAL_EXECUTION = "Local";
+
     private static final Logger LOG = Logger.getLogger(ProjectMgr.class.getName());
     // </editor-fold>
 
@@ -290,11 +294,7 @@ public class ProjectMgr {
      */
     public final String determineProjectOutputLocation()
             throws IOException {
-        String workingDirectory = FileManager.getCanonicalWorkingDirectory();
-        String ps = FileManager.getFileManager().getFolderDelimiter();
-        String projectDirectory = workingDirectory + ps + "projects" + ps
-                + this.getName() + ps;
-        return projectDirectory;
+        return ProjectMgr.determineProjectOutputLocation(this.getName());
     }
 
     /**
@@ -932,6 +932,7 @@ public class ProjectMgr {
             // attach the input element to the project element
             root.appendChild(simulator);
         } catch (DOMException e) {
+            // Not 100% sure what is throwing the DOMException
             simulator = null;
             success = false;
         }

@@ -1,7 +1,7 @@
 package edu.uwb.braingrid.workbench.project;
 
 import edu.uwb.braingrid.workbench.FileManager;
-import edu.uwb.braingrid.workbenchdashboard.nledit.Project;
+import edu.uwb.braingrid.workbench.model.SimulationSpecification;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
@@ -179,19 +179,58 @@ public class ProjectMgrTest {
     public void scriptGenerationAvailableTest() {
         // New Prj
         ProjectMgr pmNew = getPmNameFalseLoad();
-
-        // Load Prj
-        ProjectMgr pmLoad = getPmNameTrueLoadActualProject();
-
+        this.addSimulatorTo(pmNew);
         pmNew.removeScript();
-
-        Assertions.fail("Sob violently. Ended here for today.");
+        pmNew.addSimConfigFile("Example");
+        Assertions.assertTrue(pmNew.scriptGenerationAvailable());
+        //Assertions.fail("Sob violently. Ended here for today.");
     }
+
+    @Test
+    public void addSimulatorTest() {
+        // New Prj
+        ProjectMgr pmNew = getPmNameFalseLoad();
+        Assertions.assertTrue(pmNew.addSimulator(
+                ProjectMgr.LOCAL_EXECUTION,
+                "",
+                "C:\\Users\\Max\\Documents\\DOCUMENTS\\Braingrid-WD\\" +
+                        "BrainGrid\\Tools\\Workbench\\WorkbenchProject\\BrainG" +
+                        "ridRepos", SimulationSpecification.SimulatorType.SEQUENTIAL.toString(), "C:\\Users\\Max\\Documents\\DOCUMENTS\\Braingrid-WD\\" +
+                        "BrainGrid\\Tools\\Workbench\\WorkbenchProject\\BrainG" +
+                        "ridRepos", "1.0.0",
+                SimulationSpecification.GIT_NONE,
+                "",
+                SimulationSpecification.PRE_BUILT_BUILD_OPTION));
+
+
+    }
+
+    @Test
+    public void removeScriptTest() {
+        Assertions.fail("Need to test still");
+    }
+
+    @Test
+    public void addScriptTest() {
+        Assertions.fail("Need to test still");
+    }
+
+    @Test
+    public void scriptGeneratedTest() {
+        Assertions.fail("Need to test still");
+    }
+
+    @Test
+    public void scriptOutputAnalyzedTest() {
+        Assertions.fail("Need to test still");
+    }
+
+
 
     // <editor-fold defaultstate="collapsed" desc="Getters/Setter Tests">
     @Test
     public void getProjectFileNameTest() {
-        // New Prj
+        // New Project
         ProjectMgr pmNew = getPmNameFalseLoad();
         try {
             Assertions.assertEquals(pmNew.determineProjectOutputLocation() + pmNew.getName() + ".xml", pmNew.getProjectFilename());
@@ -199,7 +238,7 @@ public class ProjectMgrTest {
 
         }
 
-        // Load Prj
+        // Load Project
         ProjectMgr pmLoad = getPmNameTrueLoadActualProject();
         try {
             Assertions.assertEquals(pmLoad.determineProjectOutputLocation() + pmLoad.getName() + ".xml", pmLoad.getProjectFilename());
@@ -244,6 +283,213 @@ public class ProjectMgrTest {
         Assertions.assertFalse(pmLoad.isProvenanceEnabled());
         pmLoad.setProvenanceEnabled(true);
         Assertions.assertTrue(pmLoad.isProvenanceEnabled());
+    }
+
+    @Test
+    public void getSimulationSpecificationTest() {
+        ProjectMgr pmNew = getPmNameFalseLoad();
+        pmNew.addSimulator(
+                ProjectMgr.LOCAL_EXECUTION,
+                "",
+                "C:\\Users\\Max\\Documents\\DOCUMENTS\\Braingrid-WD\\" +
+                        "BrainGrid\\Tools\\Workbench\\WorkbenchProject\\BrainG" +
+                        "ridRepos", SimulationSpecification.SimulatorType.SEQUENTIAL.toString(), "C:\\Users\\Max\\Documents\\DOCUMENTS\\Braingrid-WD\\" +
+                        "BrainGrid\\Tools\\Workbench\\WorkbenchProject\\BrainG" +
+                        "ridRepos", "1.0.0",
+                SimulationSpecification.GIT_NONE,
+                "",
+                SimulationSpecification.PRE_BUILT_BUILD_OPTION);
+        this.getSimulationSpecificationTestHelper(pmNew);
+
+        // No simulator specified
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.getSimulationSpecificationTestHelper(pm);
+    }
+
+    private void getSimulationSpecificationTestHelper(ProjectMgr pm) {
+        String simType = pm.getSimulationType();
+        String codeLocation = pm.getSimulatorCodeLocation();
+        String locale = pm.getSimulatorLocale();
+        String folder = pm.getSimulatorFolderLocation();
+        String hostname = pm.getSimulatorHostname();
+        String sha1 = pm.getSHA1Key();
+        String buildOption = pm.getBuildOption();
+        String updating = pm.getSimulatorSourceCodeUpdatingType();
+        String version = pm.getSimulatorVersionAnnotation();
+        String executable = null;
+        if (simType != null && !simType.isEmpty()) {
+            executable = SimulationSpecification.getSimFilename(simType);
+        }
+
+        SimulationSpecification ss = new SimulationSpecification();
+        ss.setSimulationType(simType);
+        ss.setCodeLocation(codeLocation);
+        ss.setSimulatorLocale(locale);
+        ss.setSimulatorFolder(folder);
+        ss.setHostAddr(hostname);
+        ss.setSHA1CheckoutKey(sha1);
+        ss.setBuildOption(buildOption);
+        ss.setSourceCodeUpdating(updating);
+        ss.setVersionAnnotation(version);
+        ss.setSimExecutable(executable);
+
+        Assertions.assertTrue(pm.getSimulationSpecification().equals(ss));
+    }
+
+    @Test
+    public void getSimulatorLocaleTest() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        Assertions.assertEquals(locale, pm.getSimulatorLocale());
+    }
+
+    @Test
+    public void getSimulatorVersionAnnotationTest() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        Assertions.assertEquals(version, pm.getSimulatorVersionAnnotation());
+    }
+
+    @Test
+    public void getSimulatorCodeLocationTest() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        Assertions.assertEquals(simfolder, pm.getSimulatorCodeLocation());
+    }
+
+    @Test
+    public void getSimulatorFolderLocationTest() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        Assertions.assertEquals(codeLocation, pm.getSimulatorCodeLocation());
+    }
+
+    @Test
+    public void getSimulatorHostnameTest() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        Assertions.assertEquals(hostname, pm.getSimulatorHostname());
+    }
+
+    @Test
+    public void getSetSHA1Key() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        Assertions.assertEquals(sha1, pm.getSHA1Key());
+
+        Assertions.fail("Not tested set yet");
+    }
+
+    @Test
+    public void getSetBuildOptionTest() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        Assertions.assertEquals(buildOption, pm.getBuildOption());
+
+        Assertions.fail("Not tested set yet");
+    }
+
+    @Test
+    public void getSimulatorSourceCodeUpdatingType() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        Assertions.assertEquals(sourceCodeOption, pm.getSimulatorSourceCodeUpdatingType());
+    }
+
+    @Test
+    public void getSimulationTypeTest() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        Assertions.assertEquals(simulatorType.toString(), pm.getSimulationType());
+    }
+
+    @Test
+    public void getScriptVersionTest() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        Assertions.assertEquals(Integer.toString(0),pm.getScriptVersion());
+    }
+
+    @Test
+    public void getNextScriptVersionTest() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        Assertions.assertEquals(Integer.toString(1), pm.getNextScriptVersion());
+    }
+
+    @Test
+    public void setGetScriptRanTest() {
+        Assertions.fail("Need to test still");
+    }
+
+    @Test
+    public void setScriptRanAtTest() {
+        Assertions.fail("Need to test still");
+    }
+
+    @Test
+    public void setGetScriptCompletedAtTest() {
+        Assertions.fail("Need to test still");
+    }
+
+    @Test
+    public void getSetScriptHostnameTest() {
+        Assertions.fail("Need to test still");
+    }
+
+    @Test
+    public void getScriptCanonicalFilePathTest() {
+        Assertions.fail("Need to test still");
+    }
+
+    @Test
+    public void getSimConfigFilename() {
+        Assertions.fail("Need to test still");
+    }
+
+    @Test
+    public void setScriptAnalyzedTest() {
+        Assertions.fail("Need to test still");
+    }
+
+    @Test
+    public void setSimSTateOutputFileTest() {
+        Assertions.fail("Need to test still");
+    }
+
+    @Test
+    public void getSimStateOutputFileTest() {
+        Assertions.fail("Need to test still");
+    }
+    // </editor-fold>
+
+
+
+    // <editor-fold defaultstate="collapsed" desc="Simulator"
+    private String locale = ProjectMgr.LOCAL_EXECUTION;
+    private String hostname = "";
+    private String simfolder = "C:\\Users\\Max\\Documents\\DOCUMENTS\\Braingrid-WD\\" +
+            "BrainGrid\\Tools\\Workbench\\WorkbenchProject\\BrainG" +
+            "ridRepos";
+    private String codeLocation = "C:\\Users\\Max\\Documents\\DOCUMENTS\\Braingrid-WD\\" +
+            "BrainGrid\\Tools\\Workbench\\WorkbenchProject\\BrainG" +
+            "ridRepos";
+    private SimulationSpecification.SimulatorType simulatorType = SimulationSpecification.SimulatorType.SEQUENTIAL;
+    private String version = "1.0.0";
+    private String sourceCodeOption = SimulationSpecification.GIT_NONE;
+    private String sha1 = "";
+    private String buildOption = SimulationSpecification.PRE_BUILT_BUILD_OPTION;
+
+    private void addSimulatorTo(ProjectMgr pm) {
+        pm.addSimulator(
+                locale,
+                hostname,
+                simfolder,
+                simulatorType.toString(),
+                codeLocation, version,
+                sourceCodeOption,
+                sha1,
+                buildOption);
     }
 
     // </editor-fold>
