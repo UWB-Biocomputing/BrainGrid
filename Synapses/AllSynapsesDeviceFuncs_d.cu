@@ -58,8 +58,8 @@ __device__ void changeDSSynapsePSRDevice(AllDSSynapsesDeviceProperties* allSynap
     // adjust synapse parameters
     if (lastSpike != ULONG_MAX) {
             BGFLOAT isi = (simulationStep + iStepOffset - lastSpike) * deltaT ;
-            r = 1 + ( r * ( 1 - u ) - 1 ) * exp( -isi / D );
-            u = U + u * ( 1 - U ) * exp( -isi / F );
+            r = 1 + ( r * ( 1 - u ) - 1 ) * exp( static_cast<double>(-isi / D) );
+            u = U + u * ( 1 - U ) * exp( static_cast<double>(-isi / F) );
     }
     psr += ( ( W / decay ) * u * r );// calculate psr
     lastSpike = simulationStep + iStepOffset; // record the time of the spike
@@ -108,10 +108,10 @@ __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesD
 
     if (delta < -STDPgap) {
         // Depression
-        dw = pow(W, muneg) * Aneg * exp(delta / tauneg);
+        dw = pow(W, muneg) * Aneg * exp(static_cast<double>(delta / tauneg));
     } else if (delta > STDPgap) {
         // Potentiation
-        dw = pow(Wex - W, mupos) * Apos * exp(-delta / taupos);
+        dw = pow(Wex - W, mupos) * Apos * exp(static_cast<double>(-delta / taupos));
     } else {
         return;
     }
@@ -260,7 +260,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
             if (spikeHistory > 0 && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
                 delta = ((int64_t)simulationStep + iStepOffset - spikeHistory) * deltaT;
-                epre = 1.0 - exp(-delta / tauspre);
+                epre = 1.0 - exp(static_cast<double>(-delta / tauspre));
             } else {
                 epre = 1.0;
             }
@@ -291,7 +291,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                     spikeHistory2 = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPost, offIndex-1, max_spikes);
                     if (spikeHistory2 == ULONG_MAX)
                         break;
-                    epost = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspost);
+                    epost = 1.0 - exp(static_cast<double>(-((spikeHistory - spikeHistory2) * deltaT) / tauspost));
                 } else {
                     epost = 1.0;
                 }
@@ -322,7 +322,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
             if (spikeHistory > 0 && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
                 delta = ((int64_t)simulationStep + iStepOffset - spikeHistory) * deltaT;
-                epost = 1.0 - exp(-delta / tauspost);
+                epost = 1.0 - exp(static_cast<double>(-delta / tauspost));
             } else {
                 epost = 1.0;
             }
@@ -353,7 +353,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                     spikeHistory2 = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPre, offIndex-1, max_spikes);
                     if (spikeHistory2 == ULONG_MAX)
                         break;
-                    epre = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspre);
+                    epre = 1.0 - exp(static_cast<double>(-((spikeHistory - spikeHistory2) * deltaT) / tauspre));
                 } else {
                     epre = 1.0;
                 }
@@ -444,7 +444,7 @@ __device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSyna
     }
 
     allSynapsesDevice->tau[iSyn] = tau;
-    allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
+    allSynapsesDevice->decay[iSyn] = exp( static_cast<double>(-deltaT / tau) );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
     // initializes the queues for the Synapses
@@ -526,7 +526,7 @@ __device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice
     allSynapsesDevice->F[iSyn] = F;
 
     allSynapsesDevice->tau[iSyn] = tau;
-    allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
+    allSynapsesDevice->decay[iSyn] = exp( static_cast<double>(-deltaT / tau) );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
     // initializes the queues for the Synapses
@@ -585,7 +585,7 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
     }
 
     allSynapsesDevice->tau[iSyn] = tau;
-    allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
+    allSynapsesDevice->decay[iSyn] = exp( static_cast<double>(-deltaT / tau) );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
     allSynapsesDevice->Apos[iSyn] = 0.5;
@@ -685,7 +685,7 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
     allSynapsesDevice->F[iSyn] = F;
 
     allSynapsesDevice->tau[iSyn] = tau;
-    allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
+    allSynapsesDevice->decay[iSyn] = exp( static_cast<double>(-deltaT / tau) );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
     allSynapsesDevice->Apos[iSyn] = 0.5;

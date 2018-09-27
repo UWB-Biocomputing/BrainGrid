@@ -269,7 +269,7 @@ __global__ void updateConnsDevice( AllSpikingNeuronsDeviceProperties* allNeurons
 
     // compute neuron radii change and assign new values
     rates_d[iNeuron] = allNeuronsDevice->spikeCount[iNeuron] / epochDuration;
-    BGFLOAT outgrowth = 1.0 - 2.0 / (1.0 + exp((epsilon - rates_d[iNeuron] / maxRate) / beta));
+    BGFLOAT outgrowth = 1.0 - 2.0 / (1.0 + exp(static_cast<double>((epsilon - rates_d[iNeuron] / maxRate)) / beta));
     BGFLOAT deltaR = epochDuration * rho * outgrowth;
     radii_d[iNeuron] += deltaR;
 }
