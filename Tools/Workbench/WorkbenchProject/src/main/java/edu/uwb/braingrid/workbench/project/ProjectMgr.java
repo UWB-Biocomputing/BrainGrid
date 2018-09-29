@@ -692,15 +692,16 @@ public class ProjectMgr {
      */
     public boolean setScriptHostname(String hostname) {
         boolean success = true;
-        if (!setFirstChildTextContent(script, scriptHostnameTagName,
-                hostname)) {
-            if (!createChildWithTextContent(script, scriptHostnameTagName,
+            if (!setFirstChildTextContent(script, scriptHostnameTagName,
                     hostname)) {
+                if (!createChildWithTextContent(script, scriptHostnameTagName,
+                        hostname)) {
+                    success = false;
+                }
+            } else {
                 success = false;
             }
-        } else {
-            success = false;
-        }
+
         return success;
     }
 

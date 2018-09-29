@@ -2,6 +2,7 @@ package edu.uwb.braingrid.workbench.project;
 
 import edu.uwb.braingrid.workbench.FileManager;
 import edu.uwb.braingrid.workbench.model.SimulationSpecification;
+import edu.uwb.braingrid.workbench.utils.DateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
@@ -10,6 +11,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
 
+/**
+ * These tested are based on reading edu/uwb/braingrid/workbench/project/ProjectMgr.java and then
+ * determining the tests based on the public functions intended functionality. These test provide
+ * some insight but are not are extensive as they should be.
+ *
+ * -Max
+ */
 public class ProjectMgrTest {
 
     @Test
@@ -206,25 +214,15 @@ public class ProjectMgrTest {
     }
 
     @Test
-    public void removeScriptTest() {
-        Assertions.fail("Need to test still");
+    public void removeAddIsScriptTest() {
+        // New Project
+        ProjectMgr pm = getPmNameFalseLoad();
+        Assertions.assertFalse(pm.scriptGenerated());
+        this.addScriptToProject(pm);
+        Assertions.assertTrue(pm.scriptGenerated());
+        pm.removeScript();
+        Assertions.assertFalse(pm.scriptGenerated());
     }
-
-    @Test
-    public void addScriptTest() {
-        Assertions.fail("Need to test still");
-    }
-
-    @Test
-    public void scriptGeneratedTest() {
-        Assertions.fail("Need to test still");
-    }
-
-    @Test
-    public void scriptOutputAnalyzedTest() {
-        Assertions.fail("Need to test still");
-    }
-
 
 
     // <editor-fold defaultstate="collapsed" desc="Getters/Setter Tests">
@@ -375,18 +373,23 @@ public class ProjectMgrTest {
     public void getSetSHA1Key() {
         ProjectMgr pm = getPmNameFalseLoad();
         this.addSimulatorTo(pm);
+        this.addScriptToProject(pm);
         Assertions.assertEquals(sha1, pm.getSHA1Key());
+        String sha1key = "qwerty";
+        Assertions.assertFalse(pm.setSHA1Key(sha1key)); // Not sure why false is right
+        Assertions.assertEquals(sha1key, pm.getSHA1Key());
 
-        Assertions.fail("Not tested set yet");
     }
 
     @Test
     public void getSetBuildOptionTest() {
         ProjectMgr pm = getPmNameFalseLoad();
         this.addSimulatorTo(pm);
+        this.addScriptToProject(pm);
         Assertions.assertEquals(buildOption, pm.getBuildOption());
-
-        Assertions.fail("Not tested set yet");
+        String build = SimulationSpecification.BUILD_BUILD_OPTION;
+        Assertions.assertFalse(pm.setBuildOption(build)); // Not sure why false is right
+        Assertions.assertEquals(build, pm.getBuildOption());
     }
 
     @Test
@@ -404,10 +407,13 @@ public class ProjectMgrTest {
     }
 
     @Test
-    public void getScriptVersionTest() {
+    public void getSetScriptVersionTest() {
         ProjectMgr pm = getPmNameFalseLoad();
         this.addSimulatorTo(pm);
         Assertions.assertEquals(Integer.toString(0),pm.getScriptVersion());
+        int scriptVersion = 2;
+        pm.setScriptVersion("" + scriptVersion);
+        Assertions.assertEquals(Integer.toString(scriptVersion),pm.getScriptVersion());
     }
 
     @Test
@@ -419,55 +425,99 @@ public class ProjectMgrTest {
 
     @Test
     public void setGetScriptRanTest() {
-        Assertions.fail("Need to test still");
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        this.addScriptToProject(pm);
+        Assertions.assertFalse(pm.getScriptRan());
+        pm.setScriptRan(true);
+        Assertions.assertTrue(pm.getScriptRan());
     }
 
     @Test
-    public void setScriptRanAtTest() {
-        Assertions.fail("Need to test still");
+    public void setGetScriptRanAtTest() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        this.addScriptToProject(pm);
+        Assertions.assertEquals(DateTime.ERROR_TIME, pm.getScriptRanAt());
+        pm.setScriptRanAt();
+        Assertions.assertNotEquals(DateTime.ERROR_TIME, pm.getScriptRanAt());
     }
 
     @Test
     public void setGetScriptCompletedAtTest() {
-        Assertions.fail("Need to test still");
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        this.addScriptToProject(pm);
+        Assertions.assertEquals(DateTime.ERROR_TIME, pm.getScriptCompletedAt());
+        long time = 10000;
+        pm.setScriptCompletedAt(time);
+        Assertions.assertEquals(time, pm.getScriptCompletedAt());
     }
 
     @Test
     public void getSetScriptHostnameTest() {
-        Assertions.fail("Need to test still");
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        this.addScriptToProject(pm);
+        Assertions.assertEquals(null, pm.getScriptHostname());
+       // Assertions.assertEquals(hostname, pm.getScriptHostname());
+        String host = "Hosty";
+        Assertions.assertTrue(pm.setScriptHostname(host));
+        // Assertions.assertEquals(host, pm.getScriptHostname());
     }
 
     @Test
     public void getScriptCanonicalFilePathTest() {
-        Assertions.fail("Need to test still");
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        this.addScriptToProject(pm);
+        String comp = scriptName + "." + scriptExtension;
+        Assertions.assertEquals(comp, pm.getScriptCanonicalFilePath());
     }
 
     @Test
-    public void getSimConfigFilename() {
-        Assertions.fail("Need to test still");
+    public void getAddSimConfigFilename() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        this.addScriptToProject(pm);
+        Assertions.assertEquals(null, pm.getSimConfigFilename());
+        String filename = "Example";
+        Assertions.assertTrue(pm.addSimConfigFile(filename));
+        Assertions.assertEquals(filename, pm.getSimConfigFilename());
     }
 
     @Test
-    public void setScriptAnalyzedTest() {
-        Assertions.fail("Need to test still");
+    public void setIsScriptAnalyzedTest() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        pm.setScriptAnalyzed(true);
+        Assertions.assertFalse(pm.scriptOutputAnalyzed());
+        this.addScriptToProject(pm);
+        pm.setScriptAnalyzed(true);
+        Assertions.assertTrue(pm.scriptOutputAnalyzed());
+        pm.setScriptAnalyzed(false);
+        Assertions.assertFalse(pm.scriptOutputAnalyzed());
     }
 
     @Test
-    public void setSimSTateOutputFileTest() {
-        Assertions.fail("Need to test still");
+    public void setGetSimSTateOutputFileTest() {
+        ProjectMgr pm = getPmNameFalseLoad();
+        this.addSimulatorTo(pm);
+        this.addScriptToProject(pm);
+        Assertions.assertNull(pm.getSimStateOutputFile());
+        String simStateOutputFile = "TheOutputFileToRuleThemAll.txt";
+        pm.addSimConfigFile("Example");
+        pm.setSimStateOutputFile(simStateOutputFile);
+        Assertions.assertEquals(simStateOutputFile, pm.getSimStateOutputFile());
     }
 
-    @Test
-    public void getSimStateOutputFileTest() {
-        Assertions.fail("Need to test still");
-    }
     // </editor-fold>
 
 
 
     // <editor-fold defaultstate="collapsed" desc="Simulator"
     private String locale = ProjectMgr.LOCAL_EXECUTION;
-    private String hostname = "";
+    private String hostname = "Hostname";
     private String simfolder = "C:\\Users\\Max\\Documents\\DOCUMENTS\\Braingrid-WD\\" +
             "BrainGrid\\Tools\\Workbench\\WorkbenchProject\\BrainG" +
             "ridRepos";
@@ -490,6 +540,12 @@ public class ProjectMgrTest {
                 sourceCodeOption,
                 sha1,
                 buildOption);
+    }
+
+    String scriptName = "Hello";
+    String scriptExtension = "xml";
+    private void addScriptToProject(ProjectMgr pm) {
+        pm.addScript(scriptName, scriptExtension);
     }
 
     // </editor-fold>
