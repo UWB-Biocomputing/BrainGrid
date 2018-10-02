@@ -22,7 +22,7 @@ bool SimulationInfo::readParameters(TiXmlDocument* simDoc)
     TiXmlElement* parms = NULL;
 
     if ((parms = simDoc->FirstChildElement()->FirstChildElement("SimInfoParams")) == NULL) {
-        cerr << "Could not find <SimInfoParms> in simulation parameter file " << endl;
+        cerr << "Could not find <SimInfoParams> in simulation parameter file " << endl;
         return false;
     }
 

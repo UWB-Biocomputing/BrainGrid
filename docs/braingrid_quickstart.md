@@ -39,7 +39,7 @@ As a quick start and sanity test, let's run a small, prepackaged simulation to m
    </OutputParams>
    ```
 
-   The details of configuration file will be discussed in the next section [4. Configuration](http://uwb-biocomputing.github.io/BrainGrid/4_configuration).
+   The details of configuration file will be discussed in the next section [4. Configuration](braingrid_configuration).
 
 3. Compile the single threaded version
 
@@ -92,7 +92,7 @@ The `screen` command will essentially allow you to start a simulation and then d
 2. Start the Simulation
 
    ```shell
-   $ ./growth -t ./validation/test-small-connected.xml
+   $ ./growth -t ./configfiles/test-small-connected.xml
    ```
 
 3. Detach the screen by pressing the following key combinations:
