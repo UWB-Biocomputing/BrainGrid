@@ -30,6 +30,9 @@
 
 // ----------------------------------------------------------------------------
 
+// Buffer to save random numbers in host memory
+float* GPUSpikingCluster::m_randNoiseHost;
+
 GPUSpikingCluster::GPUSpikingCluster(IAllNeurons *neurons, IAllSynapses *synapses) : 	
   Cluster::Cluster(neurons, synapses),
   m_synapseIndexMapDevice(NULL),
@@ -87,6 +90,12 @@ void GPUSpikingCluster::allocDeviceStruct(void** allNeuronsDevice, void** allSyn
   int neuron_count = clr_info->totalClusterNeurons;
   allocSynapseImap( neuron_count );
 
+  // allocate buffer to save random numbers in host memory
+  if (clr_info->clusterID == 0) {
+    BGSIZE randNoiseBufferSize = sizeof(float) * sim_info->totalNeurons * sim_info->minSynapticTransDelay;
+    m_randNoiseHost = new float[randNoiseBufferSize];
+  }
+
   DEBUG(
     {
         // Report GPU memory usage
@@ -134,6 +143,11 @@ void GPUSpikingCluster::deleteDeviceStruct(void** allNeuronsDevice, void** allSy
 
   deleteSynapseImap();
 
+  // Deallocate buffer to save random numbers in host memory
+  if (clr_info->clusterID == 0) {
+    delete[] m_randNoiseHost;
+  }
+
   checkCudaErrors( cudaFree( randNoise_d ) );
 }
 
@@ -152,33 +166,23 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
 
   // initialize Mersenne Twister
  
-  // rng_mt_rng_count is the number of threads to be created in Mersenne Twister,
-  // maximum number of which is defined by MT_RNG_COUNT.
-  // rng_mt_rng_count must be a multiple of the number of warp for coaleased write.
-  // rng_nPerRng is the thread granularity. Therefore, the number of random numbers 
-  // generated is (rng_mt_rng_count * rng_nPerRng).
-  // rng_nPerRn must be even.
-  // Here we find a minimum rng_nPerRng that satisfies 
-  // (rng_mt_rng_count * rng_nPerRng) >= neuron_count.
+  BGSIZE randNoise_d_size;
+  if (clr_info->clusterID == 0) {
+    //assuming neuron_count >= 100 and is a multiple of 100. Note rng_mt_rng_count must be <= MT_RNG_COUNT
+    int rng_blocks = 25; //# of blocks the kernel will use
+    int rng_nPerRng = 4; //# of iterations per thread (thread granularity, # of rands generated per thread)
+    int rng_mt_rng_count = sim_info->totalNeurons / rng_nPerRng; //# of threads to generate for neuron_count rand #s
+    int rng_threads = rng_mt_rng_count/rng_blocks; //# threads per block needed
 
-  int neuron_count = clr_info->totalClusterNeurons;  // # of total neurons in the cluster
-  int rng_threads = 128;  // # of threads per block (must be a multiple of # of warp for coaleased write)
-  int rng_nPerRng = 0;    // # of iterations per thread (thread granularity, # of rands generated per thread, must be even)
-  int rng_mt_rng_count;   // # of threads to generate for neuron_count rand #s
-  int rng_blocks;         // # of blocks the kernel will use
+    initMTGPU(clr_info->seed, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
 
-  do {
-    rng_nPerRng += 2;
-    rng_mt_rng_count = (neuron_count - 1) / rng_nPerRng + 1; 
-    rng_blocks = (rng_mt_rng_count + rng_threads - 1) / rng_threads; 
-    rng_mt_rng_count = rng_threads * rng_blocks; // # of threads must be a multiple of # of threads per block
-  } while (rng_mt_rng_count > MT_RNG_COUNT);     // rng_mt_rng_count must be <= MT_RNG_COUNT
-
-  initMTGPU(clr_info->seed, rng_blocks, rng_threads, rng_nPerRng, rng_mt_rng_count);
-
-  // Allocate memory for random noise array
-  BGSIZE randNoise_d_size = rng_mt_rng_count * rng_nPerRng * sizeof (float);	// size of random noise array
-  checkCudaErrors( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
+    // Allocate memory for random noise array
+    randNoise_d_size = rng_mt_rng_count * rng_nPerRng * sizeof (float) * sim_info->minSynapticTransDelay;	// size of random noise array
+    checkCudaErrors( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
+  } else {
+    randNoise_d_size = clr_info->totalClusterNeurons * sizeof (float);	// size of random noise array
+    checkCudaErrors( cudaMalloc ( ( void ** ) &randNoise_d, randNoise_d_size ) );
+  }
 
 #ifdef PERFORMANCE_METRICS
   cudaEventCreate( &clr_info->start );
@@ -269,6 +273,41 @@ void GPUSpikingCluster::deserialize(istream& input, const SimulationInfo *sim_in
 }
 
 /*
+ *  Generates random numbers.
+ *
+ *  @param  sim_info    used as a reference to set info for neurons and synapses.
+ *  @param  clr_info  ClusterInfo to refer.
+ */
+void GPUSpikingCluster::genRandNumbers(const SimulationInfo *sim_info, ClusterInfo *clr_info)
+{
+  // generates random numbers in cluster 0
+  if (clr_info->clusterID != 0) {
+    return;
+  }
+
+  // Set device ID
+  checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
+
+#ifdef PERFORMANCE_METRICS
+  // Reset CUDA timer to start measurement of GPU operation
+  cudaStartTimer(clr_info);
+#endif // PERFORMANCE_METRICS
+
+  // generates random numbers for all clusters within transmission delay
+  for (int i = 0; i < sim_info->minSynapticTransDelay; i++) {
+    normalMTGPU(randNoise_d + sim_info->totalNeurons * i);
+  }
+
+  // and copy them to host memory to share among clusters
+  BGSIZE randNoiseBufferSize = sizeof (float) * sim_info->totalNeurons * sim_info->minSynapticTransDelay;
+  checkCudaErrors( cudaMemcpy ( m_randNoiseHost, randNoise_d, randNoiseBufferSize,  cudaMemcpyDeviceToHost ) );
+
+#ifdef PERFORMANCE_METRICS
+  cudaLapTime(clr_info, clr_info->t_gpu_rndGeneration);
+#endif // PERFORMANCE_METRICS
+}
+
+/*
  * Advances neurons network state of the cluster one simulation step.
  *
  * @param sim_info   parameters defining the simulation to be run with
@@ -286,15 +325,20 @@ void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterIn
   cudaStartTimer(clr_info);
 #endif // PERFORMANCE_METRICS
 
-  normalMTGPU(randNoise_d);
-
-#ifdef PERFORMANCE_METRICS
-  cudaLapTime(clr_info, clr_info->t_gpu_rndGeneration);
-  cudaStartTimer(clr_info);
-#endif // PERFORMANCE_METRICS
+  // Get an appropriate pointer to the buffer of random numbers
+  // Random numbers are stored in device memory of cluster 0, 
+  // or in host memory for other clusters.
+  float *randNoiseDevice;
+  if (clr_info->clusterID == 0) {
+    randNoiseDevice = randNoise_d + clr_info->totalClusterNeurons * (iStepOffset * sim_info->numClusters);
+  } else {
+    float *randNoiseHost = m_randNoiseHost + clr_info->totalClusterNeurons * (iStepOffset * sim_info->numClusters + clr_info->clusterID);
+    checkCudaErrors( cudaMemcpy( randNoise_d, randNoiseHost, sizeof( float ) * clr_info->totalClusterNeurons, cudaMemcpyHostToDevice ) );
+    randNoiseDevice = randNoise_d;
+  }
 
   // Advance neurons ------------->
-  m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoise_d, m_synapseIndexMapDevice, clr_info, iStepOffset);
+  m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoiseDevice, m_synapseIndexMapDevice, clr_info, iStepOffset);
 
 #ifdef PERFORMANCE_METRICS
   cudaLapTime(clr_info, clr_info->t_gpu_advanceNeurons);

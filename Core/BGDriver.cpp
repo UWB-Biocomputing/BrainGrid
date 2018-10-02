@@ -374,9 +374,12 @@ bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo)
     simInfo->memOutputFileName = cl["memoutfile"];
     simInfo->stimulusInputFileName = cl["stiminfile"];
 
+    // Number of clusters
     if (EOF == sscanf(cl["numclusters"].c_str(), "%d", &g_numClusters)) {
         g_numClusters = 1;
     }
+
+    simInfo->numClusters = g_numClusters;
 
 #if defined(USE_GPU)
     if (EOF == sscanf(cl["deviceid"].c_str(), "%d", &g_deviceId)) {

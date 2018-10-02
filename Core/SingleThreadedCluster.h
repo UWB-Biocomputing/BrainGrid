@@ -69,6 +69,14 @@ class SingleThreadedCluster : public Cluster {
         virtual void cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
+         *  Generates random numbers.
+         *
+         *  @param  sim_info    SimulationInfo to refer.
+         *  @param  clr_info    ClusterInfo to refer.
+         */
+        virtual void genRandNumbers(const SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
          * Advances neurons network state of the cluster one simulation step.
          *
          * @param sim_info   parameters defining the simulation to be run with
