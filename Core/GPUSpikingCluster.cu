@@ -294,12 +294,12 @@ void GPUSpikingCluster::genRandNumbers(const SimulationInfo *sim_info, ClusterIn
 #endif // PERFORMANCE_METRICS
 
   // generates random numbers for all clusters within transmission delay
-  for (int i = 0; i < sim_info->minSynapticTransDelay; i++) {
+  for (int i = 0; i < m_nSynapticTransDelay; i++) {
     normalMTGPU(randNoise_d + sim_info->totalNeurons * i);
   }
 
   // and copy them to host memory to share among clusters
-  BGSIZE randNoiseBufferSize = sizeof (float) * sim_info->totalNeurons * sim_info->minSynapticTransDelay;
+  BGSIZE randNoiseBufferSize = sizeof (float) * sim_info->totalNeurons * m_nSynapticTransDelay;
   checkCudaErrors( cudaMemcpy ( m_randNoiseHost, randNoise_d, randNoiseBufferSize,  cudaMemcpyDeviceToHost ) );
 
 #ifdef PERFORMANCE_METRICS
