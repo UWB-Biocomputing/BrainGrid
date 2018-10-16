@@ -76,6 +76,7 @@ void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout
 {
     int num_neurons = sim_info->totalNeurons;
 
+#if defined(USE_GPU)
     radii = new BGFLOAT[num_neurons];
     rates = new BGFLOAT[num_neurons];
 
@@ -83,11 +84,12 @@ void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout
         radii[i] = m_growth.startRadius;
     }
 
-#if defined(USE_GPU)
     // Initialize the Barrier Synchnonize object for updateConnections.
     m_barrierUpdateConnections = new Barrier(vtClr.size() + 1);
 #else // !USE_GPU
     W = new CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0);
+    radii = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, m_growth.startRadius);
+    rates = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, 0);
     delta = new CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons);
     area = new CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0);
     outgrowth = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons);
@@ -103,12 +105,14 @@ void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout
  */
 void ConnGrowth::cleanupConnections()
 {
-    if (radii != NULL) delete[] radii;
-    if (rates != NULL) delete[] rates;
 #if defined(USE_GPU)
     if (m_barrierUpdateConnections != NULL) delete m_barrierUpdateConnections;
+    if (radii != NULL) delete[] radii;
+    if (rates != NULL) delete[] rates;
 #else // !USE_GPU
     if (W != NULL) delete W;
+    if (radii != NULL) delete radii;
+    if (rates != NULL) delete rates;
     if (delta != NULL) delete delta;
     if (area != NULL) delete area;
     if (outgrowth != NULL) delete outgrowth;
@@ -258,12 +262,20 @@ void ConnGrowth::deserialize(istream& input, const SimulationInfo *sim_info)
 {
     // read the radii
     for (int i = 0; i < sim_info->totalNeurons; i++) {
+#if defined(USE_GPU)
             input >> radii[i]; input.ignore();
+#else // !USE_GPU
+            input >> (*radii)[i]; input.ignore();
+#endif // !USE_GPU
     }
 
     // read the rates
     for (int i = 0; i < sim_info->totalNeurons; i++) {
+#if defined(USE_GPU)
             input >> rates[i]; input.ignore();
+#else // !USE_GPU
+            input >> (*rates)[i]; input.ignore();
+#endif // !USE_GPU
     }
 }
 
@@ -277,12 +289,20 @@ void ConnGrowth::serialize(ostream& output, const SimulationInfo *sim_info)
 {
     // write the final radii
     for (int i = 0; i < sim_info->totalNeurons; i++) {
+#if defined(USE_GPU)
         output << radii[i] << ends;
+#else // !USE_GPU
+        output << (*radii)[i] << ends;
+#endif // !USE_GPU
     }
 
     // write the final rates
     for (int i = 0; i < sim_info->totalNeurons; i++) {
+#if defined(USE_GPU)
         output << rates[i] << ends;
+#else // !USE_GPU
+        output << (*rates)[i] << ends;
+#endif // !USE_GPU
     }
 }
 
@@ -333,16 +353,14 @@ void ConnGrowth::updateConns(const SimulationInfo *sim_info, vector<Cluster *> &
         for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++) {
             // Calculate firing rate
             assert(neurons->spikeCount[iNeuron] < max_spikes);
-            rates[neuronLayoutIndex] = neurons->spikeCount[iNeuron] / sim_info->epochDuration;
+            (*rates)[neuronLayoutIndex] = neurons->spikeCount[iNeuron] / sim_info->epochDuration;
         }
     }
 
     // compute neuron radii change and assign new values
     (*outgrowth) = 1.0 - 2.0 / (1.0 + exp((m_growth.epsilon - *rates / m_growth.maxRate) / m_growth.beta));
     (*deltaR) = sim_info->epochDuration * m_growth.rho * *outgrowth;
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        radii[i] += (*deltaR)[i];
-    }
+    (*radii) += (*deltaR); 
 }
 
 /*
@@ -357,7 +375,7 @@ void ConnGrowth::updateFrontiers(const int num_neurons, Layout *layout)
     // Update distance between frontiers
     for (int unit = 0; unit < num_neurons - 1; unit++) {
         for (int i = unit + 1; i < num_neurons; i++) {
-            (*delta)(unit, i) = (*layout->dist)(unit, i) - (radii[unit] + radii[i]);
+            (*delta)(unit, i) = (*layout->dist)(unit, i) - ((*radii)[unit] + (*radii)[i]);
             (*delta)(i, unit) = (*delta)(unit, i);
         }
     }
@@ -380,8 +398,8 @@ void ConnGrowth::updateOverlap(BGFLOAT num_neurons, Layout *layout)
 
                 if ((*delta)(i, j) < 0) {
                         BGFLOAT lenAB = (*layout->dist)(i, j);
-                        BGFLOAT r1 = radii[i];
-                        BGFLOAT r2 = radii[j];
+                        BGFLOAT r1 = (*radii)[i];
+                        BGFLOAT r2 = (*radii)[j];
 
                     if (lenAB + min(r1, r2) <= max(r1, r2)) {
                         (*area)(i, j) = pi * min(r1, r2) * min(r1, r2); // Completely overlapping unit

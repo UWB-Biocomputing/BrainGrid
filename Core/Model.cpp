@@ -223,7 +223,11 @@ void Model::logSimStep(const SimulationInfo *sim_info) const
                 break;
             }
 
+#if defined(USE_GPU)
             ss << " " << pConnGrowth->radii[x + y * sim_info->width];
+#else // !USE_GPU
+            ss << " " << (*pConnGrowth->radii)[x + y * sim_info->width];
+#endif // !USE_GPU
 
             if (x + 1 < sim_info->width) {
                 ss.width(2);

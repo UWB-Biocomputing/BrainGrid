@@ -45,8 +45,13 @@ void XmlGrowthRecorder::initValues()
 
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
+#if defined(USE_GPU)
         radiiHistory(0, i) = dynamic_cast<ConnGrowth*>(pConn)->radii[i];
         ratesHistory(0, i) = dynamic_cast<ConnGrowth*>(pConn)->rates[i];
+#else // !USE_GPU
+        radiiHistory(0, i) = (*dynamic_cast<ConnGrowth*>(pConn)->radii)[i];
+        ratesHistory(0, i) = (*dynamic_cast<ConnGrowth*>(pConn)->rates)[i];
+#endif // !USE_GPU
     }
 }
 
@@ -59,8 +64,13 @@ void XmlGrowthRecorder::getValues()
 
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
+#if defined(USE_GPU)
         dynamic_cast<ConnGrowth*>(pConn)->radii[i] = radiiHistory(m_sim_info->currentStep, i);
         dynamic_cast<ConnGrowth*>(pConn)->rates[i] = ratesHistory(m_sim_info->currentStep, i);
+#else // !USE_GPU
+        (*dynamic_cast<ConnGrowth*>(pConn)->radii)[i] = radiiHistory(m_sim_info->currentStep, i);
+        (*dynamic_cast<ConnGrowth*>(pConn)->rates)[i] = ratesHistory(m_sim_info->currentStep, i);
+#endif // !USE_GPU
     }
 }
 
@@ -77,8 +87,13 @@ void XmlGrowthRecorder::compileHistories(vector<Cluster *> &vtClr, vector<Cluste
     Connections* pConn = m_model->getConnections();
 
     BGFLOAT minRadius = dynamic_cast<ConnGrowth*>(pConn)->m_growth.minRadius;
+#if defined(USE_GPU)
     BGFLOAT* rates = dynamic_cast<ConnGrowth*>(pConn)->rates;
     BGFLOAT* radii = dynamic_cast<ConnGrowth*>(pConn)->radii;
+#else // !USE_GPU
+    VectorMatrix& rates = (*dynamic_cast<ConnGrowth*>(pConn)->rates);
+    VectorMatrix& radii = (*dynamic_cast<ConnGrowth*>(pConn)->radii);
+#endif // !USE_GPU
 
     for (int neuronLayoutIndex = 0; neuronLayoutIndex < m_sim_info->totalNeurons; neuronLayoutIndex++)
     {

@@ -121,8 +121,13 @@ void Hdf5GrowthRecorder::initValues()
 
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
+#if defined(USE_GPU)
         radiiHistory[i] = dynamic_cast<ConnGrowth*>(pConn)->radii[i];
         ratesHistory[i] = dynamic_cast<ConnGrowth*>(pConn)->rates[i];
+#else // !USE_GPU
+        radiiHistory[i] = (*dynamic_cast<ConnGrowth*>(pConn)->radii)[i];
+        ratesHistory[i] = (*dynamic_cast<ConnGrowth*>(pConn)->rates)[i];
+#endif // !USE_GPU
     }
 
     // write initial radii and rate 
@@ -139,8 +144,13 @@ void Hdf5GrowthRecorder::getValues()
 
     for (int i = 0; i < m_sim_info->totalNeurons; i++)
     {
+#if defined(USE_GPU)
         dynamic_cast<ConnGrowth*>(pConn)->radii[i] = radiiHistory[i];
         dynamic_cast<ConnGrowth*>(pConn)->rates[i] = ratesHistory[i];
+#else // !USE_GPU
+        (*dynamic_cast<ConnGrowth*>(pConn)->radii)[i] = radiiHistory[i];
+        (*dynamic_cast<ConnGrowth*>(pConn)->rates)[i] = ratesHistory[i];
+#endif // !USE_GPU
     }
 }
 
@@ -169,8 +179,13 @@ void Hdf5GrowthRecorder::compileHistories(vector<Cluster *> &vtClr, vector<Clust
     Connections* pConn = m_model->getConnections();
 
     BGFLOAT minRadius = dynamic_cast<ConnGrowth*>(pConn)->m_growth.minRadius;
+#if defined(USE_GPU)
     BGFLOAT* rates = dynamic_cast<ConnGrowth*>(pConn)->rates;
     BGFLOAT* radii = dynamic_cast<ConnGrowth*>(pConn)->radii;
+#else // !USE_GPU
+    VectorMatrix& rates = (*dynamic_cast<ConnGrowth*>(pConn)->rates);
+    VectorMatrix& radii = (*dynamic_cast<ConnGrowth*>(pConn)->radii);
+#endif // !USE_GPU
 
     // output spikes
     for (int neuronLayoutIndex = 0; neuronLayoutIndex < m_sim_info->totalNeurons; neuronLayoutIndex++)
