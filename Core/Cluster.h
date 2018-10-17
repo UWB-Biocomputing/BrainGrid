@@ -99,6 +99,7 @@ class Cluster
          */
         virtual void cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
+#if defined(VALIDATION)
         /**
          *  Generates random numbers.
          *
@@ -106,6 +107,7 @@ class Cluster
          *  @param  clr_info    ClusterInfo to refer.
          */
         virtual void genRandNumbers(const SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
+#endif // VALIDATION
 
         /**
          * Advances neurons network state of the cluster one simulation step.

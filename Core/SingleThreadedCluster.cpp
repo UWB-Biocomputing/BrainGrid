@@ -52,6 +52,7 @@ void SingleThreadedCluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo
     Cluster::cleanupCluster(sim_info, clr_info);
 }
 
+#if defined(VALIDATION)
 /*
  *  Generates random numbers.
  *
@@ -61,6 +62,7 @@ void SingleThreadedCluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo
 void SingleThreadedCluster::genRandNumbers(const SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
 }
+#endif // VALIDATION
 
 /*
  * Advances neurons network state of the cluster one simulation step.

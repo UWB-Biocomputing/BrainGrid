@@ -13,9 +13,12 @@ all: growth growth_cuda
 #		 no  - use default xml 
 # CPMETRICS: 	 yes - see performance of large function calls  
 #		 no  - not showing performance results
+# CVALIDATION:   yes - make validation version (see issue #239)
+#                no  - make production version
 ################################################################################
 CUSEHDF5 = yes
 CPMETRICS = no
+CVALIDATION = no
 
 ################################################################################
 # Source Directories
@@ -79,12 +82,19 @@ else
 	H5FLAGS = 
 endif
 
+ifneq ($(CVALIDATION), yes)
+#ifdef CPMETRICS
+        VDFLAGS = -DVALIDATION
+else
+        VDFLAGS =
+endif
+
 INCDIRS = -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) \
           -I$(MATRIXDIR) -I$(NEURONDIR) -I$(PARAMDIR) -I$(RECORDERDIR) \
           -I$(RNGDIR) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(XMLDIR) 
 
-CXXFLAGS = -O2 -std=c++11 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) 
-CGPUFLAGS = -std=c++11 -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
+CXXFLAGS = -O2 -std=c++11 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) $(VDFLAGS)
+CGPUFLAGS = -std=c++11 -DUSE_GPU $(PMFLAGS) $(H5FLAGS)$(VDFLAGS)
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -lstdc++ -L$(CUDALIBDIR) -lcuda -lcudart
 NVCCFLAGS =  -g -arch=sm_35 -rdc=true -DDEBUG_OUT $(INCDIRS) -I/usr/local/cuda/samples/common/inc
