@@ -124,6 +124,14 @@ public:
         virtual void deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
+         * Generates random numbers.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         * @param clr_info - parameters defining the cluster to be run with the given collection of neurons.
+         */
+        virtual void genRandNumbers(const SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
          * Advances neurons network state of the cluster one simulation step.
          *
          * @param sim_info - parameters defining the simulation to be run with
@@ -274,6 +282,11 @@ private:
 	/*----------------------------------------------*\
 	|  Generic Functions for handling synapse types
 	\*----------------------------------------------*/
+
+private:
+        //! Buffer to save random numbers in host memory. 
+        static float* m_randNoiseHost;
+ 
 };
 
 #if defined(__CUDACC__)

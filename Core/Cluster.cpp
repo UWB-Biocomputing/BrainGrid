@@ -154,6 +154,12 @@ void Cluster::advanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_inf
             break;
         }
 
+        // Generate random numbers
+        genRandNumbers(sim_info, clr_info);
+
+        // wait until all threads are complete
+        m_barrierAdvance->Sync();
+
         // Advance neurons and synapses indepedently (without barrier synchronization)
         // within synaptic transmission delay period. 
         for (int iStepOffset = 0; iStepOffset < m_nSynapticTransDelay; iStepOffset++) {
@@ -215,6 +221,9 @@ void Cluster::runAdvance(const SimulationInfo *sim_info, int iStep)
 {
     // set the synaptic transmission delay
     m_nSynapticTransDelay = iStep;
+
+    // generate random numbers
+    m_barrierAdvance->Sync();
 
     // start advanceThread
     m_barrierAdvance->Sync();

@@ -55,6 +55,7 @@ public:
             deltaT(DEFAULT_dt),
             maxRate(0),
 	    seed(0),
+            numClusters(0),
             model(NULL),
             simRecorder(NULL),
             pInput(NULL)
@@ -127,6 +128,9 @@ public:
 
 	//! Seed used for the simulation random SINGLE THREADED
 	long seed;
+
+        //! Number of clusters.
+        int numClusters;
 
         //! File name of the simulation results.
         string stateOutputFileName;
