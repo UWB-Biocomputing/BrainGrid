@@ -82,8 +82,7 @@ else
 	H5FLAGS = 
 endif
 
-ifneq ($(CVALIDATION), yes)
-#ifdef CPMETRICS
+ifeq ($(CVALIDATION), yes)
         VDFLAGS = -DVALIDATION
 else
         VDFLAGS =
@@ -94,7 +93,7 @@ INCDIRS = -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) \
           -I$(RNGDIR) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(XMLDIR) 
 
 CXXFLAGS = -O2 -std=c++11 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) $(VDFLAGS)
-CGPUFLAGS = -std=c++11 -DUSE_GPU $(PMFLAGS) $(H5FLAGS)$(VDFLAGS)
+CGPUFLAGS = -std=c++11 -DUSE_GPU $(PMFLAGS) $(H5FLAGS) $(VDFLAGS)
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -lstdc++ -L$(CUDALIBDIR) -lcuda -lcudart
 NVCCFLAGS =  -g -arch=sm_35 -rdc=true -DDEBUG_OUT $(INCDIRS) -I/usr/local/cuda/samples/common/inc
