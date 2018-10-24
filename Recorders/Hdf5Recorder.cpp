@@ -26,6 +26,8 @@ const H5std_string  nameProbedNeurons("probedNeurons");
 
 //! THe constructor and destructor
 Hdf5Recorder::Hdf5Recorder(const SimulationInfo* sim_info) :
+    offsetSpikesProbedNeurons(NULL),
+    spikesProbedNeurons(NULL),
     m_sim_info(sim_info),
     m_model(dynamic_cast<Model*> (sim_info->model))
 {
@@ -122,6 +124,40 @@ void Hdf5Recorder::initDataSet()
     DataSpace dsSimulationEndTime(1, dims);
     dataSetSimulationEndTime = new DataSet(stateOut->createDataSet(nameSimulationEndTime, H5_FLOAT, dsSimulationEndTime));
 
+    // probed neurons
+    if (m_model->getLayout()->m_probed_neuron_list.size() > 0)
+    {
+        // create the data space & dataset for probed neurons
+        dims[0] = static_cast<hsize_t>(m_model->getLayout()->m_probed_neuron_list.size());
+        DataSpace dsProbedNeurons(1, dims);
+        dataSetProbedNeurons = new DataSet(stateOut->createDataSet(nameProbedNeurons, PredType::NATIVE_INT, dsProbedNeurons));
+
+        // create the data space & dataset for spikes of probed neurons
+
+        // the data space with unlimited dimensions
+        hsize_t maxdims[2];
+        maxdims[0] = H5S_UNLIMITED;
+        maxdims[1] = static_cast<hsize_t>(m_model->getLayout()->m_probed_neuron_list.size());
+
+        // dataset dimensions at creation
+        dims[0] = static_cast<hsize_t>(1);
+        dims[1] = static_cast<hsize_t>(m_model->getLayout()->m_probed_neuron_list.size());
+        DataSpace dsSpikesProbedNeurons(2, dims, maxdims);
+
+        // set fill value for the dataset
+        DSetCreatPropList cparms;
+        uint64_t fill_val = 0;
+        cparms.setFillValue( PredType::NATIVE_UINT64, &fill_val);
+
+        // modify dataset creation properties, enable chunking
+        hsize_t      chunk_dims[2];
+        chunk_dims[0] = static_cast<hsize_t>(100);
+        chunk_dims[1] = static_cast<hsize_t>(m_model->getLayout()->m_probed_neuron_list.size());
+        cparms.setChunk( 2, chunk_dims );
+
+        dataSetSpikesProbedNeurons = new DataSet(stateOut->createDataSet(nameSpikesProbedNeurons, PredType::NATIVE_UINT64, dsSpikesProbedNeurons, cparms));
+    }
+
     // allocate data memories
     burstinessHist = new int[static_cast<int>(m_sim_info->epochDuration)];
     spikesHistory = new int[static_cast<int>(m_sim_info->epochDuration * 100)]; 
@@ -133,6 +169,10 @@ void Hdf5Recorder::initDataSet()
     {
         // allocate data for spikesProbedNeurons
         spikesProbedNeurons = new vector<uint64_t>[m_model->getLayout()->m_probed_neuron_list.size()];
+
+        // allocate memory to save offset
+        offsetSpikesProbedNeurons = new hsize_t[m_model->getLayout()->m_probed_neuron_list.size()];
+        memset(offsetSpikesProbedNeurons, 0, static_cast<int>(m_model->getLayout()->m_probed_neuron_list.size() * sizeof(hsize_t)));
     }
 }
 
@@ -169,9 +209,13 @@ void Hdf5Recorder::term()
     delete dataSetBurstHist;
     delete dataSetSpikesHist;
 
+    delete dataSetProbedNeurons;
+    delete dataSetSpikesProbedNeurons;
+
     if (m_model->getLayout()->m_probed_neuron_list.size() > 0)
     {
         delete[] spikesProbedNeurons;
+        delete[] offsetSpikesProbedNeurons;
     }
 
     delete stateOut;
@@ -273,6 +317,46 @@ void Hdf5Recorder::compileHistories(vector<Cluster *> &vtClr, vector<ClusterInfo
         memset(spikesHistory, 0, static_cast<int>(m_sim_info->epochDuration * 100 * sizeof(int)));
         delete dataspace;
         delete memspace;
+
+        // write spikes data of probed neurons
+        if (m_model->getLayout()->m_probed_neuron_list.size() > 0)
+        {
+            unsigned int max_size = 0;
+            for (unsigned int i = 0; i < m_model->getLayout()->m_probed_neuron_list.size(); i++)
+            {
+                unsigned int size = spikesProbedNeurons[i].size() + offsetSpikesProbedNeurons[i];
+                max_size = (max_size > size) ? max_size : size;
+            }
+            dimsm[0] = static_cast<hsize_t>(max_size);
+            dimsm[1] = static_cast<hsize_t>(m_model->getLayout()->m_probed_neuron_list.size());
+
+            // extend the dataset
+            dataSetSpikesProbedNeurons->extend(dimsm);
+            dataspace = new DataSpace(dataSetSpikesProbedNeurons->getSpace());
+
+            // write it!
+            for (unsigned int i = 0; i < m_model->getLayout()->m_probed_neuron_list.size(); i++)
+            {
+                dimsm[0] = spikesProbedNeurons[i].size();
+                dimsm[1] = 1;
+                memspace = new DataSpace(2, dimsm, NULL);
+
+                offset[0] = offsetSpikesProbedNeurons[i];
+                offset[1] = i;
+                count[0] = spikesProbedNeurons[i].size();
+                count[1] = 1;
+                dataspace->selectHyperslab(H5S_SELECT_SET, count, offset);
+                offsetSpikesProbedNeurons[i] += spikesProbedNeurons[i].size(); 
+
+                dataSetSpikesProbedNeurons->write(static_cast<uint64_t*>(&(spikesProbedNeurons[i][0])), PredType::NATIVE_UINT64, *memspace, *dataspace);
+
+                // clear the probed spike data
+                spikesProbedNeurons[i].clear();
+                delete memspace;
+            }
+
+            delete dataspace;
+        }
     }
 
     // catch failure caused by the H5File operations
@@ -378,9 +462,6 @@ void Hdf5Recorder::saveSimData(vector<Cluster *> &vtClr, vector<ClusterInfo *> &
         {
             // create the data space & dataset for probed neurons
             hsize_t dims[2];
-            dims[0] = static_cast<hsize_t>(m_model->getLayout()->m_probed_neuron_list.size());
-            DataSpace dsProbedNeurons(1, dims);
-            dataSetProbedNeurons = new DataSet(stateOut->createDataSet(nameProbedNeurons, PredType::NATIVE_INT, dsProbedNeurons));
 
             int* iProbedNeurons = new int[m_model->getLayout()->m_probed_neuron_list.size()];
             for (unsigned int i = 0; i < m_model->getLayout()->m_probed_neuron_list.size(); i++)
@@ -389,40 +470,6 @@ void Hdf5Recorder::saveSimData(vector<Cluster *> &vtClr, vector<ClusterInfo *> &
             }
             dataSetProbedNeurons->write(iProbedNeurons, PredType::NATIVE_INT);
             delete[] iProbedNeurons;
-            delete dataSetProbedNeurons;
-
-            // create the data space & dataset for spikes of probed neurons
-            unsigned int max_size = 0;
-            for (unsigned int i = 0; i < m_model->getLayout()->m_probed_neuron_list.size(); i++)
-            {
-                max_size = (max_size > spikesProbedNeurons[i].size()) ? max_size : spikesProbedNeurons[i].size();
-            }
-            dims[0] = static_cast<hsize_t>(max_size);
-            dims[1] = static_cast<hsize_t>(m_model->getLayout()->m_probed_neuron_list.size());
-            DataSpace dsSpikesProbedNeurons(2, dims);
-            dataSetSpikesProbedNeurons = new DataSet(stateOut->createDataSet(nameSpikesProbedNeurons, PredType::NATIVE_UINT64, dsSpikesProbedNeurons));
-
-            // write it!
-            for (unsigned int i = 0; i < m_model->getLayout()->m_probed_neuron_list.size(); i++)
-            {
-                hsize_t offset[2], count[2];
-                hsize_t dimsm[2];
-                DataSpace* dataspace;
-                DataSpace* memspace;
-
-                offset[0] = 0;
-                offset[1] = i;
-                count[0] = spikesProbedNeurons[i].size();
-                count[1] = 1;
-                dimsm[0] = spikesProbedNeurons[i].size();
-                dimsm[1] = 1;
-                memspace = new DataSpace(2, dimsm, NULL);
-                dataspace = new DataSpace(dataSetSpikesProbedNeurons->getSpace());
-                dataspace->selectHyperslab(H5S_SELECT_SET, count, offset);
-                dataSetSpikesProbedNeurons->write(static_cast<uint64_t*>(&(spikesProbedNeurons[i][0])), PredType::NATIVE_UINT64, *memspace, *dataspace); 
-                delete dataspace;
-                delete memspace;
-            }
 
             // Create the data space for the attribute (unit of the spikes of probed neurons in second).
             dims[0] = 1;
@@ -433,8 +480,6 @@ void Hdf5Recorder::saveSimData(vector<Cluster *> &vtClr, vector<ClusterInfo *> &
      
             // Write the attribute data. 
             attribute.write(H5_FLOAT, &(m_sim_info->deltaT));
-
-            delete dataSetSpikesProbedNeurons;
         }
 
         // Write neuron thresold

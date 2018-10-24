@@ -120,6 +120,8 @@ protected:
     DataSet* dataSetSpikesProbedNeurons;
     DataSet* dataSetProbedNeurons;
 
+    hsize_t* offsetSpikesProbedNeurons;
+
     // burstiness Histogram goes through the
     int* burstinessHist;
 
