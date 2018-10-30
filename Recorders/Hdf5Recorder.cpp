@@ -209,11 +209,11 @@ void Hdf5Recorder::term()
     delete dataSetBurstHist;
     delete dataSetSpikesHist;
 
-    delete dataSetProbedNeurons;
-    delete dataSetSpikesProbedNeurons;
-
     if (m_model->getLayout()->m_probed_neuron_list.size() > 0)
     {
+        delete dataSetProbedNeurons;
+        delete dataSetSpikesProbedNeurons;
+
         delete[] spikesProbedNeurons;
         delete[] offsetSpikesProbedNeurons;
     }

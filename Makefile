@@ -102,6 +102,7 @@ NVCCFLAGS =  -g -arch=sm_35 -rdc=true -DDEBUG_OUT $(INCDIRS) -I/usr/local/cuda/s
 # Objects
 ################################################################################
 
+ifeq ($(CUSEHDF5), yes)
 CUDAOBJS =   \
 		$(COREDIR)/GPUSpikingCluster.o \
 		$(COREDIR)/Model_cuda.o \
@@ -142,23 +143,57 @@ CUDAOBJS =   \
 		$(COREDIR)/EventQueue_cuda.o \
 		$(COREDIR)/InterClustersEventHandler_cuda.o \
 		$(COREDIR)/SynapseIndexMap_cuda.o \
+		$(RECORDERDIR)/XmlRecorder_cuda.o \
+		$(RECORDERDIR)/XmlGrowthRecorder_cuda.o \
+                $(RECORDERDIR)/Hdf5Recorder_cuda.o \
+                $(RECORDERDIR)/Hdf5GrowthRecorder_cuda.o \
 		$(UTILDIR)/Global_cuda.o
-
-ifeq ($(CUSEHDF5), yes)
-LIBOBJS =   \
-		$(COREDIR)/Simulator.o \
-		$(COREDIR)/SimulationInfo.o \
-		$(COREDIR)/Cluster.o \
-		$(LAYOUTDIR)/FixedLayout.o \
-		$(LAYOUTDIR)/DynamicLayout.o \
-		$(UTILDIR)/ParseParamError.o \
-		$(UTILDIR)/Timer.o \
-		$(UTILDIR)/Util.o \
-		$(RECORDERDIR)/XmlRecorder.o \
-		$(RECORDERDIR)/XmlGrowthRecorder.o \
-		$(RECORDERDIR)/Hdf5Recorder.o \
-		$(RECORDERDIR)/Hdf5GrowthRecorder.o 
 else
+CUDAOBJS =   \
+                $(COREDIR)/GPUSpikingCluster.o \
+                $(COREDIR)/Model_cuda.o \
+                $(NEURONDIR)/AllNeuronsDeviceFuncs_d.o \
+                $(NEURONDIR)/AllNeurons_cuda.o \
+                $(NEURONDIR)/AllSpikingNeurons_cuda.o \
+                $(NEURONDIR)/AllSpikingNeurons_d.o \
+                $(NEURONDIR)/AllIFNeurons_cuda.o \
+                $(NEURONDIR)/AllIFNeurons_d.o \
+                $(NEURONDIR)/AllLIFNeurons_cuda.o \
+                $(NEURONDIR)/AllLIFNeurons_d.o \
+                $(NEURONDIR)/AllIZHNeurons_cuda.o \
+                $(NEURONDIR)/AllIZHNeurons_d.o \
+                $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o \
+                $(SYNAPSEDIR)/AllSynapses_cuda.o \
+                $(SYNAPSEDIR)/AllSpikingSynapses_cuda.o \
+                $(SYNAPSEDIR)/AllSpikingSynapses_d.o \
+                $(SYNAPSEDIR)/AllDSSynapses_cuda.o \
+                $(SYNAPSEDIR)/AllDSSynapses_d.o \
+                $(SYNAPSEDIR)/AllSTDPSynapses_cuda.o \
+                $(SYNAPSEDIR)/AllSTDPSynapses_d.o \
+                $(SYNAPSEDIR)/AllDynamicSTDPSynapses_cuda.o \
+                $(SYNAPSEDIR)/AllDynamicSTDPSynapses_d.o \
+                $(CONNDIR)/Connections_cuda.o \
+                $(CONNDIR)/ConnGrowth_cuda.o \
+                $(CONNDIR)/ConnStatic_cuda.o \
+                $(CONNDIR)/ConnGrowth_d.o \
+                $(CONNDIR)/ConnStatic_d.o \
+                $(LAYOUTDIR)/Layout_cuda.o \
+                $(RNGDIR)/MersenneTwister_d.o \
+                $(COREDIR)/BGDriver_cuda.o \
+                $(INPUTDIR)/GpuSInputRegular.o \
+                $(INPUTDIR)/GpuSInputPoisson.o \
+                $(INPUTDIR)/SInputRegular_cuda.o \
+                $(INPUTDIR)/SInputPoisson_cuda.o \
+                $(INPUTDIR)/FSInput_cuda.o \
+                $(COREDIR)/FClassOfCategory_cuda.o \
+                $(COREDIR)/EventQueue_cuda.o \
+                $(COREDIR)/InterClustersEventHandler_cuda.o \
+                $(COREDIR)/SynapseIndexMap_cuda.o \
+                $(RECORDERDIR)/XmlRecorder_cuda.o \
+                $(RECORDERDIR)/XmlGrowthRecorder_cuda.o \
+                $(UTILDIR)/Global_cuda.o
+endif
+
 LIBOBJS =   \
 		$(COREDIR)/Simulator.o \
 		$(COREDIR)/SimulationInfo.o \
@@ -167,10 +202,7 @@ LIBOBJS =   \
 		$(LAYOUTDIR)/DynamicLayout.o \
 		$(UTILDIR)/ParseParamError.o \
 		$(UTILDIR)/Timer.o \
-		$(UTILDIR)/Util.o \
-		$(RECORDERDIR)/XmlRecorder.o \
-		$(RECORDERDIR)/XmlGrowthRecorder.o
-endif
+		$(UTILDIR)/Util.o 
 
 MATRIXOBJS =	$(MATRIXDIR)/CompleteMatrix.o \
 		$(MATRIXDIR)/Matrix.o \
@@ -182,6 +214,7 @@ PARAMOBJS =	$(PARAMDIR)/ParamContainer.o
 RNGOBJS =	$(RNGDIR)/Norm.o \
 		$(RNGDIR)/MersenneTwister.o
 
+ifeq ($(CUSEHDF5), yes)
 SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
 		$(COREDIR)/Model.o \
 		$(COREDIR)/SingleThreadedCluster.o \
@@ -208,7 +241,43 @@ SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
 		$(CONNDIR)/ConnGrowth.o \
 		$(CONNDIR)/ConnStatic.o \
 		$(LAYOUTDIR)/Layout.o \
+		$(RECORDERDIR)/XmlRecorder.o \
+		$(RECORDERDIR)/XmlGrowthRecorder.o \
+		$(RECORDERDIR)/Hdf5Recorder.o \
+		$(RECORDERDIR)/Hdf5GrowthRecorder.o \
 		$(UTILDIR)/Global.o 
+else
+SINGLEOBJS =    $(COREDIR)/BGDriver.o  \
+                $(COREDIR)/Model.o \
+                $(COREDIR)/SingleThreadedCluster.o \
+                $(INPUTDIR)/HostSInputRegular.o \
+                $(INPUTDIR)/SInputRegular.o \
+                $(INPUTDIR)/HostSInputPoisson.o \
+                $(INPUTDIR)/SInputPoisson.o \
+                $(INPUTDIR)/FSInput.o \
+                $(COREDIR)/FClassOfCategory.o \
+                $(COREDIR)/EventQueue.o \
+                $(COREDIR)/InterClustersEventHandler.o \
+                $(COREDIR)/SynapseIndexMap.o \
+                $(NEURONDIR)/AllNeurons.o \
+                $(NEURONDIR)/AllSpikingNeurons.o \
+                $(NEURONDIR)/AllIFNeurons.o \
+                $(NEURONDIR)/AllLIFNeurons.o \
+                $(NEURONDIR)/AllIZHNeurons.o \
+                $(SYNAPSEDIR)/AllSynapses.o \
+                $(SYNAPSEDIR)/AllSpikingSynapses.o \
+                $(SYNAPSEDIR)/AllDSSynapses.o \
+                $(SYNAPSEDIR)/AllSTDPSynapses.o \
+                $(SYNAPSEDIR)/AllDynamicSTDPSynapses.o \
+                $(CONNDIR)/Connections.o \
+                $(CONNDIR)/ConnGrowth.o \
+                $(CONNDIR)/ConnStatic.o \
+                $(LAYOUTDIR)/Layout.o \
+                $(RECORDERDIR)/XmlRecorder.o \
+                $(RECORDERDIR)/XmlGrowthRecorder.o \
+                $(UTILDIR)/Global.o
+endif
+
 
 XMLOBJS =	$(XMLDIR)/tinyxml.o \
 		$(XMLDIR)/tinyxmlparser.o \
@@ -333,6 +402,20 @@ $(UTILDIR)/Global_cuda.o: $(UTILDIR)/Global.cpp $(UTILDIR)/Global.h
 $(COREDIR)/FClassOfCategory_cuda.o: $(COREDIR)/FClassOfCategory.cpp $(COREDIR)/FClassOfCategory.h
 	nvcc -c $(NVCCFLAGS) $(COREDIR)/FClassOfCategory.cpp -x cu $(CGPUFLAGS) -o $(COREDIR)/FClassOfCategory_cuda.o 
 
+$(RECORDERDIR)/XmlRecorder_cuda.o: $(RECORDERDIR)/XmlRecorder.cpp $(RECORDERDIR)/XmlRecorder.h $(RECORDERDIR)/IRecorder.h
+	nvcc -c $(NVCCFLAGS) $(RECORDERDIR)/XmlRecorder.cpp -x cu $(CGPUFLAGS) -o $(RECORDERDIR)/XmlRecorder_cuda.o
+
+$(RECORDERDIR)/XmlGrowthRecorder_cuda.o: $(RECORDERDIR)/XmlGrowthRecorder.cpp $(RECORDERDIR)/XmlGrowthRecorder.h $(RECORDERDIR)/IRecorder.h
+	nvcc -c $(NVCCFLAGS) $(RECORDERDIR)/XmlGrowthRecorder.cpp -x cu $(CGPUFLAGS) -o $(RECORDERDIR)/XmlGrowthRecorder_cuda.o
+
+ifeq ($(CUSEHDF5), yes)
+$(RECORDERDIR)/Hdf5GrowthRecorder_cuda.o: $(RECORDERDIR)/Hdf5GrowthRecorder.cpp $(RECORDERDIR)/Hdf5GrowthRecorder.h $(RECORDERDIR)/IRecorder.h
+	nvcc -c $(NVCCFLAGS) $(RECORDERDIR)/Hdf5GrowthRecorder.cpp -x cu $(CGPUFLAGS) -o $(RECORDERDIR)/Hdf5GrowthRecorder_cuda.o
+
+
+$(RECORDERDIR)/Hdf5Recorder_cuda.o: $(RECORDERDIR)/Hdf5Recorder.cpp $(RECORDERDIR)/Hdf5Recorder.h $(RECORDERDIR)/IRecorder.h
+	nvcc -c $(NVCCFLAGS) $(RECORDERDIR)/Hdf5Recorder.cpp -x cu $(CGPUFLAGS) -o $(RECORDERDIR)/Hdf5Recorder_cuda.o
+endif
 
 # Library
 # ------------------------------------------------------------------------------

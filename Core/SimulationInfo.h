@@ -51,7 +51,8 @@ public:
             epochDuration(0),
             maxFiringRate(0),
             maxSynapsesPerNeuron(0),
-            minSynapticTransDelay(9),
+            minSynapticTransDelay(9), // TODO: this number should be calculated from 
+                                      // minimum synaptic transmission delay and deltaT
             deltaT(DEFAULT_dt),
             maxRate(0),
 	    seed(0),
