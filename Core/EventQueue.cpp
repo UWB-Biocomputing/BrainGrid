@@ -325,6 +325,7 @@ CUDA_CALLABLE void EventQueue::addAnEvent(const BGSIZE idx, const int delay, int
 {
 
     // Add to event queue
+    assert( static_cast<uint32_t>(delay + iStepOffset) < LENGTH_OF_DELAYQUEUE );
 
     // calculate index where to insert the event into queueEvent
     uint32_t idxQueue = m_idxQueue + delay + iStepOffset;

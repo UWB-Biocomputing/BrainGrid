@@ -131,6 +131,9 @@ enum synapseType { II = 0, IE = 1, EI = 2, EE = 3, STYPE_UNDEF = -1 };
 #define DEFAULT_delay_weight	(0)
 // } NMV-END
 
+// Synaptic transmission delay = (int)(minimum synaptic transmission delay / delta_t) + 1
+#define MIN_SYNAPTIC_TRANS_DELAY	(9)
+
 //! Converts a 1-d index into a coordinate string.
 string index2dToString(int i, int width, int height);
 //! Converts a 2-d coordinate into a string.

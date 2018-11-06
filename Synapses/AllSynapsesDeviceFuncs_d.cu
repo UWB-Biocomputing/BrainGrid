@@ -447,6 +447,8 @@ __device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSyna
     allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
+    assert( allSynapsesDevice->total_delay[iSyn] >= MIN_SYNAPTIC_TRANS_DELAY );
+
     // initializes the queues for the Synapses
     allSynapsesDevice->preSpikeQueue->clearAnEvent(iSyn);
 }
@@ -529,6 +531,8 @@ __device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice
     allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
+    assert( allSynapsesDevice->total_delay[iSyn] >= MIN_SYNAPTIC_TRANS_DELAY );
+
     // initializes the queues for the Synapses
     allSynapsesDevice->preSpikeQueue->clearAnEvent(iSyn);
 }
@@ -587,6 +591,8 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
     allSynapsesDevice->tau[iSyn] = tau;
     allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
+
+    assert( allSynapsesDevice->total_delay[iSyn] >= MIN_SYNAPTIC_TRANS_DELAY );
 
     allSynapsesDevice->Apos[iSyn] = 0.5;
     allSynapsesDevice->Aneg[iSyn] = -0.5;
@@ -687,6 +693,8 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
     allSynapsesDevice->tau[iSyn] = tau;
     allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
     allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
+
+    assert( allSynapsesDevice->total_delay[iSyn] >= MIN_SYNAPTIC_TRANS_DELAY );
 
     allSynapsesDevice->Apos[iSyn] = 0.5;
     allSynapsesDevice->Aneg[iSyn] = -0.5;

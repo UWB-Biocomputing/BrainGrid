@@ -272,6 +272,8 @@ void AllSpikingSynapses::createSynapse(const BGSIZE iSyn, int source_index, int 
     this->tau[iSyn] = tau;
     this->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
+    assert( this->total_delay[iSyn] >= MIN_SYNAPTIC_TRANS_DELAY );
+
     // initializes the queues for the Synapses
     preSpikeQueue->clearAnEvent(iSyn);
 
