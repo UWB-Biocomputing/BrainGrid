@@ -46,7 +46,7 @@ typedef struct {
 class EventQueue
 {
     //! Type of a queue element.
-    #define BGQUEUE_ELEMENT uint32_t
+    #define BGQUEUE_ELEMENT uint64_t
     //! The bit length of a queue element.
     #define LENGTH_OF_DELAYQUEUE        ( sizeof(BGQUEUE_ELEMENT) * 8 )
 
