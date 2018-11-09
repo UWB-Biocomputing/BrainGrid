@@ -68,7 +68,7 @@ As a quick start and sanity test, let's run a small, prepackaged simulation to m
    or run in multithreaded mode:
    
    ```shell
-   $ ./growth -c # ./configfiles/test-small.xml
+   $ ./growth -c # -t ./configfiles/test-small.xml
    ```
 
 5. The program will then run and display the current step and epoch of the simulation. The output of the simulation (after the end of the simulation) will be saved in the ```output``` folder.
