@@ -8,9 +8,9 @@
  *  Notify outgoing synapses if neuron has fired.
  *
  *  @param  synapses               Reference to the allSynapses struct on host memory.
- *  @param  allNeuronsDevice       Reference to the allNeuronsDeviceProperties struct 
+ *  @param  allNeuronsProperties       Reference to the allNeuronsProperties struct 
  *                                 on device memory.
- *  @param  allSynapsesDevice      Reference to the allSynapsesDeviceProperties struct 
+ *  @param  allSynapsesProperties      Reference to the allSynapsesProperties struct 
  *                                 on device memory.
  *  @param  sim_info               SimulationInfo to refer from.
  *  @param  randNoise              Reference to the random noise array.
@@ -18,7 +18,7 @@
  *  @param  clr_info               ClusterInfo to refer from.
  *  @param  iStepOffset            Offset from the current simulation step.
  */
-void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset )
+void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsProperties, void* allSynapsesProperties, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset )
 {
     DEBUG (
     int deviceId;
@@ -34,6 +34,6 @@ void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevi
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance neurons ------------->
-    advanceLIFNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeuronsDeviceProperties *)allNeuronsDevice, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset );
+    advanceLIFNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeuronsProperties *)allNeuronsProperties, (AllSpikingSynapsesProperties*)allSynapsesProperties, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset );
 }
 

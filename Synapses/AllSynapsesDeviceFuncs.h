@@ -19,10 +19,10 @@ extern __device__ enumClassSynapses classSynapses_d;
  *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
  *  @param[in] simulationStep        The current simulation step.
  *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
+ *  @param[in] allSynapsesProperties     Pointer to Synapse structures in device memory.
  *  @param[in] iStepOffset           Offset from the current simulation step.
  */
-extern __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int iStepOffset );
+extern __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesProperties* allSynapsesProperties, int iStepOffset );
 
 /*
  *  CUDA code for advancing STDP synapses.
@@ -32,11 +32,11 @@ extern __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, 
  *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
  *  @param[in] simulationStep        The current simulation step.
  *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] allSynapsesDevice     Pointer to AllSTDPSynapsesDeviceProperties structures 
+ *  @param[in] allSynapsesProperties     Pointer to AllSTDPSynapsesProperties structures 
  *                                   on device memory.
  *  @param[in] iStepOffset           Offset from the current simulation step.
  */
-extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapsesDeviceProperties* allSynapsesDevice, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int max_spikes, int width, int iStepOffset );
+extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapsesProperties* allSynapsesProperties, AllSpikingNeuronsProperties* allNeuronsProperties, int max_spikes, int width, int iStepOffset );
 
 /**
  * Adjust the strength of the synapse or remove it from the synapse map if it has gone below
@@ -45,8 +45,8 @@ extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, Syn
  * @param[in] num_neurons        Number of neurons.
  * @param[in] deltaT             The time step size.
  * @param[in] maxSynapses        Maximum number of synapses per neuron.
- * @param[in] allNeuronsDevice   Pointer to the Neuron structures in device memory.
- * @param[in] allSynapsesDevice  Pointer to the Synapse structures in device memory.
+ * @param[in] allNeuronsProperties   Pointer to the Neuron structures in device memory.
+ * @param[in] allSynapsesProperties  Pointer to the Synapse structures in device memory.
  * @param[in] neuron_type_map_d  Pointer to the neurons type map in device memory.
  * @param[in] totalClusterNeurons  Total number of neurons in the cluster.
  * @param[in] clusterNeuronsBegin  Begin neuron index of the cluster.
@@ -54,7 +54,7 @@ extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, Syn
  * @param[in] xloc_d             Pointer to the neuron's x location array.
  * @param[in] yloc_d             Pointer to the neuron's y location array.
  */
-extern __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, int maxSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, neuronType* neuron_type_map_d, int totalClusterNeurons, int clusterNeuronsBegin, BGFLOAT* radii_d, BGFLOAT* xloc_d,  BGFLOAT* yloc_d );
+extern __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, int maxSynapses, AllSpikingNeuronsProperties* allNeuronsProperties, AllSpikingSynapsesProperties* allSynapsesProperties, neuronType* neuron_type_map_d, int totalClusterNeurons, int clusterNeuronsBegin, BGFLOAT* radii_d, BGFLOAT* xloc_d,  BGFLOAT* yloc_d );
 
 /**
  *  CUDA kernel function for setting up connections.
@@ -73,8 +73,8 @@ extern __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT del
  *  @param  neuron_type_map_d   Pointer to the neurons type map in device memory.
  *  @param  rDistDestNeuron_d   Pointer to the DistDestNeuron structure array.
  *  @param  deltaT              The time step size.
- *  @param  allNeuronsDevice    Pointer to the Neuron structures in device memory.
- *  @param  allSynapsesDevice   Pointer to the Synapse structures in device memory.
+ *  @param  allNeuronsProperties    Pointer to the Neuron structures in device memory.
+ *  @param  allSynapsesProperties   Pointer to the Synapse structures in device memory.
  *  @param  minExcWeight        Min values of excitatory neuron's synapse weight.
  *  @param  maxExcWeight        Max values of excitatory neuron's synapse weight.
  *  @param  minInhWeight        Min values of inhibitory neuron's synapse weight.
@@ -82,35 +82,35 @@ extern __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT del
  *  @param  devStates_d         Curand global state.
  *  @param  seed                Seed for curand.
  */
-extern __global__ void setupConnectionsDevice( int num_neurons, int totalClusterNeurons, int clusterNeuronsBegin, BGFLOAT* xloc_d, BGFLOAT* yloc_d, int nConnsPerNeuron, int threshConnsRadius, neuronType* neuron_type_map_d, ConnStatic::DistDestNeuron *rDistDestNeuron_d, BGFLOAT deltaT, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, BGFLOAT minExcWeight, BGFLOAT maxExcWeight, BGFLOAT minInhWeight, BGFLOAT maxInhWeight, curandState* devStates_d, unsigned long seed );
+extern __global__ void setupConnectionsDevice( int num_neurons, int totalClusterNeurons, int clusterNeuronsBegin, BGFLOAT* xloc_d, BGFLOAT* yloc_d, int nConnsPerNeuron, int threshConnsRadius, neuronType* neuron_type_map_d, ConnStatic::DistDestNeuron *rDistDestNeuron_d, BGFLOAT deltaT, AllSpikingNeuronsProperties* allNeuronsProperties, AllSpikingSynapsesProperties* allSynapsesProperties, BGFLOAT minExcWeight, BGFLOAT maxExcWeight, BGFLOAT minInhWeight, BGFLOAT maxInhWeight, curandState* devStates_d, unsigned long seed );
 
 /** 
  * Adds a synapse to the network.  Requires the locations of the source and
  * destination neurons.
  *
- * @param allSynapsesDevice      Pointer to the Synapse structures in device memory.
+ * @param allSynapsesProperties      Pointer to the Synapse structures in device memory.
  * @param pSummationMap          Pointer to the summation point.
  * @param width                  Width of neuron map (assumes square).
  * @param deltaT                 The simulation time step size.
  * @param weight                 Synapse weight.
  */
-extern __global__ void initSynapsesDevice( int n, AllDSSynapsesDeviceProperties* allSynapsesDevice, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight );
+extern __global__ void initSynapsesDevice( int n, AllDSSynapsesProperties* allSynapsesProperties, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight );
 
 /**
  * Perform updating preSpikeQueue for one time step.
  *
- *  @param  allSynapsesDevice  Reference to the AllSpikingSynapsesDeviceProperties struct
+ *  @param  allSynapsesProperties  Reference to the AllSpikingSynapsesProperties struct
  *                             on device memory.
  *  @param  iStep              Simulation steps to advance.
  */
-extern __global__ void advanceSpikingSynapsesEventQueueDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int iStep);
+extern __global__ void advanceSpikingSynapsesEventQueueDevice(AllSpikingSynapsesProperties* allSynapsesProperties, int iStep);
 
 /**
  * Perform updating postSpikeQueue for one time step.
  *
- *  @param  allSynapsesDevice  Reference to the AllSpikingSynapsesDeviceProperties struct
+ *  @param  allSynapsesProperties  Reference to the AllSpikingSynapsesProperties struct
  *                             on device memory.
  *  @param  iStep              Simulation steps to advance.
  */
-extern __global__ void advanceSTDPSynapsesEventQueueDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, int iStep);
+extern __global__ void advanceSTDPSynapsesEventQueueDevice(AllSTDPSynapsesProperties* allSynapsesProperties, int iStep);
 #endif 

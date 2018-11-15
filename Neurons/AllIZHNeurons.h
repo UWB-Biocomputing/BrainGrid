@@ -85,7 +85,7 @@
 #include "Global.h"
 #include "AllIFNeurons.h"
 
-struct AllIZHNeuronsDeviceProperties;
+struct AllIZHNeuronsProperties;
 
 // Class to hold all data necessary for all the Neurons.
 class AllIZHNeurons : public AllIFNeurons
@@ -249,40 +249,40 @@ class AllIZHNeurons : public AllIFNeurons
          *  Allocate GPU memories to store all neurons' states.
          *  (Helper function of allocNeuronDeviceStruct)
          *
-         *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
+         *  @param  allNeuronsProperties         Reference to the AllIZHNeuronsProperties struct.
          *  @param  sim_info           SimulationInfo to refer from.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        void allocDeviceStruct( AllIZHNeuronsDeviceProperties &allNeurons, SimulationInfo *sim_info, ClusterInfo *clr_info );
+        void allocDeviceStruct( AllIZHNeuronsProperties &allNeuronsProperties, SimulationInfo *sim_info, ClusterInfo *clr_info );
 
         /**
          *  Delete GPU memories.
          *  (Helper function of deleteNeuronDeviceStruct)
          *
-         *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
+         *  @param  allNeuronsProperties         Reference to the AllIZHNeuronsProperties struct.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        void deleteDeviceStruct( AllIZHNeuronsDeviceProperties& allNeurons, const ClusterInfo *clr_info );
+        void deleteDeviceStruct( AllIZHNeuronsProperties& allNeuronsProperties, const ClusterInfo *clr_info );
 
         /**
          *  Copy all neurons' data from host to device.
          *  (Helper function of copyNeuronHostToDevice)
          *
-         *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
+         *  @param  allNeuronsProperties         Reference to the AllIZHNeuronsProperties struct.
          *  @param  sim_info           SimulationInfo to refer from.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        void copyHostToDevice( AllIZHNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
+        void copyHostToDevice( AllIZHNeuronsProperties& allNeuronsProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
         /**
          *  Copy all neurons' data from device to host.
          *  (Helper function of copyNeuronDeviceToHost)
          *
-         *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
+         *  @param  allNeuronsProperties         Reference to the AllIZHNeuronsProperties struct.
          *  @param  sim_info           SimulationInfo to refer from.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        void copyDeviceToHost( AllIZHNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
+        void copyDeviceToHost( AllIZHNeuronsProperties& allNeuronsProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
 #else  // !defined(USE_GPU)
 
@@ -458,7 +458,7 @@ class AllIZHNeurons : public AllIFNeurons
 };
 
 #if defined(USE_GPU)
-struct AllIZHNeuronsDeviceProperties : public AllIFNeuronsDeviceProperties
+struct AllIZHNeuronsProperties : public AllIFNeuronsProperties
 {
         /**
          *  A constant (0.02, 01) describing the coupling of variable u to Vm.

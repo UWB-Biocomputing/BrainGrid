@@ -106,7 +106,7 @@ class AllNeurons : public IAllNeurons
 };
 
 #if defined(USE_GPU)
-struct AllNeuronsDeviceProperties
+struct AllNeuronsProperties
 {
         /** 
          *  The summation point for each neuron.

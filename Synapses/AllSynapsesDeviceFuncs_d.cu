@@ -16,17 +16,17 @@ __device__ enumClassSynapses classSynapses_d = undefClassSynapses;
 /*
  *  Update PSR (post synapse response)
  *
- *  @param  allSynapsesDevice  Reference to the AllSpikingSynapsesDeviceProperties struct
+ *  @param  allSynapsesProperties  Reference to the AllSpikingSynapsesProperties struct
  *                             on device memory.
  *  @param  iSyn               Index of the synapse to set.
  *  @param  simulationStep     The current simulation step.
  *  @param  deltaT             Inner simulation step duration.
  */
-__device__ void changeSpikingSynapsesPSRDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
+__device__ void changeSpikingSynapsesPSRDevice(AllSpikingSynapsesProperties* allSynapsesProperties, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT)
 {
-    BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
-    BGFLOAT &W = allSynapsesDevice->W[iSyn];
-    BGFLOAT &decay = allSynapsesDevice->decay[iSyn];
+    BGFLOAT &psr = allSynapsesProperties->psr[iSyn];
+    BGFLOAT &W = allSynapsesProperties->W[iSyn];
+    BGFLOAT &decay = allSynapsesProperties->decay[iSyn];
 
     psr += ( W / decay );    // calculate psr
 }
@@ -34,26 +34,26 @@ __device__ void changeSpikingSynapsesPSRDevice(AllSpikingSynapsesDevicePropertie
 /*
  *  Update PSR (post synapse response)
  *
- *  @param  allSynapsesDevice  Reference to the AllDSSynapsesDeviceProperties struct
+ *  @param  allSynapsesProperties  Reference to the AllDSSynapsesProperties struct
  *                             on device memory.
  *  @param  iSyn               Index of the synapse to set.
  *  @param  simulationStep     The current simulation step.
  *  @param  deltaT             Inner simulation step duration.
  *  @param  iStepOffset        Offset from the current simulation step.
  */
-__device__ void changeDSSynapsePSRDevice(AllDSSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT, int iStepOffset)
+__device__ void changeDSSynapsePSRDevice(AllDSSynapsesProperties* allSynapsesProperties, const BGSIZE iSyn, const uint64_t simulationStep, const BGFLOAT deltaT, int iStepOffset)
 {
-    //assert( iSyn < allSynapsesDevice->maxSynapsesPerNeuron * allSynapsesDevice->count_neurons );
+    //assert( iSyn < allSynapsesProperties->maxSynapsesPerNeuron * allSynapsesProperties->count_neurons );
 
-    uint64_t &lastSpike = allSynapsesDevice->lastSpike[iSyn];
-    BGFLOAT &r = allSynapsesDevice->r[iSyn];
-    BGFLOAT &u = allSynapsesDevice->u[iSyn];
-    BGFLOAT D = allSynapsesDevice->D[iSyn];
-    BGFLOAT F = allSynapsesDevice->F[iSyn];
-    BGFLOAT U = allSynapsesDevice->U[iSyn];
-    BGFLOAT W = allSynapsesDevice->W[iSyn];
-    BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
-    BGFLOAT decay = allSynapsesDevice->decay[iSyn];
+    uint64_t &lastSpike = allSynapsesProperties->lastSpike[iSyn];
+    BGFLOAT &r = allSynapsesProperties->r[iSyn];
+    BGFLOAT &u = allSynapsesProperties->u[iSyn];
+    BGFLOAT D = allSynapsesProperties->D[iSyn];
+    BGFLOAT F = allSynapsesProperties->F[iSyn];
+    BGFLOAT U = allSynapsesProperties->U[iSyn];
+    BGFLOAT W = allSynapsesProperties->W[iSyn];
+    BGFLOAT &psr = allSynapsesProperties->psr[iSyn];
+    BGFLOAT decay = allSynapsesProperties->decay[iSyn];
 
     // adjust synapse parameters
     if (lastSpike != ULONG_MAX) {
@@ -68,42 +68,42 @@ __device__ void changeDSSynapsePSRDevice(AllDSSynapsesDeviceProperties* allSynap
 /*     
  *  Checks if there is an input spike in the queue.
  *
- *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
+ *  @param[in] allSynapsesProperties     Pointer to AllSpikingSynapsesProperties structures 
  *                                   on device memory.
  *  @param[in] iSyn                  Index of the Synapse to check.
  *  @param[in] iStepOffset           Offset from the current simulation step.
  *  @return true if there is an input spike event.
  */
-__device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn, int iStepOffset)
+__device__ bool isSpikingSynapsesSpikeQueueDevice(AllSpikingSynapsesProperties* allSynapsesProperties, BGSIZE iSyn, int iStepOffset)
 {
-    int &total_delay = allSynapsesDevice->total_delay[iSyn];
+    int &total_delay = allSynapsesProperties->total_delay[iSyn];
 
     // Checks if there is an event in the queue.
-    return allSynapsesDevice->preSpikeQueue->checkAnEvent(iSyn, total_delay, iStepOffset);
+    return allSynapsesProperties->preSpikeQueue->checkAnEvent(iSyn, total_delay, iStepOffset);
 }
 
 /*     
  *  Adjust synapse weight according to the Spike-timing-dependent synaptic modification
  *  induced by natural spike trains
  *
- *  @param  allSynapsesDevice    Pointer to the AllSTDPSynapsesDeviceProperties structures 
+ *  @param  allSynapsesProperties    Pointer to the AllSTDPSynapsesProperties structures 
  *                               on device memory.
  *  @param  iSyn                 Index of the synapse to set.
  *  @param  delta                Pre/post synaptic spike interval.
  *  @param  epost                Params for the rule given in Froemke and Dan (2002).
  *  @param  epre                 Params for the rule given in Froemke and Dan (2002).
  */
-__device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, const BGSIZE iSyn, double delta, double epost, double epre)
+__device__ void stdpLearningDevice(AllSTDPSynapsesProperties* allSynapsesProperties, const BGSIZE iSyn, double delta, double epost, double epre)
 {
-    BGFLOAT STDPgap = allSynapsesDevice->STDPgap[iSyn];
-    BGFLOAT muneg = allSynapsesDevice->muneg[iSyn];
-    BGFLOAT mupos = allSynapsesDevice->mupos[iSyn];
-    BGFLOAT tauneg = allSynapsesDevice->tauneg[iSyn];
-    BGFLOAT taupos = allSynapsesDevice->taupos[iSyn];
-    BGFLOAT Aneg = allSynapsesDevice->Aneg[iSyn];
-    BGFLOAT Apos = allSynapsesDevice->Apos[iSyn];
-    BGFLOAT Wex = allSynapsesDevice->Wex[iSyn];
-    BGFLOAT &W = allSynapsesDevice->W[iSyn];
+    BGFLOAT STDPgap = allSynapsesProperties->STDPgap[iSyn];
+    BGFLOAT muneg = allSynapsesProperties->muneg[iSyn];
+    BGFLOAT mupos = allSynapsesProperties->mupos[iSyn];
+    BGFLOAT tauneg = allSynapsesProperties->tauneg[iSyn];
+    BGFLOAT taupos = allSynapsesProperties->taupos[iSyn];
+    BGFLOAT Aneg = allSynapsesProperties->Aneg[iSyn];
+    BGFLOAT Apos = allSynapsesProperties->Apos[iSyn];
+    BGFLOAT Wex = allSynapsesProperties->Wex[iSyn];
+    BGFLOAT &W = allSynapsesProperties->W[iSyn];
     BGFLOAT dw;
 
     if (delta < -STDPgap) {
@@ -138,32 +138,32 @@ __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesD
 /*
  *  Checks if there is an input spike in the queue.
  *
- *  @param[in] allSynapsesDevice     Pointer to AllSTDPSynapsesDeviceProperties structures 
+ *  @param[in] allSynapsesProperties     Pointer to AllSTDPSynapsesProperties structures 
  *                                   on device memory.
  *  @param[in] iSyn                  Index of the Synapse to check.
  *  @param[in] iStepOffset           Offset from the current simulation step.
  *  @return true if there is an input spike event.
  */
-__device__ bool isSTDPSynapseSpikeQueuePostDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, BGSIZE iSyn, int iStepOffset)
+__device__ bool isSTDPSynapseSpikeQueuePostDevice(AllSTDPSynapsesProperties* allSynapsesProperties, BGSIZE iSyn, int iStepOffset)
 {
-    return allSynapsesDevice->postSpikeQueue->checkAnEvent(iSyn, iStepOffset);
+    return allSynapsesProperties->postSpikeQueue->checkAnEvent(iSyn, iStepOffset);
 }
 
 /*
  *  Gets the spike history of the neuron.
  *
- *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory. 
+ *  @param  allNeuronsProperties       Reference to the allNeurons struct on device memory. 
  *  @param  index                  Index of the neuron to get spike history.
  *  @param  offIndex               Offset of the history beffer to get.
  *                                 -1 will return the last spike.
  *  @param  max_spikes             Maximum number of spikes per neuron per epoch.
  *  @return Spike history.
  */
-__device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int index, int offIndex, int max_spikes)
+__device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeuronsProperties* allNeuronsProperties, int index, int offIndex, int max_spikes)
 {
     // offIndex is a minus offset
-    int idxSp = (allNeuronsDevice->spikeCount[index] + allNeuronsDevice->spikeCountOffset[index] +  max_spikes + offIndex) % max_spikes;
-    return allNeuronsDevice->spike_history[index][idxSp];
+    int idxSp = (allNeuronsProperties->spikeCount[index] + allNeuronsProperties->spikeCountOffset[index] +  max_spikes + offIndex) % max_spikes;
+    return allNeuronsProperties->spike_history[index][idxSp];
 }
 
 /* --------------------------------------*\
@@ -178,31 +178,31 @@ __device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeuronsDeviceProp
  *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
  *  @param[in] simulationStep        The current simulation step.
  *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] allSynapsesDevice     Pointer to AllSpikingSynapsesDeviceProperties structures 
+ *  @param[in] allSynapsesProperties     Pointer to AllSpikingSynapsesProperties structures 
  *                                   on device memory.
  *  @param[in] iStepOffset           Offset from the current simulation step.
  */
-__global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int iStepOffset ) {
+__global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesProperties* allSynapsesProperties, int iStepOffset ) {
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= total_synapse_counts )
                 return;
 
         BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
 
-        BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
-        BGFLOAT decay = allSynapsesDevice->decay[iSyn];
+        BGFLOAT &psr = allSynapsesProperties->psr[iSyn];
+        BGFLOAT decay = allSynapsesProperties->decay[iSyn];
 
         // Checks if there is an input spike in the queue.
-        bool isFired = isSpikingSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn, iStepOffset);
+        bool isFired = isSpikingSynapsesSpikeQueueDevice(allSynapsesProperties, iSyn, iStepOffset);
 
         // is an input in the queue?
         if (isFired) {
                 switch (classSynapses_d) {
                 case classAllSpikingSynapses:
-                       changeSpikingSynapsesPSRDevice(static_cast<AllSpikingSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
+                       changeSpikingSynapsesPSRDevice(static_cast<AllSpikingSynapsesProperties*>(allSynapsesProperties), iSyn, simulationStep, deltaT);
                         break;
                 case classAllDSSynapses:
-                        changeDSSynapsePSRDevice(static_cast<AllDSSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT, iStepOffset);
+                        changeDSSynapsePSRDevice(static_cast<AllDSSynapsesProperties*>(allSynapsesProperties), iSyn, simulationStep, deltaT, iStepOffset);
                         break;
                 default:
                         assert(false);
@@ -220,34 +220,34 @@ __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, Synapse
  *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
  *  @param[in] simulationStep        The current simulation step.
  *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] allSynapsesDevice     Pointer to AllSTDPSynapsesDeviceProperties structures 
+ *  @param[in] allSynapsesProperties     Pointer to AllSTDPSynapsesProperties structures 
  *                                   on device memory.
  *  @param[in] iStepOffset           Offset from the current simulation step.
  */
-__global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapsesDeviceProperties* allSynapsesDevice, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int max_spikes, int width, int iStepOffset ) {
+__global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapsesProperties* allSynapsesProperties, AllSpikingNeuronsProperties* allNeuronsProperties, int max_spikes, int width, int iStepOffset ) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= total_synapse_counts )
             return;
 
     BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
 
-    BGFLOAT &decay = allSynapsesDevice->decay[iSyn];
-    BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
+    BGFLOAT &decay = allSynapsesProperties->decay[iSyn];
+    BGFLOAT &psr = allSynapsesProperties->psr[iSyn];
 
     // is an input in the queue?
-    bool fPre = isSpikingSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn, iStepOffset);
-    bool fPost = isSTDPSynapseSpikeQueuePostDevice(allSynapsesDevice, iSyn, iStepOffset);
+    bool fPre = isSpikingSynapsesSpikeQueueDevice(allSynapsesProperties, iSyn, iStepOffset);
+    bool fPost = isSTDPSynapseSpikeQueuePostDevice(allSynapsesProperties, iSyn, iStepOffset);
     if (fPre || fPost) {
-        BGFLOAT &tauspre = allSynapsesDevice->tauspre[iSyn];
-        BGFLOAT &tauspost = allSynapsesDevice->tauspost[iSyn];
-        BGFLOAT &taupos = allSynapsesDevice->taupos[iSyn];
-        BGFLOAT &tauneg = allSynapsesDevice->tauneg[iSyn];
-        int &total_delay = allSynapsesDevice->total_delay[iSyn];
-        bool &useFroemkeDanSTDP = allSynapsesDevice->useFroemkeDanSTDP[iSyn];
+        BGFLOAT &tauspre = allSynapsesProperties->tauspre[iSyn];
+        BGFLOAT &tauspost = allSynapsesProperties->tauspost[iSyn];
+        BGFLOAT &taupos = allSynapsesProperties->taupos[iSyn];
+        BGFLOAT &tauneg = allSynapsesProperties->tauneg[iSyn];
+        int &total_delay = allSynapsesProperties->total_delay[iSyn];
+        bool &useFroemkeDanSTDP = allSynapsesProperties->useFroemkeDanSTDP[iSyn];
 
         // pre and post neurons index
-        int idxPre = allSynapsesDevice->sourceNeuronLayoutIndex[iSyn];
-        int idxPost = allSynapsesDevice->destNeuronLayoutIndex[iSyn];
+        int idxPre = allSynapsesProperties->sourceNeuronLayoutIndex[iSyn];
+        int idxPost = allSynapsesProperties->destNeuronLayoutIndex[iSyn];
         int64_t spikeHistory, spikeHistory2;
         BGFLOAT delta;
         BGFLOAT epre, epost;
@@ -256,7 +256,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
             // spikeCount points to the next available position of spike_history,
             // so the getSpikeHistory w/offset = -2 will return the spike time 
             // just one before the last spike.
-            spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPre, -2, max_spikes);
+            spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsProperties, idxPre, -2, max_spikes);
             if (spikeHistory > 0 && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
                 delta = ((int64_t)simulationStep + iStepOffset - spikeHistory) * deltaT;
@@ -269,7 +269,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
             // pre-post spikes
             int offIndex = -1;  // last spike
             while (true) {
-                spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPost, offIndex, max_spikes);
+                spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsProperties, idxPost, offIndex, max_spikes);
                 if (spikeHistory == ULONG_MAX)
                     break;
                 // delta is the spike interval between pre-post spikes
@@ -288,26 +288,26 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                 if (delta <= -3.0 * tauneg)
                     break;
                 if (useFroemkeDanSTDP) {
-                    spikeHistory2 = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPost, offIndex-1, max_spikes);
+                    spikeHistory2 = getSTDPSynapseSpikeHistoryDevice(allNeuronsProperties, idxPost, offIndex-1, max_spikes);
                     if (spikeHistory2 == ULONG_MAX)
                         break;
                     epost = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspost);
                 } else {
                     epost = 1.0;
                 }
-                stdpLearningDevice(allSynapsesDevice, iSyn, delta, epost, epre);
+                stdpLearningDevice(allSynapsesProperties, iSyn, delta, epost, epre);
                 --offIndex;
             }
 
             switch (classSynapses_d) {
             case classAllSTDPSynapses:
-                changeSpikingSynapsesPSRDevice(static_cast<AllSpikingSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
+                changeSpikingSynapsesPSRDevice(static_cast<AllSpikingSynapsesProperties*>(allSynapsesProperties), iSyn, simulationStep, deltaT);
                 break;
             case classAllDynamicSTDPSynapses:
                 // Note: we cast void * over the allSynapsesDevice, then recast it, 
-                // because AllDSSynapsesDeviceProperties inherited properties from 
-                // the AllDSSynapsesDeviceProperties and the AllSTDPSynapsesDeviceProperties.
-                changeDSSynapsePSRDevice(static_cast<AllDSSynapsesDeviceProperties*>((void *)allSynapsesDevice), iSyn, simulationStep, deltaT, iStepOffset);
+                // because AllDSSynapsesProperties inherited properties from 
+                // the AllDSSynapsesProperties and the AllSTDPSynapsesProperties.
+                changeDSSynapsePSRDevice(static_cast<AllDSSynapsesProperties*>((void *)allSynapsesProperties), iSyn, simulationStep, deltaT, iStepOffset);
                 break;
             default:
                 assert(false);
@@ -318,7 +318,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
             // spikeCount points to the next available position of spike_history,
             // so the getSpikeHistory w/offset = -2 will return the spike time
             // just one before the last spike.
-            spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPost, -2, max_spikes);
+            spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsProperties, idxPost, -2, max_spikes);
             if (spikeHistory > 0 && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
                 delta = ((int64_t)simulationStep + iStepOffset - spikeHistory) * deltaT;
@@ -331,7 +331,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
             // post-pre spikes
             int offIndex = -1;  // last spike
             while (true) {
-                spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPre, offIndex, max_spikes);
+                spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsProperties, idxPre, offIndex, max_spikes);
                 if (spikeHistory == ULONG_MAX)
                     break;
                 // delta is the spike interval between post-pre spikes
@@ -350,14 +350,14 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                 if (delta <= 0 || delta >= 3.0 * taupos)
                     break;
                 if (useFroemkeDanSTDP) {
-                    spikeHistory2 = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPre, offIndex-1, max_spikes);
+                    spikeHistory2 = getSTDPSynapseSpikeHistoryDevice(allNeuronsProperties, idxPre, offIndex-1, max_spikes);
                     if (spikeHistory2 == ULONG_MAX)
                         break;
                     epre = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspre);
                 } else {
                     epre = 1.0;
                 }
-                stdpLearningDevice(allSynapsesDevice, iSyn, delta, epost, epre);
+                stdpLearningDevice(allSynapsesProperties, iSyn, delta, epost, epre);
                 --offIndex;
             }
         }
@@ -395,7 +395,7 @@ __device__ int synSign( synapseType t )
 /*
  *  Create a Spiking Synapse and connect it to the model.
  *
- *  @param allSynapsesDevice    Pointer to the AllSpikingSynapsesDeviceProperties structures 
+ *  @param allSynapsesProperties    Pointer to the AllSpikingSynapsesProperties structures 
  *                              on device memory.
  *  @param neuron_index         Index of the destination neuron in the cluster.
  *  @param synapse_offset       Offset (into neuron_index's) of the Synapse to create.
@@ -405,21 +405,21 @@ __device__ int synSign( synapseType t )
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-__device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_offset, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+__device__ void createSpikingSynapse(AllSpikingSynapsesProperties* allSynapsesProperties, const int neuron_index, const int synapse_offset, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
-    BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
+    BGSIZE max_synapses = allSynapsesProperties->maxSynapsesPerNeuron;
     BGSIZE iSyn = max_synapses * neuron_index + synapse_offset;
 
-    allSynapsesDevice->in_use[iSyn] = true;
-    allSynapsesDevice->destNeuronLayoutIndex[iSyn] = dest_index;
-    allSynapsesDevice->sourceNeuronLayoutIndex[iSyn] = source_index;
-    allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
+    allSynapsesProperties->in_use[iSyn] = true;
+    allSynapsesProperties->destNeuronLayoutIndex[iSyn] = dest_index;
+    allSynapsesProperties->sourceNeuronLayoutIndex[iSyn] = source_index;
+    allSynapsesProperties->W[iSyn] = synSign(type) * 10.0e-9;
     
-    allSynapsesDevice->psr[iSyn] = 0.0;
-    allSynapsesDevice->type[iSyn] = type;
+    allSynapsesProperties->psr[iSyn] = 0.0;
+    allSynapsesProperties->type[iSyn] = type;
 
-    allSynapsesDevice->tau[iSyn] = DEFAULT_tau;
+    allSynapsesProperties->tau[iSyn] = DEFAULT_tau;
 
     BGFLOAT tau;
     switch (type) {
@@ -443,20 +443,20 @@ __device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSyna
             break;
     }
 
-    allSynapsesDevice->tau[iSyn] = tau;
-    allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
-    allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
+    allSynapsesProperties->tau[iSyn] = tau;
+    allSynapsesProperties->decay[iSyn] = exp( -deltaT / tau );
+    allSynapsesProperties->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
-    assert( allSynapsesDevice->total_delay[iSyn] >= MIN_SYNAPTIC_TRANS_DELAY );
+    assert( allSynapsesProperties->total_delay[iSyn] >= MIN_SYNAPTIC_TRANS_DELAY );
 
     // initializes the queues for the Synapses
-    allSynapsesDevice->preSpikeQueue->clearAnEvent(iSyn);
+    allSynapsesProperties->preSpikeQueue->clearAnEvent(iSyn);
 }
 
 /*
  *  Create a DS Synapse and connect it to the model.
  *
- *  @param allSynapsesDevice    Pointer to the AllSpikingSynapsesDeviceProperties structures 
+ *  @param allSynapsesProperties    Pointer to the AllSpikingSynapsesProperties structures 
  *                              on device memory.
  *  @param neuron_index         Index of the destination neuron in the cluster.
  *  @param synapse_offset       Offset (into neuron_index's) of the Synapse to create.
@@ -466,25 +466,25 @@ __device__ void createSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSyna
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-__device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_offset, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+__device__ void createDSSynapse(AllDSSynapsesProperties* allSynapsesProperties, const int neuron_index, const int synapse_offset, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
-    BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
+    BGSIZE max_synapses = allSynapsesProperties->maxSynapsesPerNeuron;
     BGSIZE iSyn = max_synapses * neuron_index + synapse_offset;
 
-    allSynapsesDevice->in_use[iSyn] = true;
-    allSynapsesDevice->destNeuronLayoutIndex[iSyn] = dest_index;
-    allSynapsesDevice->sourceNeuronLayoutIndex[iSyn] = source_index;
-    allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
+    allSynapsesProperties->in_use[iSyn] = true;
+    allSynapsesProperties->destNeuronLayoutIndex[iSyn] = dest_index;
+    allSynapsesProperties->sourceNeuronLayoutIndex[iSyn] = source_index;
+    allSynapsesProperties->W[iSyn] = synSign(type) * 10.0e-9;
 
-    allSynapsesDevice->psr[iSyn] = 0.0;
-    allSynapsesDevice->r[iSyn] = 1.0;
-    allSynapsesDevice->u[iSyn] = 0.4;     // DEFAULT_U
-    allSynapsesDevice->lastSpike[iSyn] = ULONG_MAX;
-    allSynapsesDevice->type[iSyn] = type;
+    allSynapsesProperties->psr[iSyn] = 0.0;
+    allSynapsesProperties->r[iSyn] = 1.0;
+    allSynapsesProperties->u[iSyn] = 0.4;     // DEFAULT_U
+    allSynapsesProperties->lastSpike[iSyn] = ULONG_MAX;
+    allSynapsesProperties->type[iSyn] = type;
 
-    allSynapsesDevice->U[iSyn] = DEFAULT_U;
-    allSynapsesDevice->tau[iSyn] = DEFAULT_tau;
+    allSynapsesProperties->U[iSyn] = DEFAULT_U;
+    allSynapsesProperties->tau[iSyn] = DEFAULT_tau;
 
     BGFLOAT U;
     BGFLOAT D;
@@ -523,24 +523,24 @@ __device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice
             break;
     }
 
-    allSynapsesDevice->U[iSyn] = U;
-    allSynapsesDevice->D[iSyn] = D;
-    allSynapsesDevice->F[iSyn] = F;
+    allSynapsesProperties->U[iSyn] = U;
+    allSynapsesProperties->D[iSyn] = D;
+    allSynapsesProperties->F[iSyn] = F;
 
-    allSynapsesDevice->tau[iSyn] = tau;
-    allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
-    allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
+    allSynapsesProperties->tau[iSyn] = tau;
+    allSynapsesProperties->decay[iSyn] = exp( -deltaT / tau );
+    allSynapsesProperties->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
-    assert( allSynapsesDevice->total_delay[iSyn] >= MIN_SYNAPTIC_TRANS_DELAY );
+    assert( allSynapsesProperties->total_delay[iSyn] >= MIN_SYNAPTIC_TRANS_DELAY );
 
     // initializes the queues for the Synapses
-    allSynapsesDevice->preSpikeQueue->clearAnEvent(iSyn);
+    allSynapsesProperties->preSpikeQueue->clearAnEvent(iSyn);
 }
 
 /*
  *  Create a Synapse and connect it to the model.
  *
- *  @param allSynapsesDevice    Pointer to the AllSpikingSynapsesDeviceProperties structures 
+ *  @param allSynapsesProperties    Pointer to the AllSpikingSynapsesProperties structures 
  *                              on device memory.
  *  @param neuron_index         Index of the destination neuron in the cluster.
  *  @param synapse_offset       Offset (into neuron_index's) of the Synapse to create.
@@ -550,21 +550,21 @@ __device__ void createDSSynapse(AllDSSynapsesDeviceProperties* allSynapsesDevice
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-__device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_offset, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+__device__ void createSTDPSynapse(AllSTDPSynapsesProperties* allSynapsesProperties, const int neuron_index, const int synapse_offset, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
-    BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
+    BGSIZE max_synapses = allSynapsesProperties->maxSynapsesPerNeuron;
     BGSIZE iSyn = max_synapses * neuron_index + synapse_offset;
 
-    allSynapsesDevice->in_use[iSyn] = true;
-    allSynapsesDevice->destNeuronLayoutIndex[iSyn] = dest_index;
-    allSynapsesDevice->sourceNeuronLayoutIndex[iSyn] = source_index;
-    allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
+    allSynapsesProperties->in_use[iSyn] = true;
+    allSynapsesProperties->destNeuronLayoutIndex[iSyn] = dest_index;
+    allSynapsesProperties->sourceNeuronLayoutIndex[iSyn] = source_index;
+    allSynapsesProperties->W[iSyn] = synSign(type) * 10.0e-9;
 
-    allSynapsesDevice->psr[iSyn] = 0.0;
-    allSynapsesDevice->type[iSyn] = type;
+    allSynapsesProperties->psr[iSyn] = 0.0;
+    allSynapsesProperties->type[iSyn] = type;
 
-    allSynapsesDevice->tau[iSyn] = DEFAULT_tau;
+    allSynapsesProperties->tau[iSyn] = DEFAULT_tau;
 
     BGFLOAT tau;
     switch (type) {
@@ -588,38 +588,38 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
             break;
     }
 
-    allSynapsesDevice->tau[iSyn] = tau;
-    allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
-    allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
+    allSynapsesProperties->tau[iSyn] = tau;
+    allSynapsesProperties->decay[iSyn] = exp( -deltaT / tau );
+    allSynapsesProperties->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
-    assert( allSynapsesDevice->total_delay[iSyn] >= MIN_SYNAPTIC_TRANS_DELAY );
+    assert( allSynapsesProperties->total_delay[iSyn] >= MIN_SYNAPTIC_TRANS_DELAY );
 
-    allSynapsesDevice->Apos[iSyn] = 0.5;
-    allSynapsesDevice->Aneg[iSyn] = -0.5;
-    allSynapsesDevice->STDPgap[iSyn] = 2e-3;
+    allSynapsesProperties->Apos[iSyn] = 0.5;
+    allSynapsesProperties->Aneg[iSyn] = -0.5;
+    allSynapsesProperties->STDPgap[iSyn] = 2e-3;
 
-    allSynapsesDevice->total_delayPost[iSyn] = 0;
+    allSynapsesProperties->total_delayPost[iSyn] = 0;
 
-    allSynapsesDevice->tauspost[iSyn] = 0;
-    allSynapsesDevice->tauspre[iSyn] = 0;
+    allSynapsesProperties->tauspost[iSyn] = 0;
+    allSynapsesProperties->tauspre[iSyn] = 0;
 
-    allSynapsesDevice->taupos[iSyn] = 15e-3;
-    allSynapsesDevice->tauneg[iSyn] = 35e-3;
-    allSynapsesDevice->Wex[iSyn] = 1.0;
+    allSynapsesProperties->taupos[iSyn] = 15e-3;
+    allSynapsesProperties->tauneg[iSyn] = 35e-3;
+    allSynapsesProperties->Wex[iSyn] = 1.0;
 
-    allSynapsesDevice->mupos[iSyn] = 0;
-    allSynapsesDevice->muneg[iSyn] = 0;
+    allSynapsesProperties->mupos[iSyn] = 0;
+    allSynapsesProperties->muneg[iSyn] = 0;
 
-    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
+    allSynapsesProperties->useFroemkeDanSTDP[iSyn] = false;
 
     // initializes the queues for the Synapses
-    allSynapsesDevice->postSpikeQueue->clearAnEvent(iSyn);
+    allSynapsesProperties->postSpikeQueue->clearAnEvent(iSyn);
 }
 
 /*
  *  Create a Synapse and connect it to the model.
  *
- *  @param allSynapsesDevice    Pointer to the AllSpikingSynapsesDeviceProperties structures 
+ *  @param allSynapsesProperties    Pointer to the AllSpikingSynapsesProperties structures 
  *                              on device memory.
  *  @param neuron_index         Index of the destination neuron in the cluster.
  *  @param synapse_offset       Offset (into neuron_index's) of the Synapse to create.
@@ -629,25 +629,25 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
  *  @param deltaT               The time step size.
  *  @param type                 Type of the Synapse to create.
  */
-__device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_offset, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+__device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesProperties* allSynapsesProperties, const int neuron_index, const int synapse_offset, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
     BGFLOAT delay;
-    BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
+    BGSIZE max_synapses = allSynapsesProperties->maxSynapsesPerNeuron;
     BGSIZE iSyn = max_synapses * neuron_index + synapse_offset;
 
-    allSynapsesDevice->in_use[iSyn] = true;
-    allSynapsesDevice->destNeuronLayoutIndex[iSyn] = dest_index;
-    allSynapsesDevice->sourceNeuronLayoutIndex[iSyn] = source_index;
-    allSynapsesDevice->W[iSyn] = synSign(type) * 10.0e-9;
+    allSynapsesProperties->in_use[iSyn] = true;
+    allSynapsesProperties->destNeuronLayoutIndex[iSyn] = dest_index;
+    allSynapsesProperties->sourceNeuronLayoutIndex[iSyn] = source_index;
+    allSynapsesProperties->W[iSyn] = synSign(type) * 10.0e-9;
 
-    allSynapsesDevice->psr[iSyn] = 0.0;
-    allSynapsesDevice->r[iSyn] = 1.0;
-    allSynapsesDevice->u[iSyn] = 0.4;     // DEFAULT_U
-    allSynapsesDevice->lastSpike[iSyn] = ULONG_MAX;
-    allSynapsesDevice->type[iSyn] = type;
+    allSynapsesProperties->psr[iSyn] = 0.0;
+    allSynapsesProperties->r[iSyn] = 1.0;
+    allSynapsesProperties->u[iSyn] = 0.4;     // DEFAULT_U
+    allSynapsesProperties->lastSpike[iSyn] = ULONG_MAX;
+    allSynapsesProperties->type[iSyn] = type;
 
-    allSynapsesDevice->U[iSyn] = DEFAULT_U;
-    allSynapsesDevice->tau[iSyn] = DEFAULT_tau;
+    allSynapsesProperties->U[iSyn] = DEFAULT_U;
+    allSynapsesProperties->tau[iSyn] = DEFAULT_tau;
 
     BGFLOAT U;
     BGFLOAT D;
@@ -686,43 +686,43 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
             break;
     }
 
-    allSynapsesDevice->U[iSyn] = U;
-    allSynapsesDevice->D[iSyn] = D;
-    allSynapsesDevice->F[iSyn] = F;
+    allSynapsesProperties->U[iSyn] = U;
+    allSynapsesProperties->D[iSyn] = D;
+    allSynapsesProperties->F[iSyn] = F;
 
-    allSynapsesDevice->tau[iSyn] = tau;
-    allSynapsesDevice->decay[iSyn] = exp( -deltaT / tau );
-    allSynapsesDevice->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
+    allSynapsesProperties->tau[iSyn] = tau;
+    allSynapsesProperties->decay[iSyn] = exp( -deltaT / tau );
+    allSynapsesProperties->total_delay[iSyn] = static_cast<int>( delay / deltaT ) + 1;
 
-    assert( allSynapsesDevice->total_delay[iSyn] >= MIN_SYNAPTIC_TRANS_DELAY );
+    assert( allSynapsesProperties->total_delay[iSyn] >= MIN_SYNAPTIC_TRANS_DELAY );
 
-    allSynapsesDevice->Apos[iSyn] = 0.5;
-    allSynapsesDevice->Aneg[iSyn] = -0.5;
-    allSynapsesDevice->STDPgap[iSyn] = 2e-3;
+    allSynapsesProperties->Apos[iSyn] = 0.5;
+    allSynapsesProperties->Aneg[iSyn] = -0.5;
+    allSynapsesProperties->STDPgap[iSyn] = 2e-3;
 
-    allSynapsesDevice->total_delayPost[iSyn] = 0;
+    allSynapsesProperties->total_delayPost[iSyn] = 0;
 
-    allSynapsesDevice->tauspost[iSyn] = 0;
-    allSynapsesDevice->tauspre[iSyn] = 0;
+    allSynapsesProperties->tauspost[iSyn] = 0;
+    allSynapsesProperties->tauspre[iSyn] = 0;
 
-    allSynapsesDevice->taupos[iSyn] = 15e-3;
-    allSynapsesDevice->tauneg[iSyn] = 35e-3;
-    allSynapsesDevice->Wex[iSyn] = 1.0;
+    allSynapsesProperties->taupos[iSyn] = 15e-3;
+    allSynapsesProperties->tauneg[iSyn] = 35e-3;
+    allSynapsesProperties->Wex[iSyn] = 1.0;
 
-    allSynapsesDevice->mupos[iSyn] = 0;
-    allSynapsesDevice->muneg[iSyn] = 0;
+    allSynapsesProperties->mupos[iSyn] = 0;
+    allSynapsesProperties->muneg[iSyn] = 0;
 
-    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
+    allSynapsesProperties->useFroemkeDanSTDP[iSyn] = false;
 
     // initializes the queues for the Synapses
-    allSynapsesDevice->postSpikeQueue->clearAnEvent(iSyn);
+    allSynapsesProperties->postSpikeQueue->clearAnEvent(iSyn);
 }
 
 /*
  * Adds a synapse to the network.  Requires the locations of the source and
  * destination neurons.
  *
- * @param allSynapsesDevice      Pointer to the AllSpikingSynapsesDeviceProperties structures 
+ * @param allSynapsesProperties      Pointer to the AllSpikingSynapsesProperties structures 
  *                               on device memory.
  * @param type                   Type of the Synapse to create.
  * @param neuron_index           Index of the destination neuron in the cluster.
@@ -732,65 +732,65 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
  * @param deltaT                 The time step size.
  * @param weight                 Synapse weight.
  */
-__device__ void addSpikingSynapse(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, synapseType type, const int neuron_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT weight)
+__device__ void addSpikingSynapse(AllSpikingSynapsesProperties* allSynapsesProperties, synapseType type, const int neuron_index, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, BGFLOAT weight)
 {
-    if (allSynapsesDevice->synapse_counts[neuron_index] >= allSynapsesDevice->maxSynapsesPerNeuron) {
+    if (allSynapsesProperties->synapse_counts[neuron_index] >= allSynapsesProperties->maxSynapsesPerNeuron) {
         assert(false);
         return; // TODO: ERROR!
     }
 
     // add it to the list
     BGSIZE synapse_index;
-    BGSIZE max_synapses = allSynapsesDevice->maxSynapsesPerNeuron;
+    BGSIZE max_synapses = allSynapsesProperties->maxSynapsesPerNeuron;
     BGSIZE synapseBegin = max_synapses * neuron_index;
     for (synapse_index = 0; synapse_index < max_synapses; synapse_index++) {
-        if (!allSynapsesDevice->in_use[synapseBegin + synapse_index]) {
+        if (!allSynapsesProperties->in_use[synapseBegin + synapse_index]) {
             break;
         }
     }
 
-    allSynapsesDevice->synapse_counts[neuron_index]++;
+    allSynapsesProperties->synapse_counts[neuron_index]++;
 
     // create a synapse
     switch (classSynapses_d) {
     case classAllSpikingSynapses:
-        createSpikingSynapse(allSynapsesDevice, neuron_index, synapse_index, source_index, dest_index, sum_point, deltaT, type );
+        createSpikingSynapse(allSynapsesProperties, neuron_index, synapse_index, source_index, dest_index, sum_point, deltaT, type );
         break;
     case classAllDSSynapses:
-        createDSSynapse(static_cast<AllDSSynapsesDeviceProperties *>(allSynapsesDevice), neuron_index, synapse_index, source_index, dest_index, sum_point, deltaT, type );
+        createDSSynapse(static_cast<AllDSSynapsesProperties *>(allSynapsesProperties), neuron_index, synapse_index, source_index, dest_index, sum_point, deltaT, type );
         break;
     case classAllSTDPSynapses:
-        createSTDPSynapse(static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice), neuron_index, synapse_index, source_index, dest_index, sum_point, deltaT, type );
+        createSTDPSynapse(static_cast<AllSTDPSynapsesProperties *>(allSynapsesProperties), neuron_index, synapse_index, source_index, dest_index, sum_point, deltaT, type );
         break;
     case classAllDynamicSTDPSynapses:
-        createDynamicSTDPSynapse(static_cast<AllDynamicSTDPSynapsesDeviceProperties *>(allSynapsesDevice), neuron_index, synapse_index, source_index, dest_index, sum_point, deltaT, type );
+        createDynamicSTDPSynapse(static_cast<AllDynamicSTDPSynapsesProperties *>(allSynapsesProperties), neuron_index, synapse_index, source_index, dest_index, sum_point, deltaT, type );
         break;
     default:
         assert(false);
     }
-    allSynapsesDevice->W[synapseBegin + synapse_index] = weight;
+    allSynapsesProperties->W[synapseBegin + synapse_index] = weight;
 }
 
 /*
  * Remove a synapse from the network.
  *
- * @param[in] allSynapsesDevice      Pointer to the AllSpikingSynapsesDeviceProperties structures 
+ * @param[in] allSynapsesProperties      Pointer to the AllSpikingSynapsesProperties structures 
  *                                   on device memory.
  * @param neuron_index               Index of the destination neuron in the cluster.
  * @param synapse_offset             Offset into neuron_index's synapses.
  * @param[in] maxSynapses            Maximum number of synapses per neuron.
  */
-__device__ void eraseSpikingSynapse( AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int neuron_index, const int synapse_offset, int maxSynapses )
+__device__ void eraseSpikingSynapse( AllSpikingSynapsesProperties* allSynapsesProperties, const int neuron_index, const int synapse_offset, int maxSynapses )
 {
     BGSIZE iSync = maxSynapses * neuron_index + synapse_offset;
-    allSynapsesDevice->synapse_counts[neuron_index]--;
-    allSynapsesDevice->in_use[iSync] = false;
+    allSynapsesProperties->synapse_counts[neuron_index]--;
+    allSynapsesProperties->in_use[iSync] = false;
 }
 
 /*
  * Returns the type of synapse at the given coordinates
  *
- * @param[in] allNeuronsDevice          Pointer to the Neuron structures in device memory.
+ * @param[in] allNeuronsProperties          Pointer to the Neuron structures in device memory.
  * @param src_neuron             Index of the source neuron.
  * @param dest_neuron            Index of the destination neuron.
  */
@@ -820,8 +820,8 @@ __device__ synapseType synType( neuronType* neuron_type_map_d, const int src_neu
  * @param[in] num_neurons        Total number of neurons.
  * @param[in] deltaT             The time step size.
  * @param[in] maxSynapses        Maximum number of synapses per neuron.
- * @param[in] allNeuronsDevice   Pointer to the Neuron structures in device memory.
- * @param[in] allSynapsesDevice  Pointer to the Synapse structures in device memory.
+ * @param[in] allNeuronsProperties   Pointer to the Neuron structures in device memory.
+ * @param[in] allSynapsesProperties  Pointer to the Synapse structures in device memory.
  * @param[in] neuron_type_map_d   Pointer to the neurons type map in device memory.
  * @param[in] totalClusterNeurons  Total number of neurons in the cluster.
  * @param[in] clusterNeuronsBegin  Begin neuron index of the cluster.
@@ -829,7 +829,7 @@ __device__ synapseType synType( neuronType* neuron_type_map_d, const int src_neu
  * @param[in] xloc_d             Pointer to the neuron's x location array.
  * @param[in] yloc_d             Pointer to the neuron's y location array.
  */
-__global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, int maxSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, neuronType* neuron_type_map_d, int totalClusterNeurons, int clusterNeuronsBegin, BGFLOAT* radii_d, BGFLOAT* xloc_d,  BGFLOAT* yloc_d )
+__global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, int maxSynapses, AllSpikingNeuronsProperties* allNeuronsProperties, AllSpikingSynapsesProperties* allSynapsesProperties, neuronType* neuron_type_map_d, int totalClusterNeurons, int clusterNeuronsBegin, BGFLOAT* radii_d, BGFLOAT* xloc_d,  BGFLOAT* yloc_d )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= totalClusterNeurons )
@@ -886,13 +886,13 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, in
         synapseType type = synType(neuron_type_map_d, src_neuron, dest_neuron);
 
         // for each existing synapse
-        BGSIZE existing_synapses = allSynapsesDevice->synapse_counts[iNeuron];
+        BGSIZE existing_synapses = allSynapsesProperties->synapse_counts[iNeuron];
         int existing_synapses_checked = 0;
         for (BGSIZE synapse_index = 0; (existing_synapses_checked < existing_synapses) && !connected; synapse_index++) {
             BGSIZE iSyn = maxSynapses * iNeuron + synapse_index;
-            if (allSynapsesDevice->in_use[iSyn] == true) {
+            if (allSynapsesProperties->in_use[iSyn] == true) {
                 // if there is a synapse between a and b
-                if (allSynapsesDevice->sourceNeuronLayoutIndex[iSyn] == src_neuron) {
+                if (allSynapsesProperties->sourceNeuronLayoutIndex[iSyn] == src_neuron) {
                     connected = true;
                     adjusted++;
 
@@ -903,11 +903,11 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, in
                     // W_d[] is indexed by (dest_neuron (local index) * totalNeurons + src_neuron)
                     if (area < 0) {
                         removed++;
-                        eraseSpikingSynapse(allSynapsesDevice, iNeuron, synapse_index, maxSynapses);
+                        eraseSpikingSynapse(allSynapsesProperties, iNeuron, synapse_index, maxSynapses);
                     } else {
                         // adjust
                         // g_synapseStrengthAdjustmentConstant is 1.0e-8;
-                        allSynapsesDevice->W[iSyn] = area * synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+                        allSynapsesProperties->W[iSyn] = area * synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
                     }
                 }
                 existing_synapses_checked++;
@@ -917,11 +917,11 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, in
         // if not connected and weight(a,b) > 0, add a new synapse from a to b
         if (!connected && (area > 0)) {
             // locate summation point
-            BGFLOAT* sum_point = &( allNeuronsDevice->summation_map[iNeuron] );
+            BGFLOAT* sum_point = &( allNeuronsProperties->summation_map[iNeuron] );
             added++;
 
             BGFLOAT weight = area * synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
-            addSpikingSynapse(allSynapsesDevice, type, iNeuron, src_neuron, dest_neuron, sum_point, deltaT, weight);
+            addSpikingSynapse(allSynapsesProperties, type, iNeuron, src_neuron, dest_neuron, sum_point, deltaT, weight);
         }
     }
 }
@@ -943,8 +943,8 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, in
  *  @param  neuron_type_map_d   Pointer to the neurons type map in device memory.
  *  @param  rDistDestNeuron_d   Pointer to the DistDestNeuron structure array.
  *  @param  deltaT              The time step size.
- *  @param  allNeuronsDevice    Pointer to the Neuron structures in device memory.
- *  @param  allSynapsesDevice   Pointer to the Synapse structures in device memory.
+ *  @param  allNeuronsProperties    Pointer to the Neuron structures in device memory.
+ *  @param  allSynapsesProperties   Pointer to the Synapse structures in device memory.
  *  @param  minExcWeight        Min values of excitatory neuron's synapse weight.
  *  @param  maxExcWeight        Max values of excitatory neuron's synapse weight.
  *  @param  minInhWeight        Min values of inhibitory neuron's synapse weight.
@@ -952,7 +952,7 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, in
  *  @param  devStates_d         Curand global state.
  *  @param  seed                Seed for curand.
  */
-__global__ void setupConnectionsDevice( int num_neurons, int totalClusterNeurons, int clusterNeuronsBegin, BGFLOAT* xloc_d, BGFLOAT* yloc_d, int nConnsPerNeuron, int threshConnsRadius, neuronType* neuron_type_map_d, ConnStatic::DistDestNeuron *rDistDestNeuron_d, BGFLOAT deltaT, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, BGFLOAT minExcWeight, BGFLOAT maxExcWeight, BGFLOAT minInhWeight, BGFLOAT maxInhWeight, curandState* devStates_d, unsigned long seed )
+__global__ void setupConnectionsDevice( int num_neurons, int totalClusterNeurons, int clusterNeuronsBegin, BGFLOAT* xloc_d, BGFLOAT* yloc_d, int nConnsPerNeuron, int threshConnsRadius, neuronType* neuron_type_map_d, ConnStatic::DistDestNeuron *rDistDestNeuron_d, BGFLOAT deltaT, AllSpikingNeuronsProperties* allNeuronsProperties, AllSpikingSynapsesProperties* allSynapsesProperties, BGFLOAT minExcWeight, BGFLOAT maxExcWeight, BGFLOAT minInhWeight, BGFLOAT maxInhWeight, curandState* devStates_d, unsigned long seed )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= totalClusterNeurons )
@@ -1017,8 +1017,8 @@ __global__ void setupConnectionsDevice( int num_neurons, int totalClusterNeurons
         }
         devStates_d[iNeuron] = localState;
 
-        BGFLOAT* sum_point = &( allNeuronsDevice->summation_map[iNeuron] );
-        addSpikingSynapse(allSynapsesDevice, type, iNeuron, src_neuron, dest_neuron, sum_point, deltaT, weight);
+        BGFLOAT* sum_point = &( allNeuronsProperties->summation_map[iNeuron] );
+        addSpikingSynapse(allSynapsesProperties, type, iNeuron, src_neuron, dest_neuron, sum_point, deltaT, weight);
 
     }
 }
@@ -1027,13 +1027,13 @@ __global__ void setupConnectionsDevice( int num_neurons, int totalClusterNeurons
  * Adds a synapse to the network.  Requires the locations of the source and
  * destination neurons.
  *
- * @param allSynapsesDevice      Pointer to the Synapse structures in device memory.
+ * @param allSynapsesProperties      Pointer to the Synapse structures in device memory.
  * @param pSummationMap          Pointer to the summation point.
  * @param width                  Width of neuron map (assumes square).
  * @param deltaT                 The simulation time step size.
  * @param weight                 Synapse weight.
  */
-__global__ void initSynapsesDevice( int n, AllDSSynapsesDeviceProperties* allSynapsesDevice, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight )
+__global__ void initSynapsesDevice( int n, AllDSSynapsesProperties* allSynapsesProperties, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= n )
@@ -1042,32 +1042,32 @@ __global__ void initSynapsesDevice( int n, AllDSSynapsesDeviceProperties* allSyn
     // create a synapse
     int neuron_index = idx;
     BGFLOAT* sum_point = &( pSummationMap[neuron_index] );
-    synapseType type = allSynapsesDevice->type[neuron_index];
-    createDSSynapse(allSynapsesDevice, neuron_index, 0, 0, neuron_index, sum_point, deltaT, type );
-    allSynapsesDevice->W[neuron_index] = weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+    synapseType type = allSynapsesProperties->type[neuron_index];
+    createDSSynapse(allSynapsesProperties, neuron_index, 0, 0, neuron_index, sum_point, deltaT, type );
+    allSynapsesProperties->W[neuron_index] = weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 }
 
 /*
  * Perform updating preSpikeQueue for one time step.
  *
- *  @param  allSynapsesDevice  Reference to the AllSpikingSynapsesDeviceProperties struct
+ *  @param  allSynapsesProperties  Reference to the AllSpikingSynapsesProperties struct
  *                             on device memory.
  *  @param  iStep              Simulation steps to advance.
  */
-__global__ void advanceSpikingSynapsesEventQueueDevice(AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int iStep)
+__global__ void advanceSpikingSynapsesEventQueueDevice(AllSpikingSynapsesProperties* allSynapsesProperties, int iStep)
 {
-    allSynapsesDevice->preSpikeQueue->advanceEventQueue(iStep);
+    allSynapsesProperties->preSpikeQueue->advanceEventQueue(iStep);
 }
 
 /*
  * Perform updating postSpikeQueue for one time step.
  *
- *  @param  allSynapsesDevice  Reference to the AllSpikingSynapsesDeviceProperties struct
+ *  @param  allSynapsesProperties  Reference to the AllSpikingSynapsesProperties struct
  *                             on device memory.
  *  @param  iStep              Simulation steps to advance.
  */
-__global__ void advanceSTDPSynapsesEventQueueDevice(AllSTDPSynapsesDeviceProperties* allSynapsesDevice, int iStep)
+__global__ void advanceSTDPSynapsesEventQueueDevice(AllSTDPSynapsesProperties* allSynapsesProperties, int iStep)
 {
-    allSynapsesDevice->postSpikeQueue->advanceEventQueue(iStep);
+    allSynapsesProperties->postSpikeQueue->advanceEventQueue(iStep);
 }
 

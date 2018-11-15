@@ -51,7 +51,7 @@
 
 #include "AllSTDPSynapses.h"
 
-struct AllDynamicSTDPSynapsesDeviceProperties;
+struct AllDynamicSTDPSynapsesProperties;
 
 class AllDynamicSTDPSynapses : public AllSTDPSynapses
 {
@@ -235,40 +235,40 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  and copy them from host to GPU memory.
          *  (Helper function of allocSynapseDeviceStruct)
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesProperties  Reference to the allSynapses struct on device memory.
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          *  @param  clusterID             The cluster ID of the cluster.
          */
-        void allocDeviceStruct( AllDynamicSTDPSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
+        void allocDeviceStruct( AllDynamicSTDPSynapsesProperties &allSynapsesPorperties, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
 
         /**
          *  Delete GPU memories.
          *  (Helper function of deleteSynapseDeviceStruct)
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesProperties  Reference to the allSynapses struct on device memory.
          */
-        void deleteDeviceStruct( AllDynamicSTDPSynapsesDeviceProperties& allSynapses );
+        void deleteDeviceStruct( AllDynamicSTDPSynapsesProperties& allSynapsesPorperties );
 
         /**
          *  Copy all synapses' data from host to device.
          *  (Helper function of copySynapseHostToDevice)
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesDeviceProperties  Reference to the allSynapses struct on device memory.
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void copyHostToDevice( void* allSynapsesDevice, AllDynamicSTDPSynapsesDeviceProperties& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void copyHostToDevice( void* allSynapsesDevicePorperties, AllDynamicSTDPSynapsesProperties& allSynapsesPorperties, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
          *  Copy all synapses' data from device to host.
          *  (Helper function of copySynapseDeviceToHost)
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesProperties  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        void copyDeviceToHost( AllDynamicSTDPSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
+        void copyDeviceToHost( AllDynamicSTDPSynapsesProperties& allSynapsesProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 #else // !defined(USE_GPU)
     protected:
         /**
@@ -313,7 +313,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
 };
 
 #if defined(USE_GPU)
-struct AllDynamicSTDPSynapsesDeviceProperties : public AllSTDPSynapsesDeviceProperties
+struct AllDynamicSTDPSynapsesProperties : public AllSTDPSynapsesProperties
 {
         /**
          *  The time of the last spike.

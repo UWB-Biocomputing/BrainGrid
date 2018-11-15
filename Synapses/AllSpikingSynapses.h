@@ -40,10 +40,10 @@
 #include "AllSynapses.h"
 #include "EventQueue.h"
 
-struct AllSpikingSynapsesDeviceProperties;
+struct AllSpikingSynapsesProperties;
 
-typedef void (*fpPreSynapsesSpikeHit_t)(const BGSIZE, AllSpikingSynapsesDeviceProperties*);
-typedef void (*fpPostSynapsesSpikeHit_t)(const BGSIZE, AllSpikingSynapsesDeviceProperties*);
+typedef void (*fpPreSynapsesSpikeHit_t)(const BGSIZE, AllSpikingSynapsesProperties*);
+typedef void (*fpPostSynapsesSpikeHit_t)(const BGSIZE, AllSpikingSynapsesProperties*);
 
 #include "AllSpikingNeurons.h"
 
@@ -192,111 +192,111 @@ class AllSpikingSynapses : public AllSynapses
          *  Allocate GPU memories to store all synapses' states,
          *  and copy them from host to GPU memory.
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesProperties  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
+        virtual void allocSynapseDeviceStruct( void** allSynapsesProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
         /**
          *  Allocate GPU memories to store all synapses' states,
          *  and copy them from host to GPU memory.
          *
-         *  @param  allSynapsesDevice     Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesProperties     Reference to the allSynapses struct on device memory.
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          *  @param  clusterID             The cluster ID of the cluster.
          */
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
+        virtual void allocSynapseDeviceStruct( void** allSynapsesProperties, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
 
         /**
          *  Delete GPU memories.
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesProperties  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
          */
-        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice );
+        virtual void deleteSynapseDeviceStruct( void* allSynapsesProperties );
 
         /**
          *  Copy all synapses' data from host to device.
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesProperties  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
+        virtual void copySynapseHostToDevice( void* allSynapsesProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
         /**
          *  Copy all synapses' data from host to device.
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesProperties  Reference to the allSynapses struct on device memory.
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        virtual void copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron );
+        virtual void copySynapseHostToDevice( void* allSynapsesProperties, int num_neurons, int maxSynapsesPerNeuron );
         /**
          *  Copy all synapses' data from device to host.
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesProperties  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
+        virtual void copySynapseDeviceToHost( void* allSynapsesProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
         /**
          *  Get synapse_counts in AllSynapses struct on device memory.
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesProperties  Reference to the allSynapses struct on device memory.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const ClusterInfo *clr_info);
+        virtual void copyDeviceSynapseCountsToHost(void* allSynapsesProperties, const ClusterInfo *clr_info);
 
         /** 
          *  Get sourceNeuronLayoutIndex and in_use in AllSynapses struct on device memory.
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesProperties  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        virtual void copyDeviceSourceNeuronIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        virtual void copyDeviceSourceNeuronIdxToHost(void* allSynapsesProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
          *  Advance all the Synapses in the simulation.
          *  Update the state of all synapses for a time step.
          *
-         *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
-         *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
+         *  @param  allSynapsesProperties      Reference to the allSynapses struct on device memory.
+         *  @param  allNeuronsProperties       Reference to the allNeurons struct on device memory.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  sim_info               SimulationInfo class to read information from.
          *  @param  clr_info               ClusterInfo to refer from.
          *  @param  iStepOffset            Offset from the current simulation step.
          */
-        virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset);
+        virtual void advanceSynapses(void* allSynapsesProperties, void* allNeuronsProperties, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset);
 
         /**
          * Process inter clusters outgoing spikes.
          *
-         *  @param  allSynapsesDevice     Reference to the AllSpikingSynapsesDeviceProperties struct
+         *  @param  allSynapsesProperties     Reference to the AllSpikingSynapsesProperties struct
          *                                on device memory.
          */
-        virtual void processInterClustesOutgoingSpikes(void* allSynapsesDevice);
+        virtual void processInterClustesOutgoingSpikes(void* allSynapsesProperties);
 
         /**
          * Process inter clusters incoming spikes.
          *
-         *  @param  allSynapsesDevice     Reference to the AllSpikingSynapsesDeviceProperties struct
+         *  @param  allSynapsesProperties     Reference to the AllSpikingSynapsesProperties struct
          *                                on device memory.
          */
-        virtual void processInterClustesIncomingSpikes(void* allSynapsesDevice);
+        virtual void processInterClustesIncomingSpikes(void* allSynapsesProperties);
 
         /**
          * Advances synapses spike event queue state of the cluster one simulation step.
          *
-         *  @param  allSynapsesDevice      Reference to the AllSynapsesDeviceProperties struct
+         *  @param  allSynapsesProperties      Reference to the AllSynapsesProperties struct
          *                                 on device memory.
          *  @param  iStep                  Simulation steps to advance.
          */
-        virtual void advanceSpikeQueue(void* allSynapsesDevice, int iStep);
+        virtual void advanceSpikeQueue(void* allSynapsesProperties, int iStep);
 
         /**
          *  Set some parameters used for advanceSynapsesDevice.
@@ -322,40 +322,40 @@ class AllSpikingSynapses : public AllSynapses
          *  and copy them from host to GPU memory.
          *  (Helper function of allocSynapseDeviceStruct)
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesProperties  Reference to the allSynapses struct on device memory.
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          *  @param  clusterID             The cluster ID of the cluster.
          */
-        void allocDeviceStruct( AllSpikingSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
+        void allocDeviceStruct( AllSpikingSynapsesProperties &allSynapsesProperties, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
 
         /**
          *  Delete GPU memories.
          *  (Helper function of deleteSynapseDeviceStruct)
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesProperties  Reference to the allSynapses struct on device memory.
          */
-        void deleteDeviceStruct( AllSpikingSynapsesDeviceProperties& allSynapses );
+        void deleteDeviceStruct( AllSpikingSynapsesProperties& allSynapsesPorperties );
 
         /**
          *  Copy all synapses' data from host to device.
          *  (Helper function of copySynapseHostToDevice)
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesDeviceProperties  Reference to the allSynapses struct on device memory.
          *  @param  num_neurons           Number of neurons.
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
-        void copyHostToDevice( void* allSynapsesDevice, AllSpikingSynapsesDeviceProperties& allSynapses, int num_neurons, int maxSynapsesPerNeuron );
+        void copyHostToDevice( void* allSynapsesDeviceProperties, AllSpikingSynapsesProperties& allSynapsesProperties, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
          *  Copy all synapses' data from device to host.
          *  (Helper function of copySynapseDeviceToHost)
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
+         *  @param  allSynapsesProperties  Reference to the allSynapses struct on device memory.
          *  @param  sim_info           SimulationInfo to refer from.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        void copyDeviceToHost( AllSpikingSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
+        void copyDeviceToHost( AllSpikingSynapsesProperties& allSynapsesProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 #else  // !defined(USE_GPU)
 public:
         /**
@@ -451,7 +451,7 @@ public:
 };
 
 #if defined(USE_GPU)
-struct AllSpikingSynapsesDeviceProperties : public AllSynapsesDeviceProperties
+struct AllSpikingSynapsesProperties : public AllSynapsesProperties
 {
         /**
          *  The decay for the psr.

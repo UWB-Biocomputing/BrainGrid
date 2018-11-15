@@ -43,7 +43,7 @@ using namespace std;
 #include "AllNeurons.h"
 #include "AllSpikingSynapses.h"
 
-struct AllSpikingNeuronsDeviceProperties;
+struct AllSpikingNeuronsProperties;
 
 class AllSpikingNeurons : public AllNeurons
 {
@@ -114,20 +114,20 @@ class AllSpikingNeurons : public AllNeurons
          *  Copy spike history data stored in device memory to host.
          *  (Helper function of copyNeuronDeviceSpikeHistoryToHost)
          *
-         *  @param  allNeurons        Reference to the AllSpikingNeuronsDeviceProperties struct.
+         *  @param  allNeuronsProperties        Reference to the AllSpikingNeuronsProperties struct.
          *  @param  sim_info          SimulationInfo to refer from.
          *  @param  clr_info          ClusterInfo to refer from.
          */
-        void copyDeviceSpikeHistoryToHost( AllSpikingNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
+        void copyDeviceSpikeHistoryToHost( AllSpikingNeuronsProperties& allNeuronsProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
         /**
          *  Copy spike counts data stored in device memory to host.
          *  (Helper function of copyNeuronDeviceSpikeCountsToHost)
          *
-         *  @param  allNeurons         Reference to the AllSpikingNeuronsDeviceProperties struct.
+         *  @param  allNeuronsProperties         Reference to the AllSpikingNeuronsProperties struct.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        void copyDeviceSpikeCountsToHost( AllSpikingNeuronsDeviceProperties& allNeurons, const ClusterInfo *clr_info );
+        void copyDeviceSpikeCountsToHost( AllSpikingNeuronsProperties& allNeuronsProperties, const ClusterInfo *clr_info );
 
 #else // !defined(USE_GPU)
 
@@ -223,7 +223,7 @@ class AllSpikingNeurons : public AllNeurons
 };
 
 #if defined(USE_GPU)
-struct AllSpikingNeuronsDeviceProperties : public AllNeuronsDeviceProperties
+struct AllSpikingNeuronsProperties : public AllNeuronsProperties
 {
         /** 
          *  The booleans which track whether the neuron has fired.

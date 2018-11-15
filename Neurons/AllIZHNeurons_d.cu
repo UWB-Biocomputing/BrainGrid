@@ -13,174 +13,174 @@
  *  Allocate GPU memories to store all neurons' states,
  *  and copy them from host to GPU memory.
  *
- *  @param  allNeuronsDevice   Reference to the AllIZHNeuronsDeviceProperties struct 
+ *  @param  allNeuronsDeviceProperties   Reference to the AllIZHNeuronsProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllIZHNeurons::allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info, ClusterInfo *clr_info ) {
-	AllIZHNeuronsDeviceProperties allNeurons;
+void AllIZHNeurons::allocNeuronDeviceStruct( void** allNeuronsDeviceProperties, SimulationInfo *sim_info, ClusterInfo *clr_info ) {
+	AllIZHNeuronsProperties allNeuronsProperties;
 
-	allocDeviceStruct( allNeurons, sim_info, clr_info );
+	allocDeviceStruct( allNeuronsProperties, sim_info, clr_info );
 
-        checkCudaErrors( cudaMalloc( allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ) ) );
-        checkCudaErrors( cudaMemcpy ( *allNeuronsDevice, &allNeurons, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyHostToDevice ) );
+        checkCudaErrors( cudaMalloc( allNeuronsDeviceProperties, sizeof( AllIZHNeuronsProperties ) ) );
+        checkCudaErrors( cudaMemcpy ( *allNeuronsDeviceProperties, &allNeuronsProperties, sizeof( AllIZHNeuronsProperties ), cudaMemcpyHostToDevice ) );
 }
 
 /*
  *  Allocate GPU memories to store all neurons' states.
  *  (Helper function of allocNeuronDeviceStruct)
  *
- *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
+ *  @param  allNeuronsProperties         Reference to the AllIZHNeuronsProperties struct.
  *  @param  sim_info           SimulationInfo to refer from.
  *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllIZHNeurons::allocDeviceStruct( AllIZHNeuronsDeviceProperties &allNeurons, SimulationInfo *sim_info, ClusterInfo *clr_info ) {
+void AllIZHNeurons::allocDeviceStruct( AllIZHNeuronsProperties &allNeuronsProperties, SimulationInfo *sim_info, ClusterInfo *clr_info ) {
 	int count = clr_info->totalClusterNeurons;
 
-	AllIFNeurons::allocDeviceStruct( allNeurons, sim_info, clr_info );
+	AllIFNeurons::allocDeviceStruct( allNeuronsProperties, sim_info, clr_info );
  
-	checkCudaErrors( cudaMalloc( ( void ** ) &allNeurons.Aconst, count * sizeof( BGFLOAT ) ) );
-	checkCudaErrors( cudaMalloc( ( void ** ) &allNeurons.Bconst, count * sizeof( BGFLOAT ) ) );
-	checkCudaErrors( cudaMalloc( ( void ** ) &allNeurons.Cconst, count * sizeof( BGFLOAT ) ) );
-	checkCudaErrors( cudaMalloc( ( void ** ) &allNeurons.Dconst, count * sizeof( BGFLOAT ) ) );
-	checkCudaErrors( cudaMalloc( ( void ** ) &allNeurons.u, count * sizeof( BGFLOAT ) ) );
-	checkCudaErrors( cudaMalloc( ( void ** ) &allNeurons.C3, count * sizeof( BGFLOAT ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProperties.Aconst, count * sizeof( BGFLOAT ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProperties.Bconst, count * sizeof( BGFLOAT ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProperties.Cconst, count * sizeof( BGFLOAT ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProperties.Dconst, count * sizeof( BGFLOAT ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProperties.u, count * sizeof( BGFLOAT ) ) );
+	checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProperties.C3, count * sizeof( BGFLOAT ) ) );
 }
 
 /*
  *  Delete GPU memories.
  *
- *  @param  allNeuronsDevice   Reference to the AllIZHNeuronsDeviceProperties struct 
+ *  @param  allNeuronsDeviceProperties   Reference to the AllIZHNeuronsProperties struct 
  *                             on device memory.
  *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllIZHNeurons::deleteNeuronDeviceStruct( void* allNeuronsDevice, const ClusterInfo *clr_info ) {
-	AllIZHNeuronsDeviceProperties allNeurons;
+void AllIZHNeurons::deleteNeuronDeviceStruct( void* allNeuronsDeviceProperties, const ClusterInfo *clr_info ) {
+	AllIZHNeuronsProperties allNeuronsProperties;
 
-	checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( &allNeuronsProperties, allNeuronsDeviceProperties, sizeof( AllIZHNeuronsProperties ), cudaMemcpyDeviceToHost ) );
 
-	deleteDeviceStruct( allNeurons, clr_info );
+	deleteDeviceStruct( allNeuronsProperties, clr_info );
 
-	checkCudaErrors( cudaFree( allNeuronsDevice ) );
+	checkCudaErrors( cudaFree( allNeuronsDeviceProperties ) );
 }
 
 /*
  *  Delete GPU memories.
  *  (Helper function of deleteNeuronDeviceStruct)
  *
- *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
+ *  @param  allNeuronsProperties         Reference to the AllIZHNeuronsProperties struct.
  *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllIZHNeurons::deleteDeviceStruct( AllIZHNeuronsDeviceProperties& allNeurons, const ClusterInfo *clr_info ) {
-	checkCudaErrors( cudaFree( allNeurons.Aconst ) );
-	checkCudaErrors( cudaFree( allNeurons.Bconst ) );
-	checkCudaErrors( cudaFree( allNeurons.Cconst ) );
-	checkCudaErrors( cudaFree( allNeurons.Dconst ) );
-	checkCudaErrors( cudaFree( allNeurons.u ) );
-	checkCudaErrors( cudaFree( allNeurons.C3 ) );
+void AllIZHNeurons::deleteDeviceStruct( AllIZHNeuronsProperties& allNeuronsProperties, const ClusterInfo *clr_info ) {
+	checkCudaErrors( cudaFree( allNeuronsProperties.Aconst ) );
+	checkCudaErrors( cudaFree( allNeuronsProperties.Bconst ) );
+	checkCudaErrors( cudaFree( allNeuronsProperties.Cconst ) );
+	checkCudaErrors( cudaFree( allNeuronsProperties.Dconst ) );
+	checkCudaErrors( cudaFree( allNeuronsProperties.u ) );
+	checkCudaErrors( cudaFree( allNeuronsProperties.C3 ) );
 
-	AllIFNeurons::deleteDeviceStruct( allNeurons, clr_info );
+	AllIFNeurons::deleteDeviceStruct( allNeuronsProperties, clr_info );
 }
 
 /*
  *  Copy all neurons' data from host to device.
  *
- *  @param  allNeuronsDevice   Reference to the AllIZHNeuronsDeviceProperties struct 
+ *  @param  allNeuronsDeviceProperties   Reference to the AllIZHNeuronsProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllIZHNeurons::copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) { 
-	AllIZHNeuronsDeviceProperties allNeurons;
+void AllIZHNeurons::copyNeuronHostToDevice( void* allNeuronsDeviceProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) { 
+	AllIZHNeuronsProperties allNeuronsProperties;
 
-	checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
-	copyHostToDevice( allNeurons, sim_info, clr_info );
+	checkCudaErrors( cudaMemcpy ( &allNeuronsProperties, allNeuronsDeviceProperties, sizeof( AllIZHNeuronsProperties ), cudaMemcpyDeviceToHost ) );
+	copyHostToDevice( allNeuronsProperties, sim_info, clr_info );
 }
 
 /*
  *  Copy all neurons' data from host to device.
  *  (Helper function of copyNeuronHostToDevice)
  *
- *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
+ *  @param  allNeuronsProperties         Reference to the AllIZHNeuronsProperties struct.
  *  @param  sim_info           SimulationInfo to refer from.
  *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllIZHNeurons::copyHostToDevice( AllIZHNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) { 
+void AllIZHNeurons::copyHostToDevice( AllIZHNeuronsProperties& allNeuronsProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) { 
 	int count = clr_info->totalClusterNeurons;
 
-	AllIFNeurons::copyHostToDevice( allNeurons, sim_info, clr_info );
+	AllIFNeurons::copyHostToDevice( allNeuronsProperties, sim_info, clr_info );
 
-	checkCudaErrors( cudaMemcpy ( allNeurons.Aconst, Aconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
-	checkCudaErrors( cudaMemcpy ( allNeurons.Bconst, Bconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
-	checkCudaErrors( cudaMemcpy ( allNeurons.Cconst, Cconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
-	checkCudaErrors( cudaMemcpy ( allNeurons.Dconst, Dconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
-	checkCudaErrors( cudaMemcpy ( allNeurons.u, u, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
-	checkCudaErrors( cudaMemcpy ( allNeurons.C3, C3, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( allNeuronsProperties.Aconst, Aconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( allNeuronsProperties.Bconst, Bconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( allNeuronsProperties.Cconst, Cconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( allNeuronsProperties.Dconst, Dconst, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( allNeuronsProperties.u, u, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMemcpy ( allNeuronsProperties.C3, C3, count * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
 }
 
 /*
  *  Copy all neurons' data from device to host.
  *
- *  @param  allNeuronsDevice   Reference to the AllIZHNeuronsDeviceProperties struct 
+ *  @param  allNeuronsDeviceProperties   Reference to the AllIZHNeuronsProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllIZHNeurons::copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
-	AllIZHNeuronsDeviceProperties allNeurons;
+void AllIZHNeurons::copyNeuronDeviceToHost( void* allNeuronsDeviceProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
+	AllIZHNeuronsProperties allNeuronsProperties;
 
-	checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
-	copyDeviceToHost( allNeurons, sim_info, clr_info );
+	checkCudaErrors( cudaMemcpy ( &allNeuronsProperties, allNeuronsDeviceProperties, sizeof( AllIZHNeuronsProperties ), cudaMemcpyDeviceToHost ) );
+	copyDeviceToHost( allNeuronsProperties, sim_info, clr_info );
 }
 
 /*
  *  Copy all neurons' data from device to host.
  *  (Helper function of copyNeuronDeviceToHost)
  *
- *  @param  allNeurons         Reference to the AllIZHNeuronsDeviceProperties struct.
+ *  @param  allNeuronsProperties         Reference to the AllIZHNeuronsProperties struct.
  *  @param  sim_info           SimulationInfo to refer from.
  *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllIZHNeurons::copyDeviceToHost( AllIZHNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
+void AllIZHNeurons::copyDeviceToHost( AllIZHNeuronsProperties& allNeuronsProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
 	int count = clr_info->totalClusterNeurons;
 
-	AllIFNeurons::copyDeviceToHost( allNeurons, sim_info, clr_info );
+	AllIFNeurons::copyDeviceToHost( allNeuronsProperties, sim_info, clr_info );
 
-	checkCudaErrors( cudaMemcpy ( Aconst, allNeurons.Aconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-	checkCudaErrors( cudaMemcpy ( Bconst, allNeurons.Bconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-	checkCudaErrors( cudaMemcpy ( Cconst, allNeurons.Cconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-	checkCudaErrors( cudaMemcpy ( Dconst, allNeurons.Dconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-	checkCudaErrors( cudaMemcpy ( u, allNeurons.u, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-	checkCudaErrors( cudaMemcpy ( C3, allNeurons.C3, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( Aconst, allNeuronsProperties.Aconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( Bconst, allNeuronsProperties.Bconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( Cconst, allNeuronsProperties.Cconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( Dconst, allNeuronsProperties.Dconst, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( u, allNeuronsProperties.u, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( C3, allNeuronsProperties.C3, count * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 }
 
 /*
  *  Copy spike history data stored in device memory to host.
  *
- *  @param  allNeuronsDevice   Reference to the AllIZHNeuronsDeviceProperties struct 
+ *  @param  allNeuronsDeviceProperties   Reference to the AllIZHNeuronsProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllIZHNeurons::copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
-        AllIZHNeuronsDeviceProperties allNeurons;
-        checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
-        AllSpikingNeurons::copyDeviceSpikeHistoryToHost( allNeurons, sim_info, clr_info );
+void AllIZHNeurons::copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDeviceProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
+        AllIZHNeuronsProperties allNeuronsProperties;
+        checkCudaErrors( cudaMemcpy ( &allNeuronsProperties, allNeuronsDeviceProperties, sizeof( AllIZHNeuronsProperties ), cudaMemcpyDeviceToHost ) );
+        AllSpikingNeurons::copyDeviceSpikeHistoryToHost( allNeuronsProperties, sim_info, clr_info );
 }
 
 /*
  *  Copy spike counts data stored in device memory to host.
  *
- *  @param  allNeuronsDevice   Reference to the AllIZHNeuronsDeviceProperties struct 
+ *  @param  allNeuronsDeviceProperties   Reference to the AllIZHNeuronsProperties struct 
  *                             on device memory.
  *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllIZHNeurons::copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, const ClusterInfo *clr_info )
+void AllIZHNeurons::copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDeviceProperties, const ClusterInfo *clr_info )
 {
-        AllIZHNeuronsDeviceProperties allNeurons;
-        checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllIZHNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
-        AllSpikingNeurons::copyDeviceSpikeCountsToHost( allNeurons, clr_info );
+        AllIZHNeuronsProperties allNeuronsProperties;
+        checkCudaErrors( cudaMemcpy ( &allNeuronsProperties, allNeuronsDeviceProperties, sizeof( AllIZHNeuronsProperties ), cudaMemcpyDeviceToHost ) );
+        AllSpikingNeurons::copyDeviceSpikeCountsToHost( allNeuronsProperties, clr_info );
 }
 
 /**
@@ -188,15 +188,15 @@ void AllIZHNeurons::copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, c
  *  Notify outgoing synapses if neuron has fired.
  *
  *  @param  synapses               Reference to the allSynapses struct on host memory.
- *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
- *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
+ *  @param  allNeuronsProperties       Reference to the allNeurons struct on device memory.
+ *  @param  allSynapsesProperties      Reference to the allSynapses struct on device memory.
  *  @param  sim_info               SimulationInfo to refer from.
  *  @param  randNoise              Reference to the random noise array.
  *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
  *  @param  clr_info               ClusterInfo class to read information from.
  *  @param  iStepOffset            Offset from the current simulation step.
  */
-void AllIZHNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset)
+void AllIZHNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsProperties, void* allSynapsesProperties, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset)
 {
     DEBUG (
     int deviceId;
@@ -212,6 +212,6 @@ void AllIZHNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevi
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance neurons ------------->
-    advanceIZHNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIZHNeuronsDeviceProperties *)allNeuronsDevice, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset );
+    advanceIZHNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIZHNeuronsProperties *)allNeuronsProperties, (AllSpikingSynapsesProperties*)allSynapsesProperties, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset );
 }
 

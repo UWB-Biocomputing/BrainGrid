@@ -12,32 +12,32 @@
  *  Allocate GPU memories to store all synapses' states,
  *  and copy them from host to GPU memory.
  *
- *  @param  allSynapsesDevice  Reference to the AllSTDPSynapsesDeviceProperties struct 
+ *  @param  allSynapsesProperties  Reference to the AllSTDPSynapsesProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
-	allocSynapseDeviceStruct( allSynapsesDevice, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, clr_info->clusterID );
+void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
+	allocSynapseDeviceStruct( allSynapsesProperties, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, clr_info->clusterID );
 }
 
 /*
  *  Allocate GPU memories to store all synapses' states,
  *  and copy them from host to GPU memory.
  *
- *  @param  allSynapsesDevice     Reference to the AllSTDPSynapsesDeviceProperties struct 
+ *  @param  allSynapsesDeviceProperties     Reference to the AllSTDPSynapsesProperties struct 
  *                                on device memory.
  *  @param  num_neurons           Number of neurons.
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
  *  @param  clusterID             The cluster ID of the cluster.
  */
-void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID ) {
-	AllSTDPSynapsesDeviceProperties allSynapses;
+void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDeviceProperties, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID ) {
+	AllSTDPSynapsesProperties allSynapsesProperties;
 
-	allocDeviceStruct( allSynapses, num_neurons, maxSynapsesPerNeuron, clusterID );
+	allocDeviceStruct( allSynapsesProperties, num_neurons, maxSynapsesPerNeuron, clusterID );
 
-	checkCudaErrors( cudaMalloc( allSynapsesDevice, sizeof( AllSTDPSynapsesDeviceProperties ) ) );
-	checkCudaErrors( cudaMemcpy ( *allSynapsesDevice, &allSynapses, sizeof( AllSTDPSynapsesDeviceProperties ), cudaMemcpyHostToDevice ) );
+	checkCudaErrors( cudaMalloc( allSynapsesDeviceProperties, sizeof( AllSTDPSynapsesProperties ) ) );
+	checkCudaErrors( cudaMemcpy ( *allSynapsesDeviceProperties, &allSynapsesProperties, sizeof( AllSTDPSynapsesProperties ), cudaMemcpyHostToDevice ) );
 }
 
 /*
@@ -45,221 +45,221 @@ void AllSTDPSynapses::allocSynapseDeviceStruct( void** allSynapsesDevice, int nu
  *  and copy them from host to GPU memory.
  *  (Helper function of allocSynapseDeviceStruct)
  *
- *  @param  allSynapsesDevice     Reference to the AllSTDPSynapsesDeviceProperties struct 
+ *  @param  allSynapsesProperties     Reference to the AllSTDPSynapsesProperties struct 
  *                                on device memory.
  *  @param  num_neurons           Number of neurons.
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
  *  @param  clusterID             The cluster ID of the cluster.
  */
-void AllSTDPSynapses::allocDeviceStruct( AllSTDPSynapsesDeviceProperties &allSynapses, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID ) {
-        AllSpikingSynapses::allocDeviceStruct( allSynapses, num_neurons, maxSynapsesPerNeuron, clusterID );
+void AllSTDPSynapses::allocDeviceStruct( AllSTDPSynapsesProperties &allSynapsesProperties, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID ) {
+        AllSpikingSynapses::allocDeviceStruct( allSynapsesProperties, num_neurons, maxSynapsesPerNeuron, clusterID );
 
         BGSIZE max_total_synapses = maxSynapsesPerNeuron * num_neurons;
 
-        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.total_delayPost, max_total_synapses * sizeof( int ) ) );
-        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.tauspost, max_total_synapses * sizeof( BGFLOAT ) ) );
-        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.tauspre, max_total_synapses * sizeof( BGFLOAT ) ) );
-        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.taupos, max_total_synapses * sizeof( BGFLOAT ) ) );
-        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.tauneg, max_total_synapses * sizeof( BGFLOAT ) ) );
-        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.STDPgap, max_total_synapses * sizeof( BGFLOAT ) ) );
-        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.Wex, max_total_synapses * sizeof( BGFLOAT ) ) );
-        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.Aneg, max_total_synapses * sizeof( BGFLOAT ) ) );
-        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.Apos, max_total_synapses * sizeof( BGFLOAT ) ) );
-        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.mupos, max_total_synapses * sizeof( BGFLOAT ) ) );
-        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.muneg, max_total_synapses * sizeof( BGFLOAT ) ) );
-        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapses.useFroemkeDanSTDP, max_total_synapses * sizeof( bool ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProperties.total_delayPost, max_total_synapses * sizeof( int ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProperties.tauspost, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProperties.tauspre, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProperties.taupos, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProperties.tauneg, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProperties.STDPgap, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProperties.Wex, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProperties.Aneg, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProperties.Apos, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProperties.mupos, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProperties.muneg, max_total_synapses * sizeof( BGFLOAT ) ) );
+        checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProperties.useFroemkeDanSTDP, max_total_synapses * sizeof( bool ) ) );
 
         // create a EventQueue objet in device memory and set the pointer in device
-        postSpikeQueue->createEventQueueInDevice(&allSynapses.postSpikeQueue);
+        postSpikeQueue->createEventQueueInDevice(&allSynapsesProperties.postSpikeQueue);
 }
 
 /*
  *  Delete GPU memories.
  *
- *  @param  allSynapsesDevice  Reference to the AllSTDPSynapsesDeviceProperties struct 
+ *  @param  allSynapsesDeviceProperties  Reference to the AllSTDPSynapsesProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  */
-void AllSTDPSynapses::deleteSynapseDeviceStruct( void* allSynapsesDevice ) {
-	AllSTDPSynapsesDeviceProperties allSynapses;
+void AllSTDPSynapses::deleteSynapseDeviceStruct( void* allSynapsesDeviceProperties ) {
+	AllSTDPSynapsesProperties allSynapsesProperties;
 
-	checkCudaErrors( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSTDPSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
+	checkCudaErrors( cudaMemcpy ( &allSynapsesProperties, allSynapsesDeviceProperties, sizeof( AllSTDPSynapsesProperties ), cudaMemcpyDeviceToHost ) );
 
-	deleteDeviceStruct( allSynapses );
+	deleteDeviceStruct( allSynapsesProperties );
 
-	checkCudaErrors( cudaFree( allSynapsesDevice ) );
+	checkCudaErrors( cudaFree( allSynapsesDeviceProperties ) );
 }
 
 /*
  *  Delete GPU memories.
  *  (Helper function of deleteSynapseDeviceStruct)
  *
- *  @param  allSynapsesDevice  Reference to the AllSTDPSynapsesDeviceProperties struct 
+ *  @param  allSynapsesProperties  Reference to the AllSTDPSynapsesProperties struct 
  *                             on device memory.
  */
-void AllSTDPSynapses::deleteDeviceStruct( AllSTDPSynapsesDeviceProperties& allSynapses ) {
-        checkCudaErrors( cudaFree( allSynapses.total_delayPost ) );
-        checkCudaErrors( cudaFree( allSynapses.tauspost ) );
-        checkCudaErrors( cudaFree( allSynapses.tauspre ) );
-        checkCudaErrors( cudaFree( allSynapses.taupos ) );
-        checkCudaErrors( cudaFree( allSynapses.tauneg ) );
-        checkCudaErrors( cudaFree( allSynapses.STDPgap ) );
-        checkCudaErrors( cudaFree( allSynapses.Wex ) );
-        checkCudaErrors( cudaFree( allSynapses.Aneg ) );
-        checkCudaErrors( cudaFree( allSynapses.Apos ) );
-        checkCudaErrors( cudaFree( allSynapses.mupos ) );
-        checkCudaErrors( cudaFree( allSynapses.muneg ) );
-        checkCudaErrors( cudaFree( allSynapses.useFroemkeDanSTDP ) );
+void AllSTDPSynapses::deleteDeviceStruct( AllSTDPSynapsesProperties& allSynapsesProperties ) {
+        checkCudaErrors( cudaFree( allSynapsesProperties.total_delayPost ) );
+        checkCudaErrors( cudaFree( allSynapsesProperties.tauspost ) );
+        checkCudaErrors( cudaFree( allSynapsesProperties.tauspre ) );
+        checkCudaErrors( cudaFree( allSynapsesProperties.taupos ) );
+        checkCudaErrors( cudaFree( allSynapsesProperties.tauneg ) );
+        checkCudaErrors( cudaFree( allSynapsesProperties.STDPgap ) );
+        checkCudaErrors( cudaFree( allSynapsesProperties.Wex ) );
+        checkCudaErrors( cudaFree( allSynapsesProperties.Aneg ) );
+        checkCudaErrors( cudaFree( allSynapsesProperties.Apos ) );
+        checkCudaErrors( cudaFree( allSynapsesProperties.mupos ) );
+        checkCudaErrors( cudaFree( allSynapsesProperties.muneg ) );
+        checkCudaErrors( cudaFree( allSynapsesProperties.useFroemkeDanSTDP ) );
 
         // delete EventQueue object in device memory.
-        EventQueue::deleteEventQueueInDevice(allSynapses.postSpikeQueue);
+        EventQueue::deleteEventQueueInDevice(allSynapsesProperties.postSpikeQueue);
 
-        AllSpikingSynapses::deleteDeviceStruct( allSynapses );
+        AllSpikingSynapses::deleteDeviceStruct( allSynapsesProperties );
 }
 
 /*
  *  Copy all synapses' data from host to device.
  *
- *  @param  allSynapsesDevice     Reference to the AllSTDPSynapsesDeviceProperties struct 
+ *  @param  allSynapsesProperties     Reference to the AllSTDPSynapsesProperties struct 
  *                                on device memory.
  *  @param  sim_info              SimulationInfo to refer from.
  *  @param  clr_info              ClusterInfo to refer from.
  */
-void AllSTDPSynapses::copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) { // copy everything necessary
-	copySynapseHostToDevice( allSynapsesDevice, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );	
+void AllSTDPSynapses::copySynapseHostToDevice( void* allSynapsesProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) { // copy everything necessary
+	copySynapseHostToDevice( allSynapsesProperties, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );	
 }
 
 /*
  *  Copy all synapses' data from host to device.
  *
- *  @param  allSynapsesDevice     Reference to the AllSTDPSynapsesDeviceProperties struct 
+ *  @param  allSynapsesDeviceProperties     Reference to the AllSTDPSynapsesProperties struct 
  *                                on device memory.
  *  @param  num_neurons           Number of neurons.
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
  */
-void AllSTDPSynapses::copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) { // copy everything necessary
-	AllSTDPSynapsesDeviceProperties allSynapses;
+void AllSTDPSynapses::copySynapseHostToDevice( void* allSynapsesDeviceProperties, int num_neurons, int maxSynapsesPerNeuron ) { // copy everything necessary
+	AllSTDPSynapsesProperties allSynapsesProperties;
 
-        checkCudaErrors( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSTDPSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( &allSynapsesProperties, allSynapsesDeviceProperties, sizeof( AllSTDPSynapsesProperties ), cudaMemcpyDeviceToHost ) );
 
-	copyHostToDevice( allSynapsesDevice, allSynapses, num_neurons, maxSynapsesPerNeuron );	
+	copyHostToDevice( allSynapsesDeviceProperties, allSynapsesProperties, num_neurons, maxSynapsesPerNeuron );	
 }
 
 /*
  *  Copy all synapses' data from host to device.
  *  (Helper function of copySynapseHostToDevice)
  *
- *  @param  allSynapsesDevice     Reference to the AllSTDPSynapsesDeviceProperties struct 
+ *  @param  allSynapsesDeviceProperties     Reference to the AllSTDPSynapsesProperties struct 
  *                                on device memory.
  *  @param  num_neurons           Number of neurons.
  *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
  */
-void AllSTDPSynapses::copyHostToDevice( void* allSynapsesDevice, AllSTDPSynapsesDeviceProperties& allSynapses, int num_neurons, int maxSynapsesPerNeuron ) { // copy everything necessary 
-        AllSpikingSynapses::copyHostToDevice( allSynapsesDevice, allSynapses, num_neurons, maxSynapsesPerNeuron );
+void AllSTDPSynapses::copyHostToDevice( void* allSynapsesDeviceProperties, AllSTDPSynapsesProperties& allSynapsesProperties, int num_neurons, int maxSynapsesPerNeuron ) { // copy everything necessary 
+        AllSpikingSynapses::copyHostToDevice( allSynapsesDeviceProperties, allSynapsesProperties, num_neurons, maxSynapsesPerNeuron );
 
         BGSIZE max_total_synapses = maxSynapsesPerNeuron * num_neurons;
         
-        checkCudaErrors( cudaMemcpy ( allSynapses.total_delayPost, total_delayPost,
+        checkCudaErrors( cudaMemcpy ( allSynapsesProperties.total_delayPost, total_delayPost,
                 max_total_synapses * sizeof( int ), cudaMemcpyHostToDevice ) ); 
-        checkCudaErrors( cudaMemcpy ( allSynapses.tauspost, tauspost,
+        checkCudaErrors( cudaMemcpy ( allSynapsesProperties.tauspost, tauspost,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        checkCudaErrors( cudaMemcpy ( allSynapses.tauspre, tauspre,
+        checkCudaErrors( cudaMemcpy ( allSynapsesProperties.tauspre, tauspre,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        checkCudaErrors( cudaMemcpy ( allSynapses.taupos, taupos,
+        checkCudaErrors( cudaMemcpy ( allSynapsesProperties.taupos, taupos,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        checkCudaErrors( cudaMemcpy ( allSynapses.tauneg, tauneg,
+        checkCudaErrors( cudaMemcpy ( allSynapsesProperties.tauneg, tauneg,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        checkCudaErrors( cudaMemcpy ( allSynapses.STDPgap, STDPgap,
+        checkCudaErrors( cudaMemcpy ( allSynapsesProperties.STDPgap, STDPgap,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        checkCudaErrors( cudaMemcpy ( allSynapses.Wex, Wex,
+        checkCudaErrors( cudaMemcpy ( allSynapsesProperties.Wex, Wex,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        checkCudaErrors( cudaMemcpy ( allSynapses.Aneg, Aneg,
+        checkCudaErrors( cudaMemcpy ( allSynapsesProperties.Aneg, Aneg,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        checkCudaErrors( cudaMemcpy ( allSynapses.Apos, Apos,
+        checkCudaErrors( cudaMemcpy ( allSynapsesProperties.Apos, Apos,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        checkCudaErrors( cudaMemcpy ( allSynapses.mupos, mupos,
+        checkCudaErrors( cudaMemcpy ( allSynapsesProperties.mupos, mupos,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        checkCudaErrors( cudaMemcpy ( allSynapses.muneg, muneg,
+        checkCudaErrors( cudaMemcpy ( allSynapsesProperties.muneg, muneg,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) ); 
-        checkCudaErrors( cudaMemcpy ( allSynapses.useFroemkeDanSTDP, useFroemkeDanSTDP,
+        checkCudaErrors( cudaMemcpy ( allSynapsesProperties.useFroemkeDanSTDP, useFroemkeDanSTDP,
                 max_total_synapses * sizeof( bool ), cudaMemcpyHostToDevice ) ); 
 
         // copy event queue data from host to device.
-        postSpikeQueue->copyEventQueueHostToDevice(allSynapses.postSpikeQueue);
+        postSpikeQueue->copyEventQueueHostToDevice(allSynapsesProperties.postSpikeQueue);
 }
 
 /*
  *  Copy all synapses' data from device to host.
  *
- *  @param  allSynapsesDevice  Reference to the AllSTDPSynapsesDeviceProperties struct 
+ *  @param  allSynapsesDeviceProperties  Reference to the AllSTDPSynapsesProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllSTDPSynapses::copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
+void AllSTDPSynapses::copySynapseDeviceToHost( void* allSynapsesDeviceProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
 	// copy everything necessary
-	AllSTDPSynapsesDeviceProperties allSynapses;
+	AllSTDPSynapsesProperties allSynapsesProperties;
 
-        checkCudaErrors( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllSTDPSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( &allSynapsesProperties, allSynapsesDeviceProperties, sizeof( AllSTDPSynapsesProperties ), cudaMemcpyDeviceToHost ) );
 
-	copyDeviceToHost( allSynapses, sim_info, clr_info );
+	copyDeviceToHost( allSynapsesProperties, sim_info, clr_info );
 }
 
 /*
  *  Copy all synapses' data from device to host.
  *  (Helper function of copySynapseDeviceToHost)
  *
- *  @param  allSynapsesDevice     Reference to the AllSTDPSynapsesDeviceProperties struct 
+ *  @param  allSynapsesProperties     Reference to the AllSTDPSynapsesProperties struct 
  *                                on device memory.
  *  @param  sim_info              SimulationInfo to refer from.
  *  @param  clr_info              ClusterInfo to refer from.
  */
-void AllSTDPSynapses::copyDeviceToHost( AllSTDPSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
-        AllSpikingSynapses::copyDeviceToHost( allSynapses, sim_info, clr_info ) ;
+void AllSTDPSynapses::copyDeviceToHost( AllSTDPSynapsesProperties& allSynapsesProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) {
+        AllSpikingSynapses::copyDeviceToHost( allSynapsesProperties, sim_info, clr_info ) ;
 
 	int num_neurons = clr_info->totalClusterNeurons;
 	BGSIZE max_total_synapses = sim_info->maxSynapsesPerNeuron * num_neurons;
 
-        checkCudaErrors( cudaMemcpy ( tauspost, allSynapses.tauspost,
+        checkCudaErrors( cudaMemcpy ( tauspost, allSynapsesProperties.tauspost,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy ( tauspre, allSynapses.tauspre,
+        checkCudaErrors( cudaMemcpy ( tauspre, allSynapsesProperties.tauspre,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy ( taupos, allSynapses.taupos,
+        checkCudaErrors( cudaMemcpy ( taupos, allSynapsesProperties.taupos,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy ( tauneg, allSynapses.tauneg,
+        checkCudaErrors( cudaMemcpy ( tauneg, allSynapsesProperties.tauneg,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy ( STDPgap, allSynapses.STDPgap,
+        checkCudaErrors( cudaMemcpy ( STDPgap, allSynapsesProperties.STDPgap,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy ( Wex, allSynapses.Wex,
+        checkCudaErrors( cudaMemcpy ( Wex, allSynapsesProperties.Wex,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy ( Aneg, allSynapses.Aneg,
+        checkCudaErrors( cudaMemcpy ( Aneg, allSynapsesProperties.Aneg,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy ( Apos, allSynapses.Apos,
+        checkCudaErrors( cudaMemcpy ( Apos, allSynapsesProperties.Apos,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy ( mupos, allSynapses.mupos,
+        checkCudaErrors( cudaMemcpy ( mupos, allSynapsesProperties.mupos,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy ( muneg, allSynapses.muneg,
+        checkCudaErrors( cudaMemcpy ( muneg, allSynapsesProperties.muneg,
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy ( useFroemkeDanSTDP, allSynapses.useFroemkeDanSTDP,
+        checkCudaErrors( cudaMemcpy ( useFroemkeDanSTDP, allSynapsesProperties.useFroemkeDanSTDP,
                 max_total_synapses * sizeof( bool ), cudaMemcpyDeviceToHost ) );
 
         // copy event queue data from device to host.
-        postSpikeQueue->copyEventQueueDeviceToHost(allSynapses.postSpikeQueue);
+        postSpikeQueue->copyEventQueueDeviceToHost(allSynapsesProperties.postSpikeQueue);
 }
 
 /*
  *  Advance all the Synapses in the simulation.
  *  Update the state of all synapses for a time step.
  *
- *  @param  allSynapsesDevice      Reference to the AllSynapsesDeviceProperties struct 
+ *  @param  allSynapsesProperties      Reference to the AllSynapsesProperties struct 
  *                                 on device memory.
- *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
+ *  @param  allNeuronsProperties       Reference to the allNeurons struct on device memory.
  *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
  *  @param  sim_info               SimulationInfo class to read information from.
  *  @param  clr_info               ClusterInfo to refer from.
  *  @param  iStepOffset            Offset from the current simulation step.
  */
-void AllSTDPSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
+void AllSTDPSynapses::advanceSynapses(void* allSynapsesProperties, void* allNeuronsProperties, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
 {
     DEBUG (
     int deviceId;
@@ -273,21 +273,21 @@ void AllSTDPSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuronsD
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
     // Advance synapses ------------->
-    advanceSTDPSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapsesDeviceProperties*)allSynapsesDevice, (AllSpikingNeuronsDeviceProperties*)allNeuronsDevice, max_spikes, sim_info->width, iStepOffset );
+    advanceSTDPSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapsesProperties*)allSynapsesProperties, (AllSpikingNeuronsProperties*)allNeuronsProperties, max_spikes, sim_info->width, iStepOffset );
 }
 
 /*
  * Advances synapses spike event queue state of the cluster one simulation step.
  *
- *  @param  allSynapsesDevice      Reference to the AllSynapsesDeviceProperties struct
+ *  @param  allSynapsesProperties      Reference to the AllSynapsesProperties struct
  *                                 on device memory.
  *  @param  iStep                  Simulation steps to advance.
  */
-void AllSTDPSynapses::advanceSpikeQueue(void* allSynapsesDevice, int iStep)
+void AllSTDPSynapses::advanceSpikeQueue(void* allSynapsesProperties, int iStep)
 {
-    AllSpikingSynapses::advanceSpikeQueue(allSynapsesDevice, iStep);
+    AllSpikingSynapses::advanceSpikeQueue(allSynapsesProperties, iStep);
 
-    advanceSTDPSynapsesEventQueueDevice <<< 1, 1 >>> ( (AllSTDPSynapsesDeviceProperties*)allSynapsesDevice, iStep );
+    advanceSTDPSynapsesEventQueueDevice <<< 1, 1 >>> ( (AllSTDPSynapsesProperties*)allSynapsesProperties, iStep );
 }
 
 /**     

@@ -11,16 +11,16 @@
 /*
  *  Copy spike history data stored in device memory to host.
  *
- *  @param  allNeuronsDevice   Reference to the AllSpikingNeuronsDeviceProperties struct 
+ *  @param  allNeuronsProperties   Reference to the AllSpikingNeuronsProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllSpikingNeurons::copyDeviceSpikeHistoryToHost( AllSpikingNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) 
+void AllSpikingNeurons::copyDeviceSpikeHistoryToHost( AllSpikingNeuronsProperties& allNeuronsProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) 
 {
         int numNeurons = clr_info->totalClusterNeurons;
         uint64_t* pSpikeHistory[numNeurons];
-        checkCudaErrors( cudaMemcpy ( pSpikeHistory, allNeurons.spike_history, numNeurons * sizeof( uint64_t* ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( pSpikeHistory, allNeuronsProperties.spike_history, numNeurons * sizeof( uint64_t* ), cudaMemcpyDeviceToHost ) );
 
         int max_spikes = static_cast<int> (sim_info->epochDuration * sim_info->maxFiringRate);
         for (int i = 0; i < numNeurons; i++) {
@@ -32,17 +32,17 @@ void AllSpikingNeurons::copyDeviceSpikeHistoryToHost( AllSpikingNeuronsDevicePro
 /*
  *  Copy spike counts data stored in device memory to host.
  *
- *  @param  allNeuronsDevice   Reference to the AllSpikingNeuronsDeviceProperties struct 
+ *  @param  allNeuronsProperties   Reference to the AllSpikingNeuronsProperties struct 
  *                             on device memory.
  *  @param  sim_info           SimulationInfo to refer from.
  *  @param  clr_info           ClusterInfo to refer from.
  */
-void AllSpikingNeurons::copyDeviceSpikeCountsToHost( AllSpikingNeuronsDeviceProperties& allNeurons, const ClusterInfo *clr_info ) 
+void AllSpikingNeurons::copyDeviceSpikeCountsToHost( AllSpikingNeuronsProperties& allNeuronsProperties, const ClusterInfo *clr_info ) 
 {
         int numNeurons = clr_info->totalClusterNeurons;
 
-        checkCudaErrors( cudaMemcpy ( spikeCount, allNeurons.spikeCount, numNeurons * sizeof( int ), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy ( spikeCountOffset, allNeurons.spikeCountOffset, numNeurons * sizeof( int ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( spikeCount, allNeuronsProperties.spikeCount, numNeurons * sizeof( int ), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy ( spikeCountOffset, allNeuronsProperties.spikeCountOffset, numNeurons * sizeof( int ), cudaMemcpyDeviceToHost ) );
 }
 
 /*
@@ -67,12 +67,12 @@ void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info, const C
     }
 
     // clear spike counts in device memory
-    AllSpikingNeuronsDeviceProperties allNeurons;
-    AllSpikingNeuronsDeviceProperties *allNeuronsDevice = dynamic_cast<GPUSpikingCluster*>(clr)->m_allNeuronsDevice;
+    AllSpikingNeuronsProperties allNeuronsProperties;
+    AllSpikingNeuronsProperties *allNeuronsDeviceProperties = dynamic_cast<GPUSpikingCluster*>(clr)->m_allNeuronsProperties;
 
-    checkCudaErrors( cudaMemcpy ( &allNeurons, allNeuronsDevice, sizeof( AllSpikingNeuronsDeviceProperties ), cudaMemcpyDeviceToHost ) );
-    checkCudaErrors( cudaMemset( allNeurons.spikeCount, 0, numNeurons * sizeof( int ) ) );
-    checkCudaErrors( cudaMemcpy ( allNeurons.spikeCountOffset, spikeCountOffset, numNeurons * sizeof( int ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( &allNeuronsProperties, allNeuronsDeviceProperties, sizeof( AllSpikingNeuronsProperties ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemset( allNeuronsProperties.spikeCount, 0, numNeurons * sizeof( int ) ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProperties.spikeCountOffset, spikeCountOffset, numNeurons * sizeof( int ), cudaMemcpyHostToDevice ) );
 }
 
 /*

@@ -268,7 +268,7 @@ class AllSynapses : public IAllSynapses
 };
 
 #if defined(USE_GPU)
-struct AllSynapsesDeviceProperties 
+struct AllSynapsesProperties 
 {
         /**
          *  The location of the source neuron

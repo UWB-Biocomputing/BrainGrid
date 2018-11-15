@@ -233,10 +233,10 @@ public:
 	SynapseIndexMap* m_synapseIndexMapDevice;
 
 	//! Synapse structures in device memory.
-	AllSpikingSynapsesDeviceProperties* m_allSynapsesDevice;
+	AllSpikingSynapsesProperties* m_allSynapsesProperties;
 
 	//! Neuron structure in device memory.
-	AllSpikingNeuronsDeviceProperties* m_allNeuronsDevice;
+	AllSpikingNeuronsProperties* m_allNeuronsProperties;
 
         /**
          *  Copy SynapseIndexMap in host memory to SynapseIndexMap in device memory.
@@ -299,14 +299,14 @@ void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, uns
 }       
         
 //! Calculate summation point (use parallel reduction method).
-extern __global__ void calcSummationMapDevice_1(BGSIZE numTotalSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int maxSynapsesPerNeuron, int clusterNeuronsBegin);
+extern __global__ void calcSummationMapDevice_1(BGSIZE numTotalSynapses, AllSpikingNeuronsProperties* allNeuronsProperties, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesProperties* allSynapsesProperties, int maxSynapsesPerNeuron, int clusterNeuronsBegin);
 
 //! Helper kernel function for calcSummationMapDevice.
-extern __global__ void reduceSummationMapKernel(BGSIZE numTotalSynapses, unsigned int s, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, BGSIZE* indexMap, BGSIZE* synapseCount, BGSIZE* synapseBegin, int clusterNeuronsBegin);
+extern __global__ void reduceSummationMapKernel(BGSIZE numTotalSynapses, unsigned int s, AllSpikingSynapsesProperties* allSynapsesProperties, AllSpikingNeuronsProperties* allNeuronsProperties, BGSIZE* indexMap, BGSIZE* synapseCount, BGSIZE* synapseBegin, int clusterNeuronsBegin);
 
 //! Calculate summation point.
 extern __global__ void calcSummationMapDevice_2(int totalNeurons,
-		    AllSpikingNeuronsDeviceProperties* __restrict__ allNeurnsDevice,
+		    AllSpikingNeuronsProperties* __restrict__ allNeurnsProperties,
 		    const SynapseIndexMap* __restrict__ synapseIndexMapDevice,
-                    const AllSpikingSynapsesDeviceProperties* __restrict__ allSynapsesDevice );
+                    const AllSpikingSynapsesProperties* __restrict__ allSynapsesProperties );
 #endif // __CUDACC__

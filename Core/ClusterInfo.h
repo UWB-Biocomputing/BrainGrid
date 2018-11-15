@@ -34,7 +34,7 @@
 #if defined(USE_GPU)
 #include "curand_kernel.h"
 class SynapseIndexMap;
-class AllDSSynapsesDeviceProperties;
+class AllDSSynapsesProperties;
 class GPUSpikingCluster;
 class SimulationInfo;
 #endif // USE_GPU
@@ -121,7 +121,7 @@ class ClusterInfo
         //! variables for stimulus inputs (Poisson)
 
         //! Synapse structures in device memory.
-        AllDSSynapsesDeviceProperties* allSynapsesDeviceSInput;
+        AllDSSynapsesProperties* allSynapsesDeviceSInput;
 
         //! Pointer to synapse index map in device memory.
         SynapseIndexMap* synapseIndexMapDeviceSInput;

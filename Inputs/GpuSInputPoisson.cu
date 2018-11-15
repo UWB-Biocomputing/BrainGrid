@@ -84,7 +84,7 @@ void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci
     inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->nISIs_d, pci->masks_d, psi->deltaT, m_lambda, pci->devStates_d, pci->allSynapsesDeviceSInput, pci->clusterID, iStepOffset );
 
     // advance synapses
-    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, pci->synapseIndexMapDeviceSInput, g_simulationStep, psi->deltaT, (AllSpikingSynapsesDeviceProperties*)pci->allSynapsesDeviceSInput, iStepOffset );
+    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, pci->synapseIndexMapDeviceSInput, g_simulationStep, psi->deltaT, (AllSpikingSynapsesProperties*)pci->allSynapsesDeviceSInput, iStepOffset );
 
     // update summation point
     applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->allSynapsesDeviceSInput );
@@ -100,7 +100,7 @@ void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci
 void GpuSInputPoisson::advanceSInputState(const ClusterInfo *pci, int iStep)
 {
     // Advances synapses pre spike event queue state of the cluster iStep simulation step
-    advanceSpikingSynapsesEventQueueDevice <<< 1, 1 >>> ((AllSpikingSynapsesDeviceProperties*)pci->allSynapsesDeviceSInput, iStep);
+    advanceSpikingSynapsesEventQueueDevice <<< 1, 1 >>> ((AllSpikingSynapsesProperties*)pci->allSynapsesDeviceSInput, iStep);
 }
 
 /*
@@ -206,11 +206,11 @@ void GpuSInputPoisson::deleteDeviceValues(vector<ClusterInfo *> &vtClrInfo )
  * @param[in] deltaT             Time step of the simulation in second.
  * @param[in] lambda             Iinverse firing rate.
  * @param[in] devStates_d        Curand global state
- * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
+ * @param[in] allSynapsesProperties  Pointer to Synapse structures in device memory.
  * @param[in] clusterID          Cluster ID.
  * @param[in] iStepOffset        Offset from the current simulation step.
  */
-__global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapsesDeviceProperties* allSynapsesDevice, CLUSTER_INDEX_TYPE clusterID, int iStepOffset )
+__global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapsesProperties* allSynapsesProperties, CLUSTER_INDEX_TYPE clusterID, int iStepOffset )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= n )
@@ -225,7 +225,7 @@ __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT
     if (--rnISIs <= 0)
     {
         // add a spike
-        allSynapsesDevice->preSpikeQueue->addAnEvent(iSyn, clusterID, iStepOffset);
+        allSynapsesProperties->preSpikeQueue->addAnEvent(iSyn, clusterID, iStepOffset);
 
         // update interval counter (exponectially distribution ISIs, Poisson)
         curandState localState = devStates_d[idx];
@@ -246,14 +246,14 @@ __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT
  *
  * @param[in] n                  Number of neurons.
  * @param[in] summationPoint_d   SummationPoint
- * @param[in] allSynapsesDevice  Pointer to Synapse structures in device memory.
+ * @param[in] allSynapsesProperties  Pointer to Synapse structures in device memory.
  */
-__global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapsesDeviceProperties* allSynapsesDevice ) {
+__global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapsesProperties* allSynapsesProperties ) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= n )
             return;
 
-    summationPoint_d[idx] += allSynapsesDevice->psr[idx];
+    summationPoint_d[idx] += allSynapsesProperties->psr[idx];
 }
 
 /*
