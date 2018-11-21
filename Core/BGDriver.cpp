@@ -340,7 +340,7 @@ bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo)
 
 #if defined(USE_GPU)
     if ((cl.addParam("stateoutfile", 'o', ParamContainer::filename, "simulation state output filename") != ParamContainer::errOk)
-            || (cl.addParam("stateinfile", 't', ParamContainer::filename | ParamContainer::required, "simulation state input filename") != ParamContainer::errOk)
+            || (cl.addParam("stateinfile", 't', ParamContainer::filename | ParamContainer::required, "simulation parameter filename") != ParamContainer::errOk)
             || (cl.addParam("deviceid", 'd', ParamContainer::regular, "CUDA device id") != ParamContainer::errOk)
             || (cl.addParam("numclusters", 'c', ParamContainer::regular, "number of clusters") != ParamContainer::errOk)
             || (cl.addParam( "stiminfile", 's', ParamContainer::filename, "stimulus input file" ) != ParamContainer::errOk)
@@ -351,7 +351,7 @@ bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo)
     }
 #else    // !USE_GPU
     if ((cl.addParam("stateoutfile", 'o', ParamContainer::filename, "simulation state output filename") != ParamContainer::errOk)
-            || (cl.addParam("stateinfile", 't', ParamContainer::filename | ParamContainer::required, "simulation state input filename") != ParamContainer::errOk)
+            || (cl.addParam("stateinfile", 't', ParamContainer::filename | ParamContainer::required, "simulation parameter filename") != ParamContainer::errOk)
             || (cl.addParam("numclusters", 'c', ParamContainer::regular, "number of clusters") != ParamContainer::errOk)
             || (cl.addParam( "stiminfile", 's', ParamContainer::filename, "stimulus input file" ) != ParamContainer::errOk)
             || (cl.addParam("meminfile", 'r', ParamContainer::filename, "simulation memory image filename") != ParamContainer::errOk)

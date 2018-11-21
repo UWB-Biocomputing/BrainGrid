@@ -30,7 +30,7 @@ As a quick start and sanity test, let's run a small, prepackaged simulation to m
 
    **!!!** Note: Make sure your output file extension in the configuration file (under BrainGrid/configfiles/) matches your choice of **CUSEHDF5** flag. Otherwise an error will be thrown upon compilation. 
 
-   For example, if you are using HDF5, the output file extension should be **.h5** instead of **.xml**. 
+   For example, if you are using HDF5, the output file extension should be **.h5** instead of **.xml**. At runtime, the simulator will select the output format based on the filename extension. So, the compile flag merely builds in support for HDF5; the filename is what selects which format will actually be used.
 
    ```xml
    <OutputParams name="OutputParams">
