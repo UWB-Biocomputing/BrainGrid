@@ -4,24 +4,17 @@
 // Default constructor
 AllSpikingNeurons::AllSpikingNeurons() : AllNeurons()
 {
-    hasFired = NULL;
-    spikeCount = NULL;
-    spikeCountOffset = NULL;
-    spike_history = NULL;
 }
 
 // Copy constructor
 AllSpikingNeurons::AllSpikingNeurons(const AllSpikingNeurons &r_neurons) : AllNeurons(r_neurons)
 {
-    hasFired = NULL;
-    spikeCount = NULL;
-    spikeCountOffset = NULL;
-    spike_history = NULL;
+    copyParameters(dynamic_cast<const AllSpikingNeurons &>(r_neurons));
 }
 
 AllSpikingNeurons::~AllSpikingNeurons()
 {
-    freeResources();
+    cleanupNeurons();
 }
 
 /*
@@ -54,22 +47,22 @@ void AllSpikingNeurons::copyParameters(const AllSpikingNeurons &r_neurons)
  */
 void AllSpikingNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    AllNeurons::setupNeurons(sim_info, clr_info);
+    setupNeuronsInternalState(sim_info, clr_info);
 
-    // TODO: Rename variables for easier identification
-    hasFired = new bool[size];
-    spikeCount = new int[size];
-    spikeCountOffset = new int[size];
-    spike_history = new uint64_t*[size];
+    // allocate neurons properties data
+    m_pNeuronsProperties = new AllSpikingNeuronsProperties();
+    m_pNeuronsProperties->setupNeuronsProperties(sim_info, clr_info);
+}
 
-    for (int i = 0; i < size; ++i) {
-        spike_history[i] = NULL;
-        hasFired[i] = false;
-        spikeCount[i] = 0;
-        spikeCountOffset[i] = 0;
-    }
-
-    clr_info->pClusterSummationMap = summation_map;
+/*
+ *  Setup the internal structure of the class.
+ *
+ *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
+ */
+void AllSpikingNeurons::setupNeuronsInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info)
+{
+    AllNeurons::setupNeuronsInternalState(sim_info, clr_info);
 }
 
 /*
@@ -77,30 +70,19 @@ void AllSpikingNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_
  */
 void AllSpikingNeurons::cleanupNeurons()
 {
-    freeResources();
-    AllNeurons::cleanupNeurons();
+    // deallocate neurons properties data
+    delete m_pNeuronsProperties;
+    m_pNeuronsProperties = NULL;
+
+    cleanupNeuronsInternalState();
 }
 
 /*
  *  Deallocate all resources
  */
-void AllSpikingNeurons::freeResources()
+void AllSpikingNeurons::cleanupNeuronsInternalState()
 {
-    if (size != 0) {
-        for(int i = 0; i < size; i++) {
-            delete[] spike_history[i];
-        }
-    
-        delete[] hasFired;
-        delete[] spikeCount;
-        delete[] spikeCountOffset;
-        delete[] spike_history;
-    }
-        
-    hasFired = NULL;
-    spikeCount = NULL;
-    spikeCountOffset = NULL;
-    spike_history = NULL;
+    AllNeurons::cleanupNeuronsInternalState();
 }
 
 #if !defined(USE_GPU)
@@ -115,10 +97,13 @@ void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info, const C
 {
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
+    int *spikeCountOffset = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCountOffset;
+    int *spikeCount = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCount; 
+
     for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
         spikeCountOffset[i] = (spikeCount[i] + spikeCountOffset[i]) % max_spikes;
         spikeCount[i] = 0;
-    }
+   }
 }
 
 /*
@@ -136,6 +121,9 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
     AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
+    bool *hasFired = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->hasFired;
+    int *spikeCount = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCount; 
+
     // For each neuron in the network
     for (int idx = clr_info->totalClusterNeurons - 1; idx >= 0; --idx) {
         // advance neurons
@@ -192,6 +180,11 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
  */
 void AllSpikingNeurons::fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const
 {
+    bool *hasFired = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->hasFired;
+    int *spikeCountOffset = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCountOffset;
+    int *spikeCount = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCount; 
+    uint64_t **spike_history = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spike_history;
+
     // Note that the neuron has fired!
     hasFired[index] = true;
     
@@ -220,9 +213,13 @@ void AllSpikingNeurons::fire(const int index, const SimulationInfo *sim_info, in
  */
 uint64_t AllSpikingNeurons::getSpikeHistory(int index, int offIndex, const SimulationInfo *sim_info)
 {
+    int *spikeCountOffset = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCountOffset;
+    int *spikeCount = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCount; 
+    uint64_t **spike_history = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spike_history;
+
     // offIndex is a minus offset
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
     int idxSp = (spikeCount[index] + spikeCountOffset[index] +  max_spikes + offIndex) % max_spikes;
     return spike_history[index][idxSp];
 }
-#endif
+#endif // !defined(USE_GPU)

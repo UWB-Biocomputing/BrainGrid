@@ -9,30 +9,17 @@
 // Default constructor
 AllIZHNeurons::AllIZHNeurons() : AllIFNeurons()
 {
-    Aconst = NULL;
-    Bconst = NULL;
-    Cconst = NULL;
-    Dconst = NULL;
-    u = NULL;
-    C3 = NULL;
 }
 
 // Copy constructor
 AllIZHNeurons::AllIZHNeurons(const AllIZHNeurons &r_neurons) : AllIFNeurons(r_neurons)
 {
-    Aconst = NULL;
-    Bconst = NULL;
-    Cconst = NULL; 
-    Dconst = NULL;
-    u = NULL;
-    C3 = NULL;
-
-    copyParameters(r_neurons);
+    copyParameters(dynamic_cast<const AllIZHNeurons &>(r_neurons));
 }
 
 AllIZHNeurons::~AllIZHNeurons()
 {
-    freeResources();
+    cleanupNeurons();
 }
 
 /*
@@ -76,14 +63,22 @@ void AllIZHNeurons::copyParameters(const AllIZHNeurons &r_neurons)
  */
 void AllIZHNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    AllIFNeurons::setupNeurons(sim_info, clr_info);
+    setupNeuronsInternalState(sim_info, clr_info);
 
-    Aconst = new BGFLOAT[size];
-    Bconst = new BGFLOAT[size];
-    Cconst = new BGFLOAT[size];
-    Dconst = new BGFLOAT[size];
-    u = new BGFLOAT[size];
-    C3 = new BGFLOAT[size];
+    // allocate neurons properties data
+    m_pNeuronsProperties = new AllIZHNeuronsProperties();
+    m_pNeuronsProperties->setupNeuronsProperties(sim_info, clr_info);
+}
+
+/*
+ *  Setup the internal structure of the class.
+ *
+ *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
+ */
+void AllIZHNeurons::setupNeuronsInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info)
+{
+    AllIFNeurons::setupNeuronsInternalState(sim_info, clr_info);
 }
 
 /*
@@ -91,30 +86,19 @@ void AllIZHNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info
  */
 void AllIZHNeurons::cleanupNeurons()
 {
-    freeResources();
-    AllIFNeurons::cleanupNeurons();
+    // deallocate neurons properties data
+    delete m_pNeuronsProperties;
+    m_pNeuronsProperties = NULL;
+
+    cleanupNeuronsInternalState();
 }
 
 /*
  *  Deallocate all resources
  */
-void AllIZHNeurons::freeResources()
+void AllIZHNeurons::cleanupNeuronsInternalState()
 {
-    if (size != 0) {
-        delete[] Aconst;
-        delete[] Bconst;
-        delete[] Cconst;
-        delete[] Dconst;
-        delete[] u;
-        delete[] C3;
-    }
-
-    Aconst = NULL;
-    Bconst = NULL;
-    Cconst = NULL;
-    Dconst = NULL;
-    u = NULL;
-    C3 = NULL;
+    AllIFNeurons::cleanupNeuronsInternalState();
 }
 
 /*
@@ -461,6 +445,14 @@ void AllIZHNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout, C
  */
 void AllIZHNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Layout *layout, ClusterInfo *clr_info)
 {
+    AllIZHNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIZHNeuronsProperties*>(m_pNeuronsProperties);
+    BGFLOAT &Aconst = pNeuronsProperties->Aconst[neuron_index];
+    BGFLOAT &Bconst = pNeuronsProperties->Bconst[neuron_index];
+    BGFLOAT &Cconst = pNeuronsProperties->Cconst[neuron_index];
+    BGFLOAT &Dconst = pNeuronsProperties->Dconst[neuron_index];
+    BGFLOAT &u = pNeuronsProperties->u[neuron_index];
+    BGFLOAT &C3 = pNeuronsProperties->C3[neuron_index];
+
     // set the neuron info for neurons
     AllIFNeurons::createNeuron(sim_info, neuron_index, layout, clr_info);
 
@@ -468,26 +460,26 @@ void AllIZHNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Lay
     int neuron_layout_index = clr_info->clusterNeuronsBegin + neuron_index;
     if (layout->neuron_type_map[neuron_layout_index] == EXC) {
         // excitatory neuron
-        Aconst[neuron_index] = rng.inRange(m_excAconst[0], m_excAconst[1]); 
-        Bconst[neuron_index] = rng.inRange(m_excBconst[0], m_excBconst[1]); 
-        Cconst[neuron_index] = rng.inRange(m_excCconst[0], m_excCconst[1]); 
-        Dconst[neuron_index] = rng.inRange(m_excDconst[0], m_excDconst[1]); 
+        Aconst = rng.inRange(m_excAconst[0], m_excAconst[1]); 
+        Bconst = rng.inRange(m_excBconst[0], m_excBconst[1]); 
+        Cconst = rng.inRange(m_excCconst[0], m_excCconst[1]); 
+        Dconst = rng.inRange(m_excDconst[0], m_excDconst[1]); 
     } else {
         // inhibitory neuron
-        Aconst[neuron_index] = rng.inRange(m_inhAconst[0], m_inhAconst[1]); 
-        Bconst[neuron_index] = rng.inRange(m_inhBconst[0], m_inhBconst[1]); 
-        Cconst[neuron_index] = rng.inRange(m_inhCconst[0], m_inhCconst[1]); 
-        Dconst[neuron_index] = rng.inRange(m_inhDconst[0], m_inhDconst[1]); 
+        Aconst = rng.inRange(m_inhAconst[0], m_inhAconst[1]); 
+        Bconst = rng.inRange(m_inhBconst[0], m_inhBconst[1]); 
+        Cconst = rng.inRange(m_inhCconst[0], m_inhCconst[1]); 
+        Dconst= rng.inRange(m_inhDconst[0], m_inhDconst[1]); 
     }
  
-    u[neuron_index] = 0;
+    u = 0;
 
     DEBUG_HI(cout << "CREATE NEURON[" << neuron_layout_index << "] {" << endl
-            << "\tAconst = " << Aconst[neuron_index] << endl
-            << "\tBconst = " << Bconst[neuron_index] << endl
-            << "\tCconst = " << Cconst[neuron_index] << endl
-            << "\tDconst = " << Dconst[neuron_index] << endl
-            << "\tC3 = " << C3[neuron_index] << endl
+            << "\tAconst = " << Aconst << endl
+            << "\tBconst = " << Bconst << endl
+            << "\tCconst = " << Cconst << endl
+            << "\tDconst = " << Dconst << endl
+            << "\tC3 = " << C3 << endl
             << "}" << endl
     ;)
 
@@ -500,15 +492,22 @@ void AllIZHNeurons::createNeuron(SimulationInfo *sim_info, int neuron_index, Lay
  */
 void AllIZHNeurons::setNeuronDefaults(const int index)
 {
+    AllIZHNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIZHNeuronsProperties*>(m_pNeuronsProperties);
+    BGFLOAT &Aconst = pNeuronsProperties->Aconst[index];
+    BGFLOAT &Bconst = pNeuronsProperties->Bconst[index];
+    BGFLOAT &Cconst = pNeuronsProperties->Cconst[index];
+    BGFLOAT &Dconst = pNeuronsProperties->Dconst[index];
+    BGFLOAT &Trefract = pNeuronsProperties->Trefract[index];
+
     AllIFNeurons::setNeuronDefaults(index);
 
     // no refractory period
-    Trefract[index] = 0;
+    Trefract = 0;
 
-    Aconst[index] = DEFAULT_a;
-    Bconst[index] = DEFAULT_b;
-    Cconst[index] = DEFAULT_c;
-    Dconst[index] = DEFAULT_d;
+    Aconst = DEFAULT_a;
+    Bconst = DEFAULT_b;
+    Cconst = DEFAULT_c;
+    Dconst = DEFAULT_d;
 }
 
 /*
@@ -521,7 +520,8 @@ void AllIZHNeurons::initNeuronConstsFromParamValues(int neuron_index, const BGFL
 {
     AllIFNeurons::initNeuronConstsFromParamValues(neuron_index, deltaT);
 
-    BGFLOAT &C3 = this->C3[neuron_index];
+    AllIZHNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIZHNeuronsProperties*>(m_pNeuronsProperties);
+    BGFLOAT &C3 = pNeuronsProperties->C3[neuron_index];
     C3 = deltaT * 1000; 
 }
 
@@ -533,16 +533,24 @@ void AllIZHNeurons::initNeuronConstsFromParamValues(int neuron_index, const BGFL
  */
 string AllIZHNeurons::toString(const int i) const
 {
+    AllIZHNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIZHNeuronsProperties*>(m_pNeuronsProperties);
+    BGFLOAT &Aconst = pNeuronsProperties->Aconst[i];
+    BGFLOAT &Bconst = pNeuronsProperties->Bconst[i];
+    BGFLOAT &Cconst = pNeuronsProperties->Cconst[i];
+    BGFLOAT &Dconst = pNeuronsProperties->Dconst[i];
+    BGFLOAT &u = pNeuronsProperties->u[i];
+    BGFLOAT &C3 = pNeuronsProperties->C3[i];
+
     stringstream ss;
 
     ss << AllIFNeurons::toString(i);
 
-    ss << "Aconst: " << Aconst[i] << " ";
-    ss << "Bconst: " << Bconst[i] << " ";
-    ss << "Cconst: " << Cconst[i] << " ";
-    ss << "Dconst: " << Dconst[i] << " ";
-    ss << "u: " << u[i] << " ";
-    ss << "C3: " << C3[i] << " ";
+    ss << "Aconst: " << Aconst << " ";
+    ss << "Bconst: " << Bconst << " ";
+    ss << "Cconst: " << Cconst << " ";
+    ss << "Dconst: " << Dconst << " ";
+    ss << "u: " << u << " ";
+    ss << "C3: " << C3 << " ";
     return ss.str( );
 }
 
@@ -567,14 +575,22 @@ void AllIZHNeurons::deserialize(istream &input, const ClusterInfo *clr_info)
  */
 void AllIZHNeurons::readNeuron(istream &input, int i)
 {
+    AllIZHNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIZHNeuronsProperties*>(m_pNeuronsProperties);
+    BGFLOAT &Aconst = pNeuronsProperties->Aconst[i];
+    BGFLOAT &Bconst = pNeuronsProperties->Bconst[i];
+    BGFLOAT &Cconst = pNeuronsProperties->Cconst[i];
+    BGFLOAT &Dconst = pNeuronsProperties->Dconst[i];
+    BGFLOAT &u = pNeuronsProperties->u[i];
+    BGFLOAT &C3 = pNeuronsProperties->C3[i];
+
     AllIFNeurons::readNeuron(input, i);
 
-    input >> Aconst[i]; input.ignore();
-    input >> Bconst[i]; input.ignore();
-    input >> Cconst[i]; input.ignore();
-    input >> Dconst[i]; input.ignore();
-    input >> u[i]; input.ignore();
-    input >> C3[i]; input.ignore();
+    input >> Aconst; input.ignore();
+    input >> Bconst; input.ignore();
+    input >> Cconst; input.ignore();
+    input >> Dconst; input.ignore();
+    input >> u; input.ignore();
+    input >> C3; input.ignore();
 }
 
 /*
@@ -598,14 +614,22 @@ void AllIZHNeurons::serialize(ostream& output, const ClusterInfo *clr_info) cons
  */
 void AllIZHNeurons::writeNeuron(ostream& output, int i) const
 {
+    AllIZHNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIZHNeuronsProperties*>(m_pNeuronsProperties);
+    BGFLOAT &Aconst = pNeuronsProperties->Aconst[i];
+    BGFLOAT &Bconst = pNeuronsProperties->Bconst[i];
+    BGFLOAT &Cconst = pNeuronsProperties->Cconst[i];
+    BGFLOAT &Dconst = pNeuronsProperties->Dconst[i];
+    BGFLOAT &u = pNeuronsProperties->u[i];
+    BGFLOAT &C3 = pNeuronsProperties->C3[i];
+
     AllIFNeurons::writeNeuron(output, i);
 
-    output << Aconst[i] << ends;
-    output << Bconst[i] << ends;
-    output << Cconst[i] << ends;
-    output << Dconst[i] << ends;
-    output << u[i] << ends;
-    output << C3[i] << ends;
+    output << Aconst << ends;
+    output << Bconst << ends;
+    output << Cconst << ends;
+    output << Dconst << ends;
+    output << u << ends;
+    output << C3 << ends;
 }
 
 #if !defined(USE_GPU)
@@ -619,19 +643,21 @@ void AllIZHNeurons::writeNeuron(ostream& output, int i) const
  */
 void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
 {
-    BGFLOAT &Vm = this->Vm[index];
-    BGFLOAT &Vthresh = this->Vthresh[index];
-    BGFLOAT &summationPoint = this->summation_map[index];
-    BGFLOAT &I0 = this->I0[index];
-    BGFLOAT &Inoise = this->Inoise[index];
-    BGFLOAT &C1 = this->C1[index];
-    BGFLOAT &C2 = this->C2[index];
-    BGFLOAT &C3 = this->C3[index];
-    int &nStepsInRefr = this->nStepsInRefr[index];
-
-    BGFLOAT &a = Aconst[index];
-    BGFLOAT &b = Bconst[index];
-    BGFLOAT &u = this->u[index];
+    AllIZHNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIZHNeuronsProperties*>(m_pNeuronsProperties);
+    BGFLOAT &Vm = pNeuronsProperties->Vm[index];
+    BGFLOAT &Vthresh = pNeuronsProperties->Vthresh[index];
+    BGFLOAT &summationPoint = pNeuronsProperties->summation_map[index];
+    BGFLOAT &I0 = pNeuronsProperties->I0[index];
+    BGFLOAT &Inoise = pNeuronsProperties->Inoise[index];
+    BGFLOAT &C1 = pNeuronsProperties->C1[index];
+    BGFLOAT &C2 = pNeuronsProperties->C2[index];
+    BGFLOAT &C3 = pNeuronsProperties->C3[index];
+    int &nStepsInRefr = pNeuronsProperties->nStepsInRefr[index];
+    BGFLOAT &a = pNeuronsProperties->Aconst[index];
+    BGFLOAT &b = pNeuronsProperties->Bconst[index];
+    BGFLOAT &u = pNeuronsProperties->u[index];
+    BGFLOAT &Cconst = pNeuronsProperties->Cconst[index];
+    BGFLOAT &Dconst = pNeuronsProperties->Dconst[index];
 
     if (nStepsInRefr > 0) {
         // is neuron refractory?
@@ -660,8 +686,8 @@ void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
             << "\tVm = " << Vm << endl
             << "\ta = " << a << endl
             << "\tb = " << b << endl
-            << "\tc = " << Cconst[index] << endl
-            << "\td = " << Dconst[index] << endl
+            << "\tc = " << Cconst << endl
+            << "\td = " << Dconst << endl
             << "\tu = " << u << endl
             << "\tVthresh = " << Vthresh << endl
             << "\tsummationPoint = " << summationPoint << endl
@@ -690,13 +716,13 @@ void AllIZHNeurons::fire(const int index, const SimulationInfo *sim_info, int iS
     AllSpikingNeurons::fire(index, sim_info, iStepOffset);
 
     // calculate the number of steps in the absolute refractory period
-    BGFLOAT &Vm = this->Vm[index];
-    int &nStepsInRefr = this->nStepsInRefr[index];
-    BGFLOAT &Trefract = this->Trefract[index];
-
-    BGFLOAT &c = Cconst[index];
-    BGFLOAT &d = Dconst[index];
-    BGFLOAT &u = this->u[index];
+    AllIZHNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIZHNeuronsProperties*>(m_pNeuronsProperties);
+    BGFLOAT &Vm = pNeuronsProperties->Vm[index];
+    int &nStepsInRefr = pNeuronsProperties->nStepsInRefr[index];
+    BGFLOAT &Trefract = pNeuronsProperties->Trefract[index];
+    BGFLOAT &c = pNeuronsProperties->Cconst[index];
+    BGFLOAT &d = pNeuronsProperties->Dconst[index];
+    BGFLOAT &u = pNeuronsProperties->u[index];
 
     nStepsInRefr = static_cast<int> ( Trefract / deltaT + 0.5 );
 

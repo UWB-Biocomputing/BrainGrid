@@ -42,8 +42,7 @@ using namespace std;
 #include "SimulationInfo.h"
 #include "AllNeurons.h"
 #include "AllSpikingSynapses.h"
-
-struct AllSpikingNeuronsProperties;
+#include "AllSpikingNeuronsProperties.h"
 
 class AllSpikingNeurons : public AllNeurons
 {
@@ -82,6 +81,27 @@ class AllSpikingNeurons : public AllNeurons
          *  @param  clr       Cluster class to read information from.
          */
         void clearSpikeCounts(const SimulationInfo *sim_info, const ClusterInfo *clr_info, Cluster *clr);
+
+    protected:
+        /**
+         *  Copy neurons parameters.
+         *
+         *  @param  r_neurons  Neurons class object to copy from.
+         */
+        void copyParameters(const AllSpikingNeurons &r_neurons);
+
+        /**
+         *  Setup the internal structure of the class.
+         *
+         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info  ClusterInfo class to read information from.
+         */
+        void setupNeuronsInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
+         *  Deallocate all resources.
+         */
+        void cleanupNeuronsInternalState();
 
 #if defined(USE_GPU)
     public:
@@ -176,45 +196,6 @@ class AllSpikingNeurons : public AllNeurons
 
     protected:
         /**
-         *  Copy neurons parameters.
-         *
-         *  @param  r_neurons  Neurons class object to copy from.
-         */
-        void copyParameters(const AllSpikingNeurons &r_neurons);
-
-    private:
-        /**
-         *  Deallocate all resources
-         */
-        void freeResources();
-
-    public:
-        /** 
-         *  The booleans which track whether the neuron has fired.
-         */
-        bool *hasFired;
-
-        /** 
-         *  The number of spikes since the last growth cycle.
-         */
-        int *spikeCount;
-
-        /**
-         *  Offset of the spike_history buffer.
-         */
-        int *spikeCountOffset;
-
-        /** 
-         *  Step count (history) for each spike fired by each neuron.
-         *  The step counts are stored in a buffer for each neuron, and the pointers
-         *  to the buffer are stored in a list pointed by spike_history. 
-         *  Each buffer is a circular, and offset of top location of the buffer i is
-         *  specified by spikeCountOffset[i].
-         */
-        uint64_t **spike_history;
-
-    protected:
-        /**
          *  True if back propagaion is allowed.
          *  (parameters used for advanceNeuronsDevice.)
          */
@@ -222,31 +203,3 @@ class AllSpikingNeurons : public AllNeurons
 
 };
 
-#if defined(USE_GPU)
-struct AllSpikingNeuronsProperties : public AllNeuronsProperties
-{
-        /** 
-         *  The booleans which track whether the neuron has fired.
-         */
-        bool *hasFired;
-
-        /** 
-         *  The number of spikes since the last growth cycle.
-         */
-        int *spikeCount;
-
-        /**
-         *  Offset of the spike_history buffer.
-         */
-        int *spikeCountOffset;
-
-        /** 
-         *  Step count (history) for each spike fired by each neuron.
-         *  The step counts are stored in a buffer for each neuron, and the pointers
-         *  to the buffer are stored in a list pointed by spike_history. 
-         *  Each buffer is a circular, and offset of top location of the buffer i is
-         *  specified by spikeCountOffset[i].
-         */
-        uint64_t **spike_history;
-};
-#endif // defined(USE_GPU)

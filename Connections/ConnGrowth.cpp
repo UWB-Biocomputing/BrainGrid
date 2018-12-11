@@ -348,12 +348,13 @@ void ConnGrowth::updateConns(const SimulationInfo *sim_info, vector<Cluster *> &
     // for each cluster
     for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
         AllSpikingNeurons *neurons = dynamic_cast<AllSpikingNeurons*>(vtClr[iCluster]->m_neurons);
+        AllSpikingNeuronsProperties *pNeuronsProperties = dynamic_cast<AllSpikingNeuronsProperties*>(neurons->m_pNeuronsProperties);
         int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
         int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
         for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++) {
             // Calculate firing rate
-            assert(neurons->spikeCount[iNeuron] < max_spikes);
-            (*rates)[neuronLayoutIndex] = neurons->spikeCount[iNeuron] / sim_info->epochDuration;
+            assert(pNeuronsProperties->spikeCount[iNeuron] < max_spikes);
+            (*rates)[neuronLayoutIndex] = pNeuronsProperties->spikeCount[iNeuron] / sim_info->epochDuration;
         }
     }
 
@@ -458,6 +459,7 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
         // destination neurons of each cluster
         for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
             AllNeurons *neurons = dynamic_cast<AllNeurons*>(vtClr[iCluster]->m_neurons);
+            AllNeuronsProperties *pNeuronsProperties = dynamic_cast<AllNeuronsProperties*>(neurons->m_pNeuronsProperties);
             AllSynapses *synapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
 
             // and each destination neuron 'b'
@@ -503,7 +505,7 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
                 if (!connected && ((*W)(src_neuron, dest_neuron) > 0)) {
 
                     // locate summation point
-                    BGFLOAT* sum_point = &( neurons->summation_map[iNeuron] );
+                    BGFLOAT* sum_point = &( pNeuronsProperties->summation_map[iNeuron] );
                     added++;
     
                     BGSIZE iSyn;

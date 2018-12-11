@@ -1,23 +1,20 @@
 #include "AllNeurons.h"
 // Default constructor
 AllNeurons::AllNeurons() : 
-        size(0), 
         nParams(0)
 {
-    summation_map = NULL;
 }
 
 // Copy constructor
 AllNeurons::AllNeurons(const AllNeurons &r_neurons) :
-        size(0), 
         nParams(0)
 {
-    summation_map = NULL;
+    copyParameters(dynamic_cast<const AllNeurons &>(r_neurons));
 }
 
 AllNeurons::~AllNeurons()
 {
-    freeResources();
+    cleanupNeurons();
 }
 
 /*
@@ -49,15 +46,21 @@ void AllNeurons::copyParameters(const AllNeurons &r_neurons)
  */
 void AllNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    size = clr_info->totalClusterNeurons;
-    // TODO: Rename variables for easier identification
-    summation_map = new BGFLOAT[size];
+    setupNeuronsInternalState(sim_info, clr_info);
 
-    for (int i = 0; i < size; ++i) {
-        summation_map[i] = 0;
-    }
+    // allocate neurons properties data
+    m_pNeuronsProperties = new AllNeuronsProperties();
+    m_pNeuronsProperties->setupNeuronsProperties(sim_info, clr_info);
+}
 
-    clr_info->pClusterSummationMap = summation_map;
+/*
+ *  Setup the internal structure of the class.
+ *
+ *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
+ */
+void AllNeurons::setupNeuronsInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info)
+{
 }
 
 /*
@@ -65,19 +68,16 @@ void AllNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info)
  */
 void AllNeurons::cleanupNeurons()
 {
-    freeResources();
+    // deallocate neurons properties data
+    delete m_pNeuronsProperties;
+    m_pNeuronsProperties = NULL;
+
+    cleanupNeuronsInternalState();
 }
 
 /*
  *  Deallocate all resources
  */
-void AllNeurons::freeResources()
+void AllNeurons::cleanupNeuronsInternalState()
 {
-    if (size != 0) {
-        delete[] summation_map;
-    }
-        
-    summation_map = NULL;
-
-    size = 0;
 }

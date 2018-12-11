@@ -84,8 +84,7 @@
 
 #include "Global.h"
 #include "AllIFNeurons.h"
-
-struct AllIZHNeuronsProperties;
+#include "AllIZHNeuronsProperties.h"
 
 // Class to hold all data necessary for all the Neurons.
 class AllIZHNeurons : public AllIFNeurons
@@ -173,6 +172,20 @@ class AllIZHNeurons : public AllIFNeurons
          *  @param  clr_info    ClusterInfo class to read information from.
          */
         virtual void serialize(ostream& output, const ClusterInfo *clr_info) const;
+
+    protected:
+        /**
+         *  Setup the internal structure of the class.
+         *
+         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info  ClusterInfo class to read information from.
+         */
+        void setupNeuronsInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
+         *  Deallocate all resources.
+         */
+        void cleanupNeuronsInternalState();
 
 #if defined(USE_GPU)
     public:
@@ -364,37 +377,6 @@ class AllIZHNeurons : public AllIFNeurons
          */
         void freeResources();  
 
-    public:
-        /**
-         *  A constant (0.02, 01) describing the coupling of variable u to Vm.
-         */
-        BGFLOAT *Aconst;
-
-        /**
-         *  A constant controlling sensitivity of u.
-         */
-        BGFLOAT *Bconst;
-
-        /**
-         *  A constant controlling reset of Vm. 
-         */
-        BGFLOAT *Cconst;
-
-        /**
-         *  A constant controlling reset of u.
-         */
-        BGFLOAT *Dconst;
-
-        /**
-         *  internal variable.
-         */
-        BGFLOAT *u;
-
-        /**
-         *  Internal constant for the exponential Euler integration.
-         */ 
-        BGFLOAT *C3;
-
     private:
         /**
          *  Default value of Aconst.
@@ -456,38 +438,3 @@ class AllIZHNeurons : public AllIFNeurons
          */
         BGFLOAT m_inhDconst[2];
 };
-
-#if defined(USE_GPU)
-struct AllIZHNeuronsProperties : public AllIFNeuronsProperties
-{
-        /**
-         *  A constant (0.02, 01) describing the coupling of variable u to Vm.
-         */
-        BGFLOAT *Aconst;
-
-        /**
-         *  A constant controlling sensitivity of u.
-         */
-        BGFLOAT *Bconst;
-
-        /**
-         *  A constant controlling reset of Vm. 
-         */
-        BGFLOAT *Cconst;
-
-        /**
-         *  A constant controlling reset of u.
-         */
-        BGFLOAT *Dconst;
-
-        /**
-         *  internal variable.
-         */
-        BGFLOAT *u;
-
-        /**
-         *  Internal constant for the exponential Euler integration.
-         */ 
-        BGFLOAT *C3;
-};
-#endif // defined(USE_GPU)

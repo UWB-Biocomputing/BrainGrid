@@ -181,7 +181,8 @@ void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const Cluste
 
                 readSynapse(input, iSyn);
 
-                summationPoint[iSyn] = &(dynamic_cast<AllNeurons&>(neurons).summation_map[destNeuronLayoutIndex[iSyn]]);
+                AllNeuronsProperties *pNeuronsProperties = dynamic_cast<AllNeuronsProperties*>(dynamic_cast<AllNeurons&>(neurons).m_pNeuronsProperties);
+                summationPoint[iSyn] = &(pNeuronsProperties->summation_map[destNeuronLayoutIndex[iSyn]]);
 
                 read_synapses_counts[neuron_index]++;
         }

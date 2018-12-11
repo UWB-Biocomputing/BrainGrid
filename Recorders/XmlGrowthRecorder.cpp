@@ -130,11 +130,12 @@ void XmlGrowthRecorder::saveSimData(vector<Cluster *> &vtClr, vector<ClusterInfo
     VectorMatrix neuronThresh(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, 0);
     for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
         AllIFNeurons *neurons = dynamic_cast<AllIFNeurons*>(vtClr[iCluster]->m_neurons);
+        AllIFNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIFNeuronsProperties*>(neurons->m_pNeuronsProperties);
 
         int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
         int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
         for (int iNeurons = 0; iNeurons < totalClusterNeurons; iNeurons++, neuronLayoutIndex++) {
-            neuronThresh[neuronLayoutIndex] = neurons->Vthresh[iNeurons];
+            neuronThresh[neuronLayoutIndex] = pNeuronsProperties->Vthresh[iNeurons];
         }
     }
 

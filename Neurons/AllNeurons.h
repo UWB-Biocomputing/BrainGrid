@@ -41,6 +41,7 @@ using namespace std;
 #include "IAllNeurons.h"
 #include "SimulationInfo.h"
 #include "Layout.h"
+#include "AllNeuronsProperties.h"
 
 class AllNeurons : public IAllNeurons
 {
@@ -71,14 +72,11 @@ class AllNeurons : public IAllNeurons
          */
         virtual void cleanupNeurons();
 
-        /** 
-         *  The summation point for each neuron.
-         *  Summation points are places where the synapses connected to the neuron 
-         *  apply (summed up) their PSRs (Post-Synaptic-Response). 
-         *  On the next advance cycle, neurons add the values stored in their corresponding 
-         *  summation points to their Vm and resets the summation points to zero
+    public:
+        /**
+         * Pointer to the neurons property data.
          */
-        BGFLOAT *summation_map;
+        class IAllNeuronsProperties* m_pNeuronsProperties;
 
     protected:
         /**
@@ -87,34 +85,23 @@ class AllNeurons : public IAllNeurons
          *  @param  r_neurons  Neurons class object to copy from.
          */
         void copyParameters(const AllNeurons &r_neurons);
+       
+        /**
+         *  Setup the internal structure of the class. 
+         *
+         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info  ClusterInfo class to read information from.
+         */
+        void setupNeuronsInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
-         *  Total number of neurons.
+         *  Deallocate all resources.
          */
-        int size;
+        void cleanupNeuronsInternalState();
 
+    protected:
         /**
          *  Number of parameters read.
          */
         int nParams;
- 
-    private:
-        /**
-         *  Deallocate all resources
-         */
-        void freeResources();
 };
-
-#if defined(USE_GPU)
-struct AllNeuronsProperties
-{
-        /** 
-         *  The summation point for each neuron.
-         *  Summation points are places where the synapses connected to the neuron 
-         *  apply (summed up) their PSRs (Post-Synaptic-Response). 
-         *  On the next advance cycle, neurons add the values stored in their corresponding 
-         *  summation points to their Vm and resets the summation points to zero
-         */
-        BGFLOAT *summation_map;
-};
-#endif // defined(USE_GPU)

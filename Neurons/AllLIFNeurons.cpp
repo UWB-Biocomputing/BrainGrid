@@ -9,6 +9,7 @@ AllLIFNeurons::AllLIFNeurons() : AllIFNeurons()
 // Copy constructor
 AllLIFNeurons::AllLIFNeurons(const AllLIFNeurons &r_neurons) : AllIFNeurons(r_neurons)
 {
+    copyParameters(dynamic_cast<const AllLIFNeurons &>(r_neurons));
 }
 
 AllLIFNeurons::~AllLIFNeurons()
@@ -48,14 +49,15 @@ void AllLIFNeurons::copyParameters(const AllLIFNeurons &r_neurons)
  */
 void AllLIFNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
 {
-    BGFLOAT &Vm = this->Vm[index];
-    BGFLOAT &Vthresh = this->Vthresh[index];
-    BGFLOAT &summationPoint = this->summation_map[index];
-    BGFLOAT &I0 = this->I0[index];
-    BGFLOAT &Inoise = this->Inoise[index];
-    BGFLOAT &C1 = this->C1[index];
-    BGFLOAT &C2 = this->C2[index];
-    int &nStepsInRefr = this->nStepsInRefr[index];
+    AllIFNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIFNeuronsProperties*>(m_pNeuronsProperties);
+    BGFLOAT &Vm = pNeuronsProperties->Vm[index];
+    BGFLOAT &Vthresh = pNeuronsProperties->Vthresh[index];
+    BGFLOAT &summationPoint = pNeuronsProperties->summation_map[index];
+    BGFLOAT &I0 = pNeuronsProperties->I0[index];
+    BGFLOAT &Inoise = pNeuronsProperties->Inoise[index];
+    BGFLOAT &C1 = pNeuronsProperties->C1[index];
+    BGFLOAT &C2 = pNeuronsProperties->C2[index];
+    int &nStepsInRefr = pNeuronsProperties->nStepsInRefr[index];
 
     if (nStepsInRefr > 0) {
         // is neuron refractory?
@@ -96,13 +98,19 @@ void AllLIFNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
  */
 void AllLIFNeurons::fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const
 {
+    AllIFNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIFNeuronsProperties*>(m_pNeuronsProperties);
+    int &nStepsInRefr = pNeuronsProperties->nStepsInRefr[index];
+    BGFLOAT &Trefract = pNeuronsProperties->Trefract[index];
+    BGFLOAT &Vm = pNeuronsProperties->Vm[index];
+    BGFLOAT &Vreset = pNeuronsProperties->Vreset[index];
+
     const BGFLOAT deltaT = sim_info->deltaT;
     AllSpikingNeurons::fire(index, sim_info, iStepOffset);
 
     // calculate the number of steps in the absolute refractory period
-    nStepsInRefr[index] = static_cast<int> ( Trefract[index] / deltaT + 0.5 );
+    nStepsInRefr = static_cast<int> ( Trefract / deltaT + 0.5 );
 
     // reset to 'Vreset'
-    Vm[index] = Vreset[index];
+    Vm = Vreset;
 }
 #endif
