@@ -241,6 +241,11 @@ SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
 		$(SYNAPSEDIR)/AllDSSynapses.o \
 		$(SYNAPSEDIR)/AllSTDPSynapses.o \
 		$(SYNAPSEDIR)/AllDynamicSTDPSynapses.o \
+		$(SYNAPSEDIR)/AllSynapsesProperties.o \
+		$(SYNAPSEDIR)/AllSpikingSynapsesProperties.o \
+		$(SYNAPSEDIR)/AllDSSynapsesProperties.o \
+		$(SYNAPSEDIR)/AllSTDPSynapsesProperties.o \
+		$(SYNAPSEDIR)/AllDynamicSTDPSynapsesProperties.o \
 		$(CONNDIR)/Connections.o \
 		$(CONNDIR)/ConnGrowth.o \
 		$(CONNDIR)/ConnStatic.o \
@@ -277,6 +282,11 @@ SINGLEOBJS =    $(COREDIR)/BGDriver.o  \
                 $(SYNAPSEDIR)/AllDSSynapses.o \
                 $(SYNAPSEDIR)/AllSTDPSynapses.o \
                 $(SYNAPSEDIR)/AllDynamicSTDPSynapses.o \
+		$(SYNAPSEDIR)/AllSynapsesProperties.o \
+		$(SYNAPSEDIR)/AllSpikingSynapsesProperties.o \
+		$(SYNAPSEDIR)/AllDSSynapsesProperties.o \
+		$(SYNAPSEDIR)/AllSTDPSynapsesProperties.o \
+		$(SYNAPSEDIR)/AllDynamicSTDPSynapsesProperties.o \
                 $(CONNDIR)/Connections.o \
                 $(CONNDIR)/ConnGrowth.o \
                 $(CONNDIR)/ConnStatic.o \
@@ -469,6 +479,21 @@ $(SYNAPSEDIR)/AllSTDPSynapses.o: $(SYNAPSEDIR)/AllSTDPSynapses.cpp $(SYNAPSEDIR)
 
 $(SYNAPSEDIR)/AllDynamicSTDPSynapses.o: $(SYNAPSEDIR)/AllDynamicSTDPSynapses.cpp $(SYNAPSEDIR)/AllDynamicSTDPSynapses.h $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(SYNAPSEDIR)/AllDynamicSTDPSynapses.cpp -o $(SYNAPSEDIR)/AllDynamicSTDPSynapses.o
+
+$(SYNAPSEDIR)/AllSynapsesProperties.o: $(SYNAPSEDIR)/AllSynapsesProperties.cpp $(SYNAPSEDIR)/AllSynapsesProperties.h $(UTILDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(SYNAPSEDIR)/AllSynapsesProperties.cpp -o $(SYNAPSEDIR)/AllSynapsesProperties.o
+
+$(SYNAPSEDIR)/AllSpikingSynapsesProperties.o: $(SYNAPSEDIR)/AllSpikingSynapsesProperties.cpp $(SYNAPSEDIR)/AllSpikingSynapsesProperties.h $(UTILDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(SYNAPSEDIR)/AllSpikingSynapsesProperties.cpp -o $(SYNAPSEDIR)/AllSpikingSynapsesProperties.o
+
+$(SYNAPSEDIR)/AllDSSynapsesProperties.o: $(SYNAPSEDIR)/AllDSSynapsesProperties.cpp $(SYNAPSEDIR)/AllDSSynapsesProperties.h $(UTILDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(SYNAPSEDIR)/AllDSSynapsesProperties.cpp -o $(SYNAPSEDIR)/AllDSSynapsesProperties.o
+
+$(SYNAPSEDIR)/AllSTDPSynapsesProperties.o: $(SYNAPSEDIR)/AllSTDPSynapsesProperties.cpp $(SYNAPSEDIR)/AllSTDPSynapsesProperties.h $(UTILDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(SYNAPSEDIR)/AllSTDPSynapsesProperties.cpp -o $(SYNAPSEDIR)/AllSTDPSynapsesProperties.o
+
+$(SYNAPSEDIR)/AllDynamicSTDPSynapsesProperties.o: $(SYNAPSEDIR)/AllDynamicSTDPSynapsesProperties.cpp $(SYNAPSEDIR)/AllDynamicSTDPSynapsesProperties.h $(UTILDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(SYNAPSEDIR)/AllDynamicSTDPSynapsesProperties.cpp -o $(SYNAPSEDIR)/AllDynamicSTDPSynapsesProperties.o
 
 $(UTILDIR)/Global.o: $(UTILDIR)/Global.cpp $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(UTILDIR)/Global.cpp -o $(UTILDIR)/Global.o

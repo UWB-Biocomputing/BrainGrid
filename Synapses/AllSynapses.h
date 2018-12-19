@@ -41,6 +41,7 @@
 #include "Global.h"
 #include "SimulationInfo.h"
 #include "IAllSynapses.h"
+#include "AllSynapsesProperties.h"
 
 #ifdef _WIN32
 typedef unsigned _int8 uint8_t;
@@ -145,6 +146,19 @@ class AllSynapses : public IAllSynapses
 
     protected:
         /**
+         *  Setup the internal structure of the class.
+         *
+         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info  ClusterInfo class to read information from.
+         */
+        void setupSynapsesInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
+         *  Deallocate all resources.
+         */
+        void cleanupSynapsesInternalState();
+
+        /**
          *  Copy synapses parameters.
          *
          *  @param  r_synapses  Synapses class object to copy from.
@@ -199,66 +213,12 @@ class AllSynapses : public IAllSynapses
     public:
         // The factor to adjust overlapping area to synapse weight.
         static constexpr BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
+
+        /**
+         * Pointer to the synapses property data.
+         */
+        class IAllSynapsesProperties* m_pSynapsesProperties;
  
-        /**
-         *  The location of the source neuron.
-         */
-        int *sourceNeuronLayoutIndex;
-
-        /** 
-         *  The location of the destination neuron.
-         */
-        int *destNeuronLayoutIndex;
-
-        /**
-         *   The weight (scaling factor, strength, maximal amplitude) of the synapse.
-         */
-         BGFLOAT *W;
-
-        /**
-         *  This synapse's summation point's address.
-         */
-        BGFLOAT **summationPoint;
-
-    	/**
-         *  Synapse type
-         */
-        synapseType *type;
-
-        /** 
-         *  The post-synaptic response is the result of whatever computation 
-         *  is going on in the synapse.
-         */
-        BGFLOAT *psr;
-
-    	/**
-         *  The boolean value indicating the entry in the array is in use.
-         */
-        bool *in_use;
-
-        /**
-         *  The number of (incoming) synapses for each neuron.
-         *  Note: Likely under a different name in GpuSim_struct, see synapse_count. -Aaron
-         */
-        BGSIZE *synapse_counts;
-
-        /**
-         *  The total number of active synapses.
-         */
-        BGSIZE total_synapse_counts;
-
-    	/**
-         *  The maximum number of synapses for each neurons.
-         */
-        BGSIZE maxSynapsesPerNeuron;
-
-        /**
-         *  The number of neurons
-         *  Aaron: Is this even supposed to be here?!
-         *  Usage: Used by destructor
-         */
-        int count_neurons;
-
     protected:
 
         /**
@@ -266,67 +226,3 @@ class AllSynapses : public IAllSynapses
          */
         int nParams;
 };
-
-#if defined(USE_GPU)
-struct AllSynapsesProperties 
-{
-        /**
-         *  The location of the source neuron
-         */
-        int *sourceNeuronLayoutIndex;
-
-        /** 
-         *  The location of the destination neuron
-         */
-        int *destNeuronLayoutIndex;
-
-        /**
-         *   The weight (scaling factor, strength, maximal amplitude) of the synapse.
-         */
-         BGFLOAT *W;
-
-    	/**
-         *  Synapse type
-         */
-        synapseType *type;
-
-        /** 
-         *  The post-synaptic response is the result of whatever computation 
-         *  is going on in the synapse.
-         */
-        BGFLOAT *psr;
-
-    	/**
-         *  The boolean value indicating the entry in the array is in use.
-         */
-        bool *in_use;
-
-        /**
-         *  The number of synapses for each neuron.
-         *  Note: Likely under a different name in GpuSim_struct, see synapse_count. -Aaron
-         */
-        BGSIZE *synapse_counts;
-
-        /**
-         *  The total number of active synapses.
-         */
-        BGSIZE total_synapse_counts;
-
-    	/**
-         *  The maximum number of synapses for each neurons.
-         */
-        BGSIZE maxSynapsesPerNeuron;
-
-        /**
-         *  The number of neurons
-         *  Aaron: Is this even supposed to be here?!
-         *  Usage: Used by destructor
-         */
-        int count_neurons;
-
-        /**
-         *  A temporary variable used for parallel reduction in calcSummationMapDevice. 
-         */
-        BGFLOAT *summation;
-}; 
-#endif // defined(USE_GPU)

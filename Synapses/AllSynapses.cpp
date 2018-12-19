@@ -4,36 +4,15 @@
 
 // Default constructor
 AllSynapses::AllSynapses() :
-        total_synapse_counts(0),
-        maxSynapsesPerNeuron(0),
-        count_neurons(0),
         nParams(0)
 {
-    destNeuronLayoutIndex = NULL;
-    W = NULL;
-    summationPoint = NULL;
-    sourceNeuronLayoutIndex = NULL;
-    psr = NULL;
-    type = NULL;
-    in_use = NULL;
-    synapse_counts = NULL;
 }
 
 // Copy constructor
 AllSynapses::AllSynapses(const AllSynapses &r_synapses) :
-        total_synapse_counts(0),
-        maxSynapsesPerNeuron(0),
-        count_neurons(0),
         nParams(0)
 {
-    destNeuronLayoutIndex = NULL;
-    W = NULL;
-    summationPoint = NULL;
-    sourceNeuronLayoutIndex = NULL;
-    psr = NULL;
-    type = NULL;
-    in_use = NULL;
-    synapse_counts = NULL;
+    copyParameters(dynamic_cast<const AllSynapses &>(r_synapses));
 }
 
 AllSynapses::~AllSynapses()
@@ -83,31 +62,21 @@ void AllSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info)
  */
 void AllSynapses::setupSynapses(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    BGSIZE max_total_synapses = max_synapses * num_neurons;
+    setupSynapsesInternalState(sim_info, clr_info);
 
-    maxSynapsesPerNeuron = max_synapses;
-    total_synapse_counts = 0;
-    count_neurons = num_neurons;
+    // allocate synspses properties data
+    m_pSynapsesProperties = new AllSynapsesProperties();
+    m_pSynapsesProperties->setupSynapsesProperties(num_neurons, max_synapses, sim_info, clr_info);
+}
 
-    if (max_total_synapses != 0) {
-        destNeuronLayoutIndex = new int[max_total_synapses];
-        W = new BGFLOAT[max_total_synapses];
-        summationPoint = new BGFLOAT*[max_total_synapses];
-        sourceNeuronLayoutIndex = new int[max_total_synapses];
-        psr = new BGFLOAT[max_total_synapses];
-        type = new synapseType[max_total_synapses];
-        in_use = new bool[max_total_synapses];
-        synapse_counts = new BGSIZE[num_neurons];
-
-        for (BGSIZE i = 0; i < max_total_synapses; i++) {
-            summationPoint[i] = NULL;
-            in_use[i] = false;
-        }
-
-        for (int i = 0; i < num_neurons; i++) {
-            synapse_counts[i] = 0;
-        }
-    }
+/*
+ *  Setup the internal structure of the class.
+ *
+ *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
+ */
+void AllSynapses::setupSynapsesInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info)
+{
 }
 
 /*
@@ -115,30 +84,18 @@ void AllSynapses::setupSynapses(const int num_neurons, const int max_synapses, S
  */
 void AllSynapses::cleanupSynapses()
 {
-    BGSIZE max_total_synapses = maxSynapsesPerNeuron * count_neurons;
+    // deallocate neurons properties data
+    delete m_pSynapsesProperties;
+    m_pSynapsesProperties = NULL;
 
-    if (max_total_synapses != 0) {
-        delete[] destNeuronLayoutIndex;
-        delete[] W;
-        delete[] summationPoint;
-        delete[] sourceNeuronLayoutIndex;
-        delete[] psr;
-        delete[] type;
-        delete[] in_use;
-        delete[] synapse_counts;
-    }
+    cleanupSynapsesInternalState();
+}
 
-    destNeuronLayoutIndex = NULL;
-    W = NULL;
-    summationPoint = NULL;
-    sourceNeuronLayoutIndex = NULL;
-    psr = NULL;
-    type = NULL;
-    in_use = NULL;
-    synapse_counts = NULL;
-
-    count_neurons = 0;
-    maxSynapsesPerNeuron = 0;
+/*
+ *  Deallocate all resources.
+ */
+void AllSynapses::cleanupSynapsesInternalState()
+{
 }
 
 /*
@@ -149,7 +106,7 @@ void AllSynapses::cleanupSynapses()
  */
 void AllSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
 {
-    psr[iSyn] = 0.0;
+    dynamic_cast<AllSynapsesProperties*>(m_pSynapsesProperties)->psr[iSyn] = 0.0;
 }
 
 /*
@@ -160,6 +117,9 @@ void AllSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
  */
 void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info)
 {
+        AllNeuronsProperties *pNeuronsProperties = dynamic_cast<AllNeuronsProperties*>(dynamic_cast<AllNeurons&>(neurons).m_pNeuronsProperties);
+        AllSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(m_pSynapsesProperties);
+
         // read the synapse data & create synapses
         int* read_synapses_counts= new int[clr_info->totalClusterNeurons];
         for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
@@ -175,20 +135,19 @@ void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const Cluste
                 input >> neuron_index; input.ignore();
 
                 int synapse_index = read_synapses_counts[neuron_index];
-                BGSIZE iSyn = maxSynapsesPerNeuron * neuron_index + synapse_index;
+                BGSIZE iSyn = pSynapsesProperties->maxSynapsesPerNeuron * neuron_index + synapse_index;
 
-                sourceNeuronLayoutIndex[iSyn] = neuron_index;
+                pSynapsesProperties->sourceNeuronLayoutIndex[iSyn] = neuron_index;
 
                 readSynapse(input, iSyn);
 
-                AllNeuronsProperties *pNeuronsProperties = dynamic_cast<AllNeuronsProperties*>(dynamic_cast<AllNeurons&>(neurons).m_pNeuronsProperties);
-                summationPoint[iSyn] = &(pNeuronsProperties->summation_map[destNeuronLayoutIndex[iSyn]]);
+                pSynapsesProperties->summationPoint[iSyn] = &(pNeuronsProperties->summation_map[pSynapsesProperties->destNeuronLayoutIndex[iSyn]]);
 
                 read_synapses_counts[neuron_index]++;
         }
 
         for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
-                        synapse_counts[i] = read_synapses_counts[i];
+                        pSynapsesProperties->synapse_counts[i] = read_synapses_counts[i];
         }
         delete[] read_synapses_counts;
 }
@@ -201,16 +160,18 @@ void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const Cluste
  */
 void AllSynapses::serialize(ostream& output, const ClusterInfo *clr_info)
 {
+    AllSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(m_pSynapsesProperties);
+
     // write the synapse data
     int synapse_count = 0;
     for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
-        synapse_count += synapse_counts[i];
+        synapse_count += pSynapsesProperties->synapse_counts[i];
     }
     output << synapse_count << ends;
 
     for (int neuron_index = 0; neuron_index < clr_info->totalClusterNeurons; neuron_index++) {
-        for (BGSIZE synapse_index = 0; synapse_index < synapse_counts[neuron_index]; synapse_index++) {
-            BGSIZE iSyn = maxSynapsesPerNeuron * neuron_index + synapse_index;
+        for (BGSIZE synapse_index = 0; synapse_index < pSynapsesProperties->synapse_counts[neuron_index]; synapse_index++) {
+            BGSIZE iSyn = pSynapsesProperties->maxSynapsesPerNeuron * neuron_index + synapse_index;
             writeSynapse(output, iSyn);
         }
     }
@@ -224,17 +185,19 @@ void AllSynapses::serialize(ostream& output, const ClusterInfo *clr_info)
  */
 void AllSynapses::readSynapse(istream &input, const BGSIZE iSyn)
 {
+    AllSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(m_pSynapsesProperties);
+
     int synapse_type(0);
 
     // input.ignore() so input skips over end-of-line characters.
-    input >> sourceNeuronLayoutIndex[iSyn]; input.ignore();
-    input >> destNeuronLayoutIndex[iSyn]; input.ignore();
-    input >> W[iSyn]; input.ignore();
-    input >> psr[iSyn]; input.ignore();
+    input >> pSynapsesProperties->sourceNeuronLayoutIndex[iSyn]; input.ignore();
+    input >> pSynapsesProperties->destNeuronLayoutIndex[iSyn]; input.ignore();
+    input >> pSynapsesProperties->W[iSyn]; input.ignore();
+    input >> pSynapsesProperties->psr[iSyn]; input.ignore();
     input >> synapse_type; input.ignore();
-    input >> in_use[iSyn]; input.ignore();
+    input >> pSynapsesProperties->in_use[iSyn]; input.ignore();
 
-    type[iSyn] = synapseOrdinalToType(synapse_type);
+    pSynapsesProperties->type[iSyn] = synapseOrdinalToType(synapse_type);
 }
 
 /*
@@ -245,12 +208,14 @@ void AllSynapses::readSynapse(istream &input, const BGSIZE iSyn)
  */
 void AllSynapses::writeSynapse(ostream& output, const BGSIZE iSyn) const
 {
-    output << sourceNeuronLayoutIndex[iSyn] << ends;
-    output << destNeuronLayoutIndex[iSyn] << ends;
-    output << W[iSyn] << ends;
-    output << psr[iSyn] << ends;
-    output << type[iSyn] << ends;
-    output << in_use[iSyn] << ends;
+    AllSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(m_pSynapsesProperties);
+
+    output << pSynapsesProperties->sourceNeuronLayoutIndex[iSyn] << ends;
+    output << pSynapsesProperties->destNeuronLayoutIndex[iSyn] << ends;
+    output << pSynapsesProperties->W[iSyn] << ends;
+    output << pSynapsesProperties->psr[iSyn] << ends;
+    output << pSynapsesProperties->type[iSyn] << ends;
+    output << pSynapsesProperties->in_use[iSyn] << ends;
 }
 
 /*     
@@ -286,7 +251,9 @@ synapseType AllSynapses::synapseOrdinalToType(const int type_ordinal)
  */
 void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap, int iStepOffset)
 {
-    for (BGSIZE i = 0; i < total_synapse_counts; i++) {
+    AllSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(m_pSynapsesProperties);
+
+    for (BGSIZE i = 0; i < pSynapsesProperties->total_synapse_counts; i++) {
         BGSIZE iSyn = synapseIndexMap->incomingSynapseIndexMap[i];
         advanceSynapse(iSyn, sim_info, neurons, iStepOffset);
     }
@@ -300,9 +267,11 @@ void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *n
  */
 void AllSynapses::eraseSynapse(const int neuron_index, const BGSIZE iSyn)
 {
-    synapse_counts[neuron_index]--;
-    in_use[iSyn] = false;
-    summationPoint[iSyn] = NULL;
+    AllSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(m_pSynapsesProperties);
+
+    pSynapsesProperties->synapse_counts[neuron_index]--;
+    pSynapsesProperties->in_use[iSyn] = false;
+    pSynapsesProperties->summationPoint[iSyn] = NULL;
 }
 #endif // !defined(USE_GPU)
 
@@ -319,23 +288,25 @@ void AllSynapses::eraseSynapse(const int neuron_index, const BGSIZE iSyn)
  */
 void AllSynapses::addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT, const ClusterInfo *clr_info)
 {
+    AllSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(m_pSynapsesProperties);
+
     int iNeuron = dest_neuron - clr_info->clusterNeuronsBegin;
  
-    if (synapse_counts[iNeuron] >= maxSynapsesPerNeuron) {
+    if (pSynapsesProperties->synapse_counts[iNeuron] >= pSynapsesProperties->maxSynapsesPerNeuron) {
         DEBUG ( cout << "Neuron : " << dest_neuron << " ran out of space for new synapses." << endl; )
         return; // TODO: ERROR!
     }
 
     // add it to the list
     BGSIZE synapse_index;
-    for (synapse_index = 0; synapse_index < maxSynapsesPerNeuron; synapse_index++) {
-        iSyn = maxSynapsesPerNeuron * iNeuron + synapse_index;
-        if (!in_use[iSyn]) {
+    for (synapse_index = 0; synapse_index < pSynapsesProperties->maxSynapsesPerNeuron; synapse_index++) {
+        iSyn = pSynapsesProperties->maxSynapsesPerNeuron * iNeuron + synapse_index;
+        if (!pSynapsesProperties->in_use[iSyn]) {
             break;
         }
     }
 
-    synapse_counts[iNeuron]++;
+    pSynapsesProperties->synapse_counts[iNeuron]++;
 
     // create a synapse
     createSynapse(iSyn, src_neuron, dest_neuron, sum_point, deltaT, type );

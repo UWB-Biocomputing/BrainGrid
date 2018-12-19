@@ -3,23 +3,12 @@
 // Default constructor
 AllDynamicSTDPSynapses::AllDynamicSTDPSynapses() : AllSTDPSynapses()
 {
-    lastSpike = NULL;
-    r = NULL;
-    u = NULL;
-    D = NULL;
-    U = NULL;
-    F = NULL;
 }
 
 // Copy constructor
 AllDynamicSTDPSynapses::AllDynamicSTDPSynapses(const AllDynamicSTDPSynapses &r_synapses) : AllSTDPSynapses(r_synapses)
 {
-    lastSpike = NULL;
-    r = NULL;
-    u = NULL;
-    D = NULL;
-    U = NULL;
-    F = NULL;
+    copyParameters(dynamic_cast<const AllDynamicSTDPSynapses &>(r_synapses));
 }
 
 AllDynamicSTDPSynapses::~AllDynamicSTDPSynapses()
@@ -70,18 +59,22 @@ void AllDynamicSTDPSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo
  */
 void AllDynamicSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    AllSTDPSynapses::setupSynapses(num_neurons, max_synapses, sim_info, clr_info);
+    setupSynapsesInternalState(sim_info, clr_info);
 
-    BGSIZE max_total_synapses = max_synapses * num_neurons;
+    // allocate synspses properties data
+    m_pSynapsesProperties = new AllDynamicSTDPSynapsesProperties();
+    m_pSynapsesProperties->setupSynapsesProperties(num_neurons, max_synapses, sim_info, clr_info);
+}
 
-    if (max_total_synapses != 0) {
-        lastSpike = new uint64_t[max_total_synapses];
-        r = new BGFLOAT[max_total_synapses];
-        u = new BGFLOAT[max_total_synapses];
-        D = new BGFLOAT[max_total_synapses];
-        U = new BGFLOAT[max_total_synapses];
-        F = new BGFLOAT[max_total_synapses];
-    }
+/*
+ *  Setup the internal structure of the class.
+ *
+ *  @param  sim_info  SimulationInfo class to read information from.
+ *  @param  clr_info  ClusterInfo class to read information from.
+ */
+void AllDynamicSTDPSynapses::setupSynapsesInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info)
+{
+    AllSTDPSynapses::setupSynapsesInternalState(sim_info, clr_info);
 }
 
 /*
@@ -89,25 +82,19 @@ void AllDynamicSTDPSynapses::setupSynapses(const int num_neurons, const int max_
  */
 void AllDynamicSTDPSynapses::cleanupSynapses()
 {
-    BGSIZE max_total_synapses = maxSynapsesPerNeuron * count_neurons;
+     // deallocate neurons properties data
+    delete m_pSynapsesProperties;
+    m_pSynapsesProperties = NULL;
 
-    if (max_total_synapses != 0) {
-        delete[] lastSpike;
-        delete[] r;
-        delete[] u;
-        delete[] D;
-        delete[] U;
-        delete[] F;
-    }
+    cleanupSynapsesInternalState();
+}
 
-    lastSpike = NULL;
-    r = NULL;
-    u = NULL;
-    D = NULL;
-    U = NULL;
-    F = NULL;
-
-    AllSTDPSynapses::cleanupSynapses();
+/*
+ *  Deallocate all resources.
+ */
+void AllDynamicSTDPSynapses::cleanupSynapsesInternalState()
+{
+    AllSTDPSynapses::cleanupSynapsesInternalState();
 }
 
 /*
@@ -153,15 +140,17 @@ void AllDynamicSTDPSynapses::printParameters(ostream &output) const
  */
 void AllDynamicSTDPSynapses::readSynapse(istream &input, const BGSIZE iSyn)
 {
+    AllDynamicSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllDynamicSTDPSynapsesProperties*>(m_pSynapsesProperties);
+
     AllSTDPSynapses::readSynapse(input, iSyn);
 
     // input.ignore() so input skips over end-of-line characters.
-    input >> lastSpike[iSyn]; input.ignore();
-    input >> r[iSyn]; input.ignore();
-    input >> u[iSyn]; input.ignore();
-    input >> D[iSyn]; input.ignore();
-    input >> U[iSyn]; input.ignore();
-    input >> F[iSyn]; input.ignore();
+    input >> pSynapsesProperties->lastSpike[iSyn]; input.ignore();
+    input >> pSynapsesProperties->r[iSyn]; input.ignore();
+    input >> pSynapsesProperties->u[iSyn]; input.ignore();
+    input >> pSynapsesProperties->D[iSyn]; input.ignore();
+    input >> pSynapsesProperties->U[iSyn]; input.ignore();
+    input >> pSynapsesProperties->F[iSyn]; input.ignore();
 }
 
 /*
@@ -172,14 +161,16 @@ void AllDynamicSTDPSynapses::readSynapse(istream &input, const BGSIZE iSyn)
  */
 void AllDynamicSTDPSynapses::writeSynapse(ostream& output, const BGSIZE iSyn) const 
 {
+    AllDynamicSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllDynamicSTDPSynapsesProperties*>(m_pSynapsesProperties);
+
     AllSTDPSynapses::writeSynapse(output, iSyn);
 
-    output << lastSpike[iSyn] << ends;
-    output << r[iSyn] << ends;
-    output << u[iSyn] << ends;
-    output << D[iSyn] << ends;
-    output << U[iSyn] << ends;
-    output << F[iSyn] << ends;
+    output << pSynapsesProperties->lastSpike[iSyn] << ends;
+    output << pSynapsesProperties->r[iSyn] << ends;
+    output << pSynapsesProperties->u[iSyn] << ends;
+    output << pSynapsesProperties->D[iSyn] << ends;
+    output << pSynapsesProperties->U[iSyn] << ends;
+    output << pSynapsesProperties->F[iSyn] << ends;
 }
 
 /*
@@ -190,11 +181,13 @@ void AllDynamicSTDPSynapses::writeSynapse(ostream& output, const BGSIZE iSyn) co
  */
 void AllDynamicSTDPSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
 {
+    AllDynamicSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllDynamicSTDPSynapsesProperties*>(m_pSynapsesProperties);
+
     AllSTDPSynapses::resetSynapse(iSyn, deltaT);
 
-    u[iSyn] = DEFAULT_U;
-    r[iSyn] = 1.0;
-    lastSpike[iSyn] = ULONG_MAX;
+    pSynapsesProperties->u[iSyn] = DEFAULT_U;
+    pSynapsesProperties->r[iSyn] = 1.0;
+    pSynapsesProperties->lastSpike[iSyn] = ULONG_MAX;
 }
 
 /*
@@ -210,9 +203,11 @@ void AllDynamicSTDPSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT delta
  */
 void AllDynamicSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
+    AllDynamicSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllDynamicSTDPSynapsesProperties*>(m_pSynapsesProperties);
+
     AllSTDPSynapses::createSynapse(iSyn, source_index, dest_index, sum_point, deltaT, type);
 
-    U[iSyn] = DEFAULT_U;
+    pSynapsesProperties->U[iSyn] = DEFAULT_U;
 
     BGFLOAT U;
     BGFLOAT D;
@@ -243,9 +238,9 @@ void AllDynamicSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, 
             break;
     }
 
-    this->U[iSyn] = U;
-    this->D[iSyn] = D;
-    this->F[iSyn] = F;
+    pSynapsesProperties->U[iSyn] = U;
+    pSynapsesProperties->D[iSyn] = D;
+    pSynapsesProperties->F[iSyn] = F;
 }
 
 #if !defined(USE_GPU)
@@ -258,15 +253,17 @@ void AllDynamicSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, 
  */
 void AllDynamicSTDPSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset)
 {
-    BGFLOAT &psr = this->psr[iSyn];
-    BGFLOAT &W = this->W[iSyn];
-    BGFLOAT &decay = this->decay[iSyn];
-    uint64_t &lastSpike = this->lastSpike[iSyn];
-    BGFLOAT &r = this->r[iSyn];
-    BGFLOAT &u = this->u[iSyn];
-    BGFLOAT &D = this->D[iSyn];
-    BGFLOAT &F = this->F[iSyn];
-    BGFLOAT &U = this->U[iSyn];
+    AllDynamicSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllDynamicSTDPSynapsesProperties*>(m_pSynapsesProperties);
+
+    BGFLOAT &psr = pSynapsesProperties->psr[iSyn];
+    BGFLOAT &W = pSynapsesProperties->W[iSyn];
+    BGFLOAT &decay = pSynapsesProperties->decay[iSyn];
+    uint64_t &lastSpike = pSynapsesProperties->lastSpike[iSyn];
+    BGFLOAT &r = pSynapsesProperties->r[iSyn];
+    BGFLOAT &u = pSynapsesProperties->u[iSyn];
+    BGFLOAT &D = pSynapsesProperties->D[iSyn];
+    BGFLOAT &F = pSynapsesProperties->F[iSyn];
+    BGFLOAT &U = pSynapsesProperties->U[iSyn];
 
     // adjust synapse parameters
     uint64_t simulationStep = g_simulationStep + iStepOffset;

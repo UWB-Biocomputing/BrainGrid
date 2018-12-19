@@ -50,8 +50,7 @@
 #pragma once
 
 #include "AllSTDPSynapses.h"
-
-struct AllDynamicSTDPSynapsesProperties;
+#include "AllDynamicSTDPSynapsesProperties.h"
 
 class AllDynamicSTDPSynapses : public AllSTDPSynapses
 {
@@ -136,6 +135,19 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
         virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
 
     protected:
+        /**
+         *  Setup the internal structure of the class.
+         *
+         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info  ClusterInfo class to read information from.
+         */
+        void setupSynapsesInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
+         *  Deallocate all resources.
+         */
+        void cleanupSynapsesInternalState();
+
         /**
          *  Copy synapses parameters.
          *
@@ -280,70 +292,5 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          */
         virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset);
 #endif // defined(USE_GPU)
-    public:
-        /**
-         *  The time of the last spike.
-         */
-        uint64_t *lastSpike;
-
-        /**
-         *  The time varying state variable \f$r\f$ for depression.
-         */
-        BGFLOAT *r;
-
-        /**
-         *  The time varying state variable \f$u\f$ for facilitation.
-         */
-        BGFLOAT *u;
-
-        /**
-         *  The time constant of the depression of the dynamic synapse [range=(0,10); units=sec].
-         */
-        BGFLOAT *D;
-
-        /**
-         *  The use parameter of the dynamic synapse [range=(1e-5,1)].
-         */
-        BGFLOAT *U;
-
-        /**
-         *  The time constant of the facilitation of the dynamic synapse [range=(0,10); units=sec].
-         */
-        BGFLOAT *F;
 };
-
-#if defined(USE_GPU)
-struct AllDynamicSTDPSynapsesProperties : public AllSTDPSynapsesProperties
-{
-        /**
-         *  The time of the last spike.
-         */
-        uint64_t *lastSpike;
-
-        /**
-         *  The time varying state variable \f$r\f$ for depression.
-         */
-        BGFLOAT *r;
-
-        /**
-         *  The time varying state variable \f$u\f$ for facilitation.
-         */
-        BGFLOAT *u;
-
-        /**
-         *  The time constant of the depression of the dynamic synapse [range=(0,10); units=sec].
-         */
-        BGFLOAT *D;
-
-        /**
-         *  The use parameter of the dynamic synapse [range=(1e-5,1)].
-         */
-        BGFLOAT *U;
-
-        /**
-         *  The time constant of the facilitation of the dynamic synapse [range=(0,10); units=sec].
-         */
-        BGFLOAT *F;
-};
-#endif // defined(USE_GPU)
 

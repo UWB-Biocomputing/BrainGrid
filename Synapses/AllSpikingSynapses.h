@@ -39,8 +39,7 @@
 
 #include "AllSynapses.h"
 #include "EventQueue.h"
-
-struct AllSpikingSynapsesProperties;
+#include "AllSpikingSynapsesProperties.h"
 
 typedef void (*fpPreSynapsesSpikeHit_t)(const BGSIZE, AllSpikingSynapsesProperties*);
 typedef void (*fpPostSynapsesSpikeHit_t)(const BGSIZE, AllSpikingSynapsesProperties*);
@@ -154,6 +153,19 @@ class AllSpikingSynapses : public AllSynapses
         virtual bool allowBackPropagation();
 
     protected:
+        /**
+         *  Setup the internal structure of the class.
+         *
+         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info  ClusterInfo class to read information from.
+         */
+        void setupSynapsesInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
+         *  Deallocate all resources.
+         */
+        void cleanupSynapsesInternalState();
+
         /**
          *  Copy synapses parameters.
          *
@@ -422,56 +434,5 @@ public:
          */
         virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset);
 #endif
-
-    public:
-
-        /**
-         *  The decay for the psr.
-         */
-        BGFLOAT *decay;
-
-        /**
-         *  The synaptic time constant \f$\tau\f$ [units=sec; range=(0,100)].
-         */
-        BGFLOAT *tau;
-
-        /**
-         *  The synaptic transmission delay, descretized into time steps.
-         */
-        int *total_delay;
-
-    protected:
-
-    private:
-
-        /**
-         * The collection of synaptic transmission delay queue.
-         */
-        EventQueue *preSpikeQueue;
 };
-
-#if defined(USE_GPU)
-struct AllSpikingSynapsesProperties : public AllSynapsesProperties
-{
-        /**
-         *  The decay for the psr.
-         */
-        BGFLOAT *decay;
-
-        /**
-         *  The synaptic time constant \f$\tau\f$ [units=sec; range=(0,100)].
-         */
-        BGFLOAT *tau;
-
-        /**
-         *  The synaptic transmission delay, descretized into time steps.
-         */
-        int *total_delay;
-
-        /**
-         * The collection of synaptic transmission delay queue.
-         */
-        EventQueue *preSpikeQueue;
-};
-#endif // defined(USE_GPU)
 

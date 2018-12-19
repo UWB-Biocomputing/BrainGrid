@@ -68,7 +68,8 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
             CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIdxFromNeuronLayoutIdx(dest_neuron, vtClrInfo);
             AllNeurons *neurons = dynamic_cast<AllNeurons*>(vtClr[iCluster]->m_neurons);
             AllNeuronsProperties *pNeuronsProperties = dynamic_cast<AllNeuronsProperties*>(neurons->m_pNeuronsProperties);
-            IAllSynapses *synapses = vtClr[iCluster]->m_synapses;
+            AllSynapses *synapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
+            AllSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(synapses->m_pSynapsesProperties);
 
             DEBUG_MID (cout << "source: " << src_neuron << " dest: " << dest_neuron << " dist: " << distDestNeurons[src_neuron][i].dist << endl;)
 
@@ -81,10 +82,10 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
             // set synapse weight
             // TODO: we need another synaptic weight distibution mode (normal distribution)
             if (synapses->synSign(type) > 0) {
-                dynamic_cast<AllSynapses*>(synapses)->W[iSyn] = rng.inRange(m_excWeight[0], m_excWeight[1]);
+                pSynapsesProperties->W[iSyn] = rng.inRange(m_excWeight[0], m_excWeight[1]);
             }
             else {
-                dynamic_cast<AllSynapses*>(synapses)->W[iSyn] = rng.inRange(m_inhWeight[0], m_inhWeight[1]);
+                pSynapsesProperties->W[iSyn] = rng.inRange(m_inhWeight[0], m_inhWeight[1]);
             } 
         }
     }
