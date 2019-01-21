@@ -48,30 +48,7 @@ class AllSpikingNeurons : public AllNeurons
 {
     public:
         AllSpikingNeurons();
-        AllSpikingNeurons(const AllSpikingNeurons &r_neurons);
         virtual ~AllSpikingNeurons();
-
-        /**
-         *  Assignment operator: copy neurons parameters.
-         *
-         *  @param  r_neurons  Neurons class object to copy from.
-         */
-        virtual IAllNeurons &operator=(const IAllNeurons &r_neurons);
-
-        /**
-         *  Setup the internal structure of the class.
-         *  Allocate memories to store all neurons' state.
-         *
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  clr_info  ClusterInfo class to read information from.
-         */
-        virtual void setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info);
-
-        /**
-         *  Cleanup the class.
-         *  Deallocate memories.
-         */
-        virtual void cleanupNeurons(); 
 
         /**
          *  Clear the spike counts out of all Neurons.
@@ -81,27 +58,6 @@ class AllSpikingNeurons : public AllNeurons
          *  @param  clr       Cluster class to read information from.
          */
         void clearSpikeCounts(const SimulationInfo *sim_info, const ClusterInfo *clr_info, Cluster *clr);
-
-    protected:
-        /**
-         *  Copy neurons parameters.
-         *
-         *  @param  r_neurons  Neurons class object to copy from.
-         */
-        void copyParameters(const AllSpikingNeurons &r_neurons);
-
-        /**
-         *  Setup the internal structure of the class.
-         *
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  clr_info  ClusterInfo class to read information from.
-         */
-        void setupNeuronsInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info);
-
-        /**
-         *  Deallocate all resources.
-         */
-        void cleanupNeuronsInternalState();
 
 #if defined(USE_GPU)
     public:

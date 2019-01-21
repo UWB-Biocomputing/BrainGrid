@@ -98,7 +98,6 @@ class AllLIFNeurons : public AllIFNeurons
     public:
 
         AllLIFNeurons();
-        AllLIFNeurons(const AllLIFNeurons &r_neurons);
         virtual ~AllLIFNeurons();
 
         /**
@@ -108,21 +107,6 @@ class AllLIFNeurons : public AllIFNeurons
          *  @return Reference to the instance of the class.
          */
         static IAllNeurons* Create() { return new AllLIFNeurons(); }
-
-        /**
-         *  Assignment operator: copy neurons parameters.
-         *
-         *  @param  r_neurons  Neurons class object to copy from.
-         */
-        virtual IAllNeurons &operator=(const IAllNeurons &r_neurons);
-
-    protected:
-        /**
-         *  Copy neurons parameters.
-         *
-         *  @param  r_neurons  Neurons class object to copy from.
-         */
-        void copyParameters(const AllLIFNeurons &r_neurons);
 
 #if defined(USE_GPU)
     public:

@@ -27,6 +27,11 @@ class IAllNeurons
         virtual IAllNeurons &operator=(const IAllNeurons &r_neurons) = 0;
 
         /**
+         *  Create and setup neurons properties.
+         */
+        virtual void setupNeuronsProps() = 0;
+
+        /**
          *  Setup the internal structure of the class. 
          *  Allocate memories to store all neurons' state.
          *
@@ -71,14 +76,6 @@ class IAllNeurons
          *  @param  clr_info    ClusterInfo class to read information from.
          */
         virtual void createAllNeurons(SimulationInfo *sim_info, Layout *layout, ClusterInfo *clr_info) = 0;
-
-        /**
-         *  Outputs state of the neuron chosen as a string.
-         *
-         *  @param  i   index of the neuron (in neurons) to output info from.
-         *  @return the complete state of the neuron.
-         */
-        virtual string toString(const int i) const = 0;
 
         /**
          *  Reads and sets the data for all neurons from input stream.

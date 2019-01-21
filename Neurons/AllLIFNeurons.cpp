@@ -2,43 +2,14 @@
 #include "ParseParamError.h"
 
 // Default constructor
-AllLIFNeurons::AllLIFNeurons() : AllIFNeurons()
+AllLIFNeurons::AllLIFNeurons()
 {
-}
-
-// Copy constructor
-AllLIFNeurons::AllLIFNeurons(const AllLIFNeurons &r_neurons) : AllIFNeurons(r_neurons)
-{
-    copyParameters(dynamic_cast<const AllLIFNeurons &>(r_neurons));
 }
 
 AllLIFNeurons::~AllLIFNeurons()
 {
 }
 
-/*
- *  Assignment operator: copy neurons parameters.
- *
- *  @param  r_neurons  Neurons class object to copy from.
- */
-IAllNeurons &AllLIFNeurons::operator=(const IAllNeurons &r_neurons)
-{
-    copyParameters(dynamic_cast<const AllLIFNeurons &>(r_neurons));
-
-    return (*this);
-}
-
-/*
- *  Copy neurons parameters.
- *
- *  @param  r_neurons  Neurons class object to copy from.
- */
-void AllLIFNeurons::copyParameters(const AllLIFNeurons &r_neurons)
-{
-    AllIFNeurons::copyParameters(r_neurons);
-}
-
-#if !defined(USE_GPU)
 /*
  *  Update internal state of the indexed Neuron (called by every simulation step).
  *
@@ -113,4 +84,3 @@ void AllLIFNeurons::fire(const int index, const SimulationInfo *sim_info, int iS
     // reset to 'Vreset'
     Vm = Vreset;
 }
-#endif

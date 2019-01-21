@@ -23,7 +23,7 @@ class AllNeuronsProperties : public IAllNeuronsProperties
          */
         virtual void setupNeuronsProperties(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
-    protected:
+    private:
         /**
          *  Cleanup the class.
          *  Deallocate memories.
@@ -35,6 +35,11 @@ class AllNeuronsProperties : public IAllNeuronsProperties
          *  Total number of neurons.
          */
         int size;
+
+        /**
+         *  Number of parameters read.
+         */
+        int nParams;
 
     public:
         /**

@@ -2,90 +2,14 @@
 #include "AllSpikingSynapses.h"
 
 // Default constructor
-AllSpikingNeurons::AllSpikingNeurons() : AllNeurons()
+AllSpikingNeurons::AllSpikingNeurons()
 {
-}
-
-// Copy constructor
-AllSpikingNeurons::AllSpikingNeurons(const AllSpikingNeurons &r_neurons) : AllNeurons(r_neurons)
-{
-    copyParameters(dynamic_cast<const AllSpikingNeurons &>(r_neurons));
 }
 
 AllSpikingNeurons::~AllSpikingNeurons()
 {
-    cleanupNeurons();
 }
 
-/*
- *  Assignment operator: copy neurons parameters.
- *
- *  @param  r_neurons  Neurons class object to copy from.
- */
-IAllNeurons &AllSpikingNeurons::operator=(const IAllNeurons &r_neurons)
-{
-    copyParameters(dynamic_cast<const AllSpikingNeurons &>(r_neurons));
-
-    return (*this);
-}
-
-/*
- *  Copy neurons parameters.
- *
- *  @param  r_neurons  Neurons class object to copy from.
- */
-void AllSpikingNeurons::copyParameters(const AllSpikingNeurons &r_neurons)
-{
-    AllNeurons::copyParameters(r_neurons);
-}
-
-/*
- *  Setup the internal structure of the class (allocate memories).
- *
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  clr_info  ClusterInfo class to read information from.
- */
-void AllSpikingNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info)
-{
-    setupNeuronsInternalState(sim_info, clr_info);
-
-    // allocate neurons properties data
-    m_pNeuronsProperties = new AllSpikingNeuronsProperties();
-    m_pNeuronsProperties->setupNeuronsProperties(sim_info, clr_info);
-}
-
-/*
- *  Setup the internal structure of the class.
- *
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  clr_info  ClusterInfo class to read information from.
- */
-void AllSpikingNeurons::setupNeuronsInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info)
-{
-    AllNeurons::setupNeuronsInternalState(sim_info, clr_info);
-}
-
-/*
- *  Cleanup the class (deallocate memories).
- */
-void AllSpikingNeurons::cleanupNeurons()
-{
-    // deallocate neurons properties data
-    delete m_pNeuronsProperties;
-    m_pNeuronsProperties = NULL;
-
-    cleanupNeuronsInternalState();
-}
-
-/*
- *  Deallocate all resources
- */
-void AllSpikingNeurons::cleanupNeuronsInternalState()
-{
-    AllNeurons::cleanupNeuronsInternalState();
-}
-
-#if !defined(USE_GPU)
 /*
  *  Clear the spike counts out of all Neurons.
  *
@@ -121,6 +45,7 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
     AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
+    AllSpikingSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSpikingSynapsesProperties*>(spSynapses.m_pSynapsesProperties);
     bool *hasFired = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->hasFired;
     int *spikeCount = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCount; 
 
@@ -135,7 +60,7 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
 
             assert( spikeCount[idx] < max_spikes );
 
-            if (spSynapses.total_synapse_counts != 0) {
+            if (pSynapsesProperties->total_synapse_counts != 0) {
                 // notify outgoing synapses
                 BGSIZE synapse_counts;
 
@@ -222,4 +147,3 @@ uint64_t AllSpikingNeurons::getSpikeHistory(int index, int offIndex, const Simul
     int idxSp = (spikeCount[index] + spikeCountOffset[index] +  max_spikes + offIndex) % max_spikes;
     return spike_history[index][idxSp];
 }
-#endif // !defined(USE_GPU)

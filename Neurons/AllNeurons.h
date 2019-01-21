@@ -47,8 +47,13 @@ class AllNeurons : public IAllNeurons
 {
     public:
         AllNeurons();
-        AllNeurons(const AllNeurons &r_neurons);
         virtual ~AllNeurons();
+
+        /**
+         *  Cleanup the class.
+         *  Deallocate memories.
+         */
+        virtual void cleanupNeurons();
 
         /**
          *  Assignment operator: copy neurons parameters.
@@ -58,7 +63,7 @@ class AllNeurons : public IAllNeurons
         virtual IAllNeurons &operator=(const IAllNeurons &r_neurons);
 
         /**
-         *  Setup the internal structure of the class. 
+         *  Setup the internal structure of the class.
          *  Allocate memories to store all neurons' state.
          *
          *  @param  sim_info  SimulationInfo class to read information from.
@@ -67,41 +72,55 @@ class AllNeurons : public IAllNeurons
         virtual void setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
-         *  Cleanup the class.
-         *  Deallocate memories. 
+         *  Checks the number of required parameters to read.
+         *
+         * @return true if all required parameters were successfully read, false otherwise.
          */
-        virtual void cleanupNeurons();
+        virtual bool checkNumParameters();
+
+        /**
+         *  Attempts to read parameters from a XML file.
+         *
+         *  @param  element TiXmlElement to examine.
+         *  @return true if successful, false otherwise.
+         */
+        virtual bool readParameters(const TiXmlElement& element);
+
+        /**
+         *  Prints out all parameters of the neurons to ostream.
+         *
+         *  @param  output  ostream to send output to.
+         */
+        virtual void printParameters(ostream &output) const;
+
+        /**
+         *  Creates all the Neurons and assigns initial data for them.
+         *
+         *  @param  sim_info    SimulationInfo class to read information from.
+         *  @param  layout      Layout information of the neunal network.
+         *  @param  clr_info    ClusterInfo class to read information from.
+         */
+        virtual void createAllNeurons(SimulationInfo *sim_info, Layout *layout, ClusterInfo *clr_info);
+
+        /**
+         *  Reads and sets the data for all neurons from input stream.
+         *
+         *  @param  input       istream to read from.
+         *  @param  clr_info    ClusterInfo class to read information from.
+         */
+        virtual void deserialize(istream &input, const ClusterInfo *clr_info);
+
+        /**
+         *  Writes out the data in all neurons to output stream.
+         *
+         *  @param  output      stream to write out to.
+         *  @param  clr_info    ClusterInfo class to read information from.
+         */
+        virtual void serialize(ostream& output, const ClusterInfo *clr_info) const;
 
     public:
         /**
          * Pointer to the neurons property data.
          */
-        class IAllNeuronsProperties* m_pNeuronsProperties;
-
-    protected:
-        /**
-         *  Copy neurons parameters.
-         *
-         *  @param  r_neurons  Neurons class object to copy from.
-         */
-        void copyParameters(const AllNeurons &r_neurons);
-       
-        /**
-         *  Setup the internal structure of the class. 
-         *
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  clr_info  ClusterInfo class to read information from.
-         */
-        void setupNeuronsInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info);
-
-        /**
-         *  Deallocate all resources.
-         */
-        void cleanupNeuronsInternalState();
-
-    protected:
-        /**
-         *  Number of parameters read.
-         */
-        int nParams;
+        class AllNeuronsProperties* m_pNeuronsProperties;
 };

@@ -118,6 +118,10 @@ IAllNeurons* FClassOfCategory::createNeurons(const TiXmlNode* parms)
 {
     if (parms->ToElement()->QueryValueAttribute("class", &m_neuronsClassName) == TIXML_SUCCESS) {
         m_neurons = createNeuronsWithName(m_neuronsClassName);
+
+        // setup neurons' properties
+        m_neurons->setupNeuronsProps();
+
         return m_neurons;
     }
 
@@ -133,6 +137,11 @@ IAllNeurons* FClassOfCategory::createNeurons(const TiXmlNode* parms)
 IAllNeurons* FClassOfCategory::createNeurons()
 {
     IAllNeurons *neurons = createNeuronsWithName(m_neuronsClassName);
+
+    // setup neurons' properties
+    neurons->setupNeuronsProps();
+
+    // copy basic parameters
     *neurons = *m_neurons;
 
     return neurons;

@@ -23,7 +23,7 @@ class AllSpikingNeuronsProperties : public AllNeuronsProperties
          */
         virtual void setupNeuronsProperties(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
-    protected:
+    private:
         /**
          *  Cleanup the class.
          *  Deallocate memories.
