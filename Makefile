@@ -232,10 +232,10 @@ SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
 		$(NEURONDIR)/AllIFNeurons.o \
 		$(NEURONDIR)/AllLIFNeurons.o \
 		$(NEURONDIR)/AllIZHNeurons.o \
-		$(NEURONDIR)/AllNeuronsProperties.o \
-		$(NEURONDIR)/AllSpikingNeuronsProperties.o \
-		$(NEURONDIR)/AllIFNeuronsProperties.o \
-		$(NEURONDIR)/AllIZHNeuronsProperties.o \
+		$(NEURONDIR)/AllNeuronsProps.o \
+		$(NEURONDIR)/AllSpikingNeuronsProps.o \
+		$(NEURONDIR)/AllIFNeuronsProps.o \
+		$(NEURONDIR)/AllIZHNeuronsProps.o \
 		$(SYNAPSEDIR)/AllSynapses.o \
 		$(SYNAPSEDIR)/AllSpikingSynapses.o \
 		$(SYNAPSEDIR)/AllDSSynapses.o \
@@ -273,10 +273,10 @@ SINGLEOBJS =    $(COREDIR)/BGDriver.o  \
                 $(NEURONDIR)/AllIFNeurons.o \
                 $(NEURONDIR)/AllLIFNeurons.o \
                 $(NEURONDIR)/AllIZHNeurons.o \
-		$(NEURONDIR)/AllNeuronsProperties.o \
-		$(NEURONDIR)/AllSpikingNeuronsProperties.o \
-		$(NEURONDIR)/AllIFNeuronsProperties.o \
-		$(NEURONDIR)/AllIZHNeuronsProperties.o \
+		$(NEURONDIR)/AllNeuronsProps.o \
+		$(NEURONDIR)/AllSpikingNeuronsProps.o \
+		$(NEURONDIR)/AllIFNeuronsProps.o \
+		$(NEURONDIR)/AllIZHNeuronsProps.o \
                 $(SYNAPSEDIR)/AllSynapses.o \
                 $(SYNAPSEDIR)/AllSpikingSynapses.o \
                 $(SYNAPSEDIR)/AllDSSynapses.o \
@@ -453,17 +453,17 @@ $(NEURONDIR)/AllLIFNeurons.o: $(NEURONDIR)/AllLIFNeurons.cpp $(NEURONDIR)/AllLIF
 $(NEURONDIR)/AllIZHNeurons.o: $(NEURONDIR)/AllIZHNeurons.cpp $(NEURONDIR)/AllIZHNeurons.h $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(NEURONDIR)/AllIZHNeurons.cpp -o $(NEURONDIR)/AllIZHNeurons.o
 
-$(NEURONDIR)/AllNeuronsProperties.o: $(NEURONDIR)/AllNeuronsProperties.cpp $(NEURONDIR)/AllNeuronsProperties.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(NEURONDIR)/AllNeuronsProperties.cpp -o $(NEURONDIR)/AllNeuronsProperties.o
+$(NEURONDIR)/AllNeuronsProps.o: $(NEURONDIR)/AllNeuronsProps.cpp $(NEURONDIR)/AllNeuronsProps.h $(UTILDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(NEURONDIR)/AllNeuronsProps.cpp -o $(NEURONDIR)/AllNeuronsProps.o
 
-$(NEURONDIR)/AllSpikingNeuronsProperties.o: $(NEURONDIR)/AllSpikingNeuronsProperties.cpp $(NEURONDIR)/AllSpikingNeuronsProperties.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(NEURONDIR)/AllSpikingNeuronsProperties.cpp -o $(NEURONDIR)/AllSpikingNeuronsProperties.o
+$(NEURONDIR)/AllSpikingNeuronsProps.o: $(NEURONDIR)/AllSpikingNeuronsProps.cpp $(NEURONDIR)/AllSpikingNeuronsProps.h $(UTILDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(NEURONDIR)/AllSpikingNeuronsProps.cpp -o $(NEURONDIR)/AllSpikingNeuronsProps.o
 
-$(NEURONDIR)/AllIFNeuronsProperties.o: $(NEURONDIR)/AllIFNeuronsProperties.cpp $(NEURONDIR)/AllIFNeuronsProperties.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(NEURONDIR)/AllIFNeuronsProperties.cpp -o $(NEURONDIR)/AllIFNeuronsProperties.o
+$(NEURONDIR)/AllIFNeuronsProps.o: $(NEURONDIR)/AllIFNeuronsProps.cpp $(NEURONDIR)/AllIFNeuronsProps.h $(UTILDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(NEURONDIR)/AllIFNeuronsProps.cpp -o $(NEURONDIR)/AllIFNeuronsProps.o
 
-$(NEURONDIR)/AllIZHNeuronsProperties.o: $(NEURONDIR)/AllIZHNeuronsProperties.cpp $(NEURONDIR)/AllIZHNeuronsProperties.h $(UTILDIR)/Global.h
-	$(CXX) $(CXXFLAGS) $(NEURONDIR)/AllIZHNeuronsProperties.cpp -o $(NEURONDIR)/AllIZHNeuronsProperties.o
+$(NEURONDIR)/AllIZHNeuronsProps.o: $(NEURONDIR)/AllIZHNeuronsProps.cpp $(NEURONDIR)/AllIZHNeuronsProps.h $(UTILDIR)/Global.h
+	$(CXX) $(CXXFLAGS) $(NEURONDIR)/AllIZHNeuronsProps.cpp -o $(NEURONDIR)/AllIZHNeuronsProps.o
 
 $(SYNAPSEDIR)/AllSynapses.o: $(SYNAPSEDIR)/AllSynapses.cpp $(SYNAPSEDIR)/AllSynapses.h $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(SYNAPSEDIR)/AllSynapses.cpp -o $(SYNAPSEDIR)/AllSynapses.o

@@ -21,8 +21,8 @@ void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info, const C
 {
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
-    int *spikeCountOffset = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCountOffset;
-    int *spikeCount = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCount; 
+    int *spikeCountOffset = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spikeCountOffset;
+    int *spikeCount = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spikeCount; 
 
     for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
         spikeCountOffset[i] = (spikeCount[i] + spikeCountOffset[i]) % max_spikes;
@@ -45,9 +45,9 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
     AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
-    AllSpikingSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSpikingSynapsesProperties*>(spSynapses.m_pSynapsesProperties);
-    bool *hasFired = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->hasFired;
-    int *spikeCount = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCount; 
+    AllSpikingSynapsesProperties *pSynapsesProps = dynamic_cast<AllSpikingSynapsesProperties*>(spSynapses.m_pSynapsesProperties);
+    bool *hasFired = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->hasFired;
+    int *spikeCount = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spikeCount; 
 
     // For each neuron in the network
     for (int idx = clr_info->totalClusterNeurons - 1; idx >= 0; --idx) {
@@ -60,7 +60,7 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
 
             assert( spikeCount[idx] < max_spikes );
 
-            if (pSynapsesProperties->total_synapse_counts != 0) {
+            if (pSynapsesProps->total_synapse_counts != 0) {
                 // notify outgoing synapses
                 BGSIZE synapse_counts;
 
@@ -105,10 +105,10 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
  */
 void AllSpikingNeurons::fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const
 {
-    bool *hasFired = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->hasFired;
-    int *spikeCountOffset = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCountOffset;
-    int *spikeCount = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCount; 
-    uint64_t **spike_history = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spike_history;
+    bool *hasFired = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->hasFired;
+    int *spikeCountOffset = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spikeCountOffset;
+    int *spikeCount = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spikeCount; 
+    uint64_t **spike_history = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spike_history;
 
     // Note that the neuron has fired!
     hasFired[index] = true;
@@ -138,9 +138,9 @@ void AllSpikingNeurons::fire(const int index, const SimulationInfo *sim_info, in
  */
 uint64_t AllSpikingNeurons::getSpikeHistory(int index, int offIndex, const SimulationInfo *sim_info)
 {
-    int *spikeCountOffset = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCountOffset;
-    int *spikeCount = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spikeCount; 
-    uint64_t **spike_history = dynamic_cast<AllSpikingNeuronsProperties*>(m_pNeuronsProperties)->spike_history;
+    int *spikeCountOffset = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spikeCountOffset;
+    int *spikeCount = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spikeCount; 
+    uint64_t **spike_history = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spike_history;
 
     // offIndex is a minus offset
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));

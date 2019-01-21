@@ -20,15 +20,15 @@ AllLIFNeurons::~AllLIFNeurons()
  */
 void AllLIFNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
 {
-    AllIFNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIFNeuronsProperties*>(m_pNeuronsProperties);
-    BGFLOAT &Vm = pNeuronsProperties->Vm[index];
-    BGFLOAT &Vthresh = pNeuronsProperties->Vthresh[index];
-    BGFLOAT &summationPoint = pNeuronsProperties->summation_map[index];
-    BGFLOAT &I0 = pNeuronsProperties->I0[index];
-    BGFLOAT &Inoise = pNeuronsProperties->Inoise[index];
-    BGFLOAT &C1 = pNeuronsProperties->C1[index];
-    BGFLOAT &C2 = pNeuronsProperties->C2[index];
-    int &nStepsInRefr = pNeuronsProperties->nStepsInRefr[index];
+    AllIFNeuronsProps *pNeuronsProps = dynamic_cast<AllIFNeuronsProps*>(m_pNeuronsProps);
+    BGFLOAT &Vm = pNeuronsProps->Vm[index];
+    BGFLOAT &Vthresh = pNeuronsProps->Vthresh[index];
+    BGFLOAT &summationPoint = pNeuronsProps->summation_map[index];
+    BGFLOAT &I0 = pNeuronsProps->I0[index];
+    BGFLOAT &Inoise = pNeuronsProps->Inoise[index];
+    BGFLOAT &C1 = pNeuronsProps->C1[index];
+    BGFLOAT &C2 = pNeuronsProps->C2[index];
+    int &nStepsInRefr = pNeuronsProps->nStepsInRefr[index];
 
     if (nStepsInRefr > 0) {
         // is neuron refractory?
@@ -69,11 +69,11 @@ void AllLIFNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
  */
 void AllLIFNeurons::fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const
 {
-    AllIFNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIFNeuronsProperties*>(m_pNeuronsProperties);
-    int &nStepsInRefr = pNeuronsProperties->nStepsInRefr[index];
-    BGFLOAT &Trefract = pNeuronsProperties->Trefract[index];
-    BGFLOAT &Vm = pNeuronsProperties->Vm[index];
-    BGFLOAT &Vreset = pNeuronsProperties->Vreset[index];
+    AllIFNeuronsProps *pNeuronsProps = dynamic_cast<AllIFNeuronsProps*>(m_pNeuronsProps);
+    int &nStepsInRefr = pNeuronsProps->nStepsInRefr[index];
+    BGFLOAT &Trefract = pNeuronsProps->Trefract[index];
+    BGFLOAT &Vm = pNeuronsProps->Vm[index];
+    BGFLOAT &Vreset = pNeuronsProps->Vreset[index];
 
     const BGFLOAT deltaT = sim_info->deltaT;
     AllSpikingNeurons::fire(index, sim_info, iStepOffset);

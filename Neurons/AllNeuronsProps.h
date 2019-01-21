@@ -1,18 +1,18 @@
 /**
- *      @file AllNeuronsProperties.h
+ *      @file AllNeuronsProps.h
  *
  *      @brief A container of the base class of all neuron data
  */
 
 #pragma once
 
-#include "IAllNeuronsProperties.h"
+#include "IAllNeuronsProps.h"
 
-class AllNeuronsProperties : public IAllNeuronsProperties
+class AllNeuronsProps : public IAllNeuronsProps
 {
     public:
-        AllNeuronsProperties();
-        virtual ~AllNeuronsProperties();
+        AllNeuronsProps();
+        virtual ~AllNeuronsProps();
 
         /**
          *  Setup the internal structure of the class.
@@ -21,14 +21,14 @@ class AllNeuronsProperties : public IAllNeuronsProperties
          *  @param  sim_info  SimulationInfo class to read information from.
          *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void setupNeuronsProperties(SimulationInfo *sim_info, ClusterInfo *clr_info);
+        virtual void setupNeuronsProps(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
     private:
         /**
          *  Cleanup the class.
          *  Deallocate memories.
          */
-        void cleanupNeuronsProperties();
+        void cleanupNeuronsProps();
 
     protected:
         /**

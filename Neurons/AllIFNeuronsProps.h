@@ -1,18 +1,18 @@
 /**
- *      @file AllIFNeuronsProperties.h
+ *      @file AllIFNeuronsProps.h
  *
  *      @brief A container of the base class of all neuron data
  */
 
 #pragma once 
 
-#include "AllSpikingNeuronsProperties.h"
+#include "AllSpikingNeuronsProps.h"
 
-class AllIFNeuronsProperties : public AllSpikingNeuronsProperties
+class AllIFNeuronsProps : public AllSpikingNeuronsProps
 {
     public:
-        AllIFNeuronsProperties();
-        virtual ~AllIFNeuronsProperties();
+        AllIFNeuronsProps();
+        virtual ~AllIFNeuronsProps();
 
         /**
          *  Setup the internal structure of the class.
@@ -21,7 +21,7 @@ class AllIFNeuronsProperties : public AllSpikingNeuronsProperties
          *  @param  sim_info  SimulationInfo class to read information from.
          *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void setupNeuronsProperties(SimulationInfo *sim_info, ClusterInfo *clr_info);
+        virtual void setupNeuronsProps(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
          *  Checks the number of required parameters to read.
@@ -51,7 +51,7 @@ class AllIFNeuronsProperties : public AllSpikingNeuronsProperties
          *  @param  input       istream to read from.
          *  @param  i           index of the neuron (in neurons).
          */
-        virtual void readNeuronProperties(istream &input, int i);
+        virtual void readNeuronProps(istream &input, int i);
 
         /**
          *  Writes out the data in the selected Neuron.
@@ -59,14 +59,14 @@ class AllIFNeuronsProperties : public AllSpikingNeuronsProperties
          *  @param  output      stream to write out to.
          *  @param  i           index of the neuron (in neurons).
          */
-        virtual void writeNeuronProperties(ostream& output, int i) const;
+        virtual void writeNeuronProps(ostream& output, int i) const;
 
         /**
          *  Copy neurons parameters.
          *
          *  @param  r_neurons  Neurons class object to copy from.
          */
-        virtual void copyParameters(const AllNeuronsProperties *r_neuronsProps);
+        virtual void copyParameters(const AllNeuronsProps *r_neuronsProps);
 
         /**
          *  Creates a single Neuron and generates data for it.
@@ -76,14 +76,14 @@ class AllIFNeuronsProperties : public AllSpikingNeuronsProperties
          *  @param  layout       Layout information of the neunal network.
          *  @param  clr_info     ClusterInfo class to read information from.
          */
-        virtual void setNeuronPropertyValues(SimulationInfo *sim_info, int neuron_index, Layout *layoug, ClusterInfo *clr_info);
+        virtual void setNeuronPropValues(SimulationInfo *sim_info, int neuron_index, Layout *layoug, ClusterInfo *clr_info);
 
         /**
          *  Set the Neuron at the indexed location to default values.
          *
          *  @param  neuron_index    Index of the Neuron that the synapse belongs to.
          */
-        virtual void setNeuronPropertyDefaults(const int index);
+        virtual void setNeuronPropDefaults(const int index);
 
     protected:
         /**
@@ -92,14 +92,14 @@ class AllIFNeuronsProperties : public AllSpikingNeuronsProperties
          *  @param  neuron_index    Index of the Neuron.
          *  @param  deltaT          Inner simulation step duration
          */
-        void initNeuronPropertyConstsFromParamValues(int neuron_index, const BGFLOAT deltaT);
+        void initNeuronPropConstsFromParamValues(int neuron_index, const BGFLOAT deltaT);
 
     private:
         /**
          *  Cleanup the class.
          *  Deallocate memories.
          */
-        void cleanupNeuronsProperties();
+        void cleanupNeuronsProps();
 
 
     public:

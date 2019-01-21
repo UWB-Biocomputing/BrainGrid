@@ -1,18 +1,18 @@
 /**
- *      @file AllSpikingNeuronsProperties.h
+ *      @file AllSpikingNeuronsProps.h
  *
  *      @brief A container of the base class of all neuron data
  */
 
 #pragma once
 
-#include "AllNeuronsProperties.h"
+#include "AllNeuronsProps.h"
 
-class AllSpikingNeuronsProperties : public AllNeuronsProperties
+class AllSpikingNeuronsProps : public AllNeuronsProps
 {
     public:
-        AllSpikingNeuronsProperties();
-        virtual ~AllSpikingNeuronsProperties();
+        AllSpikingNeuronsProps();
+        virtual ~AllSpikingNeuronsProps();
    
         /**
          *  Setup the internal structure of the class.
@@ -21,14 +21,14 @@ class AllSpikingNeuronsProperties : public AllNeuronsProperties
          *  @param  sim_info  SimulationInfo class to read information from.
          *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void setupNeuronsProperties(SimulationInfo *sim_info, ClusterInfo *clr_info);
+        virtual void setupNeuronsProps(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
     private:
         /**
          *  Cleanup the class.
          *  Deallocate memories.
          */
-        void cleanupNeuronsProperties();
+        void cleanupNeuronsProps();
 
     public:
         /**

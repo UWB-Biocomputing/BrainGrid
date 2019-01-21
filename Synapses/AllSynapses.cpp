@@ -117,7 +117,7 @@ void AllSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
  */
 void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info)
 {
-        AllNeuronsProperties *pNeuronsProperties = dynamic_cast<AllNeuronsProperties*>(dynamic_cast<AllNeurons&>(neurons).m_pNeuronsProperties);
+        AllNeuronsProps *pNeuronsProps = dynamic_cast<AllNeuronsProps*>(dynamic_cast<AllNeurons&>(neurons).m_pNeuronsProps);
         AllSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(m_pSynapsesProperties);
 
         // read the synapse data & create synapses
@@ -141,7 +141,7 @@ void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const Cluste
 
                 readSynapse(input, iSyn);
 
-                pSynapsesProperties->summationPoint[iSyn] = &(pNeuronsProperties->summation_map[pSynapsesProperties->destNeuronLayoutIndex[iSyn]]);
+                pSynapsesProperties->summationPoint[iSyn] = &(pNeuronsProps->summation_map[pSynapsesProperties->destNeuronLayoutIndex[iSyn]]);
 
                 read_synapses_counts[neuron_index]++;
         }

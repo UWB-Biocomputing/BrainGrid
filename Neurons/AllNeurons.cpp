@@ -15,8 +15,8 @@ AllNeurons::~AllNeurons()
 void AllNeurons::cleanupNeurons()
 {
     // deallocate neurons properties data
-    delete m_pNeuronsProperties;
-    m_pNeuronsProperties = NULL;
+    delete m_pNeuronsProps;
+    m_pNeuronsProps = NULL;
 }
 
 /*
@@ -26,7 +26,7 @@ void AllNeurons::cleanupNeurons()
  */
 IAllNeurons &AllNeurons::operator=(const IAllNeurons &r_neurons)
 {
-    m_pNeuronsProperties->copyParameters(dynamic_cast<const AllNeurons&>(r_neurons).m_pNeuronsProperties);
+    m_pNeuronsProps->copyParameters(dynamic_cast<const AllNeurons&>(r_neurons).m_pNeuronsProps);
 
     return (*this);
 }
@@ -40,7 +40,7 @@ IAllNeurons &AllNeurons::operator=(const IAllNeurons &r_neurons)
 void AllNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
     // allocate neurons properties data
-    m_pNeuronsProperties->setupNeuronsProperties(sim_info, clr_info);
+    m_pNeuronsProps->setupNeuronsProps(sim_info, clr_info);
 }
 
 /*
@@ -50,7 +50,7 @@ void AllNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info)
  */
 bool AllNeurons::checkNumParameters()
 {
-    return (m_pNeuronsProperties->checkNumParameters());
+    return (m_pNeuronsProps->checkNumParameters());
 }
 
 /*
@@ -61,7 +61,7 @@ bool AllNeurons::checkNumParameters()
  */
 bool AllNeurons::readParameters(const TiXmlElement& element)
 {
-    return (m_pNeuronsProperties->readParameters(element));
+    return (m_pNeuronsProps->readParameters(element));
 }
 
 /*
@@ -71,7 +71,7 @@ bool AllNeurons::readParameters(const TiXmlElement& element)
  */
 void AllNeurons::printParameters(ostream &output) const
 {
-    m_pNeuronsProperties->printParameters(output);
+    m_pNeuronsProps->printParameters(output);
 }
 
 /*
@@ -83,7 +83,7 @@ void AllNeurons::printParameters(ostream &output) const
 void AllNeurons::deserialize(istream &input, const ClusterInfo *clr_info)
 {
     for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
-        m_pNeuronsProperties->readNeuronProperties(input, i);
+        m_pNeuronsProps->readNeuronProps(input, i);
     }
 }
 
@@ -96,7 +96,7 @@ void AllNeurons::deserialize(istream &input, const ClusterInfo *clr_info)
 void AllNeurons::serialize(ostream& output, const ClusterInfo *clr_info) const
 {
     for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
-        m_pNeuronsProperties->writeNeuronProperties(output, i);
+        m_pNeuronsProps->writeNeuronProps(output, i);
     }
 }
 
@@ -111,10 +111,10 @@ void AllNeurons::createAllNeurons(SimulationInfo *sim_info, Layout *layout, Clus
 {
     /* set their specific types */
     for (int neuron_index = 0; neuron_index < clr_info->totalClusterNeurons; neuron_index++) {
-        m_pNeuronsProperties->setNeuronPropertyDefaults(neuron_index);
+        m_pNeuronsProps->setNeuronPropDefaults(neuron_index);
 
         // set the neuron info for neurons
-        m_pNeuronsProperties->setNeuronPropertyValues(sim_info, neuron_index, layout, clr_info);
+        m_pNeuronsProps->setNeuronPropValues(sim_info, neuron_index, layout, clr_info);
     }
 }
 

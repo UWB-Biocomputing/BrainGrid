@@ -41,7 +41,7 @@ using namespace std;
 #include "IAllNeurons.h"
 #include "SimulationInfo.h"
 #include "Layout.h"
-#include "AllNeuronsProperties.h"
+#include "AllNeuronsProps.h"
 
 class AllNeurons : public IAllNeurons
 {
@@ -122,5 +122,5 @@ class AllNeurons : public IAllNeurons
         /**
          * Pointer to the neurons property data.
          */
-        class AllNeuronsProperties* m_pNeuronsProperties;
+        class AllNeuronsProps* m_pNeuronsProps;
 };

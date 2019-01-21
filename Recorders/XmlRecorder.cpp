@@ -76,17 +76,17 @@ void XmlRecorder::compileHistories(vector<Cluster *> &vtClr, vector<ClusterInfo 
     for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++)
     { 
         AllSpikingNeurons *neurons = dynamic_cast<AllSpikingNeurons*>(vtClr[iCluster]->m_neurons);
-        AllSpikingNeuronsProperties *pNeuronsProperties = dynamic_cast<AllSpikingNeuronsProperties*>(neurons->m_pNeuronsProperties);
+        AllSpikingNeuronsProps *pNeuronsProps = dynamic_cast<AllSpikingNeuronsProps*>(neurons->m_pNeuronsProps);
 
         // output spikes
         int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
         int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
         for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++, neuronLayoutIndex++)
         {
-            uint64_t* pSpikes = pNeuronsProperties->spike_history[iNeuron];
+            uint64_t* pSpikes = pNeuronsProps->spike_history[iNeuron];
 
-            int& spike_count = pNeuronsProperties->spikeCount[iNeuron];
-            int& offset = pNeuronsProperties->spikeCountOffset[iNeuron];
+            int& spike_count = pNeuronsProps->spikeCount[iNeuron];
+            int& offset = pNeuronsProps->spikeCountOffset[iNeuron];
             for (int i = 0, idxSp = offset; i < spike_count; i++, idxSp++)
             {
                 // Single precision (float) gives you 23 bits of significand, 8 bits of exponent, 
@@ -128,12 +128,12 @@ void XmlRecorder::saveSimData(vector<Cluster *> &vtClr, vector<ClusterInfo *> &v
     VectorMatrix neuronThresh(MATRIX_TYPE, MATRIX_INIT, 1, m_sim_info->totalNeurons, 0);
     for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
         AllIFNeurons *neurons = dynamic_cast<AllIFNeurons*>(vtClr[iCluster]->m_neurons);
-        AllIFNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIFNeuronsProperties*>(neurons->m_pNeuronsProperties);
+        AllIFNeuronsProps *pNeuronsProps = dynamic_cast<AllIFNeuronsProps*>(neurons->m_pNeuronsProps);
 
         int neuronLayoutIndex = vtClrInfo[iCluster]->clusterNeuronsBegin;
         int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
         for (int iNeurons = 0; iNeurons < totalClusterNeurons; iNeurons++, neuronLayoutIndex++) {
-            neuronThresh[neuronLayoutIndex] = pNeuronsProperties->Vthresh[iNeurons];
+            neuronThresh[neuronLayoutIndex] = pNeuronsProps->Vthresh[iNeurons];
         }
     }
 

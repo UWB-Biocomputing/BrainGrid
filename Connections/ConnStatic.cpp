@@ -67,14 +67,14 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
             // get the cluster index where the destination neuron exits
             CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIdxFromNeuronLayoutIdx(dest_neuron, vtClrInfo);
             AllNeurons *neurons = dynamic_cast<AllNeurons*>(vtClr[iCluster]->m_neurons);
-            AllNeuronsProperties *pNeuronsProperties = dynamic_cast<AllNeuronsProperties*>(neurons->m_pNeuronsProperties);
+            AllNeuronsProps *pNeuronsProps = dynamic_cast<AllNeuronsProps*>(neurons->m_pNeuronsProps);
             AllSynapses *synapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
             AllSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(synapses->m_pSynapsesProperties);
 
             DEBUG_MID (cout << "source: " << src_neuron << " dest: " << dest_neuron << " dist: " << distDestNeurons[src_neuron][i].dist << endl;)
 
             int iNeuron = dest_neuron - vtClrInfo[iCluster]->clusterNeuronsBegin;
-            BGFLOAT* sum_point = &( pNeuronsProperties->summation_map[iNeuron] );
+            BGFLOAT* sum_point = &( pNeuronsProps->summation_map[iNeuron] );
             BGSIZE iSyn;
             synapses->addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT, vtClrInfo[iCluster]);
                 added++;

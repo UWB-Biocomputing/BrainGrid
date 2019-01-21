@@ -1,5 +1,5 @@
 /**
- *      @file IAllNeuronsProperties.h
+ *      @file IAllNeuronsProps.h
  *
  *      @brief An interface for neuron properties class.
  */
@@ -10,12 +10,12 @@
 #include "ClusterInfo.h"
 #include "Layout.h"
 
-class AllNeuronsProperties;
+class AllNeuronsProps;
 
-class IAllNeuronsProperties
+class IAllNeuronsProps
 {
     public:
-        virtual ~IAllNeuronsProperties() {};
+        virtual ~IAllNeuronsProps() {};
 
         /**
          *  Setup the internal structure of the class.
@@ -24,7 +24,7 @@ class IAllNeuronsProperties
          *  @param  sim_info  SimulationInfo class to read information from.
          *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void setupNeuronsProperties(SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
+        virtual void setupNeuronsProps(SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
 
         /**
          *  Checks the number of required parameters to read.
@@ -54,7 +54,7 @@ class IAllNeuronsProperties
          *  @param  input       istream to read from.
          *  @param  i           index of the neuron (in neurons).
          */
-        virtual void readNeuronProperties(istream &input, int i) = 0;
+        virtual void readNeuronProps(istream &input, int i) = 0;
 
         /**
          *  Writes out the data in the selected Neuron.
@@ -62,14 +62,14 @@ class IAllNeuronsProperties
          *  @param  output      stream to write out to.
          *  @param  i           index of the neuron (in neurons).
          */
-        virtual void writeNeuronProperties(ostream& output, int i) const = 0;
+        virtual void writeNeuronProps(ostream& output, int i) const = 0;
 
         /**
          *  Copy neurons parameters.
          *
          *  @param  r_neurons  Neurons class object to copy from.
          */
-        virtual void copyParameters(const AllNeuronsProperties *r_neuronsProps) = 0;
+        virtual void copyParameters(const AllNeuronsProps *r_neuronsProps) = 0;
 
         /**
          *  Creates a single Neuron and generates data for it.
@@ -79,12 +79,12 @@ class IAllNeuronsProperties
          *  @param  layout       Layout information of the neunal network.
          *  @param  clr_info     ClusterInfo class to read information from.
          */
-        virtual void setNeuronPropertyValues(SimulationInfo *sim_info, int neuron_index, Layout *layoug, ClusterInfo *clr_info) = 0;
+        virtual void setNeuronPropValues(SimulationInfo *sim_info, int neuron_index, Layout *layoug, ClusterInfo *clr_info) = 0;
 
         /**
          *  Set the Neuron at the indexed location to default values.
          *
          *  @param  neuron_index    Index of the Neuron that the synapse belongs to.
          */
-        virtual void setNeuronPropertyDefaults(const int index) = 0;
+        virtual void setNeuronPropDefaults(const int index) = 0;
 };

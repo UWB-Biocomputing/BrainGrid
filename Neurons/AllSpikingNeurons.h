@@ -42,7 +42,7 @@ using namespace std;
 #include "SimulationInfo.h"
 #include "AllNeurons.h"
 #include "AllSpikingSynapses.h"
-#include "AllSpikingNeuronsProperties.h"
+#include "AllSpikingNeuronsProps.h"
 
 class AllSpikingNeurons : public AllNeurons
 {
@@ -90,20 +90,20 @@ class AllSpikingNeurons : public AllNeurons
          *  Copy spike history data stored in device memory to host.
          *  (Helper function of copyNeuronDeviceSpikeHistoryToHost)
          *
-         *  @param  allNeuronsProperties        Reference to the AllSpikingNeuronsProperties struct.
+         *  @param  allNeuronsProps   Reference to the AllSpikingNeuronsProps struct.
          *  @param  sim_info          SimulationInfo to refer from.
          *  @param  clr_info          ClusterInfo to refer from.
          */
-        void copyDeviceSpikeHistoryToHost( AllSpikingNeuronsProperties& allNeuronsProperties, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
+        void copyDeviceSpikeHistoryToHost( AllSpikingNeuronsProps& allNeuronsProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 
         /**
          *  Copy spike counts data stored in device memory to host.
          *  (Helper function of copyNeuronDeviceSpikeCountsToHost)
          *
-         *  @param  allNeuronsProperties         Reference to the AllSpikingNeuronsProperties struct.
+         *  @param  allNeuronsProps    Reference to the AllSpikingNeuronsProps struct.
          *  @param  clr_info           ClusterInfo to refer from.
          */
-        void copyDeviceSpikeCountsToHost( AllSpikingNeuronsProperties& allNeuronsProperties, const ClusterInfo *clr_info );
+        void copyDeviceSpikeCountsToHost( AllSpikingNeuronsProps& allNeuronsProps, const ClusterInfo *clr_info );
 
 #else // !defined(USE_GPU)
 

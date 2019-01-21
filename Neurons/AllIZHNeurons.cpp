@@ -19,7 +19,7 @@ AllIZHNeurons::~AllIZHNeurons()
  */
 void AllIZHNeurons::setupNeuronsProps()
 {
-    m_pNeuronsProperties = new AllIZHNeuronsProperties();
+    m_pNeuronsProps = new AllIZHNeuronsProps();
 }
 
 /*
@@ -32,21 +32,21 @@ void AllIZHNeurons::setupNeuronsProps()
  */
 void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
 {
-    AllIZHNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIZHNeuronsProperties*>(m_pNeuronsProperties);
-    BGFLOAT &Vm = pNeuronsProperties->Vm[index];
-    BGFLOAT &Vthresh = pNeuronsProperties->Vthresh[index];
-    BGFLOAT &summationPoint = pNeuronsProperties->summation_map[index];
-    BGFLOAT &I0 = pNeuronsProperties->I0[index];
-    BGFLOAT &Inoise = pNeuronsProperties->Inoise[index];
-    BGFLOAT &C1 = pNeuronsProperties->C1[index];
-    BGFLOAT &C2 = pNeuronsProperties->C2[index];
-    BGFLOAT &C3 = pNeuronsProperties->C3[index];
-    int &nStepsInRefr = pNeuronsProperties->nStepsInRefr[index];
-    BGFLOAT &a = pNeuronsProperties->Aconst[index];
-    BGFLOAT &b = pNeuronsProperties->Bconst[index];
-    BGFLOAT &u = pNeuronsProperties->u[index];
-    BGFLOAT &Cconst = pNeuronsProperties->Cconst[index];
-    BGFLOAT &Dconst = pNeuronsProperties->Dconst[index];
+    AllIZHNeuronsProps *pNeuronsProps = dynamic_cast<AllIZHNeuronsProps*>(m_pNeuronsProps);
+    BGFLOAT &Vm = pNeuronsProps->Vm[index];
+    BGFLOAT &Vthresh = pNeuronsProps->Vthresh[index];
+    BGFLOAT &summationPoint = pNeuronsProps->summation_map[index];
+    BGFLOAT &I0 = pNeuronsProps->I0[index];
+    BGFLOAT &Inoise = pNeuronsProps->Inoise[index];
+    BGFLOAT &C1 = pNeuronsProps->C1[index];
+    BGFLOAT &C2 = pNeuronsProps->C2[index];
+    BGFLOAT &C3 = pNeuronsProps->C3[index];
+    int &nStepsInRefr = pNeuronsProps->nStepsInRefr[index];
+    BGFLOAT &a = pNeuronsProps->Aconst[index];
+    BGFLOAT &b = pNeuronsProps->Bconst[index];
+    BGFLOAT &u = pNeuronsProps->u[index];
+    BGFLOAT &Cconst = pNeuronsProps->Cconst[index];
+    BGFLOAT &Dconst = pNeuronsProps->Dconst[index];
 
     if (nStepsInRefr > 0) {
         // is neuron refractory?
@@ -105,13 +105,13 @@ void AllIZHNeurons::fire(const int index, const SimulationInfo *sim_info, int iS
     AllSpikingNeurons::fire(index, sim_info, iStepOffset);
 
     // calculate the number of steps in the absolute refractory period
-    AllIZHNeuronsProperties *pNeuronsProperties = dynamic_cast<AllIZHNeuronsProperties*>(m_pNeuronsProperties);
-    BGFLOAT &Vm = pNeuronsProperties->Vm[index];
-    int &nStepsInRefr = pNeuronsProperties->nStepsInRefr[index];
-    BGFLOAT &Trefract = pNeuronsProperties->Trefract[index];
-    BGFLOAT &c = pNeuronsProperties->Cconst[index];
-    BGFLOAT &d = pNeuronsProperties->Dconst[index];
-    BGFLOAT &u = pNeuronsProperties->u[index];
+    AllIZHNeuronsProps *pNeuronsProps = dynamic_cast<AllIZHNeuronsProps*>(m_pNeuronsProps);
+    BGFLOAT &Vm = pNeuronsProps->Vm[index];
+    int &nStepsInRefr = pNeuronsProps->nStepsInRefr[index];
+    BGFLOAT &Trefract = pNeuronsProps->Trefract[index];
+    BGFLOAT &c = pNeuronsProps->Cconst[index];
+    BGFLOAT &d = pNeuronsProps->Dconst[index];
+    BGFLOAT &u = pNeuronsProps->u[index];
 
     nStepsInRefr = static_cast<int> ( Trefract / deltaT + 0.5 );
 

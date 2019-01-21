@@ -14,6 +14,6 @@ AllIFNeurons::~AllIFNeurons()
  */
 void AllIFNeurons::setupNeuronsProps()
 {
-    m_pNeuronsProperties = new AllIFNeuronsProperties();
+    m_pNeuronsProps = new AllIFNeuronsProps();
 }
 

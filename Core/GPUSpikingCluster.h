@@ -236,7 +236,7 @@ public:
 	AllSpikingSynapsesProperties* m_allSynapsesProperties;
 
 	//! Neuron structure in device memory.
-	AllSpikingNeuronsProperties* m_allNeuronsProperties;
+	AllSpikingNeuronsProps* m_allNeuronsProps;
 
         /**
          *  Copy SynapseIndexMap in host memory to SynapseIndexMap in device memory.
@@ -299,14 +299,14 @@ void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, uns
 }       
         
 //! Calculate summation point (use parallel reduction method).
-extern __global__ void calcSummationMapDevice_1(BGSIZE numTotalSynapses, AllSpikingNeuronsProperties* allNeuronsProperties, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesProperties* allSynapsesProperties, int maxSynapsesPerNeuron, int clusterNeuronsBegin);
+extern __global__ void calcSummationMapDevice_1(BGSIZE numTotalSynapses, AllSpikingNeuronsProps* allNeuronsProps, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesProperties* allSynapsesProperties, int maxSynapsesPerNeuron, int clusterNeuronsBegin);
 
 //! Helper kernel function for calcSummationMapDevice.
-extern __global__ void reduceSummationMapKernel(BGSIZE numTotalSynapses, unsigned int s, AllSpikingSynapsesProperties* allSynapsesProperties, AllSpikingNeuronsProperties* allNeuronsProperties, BGSIZE* indexMap, BGSIZE* synapseCount, BGSIZE* synapseBegin, int clusterNeuronsBegin);
+extern __global__ void reduceSummationMapKernel(BGSIZE numTotalSynapses, unsigned int s, AllSpikingSynapsesProperties* allSynapsesProperties, AllSpikingNeuronsProps* allNeuronsProps, BGSIZE* indexMap, BGSIZE* synapseCount, BGSIZE* synapseBegin, int clusterNeuronsBegin);
 
 //! Calculate summation point.
 extern __global__ void calcSummationMapDevice_2(int totalNeurons,
-		    AllSpikingNeuronsProperties* __restrict__ allNeurnsProperties,
+		    AllSpikingNeuronsProps* __restrict__ allNeurnsProps,
 		    const SynapseIndexMap* __restrict__ synapseIndexMapDevice,
                     const AllSpikingSynapsesProperties* __restrict__ allSynapsesProperties );
 #endif // __CUDACC__

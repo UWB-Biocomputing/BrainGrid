@@ -1,10 +1,10 @@
-#include "AllIZHNeuronsProperties.h"
+#include "AllIZHNeuronsProps.h"
 #include "ParseParamError.h"
 
 #if !defined(USE_GPU)
 
 // Default constructor
-AllIZHNeuronsProperties::AllIZHNeuronsProperties() 
+AllIZHNeuronsProps::AllIZHNeuronsProps() 
 {
     Aconst = NULL;
     Bconst = NULL;
@@ -14,9 +14,9 @@ AllIZHNeuronsProperties::AllIZHNeuronsProperties()
     C3 = NULL;
 }
 
-AllIZHNeuronsProperties::~AllIZHNeuronsProperties()
+AllIZHNeuronsProps::~AllIZHNeuronsProps()
 {
-    cleanupNeuronsProperties();
+    cleanupNeuronsProps();
 }
 
 /*
@@ -25,9 +25,9 @@ AllIZHNeuronsProperties::~AllIZHNeuronsProperties()
  *  @param  sim_info  SimulationInfo class to read information from.
  *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllIZHNeuronsProperties::setupNeuronsProperties(SimulationInfo *sim_info, ClusterInfo *clr_info)
+void AllIZHNeuronsProps::setupNeuronsProps(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    AllIFNeuronsProperties::setupNeuronsProperties(sim_info, clr_info);
+    AllIFNeuronsProps::setupNeuronsProps(sim_info, clr_info);
 
     Aconst = new BGFLOAT[size];
     Bconst = new BGFLOAT[size];
@@ -40,7 +40,7 @@ void AllIZHNeuronsProperties::setupNeuronsProperties(SimulationInfo *sim_info, C
 /*
  *  Cleanup the class (deallocate memories).
  */
-void AllIZHNeuronsProperties::cleanupNeuronsProperties()
+void AllIZHNeuronsProps::cleanupNeuronsProps()
 {
     if (size != 0) {
         delete[] Aconst;
@@ -62,7 +62,7 @@ void AllIZHNeuronsProperties::cleanupNeuronsProperties()
 #else // USE_GPU
 
 // Default constructor
-AllIZHNeuronsProperties::AllIZHNeuronsProperties()
+AllIZHNeuronsProps::AllIZHNeuronsProps()
 {
     Aconst = NULL;
     Bconst = NULL;
@@ -72,84 +72,84 @@ AllIZHNeuronsProperties::AllIZHNeuronsProperties()
     C3 = NULL;
 }
 
-AllIZHNeuronsProperties::~AllIZHNeuronsProperties()
+AllIZHNeuronsProps::~AllIZHNeuronsProps()
 {
 }
 
 /*
  *  Setup the internal structure of the class (allocate memories).
  *
- *  @param  pAllNeuronsProperties_d the AllNeuronsProperties on device memory.
+ *  @param  pAllNeuronsProps_d the AllNeuronsProps on device memory.
  *  @param  sim_info  SimulationInfo class to read information from.
  *  @param  clr_info  ClusterInfo class to read information from.
  */
-__host__ static void AllIZHNeuronsProperties::setupNeuronsProperties(void *pAllNeuronsProperties_d, SimulationInfo *sim_info, ClusterInfo *clr_info)
+__host__ static void AllIZHNeuronsProps::setupNeuronsProps(void *pAllNeuronsProps_d, SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    AllIZHNeuronsProperties allNeuronsProperties;
+    AllIZHNeuronsProps allNeuronsProps;
 
     // allocate GPU memories to store all neuron's states
-    allocNeuronsProperties(allNeuronsProperties, sim_info, clr_info);
+    allocNeuronsProps(allNeuronsProps, sim_info, clr_info);
 
     // copy the pointer address to structure on device memory
-    checkCudaErrors( cudaMemcpy ( pAllNeuronsDeviceProperties_d, &allNeuronsProperties, sizeof( AllIZHNeuronsProperties ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( pAllNeuronsDeviceProps_d, &allNeuronsProps, sizeof( AllIZHNeuronsProps ), cudaMemcpyHostToDevice ) );
 }
 
 /*
  *  Allocate GPU memories to store all neurons' states.
  *
- *  @param  allNeuronsProperties   Reference to the AllIZHNeuronsProperties struct.
+ *  @param  allNeuronsProps   Reference to the AllIZHNeuronsProps struct.
  *  @param  sim_info  SimulationInfo class to read information from.
  *  @param  clr_info               ClusterInfo to refer from.
  */
-__host__ static void AllIZHNeuronsProperties::allocNeuronsProperties(AllIZHNeuronsProperties &allNeuronsProperties, SimulationInfo *sim_info, ClusterInfo *clr_info)
+__host__ static void AllIZHNeuronsProps::allocNeuronsProps(AllIZHNeuronsProps &allNeuronsProps, SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
     int size = clr_info->totalClusterNeurons;
 
-    AllIFNeuronsProperties::allocNeuronsProperties(allNeuronsProperties, sim_info, clr_info);
+    AllIFNeuronsProps::allocNeuronsProps(allNeuronsProps, sim_info, clr_info);
 
-    checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProperties.Aconst, size * sizeof( BGFLOAT ) ) );
-    checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProperties.Bconst, size * sizeof( BGFLOAT ) ) );
-    checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProperties.Cconst, size * sizeof( BGFLOAT ) ) );
-    checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProperties.Dconst, size * sizeof( BGFLOAT ) ) );
-    checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProperties.u, size * sizeof( BGFLOAT ) ) );
-    checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProperties.C3, size * sizeof( BGFLOAT ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProps.Aconst, size * sizeof( BGFLOAT ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProps.Bconst, size * sizeof( BGFLOAT ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProps.Cconst, size * sizeof( BGFLOAT ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProps.Dconst, size * sizeof( BGFLOAT ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProps.u, size * sizeof( BGFLOAT ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProps.C3, size * sizeof( BGFLOAT ) ) );
 }
 
 /*
  *  Cleanup the class (deallocate memories).
  *
- *  @param  pAllNeuronsProperties_d the AllNeuronsProperties on device memory.
+ *  @param  pAllNeuronsProps_d the AllNeuronsProps on device memory.
  *  @param  clr_info               ClusterInfo to refer from.
  */
-__host__ static void AllIZHNeuronsProperties::cleanupNeuronsProperties(void *pAllNeuronsProperties_d, ClusterInfo *clr_info)
+__host__ static void AllIZHNeuronsProps::cleanupNeuronsProps(void *pAllNeuronsProps_d, ClusterInfo *clr_info)
 {
-    AllIZHNeuronsProperties allNeuronsProperties;
+    AllIZHNeuronsProps allNeuronsProps;
 
-    checkCudaErrors( cudaMemcpy ( &allNeuronsProperties, pAllNeuronsProperties_d, sizeof( AllIZHNeuronsProperties ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( &allNeuronsProps, pAllNeuronsProps_d, sizeof( AllIZHNeuronsProps ), cudaMemcpyDeviceToHost ) );
 
-    deleteNeuronsProperties(allNeuronsProperties);
+    deleteNeuronsProps(allNeuronsProps);
 
-    checkCudaErrors( cudaFree( pAllNeuronsProperties_d ) );
+    checkCudaErrors( cudaFree( pAllNeuronsProps_d ) );
 }
 
 /*
  *  Delete GPU memories.
  *
- *  @param  allNeuronsProperties   Reference to the AllIZHNeuronsProperties struct.
+ *  @param  allNeuronsProps   Reference to the AllIZHNeuronsProps struct.
  *  @param  clr_info               ClusterInfo to refer from.
  */
-__host__ static void AllIZHNeuronsProperties::deleteNeuronsProperties(AllIZHNeuronsProperties &allNeuronsProperties, ClusterInfo *clr_info)
+__host__ static void AllIZHNeuronsProps::deleteNeuronsProps(AllIZHNeuronsProps &allNeuronsProps, ClusterInfo *clr_info)
 {
     int size = clr_info->totalClusterNeurons;
 
-    checkCudaErrors( cudaFree( allNeuronsProperties.Aconst ) );
-    checkCudaErrors( cudaFree( allNeuronsProperties.Bconst ) );
-    checkCudaErrors( cudaFree( allNeuronsProperties.Cconst ) );
-    checkCudaErrors( cudaFree( allNeuronsProperties.Dconst ) );
-    checkCudaErrors( cudaFree( allNeuronsProperties.u ) );
-    checkCudaErrors( cudaFree( allNeuronsProperties.C3 ) );
+    checkCudaErrors( cudaFree( allNeuronsProps.Aconst ) );
+    checkCudaErrors( cudaFree( allNeuronsProps.Bconst ) );
+    checkCudaErrors( cudaFree( allNeuronsProps.Cconst ) );
+    checkCudaErrors( cudaFree( allNeuronsProps.Dconst ) );
+    checkCudaErrors( cudaFree( allNeuronsProps.u ) );
+    checkCudaErrors( cudaFree( allNeuronsProps.C3 ) );
 
-    AllIFNeuronsProperties::deleteNeuronsProperties(allNeuronsProperties, clr_info);
+    AllIFNeuronsProps::deleteNeuronsProps(allNeuronsProps, clr_info);
 }
 
 #endif // USE_GPU
@@ -159,7 +159,7 @@ __host__ static void AllIZHNeuronsProperties::deleteNeuronsProperties(AllIZHNeur
  *
  * @return true if all required parameters were successfully read, false otherwise.
  */
-bool AllIZHNeuronsProperties::checkNumParameters()
+bool AllIZHNeuronsProps::checkNumParameters()
 {
     return (nParams >= 12);
 }
@@ -170,9 +170,9 @@ bool AllIZHNeuronsProperties::checkNumParameters()
  *  @param  element TiXmlElement to examine.
  *  @return true if successful, false otherwise.
  */
-bool AllIZHNeuronsProperties::readParameters(const TiXmlElement& element)
+bool AllIZHNeuronsProps::readParameters(const TiXmlElement& element)
 {
-    if (AllIFNeuronsProperties::readParameters(element)) {
+    if (AllIFNeuronsProps::readParameters(element)) {
         // this parameter was already handled
         return true;
     }
@@ -330,9 +330,9 @@ bool AllIZHNeuronsProperties::readParameters(const TiXmlElement& element)
  *
  *  @param  output  ostream to send output to.
  */
-void AllIZHNeuronsProperties::printParameters(ostream &output) const
+void AllIZHNeuronsProps::printParameters(ostream &output) const
 {
-    AllIFNeuronsProperties::printParameters(output);
+    AllIFNeuronsProps::printParameters(output);
 
     output << "Interval of A constant for excitatory neurons: ["
            << m_excAconst[0] << ", " << m_excAconst[1] << "]"
@@ -365,11 +365,11 @@ void AllIZHNeuronsProperties::printParameters(ostream &output) const
  *
  *  @param  r_neurons  Neurons class object to copy from.
  */
-void AllIZHNeuronsProperties::copyParameters(const AllNeuronsProperties *r_neuronsProps)
+void AllIZHNeuronsProps::copyParameters(const AllNeuronsProps *r_neuronsProps)
 {
-    AllIFNeuronsProperties::copyParameters(r_neuronsProps);
+    AllIFNeuronsProps::copyParameters(r_neuronsProps);
 
-    const AllIZHNeuronsProperties *pProps = dynamic_cast<const AllIZHNeuronsProperties*>(r_neuronsProps);
+    const AllIZHNeuronsProps *pProps = dynamic_cast<const AllIZHNeuronsProps*>(r_neuronsProps);
 
     for (int i = 0; i < 2; i++) {
         m_excAconst[i] = pProps->m_excAconst[i];
@@ -389,7 +389,7 @@ void AllIZHNeuronsProperties::copyParameters(const AllNeuronsProperties *r_neuro
  *  @param  input       istream to read from.
  *  @param  i           index of the neuron (in neurons).
  */
-void AllIZHNeuronsProperties::readNeuronProperties(istream &input, int i)
+void AllIZHNeuronsProps::readNeuronProps(istream &input, int i)
 {
     BGFLOAT &Aconst = this->Aconst[i];
     BGFLOAT &Bconst = this->Bconst[i];
@@ -398,7 +398,7 @@ void AllIZHNeuronsProperties::readNeuronProperties(istream &input, int i)
     BGFLOAT &u = this->u[i];
     BGFLOAT &C3 = this->C3[i];
 
-    AllIFNeuronsProperties::readNeuronProperties(input, i);
+    AllIFNeuronsProps::readNeuronProps(input, i);
 
     input >> Aconst; input.ignore();
     input >> Bconst; input.ignore();
@@ -414,7 +414,7 @@ void AllIZHNeuronsProperties::readNeuronProperties(istream &input, int i)
  *  @param  output      stream to write out to.
  *  @param  i           index of the neuron (in neurons).
  */
-void AllIZHNeuronsProperties::writeNeuronProperties(ostream& output, int i) const
+void AllIZHNeuronsProps::writeNeuronProps(ostream& output, int i) const
 {
     BGFLOAT &Aconst = this->Aconst[i];
     BGFLOAT &Bconst = this->Bconst[i];
@@ -423,7 +423,7 @@ void AllIZHNeuronsProperties::writeNeuronProperties(ostream& output, int i) cons
     BGFLOAT &u = this->u[i];
     BGFLOAT &C3 = this->C3[i];
 
-    AllIFNeuronsProperties::writeNeuronProperties(output, i);
+    AllIFNeuronsProps::writeNeuronProps(output, i);
 
     output << Aconst << ends;
     output << Bconst << ends;
@@ -441,7 +441,7 @@ void AllIZHNeuronsProperties::writeNeuronProperties(ostream& output, int i) cons
  *  @param  layout       Layout information of the neunal network.
  *  @param  clr_info     ClusterInfo class to read information from.
  */
-void AllIZHNeuronsProperties::setNeuronPropertyValues(SimulationInfo *sim_info, int neuron_index, Layout *layout, ClusterInfo *clr_info)
+void AllIZHNeuronsProps::setNeuronPropValues(SimulationInfo *sim_info, int neuron_index, Layout *layout, ClusterInfo *clr_info)
 {
     BGFLOAT &Aconst = this->Aconst[neuron_index];
     BGFLOAT &Bconst = this->Bconst[neuron_index];
@@ -451,7 +451,7 @@ void AllIZHNeuronsProperties::setNeuronPropertyValues(SimulationInfo *sim_info, 
     BGFLOAT &C3 = this->C3[neuron_index];
 
     // set the neuron info for neurons
-    AllIFNeuronsProperties::setNeuronPropertyValues(sim_info, neuron_index, layout, clr_info);
+    AllIFNeuronsProps::setNeuronPropValues(sim_info, neuron_index, layout, clr_info);
 
     // TODO: we may need another distribution mode besides flat distribution
     int neuron_layout_index = clr_info->clusterNeuronsBegin + neuron_index;
@@ -471,7 +471,7 @@ void AllIZHNeuronsProperties::setNeuronPropertyValues(SimulationInfo *sim_info, 
 
     u = 0;
 
-    initNeuronPropertyConstsFromParamValues(neuron_index, sim_info->deltaT);
+    initNeuronPropConstsFromParamValues(neuron_index, sim_info->deltaT);
 
     DEBUG_HI(cout << "CREATE NEURON[" << neuron_layout_index << "] {" << endl
             << "\tAconst = " << Aconst << endl
@@ -489,7 +489,7 @@ void AllIZHNeuronsProperties::setNeuronPropertyValues(SimulationInfo *sim_info, 
  *
  *  @param  neuron_index    Index of the Neuron to refer.
  */
-void AllIZHNeuronsProperties::setNeuronPropertyDefaults(const int index)
+void AllIZHNeuronsProps::setNeuronPropDefaults(const int index)
 {
     BGFLOAT &Aconst = this->Aconst[index];
     BGFLOAT &Bconst = this->Bconst[index];
@@ -497,7 +497,7 @@ void AllIZHNeuronsProperties::setNeuronPropertyDefaults(const int index)
     BGFLOAT &Dconst = this->Dconst[index];
     BGFLOAT &Trefract = this->Trefract[index];
 
-    AllIFNeuronsProperties::setNeuronPropertyDefaults(index);
+    AllIFNeuronsProps::setNeuronPropDefaults(index);
 
     // no refractory period
     Trefract = 0;
@@ -514,9 +514,9 @@ void AllIZHNeuronsProperties::setNeuronPropertyDefaults(const int index)
  *  @param  neuron_index    Index of the Neuron.
  *  @param  deltaT          Inner simulation step duration
  */
-void AllIZHNeuronsProperties::initNeuronPropertyConstsFromParamValues(int neuron_index, const BGFLOAT deltaT)
+void AllIZHNeuronsProps::initNeuronPropConstsFromParamValues(int neuron_index, const BGFLOAT deltaT)
 {
-    AllIFNeuronsProperties::initNeuronPropertyConstsFromParamValues(neuron_index, deltaT);
+    AllIFNeuronsProps::initNeuronPropConstsFromParamValues(neuron_index, deltaT);
 
     BGFLOAT &C3 = this->C3[neuron_index];
     C3 = deltaT * 1000;
