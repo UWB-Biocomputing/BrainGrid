@@ -98,7 +98,7 @@ class AllIZHNeurons : public AllIFNeurons
         /**
          *  Create and setup neurons properties.
          */
-        virtual void setupNeuronsProps();
+        virtual void createNeuronsProps();
 
 #if defined(USE_GPU)
     public:

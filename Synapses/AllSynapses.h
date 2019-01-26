@@ -41,7 +41,7 @@
 #include "Global.h"
 #include "SimulationInfo.h"
 #include "IAllSynapses.h"
-#include "AllSynapsesProperties.h"
+#include "AllSynapsesProps.h"
 
 #ifdef _WIN32
 typedef unsigned _int8 uint8_t;
@@ -53,7 +53,6 @@ class AllSynapses : public IAllSynapses
 {
     public:
         AllSynapses();
-        AllSynapses(const AllSynapses &r_synapses);
         virtual ~AllSynapses();
 
         /**
@@ -85,6 +84,28 @@ class AllSynapses : public IAllSynapses
          *  Cleanup the class (deallocate memories).
          */
         virtual void cleanupSynapses();
+
+        /**
+         *  Checks the number of required parameters to read.
+         *
+         * @return true if all required parameters were successfully read, false otherwise.
+         */
+        virtual bool checkNumParameters();
+
+        /**
+         *  Attempts to read parameters from a XML file.
+         *
+         *  @param  element TiXmlElement to examine.
+         *  @return true if successful, false otherwise.
+         */
+        virtual bool readParameters(const TiXmlElement& element);
+
+        /**
+         *  Prints out all parameters of the neurons to ostream.
+         *
+         *  @param  output  ostream to send output to.
+         */
+        virtual void printParameters(ostream &output) const;
 
         /**
          *  Reset time varying state vars and recompute decay.
@@ -144,51 +165,6 @@ class AllSynapses : public IAllSynapses
          */
         int synSign(const synapseType type);
 
-    protected:
-        /**
-         *  Setup the internal structure of the class.
-         *
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  clr_info  ClusterInfo class to read information from.
-         */
-        void setupSynapsesInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info);
-
-        /**
-         *  Deallocate all resources.
-         */
-        void cleanupSynapsesInternalState();
-
-        /**
-         *  Copy synapses parameters.
-         *
-         *  @param  r_synapses  Synapses class object to copy from.
-         */
-        void copyParameters(const AllSynapses &r_synapses);
-
-        /**
-         *  Sets the data for Synapse to input's data.
-         *
-         *  @param  input  istream to read from.
-         *  @param  iSyn   Index of the synapse to set.
-         */
-        virtual void readSynapse(istream &input, const BGSIZE iSyn);
-
-        /**
-         *  Write the synapse data to the stream.
-         *
-         *  @param  output  stream to print out to.
-         *  @param  iSyn    Index of the synapse to print out.
-         */
-        virtual void writeSynapse(ostream& output, const BGSIZE iSyn) const;
-
-        /**
-         *  Returns an appropriate synapseType object for the given integer.
-         *
-         *  @param  type_ordinal    Integer that correspond with a synapseType.
-         *  @return the SynapseType that corresponds with the given integer.
-         */
-        synapseType synapseOrdinalToType(const int type_ordinal);
-
 #if !defined(USE_GPU)
     public:
         /**
@@ -217,12 +193,5 @@ class AllSynapses : public IAllSynapses
         /**
          * Pointer to the synapses property data.
          */
-        class IAllSynapsesProperties* m_pSynapsesProperties;
- 
-    protected:
-
-        /**
-         *  Number of parameters read.
-         */
-        int nParams;
+        class AllSynapsesProps* m_pSynapsesProps;
 };

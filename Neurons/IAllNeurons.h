@@ -29,7 +29,7 @@ class IAllNeurons
         /**
          *  Create and setup neurons properties.
          */
-        virtual void setupNeuronsProps() = 0;
+        virtual void createNeuronsProps() = 0;
 
         /**
          *  Setup the internal structure of the class. 

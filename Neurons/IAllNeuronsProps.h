@@ -49,6 +49,13 @@ class IAllNeuronsProps
         virtual void printParameters(ostream &output) const = 0;
 
         /**
+         *  Copy neurons parameters.
+         *
+         *  @param  r_neuronsProps  Neurons properties class object to copy from.
+         */
+        virtual void copyParameters(const AllNeuronsProps *r_neuronsProps) = 0;
+
+        /**
          *  Sets the data for Neuron #index to input's data.
          *
          *  @param  input       istream to read from.
@@ -63,13 +70,6 @@ class IAllNeuronsProps
          *  @param  i           index of the neuron (in neurons).
          */
         virtual void writeNeuronProps(ostream& output, int i) const = 0;
-
-        /**
-         *  Copy neurons parameters.
-         *
-         *  @param  r_neurons  Neurons class object to copy from.
-         */
-        virtual void copyParameters(const AllNeuronsProps *r_neuronsProps) = 0;
 
         /**
          *  Creates a single Neuron and generates data for it.

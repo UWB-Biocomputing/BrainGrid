@@ -17,7 +17,7 @@ AllIZHNeurons::~AllIZHNeurons()
 /*
  *  Create and setup neurons properties.
  */
-void AllIZHNeurons::setupNeuronsProps()
+void AllIZHNeurons::createNeuronsProps()
 {
     m_pNeuronsProps = new AllIZHNeuronsProps();
 }

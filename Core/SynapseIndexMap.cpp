@@ -67,15 +67,15 @@ void SynapseIndexMap::createSynapseImap(const SimulationInfo* sim_info, vector<C
     for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
         int neuron_count = vtClrInfo[iCluster]->totalClusterNeurons;
         AllSynapses *synapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
-        AllSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(synapses->m_pSynapsesProperties);
+        AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapsesProps*>(synapses->m_pSynapsesProps);
         SynapseIndexMap *synapseIndexMap = vtClr[iCluster]->m_synapseIndexMap;
         BGSIZE total_incoming_synapse_count = 0;
 
         // count the total synapses
         for ( int iNeuron = 0; iNeuron < neuron_count; iNeuron++ )
         {
-            assert( static_cast<int>(pSynapsesProperties->synapse_counts[iNeuron]) < sim_info->maxSynapsesPerNeuron );
-            total_incoming_synapse_count += pSynapsesProperties->synapse_counts[iNeuron];
+            assert( static_cast<int>(pSynapsesProps->synapse_counts[iNeuron]) < sim_info->maxSynapsesPerNeuron );
+            total_incoming_synapse_count += pSynapsesProps->synapse_counts[iNeuron];
         }
 
         DEBUG ( cout << "\nCluster: " << iCluster << " total_incoming_synapse_count: " << total_incoming_synapse_count << endl; )
@@ -105,9 +105,9 @@ void SynapseIndexMap::createSynapseImap(const SimulationInfo* sim_info, vector<C
             vtClr[iCluster]->m_synapseIndexMap->incomingSynapseBegin[iNeuron] = n_inUse;
             for ( int j = 0; j < sim_info->maxSynapsesPerNeuron; j++, syn_i++ )
             {
-                if ( pSynapsesProperties->in_use[syn_i] == true )
+                if ( pSynapsesProps->in_use[syn_i] == true )
                 {
-                    int srcNeuronLayoutIndex = pSynapsesProperties->sourceNeuronLayoutIndex[syn_i];
+                    int srcNeuronLayoutIndex = pSynapsesProps->sourceNeuronLayoutIndex[syn_i];
                     OUTGOING_SYNAPSE_INDEX_TYPE idxSynapse = SynapseIndexMap::getOutgoingSynapseIndex(iCluster, syn_i);
 
                     // save for outgoing synapse index map
@@ -125,12 +125,12 @@ void SynapseIndexMap::createSynapseImap(const SimulationInfo* sim_info, vector<C
                     )
                 }
             }
-            assert( synapse_count == pSynapsesProperties->synapse_counts[iNeuron] );
+            assert( synapse_count == pSynapsesProps->synapse_counts[iNeuron] );
             vtClr[iCluster]->m_synapseIndexMap->incomingSynapseCount[iNeuron] = synapse_count;
         }
 
         assert( total_incoming_synapse_count == n_inUse );
-        pSynapsesProperties->total_synapse_counts = total_incoming_synapse_count;
+        pSynapsesProps->total_synapse_counts = total_incoming_synapse_count;
 
         DEBUG ( cout << "Cluster: " << iCluster << " inter_cluster_synapse_count: " << inter_cluster_synapse_count << endl; )
     }
@@ -207,10 +207,10 @@ void SynapseIndexMap::createSynapseImap(const SimulationInfo* sim_info, vector<C
 
                 // get the pointer to the incoming synapse
                 AllSynapses *inSynapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
-                AllSynapsesProperties *pInSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(inSynapses->m_pSynapsesProperties);
+                AllSynapsesProps *pInSynapsesProps = dynamic_cast<AllSynapsesProps*>(inSynapses->m_pSynapsesProps);
          
                 // get the desination neuron index of the synapse
-                int dstNeuronLayoutIndex2 = pInSynapsesProperties->destNeuronLayoutIndex[inSynIdx]; 
+                int dstNeuronLayoutIndex2 = pInSynapsesProps->destNeuronLayoutIndex[inSynIdx]; 
                 // check the validity of source neuron index
                 if (dstNeuronLayoutIndex != dstNeuronLayoutIndex2)
                 {
@@ -244,10 +244,10 @@ void SynapseIndexMap::createSynapseImap(const SimulationInfo* sim_info, vector<C
 
                 // get the pointer to the outgoing synapse
                 AllSynapses *outSynapses = dynamic_cast<AllSynapses*>(vtClr[outCluster]->m_synapses);
-                AllSynapsesProperties *pOutSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(outSynapses->m_pSynapsesProperties); 
+                AllSynapsesProps *pOutSynapsesProps = dynamic_cast<AllSynapsesProps*>(outSynapses->m_pSynapsesProps); 
          
                 // get the source neuron index of the synapse
-                int srcNeuronLayoutIndex2 = pOutSynapsesProperties->sourceNeuronLayoutIndex[outSynIdx]; 
+                int srcNeuronLayoutIndex2 = pOutSynapsesProps->sourceNeuronLayoutIndex[outSynIdx]; 
                 // check the validity of source neuron index
                 if (srcNeuronLayoutIndex != srcNeuronLayoutIndex2)
                 {

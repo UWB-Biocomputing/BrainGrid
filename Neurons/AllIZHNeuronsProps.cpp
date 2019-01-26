@@ -363,7 +363,7 @@ void AllIZHNeuronsProps::printParameters(ostream &output) const
 /*
  *  Copy neurons parameters.
  *
- *  @param  r_neurons  Neurons class object to copy from.
+ *  @param  r_neurons  Neurons properties class object to copy from.
  */
 void AllIZHNeuronsProps::copyParameters(const AllNeuronsProps *r_neuronsProps)
 {
@@ -391,21 +391,14 @@ void AllIZHNeuronsProps::copyParameters(const AllNeuronsProps *r_neuronsProps)
  */
 void AllIZHNeuronsProps::readNeuronProps(istream &input, int i)
 {
-    BGFLOAT &Aconst = this->Aconst[i];
-    BGFLOAT &Bconst = this->Bconst[i];
-    BGFLOAT &Cconst = this->Cconst[i];
-    BGFLOAT &Dconst = this->Dconst[i];
-    BGFLOAT &u = this->u[i];
-    BGFLOAT &C3 = this->C3[i];
-
     AllIFNeuronsProps::readNeuronProps(input, i);
 
-    input >> Aconst; input.ignore();
-    input >> Bconst; input.ignore();
-    input >> Cconst; input.ignore();
-    input >> Dconst; input.ignore();
-    input >> u; input.ignore();
-    input >> C3; input.ignore();
+    input >> Aconst[i]; input.ignore();
+    input >> Bconst[i]; input.ignore();
+    input >> Cconst[i]; input.ignore();
+    input >> Dconst[i]; input.ignore();
+    input >> u[i]; input.ignore();
+    input >> C3[i]; input.ignore();
 }
 
 /*
@@ -416,21 +409,14 @@ void AllIZHNeuronsProps::readNeuronProps(istream &input, int i)
  */
 void AllIZHNeuronsProps::writeNeuronProps(ostream& output, int i) const
 {
-    BGFLOAT &Aconst = this->Aconst[i];
-    BGFLOAT &Bconst = this->Bconst[i];
-    BGFLOAT &Cconst = this->Cconst[i];
-    BGFLOAT &Dconst = this->Dconst[i];
-    BGFLOAT &u = this->u[i];
-    BGFLOAT &C3 = this->C3[i];
-
     AllIFNeuronsProps::writeNeuronProps(output, i);
 
-    output << Aconst << ends;
-    output << Bconst << ends;
-    output << Cconst << ends;
-    output << Dconst << ends;
-    output << u << ends;
-    output << C3 << ends;
+    output << Aconst[i] << ends;
+    output << Bconst[i] << ends;
+    output << Cconst[i] << ends;
+    output << Dconst[i] << ends;
+    output << u[i] << ends;
+    output << C3[i] << ends;
 }
 
 /*

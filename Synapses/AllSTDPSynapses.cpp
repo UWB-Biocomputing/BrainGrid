@@ -5,135 +5,20 @@
 #endif // USE_GPU
 
 // Default constructor
-AllSTDPSynapses::AllSTDPSynapses() : AllSpikingSynapses()
+AllSTDPSynapses::AllSTDPSynapses()
 {
-}
-
-// Copy constructor
-AllSTDPSynapses::AllSTDPSynapses(const AllSTDPSynapses &r_synapses) : AllSpikingSynapses(r_synapses)
-{
-    copyParameters(dynamic_cast<const AllSTDPSynapses &>(r_synapses));
 }
 
 AllSTDPSynapses::~AllSTDPSynapses()
 {
-    cleanupSynapses();
 }
 
 /*
- *  Assignment operator: copy synapses parameters.
- *
- *  @param  r_synapses  Synapses class object to copy from.
+ *  Create and setup synapses properties.
  */
-IAllSynapses &AllSTDPSynapses::operator=(const IAllSynapses &r_synapses)
+void AllSTDPSynapses::createSynapsesProps()
 {
-    copyParameters(dynamic_cast<const AllSTDPSynapses &>(r_synapses));
-
-    return (*this);
-}
-
-/*
- *  Copy synapses parameters.
- *
- *  @param  r_synapses  Synapses class object to copy from.
- */
-void AllSTDPSynapses::copyParameters(const AllSTDPSynapses &r_synapses)
-{
-    AllSpikingSynapses::copyParameters(r_synapses);
-}
-
-/*
- *  Setup the internal structure of the class (allocate memories and initialize them).
- *
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  clr_info  ClusterInfo class to read information from.
- */
-void AllSTDPSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info)
-{
-    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, sim_info, clr_info);
-}
-
-/*
- *  Setup the internal structure of the class (allocate memories and initialize them).
- *
- *  @param  num_neurons   Total number of neurons in the network.
- *  @param  max_synapses  Maximum number of synapses per neuron.
- *  @param  sim_info      SimulationInfo class to read information from.
- *  @param  clr_info      ClusterInfo class to read information from.
- */
-void AllSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info)
-{
-    setupSynapsesInternalState(sim_info, clr_info);
-
-    // allocate synspses properties data
-    m_pSynapsesProperties = new AllSTDPSynapsesProperties();
-    m_pSynapsesProperties->setupSynapsesProperties(num_neurons, max_synapses, sim_info, clr_info);
-}
-
-/*
- *  Setup the internal structure of the class.
- *
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  clr_info  ClusterInfo class to read information from.
- */
-void AllSTDPSynapses::setupSynapsesInternalState(SimulationInfo *sim_info, ClusterInfo *clr_info)
-{
-    AllSpikingSynapses::setupSynapsesInternalState(sim_info, clr_info);
-}
-
-/*
- *  Cleanup the class (deallocate memories).
- */
-void AllSTDPSynapses::cleanupSynapses()
-{
-     // deallocate neurons properties data
-    delete m_pSynapsesProperties;
-    m_pSynapsesProperties = NULL;
-
-    cleanupSynapsesInternalState();
-}
-
-/*
- *  Deallocate all resources.
- */
-void AllSTDPSynapses::cleanupSynapsesInternalState()
-{
-    AllSpikingSynapses::cleanupSynapsesInternalState();
-}
-
-/*
- *  Checks the number of required parameters.
- *
- * @return true if all required parameters were successfully read, false otherwise.
- */
-bool AllSTDPSynapses::checkNumParameters()
-{
-    return (nParams >= 0);
-}
-
-/*
- *  Attempts to read parameters from a XML file.
- *
- *  @param  element TiXmlElement to examine.
- *  @return true if successful, false otherwise.
- */
-bool AllSTDPSynapses::readParameters(const TiXmlElement& element)
-{
-    if (AllSpikingSynapses::readParameters(element)) {
-        // this parameter was already handled
-        return true;
-    }
-
-    return false;
-}
-
-/*
- *  Prints out all parameters of the neurons to ostream.
- *
- *  @param  output  ostream to send output to.
- */
-void AllSTDPSynapses::printParameters(ostream &output) const
-{
+    m_pSynapsesProps = new AllSTDPSynapsesProps();
 }
 
 /*
@@ -144,10 +29,11 @@ void AllSTDPSynapses::printParameters(ostream &output) const
  */
 void AllSTDPSynapses::deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info)
 {
-    AllSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSTDPSynapsesProperties*>(m_pSynapsesProperties);
+    AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
     AllSpikingSynapses::deserialize(input, neurons, clr_info);
-    pSynapsesProperties->postSpikeQueue->deserialize(input);
+
+    pSynapsesProps->postSpikeQueue->deserialize(input);
 }
 
 /*
@@ -158,63 +44,11 @@ void AllSTDPSynapses::deserialize(istream& input, IAllNeurons &neurons, const Cl
  */
 void AllSTDPSynapses::serialize(ostream& output, const ClusterInfo *clr_info)
 {
-    AllSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSTDPSynapsesProperties*>(m_pSynapsesProperties);
+    AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
     AllSpikingSynapses::serialize(output, clr_info);
-    pSynapsesProperties->postSpikeQueue->serialize(output);
-}
 
-/*
- *  Sets the data for Synapse to input's data.
- *
- *  @param  input  istream to read from.
- *  @param  iSyn   Index of the synapse to set.
- */
-void AllSTDPSynapses::readSynapse(istream &input, const BGSIZE iSyn)
-{
-    AllSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSTDPSynapsesProperties*>(m_pSynapsesProperties);
- 
-    AllSpikingSynapses::readSynapse(input, iSyn);
-
-    // input.ignore() so input skips over end-of-line characters.
-    input >> pSynapsesProperties->total_delayPost[iSyn]; input.ignore();
-    input >> pSynapsesProperties->tauspost[iSyn]; input.ignore();
-    input >> pSynapsesProperties->tauspre[iSyn]; input.ignore();
-    input >> pSynapsesProperties->taupos[iSyn]; input.ignore();
-    input >> pSynapsesProperties->tauneg[iSyn]; input.ignore();
-    input >> pSynapsesProperties->STDPgap[iSyn]; input.ignore();
-    input >> pSynapsesProperties->Wex[iSyn]; input.ignore();
-    input >> pSynapsesProperties->Aneg[iSyn]; input.ignore();
-    input >> pSynapsesProperties->Apos[iSyn]; input.ignore();
-    input >> pSynapsesProperties->mupos[iSyn]; input.ignore();
-    input >> pSynapsesProperties->muneg[iSyn]; input.ignore();
-    input >> pSynapsesProperties->useFroemkeDanSTDP[iSyn]; input.ignore();
-}
-
-/*
- *  Write the synapse data to the stream.
- *
- *  @param  output  stream to print out to.
- *  @param  iSyn    Index of the synapse to print out.
- */
-void AllSTDPSynapses::writeSynapse(ostream& output, const BGSIZE iSyn) const 
-{
-    AllSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSTDPSynapsesProperties*>(m_pSynapsesProperties);
-
-    AllSpikingSynapses::writeSynapse(output, iSyn);
-
-    output << pSynapsesProperties->total_delayPost[iSyn] << ends;
-    output << pSynapsesProperties->tauspost[iSyn] << ends;
-    output << pSynapsesProperties->tauspre[iSyn] << ends;
-    output << pSynapsesProperties->taupos[iSyn] << ends;
-    output << pSynapsesProperties->tauneg[iSyn] << ends;
-    output << pSynapsesProperties->STDPgap[iSyn] << ends;
-    output << pSynapsesProperties->Wex[iSyn] << ends;
-    output << pSynapsesProperties->Aneg[iSyn] << ends;
-    output << pSynapsesProperties->Apos[iSyn] << ends;
-    output << pSynapsesProperties->mupos[iSyn] << ends;
-    output << pSynapsesProperties->muneg[iSyn] << ends;
-    output << pSynapsesProperties->useFroemkeDanSTDP[iSyn] << ends;
+    pSynapsesProps->postSpikeQueue->serialize(output);
 }
 
 /*
@@ -241,30 +75,30 @@ void AllSTDPSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
  */
 void AllSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
-    AllSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSTDPSynapsesProperties*>(m_pSynapsesProperties);
+    AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
     AllSpikingSynapses::createSynapse(iSyn, source_index, dest_index, sum_point, deltaT, type);
 
-    pSynapsesProperties->Apos[iSyn] = 0.5;
-    pSynapsesProperties->Aneg[iSyn] = -0.5;
-    pSynapsesProperties->STDPgap[iSyn] = 2e-3;
+    pSynapsesProps->Apos[iSyn] = 0.5;
+    pSynapsesProps->Aneg[iSyn] = -0.5;
+    pSynapsesProps->STDPgap[iSyn] = 2e-3;
 
-    pSynapsesProperties->total_delayPost[iSyn] = 0;
+    pSynapsesProps->total_delayPost[iSyn] = 0;
 
-    pSynapsesProperties->tauspost[iSyn] = 75e-3;
-    pSynapsesProperties->tauspre[iSyn] = 34e-3;
+    pSynapsesProps->tauspost[iSyn] = 75e-3;
+    pSynapsesProps->tauspre[iSyn] = 34e-3;
 
-    pSynapsesProperties->taupos[iSyn] = 15e-3;
-    pSynapsesProperties->tauneg[iSyn] = 35e-3;
-    pSynapsesProperties->Wex[iSyn] = 1.0;
+    pSynapsesProps->taupos[iSyn] = 15e-3;
+    pSynapsesProps->tauneg[iSyn] = 35e-3;
+    pSynapsesProps->Wex[iSyn] = 1.0;
 
-    pSynapsesProperties->mupos[iSyn] = 0;
-    pSynapsesProperties->muneg[iSyn] = 0;
+    pSynapsesProps->mupos[iSyn] = 0;
+    pSynapsesProps->muneg[iSyn] = 0;
 
-    pSynapsesProperties->useFroemkeDanSTDP[iSyn] = true;
+    pSynapsesProps->useFroemkeDanSTDP[iSyn] = true;
 
     // initializes the queues for the Synapses
-    pSynapsesProperties->postSpikeQueue->clearAnEvent(iSyn);
+    pSynapsesProps->postSpikeQueue->clearAnEvent(iSyn);
 }
 
 #if !defined(USE_GPU)
@@ -278,29 +112,29 @@ void AllSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, int des
  */
 void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons, int iStepOffset)
 {
-    AllSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSTDPSynapsesProperties*>(m_pSynapsesProperties);
+    AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
-    BGFLOAT &decay = pSynapsesProperties->decay[iSyn];
-    BGFLOAT &psr = pSynapsesProperties->psr[iSyn];
-    BGFLOAT &summationPoint = *(pSynapsesProperties->summationPoint[iSyn]);
+    BGFLOAT &decay = pSynapsesProps->decay[iSyn];
+    BGFLOAT &psr = pSynapsesProps->psr[iSyn];
+    BGFLOAT &summationPoint = *(pSynapsesProps->summationPoint[iSyn]);
 
     // is an input in the queue?
     bool fPre = isSpikeQueue(iSyn, iStepOffset); 
     bool fPost = isSpikeQueuePost(iSyn, iStepOffset);
     if (fPre || fPost) {
-        BGFLOAT &tauspre = pSynapsesProperties->tauspre[iSyn];
-        BGFLOAT &tauspost = pSynapsesProperties->tauspost[iSyn];
-        BGFLOAT &taupos = pSynapsesProperties->taupos[iSyn];
-        BGFLOAT &tauneg = pSynapsesProperties->tauneg[iSyn];
-        int &total_delay = pSynapsesProperties->total_delay[iSyn];
-        bool &useFroemkeDanSTDP = pSynapsesProperties->useFroemkeDanSTDP[iSyn];
+        BGFLOAT &tauspre = pSynapsesProps->tauspre[iSyn];
+        BGFLOAT &tauspost = pSynapsesProps->tauspost[iSyn];
+        BGFLOAT &taupos = pSynapsesProps->taupos[iSyn];
+        BGFLOAT &tauneg = pSynapsesProps->tauneg[iSyn];
+        int &total_delay = pSynapsesProps->total_delay[iSyn];
+        bool &useFroemkeDanSTDP = pSynapsesProps->useFroemkeDanSTDP[iSyn];
 
         BGFLOAT deltaT = sim_info->deltaT;
         AllSpikingNeurons* spNeurons = dynamic_cast<AllSpikingNeurons*>(neurons);
 
         // pre and post neurons index
-        int idxPre = pSynapsesProperties->sourceNeuronLayoutIndex[iSyn];
-        int idxPost = pSynapsesProperties->destNeuronLayoutIndex[iSyn];
+        int idxPre = pSynapsesProps->sourceNeuronLayoutIndex[iSyn];
+        int idxPost = pSynapsesProps->destNeuronLayoutIndex[iSyn];
         uint64_t spikeHistory, spikeHistory2;
         BGFLOAT delta;
         BGFLOAT epre, epost;
@@ -422,17 +256,17 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
  */
 void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost, double epre)
 {
-    AllSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSTDPSynapsesProperties*>(m_pSynapsesProperties);
+    AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
-    BGFLOAT STDPgap = pSynapsesProperties->STDPgap[iSyn];
-    BGFLOAT muneg = pSynapsesProperties->muneg[iSyn];
-    BGFLOAT mupos = pSynapsesProperties->mupos[iSyn];
-    BGFLOAT tauneg = pSynapsesProperties->tauneg[iSyn];
-    BGFLOAT taupos = pSynapsesProperties->taupos[iSyn];
-    BGFLOAT Aneg = pSynapsesProperties->Aneg[iSyn];
-    BGFLOAT Apos = pSynapsesProperties->Apos[iSyn];
-    BGFLOAT Wex = pSynapsesProperties->Wex[iSyn];
-    BGFLOAT &W = pSynapsesProperties->W[iSyn];
+    BGFLOAT STDPgap = pSynapsesProps->STDPgap[iSyn];
+    BGFLOAT muneg = pSynapsesProps->muneg[iSyn];
+    BGFLOAT mupos = pSynapsesProps->mupos[iSyn];
+    BGFLOAT tauneg = pSynapsesProps->tauneg[iSyn];
+    BGFLOAT taupos = pSynapsesProps->taupos[iSyn];
+    BGFLOAT Aneg = pSynapsesProps->Aneg[iSyn];
+    BGFLOAT Apos = pSynapsesProps->Apos[iSyn];
+    BGFLOAT Wex = pSynapsesProps->Wex[iSyn];
+    BGFLOAT &W = pSynapsesProps->W[iSyn];
     BGFLOAT dw;
 
     if (delta < -STDPgap) {
@@ -473,10 +307,10 @@ void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost
  */
 bool AllSTDPSynapses::isSpikeQueuePost(const BGSIZE iSyn, int iStepOffset)
 {
-    AllSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSTDPSynapsesProperties*>(m_pSynapsesProperties);
+    AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
     // Checks if there is an event in the queue
-    return pSynapsesProperties->postSpikeQueue->checkAnEvent(iSyn, iStepOffset);
+    return pSynapsesProps->postSpikeQueue->checkAnEvent(iSyn, iStepOffset);
 }
 
 /*
@@ -487,12 +321,12 @@ bool AllSTDPSynapses::isSpikeQueuePost(const BGSIZE iSyn, int iStepOffset)
  */
 void AllSTDPSynapses::postSpikeHit(const BGSIZE iSyn, int iStepOffset)
 {
-    AllSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSTDPSynapsesProperties*>(m_pSynapsesProperties);
+    AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
-    int &total_delay = pSynapsesProperties->total_delayPost[iSyn];
+    int &total_delay = pSynapsesProps->total_delayPost[iSyn];
 
     // Add to spike queue
-    pSynapsesProperties->postSpikeQueue->addAnEvent(iSyn, total_delay, iStepOffset);
+    pSynapsesProps->postSpikeQueue->addAnEvent(iSyn, total_delay, iStepOffset);
 }
 
 /*
@@ -515,11 +349,11 @@ void AllSTDPSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeuron
  */
 void AllSTDPSynapses::advanceSpikeQueue(int iStep)
 {
-    AllSTDPSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSTDPSynapsesProperties*>(m_pSynapsesProperties);
+    AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
     AllSpikingSynapses::advanceSpikeQueue(iStep);
 
-    pSynapsesProperties->postSpikeQueue->advanceEventQueue(iStep);
+    pSynapsesProps->postSpikeQueue->advanceEventQueue(iStep);
 }
 #endif // !defined(USE_GPU)
 

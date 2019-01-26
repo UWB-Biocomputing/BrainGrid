@@ -12,7 +12,7 @@ AllIFNeurons::~AllIFNeurons()
 /*
  *  Create and setup neurons properties.
  */
-void AllIFNeurons::setupNeuronsProps()
+void AllIFNeurons::createNeuronsProps()
 {
     m_pNeuronsProps = new AllIFNeuronsProps();
 }

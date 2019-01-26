@@ -381,7 +381,7 @@ void AllIFNeuronsProps::printParameters(ostream &output) const
 /*
  *  Copy neurons parameters.
  *
- *  @param  r_neurons  Neurons class object to copy from.
+ *  @param  r_neurons  Neurons properties class object to copy from.
  */
 void AllIFNeuronsProps::copyParameters(const AllNeuronsProps *r_neuronsProps)
 {
@@ -407,42 +407,24 @@ void AllIFNeuronsProps::copyParameters(const AllNeuronsProps *r_neuronsProps)
  */
 void AllIFNeuronsProps::readNeuronProps(istream &input, int i)
 {
-    BGFLOAT &Cm = this->Cm[i];
-    BGFLOAT &Rm = this->Rm[i];
-    BGFLOAT &Vthresh = this->Vthresh[i];
-    BGFLOAT &Vrest = this->Vrest[i];
-    BGFLOAT &Vreset = this->Vreset[i];
-    BGFLOAT &Vinit = this->Vinit[i];
-    BGFLOAT &Trefract = this->Trefract[i];
-    BGFLOAT &Inoise = this->Inoise[i];
-    BGFLOAT &Iinject = this->Iinject[i];
-    BGFLOAT &Isyn = this->Isyn[i];
-    int &nStepsInRefr = this->nStepsInRefr[i];
-    BGFLOAT &C1 = this->C1[i];
-    BGFLOAT &C2 = this->C2[i];
-    BGFLOAT &I0 = this->I0[i];
-    BGFLOAT &Vm = this->Vm[i];
-    bool &hasFired = this->hasFired[i];
-    BGFLOAT &Tau = this->Tau[i];
-
     // input.ignore() so input skips over end-of-line characters.
-    input >> Cm; input.ignore();
-    input >> Rm; input.ignore();
-    input >> Vthresh; input.ignore();
-    input >> Vrest; input.ignore();
-    input >> Vreset; input.ignore();
-    input >> Vinit; input.ignore();
-    input >> Trefract; input.ignore();
-    input >> Inoise; input.ignore();
-    input >> Iinject; input.ignore();
-    input >> Isyn; input.ignore();
-    input >> nStepsInRefr; input.ignore();
-    input >> C1; input.ignore();
-    input >> C2; input.ignore();
-    input >> I0; input.ignore();
-    input >> Vm; input.ignore();
-    input >> hasFired; input.ignore();
-    input >> Tau; input.ignore();
+    input >> Cm[i]; input.ignore();
+    input >> Rm[i]; input.ignore();
+    input >> Vthresh[i]; input.ignore();
+    input >> Vrest[i]; input.ignore();
+    input >> Vreset[i]; input.ignore();
+    input >> Vinit[i]; input.ignore();
+    input >> Trefract[i]; input.ignore();
+    input >> Inoise[i]; input.ignore();
+    input >> Iinject[i]; input.ignore();
+    input >> Isyn[i]; input.ignore();
+    input >> nStepsInRefr[i]; input.ignore();
+    input >> C1[i]; input.ignore();
+    input >> C2[i]; input.ignore();
+    input >> I0[i]; input.ignore();
+    input >> Vm[i]; input.ignore();
+    input >> hasFired[i]; input.ignore();
+    input >> Tau[i]; input.ignore();
 }
 
 /*
@@ -453,41 +435,23 @@ void AllIFNeuronsProps::readNeuronProps(istream &input, int i)
  */
 void AllIFNeuronsProps::writeNeuronProps(ostream& output, int i) const
 {
-    BGFLOAT &Cm = this->Cm[i];
-    BGFLOAT &Rm = this->Rm[i];
-    BGFLOAT &Vthresh = this->Vthresh[i];
-    BGFLOAT &Vrest = this->Vrest[i];
-    BGFLOAT &Vreset = this->Vreset[i];
-    BGFLOAT &Vinit = this->Vinit[i];
-    BGFLOAT &Trefract = this->Trefract[i];
-    BGFLOAT &Inoise = this->Inoise[i];
-    BGFLOAT &Iinject = this->Iinject[i];
-    BGFLOAT &Isyn = this->Isyn[i];
-    int &nStepsInRefr = this->nStepsInRefr[i];
-    BGFLOAT &C1 = this->C1[i];
-    BGFLOAT &C2 = this->C2[i];
-    BGFLOAT &I0 = this->I0[i];
-    BGFLOAT &Vm = this->Vm[i];
-    bool &hasFired = this->hasFired[i];
-    BGFLOAT &Tau = this->Tau[i];
-
-    output << Cm << ends;
-    output << Rm << ends;
-    output << Vthresh << ends;
-    output << Vrest << ends;
-    output << Vreset << ends;
-    output << Vinit << ends;
-    output << Trefract << ends;
-    output << Inoise << ends;
-    output << Iinject << ends;
-    output << Isyn << ends;
-    output << nStepsInRefr << ends;
-    output << C1 << ends;
-    output << C2 << ends;
-    output << I0 << ends;
-    output << Vm << ends;
-    output << hasFired << ends;
-    output << Tau << ends;
+    output << Cm[i] << ends;
+    output << Rm[i] << ends;
+    output << Vthresh[i] << ends;
+    output << Vrest[i] << ends;
+    output << Vreset[i] << ends;
+    output << Vinit[i] << ends;
+    output << Trefract[i] << ends;
+    output << Inoise[i] << ends;
+    output << Iinject[i] << ends;
+    output << Isyn[i] << ends;
+    output << nStepsInRefr[i] << ends;
+    output << C1[i] << ends;
+    output << C2[i] << ends;
+    output << I0[i] << ends;
+    output << Vm[i] << ends;
+    output << hasFired[i] << ends;
+    output << Tau[i] << ends;
 }
 
 /*

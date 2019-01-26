@@ -45,7 +45,7 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
     AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
-    AllSpikingSynapsesProperties *pSynapsesProps = dynamic_cast<AllSpikingSynapsesProperties*>(spSynapses.m_pSynapsesProperties);
+    AllSpikingSynapsesProps *pSynapsesProps = dynamic_cast<AllSpikingSynapsesProps*>(spSynapses.m_pSynapsesProps);
     bool *hasFired = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->hasFired;
     int *spikeCount = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spikeCount; 
 

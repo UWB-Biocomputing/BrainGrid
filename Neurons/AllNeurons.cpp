@@ -10,16 +10,6 @@ AllNeurons::~AllNeurons()
 }
 
 /*
- *  Cleanup ihe class (deallocate memories).
- */
-void AllNeurons::cleanupNeurons()
-{
-    // deallocate neurons properties data
-    delete m_pNeuronsProps;
-    m_pNeuronsProps = NULL;
-}
-
-/*
  *  Assignment operator: copy neurons parameters.
  *
  *  @param  r_neurons  Neurons class object to copy from.
@@ -41,6 +31,16 @@ void AllNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
     // allocate neurons properties data
     m_pNeuronsProps->setupNeuronsProps(sim_info, clr_info);
+}
+
+/*
+ *  Cleanup the class (deallocate memories).
+ */
+void AllNeurons::cleanupNeurons()
+{
+    // deallocate neurons properties data
+    delete m_pNeuronsProps;
+    m_pNeuronsProps = NULL;
 }
 
 /*

@@ -1,18 +1,18 @@
 /**
- *      @file AllSTDPSynapsesProperties.h
+ *      @file AllSTDPSynapsesProps.h
  *
  *      @brief A container of the base class of all synapse data
  */
 
 #pragma once
 
-#include "AllSpikingSynapsesProperties.h"
+#include "AllSpikingSynapsesProps.h"
 
-class AllSTDPSynapsesProperties : public AllSpikingSynapsesProperties
+class AllSTDPSynapsesProps : public AllSpikingSynapsesProps
 {
     public:
-        AllSTDPSynapsesProperties();
-        virtual ~AllSTDPSynapsesProperties();
+        AllSTDPSynapsesProps();
+        virtual ~AllSTDPSynapsesProps();
 
         /**
          *  Setup the internal structure of the class (allocate memories and initialize them).
@@ -22,14 +22,30 @@ class AllSTDPSynapsesProperties : public AllSpikingSynapsesProperties
          *  @param  sim_info  SimulationInfo class to read information from.
          *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void setupSynapsesProperties(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
+        virtual void setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
 
-    protected:
+        /**
+         *  Sets the data for Synapse to input's data.
+         *
+         *  @param  input  istream to read from.
+         *  @param  iSyn   Index of the synapse to set.
+         */
+        virtual void readSynapseProps(istream &input, const BGSIZE iSyn);
+
+        /**
+         *  Write the synapse data to the stream.
+         *
+         *  @param  output  stream to print out to.
+         *  @param  iSyn    Index of the synapse to print out.
+         */
+        virtual void writeSynapseProps(ostream& output, const BGSIZE iSyn) const;
+
+    private:
         /**
          *  Cleanup the class.
          *  Deallocate memories.
          */
-        virtual void cleanupSynapsesProperties();
+        void cleanupSynapsesProps();
 
     public:
         /**

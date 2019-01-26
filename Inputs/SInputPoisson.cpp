@@ -162,8 +162,8 @@ void SInputPoisson::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
             // 0 - source neuron index, iNeuron - destination nenuron index.
             (clr_info->synapsesSInput)->createSynapse(iSyn, 0, iNeuron, sum_point, psi->deltaT, type);
             AllSynapses *pSynapses = dynamic_cast<AllSynapses*>(clr_info->synapsesSInput);
-            AllSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(pSynapses->m_pSynapsesProperties);
-            pSynapsesProperties->W[iSyn] = m_weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+            AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapsesProps*>(pSynapses->m_pSynapsesProps);
+            pSynapsesProps->W[iSyn] = m_weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
         }
     }
 }

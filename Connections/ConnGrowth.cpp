@@ -461,7 +461,7 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
             AllNeurons *neurons = dynamic_cast<AllNeurons*>(vtClr[iCluster]->m_neurons);
             AllNeuronsProps *pNeuronsProps = dynamic_cast<AllNeuronsProps*>(neurons->m_pNeuronsProps);
             AllSynapses *synapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
-            AllSynapsesProperties *pSynapsesProperties = dynamic_cast<AllSynapsesProperties*>(synapses->m_pSynapsesProperties);
+            AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapsesProps*>(synapses->m_pSynapsesProps);
 
             // and each destination neuron 'b'
             int dest_neuron = vtClrInfo[iCluster]->clusterNeuronsBegin;
@@ -472,13 +472,13 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
                 synapseType type = layout->synType(src_neuron, dest_neuron);
 
                 // for each existing synapse
-                BGSIZE synapse_counts = pSynapsesProperties->synapse_counts[iNeuron];
+                BGSIZE synapse_counts = pSynapsesProps->synapse_counts[iNeuron];
                 BGSIZE synapse_adjusted = 0;
                 BGSIZE iSyn = sim_info->maxSynapsesPerNeuron * (iNeuron);
                 for (BGSIZE synapse_index = 0; synapse_adjusted < synapse_counts; synapse_index++, iSyn++) {
-                    if (pSynapsesProperties->in_use[iSyn] == true) {
+                    if (pSynapsesProps->in_use[iSyn] == true) {
                         // if there is a synapse between a and b
-                        if (pSynapsesProperties->sourceNeuronLayoutIndex[iSyn] == src_neuron) {
+                        if (pSynapsesProps->sourceNeuronLayoutIndex[iSyn] == src_neuron) {
                             connected = true;
                             adjusted++;
                             // adjust the strength of the synapse or remove
@@ -490,12 +490,12 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
                             } else {
                                 // adjust
                                 // SYNAPSE_STRENGTH_ADJUSTMENT is 1.0e-8;
-                                pSynapsesProperties->W[iSyn] = (*W)(src_neuron, dest_neuron) *
+                                pSynapsesProps->W[iSyn] = (*W)(src_neuron, dest_neuron) *
                                     synapses->synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 
                                 DEBUG_MID(cout << "weight of rgSynapseMap" <<
                                        "[" <<synapse_index<<"]: " <<
-                                       pSynapsesProperties->W[iSyn] << endl;);
+                                       pSynapsesProps->W[iSyn] << endl;);
                             }
                         }
                         synapse_adjusted++;
@@ -511,7 +511,7 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
     
                     BGSIZE iSyn;
                     synapses->addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT, vtClrInfo[iCluster]);
-                    pSynapsesProperties->W[iSyn] = (*W)(src_neuron, dest_neuron) * synapses->synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+                    pSynapsesProps->W[iSyn] = (*W)(src_neuron, dest_neuron) * synapses->synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 
                 }
             }

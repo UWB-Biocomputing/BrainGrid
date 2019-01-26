@@ -1,8 +1,8 @@
-#include "AllSpikingSynapsesProperties.h"
+#include "AllSpikingSynapsesProps.h"
 #include "EventQueue.h"
 
 // Default constructor
-AllSpikingSynapsesProperties::AllSpikingSynapsesProperties() : AllSynapsesProperties()
+AllSpikingSynapsesProps::AllSpikingSynapsesProps()
 {
     decay = NULL;
     total_delay = NULL;
@@ -10,9 +10,9 @@ AllSpikingSynapsesProperties::AllSpikingSynapsesProperties() : AllSynapsesProper
     preSpikeQueue = NULL;
 }
 
-AllSpikingSynapsesProperties::~AllSpikingSynapsesProperties()
+AllSpikingSynapsesProps::~AllSpikingSynapsesProps()
 {
-    cleanupSynapsesProperties();
+    cleanupSynapsesProps();
 }
 
 /*
@@ -23,9 +23,9 @@ AllSpikingSynapsesProperties::~AllSpikingSynapsesProperties()
  *  @param  sim_info  SimulationInfo class to read information from.
  *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllSpikingSynapsesProperties::setupSynapsesProperties(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info)
+void AllSpikingSynapsesProps::setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    AllSynapsesProperties::setupSynapsesProperties(num_neurons, max_synapses, sim_info, clr_info);
+    AllSynapsesProps::setupSynapsesProps(num_neurons, max_synapses, sim_info, clr_info);
 
     BGSIZE max_total_synapses = maxSynapsesPerNeuron * count_neurons;
 
@@ -60,7 +60,7 @@ void AllSpikingSynapsesProperties::setupSynapsesProperties(const int num_neurons
  *  Cleanup the class.
  *  Deallocate memories.
  */
-void AllSpikingSynapsesProperties::cleanupSynapsesProperties()
+void AllSpikingSynapsesProps::cleanupSynapsesProps()
 {
     BGSIZE max_total_synapses = maxSynapsesPerNeuron * count_neurons;
 
@@ -78,6 +78,35 @@ void AllSpikingSynapsesProperties::cleanupSynapsesProperties()
         delete preSpikeQueue;
         preSpikeQueue = NULL;
     }
+}
 
-    AllSynapsesProperties::cleanupSynapsesProperties();
+/*
+ *  Sets the data for Synapse to input's data.
+ *
+ *  @param  input  istream to read from.
+ *  @param  iSyn   Index of the synapse to set.
+ */
+void AllSpikingSynapsesProps::readSynapseProps(istream &input, const BGSIZE iSyn)
+{
+    AllSynapsesProps::readSynapseProps(input, iSyn);
+
+    // input.ignore() so input skips over end-of-line characters.
+    input >> decay[iSyn]; input.ignore();
+    input >> total_delay[iSyn]; input.ignore();
+    input >> tau[iSyn]; input.ignore();
+}
+
+/*
+ *  Write the synapse data to the stream.
+ *
+ *  @param  output  stream to print out to.
+ *  @param  iSyn    Index of the synapse to print out.
+ */
+void AllSpikingSynapsesProps::writeSynapseProps(ostream& output, const BGSIZE iSyn) const
+{
+    AllSynapsesProps::writeSynapseProps(output, iSyn);
+
+    output << decay[iSyn] << ends;
+    output << total_delay[iSyn] << ends;
+    output << tau[iSyn] << ends;
 }
