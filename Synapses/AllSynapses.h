@@ -131,6 +131,7 @@ class AllSynapses : public IAllSynapses
          */
         virtual void serialize(ostream& output, const ClusterInfo *clr_info);
 
+#if !defined(USE_GPU)
         /**
          *  Adds a Synapse to the model, connecting two Neurons.
          *
@@ -143,6 +144,7 @@ class AllSynapses : public IAllSynapses
          *  @param  clr_info    ClusterInfo to refer from.
          */
         virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT, const ClusterInfo *clr_info);
+#endif // !USE_GPU
 
         /**
          *  Create a Synapse and connect it to the model.

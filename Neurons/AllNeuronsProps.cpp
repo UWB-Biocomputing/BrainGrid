@@ -1,6 +1,7 @@
 #include "AllNeuronsProps.h"
-
-#if !defined(USE_GPU)
+#if defined(USE_GPU)
+#include <helper_cuda.h>
+#endif
 
 // Default constructor
 AllNeuronsProps::AllNeuronsProps() 
@@ -47,81 +48,158 @@ void AllNeuronsProps::cleanupNeuronsProps()
     size = 0;
 }
 
-#else // USE_GPU
-
-// Default constructor
-AllNeuronsProps::AllNeuronsProps() 
-{
-    summation_map = NULL;
-}
-
-AllNeuronsProps::~AllNeuronsProps()
+#if defined(USE_GPU)
+/*
+ *  Allocate GPU memories to store all neurons' states,
+ *  and copy them from host to GPU memory.
+ *
+ *  @param  allNeuronsDeviceProps   Reference to the AllIZHNeuronsProps class on device memory.
+ *  @param  sim_info                SimulationInfo to refer from.
+ *  @param  clr_info                ClusterInfo to refer from.
+ */
+void AllNeuronsProps::setupNeuronsDeviceProps(void** allNeuronsDeviceProps, SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
 }
 
 /*
- *  Setup the internal structure of the class (allocate memories).
+ *  Delete GPU memories.
  *
- *  @param  pAllNeuronsProps_d the AllNeuronsProps on device memory.
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  clr_info  ClusterInfo class to read information from.
+ *  @param  allNeuronsDeviceProps   Reference to the AllIFNeuronsProps class on device memory.
+ *  @param  clr_info                ClusterInfo to refer from.
  */
-__host__ static void AllNeuronsProps::setupNeuronsProps(void *pAllNeuronsProps_d, SimulationInfo *sim_info, ClusterInfo *clr_info)
+void AllNeuronsProps::cleanupNeuronsDeviceProps(void *allNeuronsDeviceProps, ClusterInfo *clr_info)
 {
-    AllNeuronsProps allNeuronsProps;
+}
 
-    // allocate GPU memories to store all neuron's states
-    allocNeuronsProps(allNeuronsProps, sim_info, clr_info);
+/*
+ *  Copy all neurons' data from host to device.
+ *
+ *  @param  allNeuronsDeviceProps   Reference to the AllIFNeuronsProps class on device memory.
+ *  @param  sim_info                SimulationInfo to refer from.
+ *  @param  clr_info                ClusterInfo to refer from.
+ */
+void AllNeuronsProps::copyNeuronHostToDeviceProps( void* allNeuronsDeviceProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info )
+{
+}
 
-    // copy the pointer address to structure on device memory
-    checkCudaErrors( cudaMemcpy ( pAllNeuronsDeviceProps_d, &allNeuronsProps, sizeof( AllNeuronsProps ), cudaMemcpyHostToDevice ) );
+/*
+ *  Copy all neurons' data from device to host.
+ *
+ *  @param  allNeuronsDeviceProps   Reference to the AllIFNeuronsProps class on device memory.
+ *  @param  sim_info                SimulationInfo to refer from.
+ *  @param  clr_info                ClusterInfo to refer from.
+ */
+void AllNeuronsProps::copyNeuronDeviceToHostProps( void* allNeuronsDeviceProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info )
+{
 }
 
 /*
  *  Allocate GPU memories to store all neurons' states.
  *
- *  @param  allNeuronsProps   Reference to the AllNeuronsProps struct.
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  clr_info               ClusterInfo to refer from.
+ *  @param  allNeuronsProps   Reference to the AllNeuronsProps class.
+ *  @param  sim_info          SimulationInfo class to read information from.
+ *  @param  clr_info          ClusterInfo to refer from.
  */
-__host__ static void AllNeuronsProps::allocNeuronsProps(AllNeuronsProps &allNeuronsProps, SimulationInfo *sim_info, ClusterInfo *clr_info)
+void AllNeuronsProps::allocNeuronsDeviceProps(AllNeuronsProps &allNeuronsProps, SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
     int size = clr_info->totalClusterNeurons;
 
     // allocate GPU memories to store all neuron's states
-    checkCudaErrors( cudaMalloc( ( void ** ) allNeuronsProps.summation_map, size * sizeof( BGFLOAT ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProps.summation_map, size * sizeof( BGFLOAT ) ) );
 
     // get device summation point address and set it to sim info
     clr_info->pClusterSummationMap = allNeuronsProps.summation_map;
 }
 
 /*
- *  Cleanup the class (deallocate memories).
- *
- *  @param  pAllNeuronsProps_d the AllNeuronsProps on device memory.
- *  @param  clr_info               ClusterInfo to refer from.
- */
-__host__ static void AllNeuronsProps::cleanupNeuronsProps(void *pAllNeuronsProps_d, ClusterInfo *clr_info)
-{
-    AllNeuronsProps allNeuronsProps;
-
-    checkCudaErrors( cudaMemcpy ( &allNeuronsProps, pAllNeuronsProps_d, sizeof( AllNeuronsProps ), cudaMemcpyDeviceToHost ) );
-
-    deleteNeuronsProps(allNeuronsProps);
-
-    checkCudaErrors( cudaFree( pAllNeuronsProps_d ) );
-}
-
-/*
  *  Delete GPU memories.
  *
- *  @param  allNeuronsProps   Reference to the AllNeuronsProps struct.
- *  @param  clr_info               ClusterInfo to refer from.
+ *  @param  allNeuronsProps   Reference to the AllNeuronsProps class.
+ *  @param  clr_info          ClusterInfo to refer from.
  */
-__host__ static void AllNeuronsProps::deleteNeuronsProps(AllNeuronsProps &allNeuronsProps, ClusterInfo *clr_info)
+void AllNeuronsProps::deleteNeuronsDeviceProps(AllNeuronsProps &allNeuronsProps, ClusterInfo *clr_info)
 {
     checkCudaErrors( cudaFree( allNeuronsProps.summation_map ) );
 }
-
 #endif // USE_GPU
+
+/*
+ *  Checks the number of required parameters.
+ *
+ * @return true if all required parameters were successfully read, false otherwise.
+ */
+bool AllNeuronsProps::checkNumParameters()
+{
+    return true;
+}
+
+/*
+ *  Attempts to read parameters from a XML file.
+ *
+ *  @param  element TiXmlElement to examine.
+ *  @return true if successful, false otherwise.
+ */
+bool AllNeuronsProps::readParameters(const TiXmlElement& element)
+{
+    return true;
+}
+
+/*
+ *  Prints out all parameters of the neurons to ostream.
+ *
+ *  @param  output  ostream to send output to.
+ */
+void AllNeuronsProps::printParameters(ostream &output) const
+{
+}
+
+/*
+ *  Copy neurons parameters.
+ *
+ *  @param  r_neurons  Neurons properties class object to copy from.
+ */
+void AllNeuronsProps::copyParameters(const AllNeuronsProps *r_neuronsProps)
+{
+}
+
+/*
+ *  Sets the data for Neuron #index to input's data.
+ *
+ *  @param  input       istream to read from.
+ *  @param  i           index of the neuron (in neurons).
+ */
+void AllNeuronsProps::readNeuronProps(istream &input, int i)
+{
+}
+
+/*
+ *  Writes out the data in the selected Neuron.
+ *
+ *  @param  output      stream to write out to.
+ *  @param  i           index of the neuron (in neurons).
+ */
+void AllNeuronsProps::writeNeuronProps(ostream& output, int i) const
+{
+}
+
+/*
+ *  Creates a single Neuron and generates data for it.
+ *
+ *  @param  sim_info     SimulationInfo class to read information from.
+ *  @param  neuron_index Index of the neuron to create.
+ *  @param  layout       Layout information of the neunal network.
+ *  @param  clr_info     ClusterInfo class to read information from.
+ */
+void AllNeuronsProps::setNeuronPropValues(SimulationInfo *sim_info, int neuron_index, Layout *layout, ClusterInfo *clr_info)
+{
+}
+
+/*
+ *  Set the Neuron at the indexed location to default values.
+ *
+ *Inoise  @param  neuron_index    Index of the Neuron that the synapse belongs to.
+ */
+void AllNeuronsProps::setNeuronPropDefaults(const int index)
+{
+}
 

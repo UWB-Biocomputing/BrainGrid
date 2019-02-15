@@ -194,7 +194,6 @@ void AllSynapses::eraseSynapse(const int neuron_index, const BGSIZE iSyn)
     m_pSynapsesProps->in_use[iSyn] = false;
     m_pSynapsesProps->summationPoint[iSyn] = NULL;
 }
-#endif // !defined(USE_GPU)
 
 /*
  *  Adds a Synapse to the model, connecting two Neurons.
@@ -230,6 +229,7 @@ void AllSynapses::addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuro
     // create a synapse
     createSynapse(iSyn, src_neuron, dest_neuron, sum_point, deltaT, type );
 }
+#endif // !defined(USE_GPU)
 
 /*
  *  Get the sign of the synapseType.

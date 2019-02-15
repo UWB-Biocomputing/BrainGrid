@@ -24,6 +24,47 @@ class AllSynapsesProps : public IAllSynapsesProps
          */
         virtual void setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
 
+#if defined(USE_GPU)
+    protected:
+        /**
+         *  Allocate GPU memories to store all synapses' states.
+         *
+         *  @param  allSynapsesProps      Reference to the AllSynapsesProps class.
+         *  @param  num_neurons           Number of neurons.
+         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         */
+        void allocSynapsesDeviceProps( AllSynapsesProps &allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron);
+
+        /**
+         *  Delete GPU memories.
+         *
+         *  @param  allSynapsesProps  Reference to the AllSynapsesProps class.
+         */
+        void deleteSynapsesDeviceProps( AllSynapsesProps& allSynapsesProps );
+
+        /**
+         *  Copy all synapses' data from host to device.
+         *  (Helper function of copySynapseHostToDeviceProps)
+         *
+         *  @param  allSynapsesDeviceProps   Reference to the AllSynapsesProps class on device memory.
+         *  @param  allSynapsesProps         Reference to the AllSynapsesProps class.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        void copyHostToDeviceProps( void* allSynapsesDeviceProps, AllSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron );
+
+        /**
+         *  Copy all synapses' data from device to host.
+         *  (Helper function of copySynapseDeviceToHostProps)
+         *
+         *  @param  allSynapsesProps         Reference to the AllSynapsesProps class.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        void copyDeviceToHostProps( AllSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron);
+#endif // USE_GPU
+
+    public:
         /**
          *  Checks the number of required parameters to read.
          *

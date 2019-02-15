@@ -301,5 +301,5 @@ private:
  *  @param  rates_d                Pointer to rates data array.
  *  @param  radii_d                Pointer to radii data array.
  */
-extern __global__ void updateConnsDevice( AllSpikingNeuronsProperties* allNeuronsProperties, int totalClusterNeurons, int max_spikes, BGFLOAT epochDuration, BGFLOAT maxRate, BGFLOAT beta, BGFLOAT rho, BGFLOAT epsilon, BGFLOAT* rates_d, BGFLOAT* radii_d );
+extern __global__ void updateConnsDevice( AllSpikingNeuronsProps* allNeuronsProps, int totalClusterNeurons, int max_spikes, BGFLOAT epochDuration, BGFLOAT maxRate, BGFLOAT beta, BGFLOAT rho, BGFLOAT epsilon, BGFLOAT* rates_d, BGFLOAT* radii_d );
 #endif // USE_GPU && __CUDACC__

@@ -459,9 +459,9 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
         // destination neurons of each cluster
         for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
             AllNeurons *neurons = dynamic_cast<AllNeurons*>(vtClr[iCluster]->m_neurons);
-            AllNeuronsProps *pNeuronsProps = dynamic_cast<AllNeuronsProps*>(neurons->m_pNeuronsProps);
+            AllNeuronsProps *pNeuronsProps = neurons->m_pNeuronsProps;
             AllSynapses *synapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
-            AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapsesProps*>(synapses->m_pSynapsesProps);
+            AllSynapsesProps *pSynapsesProps = synapses->m_pSynapsesProps;
 
             // and each destination neuron 'b'
             int dest_neuron = vtClrInfo[iCluster]->clusterNeuronsBegin;

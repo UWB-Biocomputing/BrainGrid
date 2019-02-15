@@ -27,6 +27,43 @@ class IAllSynapsesProps
          */
         virtual void setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
 
+#if defined(USE_GPU)
+        /**
+         *  Allocate GPU memories to store all synapses' states,
+         *  and copy them from host to GPU memory.
+         *
+         *  @param  allSynapsesDeviceProps   Reference to the AllSynapsesProps class on device memory.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        virtual void setupSynapsesDeviceProps( void** allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron ) = 0;
+
+        /**
+         *  Delete GPU memories.
+         *
+         *  @param  allSynapsesDeviceProps  Reference to the AllSynapsesProps class on device memory.
+         */
+        virtual void cleanupSynapsesDeviceProps( void* allSynapsesDeviceProps ) = 0;
+
+        /**
+         *  Copy all synapses' data from host to device.
+         *
+         *  @param  allSynapsesDeviceProps   Reference to the AllSynapsesProps class on device memory.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        virtual void copySynapseHostToDeviceProps( void* allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron ) = 0;
+
+        /**
+         *  Copy all synapses' data from device to host.
+         *
+         *  @param  allSynapsesDeviceProps   Reference to the AllSynapsesProps class on device memory.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        virtual void copySynapseDeviceToHostProps( void* allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron ) = 0;
+#endif // USE_GPU
+
         /**
          *  Checks the number of required parameters to read.
          *

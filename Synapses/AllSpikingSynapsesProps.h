@@ -24,6 +24,116 @@ class AllSpikingSynapsesProps : public AllSynapsesProps
          */
         virtual void setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
 
+#if defined(USE_GPU)
+    public:
+        /**
+         *  Allocate GPU memories to store all synapses' states,
+         *  and copy them from host to GPU memory.
+         *
+         *  @param  allSynapsesDeviceProps   Reference to the AllSpikingSynapsesProps class on device memory.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        virtual void setupSynapsesDeviceProps( void** allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron );
+
+        /**
+         *  Delete GPU memories.
+         *
+         *  @param  allSynapsesDeviceProps  Reference to the AllSpikingSynapsesProps class on device memory.
+         */
+        virtual void cleanupSynapsesDeviceProps( void* allSynapsesDeviceProps );
+
+        /**
+         *  Copy all synapses' data from host to device.
+         *
+         *  @param  allSynapsesDeviceProps   Reference to the AllSpikingSynapsesProps class on device memory.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        virtual void copySynapseHostToDeviceProps( void* allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron );
+
+        /**
+         *  Copy all synapses' data from device to host.
+         *
+         *  @param  allSynapsesDeviceProps   Reference to the AllSpikingSynapsesProps class on device memory.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        virtual void copySynapseDeviceToHostProps( void* allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron );
+
+        /**
+         *  Get synapse_counts in AllSpikingSynapsesProps class on device memory.
+         *
+         *  @param  allSynapsesDeviceProps  Reference to the AllSpikingSynapsesProps class on device memory.
+         *  @param  clr_info                ClusterInfo to refer from.
+         */
+        void copyDeviceSynapseCountsToHost(void* allSynapsesDeviceProps, const ClusterInfo *clr_info);
+
+        /**
+         *  Get sourceNeuronLayoutIndex and in_use in AllSpikingSynapsesProps class on device memory.
+         *
+         *  @param  allSynapsesDeviceProps  Reference to the AllSpikingSynapsesProps class on device memory.
+         *  @param  sim_info                SimulationInfo to refer from.
+         *  @param  clr_info                ClusterInfo to refer from.
+         */
+        void copyDeviceSourceNeuronIdxToHost(void* allSynapsesDeviceProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+
+        /**
+         * Process inter clusters outgoing spikes.
+         *
+         *  @param  allSynapsesProps     Reference to the AllSpikingSynapsesProps struct
+         *                                on device memory.
+         */
+        virtual void processInterClustesOutgoingSpikes(void* allSynapsesProps);
+
+        /**
+         * Process inter clusters incoming spikes.
+         *
+         *  @param  allSynapsesProps     Reference to the AllSpikingSynapsesProps struct
+         *                                on device memory.
+         */
+        virtual void processInterClustesIncomingSpikes(void* allSynapsesProps);
+
+    protected:
+        /**
+         *  Allocate GPU memories to store all synapses' states.
+         *
+         *  @param  allSynapsesProps      Reference to the AllSpikingSynapsesProps class.
+         *  @param  num_neurons           Number of neurons.
+         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         */
+        void allocSynapsesDeviceProps( AllSpikingSynapsesProps &allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron);
+
+        /**
+         *  Delete GPU memories.
+         *
+         *  @param  allSynapsesProps  Reference to the AllSpikingSynapsesProps class.
+         */
+        void deleteSynapsesDeviceProps( AllSpikingSynapsesProps& allSynapsesProps );
+
+        /**
+         *  Copy all synapses' data from host to device.
+         *  (Helper function of copySynapseHostToDeviceProps)
+         *
+         *  @param  allSynapsesDeviceProps   Reference to the AllSpikingSynapsesProps class on device memory.
+         *  @param  allSynapsesProps         Reference to the AllSpikingSynapsesProps class.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        void copyHostToDeviceProps( void* allSynapsesDeviceProps, AllSpikingSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron );
+
+        /**
+         *  Copy all synapses' data from device to host.
+         *  (Helper function of copySynapseDeviceToHostProps)
+         *
+         *  @param  allSynapsesProps         Reference to the AllSpikingSynapsesProps class.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        void copyDeviceToHostProps( AllSpikingSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron);
+#endif // USE_GPU
+
+    public:
         /**
          *  Sets the data for Synapse to input's data.
          *

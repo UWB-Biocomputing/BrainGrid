@@ -109,23 +109,24 @@ CUDAOBJS =   \
 		$(NEURONDIR)/AllNeuronsDeviceFuncs_d.o \
 		$(NEURONDIR)/AllNeurons_cuda.o \
 		$(NEURONDIR)/AllSpikingNeurons_cuda.o \
-		$(NEURONDIR)/AllSpikingNeurons_d.o \
 		$(NEURONDIR)/AllIFNeurons_cuda.o \
-		$(NEURONDIR)/AllIFNeurons_d.o \
 		$(NEURONDIR)/AllLIFNeurons_cuda.o \
-		$(NEURONDIR)/AllLIFNeurons_d.o \
 		$(NEURONDIR)/AllIZHNeurons_cuda.o \
-		$(NEURONDIR)/AllIZHNeurons_d.o \
+                $(NEURONDIR)/AllNeuronsProps_cuda.o \
+                $(NEURONDIR)/AllSpikingNeuronsProps_cuda.o \
+                $(NEURONDIR)/AllIFNeuronsProps_cuda.o \
+                $(NEURONDIR)/AllIZHNeuronsProps_cuda.o \
 		$(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o \
 		$(SYNAPSEDIR)/AllSynapses_cuda.o \
 		$(SYNAPSEDIR)/AllSpikingSynapses_cuda.o \
-		$(SYNAPSEDIR)/AllSpikingSynapses_d.o \
 		$(SYNAPSEDIR)/AllDSSynapses_cuda.o \
-		$(SYNAPSEDIR)/AllDSSynapses_d.o \
 		$(SYNAPSEDIR)/AllSTDPSynapses_cuda.o \
-		$(SYNAPSEDIR)/AllSTDPSynapses_d.o \
 		$(SYNAPSEDIR)/AllDynamicSTDPSynapses_cuda.o \
-		$(SYNAPSEDIR)/AllDynamicSTDPSynapses_d.o \
+		$(SYNAPSEDIR)/AllSynapsesProps_cuda.o \
+		$(SYNAPSEDIR)/AllSpikingSynapsesProps_cuda.o \
+		$(SYNAPSEDIR)/AllDSSynapsesProps_cuda.o \
+		$(SYNAPSEDIR)/AllSTDPSynapsesProps_cuda.o \
+		$(SYNAPSEDIR)/AllDynamicSTDPSynapsesProps_cuda.o \
 		$(CONNDIR)/Connections_cuda.o \
 		$(CONNDIR)/ConnGrowth_cuda.o \
 		$(CONNDIR)/ConnStatic_cuda.o \
@@ -155,23 +156,24 @@ CUDAOBJS =   \
                 $(NEURONDIR)/AllNeuronsDeviceFuncs_d.o \
                 $(NEURONDIR)/AllNeurons_cuda.o \
                 $(NEURONDIR)/AllSpikingNeurons_cuda.o \
-                $(NEURONDIR)/AllSpikingNeurons_d.o \
                 $(NEURONDIR)/AllIFNeurons_cuda.o \
-                $(NEURONDIR)/AllIFNeurons_d.o \
                 $(NEURONDIR)/AllLIFNeurons_cuda.o \
-                $(NEURONDIR)/AllLIFNeurons_d.o \
                 $(NEURONDIR)/AllIZHNeurons_cuda.o \
-                $(NEURONDIR)/AllIZHNeurons_d.o \
+                $(NEURONDIR)/AllNeuronsProps_cuda.o \
+                $(NEURONDIR)/AllSpikingNeuronsProps_cuda.o \
+                $(NEURONDIR)/AllIFNeuronsProps_cuda.o \
+                $(NEURONDIR)/AllIZHNeuronsProps_cuda.o \
                 $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o \
                 $(SYNAPSEDIR)/AllSynapses_cuda.o \
                 $(SYNAPSEDIR)/AllSpikingSynapses_cuda.o \
-                $(SYNAPSEDIR)/AllSpikingSynapses_d.o \
                 $(SYNAPSEDIR)/AllDSSynapses_cuda.o \
-                $(SYNAPSEDIR)/AllDSSynapses_d.o \
                 $(SYNAPSEDIR)/AllSTDPSynapses_cuda.o \
-                $(SYNAPSEDIR)/AllSTDPSynapses_d.o \
                 $(SYNAPSEDIR)/AllDynamicSTDPSynapses_cuda.o \
-                $(SYNAPSEDIR)/AllDynamicSTDPSynapses_d.o \
+		$(SYNAPSEDIR)/AllSynapsesProps_cuda.o \
+		$(SYNAPSEDIR)/AllSpikingSynapsesProps_cuda.o \
+		$(SYNAPSEDIR)/AllDSSynapsesProps_cuda.o \
+		$(SYNAPSEDIR)/AllSTDPSynapsesProps_cuda.o \
+		$(SYNAPSEDIR)/AllDynamicSTDPSynapsesProps_cuda.o \
                 $(CONNDIR)/Connections_cuda.o \
                 $(CONNDIR)/ConnGrowth_cuda.o \
                 $(CONNDIR)/ConnStatic_cuda.o \
@@ -336,32 +338,8 @@ $(COREDIR)/GPUSpikingCluster.o: $(COREDIR)/GPUSpikingCluster.cu $(UTILDIR)/Globa
 $(NEURONDIR)/AllNeuronsDeviceFuncs_d.o: $(NEURONDIR)/AllNeuronsDeviceFuncs_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllNeuronsDeviceFuncs.h
 	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllNeuronsDeviceFuncs_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllNeuronsDeviceFuncs_d.o
 
-$(NEURONDIR)/AllSpikingNeurons_d.o: $(NEURONDIR)/AllSpikingNeurons_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllSpikingNeurons.h
-	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllSpikingNeurons_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllSpikingNeurons_d.o
-
-$(NEURONDIR)/AllIFNeurons_d.o: $(NEURONDIR)/AllIFNeurons_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllIFNeurons.h
-	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllIFNeurons_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllIFNeurons_d.o
-
-$(NEURONDIR)/AllLIFNeurons_d.o: $(NEURONDIR)/AllLIFNeurons_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllLIFNeurons.h
-	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllLIFNeurons_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllLIFNeurons_d.o
-
-$(NEURONDIR)/AllIZHNeurons_d.o: $(NEURONDIR)/AllIZHNeurons_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllIZHNeurons.h
-	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllIZHNeurons_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllIZHNeurons_d.o
-
 $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o: $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllSynapsesDeviceFuncs.h
 	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o
-
-$(SYNAPSEDIR)/AllSpikingSynapses_d.o: $(SYNAPSEDIR)/AllSpikingSynapses_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllSpikingSynapses.h
-	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSpikingSynapses_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSpikingSynapses_d.o
-
-$(SYNAPSEDIR)/AllDSSynapses_d.o: $(SYNAPSEDIR)/AllDSSynapses_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllDSSynapses.h
-	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllDSSynapses_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllDSSynapses_d.o
-
-$(SYNAPSEDIR)/AllSTDPSynapses_d.o: $(SYNAPSEDIR)/AllSTDPSynapses_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllSTDPSynapses.h
-	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSTDPSynapses_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSTDPSynapses_d.o
-
-$(SYNAPSEDIR)/AllDynamicSTDPSynapses_d.o: $(SYNAPSEDIR)/AllDynamicSTDPSynapses_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllDynamicSTDPSynapses.h
-	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllDynamicSTDPSynapses_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllDynamicSTDPSynapses_d.o
 
 $(CONNDIR)/ConnGrowth_d.o: $(CONNDIR)/ConnGrowth_d.cu $(UTILDIR)/Global.h $(CONNDIR)/ConnGrowth.h
 	nvcc -c $(NVCCFLAGS) $(CONNDIR)/ConnGrowth_d.cu $(CGPUFLAGS) -o $(CONNDIR)/ConnGrowth_d.o
@@ -387,6 +365,18 @@ $(NEURONDIR)/AllLIFNeurons_cuda.o: $(NEURONDIR)/AllLIFNeurons.cpp $(NEURONDIR)/A
 $(NEURONDIR)/AllIZHNeurons_cuda.o: $(NEURONDIR)/AllIZHNeurons.cpp $(NEURONDIR)/AllIZHNeurons.h $(UTILDIR)/Global.h
 	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllIZHNeurons.cpp -x cu $(CGPUFLAGS) -o $(NEURONDIR)/AllIZHNeurons_cuda.o
 
+$(NEURONDIR)/AllNeuronsProps_cuda.o: $(NEURONDIR)/AllNeuronsProps.cpp $(NEURONDIR)/AllNeuronsProps.h $(UTILDIR)/Global.h
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllNeuronsProps.cpp -x cu $(CGPUFLAGS) -o $(NEURONDIR)/AllNeuronsProps_cuda.o
+
+$(NEURONDIR)/AllSpikingNeuronsProps_cuda.o: $(NEURONDIR)/AllSpikingNeuronsProps.cpp $(NEURONDIR)/AllSpikingNeuronsProps.h $(UTILDIR)/Global.h
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllSpikingNeuronsProps.cpp -x cu $(CGPUFLAGS) -o $(NEURONDIR)/AllSpikingNeuronsProps_cuda.o
+
+$(NEURONDIR)/AllIFNeuronsProps_cuda.o: $(NEURONDIR)/AllIFNeuronsProps.cpp $(NEURONDIR)/AllIFNeuronsProps.h $(UTILDIR)/Global.h
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllIFNeuronsProps.cpp -x cu $(CGPUFLAGS) -o $(NEURONDIR)/AllIFNeuronsProps_cuda.o
+
+$(NEURONDIR)/AllIZHNeuronsProps_cuda.o: $(NEURONDIR)/AllIZHNeuronsProps.cpp $(NEURONDIR)/AllIZHNeuronsProps.h $(UTILDIR)/Global.h
+	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllIZHNeuronsProps.cpp -x cu $(CGPUFLAGS) -o $(NEURONDIR)/AllIZHNeuronsProps_cuda.o
+
 $(SYNAPSEDIR)/AllSynapses_cuda.o: $(SYNAPSEDIR)/AllSynapses.cpp $(SYNAPSEDIR)/AllSynapses.h $(UTILDIR)/Global.h
 	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSynapses.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSynapses_cuda.o
 
@@ -401,6 +391,21 @@ $(SYNAPSEDIR)/AllSTDPSynapses_cuda.o: $(SYNAPSEDIR)/AllSTDPSynapses.cpp $(SYNAPS
 
 $(SYNAPSEDIR)/AllDynamicSTDPSynapses_cuda.o: $(SYNAPSEDIR)/AllDynamicSTDPSynapses.cpp $(SYNAPSEDIR)/AllDynamicSTDPSynapses.h $(UTILDIR)/Global.h
 	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllDynamicSTDPSynapses.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllDynamicSTDPSynapses_cuda.o
+
+$(SYNAPSEDIR)/AllSynapsesProps_cuda.o: $(SYNAPSEDIR)/AllSynapsesProps.cpp $(SYNAPSEDIR)/AllSynapsesProps.h $(UTILDIR)/Global.h
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSynapsesProps.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSynapsesProps_cuda.o
+
+$(SYNAPSEDIR)/AllSpikingSynapsesProps_cuda.o: $(SYNAPSEDIR)/AllSpikingSynapsesProps.cpp $(SYNAPSEDIR)/AllSpikingSynapsesProps.h $(UTILDIR)/Global.h
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSpikingSynapsesProps.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSpikingSynapsesProps_cuda.o
+
+$(SYNAPSEDIR)/AllDSSynapsesProps_cuda.o: $(SYNAPSEDIR)/AllDSSynapsesProps.cpp $(SYNAPSEDIR)/AllDSSynapsesProps.h $(UTILDIR)/Global.h
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllDSSynapsesProps.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllDSSynapsesProps_cuda.o
+
+$(SYNAPSEDIR)/AllSTDPSynapsesProps_cuda.o: $(SYNAPSEDIR)/AllSTDPSynapsesProps.cpp $(SYNAPSEDIR)/AllSTDPSynapsesProps.h $(UTILDIR)/Global.h
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSTDPSynapsesProps.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSTDPSynapsesProps_cuda.o
+
+$(SYNAPSEDIR)/AllDynamicSTDPSynapsesProps_cuda.o: $(SYNAPSEDIR)/AllDynamicSTDPSynapsesProps.cpp $(SYNAPSEDIR)/AllDynamicSTDPSynapsesProps.h $(UTILDIR)/Global.h
+	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllDynamicSTDPSynapsesProps.cpp -x cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllDynamicSTDPSynapsesProps_cuda.o
 
 $(CONNDIR)/Connections_cuda.o: $(CONNDIR)/Connections.cpp $(CONNDIR)/Connections.h $(UTILDIR)/Global.h
 	nvcc -c $(NVCCFLAGS) $(CONNDIR)/Connections.cpp -x cu $(CGPUFLAGS) -o $(CONNDIR)/Connections_cuda.o

@@ -89,62 +89,6 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
 #if defined(USE_GPU)
     public:
         /**
-         *  Allocate GPU memories to store all synapses' states,
-         *  and copy them from host to GPU memory.
-         *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
-
-        /**
-         *  Allocate GPU memories to store all synapses' states,
-         *  and copy them from host to GPU memory.
-         *
-         *  @param  allSynapsesDevice     Reference to the allSynapses struct on device memory.
-         *  @param  num_neurons           Number of neurons.
-         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
-         *  @param  clusterID             The cluster ID of the cluster.
-         */
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
-
-        /**
-         *  Delete GPU memories.
-         *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         */
-        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice );
-
-        /**
-         *  Copy all synapses' data from host to device.
-         *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
-
-        /**
-         *  Copy all synapses' data from host to device.
-         *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  num_neurons           Number of neurons.
-         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
-         */
-        virtual void copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron );
-
-        /**
-         *  Copy all synapses' data from device to host.
-         *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
-
-        /**
          *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
          *  The class ID will be set to classSynapses_d in device memory,
          *  and the classSynapses_d will be referred to call a device function for the
@@ -155,48 +99,7 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  (see issue#137).
          */
         virtual void setSynapseClassID();
-
-    protected:
-        /**
-         *  Allocate GPU memories to store all synapses' states,
-         *  and copy them from host to GPU memory.
-         *  (Helper function of allocSynapseDeviceStruct)
-         *
-         *  @param  allSynapsesProps  Reference to the allSynapses struct on device memory.
-         *  @param  num_neurons           Number of neurons.
-         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
-         *  @param  clusterID             The cluster ID of the cluster.
-         */
-        void allocDeviceStruct( AllDynamicSTDPSynapsesProps &allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
-
-        /**
-         *  Delete GPU memories.
-         *  (Helper function of deleteSynapseDeviceStruct)
-         *
-         *  @param  allSynapsesProps  Reference to the allSynapses struct on device memory.
-         */
-        void deleteDeviceStruct( AllDynamicSTDPSynapsesProps& allSynapsesProps );
-
-        /**
-         *  Copy all synapses' data from host to device.
-         *  (Helper function of copySynapseHostToDevice)
-         *
-         *  @param  allSynapsesDeviceProps  Reference to the allSynapses struct on device memory.
-         *  @param  num_neurons           Number of neurons.
-         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
-         */
-        void copyHostToDevice( void* allSynapsesDeviceProps, AllDynamicSTDPSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron );
-
-        /**
-         *  Copy all synapses' data from device to host.
-         *  (Helper function of copySynapseDeviceToHost)
-         *
-         *  @param  allSynapsesProps  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        void copyDeviceToHost( AllDynamicSTDPSynapsesProps& allSynapsesProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
-#else // !defined(USE_GPU)
+#else // USE_GPU
     protected:
         /**
          *  Calculate the post synapse response after a spike.

@@ -96,42 +96,6 @@ class IAllNeurons
 #if defined(USE_GPU)
     public:
         /**
-         *  Allocate GPU memories to store all neurons' states,
-         *  and copy them from host to GPU memory.
-         *
-         *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info, ClusterInfo *clr_info ) = 0;
-
-        /**
-         *  Delete GPU memories.
-         *
-         *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void deleteNeuronDeviceStruct( void* allNeuronsDevice, const ClusterInfo *clr_info ) = 0;
-
-        /**
-         *  Copy all neurons' data from host to device.
-         *
-         *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) = 0;
-
-        /**
-         *  Copy all neurons' data from device to host.
-         *
-         *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) = 0;
-
-        /**
          *  Update the state of all neurons for a time step
          *  Notify outgoing synapses if neuron has fired.
          *

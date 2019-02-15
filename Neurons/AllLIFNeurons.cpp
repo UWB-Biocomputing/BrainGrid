@@ -1,5 +1,9 @@
 #include "AllLIFNeurons.h"
 #include "ParseParamError.h"
+#if defined(USE_GPU)
+#include "AllNeuronsDeviceFuncs.h"
+#include <helper_cuda.h>
+#endif
 
 // Default constructor
 AllLIFNeurons::AllLIFNeurons()
@@ -9,6 +13,8 @@ AllLIFNeurons::AllLIFNeurons()
 AllLIFNeurons::~AllLIFNeurons()
 {
 }
+
+#if !defined(USE_GPU)
 
 /*
  *  Update internal state of the indexed Neuron (called by every simulation step).
@@ -84,3 +90,41 @@ void AllLIFNeurons::fire(const int index, const SimulationInfo *sim_info, int iS
     // reset to 'Vreset'
     Vm = Vreset;
 }
+
+#else // USE_GPU
+
+/*
+ *  Update the state of all neurons for a time step
+ *  Notify outgoing synapses if neuron has fired.
+ *
+ *  @param  synapses               Reference to the allSynapses struct on host memory.
+ *  @param  allNeuronsProps       Reference to the allNeuronsProps struct
+ *                                 on device memory.
+ *  @param  allSynapsesProps      Reference to the allSynapsesProps struct
+ *                                 on device memory.
+ *  @param  sim_info               SimulationInfo to refer from.
+ *  @param  randNoise              Reference to the random noise array.
+ *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
+ *  @param  clr_info               ClusterInfo to refer from.
+ *  @param  iStepOffset            Offset from the current simulation step.
+ */
+void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsProps, void* allSynapsesProps, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset )
+{
+    DEBUG (
+    int deviceId;
+    checkCudaErrors( cudaGetDevice( &deviceId ) );
+    assert(deviceId == clr_info->deviceId);
+    ); // end DEBUG
+
+    int neuron_count = clr_info->totalClusterNeurons;
+    int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
+
+    // CUDA parameters
+    const int threadsPerBlock = 256;
+    int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
+
+    // Advance neurons ------------->
+    advanceLIFNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeuronsProps *)allNeuronsProps, (AllSpikingSynapsesProps*)allSynapsesProps, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset );
+}
+
+#endif // USE_GPU

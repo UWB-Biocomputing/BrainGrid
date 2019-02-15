@@ -1,4 +1,7 @@
 #include "AllSynapsesProps.h"
+#if defined(USE_GPU)
+#include <helper_cuda.h>
+#endif
 
 // Default constructor
 AllSynapsesProps::AllSynapsesProps()
@@ -13,6 +16,8 @@ AllSynapsesProps::AllSynapsesProps()
     type = NULL;
     in_use = NULL;
     synapse_counts = NULL;
+    maxSynapsesPerNeuron = 0;
+    count_neurons = 0;
 }
 
 AllSynapsesProps::~AllSynapsesProps()
@@ -88,6 +93,121 @@ void AllSynapsesProps::cleanupSynapsesProps()
     count_neurons = 0;
     maxSynapsesPerNeuron = 0;
 }
+
+#if defined(USE_GPU)
+/*
+ *  Allocate GPU memories to store all synapses' states.
+ *
+ *  @param  allSynapsesProps      Reference to the AllSynapsesProps class.
+ *  @param  num_neurons           Number of neurons.
+ *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+ */
+void AllSynapsesProps::allocSynapsesDeviceProps( AllSynapsesProps &allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron)
+{
+    BGSIZE size = maxSynapsesPerNeuron * num_neurons;
+
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.sourceNeuronLayoutIndex, size * sizeof( int ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.destNeuronLayoutIndex, size * sizeof( int ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.W, size * sizeof( BGFLOAT ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.type, size * sizeof( synapseType ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.psr, size * sizeof( BGFLOAT ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.in_use, size * sizeof( bool ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.synapse_counts, num_neurons * sizeof( BGSIZE ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.summation, size * sizeof( BGFLOAT ) ) );
+}
+
+/*
+ *  Delete GPU memories.
+ *
+ *  @param  allSynapsesProps  Reference to the AllSynapsesProps class.
+ */
+void AllSynapsesProps::deleteSynapsesDeviceProps( AllSynapsesProps& allSynapsesProps ) 
+{
+    checkCudaErrors( cudaFree( allSynapsesProps.sourceNeuronLayoutIndex ) );
+    checkCudaErrors( cudaFree( allSynapsesProps.destNeuronLayoutIndex ) );
+    checkCudaErrors( cudaFree( allSynapsesProps.W ) );
+    checkCudaErrors( cudaFree( allSynapsesProps.type ) );
+    checkCudaErrors( cudaFree( allSynapsesProps.psr ) );
+    checkCudaErrors( cudaFree( allSynapsesProps.in_use ) );
+    checkCudaErrors( cudaFree( allSynapsesProps.synapse_counts ) );
+    checkCudaErrors( cudaFree( allSynapsesProps.summation ) );
+}
+
+/*
+ *  Copy all synapses' data from host to device.
+ *  (Helper function of copySynapseHostToDeviceProps)
+ *
+ *  @param  allSynapsesDeviceProps   Reference to the AllSynapsesProps class on device memory.
+ *  @param  allSynapsesProps         Reference to the AllSynapsesProps class.
+ *  @param  num_neurons              Number of neurons.
+ *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+ */
+void AllSynapsesProps::copyHostToDeviceProps( void* allSynapsesDeviceProps, AllSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron ) 
+{ 
+    // copy everything necessary
+    BGSIZE size = maxSynapsesPerNeuron * num_neurons;
+
+    allSynapsesProps.maxSynapsesPerNeuron = maxSynapsesPerNeuron;
+    allSynapsesProps.total_synapse_counts = total_synapse_counts;
+    allSynapsesProps.count_neurons = count_neurons;
+    checkCudaErrors( cudaMemcpy ( allSynapsesDeviceProps, &allSynapsesProps, sizeof( AllSynapsesProps ), cudaMemcpyHostToDevice ) );
+
+    // Set count_neurons to 0 to avoid illegal memory deallocation
+    // at AllSynapsesProps deconstructor.
+    allSynapsesProps.count_neurons = 0;
+
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps.sourceNeuronLayoutIndex, sourceNeuronLayoutIndex,
+            size * sizeof( int ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps.destNeuronLayoutIndex, destNeuronLayoutIndex,
+            size * sizeof( int ),  cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps.W, W,
+            size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps.type, type,
+            size * sizeof( synapseType ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps.psr, psr,
+            size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps.in_use, in_use,
+            size * sizeof( bool ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps.synapse_counts, synapse_counts,
+                    num_neurons * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) );
+}
+
+/*
+ *  Copy all synapses' data from device to host.
+ *  (Helper function of copySynapseDeviceToHostProps)
+ *
+ *  @param  allSynapsesProps         Reference to the AllSynapsesProps class.
+ *  @param  num_neurons              Number of neurons.
+ *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+ */
+void AllSynapsesProps::copyDeviceToHostProps( AllSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron)
+{
+    BGSIZE size = maxSynapsesPerNeuron * num_neurons;
+
+    checkCudaErrors( cudaMemcpy ( synapse_counts, allSynapsesProps.synapse_counts,
+            num_neurons * sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
+    this-> maxSynapsesPerNeuron = allSynapsesProps.maxSynapsesPerNeuron;
+    this->total_synapse_counts = allSynapsesProps.total_synapse_counts;
+    this->count_neurons = allSynapsesProps.count_neurons;
+
+    // Set count_neurons to 0 to avoid illegal memory deallocation
+    // at AllSynapsesProps deconstructor.
+    allSynapsesProps.count_neurons = 0;
+
+    checkCudaErrors( cudaMemcpy ( sourceNeuronLayoutIndex, allSynapsesProps.sourceNeuronLayoutIndex,
+            size * sizeof( int ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( destNeuronLayoutIndex, allSynapsesProps.destNeuronLayoutIndex,
+            size * sizeof( int ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( W, allSynapsesProps.W,
+            size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( type, allSynapsesProps.type,
+            size * sizeof( synapseType ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( psr, allSynapsesProps.psr,
+            size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( in_use, allSynapsesProps.in_use,
+            size * sizeof( bool ), cudaMemcpyDeviceToHost ) );
+}
+#endif // USE_GPU
 
 /*
  *  Checks the number of required parameters.

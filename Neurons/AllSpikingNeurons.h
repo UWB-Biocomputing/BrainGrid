@@ -50,15 +50,6 @@ class AllSpikingNeurons : public AllNeurons
         AllSpikingNeurons();
         virtual ~AllSpikingNeurons();
 
-        /**
-         *  Clear the spike counts out of all Neurons.
-         *
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  clr_info  ClusterInfo class to read information from.
-         *  @param  clr       Cluster class to read information from.
-         */
-        void clearSpikeCounts(const SimulationInfo *sim_info, const ClusterInfo *clr_info, Cluster *clr);
-
 #if defined(USE_GPU)
     public:
         /**
@@ -67,43 +58,6 @@ class AllSpikingNeurons : public AllNeurons
          *  @param  synapses               Reference to the allSynapses struct on host memory.
          */
         virtual void setAdvanceNeuronsDeviceParams(IAllSynapses &synapses);
-
-        /**
-         *  Copy spike counts data stored in device memory to host.
-         *
-         *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void copyNeuronDeviceSpikeCountsToHost( void* allNeuronsDevice, const ClusterInfo *clr_info ) = 0;
-
-        /**
-         *  Copy spike history data stored in device memory to host.
-         *
-         *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void copyNeuronDeviceSpikeHistoryToHost( void* allNeuronsDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) = 0;
-
-    protected:
-        /**
-         *  Copy spike history data stored in device memory to host.
-         *  (Helper function of copyNeuronDeviceSpikeHistoryToHost)
-         *
-         *  @param  allNeuronsProps   Reference to the AllSpikingNeuronsProps struct.
-         *  @param  sim_info          SimulationInfo to refer from.
-         *  @param  clr_info          ClusterInfo to refer from.
-         */
-        void copyDeviceSpikeHistoryToHost( AllSpikingNeuronsProps& allNeuronsProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
-
-        /**
-         *  Copy spike counts data stored in device memory to host.
-         *  (Helper function of copyNeuronDeviceSpikeCountsToHost)
-         *
-         *  @param  allNeuronsProps    Reference to the AllSpikingNeuronsProps struct.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        void copyDeviceSpikeCountsToHost( AllSpikingNeuronsProps& allNeuronsProps, const ClusterInfo *clr_info );
 
 #else // !defined(USE_GPU)
 

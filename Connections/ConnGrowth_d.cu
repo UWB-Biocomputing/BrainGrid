@@ -89,7 +89,7 @@ void ConnGrowth::updateConnsThread(const SimulationInfo *sim_info, Cluster *clr,
 
     // executes a CUDA kernel function
     GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(clr);
-    AllSpikingNeuronsProperties* allNeuronsProperties = GPUClr->m_allNeuronsProperties;      
+    AllSpikingNeuronsProps* allNeuronsProps = GPUClr->m_allNeuronsDeviceProps;      
 
 #ifdef PERFORMANCE_METRICS
     // Reset CUDA timer to start measurement of GPU operation
@@ -98,7 +98,7 @@ void ConnGrowth::updateConnsThread(const SimulationInfo *sim_info, Cluster *clr,
 
     // CUDA kernel function for calculating firing rates, neuron radii change and assign new values
     blockPerGrid = ( totalClusterNeurons + threadsPerBlock - 1) / threadsPerBlock;
-    updateConnsDevice <<< blockPerGrid, threadsPerBlock >>> (allNeuronsProperties, totalClusterNeurons, max_spikes, sim_info->epochDuration, m_growth.maxRate, m_growth.beta, m_growth.rho, m_growth.epsilon, rates_d, radii_d );
+    updateConnsDevice <<< blockPerGrid, threadsPerBlock >>> (allNeuronsProps, totalClusterNeurons, max_spikes, sim_info->epochDuration, m_growth.maxRate, m_growth.beta, m_growth.rho, m_growth.epsilon, rates_d, radii_d );
 
 #ifdef PERFORMANCE_METRICS
     cudaLapTime(clr_info, clr_info->t_gpu_updateConns);
@@ -188,8 +188,8 @@ void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Lay
 
     // executes a CUDA kernel function
     GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(clr);
-    AllSpikingNeuronsProperties* allNeuronsProperties = GPUClr->m_allNeuronsProperties;
-    AllSpikingSynapsesProperties* allSynapsesProperties = GPUClr->m_allSynapsesProperties;
+    AllSpikingNeuronsProps* allNeuronsDeviceProps = GPUClr->m_allNeuronsDeviceProps;
+    AllSpikingSynapsesProps* allSynapsesDeviceProps = GPUClr->m_allSynapsesDeviceProps;
 
 #ifdef PERFORMANCE_METRICS
     // Reset CUDA timer to start measurement of GPU operation
@@ -197,7 +197,7 @@ void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Lay
 #endif // PERFORMANCE_METRICS
 
     blocksPerGrid = ( totalClusterNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
-    updateSynapsesWeightsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, deltaT, sim_info->maxSynapsesPerNeuron, allNeuronsProperties, allSynapsesProperties, neuron_type_map_d, totalClusterNeurons, clusterNeuronsBegin, radii_d, xloc_d, yloc_d );
+    updateSynapsesWeightsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, deltaT, sim_info->maxSynapsesPerNeuron, allNeuronsDeviceProps, allSynapsesDeviceProps, neuron_type_map_d, totalClusterNeurons, clusterNeuronsBegin, radii_d, xloc_d, yloc_d );
 
 #ifdef PERFORMANCE_METRICS
     cudaLapTime(clr_info, clr_info->t_gpu_updateSynapsesWeights);
@@ -205,10 +205,11 @@ void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Lay
 
     // copy device synapse count to host memory
     AllSynapses *synapses = dynamic_cast<AllSynapses*>(clr->m_synapses);
-    synapses->copyDeviceSynapseCountsToHost(allSynapsesProperties, clr_info);
+    AllSpikingSynapsesProps *pSynapsesProps = dynamic_cast<AllSpikingSynapsesProps*>(synapses->m_pSynapsesProps);
+    pSynapsesProps->copyDeviceSynapseCountsToHost(allSynapsesDeviceProps, clr_info);
 
     // copy device sourceNeuronLayoutIndex and in_use to host memory
-    synapses->copyDeviceSourceNeuronIdxToHost(allSynapsesProperties, sim_info, clr_info);
+    pSynapsesProps->copyDeviceSourceNeuronIdxToHost(allSynapsesDeviceProps, sim_info, clr_info);
 
   DEBUG(
     {
@@ -246,7 +247,7 @@ void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Lay
 /*
  *  CUDA kernel function for calculating firing rates, neuron radii change and assign new values.
  *
- *  @param  allNeuronsProperties   Pointer to Neuron structures in device memory.
+ *  @param  allNeuronsProps   Pointer to Neuron structures in device memory.
  *  @param  totalClusterNeurons    Number of neurons in the cluster.
  *  @param  max_spikes             Maximum firing rate.
  *  @param  epochDuration          One epoch duration in second.
@@ -257,7 +258,7 @@ void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Lay
  *  @param  rates_d                Pointer to rates data array.
  *  @param  radii_d                Pointer to radii data array.
  */
-__global__ void updateConnsDevice( AllSpikingNeuronsProperties* allNeuronsProperties, int totalClusterNeurons, int max_spikes, BGFLOAT epochDuration, BGFLOAT maxRate, BGFLOAT beta, BGFLOAT rho, BGFLOAT epsilon, BGFLOAT* rates_d, BGFLOAT* radii_d )
+__global__ void updateConnsDevice( AllSpikingNeuronsProps* allNeuronsProps, int totalClusterNeurons, int max_spikes, BGFLOAT epochDuration, BGFLOAT maxRate, BGFLOAT beta, BGFLOAT rho, BGFLOAT epsilon, BGFLOAT* rates_d, BGFLOAT* radii_d )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= totalClusterNeurons )
@@ -265,10 +266,10 @@ __global__ void updateConnsDevice( AllSpikingNeuronsProperties* allNeuronsProper
 
     int iNeuron = idx;
 
-    DEBUG( assert(allNeuronsProperties->spikeCount[iNeuron] < max_spikes); )
+    DEBUG( assert(allNeuronsProps->spikeCount[iNeuron] < max_spikes); )
 
     // compute neuron radii change and assign new values
-    rates_d[iNeuron] = allNeuronsProperties->spikeCount[iNeuron] / epochDuration;
+    rates_d[iNeuron] = allNeuronsProps->spikeCount[iNeuron] / epochDuration;
     BGFLOAT outgrowth = 1.0 - 2.0 / (1.0 + exp(static_cast<double>((epsilon - rates_d[iNeuron] / maxRate)) / beta));
     BGFLOAT deltaR = epochDuration * rho * outgrowth;
     radii_d[iNeuron] += deltaR;

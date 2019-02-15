@@ -63,8 +63,8 @@ private:
 
 #if defined(__CUDACC__)
 //! Device function that processes input stimulus for each time step.
-extern __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapsesProperties* allSynapsesProperties, CLUSTER_INDEX_TYPE clusterID, int iStepOffset );
-extern __global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapsesProperties* allSynapsesDevice );
+extern __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapsesProps* allSynapsesProps, CLUSTER_INDEX_TYPE clusterID, int iStepOffset );
+extern __global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapsesProps* allSynapsesDevice );
 extern __global__ void setupSeeds( int n, curandState* devStates_d, unsigned long seed );
 #endif
 

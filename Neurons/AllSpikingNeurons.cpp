@@ -10,26 +10,7 @@ AllSpikingNeurons::~AllSpikingNeurons()
 {
 }
 
-/*
- *  Clear the spike counts out of all Neurons.
- *
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  clr_info  ClusterInfo class to read information from.
- *  @param  clr       Cluster class to read information from.
- */
-void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info, const ClusterInfo *clr_info, Cluster *clr)
-{
-    int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
-
-    int *spikeCountOffset = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spikeCountOffset;
-    int *spikeCount = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spikeCount; 
-
-    for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
-        spikeCountOffset[i] = (spikeCount[i] + spikeCountOffset[i]) % max_spikes;
-        spikeCount[i] = 0;
-   }
-}
-
+#if !defined(USE_GPU)
 /*
  *  Update internal state of the indexed Neuron (called by every simulation step).
  *  Notify outgoing synapses if neuron has fired.
@@ -147,3 +128,22 @@ uint64_t AllSpikingNeurons::getSpikeHistory(int index, int offIndex, const Simul
     int idxSp = (spikeCount[index] + spikeCountOffset[index] +  max_spikes + offIndex) % max_spikes;
     return spike_history[index][idxSp];
 }
+#endif // !USE_GPU
+
+#if defined(USE_GPU)
+/*
+ *  Set some parameters used for advanceNeuronsDevice.
+ *  Currently we set the two member variables: m_fpPreSpikeHit_h and m_fpPostSpikeHit_h.
+ *  These are function pointers for PreSpikeHit and PostSpikeHit device functions
+ *  respectively, and these functions are called from advanceNeuronsDevice device
+ *  function. We use this scheme because we cannot not use virtual function (Polymorphism)
+ *  in device functions.
+ *
+ *  @param  synapses               Reference to the allSynapses struct on host memory.
+ */
+void AllSpikingNeurons::setAdvanceNeuronsDeviceParams(IAllSynapses &synapses)
+{
+    AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
+    m_fAllowBackPropagation = spSynapses.allowBackPropagation();
+}
+#endif // USE_GPU

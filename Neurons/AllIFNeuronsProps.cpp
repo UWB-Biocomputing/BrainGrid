@@ -1,7 +1,8 @@
 #include "AllIFNeuronsProps.h"
 #include "ParseParamError.h"
-
-#if !defined(USEGPU)
+#if defined(USE_GPU)
+#include <helper_cuda.h>
+#endif
 
 // Default constructor
 AllIFNeuronsProps::AllIFNeuronsProps()
@@ -104,63 +105,41 @@ void AllIFNeuronsProps::cleanupNeuronsProps()
     nStepsInRefr = NULL;
 }
 
-#else // USE_GPU
 
-// Default constructor
-AllIFNeuronsProps::AllIFNeuronsProps()
-{
-    C1 = NULL;
-    C2 = NULL;
-    Cm = NULL;
-    I0 = NULL;
-    Iinject = NULL;
-    Inoise = NULL;
-    Isyn = NULL;
-    Rm = NULL;
-    Tau = NULL;
-    Trefract = NULL;
-    Vinit = NULL;
-    Vm = NULL;
-    Vreset = NULL;
-    Vrest = NULL;
-    Vthresh = NULL;
-    nStepsInRefr = NULL;
-}
-
-AllIFNeuronsProps::~AllIFNeuronsProps()
-{
-}
-
+#if defined(USE_GPU)
 /*
- *  Setup the internal structure of the class (allocate memories).
+ *  Allocate GPU memories to store all neurons' states,
+ *  and copy them from host to GPU memory.
  *
- *  @param  pAllNeuronsProps_d the AllNeuronsProps on device memory.
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  clr_info  ClusterInfo class to read information from.
+ *  @param  allNeuronsDeviceProps   Reference to the AllIZHNeuronsProps class on device memory.
+ *  @param  sim_info                SimulationInfo to refer from.
+ *  @param  clr_info                ClusterInfo to refer from.
  */
-static void AllIFNeuronsProps::setupNeuronsProps(void *pAllNeuronsProps_d, SimulationInfo *sim_info, ClusterInfo *clr_info)
+void AllIFNeuronsProps::setupNeuronsDeviceProps(void** allNeuronsDeviceProps, SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
     AllIFNeuronsProps allNeuronsProps;
 
     // allocate GPU memories to store all neuron's states
-    allocNeuronsProps(allNeuronsProps, sim_info, clr_info);
+    allocNeuronsDeviceProps(allNeuronsProps, sim_info, clr_info);
+
+    checkCudaErrors( cudaMalloc( allNeuronsDeviceProps, sizeof( AllIFNeuronsProps ) ) );
 
     // copy the pointer address to structure on device memory
-    checkCudaErrors( cudaMemcpy ( pAllNeuronsDeviceProps_d, &allNeuronsProps, sizeof( AllIFNeuronsProps ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( *allNeuronsDeviceProps, &allNeuronsProps, sizeof( AllIFNeuronsProps ), cudaMemcpyHostToDevice ) );
 }
 
 /*
  *  Allocate GPU memories to store all neurons' states.
  *
- *  @param  allNeuronsProps   Reference to the AllNeuronsProps struct.
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  clr_info               ClusterInfo to refer from.
+ *  @param  allNeuronsProps   Reference to the AllNeuronsProps class.
+ *  @param  sim_info          SimulationInfo class to read information from.
+ *  @param  clr_info          ClusterInfo to refer from.
  */
-static void AllIFNeuronsProps::allocNeuronsProps(AllIFNeuronsProps &allNeuronsProps, SimulationInfo *sim_info, ClusterInfo *clr_info)
+void AllIFNeuronsProps::allocNeuronsDeviceProps(AllIFNeuronsProps &allNeuronsProps, SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
     int size = clr_info->totalClusterNeurons;
 
-    AllSpikingNeuronsProps::allocNeuronsProps(allNeuronsProps, sim_info, clr_info);
+    AllSpikingNeuronsProps::allocNeuronsDeviceProps(allNeuronsProps, sim_info, clr_info);
 
     checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProps.C1, size * sizeof( BGFLOAT ) ) );
     checkCudaErrors( cudaMalloc( ( void ** ) &allNeuronsProps.C2, size * sizeof( BGFLOAT ) ) );
@@ -181,32 +160,33 @@ static void AllIFNeuronsProps::allocNeuronsProps(AllIFNeuronsProps &allNeuronsPr
 }
 
 /*
- *  Cleanup the class (deallocate memories).
+ *  Delete GPU memories.
  *
- *  @param  pAllNeuronsProps_d the AllNeuronsProps on device memory.
- *  @param  clr_info               ClusterInfo to refer from.
+ *  @param  allNeuronsDeviceProps   Reference to the AllIFNeuronsProps class on device memory.
+ *  @param  clr_info                ClusterInfo to refer from.
  */
-static void AllIFNeuronsProps::cleanupNeuronsProps(void *pAllNeuronsProps_d, ClusterInfo *clr_info)
+void AllIFNeuronsProps::cleanupNeuronsDeviceProps(void *allNeuronsDeviceProps, ClusterInfo *clr_info)
 {
     AllIFNeuronsProps allNeuronsProps;
 
-    checkCudaErrors( cudaMemcpy ( &allNeuronsProps, pAllNeuronsProps_d, sizeof( AllIFNeuronsProps ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( &allNeuronsProps, allNeuronsDeviceProps, sizeof( AllIFNeuronsProps ), cudaMemcpyDeviceToHost ) );
+    deleteNeuronsDeviceProps(allNeuronsProps, clr_info);
 
-    deleteNeuronsProps(allNeuronsProps);
+    checkCudaErrors( cudaFree( allNeuronsDeviceProps ) );
 
-    checkCudaErrors( cudaFree( pAllNeuronsProps_d ) );
+    // Set size to 0 to avoid illegal memory deallocation
+    // at AllIFNeuronsProps deconstructor.
+    allNeuronsProps.size = 0;
 }
 
 /*
  *  Delete GPU memories.
  *
- *  @param  allNeuronsProps   Reference to the AllNeuronsProps struct.
- *  @param  clr_info               ClusterInfo to refer from.
+ *  @param  allNeuronsProps   Reference to the AllNeuronsProps class.
+ *  @param  clr_info          ClusterInfo to refer from.
  */
-static void AllIFNeuronsProps::deleteNeuronsProps(AllIFNeuronsProps &allNeuronsProps, ClusterInfo *clr_info)
+void AllIFNeuronsProps::deleteNeuronsDeviceProps(AllIFNeuronsProps &allNeuronsProps, ClusterInfo *clr_info)
 {
-    int size = clr_info->totalClusterNeurons;
-
     checkCudaErrors( cudaFree( allNeuronsProps.C1 ) );
     checkCudaErrors( cudaFree( allNeuronsProps.C2 ) );
     checkCudaErrors( cudaFree( allNeuronsProps.Cm ) );
@@ -224,9 +204,110 @@ static void AllIFNeuronsProps::deleteNeuronsProps(AllIFNeuronsProps &allNeuronsP
     checkCudaErrors( cudaFree( allNeuronsProps.Vthresh ) );
     checkCudaErrors( cudaFree( allNeuronsProps.nStepsInRefr ) );
 
-    AllSpikingNeuronsProps::deleteNeuronsProps(allNeuronsProps);
+    AllSpikingNeuronsProps::deleteNeuronsDeviceProps(allNeuronsProps, clr_info);
 }
 
+/*
+ *  Copy all neurons' data from host to device.
+ *
+ *  @param  allNeuronsDeviceProps   Reference to the AllIFNeuronsProps class on device memory.
+ *  @param  sim_info                SimulationInfo to refer from.
+ *  @param  clr_info                ClusterInfo to refer from.
+ */
+void AllIFNeuronsProps::copyNeuronHostToDeviceProps( void* allNeuronsDeviceProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) 
+{
+    AllIFNeuronsProps allNeuronsProps;
+
+    checkCudaErrors( cudaMemcpy ( &allNeuronsProps, allNeuronsDeviceProps, sizeof( AllIFNeuronsProps ), cudaMemcpyDeviceToHost ) );
+    copyHostToDeviceProps( allNeuronsProps, sim_info, clr_info );
+
+    // Set size to 0 to avoid illegal memory deallocation
+    // at AllIFNeuronsProps deconstructor.
+    allNeuronsProps.size = 0;
+}
+
+/*
+ *  Copy all neurons' data from host to device.
+ *  (Helper function of copyNeuronHostToDeviceProps)
+ *
+ *  @param  allNeuronsProps    Reference to the AllIFNeuronsProps class.
+ *  @param  sim_info           SimulationInfo to refer from.
+ *  @param  clr_info           ClusterInfo to refer from.
+ */
+void AllIFNeuronsProps::copyHostToDeviceProps( AllIFNeuronsProps& allNeuronsProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) 
+{
+    int size = clr_info->totalClusterNeurons;
+
+    AllSpikingNeuronsProps::copyHostToDeviceProps(allNeuronsProps, sim_info, clr_info);
+
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.C1, C1, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.C2, C2, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.Cm, Cm, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.I0, I0, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.Iinject, Iinject, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.Inoise, Inoise, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.Isyn, Isyn, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.Rm, Rm, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.Tau, Tau, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.Trefract, Trefract, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.Vinit, Vinit, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.Vm, Vm, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.Vreset, Vreset, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.Vrest, Vrest, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.Vthresh, Vthresh, size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allNeuronsProps.nStepsInRefr, nStepsInRefr, size * sizeof( int ), cudaMemcpyHostToDevice ) );
+}
+
+/*
+ *  Copy all neurons' data from device to host.
+ *
+ *  @param  allNeuronsDeviceProps   Reference to the AllIFNeuronsProps class on device memory.
+ *  @param  sim_info                SimulationInfo to refer from.
+ *  @param  clr_info                ClusterInfo to refer from.
+ */
+void AllIFNeuronsProps::copyNeuronDeviceToHostProps( void* allNeuronsDeviceProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) 
+{
+    AllIFNeuronsProps allNeuronsProps;
+
+    checkCudaErrors( cudaMemcpy ( &allNeuronsProps, allNeuronsDeviceProps, sizeof( AllIFNeuronsProps ), cudaMemcpyDeviceToHost ) );
+    copyDeviceToHostProps( allNeuronsProps, sim_info, clr_info );
+
+    // Set size to 0 to avoid illegal memory deallocation
+    // at AllIFNeuronsProps deconstructor.
+    allNeuronsProps.size = 0;
+}
+
+/*
+ *  Copy all neurons' data from device to host.
+ *  (Helper function of copyNeuronDeviceToHostProps)
+ *
+ *  @param  allNeuronsProps    Reference to the AllIFNeuronsProps class.
+ *  @param  sim_info           SimulationInfo to refer from.
+ *  @param  clr_info           ClusterInfo to refer from.
+ */
+void AllIFNeuronsProps::copyDeviceToHost( AllIFNeuronsProps& allNeuronsProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) 
+{
+    int size = clr_info->totalClusterNeurons;
+
+    AllSpikingNeuronsProps::copyDeviceToHostProps(allNeuronsProps, sim_info, clr_info);
+
+    checkCudaErrors( cudaMemcpy ( C1, allNeuronsProps.C1, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( C2, allNeuronsProps.C2, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( Cm, allNeuronsProps.C1, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( I0, allNeuronsProps.I0, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( Iinject, allNeuronsProps.Iinject, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( Inoise, allNeuronsProps.Inoise, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( Isyn, allNeuronsProps.Isyn, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( Rm, allNeuronsProps.Rm, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( Tau, allNeuronsProps.Tau, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( Trefract, allNeuronsProps.Trefract, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( Vinit, allNeuronsProps.Vinit, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( Vm, allNeuronsProps.Vm, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( Vreset, allNeuronsProps.Vreset, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( Vrest, allNeuronsProps.Vrest, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( Vthresh, allNeuronsProps.Vthresh, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( nStepsInRefr, allNeuronsProps.nStepsInRefr, size * sizeof( int ), cudaMemcpyDeviceToHost ) );
+}
 #endif // USE_GPU
 
 /*

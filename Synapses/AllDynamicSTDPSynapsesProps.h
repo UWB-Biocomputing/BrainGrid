@@ -24,6 +24,82 @@ class AllDynamicSTDPSynapsesProps : public AllSTDPSynapsesProps
          */
         virtual void setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
 
+#if defined(USE_GPU)
+    public:
+        /**
+         *  Allocate GPU memories to store all synapses' states,
+         *  and copy them from host to GPU memory.
+         *
+         *  @param  allSynapsesDeviceProps   Reference to the AllDynamicSTDPSynapsesProps class on device memory.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        virtual void setupSynapsesDeviceProps( void** allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron );
+
+        /**
+         *  Delete GPU memories.
+         *
+         *  @param  allSynapsesDeviceProps  Reference to the AllDynamicSTDPSynapsesProps class on device memory.
+         */
+        virtual void cleanupSynapsesDeviceProps( void* allSynapsesDeviceProps );
+
+        /**
+         *  Copy all synapses' data from host to device.
+         *
+         *  @param  allSynapsesDeviceProps   Reference to the AllDynamicSTDPSynapsesProps class on device memory.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        virtual void copySynapseHostToDeviceProps( void* allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron );
+
+        /**
+         *  Copy all synapses' data from device to host.
+         *
+         *  @param  allSynapsesDeviceProps   Reference to the AllDynamicSTDPSynapsesProps class on device memory.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        virtual void copySynapseDeviceToHostProps( void* allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron );
+
+    protected:
+        /**
+         *  Allocate GPU memories to store all synapses' states.
+         *
+         *  @param  allSynapsesProps      Reference to the AllDynamicSTDPSynapsesProps class.
+         *  @param  num_neurons           Number of neurons.
+         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+         */
+        void allocSynapsesDeviceProps( AllDynamicSTDPSynapsesProps &allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron);
+
+        /**
+         *  Delete GPU memories.
+         *
+         *  @param  allSynapsesProps  Reference to the AllDynamicSTDPSynapsesProps class.
+         */
+        void deleteSynapsesDeviceProps( AllDynamicSTDPSynapsesProps& allSynapsesProps );
+
+        /**
+         *  Copy all synapses' data from host to device.
+         *  (Helper function of copySynapseHostToDeviceProps)
+         *
+         *  @param  allSynapsesDeviceProps   Reference to the AllDynamicSTDPSynapsesProps class on device memory.
+         *  @param  allSynapsesProps         Reference to the AllDynamicSTDPSynapsesProps class.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        void copyHostToDeviceProps( void* allSynapsesDeviceProps, AllDynamicSTDPSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron );
+
+        /**
+         *  Copy all synapses' data from device to host.
+         *  (Helper function of copySynapseDeviceToHostProps)
+         *
+         *  @param  allSynapsesProps         Reference to the AllDynamicSTDPSynapsesProps class.
+         *  @param  num_neurons              Number of neurons.
+         *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+         */
+        void copyDeviceToHostProps( AllDynamicSTDPSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron);
+#endif // USE_GPU
+
         /**
          *  Sets the data for Synapse to input's data.
          *

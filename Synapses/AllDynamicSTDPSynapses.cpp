@@ -1,4 +1,8 @@
 #include "AllDynamicSTDPSynapses.h"
+#if defined(USE_GPU)
+#include <helper_cuda.h>
+#include "AllSynapsesDeviceFuncs.h"
+#endif // USE_GPU
 
 // Default constructor
 AllDynamicSTDPSynapses::AllDynamicSTDPSynapses()
@@ -119,5 +123,23 @@ void AllDynamicSTDPSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, 
     psr += ( ( W / decay ) * u * r );    // calculate psr
     lastSpike = simulationStep;          // record the time of the spike
 }
-
 #endif // !defined(USE_GPU)
+
+#if defined(USE_GPU)
+/**
+ *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
+ *  The class ID will be set to classSynapses_d in device memory,
+ *  and the classSynapses_d will be referred to call a device function for the
+ *  particular synapse class.
+ *  Because we cannot use virtual function (Polymorphism) in device functions,
+ *  we use this scheme.
+ *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
+ *  (see issue#137).
+ */
+void AllDynamicSTDPSynapses::setSynapseClassID()
+{
+    enumClassSynapses classSynapses_h = classAllDynamicSTDPSynapses;
+
+    checkCudaErrors( cudaMemcpyToSymbol(classSynapses_d, &classSynapses_h, sizeof(enumClassSynapses)) );
+}
+#endif // USE_GPU

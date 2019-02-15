@@ -2,6 +2,7 @@
 #include "IAllNeurons.h"
 #if defined(USE_GPU)
 #include <helper_cuda.h>
+#include "AllSynapsesDeviceFuncs.h"
 #endif // USE_GPU
 
 // Default constructor
@@ -101,7 +102,51 @@ void AllSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, int des
     pSynapsesProps->postSpikeQueue->clearAnEvent(iSyn);
 }
 
-#if !defined(USE_GPU)
+#if defined(USE_GPU)
+/*
+ *  Advance all the Synapses in the simulation.
+ *  Update the state of all synapses for a time step.
+ *
+ *  @param  allSynapsesProps      Reference to the AllSynapsesProps struct
+ *                                 on device memory.
+ *  @param  allNeuronsProps       Reference to the allNeurons struct on device memory.
+ *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
+ *  @param  sim_info               SimulationInfo class to read information from.
+ *  @param  clr_info               ClusterInfo to refer from.
+ *  @param  iStepOffset            Offset from the current simulation step.
+ */
+void AllSTDPSynapses::advanceSynapses(void* allSynapsesProps, void* allNeuronsProps, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
+{
+    DEBUG (
+    int deviceId;
+    checkCudaErrors( cudaGetDevice( &deviceId ) );
+    assert(deviceId == clr_info->deviceId);
+    ); // end DEBUG
+
+    int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
+    BGSIZE total_synapse_counts = m_pSynapsesProps->total_synapse_counts;
+
+    // CUDA parameters
+    const int threadsPerBlock = 256;
+    int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
+    // Advance synapses ------------->
+    advanceSTDPSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapsesProps*)allSynapsesProps, (AllSpikingNeuronsProps*)allNeuronsProps, max_spikes, sim_info->width, iStepOffset );
+}
+
+/*
+ * Advances synapses spike event queue state of the cluster one simulation step.
+ *
+ *  @param  allSynapsesProps      Reference to the AllSynapsesProps struct
+ *                                 on device memory.
+ *  @param  iStep                  Simulation steps to advance.
+ */
+void AllSTDPSynapses::advanceSpikeQueue(void* allSynapsesProps, int iStep)
+{
+    AllSpikingSynapses::advanceSpikeQueue(allSynapsesProps, iStep);
+
+    advanceSTDPSynapsesEventQueueDevice <<< 1, 1 >>> ( (AllSTDPSynapsesProps*)allSynapsesProps, iStep );
+}
+#else // USE_GPU
 /*
  *  Advance one specific Synapse.
  *
@@ -367,4 +412,23 @@ bool AllSTDPSynapses::allowBackPropagation()
 {
     return true;
 }
+
+#if defined(USE_GPU)
+/**
+ *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
+ *  The class ID will be set to classSynapses_d in device memory,
+ *  and the classSynapses_d will be referred to call a device function for the
+ *  particular synapse class.
+ *  Because we cannot use virtual function (Polymorphism) in device functions,
+ *  we use this scheme.
+ *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
+ *  (see issue#137).
+ */
+void AllSTDPSynapses::setSynapseClassID()
+{
+    enumClassSynapses classSynapses_h = classAllSTDPSynapses;
+
+    checkCudaErrors( cudaMemcpyToSymbol(classSynapses_d, &classSynapses_h, sizeof(enumClassSynapses)) );
+}
+#endif // USE_GPU
 

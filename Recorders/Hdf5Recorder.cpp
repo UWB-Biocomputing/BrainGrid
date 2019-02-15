@@ -286,7 +286,7 @@ void Hdf5Recorder::compileHistories(vector<Cluster *> &vtClr, vector<ClusterInfo
         }
 
         // clear spike count
-        neurons->clearSpikeCounts(m_sim_info, vtClrInfo[iCluster], vtClr[iCluster]);
+        pNeuronsProps->clearSpikeCounts(m_sim_info, vtClrInfo[iCluster], vtClr[iCluster]);
     }
     try
     {

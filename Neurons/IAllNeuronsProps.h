@@ -26,6 +26,44 @@ class IAllNeuronsProps
          */
         virtual void setupNeuronsProps(SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
 
+#if defined(USE_GPU)
+        /**
+         *  Allocate GPU memories to store all neurons' states,
+         *  and copy them from host to GPU memory.
+         *
+         *  @param  allNeuronsDeviceProps   Reference to the AllIZHNeuronsProps class on device memory.
+         *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
+         */
+        virtual void setupNeuronsDeviceProps(void** allNeuronsDeviceProps, SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
+
+        /**
+         *  Delete GPU memories.
+         *
+         *  @param  allNeuronsDeviceProps   Reference to the AllIZHNeuronsProps class on device memory.
+         *  @param  clr_info           ClusterInfo to refer from.
+         */
+        virtual void cleanupNeuronsDeviceProps(void *allNeuronsDeviceProps, ClusterInfo *clr_info) = 0;
+
+        /**
+         *  Copy all neurons' data from host to device.
+         *
+         *  @param  allNeuronsDeviceProps   Reference to the AllIFNeuronsProps class on device memory.
+         *  @param  sim_info                SimulationInfo to refer from.
+         *  @param  clr_info                ClusterInfo to refer from.
+         */
+        virtual void copyNeuronHostToDeviceProps( void* allNeuronsDeviceProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) = 0;
+
+        /*
+         *  Copy all neurons' data from device to host.
+         *
+         *  @param  allNeuronsDeviceProps   Reference to the AllIFNeuronsProps class on device memory.
+         *  @param  sim_info                SimulationInfo to refer from.
+         *  @param  clr_info                ClusterInfo to refer from.
+         */
+        virtual void copyNeuronDeviceToHostProps( void* allNeuronsDeviceProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) = 0;
+#endif // USE_GPU
+
         /**
          *  Checks the number of required parameters to read.
          *

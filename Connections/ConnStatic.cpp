@@ -67,9 +67,9 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
             // get the cluster index where the destination neuron exits
             CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIdxFromNeuronLayoutIdx(dest_neuron, vtClrInfo);
             AllNeurons *neurons = dynamic_cast<AllNeurons*>(vtClr[iCluster]->m_neurons);
-            AllNeuronsProps *pNeuronsProps = dynamic_cast<AllNeuronsProps*>(neurons->m_pNeuronsProps);
+            AllNeuronsProps *pNeuronsProps = neurons->m_pNeuronsProps;
             AllSynapses *synapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
-            AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapsesProps*>(synapses->m_pSynapsesProps);
+            AllSynapsesProps *pSynapsesProps = synapses->m_pSynapsesProps;
 
             DEBUG_MID (cout << "source: " << src_neuron << " dest: " << dest_neuron << " dist: " << distDestNeurons[src_neuron][i].dist << endl;)
 

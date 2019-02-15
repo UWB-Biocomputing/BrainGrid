@@ -23,6 +23,85 @@ class AllIFNeuronsProps : public AllSpikingNeuronsProps
          */
         virtual void setupNeuronsProps(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
+#if defined(USE_GPU)
+    public:
+        /**
+         *  Allocate GPU memories to store all neurons' states,
+         *  and copy them from host to GPU memory.
+         *
+         *  @param  allNeuronsDeviceProps   Reference to the AllIZHNeuronsProps class on device memory.
+         *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
+         */
+        virtual void setupNeuronsDeviceProps(void** allNeuronsDeviceProps, SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
+         *  Delete GPU memories.
+         *
+         *  @param  allNeuronsDeviceProps   Reference to the AllIZHNeuronsProps class on device memory.
+         *  @param  clr_info           ClusterInfo to refer from.
+         */
+        virtual void cleanupNeuronsDeviceProps(void *allNeuronsDeviceProps, ClusterInfo *clr_info);
+
+        /**
+         *  Copy all neurons' data from host to device.
+         *
+         *  @param  allNeuronsDeviceProps   Reference to the AllIFNeuronsProps class on device memory.
+         *  @param  sim_info                SimulationInfo to refer from.
+         *  @param  clr_info                ClusterInfo to refer from.
+         */
+        virtual void copyNeuronHostToDeviceProps( void* allNeuronsDeviceProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
+
+        /*
+         *  Copy all neurons' data from device to host.
+         *
+         *  @param  allNeuronsDeviceProps   Reference to the AllIFNeuronsProps class on device memory.
+         *  @param  sim_info                SimulationInfo to refer from.
+         *  @param  clr_info                ClusterInfo to refer from.
+         */
+        virtual void copyNeuronDeviceToHostProps( void* allNeuronsDeviceProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
+
+    protected:
+        /**
+         *  Allocate GPU memories to store all neurons' states.
+         *
+         *  @param  allNeuronsProps   Reference to the AllIFNeuronsProps struct.
+         *  @param  sim_info  SimulationInfo class to read information from.
+         *  @param  clr_info               ClusterInfo to refer from.
+         */
+        void allocNeuronsDeviceProps(AllIFNeuronsProps &allNeuronsProps, SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
+         *  Delete GPU memories.
+         *
+         *  @param  allNeuronsProps   Reference to the AllIFNeuronsProps class.
+         *  @param  clr_info               ClusterInfo to refer from.
+         */
+        void deleteNeuronsDeviceProps(AllIFNeuronsProps &allNeuronsProps, ClusterInfo *clr_info);
+
+        /**
+         *  Copy all neurons' data from host to device.
+         *  (Helper function of copyNeuronHostToDeviceProps)
+         *
+         *  @param  allNeuronsProps    Reference to the AllIFNeuronsProps class.
+         *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
+         */
+        void copyHostToDeviceProps( AllIFNeuronsProps& allNeuronsProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
+
+        /**
+         *  Copy all neurons' data from device to host.
+         *  (Helper function of copyNeuronDeviceToHostProps)
+         *
+         *  @param  allNeuronsProps    Reference to the AllIFNeuronsProps class.
+         *  @param  sim_info           SimulationInfo to refer from.
+         *  @param  clr_info           ClusterInfo to refer from.
+         */
+        void copyDeviceToHost( AllIFNeuronsProps& allNeuronsProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
+
+#endif // USE_GPU
+
+    public:
         /**
          *  Checks the number of required parameters to read.
          *

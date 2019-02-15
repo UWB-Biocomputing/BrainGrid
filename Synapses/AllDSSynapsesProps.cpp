@@ -1,4 +1,7 @@
 #include "AllDSSynapsesProps.h"
+#if defined(USE_GPU)
+#include <helper_cuda.h>
+#endif
 
 // Default constructor
 AllDSSynapsesProps::AllDSSynapsesProps()
@@ -64,6 +67,195 @@ void AllDSSynapsesProps::cleanupSynapsesProps()
     U = NULL;
     F = NULL;
 }
+
+#if defined(USE_GPU)
+/*
+ *  Allocate GPU memories to store all synapses' states,
+ *  and copy them from host to GPU memory.
+ *
+ *  @param  allSynapsesDeviceProps   Reference to the AllDSSynapsesProps class on device memory.
+ *  @param  num_neurons              Number of neurons.
+ *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+ */
+void AllDSSynapsesProps::setupSynapsesDeviceProps( void** allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron )
+{
+    AllDSSynapsesProps allSynapsesProps;
+
+    allocSynapsesDeviceProps( allSynapsesProps, num_neurons, maxSynapsesPerNeuron );
+
+    checkCudaErrors( cudaMalloc( allSynapsesDeviceProps, sizeof( AllDSSynapsesProps ) ) );
+    checkCudaErrors( cudaMemcpy ( *allSynapsesDeviceProps, &allSynapsesProps, sizeof( AllDSSynapsesProps ), cudaMemcpyHostToDevice ) );
+
+    // The preSpikeQueue points to an EventQueue objet in device memory. The pointer is copied to allSynapsesDeviceProps.
+    // To avoide illegeal deletion of the object at AllSpikingSynapsesProps::cleanupSynapsesProps(), set the pointer to NULL.
+    allSynapsesProps.preSpikeQueue = NULL;
+}
+
+/*
+ *  Allocate GPU memories to store all synapses' states.
+ *
+ *  @param  allSynapsesProps      Reference to the AllDSSynapsesProps class.
+ *  @param  num_neurons           Number of neurons.
+ *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
+ */
+void AllDSSynapsesProps::allocSynapsesDeviceProps( AllDSSynapsesProps &allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron)
+{
+    BGSIZE size = maxSynapsesPerNeuron * num_neurons;
+
+    AllSpikingSynapsesProps::allocSynapsesDeviceProps( allSynapsesProps, num_neurons, maxSynapsesPerNeuron);
+
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.lastSpike, size * sizeof( uint64_t ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.r, size * sizeof( BGFLOAT ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.u, size * sizeof( BGFLOAT ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.D, size * sizeof( BGFLOAT ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.U, size * sizeof( BGFLOAT ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.F, size * sizeof( BGFLOAT ) ) );
+}
+
+/*
+ *  Delete GPU memories.
+ *
+ *  @param  allSynapsesDeviceProps  Reference to the AllDSSynapsesProps class on device memory.
+ */
+void AllDSSynapsesProps::cleanupSynapsesDeviceProps( void* allSynapsesDeviceProps )
+{
+    AllDSSynapsesProps allSynapsesProps;
+
+    checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllDSSynapsesProps ), cudaMemcpyDeviceToHost ) );
+    deleteSynapsesDeviceProps( allSynapsesProps );
+
+    checkCudaErrors( cudaFree( allSynapsesDeviceProps ) );
+
+    // The preSpikeQueue points to an EventQueue objet in device memory. The pointer is copied to allSynapsesDeviceProps.
+    // To avoide illegeal deletion of the object at AllSpikingSynapsesProps::cleanupSynapsesProps(), set the pointer to NULL.
+    allSynapsesProps.preSpikeQueue = NULL;
+
+    // Set count_neurons to 0 to avoid illegal memory deallocation
+    // at AllDSSynapsesProps deconstructor.
+    allSynapsesProps.count_neurons = 0;
+}
+
+/*
+ *  Delete GPU memories.
+ *
+ *  @param  allSynapsesProps  Reference to the AllDSSynapsesProps class.
+ */
+void AllDSSynapsesProps::deleteSynapsesDeviceProps( AllDSSynapsesProps& allSynapsesProps )
+{
+    checkCudaErrors( cudaFree( allSynapsesProps.lastSpike ) );
+    checkCudaErrors( cudaFree( allSynapsesProps.r ) );
+    checkCudaErrors( cudaFree( allSynapsesProps.u ) );
+    checkCudaErrors( cudaFree( allSynapsesProps.D ) );
+    checkCudaErrors( cudaFree( allSynapsesProps.U ) );
+    checkCudaErrors( cudaFree( allSynapsesProps.F ) );
+
+    AllSpikingSynapsesProps::deleteSynapsesDeviceProps( allSynapsesProps );
+}
+
+/*
+ *  Copy all synapses' data from host to device.
+ *
+ *  @param  allSynapsesDeviceProps   Reference to the AllDSSynapsesProps class on device memory.
+ *  @param  num_neurons              Number of neurons.
+ *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+ */
+void AllDSSynapsesProps::copySynapseHostToDeviceProps( void* allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron )
+{
+    AllDSSynapsesProps allSynapsesProps;
+
+    checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllDSSynapsesProps ), cudaMemcpyDeviceToHost ) );
+    copyHostToDeviceProps( allSynapsesDeviceProps, allSynapsesProps, num_neurons, maxSynapsesPerNeuron );
+
+    // The preSpikeQueue points to an EventQueue objet in device memory. The pointer is copied to allSynapsesDeviceProps.
+    // To avoide illegeal deletion of the object at AllSpikingSynapsesProps::cleanupSynapsesProps(), set the pointer to NULL.
+    allSynapsesProps.preSpikeQueue = NULL;
+
+    // Set count_neurons to 0 to avoid illegal memory deallocation
+    // at AllDSSynapsesProps deconstructor.
+    allSynapsesProps.count_neurons = 0;
+}
+
+/*
+ *  Copy all synapses' data from host to device.
+ *  (Helper function of copySynapseHostToDeviceProps)
+ *
+ *  @param  allSynapsesDeviceProps   Reference to the AllDSSynapsesProps class on device memory.
+ *  @param  allSynapsesProps         Reference to the AllDSSynapsesProps class.
+ *  @param  num_neurons              Number of neurons.
+ *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+ */
+void AllDSSynapsesProps::copyHostToDeviceProps( void* allSynapsesDeviceProps, AllDSSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron )
+{
+    // copy everything necessary
+    BGSIZE size = maxSynapsesPerNeuron * num_neurons;
+
+    AllSpikingSynapsesProps::copyHostToDeviceProps( allSynapsesDeviceProps, allSynapsesProps, num_neurons, maxSynapsesPerNeuron );
+
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps.lastSpike, lastSpike,
+            size * sizeof( uint64_t ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps.r, r,
+            size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps.u, u,
+            size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps.D, D,
+            size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps.U, U,
+            size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps.F, F,
+            size * sizeof( BGFLOAT ), cudaMemcpyHostToDevice ) );
+}
+
+/*
+ *  Copy all synapses' data from device to host.
+ *
+ *  @param  allSynapsesDeviceProps   Reference to the AllDSSynapsesProps class on device memory.
+ *  @param  num_neurons              Number of neurons.
+ *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+ */
+void AllDSSynapsesProps::copySynapseDeviceToHostProps( void* allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron )
+{
+    AllDSSynapsesProps allSynapsesProps;
+
+    checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllDSSynapsesProps ), cudaMemcpyDeviceToHost ) );
+    copyDeviceToHostProps( allSynapsesProps, num_neurons, maxSynapsesPerNeuron );
+
+    // The preSpikeQueue points to an EventQueue objet in device memory. The pointer is copied to allSynapsesDeviceProps.
+    // To avoide illegeal deletion of the object at AllSpikingSynapsesProps::cleanupSynapsesProps(), set the pointer to NULL.
+    allSynapsesProps.preSpikeQueue = NULL;
+
+    // Set count_neurons to 0 to avoid illegal memory deallocation
+    // at AllDSSynapsesProps deconstructor.
+    allSynapsesProps.count_neurons = 0;
+}
+
+/*
+ *  Copy all synapses' data from device to host.
+ *  (Helper function of copySynapseDeviceToHostProps)
+ *
+ *  @param  allSynapsesProps         Reference to the AllDSSynapsesProps class.
+ *  @param  num_neurons              Number of neurons.
+ *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
+ */
+void AllDSSynapsesProps::copyDeviceToHostProps( AllDSSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron)
+{
+    BGSIZE size = maxSynapsesPerNeuron * num_neurons;
+
+    AllSpikingSynapsesProps::copyDeviceToHostProps( allSynapsesProps, num_neurons, maxSynapsesPerNeuron);
+
+    checkCudaErrors( cudaMemcpy ( lastSpike, allSynapsesProps.lastSpike,
+            size * sizeof( uint64_t ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( r, allSynapsesProps.r,
+            size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( u, allSynapsesProps.u,
+            size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( D, allSynapsesProps.D,
+            size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( U, allSynapsesProps.U,
+            size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( F, allSynapsesProps.F,
+            size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+}
+#endif // USE_GPU
 
 /*
  *  Sets the data for Synapse to input's data.
