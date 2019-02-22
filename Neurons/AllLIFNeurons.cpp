@@ -6,11 +6,11 @@
 #endif
 
 // Default constructor
-AllLIFNeurons::AllLIFNeurons()
+CUDA_CALLABLE AllLIFNeurons::AllLIFNeurons()
 {
 }
 
-AllLIFNeurons::~AllLIFNeurons()
+CUDA_CALLABLE AllLIFNeurons::~AllLIFNeurons()
 {
 }
 
@@ -24,7 +24,7 @@ AllLIFNeurons::~AllLIFNeurons()
  *  @param  clr_info    ClusterInfo class to read information from.
  *  @param  iStepOffset      Offset from the current simulation step.
  */
-void AllLIFNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
+CUDA_CALLABLE void AllLIFNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
 {
     AllIFNeuronsProps *pNeuronsProps = dynamic_cast<AllIFNeuronsProps*>(m_pNeuronsProps);
     BGFLOAT &Vm = pNeuronsProps->Vm[index];
@@ -35,12 +35,13 @@ void AllLIFNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
     BGFLOAT &C1 = pNeuronsProps->C1[index];
     BGFLOAT &C2 = pNeuronsProps->C2[index];
     int &nStepsInRefr = pNeuronsProps->nStepsInRefr[index];
+    bool &hasFired = pNeuronsProps->hasFired[index];
 
-    if (nStepsInRefr > 0) {
-        // is neuron refractory?
+    hasFired = false;
+
+    if (nStepsInRefr > 0) { // is neuron refractory?
         --nStepsInRefr;
-    } else if (Vm >= Vthresh) {
-        // should it fire?
+    } else if (Vm >= Vthresh) { // should it fire?
         fire(index, sim_info, iStepOffset);
     } else {
         summationPoint += I0; // add IO
@@ -73,7 +74,7 @@ void AllLIFNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
  *  @param  sim_info    SimulationInfo class to read information from.
  *  @param  iStepOffset      Offset from the current simulation step.
  */
-void AllLIFNeurons::fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const
+CUDA_CALLABLE void AllLIFNeurons::fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const
 {
     AllIFNeuronsProps *pNeuronsProps = dynamic_cast<AllIFNeuronsProps*>(m_pNeuronsProps);
     int &nStepsInRefr = pNeuronsProps->nStepsInRefr[index];
@@ -125,6 +126,39 @@ void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsProp
 
     // Advance neurons ------------->
     advanceLIFNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeuronsProps *)allNeuronsProps, (AllSpikingSynapsesProps*)allSynapsesProps, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset );
+}
+
+/*
+ *  Create an AllNeurons class object in device
+ *
+ *  @param pAllNeurons_d       Device memory address to save the pointer of created AllNeurons object.
+ *  @param pAllNeuronsProps_d  Pointer to the neurons properties in device memory.
+ */
+void AllLIFNeurons::createAllNeuronsInDevice(IAllNeurons** pAllNeurons_d, IAllNeuronsProps *pAllNeuronsProps_d)
+{
+    IAllNeurons **pAllNeurons_t; // temporary buffer to save pointer to IAllNeurons object.
+
+    // allocate device memory for the buffer.
+    checkCudaErrors( cudaMalloc( ( void ** ) &pAllNeurons_t, sizeof( IAllNeurons * ) ) );
+
+    // create an AllNeurons object in device memory.
+    allocAllLIFNeuronsDevice <<< 1, 1 >>> ( pAllNeurons_t, pAllNeuronsProps_d );
+
+    // save the pointer of the object.
+    checkCudaErrors( cudaMemcpy ( pAllNeurons_d, pAllNeurons_t, sizeof( IAllNeurons * ), cudaMemcpyDeviceToHost ) );
+
+    // free device memory for the buffer.
+    checkCudaErrors( cudaFree( pAllNeurons_t ) );
+}
+
+/* -------------------------------------*\
+|* # CUDA Global Functions
+\* -------------------------------------*/
+
+__global__ void allocAllLIFNeuronsDevice(IAllNeurons **pAllNeurons, IAllNeuronsProps *pAllNeuronsProps)
+{
+    *pAllNeurons = new AllLIFNeurons();
+    (*pAllNeurons)->setNeuronsProps(pAllNeuronsProps);
 }
 
 #endif // USE_GPU

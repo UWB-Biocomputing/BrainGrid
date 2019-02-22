@@ -44,8 +44,8 @@
 class AllIFNeurons : public AllSpikingNeurons
 {
     public:
-        AllIFNeurons();
-        virtual ~AllIFNeurons();
+        CUDA_CALLABLE AllIFNeurons();
+        CUDA_CALLABLE virtual ~AllIFNeurons();
 
         /**
          *  Create and setup neurons properties.

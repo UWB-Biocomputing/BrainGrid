@@ -46,6 +46,135 @@ __device__ void postSTDPSynapseSpikeHitDevice( const BGSIZE iSyn, AllSTDPSynapse
         allSynapsesProps->postSpikeQueue->addAnEvent(iSyn, total_delay, iStepOffset);
 }
 
+__device__ void fireLIFDevice( const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, AllIFNeuronsProps* allNeuronsProps, int iStepOffset )
+{
+        int &nStepsInRefr = allNeuronsProps->nStepsInRefr[index];
+        BGFLOAT &Trefract = allNeuronsProps->Trefract[index];
+        int& spikeCount = allNeuronsProps->spikeCount[index];
+        int& spikeCountOffset = allNeuronsProps->spikeCountOffset[index];
+        bool &hasFired = allNeuronsProps->hasFired[index];
+        BGFLOAT &Vm = allNeuronsProps->Vm[index];
+        BGFLOAT &Vreset = allNeuronsProps->Vreset[index];
+
+        // Note that the neuron has fired!
+        hasFired = true;
+
+        // record spike time
+        int idxSp = (spikeCount + spikeCountOffset) % maxSpikes;
+        allNeuronsProps->spike_history[index][idxSp] = simulationStep + iStepOffset;
+        spikeCount++;
+
+        DEBUG_SYNAPSE(
+            printf("advanceLIFNeuronsDevice\n");
+            printf("          index: %d\n", index);
+            printf("          simulationStep: %d\n\n", simulationStep + iStepOffset);
+        );
+
+        // calculate the number of steps in the absolute refractory period
+        nStepsInRefr = static_cast<int> ( Trefract / deltaT + 0.5 );
+
+        // reset to 'Vreset'
+        Vm = Vreset;
+}
+
+__device__ void advanceLIFNeuronDevice( const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeuronsProps* allNeuronsProps, int iStepOffset )
+{
+        BGFLOAT &Vm = allNeuronsProps->Vm[index];
+        BGFLOAT &Vthresh = allNeuronsProps->Vthresh[index];
+        BGFLOAT &summationPoint = allNeuronsProps->summation_map[index];
+        BGFLOAT &I0 = allNeuronsProps->I0[index];
+        BGFLOAT &Inoise = allNeuronsProps->Inoise[index];
+        BGFLOAT &C1 = allNeuronsProps->C1[index];
+        BGFLOAT &C2 = allNeuronsProps->C2[index];
+        int &nStepsInRefr = allNeuronsProps->nStepsInRefr[index];
+        bool &hasFired = allNeuronsProps->hasFired[index];
+
+        hasFired = false;
+
+        if ( nStepsInRefr > 0 ) { // is neuron refractory?
+                --nStepsInRefr;
+        } else if ( Vm >= Vthresh ) { // should it fire?
+                fireLIFDevice(index, maxSpikes, deltaT, simulationStep, allNeuronsProps, iStepOffset);
+        } else {
+                summationPoint += I0; // add IO
+
+                // Random number alg. goes here
+                summationPoint += (randNoise[index] * Inoise); // add cheap noise
+                Vm = C1 * Vm + C2 * ( summationPoint ); // decay Vm and add inputs
+        }
+
+        // clear synaptic input for next time step
+        summationPoint = 0;
+}
+
+__device__ void fireIZHDevice( const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, AllIZHNeuronsProps* allNeuronsProps, int iStepOffset )
+{
+        int &nStepsInRefr = allNeuronsProps->nStepsInRefr[index];
+        BGFLOAT &Trefract = allNeuronsProps->Trefract[index];
+        int &spikeCount = allNeuronsProps->spikeCount[index];
+        int &spikeCountOffset = allNeuronsProps->spikeCountOffset[index];
+        bool &hasFired = allNeuronsProps->hasFired[index];
+        BGFLOAT &Vm = allNeuronsProps->Vm[index];
+        BGFLOAT &u = allNeuronsProps->u[index];
+        BGFLOAT &Cconst = allNeuronsProps->Cconst[index];
+        BGFLOAT &Dconst = allNeuronsProps->Dconst[index];
+
+        // Note that the neuron has fired!
+        hasFired = true;
+
+        // record spike time
+        int idxSp = (spikeCount + spikeCountOffset) % maxSpikes;
+        allNeuronsProps->spike_history[index][idxSp] = simulationStep + iStepOffset;
+        spikeCount++;
+
+        // calculate the number of steps in the absolute refractory period
+        nStepsInRefr = static_cast<int> ( Trefract / deltaT + 0.5 );
+
+        // reset to 'Vreset'
+        Vm = Cconst * 0.001;
+        u = u + Dconst;
+}
+
+__device__ void advanceIZHNeuronDevice( const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIZHNeuronsProps* allNeuronsProps, int iStepOffset )
+{
+        BGFLOAT &Vm = allNeuronsProps->Vm[index];
+        BGFLOAT &Vthresh = allNeuronsProps->Vthresh[index];
+        BGFLOAT &summationPoint = allNeuronsProps->summation_map[index];
+        BGFLOAT &I0 = allNeuronsProps->I0[index];
+        BGFLOAT &Inoise = allNeuronsProps->Inoise[index];
+        BGFLOAT &C2 = allNeuronsProps->C2[index];
+        BGFLOAT &C3 = allNeuronsProps->C3[index];
+        int &nStepsInRefr = allNeuronsProps->nStepsInRefr[index];
+        BGFLOAT &a = allNeuronsProps->Aconst[index];
+        BGFLOAT &b = allNeuronsProps->Bconst[index];
+        BGFLOAT &u = allNeuronsProps->u[index];
+        bool &hasFired = allNeuronsProps->hasFired[index];
+
+        hasFired = false;
+
+        if ( nStepsInRefr > 0 ) { // is neuron refractory?
+                --nStepsInRefr;
+        } else if ( Vm >= Vthresh ) { // should it fire?
+                fireIZHDevice( index, maxSpikes, deltaT, simulationStep, allNeuronsProps, iStepOffset );
+        } else {
+                summationPoint += I0; // add IO
+
+                // Random number alg. goes here
+                summationPoint += (randNoise[index] * Inoise); // add cheap noise
+
+                BGFLOAT Vint = Vm * 1000;
+
+                // Izhikevich model integration step
+                BGFLOAT Vb = Vint + C3 * (0.04 * Vint * Vint + 5 * Vint + 140 - u);
+                u = u + C3 * a * (b * Vint - u);
+
+                Vm = Vb * 0.001 + C2 * summationPoint;  // add inputs
+        }
+
+        // clear synaptic input for next time step
+        summationPoint = 0;
+}
+
 /* -------------------------------------*\
 |* # Global Functions for advanceNeurons
 \* -------------------------------------*/
@@ -71,39 +200,12 @@ __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int 
         if ( idx >= totalNeurons )
                 return;
 
-        allNeuronsProps->hasFired[idx] = false;
-        BGFLOAT& sp = allNeuronsProps->summation_map[idx];
-        BGFLOAT& vm = allNeuronsProps->Vm[idx];
-        BGFLOAT r_sp = sp;
-        BGFLOAT r_vm = vm;
+        bool &hasFired = allNeuronsProps->hasFired[idx];
 
-        if ( allNeuronsProps->nStepsInRefr[idx] > 0 ) { // is neuron refractory?
-                --allNeuronsProps->nStepsInRefr[idx];
-        } else if ( r_vm >= allNeuronsProps->Vthresh[idx] ) { // should it fire?
-                int& spikeCount = allNeuronsProps->spikeCount[idx];
-                int& spikeCountOffset = allNeuronsProps->spikeCountOffset[idx];
+        advanceLIFNeuronDevice( idx, maxSpikes, deltaT, simulationStep, randNoise, allNeuronsProps, iStepOffset );
 
-                // Note that the neuron has fired!
-                allNeuronsProps->hasFired[idx] = true;
-
-                // record spike time
-                int idxSp = (spikeCount + spikeCountOffset) % maxSpikes;
-                allNeuronsProps->spike_history[idx][idxSp] = simulationStep + iStepOffset;
-                spikeCount++;
-
-                DEBUG_SYNAPSE(
-                    printf("advanceLIFNeuronsDevice\n");
-                    printf("          index: %d\n", idx);
-                    printf("          simulationStep: %d\n\n", simulationStep + iStepOffset);
-                );
-
-                // calculate the number of steps in the absolute refractory period
-                allNeuronsProps->nStepsInRefr[idx] = static_cast<int> ( allNeuronsProps->Trefract[idx] / deltaT + 0.5 );
-
-                // reset to 'Vreset'
-                vm = allNeuronsProps->Vreset[idx];
-
-                // notify outgoing synapses of spike
+        // notify outgoing synapses of spike
+        if (hasFired) {
                 BGSIZE synapse_counts = synapseIndexMapDevice->outgoingSynapseCount[idx];
                 if (synapse_counts != 0) {
                     // get the index of where this neuron's list of synapses are
@@ -149,16 +251,7 @@ __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int 
                         assert(false);
                     } // end switch
                 }
-        } else {
-                r_sp += allNeuronsProps->I0[idx]; // add IO
-
-                // Random number alg. goes here
-                r_sp += (randNoise[idx] * allNeuronsProps->Inoise[idx]); // add cheap noise
-                vm = allNeuronsProps->C1[idx] * r_vm + allNeuronsProps->C2[idx] * ( r_sp ); // decay Vm and add inputs
         }
-
-        // clear synaptic input for next time step
-        sp = 0;
 }
 
 /*
@@ -182,40 +275,12 @@ __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int 
         if ( idx >= totalNeurons )
                 return;
 
-        allNeuronsProps->hasFired[idx] = false;
-        BGFLOAT& sp = allNeuronsProps->summation_map[idx];
-        BGFLOAT& vm = allNeuronsProps->Vm[idx];
-        BGFLOAT& a = allNeuronsProps->Aconst[idx];
-        BGFLOAT& b = allNeuronsProps->Bconst[idx];
-        BGFLOAT& u = allNeuronsProps->u[idx];
-        BGFLOAT r_sp = sp;
-        BGFLOAT r_vm = vm;
-        BGFLOAT r_a = a;
-        BGFLOAT r_b = b;
-        BGFLOAT r_u = u;
+        bool &hasFired = allNeuronsProps->hasFired[idx];
 
-        if ( allNeuronsProps->nStepsInRefr[idx] > 0 ) { // is neuron refractory?
-                --allNeuronsProps->nStepsInRefr[idx];
-        } else if ( r_vm >= allNeuronsProps->Vthresh[idx] ) { // should it fire?
-                int& spikeCount = allNeuronsProps->spikeCount[idx];
-                int& spikeCountOffset = allNeuronsProps->spikeCountOffset[idx];
-
-                // Note that the neuron has fired!
-                allNeuronsProps->hasFired[idx] = true;
-
-                // record spike time
-                int idxSp = (spikeCount + spikeCountOffset) % maxSpikes;
-                allNeuronsProps->spike_history[idx][idxSp] = simulationStep + iStepOffset;
-                spikeCount++;
-
-                // calculate the number of steps in the absolute refractory period
-                allNeuronsProps->nStepsInRefr[idx] = static_cast<int> ( allNeuronsProps->Trefract[idx] / deltaT + 0.5 );
-
-                // reset to 'Vreset'
-                vm = allNeuronsProps->Cconst[idx] * 0.001;
-                u = r_u + allNeuronsProps->Dconst[idx];
+        advanceIZHNeuronDevice( idx, maxSpikes, deltaT, simulationStep, randNoise, allNeuronsProps, iStepOffset );
 
                 // notify outgoing synapses of spike
+        if (hasFired) {
                 BGSIZE synapse_counts = synapseIndexMapDevice->outgoingSynapseCount[idx];
                 if (synapse_counts != 0) {
                     // get the index of where this neuron's list of synapses are
@@ -261,21 +326,5 @@ __global__ void advanceIZHNeuronsDevice( int totalNeurons, int maxSynapses, int 
                         assert(false);
                     } // end switch
                 }
-        } else {
-                r_sp += allNeuronsProps->I0[idx]; // add IO
-
-                // Random number alg. goes here
-                r_sp += (randNoise[idx] * allNeuronsProps->Inoise[idx]); // add cheap noise
-
-                BGFLOAT Vint = r_vm * 1000;
-
-                // Izhikevich model integration step
-                BGFLOAT Vb = Vint + allNeuronsProps->C3[idx] * (0.04 * Vint * Vint + 5 * Vint + 140 - u);
-                u = r_u + allNeuronsProps->C3[idx] * r_a * (r_b * Vint - r_u);
-
-                vm = Vb * 0.001 + allNeuronsProps->C2[idx] * r_sp;  // add inputs
         }
-
-        // clear synaptic input for next time step
-        sp = 0;
 }

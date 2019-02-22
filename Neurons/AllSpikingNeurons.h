@@ -47,8 +47,8 @@ using namespace std;
 class AllSpikingNeurons : public AllNeurons
 {
     public:
-        AllSpikingNeurons();
-        virtual ~AllSpikingNeurons();
+        CUDA_CALLABLE AllSpikingNeurons();
+        CUDA_CALLABLE virtual ~AllSpikingNeurons();
 
 #if defined(USE_GPU)
     public:

@@ -507,7 +507,7 @@ __host__ void EventQueue::createEventQueueInDevice(EventQueue** pEventQueue_d)
         checkCudaErrors( cudaMalloc(&interClustersIncomingEvents, nMaxInterClustersIncomingEvents * sizeof(interClustersIncomingEvents_t)) );
     }
 
-    // create a EventQueue object in device memory.
+    // create an EventQueue object in device memory.
     allocEventQueueDevice <<< 1, 1 >>> ( pEventQueue_t, m_clusterID, nMaxEvent, queueEvent, nMaxInterClustersOutgoingEvents, interClustersOutgoingEvents, nMaxInterClustersIncomingEvents, interClustersIncomingEvents);
 
     // save the pointer of the object.
@@ -761,6 +761,7 @@ __global__ void deleteEventQueueDevice(EventQueue *pEventQueue)
         delete pEventQueue;
     }
 }
+
 /*
  * Get the address of event queue data in device memory
  *

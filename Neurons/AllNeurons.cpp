@@ -1,11 +1,11 @@
 #include "AllNeurons.h"
 
 // Default constructor
-AllNeurons::AllNeurons() 
+CUDA_CALLABLE AllNeurons::AllNeurons() 
 {
 }
 
-AllNeurons::~AllNeurons()
+CUDA_CALLABLE AllNeurons::~AllNeurons()
 {
 }
 
@@ -32,6 +32,36 @@ void AllNeurons::setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info)
     // allocate neurons properties data
     m_pNeuronsProps->setupNeuronsProps(sim_info, clr_info);
 }
+
+#if defined(USE_GPU)
+
+/*
+ * Delete an AllNeurons class object in device
+ *
+ * @param pAllNeurons_d    Pointer to the AllNeurons object to be deleted in device.
+ */
+void AllNeurons::deleteAllNeuronsInDevice(IAllNeurons* pAllNeurons_d)
+{
+    // delete AllNeurons object in device memory.
+    deleteAllNeuronsDevice <<< 1, 1 >>> ( pAllNeurons_d );
+}
+
+/*
+ *  Set neurons properties.
+ *
+ *  @param  pAllNeuronsProps  Pointer to the neurons properties.
+ */
+CUDA_CALLABLE void AllNeurons::setNeuronsProps(void *pAllNeuronsProps)
+{
+    m_pNeuronsProps = static_cast<AllNeuronsProps*>(pAllNeuronsProps);
+}
+
+__global__ void deleteAllNeuronsDevice(IAllNeurons *pAllNeurons)
+{
+    delete pAllNeurons;
+}
+
+#endif // USE_GPU
 
 /*
  *  Cleanup the class (deallocate memories).

@@ -46,8 +46,8 @@ using namespace std;
 class AllNeurons : public IAllNeurons
 {
     public:
-        AllNeurons();
-        virtual ~AllNeurons();
+        CUDA_CALLABLE AllNeurons();
+        CUDA_CALLABLE virtual ~AllNeurons();
 
         /**
          *  Cleanup the class.
@@ -70,6 +70,22 @@ class AllNeurons : public IAllNeurons
          *  @param  clr_info  ClusterInfo class to read information from.
          */
         virtual void setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+#if defined(USE_GPU)
+        /**
+         * Delete an AllNeurons class object in device
+         *
+         * @param pAllNeurons_d    Pointer to the AllNeurons object to be deleted in device.
+         */
+        virtual void deleteAllNeuronsInDevice(IAllNeurons* pAllNeurons_d);
+
+        /**
+         *  Set neurons properties.
+         *
+         *  @param  pAllNeuronsProps  Pointer to the neurons properties.
+         */
+        CUDA_CALLABLE virtual void setNeuronsProps(void *pAllNeuronsProps);
+#endif // USE_GPU
 
         /**
          *  Checks the number of required parameters to read.
@@ -124,3 +140,13 @@ class AllNeurons : public IAllNeurons
          */
         class AllNeuronsProps* m_pNeuronsProps;
 };
+
+#if defined(USE_GPU)
+
+/* -------------------------------------*\
+|* # CUDA Global Functions
+\* -------------------------------------*/
+
+__global__ void deleteAllNeuronsDevice(IAllNeurons *pAllNeurons);
+
+#endif // USE_GPU

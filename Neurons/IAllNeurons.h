@@ -13,11 +13,12 @@ using namespace std;
 
 class IAllSynapses;
 class SynapseIndexMap;
+class IAllNeuronsProps;
 
 class IAllNeurons
 {
     public:
-        virtual ~IAllNeurons() {}
+        CUDA_CALLABLE virtual ~IAllNeurons() {}
 
         /**
          *  Assignment operator: copy neurons parameters.
@@ -96,6 +97,13 @@ class IAllNeurons
 #if defined(USE_GPU)
     public:
         /**
+         *  Set neurons properties.
+         *
+         *  @param  pAllNeuronsProps  Pointer to the neurons properties.
+         */
+        CUDA_CALLABLE virtual void setNeuronsProps(void *pAllNeuronsProps) = 0;
+
+        /**
          *  Update the state of all neurons for a time step
          *  Notify outgoing synapses if neuron has fired.
          *
@@ -116,6 +124,22 @@ class IAllNeurons
          *  @param  synapses               Reference to the allSynapses struct on host memory.
          */
         virtual void setAdvanceNeuronsDeviceParams(IAllSynapses &synapses) = 0;
+
+        /**
+         *  Create an AllNeurons class object in device
+         *
+         *  @param pAllNeurons_d       Device memory address to save the pointer of created AllNeurons object.
+         *  @param pAllNeuronsProps_d  Pointer to the neurons properties in device memory.
+         */
+        virtual void createAllNeuronsInDevice(IAllNeurons** pAllNeurons_d, IAllNeuronsProps *pAllNeuronsProps_d) = 0;
+
+        /**
+         * Delete an AllNeurons class object in device
+         *
+         * @param pAllNeurons_d    Pointer to the AllNeurons object to be deleted in device.
+         */
+        virtual void deleteAllNeuronsInDevice(IAllNeurons* pAllNeurons_d) = 0;
+
 #else // !defined(USE_GPU)
     public:
         /**

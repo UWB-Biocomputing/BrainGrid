@@ -90,8 +90,8 @@
 class AllIZHNeurons : public AllIFNeurons
 {
     public:
-        AllIZHNeurons();
-        virtual ~AllIZHNeurons();
+        CUDA_CALLABLE AllIZHNeurons();
+        CUDA_CALLABLE virtual ~AllIZHNeurons();
 
         static IAllNeurons* Create() { return new AllIZHNeurons(); }
 
@@ -117,6 +117,14 @@ class AllIZHNeurons : public AllIFNeurons
          */
         virtual void advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset);
 
+        /**
+         *  Create an AllNeurons class object in device
+         *
+         *  @param pAllNeurons_d       Device memory address to save the pointer of created AllNeurons object.
+         *  @param pAllNeuronsProps_d  Pointer to the neurons properties in device memory.
+         */
+        virtual void createAllNeuronsInDevice(IAllNeurons** pAllNeurons_d, IAllNeuronsProps *pAllNeuronsProps_d);
+
 #else // !defined(USE_GPU) 
     protected:
         /**
@@ -127,7 +135,7 @@ class AllIZHNeurons : public AllIFNeurons
          *  @param  clr_info         ClusterInfo class to read information from.
          *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset);
+        CUDA_CALLABLE virtual void advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset);
 
         /**
          *  Initiates a firing of a neuron to connected neurons.
@@ -136,6 +144,17 @@ class AllIZHNeurons : public AllIFNeurons
          *  @param  sim_info         SimulationInfo class to read information from.
          *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const;
+        CUDA_CALLABLE virtual void fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const;
 #endif  // defined(USE_GPU)
 };
+
+#if defined(USE_GPU)
+
+/* -------------------------------------*\
+|* # CUDA Global Functions
+\* -------------------------------------*/
+
+__global__ void allocAllIZHNeuronsDevice(IAllNeurons **pAllNeurons, IAllNeuronsProps *pAllNeuronsProps);
+
+#endif // USE_GPU
+

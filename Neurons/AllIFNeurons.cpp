@@ -1,11 +1,11 @@
 #include "AllIFNeurons.h"
 
 // Default constructor
-AllIFNeurons::AllIFNeurons()
+CUDA_CALLABLE AllIFNeurons::AllIFNeurons()
 {
 }
 
-AllIFNeurons::~AllIFNeurons()
+CUDA_CALLABLE AllIFNeurons::~AllIFNeurons()
 {
 }
 

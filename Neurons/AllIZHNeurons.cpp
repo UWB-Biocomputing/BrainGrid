@@ -10,11 +10,11 @@
 #endif
 
 // Default constructor
-AllIZHNeurons::AllIZHNeurons()
+CUDA_CALLABLE AllIZHNeurons::AllIZHNeurons()
 {
 }
 
-AllIZHNeurons::~AllIZHNeurons()
+CUDA_CALLABLE AllIZHNeurons::~AllIZHNeurons()
 {
 }
 
@@ -36,7 +36,7 @@ void AllIZHNeurons::createNeuronsProps()
  *  @param  clr_info    ClusterInfo class to read information from.
  *  @param  iStepOffset      Offset from the current simulation step.
  */
-void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
+CUDA_CALLABLE void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
 {
     AllIZHNeuronsProps *pNeuronsProps = dynamic_cast<AllIZHNeuronsProps*>(m_pNeuronsProps);
     BGFLOAT &Vm = pNeuronsProps->Vm[index];
@@ -44,7 +44,6 @@ void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
     BGFLOAT &summationPoint = pNeuronsProps->summation_map[index];
     BGFLOAT &I0 = pNeuronsProps->I0[index];
     BGFLOAT &Inoise = pNeuronsProps->Inoise[index];
-    BGFLOAT &C1 = pNeuronsProps->C1[index];
     BGFLOAT &C2 = pNeuronsProps->C2[index];
     BGFLOAT &C3 = pNeuronsProps->C3[index];
     int &nStepsInRefr = pNeuronsProps->nStepsInRefr[index];
@@ -53,15 +52,17 @@ void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
     BGFLOAT &u = pNeuronsProps->u[index];
     BGFLOAT &Cconst = pNeuronsProps->Cconst[index];
     BGFLOAT &Dconst = pNeuronsProps->Dconst[index];
+    bool &hasFired = pNeuronsProps->hasFired[index];
 
-    if (nStepsInRefr > 0) {
-        // is neuron refractory?
+    hasFired = false;
+
+    if (nStepsInRefr > 0) { // is neuron refractory?
         --nStepsInRefr;
-    } else if (Vm >= Vthresh) {
-        // should it fire?
+    } else if (Vm >= Vthresh) { // should it fire?
         fire(index, sim_info, iStepOffset);
     } else {
         summationPoint += I0; // add IO
+
         // add noise
         BGFLOAT noise = (*clr_info->normRand)();
         DEBUG_MID(cout << "ADVANCE NEURON[" << index << "] :: noise = " << noise << endl;)
@@ -88,7 +89,6 @@ void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
             << "\tsummationPoint = " << summationPoint << endl
             << "\tI0 = " << I0 << endl
             << "\tInoise = " << Inoise << endl
-            << "\tC1 = " << C1 << endl
             << "\tC2 = " << C2 << endl
             << "\tC3 = " << C3 << endl
             << "}" << endl
@@ -105,7 +105,7 @@ void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
  *  @param  sim_info    SimulationInfo class to read information from.
  *  @param  iStepOffset      Offset from the current simulation step.
  */
-void AllIZHNeurons::fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const
+CUDA_CALLABLE void AllIZHNeurons::fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const
 {
     const BGFLOAT deltaT = sim_info->deltaT;
     AllSpikingNeurons::fire(index, sim_info, iStepOffset);
@@ -158,6 +158,39 @@ void AllIZHNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsProp
 
     // Advance neurons ------------->
     advanceIZHNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIZHNeuronsProps *)allNeuronsProps, (AllSpikingSynapsesProps*)allSynapsesProps, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset );
+}
+
+/*
+ *  Create an AllNeurons class object in device
+ *
+ *  @param pAllNeurons_d       Device memory address to save the pointer of created AllNeurons object.
+ *  @param pAllNeuronsProps_d  Pointer to the neurons properties in device memory.
+ */
+void AllIZHNeurons::createAllNeuronsInDevice(IAllNeurons** pAllNeurons_d, IAllNeuronsProps *pAllNeuronsProps_d)
+{
+    IAllNeurons **pAllNeurons_t; // temporary buffer to save pointer to IAllNeurons object.
+
+    // allocate device memory for the buffer.
+    checkCudaErrors( cudaMalloc( ( void ** ) &pAllNeurons_t, sizeof( IAllNeurons * ) ) );
+
+    // create an AllNeurons object in device memory.
+    allocAllIZHNeuronsDevice <<< 1, 1 >>> ( pAllNeurons_t, pAllNeuronsProps_d );
+
+    // save the pointer of the object.
+    checkCudaErrors( cudaMemcpy ( pAllNeurons_d, pAllNeurons_t, sizeof( IAllNeurons * ), cudaMemcpyDeviceToHost ) );
+
+    // free device memory for the buffer.
+    checkCudaErrors( cudaFree( pAllNeurons_t ) );
+}
+
+/* -------------------------------------*\
+|* # CUDA Global Functions
+\* -------------------------------------*/
+
+__global__ void allocAllIZHNeuronsDevice(IAllNeurons **pAllNeurons, IAllNeuronsProps *pAllNeuronsProps)
+{
+    *pAllNeurons = new AllIZHNeurons();
+    (*pAllNeurons)->setNeuronsProps(pAllNeuronsProps);
 }
 
 #endif // USE_GPU

@@ -2,11 +2,11 @@
 #include "AllSpikingSynapses.h"
 
 // Default constructor
-AllSpikingNeurons::AllSpikingNeurons()
+CUDA_CALLABLE AllSpikingNeurons::AllSpikingNeurons()
 {
 }
 
-AllSpikingNeurons::~AllSpikingNeurons()
+CUDA_CALLABLE AllSpikingNeurons::~AllSpikingNeurons()
 {
 }
 
