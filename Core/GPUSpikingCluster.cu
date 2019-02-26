@@ -243,6 +243,9 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
   // allocates memories on CUDA device
   allocDeviceStruct((void **)&m_allNeuronsDeviceProps, (void **)&m_allSynapsesDeviceProps, sim_info, clr_info);
 
+  // create an AllNeurons class object in device
+  m_neurons->createAllNeuronsInDevice(&m_neuronsDevice, m_allNeuronsDeviceProps);
+
   // set some parameters used for advanceNeuronsDevice
   m_neurons->setAdvanceNeuronsDeviceParams(*m_synapses);
 
@@ -288,6 +291,9 @@ void GPUSpikingCluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *cl
 
   // deallocates memories on CUDA device
   deleteDeviceStruct((void**)&m_allNeuronsDeviceProps, (void**)&m_allSynapsesDeviceProps, sim_info, clr_info);
+
+  // delete an AllNeurons class object in device
+  m_neurons->deleteAllNeuronsInDevice(m_neuronsDevice);
 
 #ifdef PERFORMANCE_METRICS
   cudaEventDestroy( clr_info->start );
@@ -386,7 +392,7 @@ void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterIn
   }
 
   // Advance neurons ------------->
-  m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDeviceProps, m_allSynapsesDeviceProps, sim_info, randNoiseDevice, m_synapseIndexMapDevice, clr_info, iStepOffset);
+  m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDeviceProps, m_allSynapsesDeviceProps, sim_info, randNoiseDevice, m_synapseIndexMapDevice, clr_info, iStepOffset, m_neuronsDevice);
 
 #else // !VALIDATION
 
@@ -398,7 +404,7 @@ void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterIn
 #endif // PERFORMANCE_METRICS
 
   // Advance neurons ------------->
-  m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDeviceProps, m_allSynapsesDeviceProps, sim_info, randNoise_d, m_synapseIndexMapDevice, clr_info, iStepOffset);
+  m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDeviceProps, m_allSynapsesDeviceProps, sim_info, randNoise_d, m_synapseIndexMapDevice, clr_info, iStepOffset, m_neuronsDevice);
 
 #endif // !VALIDATION
 

@@ -115,8 +115,9 @@ class IAllNeurons
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  clr_info               ClusterInfo to refer from.
          *  @param  iStepOffset            Offset from the current simulation step.
+         *  @param  neuronsDevice          Pointer to the Neurons object in device memory.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset) = 0;
+        virtual void advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset, IAllNeurons* neuronsDevice) = 0;
 
         /**
          *  Set some parameters used for advanceNeuronsDevice.

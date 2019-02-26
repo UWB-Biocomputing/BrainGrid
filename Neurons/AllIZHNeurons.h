@@ -101,51 +101,61 @@ class AllIZHNeurons : public AllIFNeurons
         virtual void createNeuronsProps();
 
 #if defined(USE_GPU)
+
     public:
         /**
-         *  Update the state of all neurons for a time step
-         *  Notify outgoing synapses if neuron has fired.
-         *
-         *  @param  synapses               Reference to the allSynapses struct on host memory.
-         *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
-         *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
-         *  @param  sim_info               SimulationInfo to refer from.
-         *  @param  randNoise              Reference to the random noise array.
-         *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
-         *  @param  clr_info               ClusterInfo class to read information from.
-         *  @param  iStepOffset            Offset from the current simulation step.
-         */
-        virtual void advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset);
-
-        /**
-         *  Create an AllNeurons class object in device
+         *AllIZHNeurons  Create an AllNeurons class object in device
          *
          *  @param pAllNeurons_d       Device memory address to save the pointer of created AllNeurons object.
          *  @param pAllNeuronsProps_d  Pointer to the neurons properties in device memory.
          */
         virtual void createAllNeuronsInDevice(IAllNeurons** pAllNeurons_d, IAllNeuronsProps *pAllNeuronsProps_d);
 
-#else // !defined(USE_GPU) 
+#endif  // defined(USE_GPU)
+
+#if defined(USE_GPU)
+
+    public:
+        /**
+         *  Helper for #advanceNeuron. Updates state of a single neuron.
+         *
+         *  @param  index                 Index of the Neuron to update.
+         *  @param  maxSpikes             Maximum number of spikes per neuron per epoch.
+         *  @param  deltaT                Inner simulation step duration.
+         *  @param  simulationStep        The current simulation step.
+         *  @param  pINeuronsProps        Pointer to the neurons properties.
+         *  @param  randNoise             Pointer to device random noise array.
+         */
+        CUDA_CALLABLE virtual void advanceNeuron(const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, IAllNeuronsProps* pINeuronsProps, float* randNoise);
+
+#else  // defined(USE_GPU)
+
     protected:
         /**
          *  Helper for #advanceNeuron. Updates state of a single neuron.
          *
-         *  @param  index            Index of the neuron to update.
-         *  @param  sim_info         SimulationInfo class to read information from.
-         *  @param  clr_info         ClusterInfo class to read information from.
-         *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  index                 Index of the Neuron to update.
+         *  @param  maxSpikes             Maximum number of spikes per neuron per epoch.
+         *  @param  deltaT                Inner simulation step duration.
+         *  @param  simulationStep        The current simulation step.
+         *  @param  pINeuronsProps        Pointer to the neurons properties.
+         *  @param  normRand              Pointer to the normalized random number generator.
          */
-        CUDA_CALLABLE virtual void advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset);
+        virtual void advanceNeuron(const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, IAllNeuronsProps* pINeuronsProps, Norm* normRand);
 
+#endif // defined(USE_GPU)
+
+    protected:
         /**
          *  Initiates a firing of a neuron to connected neurons.
          *
-         *  @param  index            Index of the neuron to fire.
-         *  @param  sim_info         SimulationInfo class to read information from.
-         *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  index                 Index of the neuron to fire.
+         *  @param  maxSpikes             Maximum number of spikes per neuron per epoch.
+         *  @param  deltaT                Inner simulation step duration.
+         *  @param  simulationStep        The current simulation step.
+         *  @param  pINeuronsProps        Pointer to the neurons properties.
          */
-        CUDA_CALLABLE virtual void fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const;
-#endif  // defined(USE_GPU)
+        CUDA_CALLABLE virtual void fire(const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, IAllNeuronsProps* pINeuronsProps) const;
 };
 
 #if defined(USE_GPU)

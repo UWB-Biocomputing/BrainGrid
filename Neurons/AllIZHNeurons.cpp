@@ -26,19 +26,26 @@ void AllIZHNeurons::createNeuronsProps()
     m_pNeuronsProps = new AllIZHNeuronsProps();
 }
 
-#if !defined(USE_GPU)
 
 /*
  *  Update internal state of the indexed Neuron (called by every simulation step).
  *
- *  @param  index       Index of the Neuron to update.
- *  @param  sim_info    SimulationInfo class to read information from.
- *  @param  clr_info    ClusterInfo class to read information from.
- *  @param  iStepOffset      Offset from the current simulation step.
+ *  @param  index                 Index of the Neuron to update.
+ *  @param  maxSpikes             Maximum number of spikes per neuron per epoch.
+ *  @param  deltaT                Inner simulation step duration.
+ *  @param  simulationStep        The current simulation step.
+ *  @param  pINeuronsProps        Pointer to the neurons properties.
+ *  @param  randNoise             Pointer to device random noise array.
+ *  @param  normRand              Pointer to the normalized random number generator.
  */
-CUDA_CALLABLE void AllIZHNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
+CUDA_CALLABLE void AllIZHNeurons::advanceNeuron(const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, IAllNeuronsProps* pINeuronsProps, 
+#if defined(USE_GPU)
+float* randNoise)
+#else // defined(USE_GPU)
+Norm* normRand)
+#endif // defined(USE_GPU)
 {
-    AllIZHNeuronsProps *pNeuronsProps = dynamic_cast<AllIZHNeuronsProps*>(m_pNeuronsProps);
+    AllIZHNeuronsProps *pNeuronsProps = reinterpret_cast<AllIZHNeuronsProps*>(pINeuronsProps);
     BGFLOAT &Vm = pNeuronsProps->Vm[index];
     BGFLOAT &Vthresh = pNeuronsProps->Vthresh[index];
     BGFLOAT &summationPoint = pNeuronsProps->summation_map[index];
@@ -59,13 +66,17 @@ CUDA_CALLABLE void AllIZHNeurons::advanceNeuron(const int index, const Simulatio
     if (nStepsInRefr > 0) { // is neuron refractory?
         --nStepsInRefr;
     } else if (Vm >= Vthresh) { // should it fire?
-        fire(index, sim_info, iStepOffset);
+        fire(index, maxSpikes, deltaT, simulationStep, pINeuronsProps);
     } else {
         summationPoint += I0; // add IO
 
         // add noise
-        BGFLOAT noise = (*clr_info->normRand)();
-        DEBUG_MID(cout << "ADVANCE NEURON[" << index << "] :: noise = " << noise << endl;)
+#if defined(USE_GPU)
+        BGFLOAT noise = randNoise[index];
+#else // defined(USE_GPU)
+        BGFLOAT noise = (*normRand)();
+#endif // defined(USE_GPU)
+        DEBUG_MID(printf("ADVANCE NEURON[%d] :: noise = %f\n", index, noise);)
         summationPoint += noise * Inoise; // add noise
 
         BGFLOAT Vint = Vm * 1000;
@@ -77,21 +88,20 @@ CUDA_CALLABLE void AllIZHNeurons::advanceNeuron(const int index, const Simulatio
         Vm = Vb * 0.001 + C2 * summationPoint;  // add inputs
     }
 
-    DEBUG_MID(cout << index << " " << Vm << endl;)
-        DEBUG_MID(cout << "NEURON[" << index << "] {" << endl
-            << "\tVm = " << Vm << endl
-            << "\ta = " << a << endl
-            << "\tb = " << b << endl
-            << "\tc = " << Cconst << endl
-            << "\td = " << Dconst << endl
-            << "\tu = " << u << endl
-            << "\tVthresh = " << Vthresh << endl
-            << "\tsummationPoint = " << summationPoint << endl
-            << "\tI0 = " << I0 << endl
-            << "\tInoise = " << Inoise << endl
-            << "\tC2 = " << C2 << endl
-            << "\tC3 = " << C3 << endl
-            << "}" << endl
+    DEBUG_MID(printf("%d %f\n",  index, Vm);)
+        DEBUG_MID(printf("NEURON[%d] {\n", index);
+            printf("\tVm = %f\n", Vm);
+            printf("\ta = %f\n", a);
+            printf("\tb = %f\n", b);
+            printf("\tCconst = %f\n", Cconst);
+            printf("\tDconst = %f\n", Dconst);
+            printf("\tu = %f\n", u);
+            printf("\tVthresh = %f\n", Vthresh);
+            printf("\tsummationPoint = %f\n", summationPoint);
+            printf("\tI0 = %f\n", I0);
+            printf("\tInoise = %f\n", Inoise);
+            printf("\tC2 = %f\n", C2);
+            printf("\tC3 = %f\n}\n", C3);
     ;)
 
     // clear synaptic input for next time step
@@ -101,17 +111,18 @@ CUDA_CALLABLE void AllIZHNeurons::advanceNeuron(const int index, const Simulatio
 /*
  *  Fire the selected Neuron and calculate the result.
  *
- *  @param  index       Index of the Neuron to update.
- *  @param  sim_info    SimulationInfo class to read information from.
- *  @param  iStepOffset      Offset from the current simulation step.
+ *  @param  index                 Index of the Neuron to update.
+ *  @param  maxSpikes             Maximum number of spikes per neuron per epoch.
+ *  @param  deltaT                Inner simulation step duration.
+ *  @param  simulationStep        The current simulation step.
+ *  @param  pINeuronsProps        Pointer to the neurons properties.
  */
-CUDA_CALLABLE void AllIZHNeurons::fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const
+CUDA_CALLABLE void AllIZHNeurons::fire(const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, IAllNeuronsProps* pINeuronsProps) const
 {
-    const BGFLOAT deltaT = sim_info->deltaT;
-    AllSpikingNeurons::fire(index, sim_info, iStepOffset);
+    AllSpikingNeurons::fire(index, maxSpikes, deltaT, simulationStep, pINeuronsProps);
 
     // calculate the number of steps in the absolute refractory period
-    AllIZHNeuronsProps *pNeuronsProps = dynamic_cast<AllIZHNeuronsProps*>(m_pNeuronsProps);
+    AllIZHNeuronsProps *pNeuronsProps = reinterpret_cast<AllIZHNeuronsProps*>(pINeuronsProps);
     BGFLOAT &Vm = pNeuronsProps->Vm[index];
     int &nStepsInRefr = pNeuronsProps->nStepsInRefr[index];
     BGFLOAT &Trefract = pNeuronsProps->Trefract[index];
@@ -126,39 +137,7 @@ CUDA_CALLABLE void AllIZHNeurons::fire(const int index, const SimulationInfo *si
     u = u + d;
 }
 
-#else // USE_GPU
-
-/*
- *  Update the state of all neurons for a time step
- *  Notify outgoing synapses if neuron has fired.
- *
- *  @param  synapses               Reference to the allSynapses struct on host memory.
- *  @param  allNeuronsProps       Reference to the allNeurons struct on device memory.
- *  @param  allSynapsesProps      Reference to the allSynapses struct on device memory.
- *  @param  sim_info               SimulationInfo to refer from.
- *  @param  randNoise              Reference to the random noise array.
- *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
- *  @param  clr_info               ClusterInfo class to read information from.
- *  @param  iStepOffset            Offset from the current simulation step.
- */
-void AllIZHNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsProps, void* allSynapsesProps, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset)
-{
-    DEBUG (
-    int deviceId;
-    checkCudaErrors( cudaGetDevice( &deviceId ) );
-    assert(deviceId == clr_info->deviceId);
-    ); // end DEBUG
-
-    int neuron_count = clr_info->totalClusterNeurons;
-    int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
-
-    // CUDA parameters
-    const int threadsPerBlock = 256;
-    int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-
-    // Advance neurons ------------->
-    advanceIZHNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIZHNeuronsProps *)allNeuronsProps, (AllSpikingSynapsesProps*)allSynapsesProps, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset );
-}
+#if defined(USE_GPU)
 
 /*
  *  Create an AllNeurons class object in device

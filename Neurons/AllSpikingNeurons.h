@@ -51,7 +51,24 @@ class AllSpikingNeurons : public AllNeurons
         CUDA_CALLABLE virtual ~AllSpikingNeurons();
 
 #if defined(USE_GPU)
+
     public:
+        /**
+         *  Update the state of all neurons for a time step
+         *  Notify outgoing synapses if neuron has fired.
+         *
+         *  @param  synapses               Reference to the allSynapses struct on host memory.
+         *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
+         *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
+         *  @param  sim_info               SimulationInfo to refer from.
+         *  @param  randNoise              Reference to the random noise array.
+         *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
+         *  @param  clr_info               ClusterInfo to refer from.
+         *  @param  iStepOffset            Offset from the current simulation step.
+         *  @param  neuronsDevice          Pointer to the Neurons object in device memory.
+         */
+        virtual void advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset, IAllNeurons* neuronsDevice);
+
         /**
          *  Set some parameters used for advanceNeuronsDevice.
          *
@@ -83,26 +100,51 @@ class AllSpikingNeurons : public AllNeurons
          */
         uint64_t getSpikeHistory(int index, int offIndex, const SimulationInfo *sim_info);
 
+#endif // !defined(USE_GPU)
+
+#if defined(USE_GPU)
+
+    public:
+        /**
+         *  Helper for #advanceNeuron. Updates state of a single neuron.
+         *
+         *  @param  index                 Index of the Neuron to update.
+         *  @param  maxSpikes             Maximum number of spikes per neuron per epoch.
+         *  @param  deltaT                Inner simulation step duration.
+         *  @param  simulationStep        The current simulation step.
+         *  @param  pINeuronsProps        Pointer to the neurons properties.
+         *  @param  randNoise             Pointer to device random noise array.
+         */
+        CUDA_CALLABLE virtual void advanceNeuron(const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, IAllNeuronsProps* pINeuronsProps, float* randNoise) = 0;
+
+#else  // defined(USE_GPU)
+
     protected:
         /**
          *  Helper for #advanceNeuron. Updates state of a single neuron.
          *
-         *  @param  index            Index of the neuron to update.
-         *  @param  sim_info         SimulationInfo class to read information from.
-         *  @param  clr_info         ClusterInfo class to read information from.
-         *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  index                 Index of the Neuron to update.
+         *  @param  maxSpikes             Maximum number of spikes per neuron per epoch.
+         *  @param  deltaT                Inner simulation step duration.
+         *  @param  simulationStep        The current simulation step.
+         *  @param  pINeuronsProps        Pointer to the neurons properties.
+         *  @param  normRand              Pointer to the normalized random number generator.
          */
-        virtual void advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset) = 0;
+        virtual void advanceNeuron(const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, IAllNeuronsProps* pINeuronsProps, Norm* normRand) = 0;
 
-        /**
-         *  Initiates a firing of a neuron to connected neurons
-         *
-         *  @param  index            Index of the neuron to fire.
-         *  @param  sim_info         SimulationInfo class to read information from.
-         *  @param  iStepOffset      Offset from the current simulation step.
-         */
-        virtual void fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const;
 #endif // defined(USE_GPU)
+
+    protected:
+        /**
+         *  Initiates a firing of a neuron to connected neurons.
+         *
+         *  @param  index                 Index of the neuron to fire.
+         *  @param  maxSpikes             Maximum number of spikes per neuron per epoch.
+         *  @param  deltaT                Inner simulation step duration.
+         *  @param  simulationStep        The current simulation step.
+         *  @param  pINeuronsProps        Pointer to the neurons properties.
+         */
+        CUDA_CALLABLE virtual void fire(const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, IAllNeuronsProps* pINeuronsProps) const;
 
     protected:
         /**
@@ -113,3 +155,24 @@ class AllSpikingNeurons : public AllNeurons
 
 };
 
+#if defined(USE_GPU)
+
+/**
+ *  CUDA code for advancing LIF neurons
+ *
+ *  @param[in] totalNeurons          Number of neurons.
+ *  @param[in] maxSynapses           Maximum number of synapses per neuron.
+ *  @param[in] maxSpikes             Maximum number of spikes per neuron per epoch.
+ *  @param[in] deltaT                Inner simulation step duration.
+ *  @param[in] simulationStep        The current simulation step.
+ *  @param[in] randNoise             Pointer to device random noise array.
+ *  @param[in] pINeuronsProps        Pointer to Neuron structures in device memory.
+ *  @param[in] allSynapsesProps      Pointer to Synapse structures in device memory.
+ *  @param[in] synapseIndexMap       Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
+ *  @param[in] fAllowBackPropagation True if back propagaion is allowed.
+ *  @param[in] iStepOffset           Offset from the current simulation step.
+ *  @param[in] neuronsDevice         Pointer to the Neurons object in device memory.
+ */
+extern __global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, IAllNeuronsProps* pINeuronsProps, AllSpikingSynapsesProps* allSynapsesProps, SynapseIndexMap* synapseIndexMapDevice, bool fAllowBackPropagation, int iStepOffset, IAllNeurons* neuronsDevice );
+
+#endif // USE_GPU

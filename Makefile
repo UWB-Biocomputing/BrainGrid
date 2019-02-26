@@ -106,7 +106,6 @@ ifeq ($(CUSEHDF5), yes)
 CUDAOBJS =   \
 		$(COREDIR)/GPUSpikingCluster.o \
 		$(COREDIR)/Model_cuda.o \
-		$(NEURONDIR)/AllNeuronsDeviceFuncs_d.o \
 		$(NEURONDIR)/AllNeurons_cuda.o \
 		$(NEURONDIR)/AllSpikingNeurons_cuda.o \
 		$(NEURONDIR)/AllIFNeurons_cuda.o \
@@ -153,7 +152,6 @@ else
 CUDAOBJS =   \
                 $(COREDIR)/GPUSpikingCluster.o \
                 $(COREDIR)/Model_cuda.o \
-                $(NEURONDIR)/AllNeuronsDeviceFuncs_d.o \
                 $(NEURONDIR)/AllNeurons_cuda.o \
                 $(NEURONDIR)/AllSpikingNeurons_cuda.o \
                 $(NEURONDIR)/AllIFNeurons_cuda.o \
@@ -334,9 +332,6 @@ $(RNGDIR)/MersenneTwister_d.o: $(RNGDIR)/MersenneTwister_d.cu $(UTILDIR)/Global.
 
 $(COREDIR)/GPUSpikingCluster.o: $(COREDIR)/GPUSpikingCluster.cu $(UTILDIR)/Global.h $(COREDIR)/GPUSpikingCluster.h $(NEURONDIR)/AllIFNeurons.h $(SYNAPSEDIR)/AllSynapses.h $(COREDIR)/IModel.h  
 	nvcc -c $(NVCCFLAGS) $(COREDIR)/GPUSpikingCluster.cu $(CGPUFLAGS) -o $(COREDIR)/GPUSpikingCluster.o
-
-$(NEURONDIR)/AllNeuronsDeviceFuncs_d.o: $(NEURONDIR)/AllNeuronsDeviceFuncs_d.cu $(UTILDIR)/Global.h $(NEURONDIR)/AllNeuronsDeviceFuncs.h
-	nvcc -c $(NVCCFLAGS) $(NEURONDIR)/AllNeuronsDeviceFuncs_d.cu $(CGPUFLAGS) -o $(NEURONDIR)/AllNeuronsDeviceFuncs_d.o
 
 $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o: $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllSynapsesDeviceFuncs.h
 	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o

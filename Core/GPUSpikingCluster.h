@@ -241,6 +241,11 @@ public:
 	AllSpikingNeuronsProps* m_allNeuronsDeviceProps;
 
         /**
+         *  Pointer to the Neurons object in device memory.
+         */
+        IAllNeurons* m_neuronsDevice;
+
+        /**
          *  Copy SynapseIndexMap in host memory to SynapseIndexMap in device memory.
          *
          *  @param  clr_info    ClusterInfo to refer from.
