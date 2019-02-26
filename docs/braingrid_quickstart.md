@@ -110,7 +110,7 @@ The `screen` command will essentially allow you to start a simulation and then d
 
 
 -------------
-[>> Next: 4. Configuration](http://uwb-biocomputing.github.io/BrainGrid/4_configuration)
+[>> Next: 4. Configuration](braingrid_configuration)
 
 -------------
 [<< Go back to BrainGrid Home page](http://uwb-biocomputing.github.io/BrainGrid/)
