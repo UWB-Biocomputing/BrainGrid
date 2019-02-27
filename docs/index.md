@@ -29,3 +29,5 @@
    4.1 Use built-in models
    
    4.2 Configuring the model
+
+5. [Internal Documentation](braingrid_internal_documentation)
