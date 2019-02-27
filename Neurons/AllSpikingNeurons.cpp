@@ -210,7 +210,7 @@ __global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int max
         AllSpikingNeuronsProps *pNeuronsProps = reinterpret_cast<AllSpikingNeuronsProps*>(pINeuronsProps);
         bool &hasFired = pNeuronsProps->hasFired[idx];
 
-        static_cast<AllSpikingNeurons*>(neuronsDevice)->advanceNeuron( idx, maxSpikes, deltaT, simulationStep, pINeuronsProps, randNoise );
+        static_cast<AllSpikingNeurons*>(neuronsDevice)->advanceNeuron( idx, maxSpikes, deltaT, simulationStep + iStepOffset, pINeuronsProps, randNoise );
 
         // notify outgoing synapses of spike
         if (hasFired) {
