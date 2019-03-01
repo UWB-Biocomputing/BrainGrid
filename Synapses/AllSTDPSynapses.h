@@ -66,8 +66,8 @@
 class AllSTDPSynapses : public AllSpikingSynapses
 {
     public:
-        AllSTDPSynapses();
-        virtual ~AllSTDPSynapses();
+        CUDA_CALLABLE AllSTDPSynapses();
+        CUDA_CALLABLE virtual ~AllSTDPSynapses();
 
         static IAllSynapses* Create() { return new AllSTDPSynapses(); }
  
@@ -158,34 +158,25 @@ class AllSTDPSynapses : public AllSpikingSynapses
         virtual void setSynapseClassID();
 #else // USE_GPU
     public:
-        /**
-         *  Advance all the Synapses in the simulation.
-         *  Update the state of all synapses for a time step.
-         *
-         *  @param  sim_info         SimulationInfo class to read information from.
-         *  @param  neurons          The Neuron list to search from.
-         *  @param  synapseIndexMap  Pointer to the synapse index map.
-         *  @param  iStepOffset      Offset from the current simulation step.
-         */
-        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap, int iStepOffset);
-
         /*
          * Advances synapses spike event queue state of the cluster one simulation step.
          *
          * @param iStep     simulation steps to advance.
          */
-        virtual void advanceSpikeQueue(int iStep);
+        CUDA_CALLABLE virtual void advanceSpikeQueue(int iStep);
 
         /**
          *  Advance one specific Synapse.
          *  Update the state of synapse for a time step
          *
-         *  @param  iSyn      Index of the Synapse to connect to.
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  neurons   The Neuron list to search from.
+         *  @param  iSyn             Index of the Synapse to connect to.
+         *  @param  deltaT           Inner simulation step duration.
+         *  @param  neurons          The Neuron list to search from.
          *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  maxSpikes        Maximum number of spikes per neuron per epoch.
+         *  @param  pISynapsesProps  Pointer to the synapses properties.
          */
-        virtual void advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons, int iStepOffset);
+        CUDA_CALLABLE virtual void advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, int iStepOffset, int maxSpikes, IAllSynapsesProps* pISynapsesProps);
 
         /**
          *  Prepares Synapse for a spike hit (for back propagation).
@@ -193,17 +184,18 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  iSyn   Index of the Synapse to connect to.
          *  @param  iStepOffset  Offset from the current simulation step.
          */
-        virtual void postSpikeHit(const BGSIZE iSyn, int iStepOffset);
+        CUDA_CALLABLE virtual void postSpikeHit(const BGSIZE iSyn, int iStepOffset);
 
     protected:
         /**
          *  Checks if there is an input spike in the queue (for back propagation).
          *
-         *  @param  iSyn   Index of the Synapse to connect to.
-         *  @param  iStepOffset  Offset from the current simulation step.
+         *  @param  iSyn             Index of the Synapse to connect to.
+         *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  pISynapsesProps  Pointer to the synapses properties.
          *  @return true if there is an input spike event.
          */
-        bool isSpikeQueuePost(const BGSIZE iSyn, int iStepOffset);
+        CUDA_CALLABLE bool isSpikeQueuePost(const BGSIZE iSyn, int iStepOffset, IAllSynapsesProps* pISynapsesProps);
 
     private:
         /**
@@ -215,7 +207,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  epost       Params for the rule given in Froemke and Dan (2002).
          *  @param  epre        Params for the rule given in Froemke and Dan (2002).
          */
-        void stdpLearning(const BGSIZE iSyn,double delta, double epost, double epre);
+        CUDA_CALLABLE void stdpLearning(const BGSIZE iSyn,double delta, double epost, double epre);
 
 #endif
 };

@@ -49,8 +49,8 @@ typedef void (*fpPostSynapsesSpikeHit_t)(const BGSIZE, AllSpikingSynapsesProps*)
 class AllSpikingSynapses : public AllSynapses
 {
     public:
-        AllSpikingSynapses();
-        virtual ~AllSpikingSynapses();
+        CUDA_CALLABLE AllSpikingSynapses();
+        CUDA_CALLABLE virtual ~AllSpikingSynapses();
 
         static IAllSynapses* Create() { return new AllSpikingSynapses(); }
 
@@ -155,76 +155,26 @@ class AllSpikingSynapses : public AllSynapses
          *  (see issue#137).
          */
         virtual void setSynapseClassID();
-
-    protected:
-        /**
-         *  Allocate GPU memories to store all synapses' states,
-         *  and copy them from host to GPU memory.
-         *  (Helper function of allocSynapseDeviceStruct)
-         *
-         *  @param  allSynapsesProps  Reference to the allSynapses struct on device memory.
-         *  @param  num_neurons           Number of neurons.
-         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
-         *  @param  clusterID             The cluster ID of the cluster.
-         */
-        void allocDeviceStruct( AllSpikingSynapsesProps &allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
-
-        /**
-         *  Delete GPU memories.
-         *  (Helper function of deleteSynapseDeviceStruct)
-         *
-         *  @param  allSynapsesProps  Reference to the allSynapses struct on device memory.
-         */
-        void deleteDeviceStruct( AllSpikingSynapsesProps& allSynapsesProps );
-
-        /**
-         *  Copy all synapses' data from host to device.
-         *  (Helper function of copySynapseHostToDevice)
-         *
-         *  @param  allSynapsesDeviceProps  Reference to the allSynapses struct on device memory.
-         *  @param  num_neurons           Number of neurons.
-         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
-         */
-        void copyHostToDevice( void* allSynapsesDeviceProps, AllSpikingSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron );
-
-        /**
-         *  Copy all synapses' data from device to host.
-         *  (Helper function of copySynapseDeviceToHost)
-         *
-         *  @param  allSynapsesProps  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        void copyDeviceToHost( AllSpikingSynapsesProps& allSynapsesProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
 #else  // !defined(USE_GPU)
 public:
-        /**
-         *  Advance all the Synapses in the simulation.
-         *  Update the state of all synapses for a time step.
-         *
-         *  @param  sim_info         SimulationInfo class to read information from.
-         *  @param  neurons          The Neuron list to search from.
-         *  @param  synapseIndexMap  Pointer to the synapse index map.
-         *  @param  iStepOffset      Offset from the current simulation step.
-         */
-        virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap, int iStepOffset);
-
         /*
          * Advances synapses spike event queue state of the cluster one simulation step.
          *
          * @param iStep     simulation steps to advance.
          */
-        virtual void advanceSpikeQueue(int iStep);
+        CUDA_CALLABLE virtual void advanceSpikeQueue(int iStep);
 
         /**
          *  Advance one specific Synapse.
          *
-         *  @param  iSyn      Index of the Synapse to connect to.
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  neurons   The Neuron list to search from.
+         *  @param  iSyn             Index of the Synapse to connect to.
+         *  @param  deltaT           Inner simulation step duration.
+         *  @param  neurons          The Neuron list to search from.
          *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  maxSpikes        Maximum number of spikes per neuron per epoch.
+         *  @param  pISynapsesProps  Pointer to the synapses properties.
          */
-        virtual void advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons, int iStepOffset);
+        CUDA_CALLABLE virtual void advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, int iStepOffset, int maxSpikes, IAllSynapsesProps* pISynapsesProps);
 
         /**
          *  Prepares Synapse for a spike hit.
@@ -233,7 +183,7 @@ public:
          *  @param  iCluster  Cluster ID of cluster where the spike is added.
          *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void preSpikeHit(const BGSIZE iSyn, const CLUSTER_INDEX_TYPE iCluster, int iStepOffset);
+        CUDA_CALLABLE virtual void preSpikeHit(const BGSIZE iSyn, const CLUSTER_INDEX_TYPE iCluster, int iStepOffset);
 
         /**
          *  Prepares Synapse for a spike hit (for back propagation).
@@ -241,26 +191,28 @@ public:
          *  @param  iSyn   Index of the Synapse to update.
          *  @param  iStepOffset      Offset from the current simulation step.
          */
-        virtual void postSpikeHit(const BGSIZE iSyn, int iStepOffset);
+        CUDA_CALLABLE virtual void postSpikeHit(const BGSIZE iSyn, int iStepOffset);
 
     protected:
         /**
          *  Checks if there is an input spike in the queue.
          *
-         *  @param  iSyn   Index of the Synapse to connect to.
+         *  @param  iSyn             Index of the Synapse to connect to.
          *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  pISynapsesProps  Pointer to the synapses properties.
          *  @return true if there is an input spike event.
          */
-        bool isSpikeQueue(const BGSIZE iSyn, int iStepOffset);
+        CUDA_CALLABLE bool isSpikeQueue(const BGSIZE iSyn, int iStepOffset, IAllSynapsesProps* pISynapsesProps);
 
         /**
          *  Calculate the post synapse response after a spike.
          *
-         *  @param  iSyn        Index of the synapse to set.
-         *  @param  deltaT      Inner simulation step duration.
+         *  @param  iSyn             Index of the synapse to set.
+         *  @param  deltaT           Inner simulation step duration.
          *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  pISynapsesProps  Pointer to the synapses properties.
          */
-        virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset);
+        CUDA_CALLABLE virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset, IAllSynapsesProps* pISynapsesProps);
 #endif
 };
 

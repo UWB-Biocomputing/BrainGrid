@@ -5,7 +5,6 @@
 
 #include "AllIZHNeurons.h"
 #if defined(USE_GPU)
-#include "AllNeuronsDeviceFuncs.h"
 #include <helper_cuda.h>
 #endif
 

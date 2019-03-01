@@ -96,9 +96,9 @@ class AllSpikingNeurons : public AllNeurons
          *
          *  @param  index            Index of the neuron to get spike history.
          *  @param  offIndex         Offset of the history buffer to get from.
-         *  @param  sim_info         SimulationInfo class to read information from.
+         *  @param  maxSpikes        Maximum number of spikes per neuron per epoch.
          */
-        uint64_t getSpikeHistory(int index, int offIndex, const SimulationInfo *sim_info);
+        CUDA_CALLABLE uint64_t getSpikeHistory(int index, int offIndex, int maxSpikes);
 
 #endif // !defined(USE_GPU)
 

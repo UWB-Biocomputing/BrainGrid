@@ -95,13 +95,14 @@ void AllDynamicSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, 
 /*
  *  Calculate the post synapse response after a spike.
  *
- *  @param  iSyn        Index of the synapse to set.
- *  @param  deltaT      Inner simulation step duration.
+ *  @param  iSyn             Index of the synapse to set.
+ *  @param  deltaT           Inner simulation step duration.
  *  @param  iStepOffset      Offset from the current simulation step.
+ *  @param  pISynapsesProps  Pointer to the synapses properties.
  */
-void AllDynamicSTDPSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset)
+CUDA_CALLABLE void AllDynamicSTDPSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset, IAllSynapsesProps* pISynapsesProps)
 {
-    AllDynamicSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllDynamicSTDPSynapsesProps*>(m_pSynapsesProps);
+    AllDynamicSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllDynamicSTDPSynapsesProps*>(pISynapsesProps);
 
     BGFLOAT &psr = pSynapsesProps->psr[iSyn];
     BGFLOAT &W = pSynapsesProps->W[iSyn];

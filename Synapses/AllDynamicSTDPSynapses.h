@@ -55,8 +55,8 @@
 class AllDynamicSTDPSynapses : public AllSTDPSynapses
 {
     public:
-        AllDynamicSTDPSynapses();
-        virtual ~AllDynamicSTDPSynapses();
+        CUDA_CALLABLE AllDynamicSTDPSynapses();
+        CUDA_CALLABLE virtual ~AllDynamicSTDPSynapses();
 
         static IAllSynapses* Create() { return new AllDynamicSTDPSynapses(); }
  
@@ -104,11 +104,12 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
         /**
          *  Calculate the post synapse response after a spike.
          *
-         *  @param  iSyn        Index of the synapse to set.
-         *  @param  deltaT      Inner simulation step duration.
+         *  @param  iSyn             Index of the synapse to set.
+         *  @param  deltaT           Inner simulation step duration.
          *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  pISynapsesProps  Pointer to the synapses properties.
          */
-        virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset);
+        CUDA_CALLABLE virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset, IAllSynapsesProps* pISynapsesProps);
 #endif // defined(USE_GPU)
 };
 

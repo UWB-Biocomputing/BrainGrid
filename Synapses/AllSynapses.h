@@ -52,8 +52,8 @@ class IAllNeurons;
 class AllSynapses : public IAllSynapses
 {
     public:
-        AllSynapses();
-        virtual ~AllSynapses();
+        CUDA_CALLABLE AllSynapses();
+        CUDA_CALLABLE virtual ~AllSynapses();
 
         /**
          *  Assignment operator: copy synapses parameters.

@@ -176,9 +176,18 @@ void AllSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
  */
 void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap, int iStepOffset)
 {
+    int maxSpikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
+    AllSynapsesProps* pSynapsesProps = m_pSynapsesProps;
+
     for (BGSIZE i = 0; i < m_pSynapsesProps->total_synapse_counts; i++) {
+        // advance one specific Synapse
         BGSIZE iSyn = synapseIndexMap->incomingSynapseIndexMap[i];
-        advanceSynapse(iSyn, sim_info, neurons, iStepOffset);
+        advanceSynapse(iSyn, sim_info->deltaT, neurons, iStepOffset, maxSpikes, m_pSynapsesProps);
+
+        // and apply the post spike response to the summation point
+        BGFLOAT &summationPoint = *(pSynapsesProps->summationPoint[iSyn]);
+        BGFLOAT &psr = pSynapsesProps->psr[iSyn];
+        summationPoint += psr;
     }
 }
 

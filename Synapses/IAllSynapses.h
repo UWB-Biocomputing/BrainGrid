@@ -9,6 +9,7 @@
 #include "Global.h"
 #include "SimulationInfo.h"
 #include "ClusterInfo.h"
+#include "IAllSynapsesProps.h"
 
 class IAllNeurons;
 class IAllSynapses;
@@ -22,7 +23,7 @@ enum enumClassSynapses {classAllSpikingSynapses, classAllDSSynapses, classAllSTD
 class IAllSynapses
 {
     public:
-        virtual ~IAllSynapses() {};
+        CUDA_CALLABLE virtual ~IAllSynapses() {};
 
         /**
          *  Create and setup synapses properties.
@@ -189,12 +190,14 @@ class IAllSynapses
         /**
          *  Advance one specific Synapse.
          *
-         *  @param  iSyn      Index of the Synapse to connect to.
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  neurons   The Neuron list to search from.
+         *  @param  iSyn             Index of the Synapse to connect to.
+         *  @param  deltaT           Inner simulation step duration.
+         *  @param  neurons          The Neuron list to search from.
          *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  maxSpikes        Maximum number of spikes per neuron per epoch.
+         *  @param  pISynapsesProps  Pointer to the synapses properties.
          */
-        virtual void advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons, int iStepOffset) = 0;
+        CUDA_CALLABLE virtual void advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, int iStepOffset, int maxSpikes, IAllSynapsesProps* pISynapsesProps) = 0;
 
         /**
          *  Remove a synapse from the network.

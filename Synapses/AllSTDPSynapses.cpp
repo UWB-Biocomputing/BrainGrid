@@ -150,22 +150,24 @@ void AllSTDPSynapses::advanceSpikeQueue(void* allSynapsesProps, int iStep)
 /*
  *  Advance one specific Synapse.
  *
- *  @param  iSyn      Index of the Synapse to connect to.
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  neurons   The Neuron list to search from.
- *  @param  iStepOffset  Offset from the current simulation step.
+ *  @param  iSyn             Index of the Synapse to connect to.
+ *  @param  deltaT           Inner simulation step duration.
+ *  @param  neurons          The Neuron list to search from.
+ *  @param  iStepOffset      Offset from the current simulation step.
+ *  @param  maxSpikes        Maximum number of spikes per neuron per epoch.
+ *  @param  pISynapsesProps  Pointer to the synapses properties.
  */
-void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons, int iStepOffset)
+CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, int iStepOffset, int maxSpikes, IAllSynapsesProps* pISynapsesProps)
 {
-    AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
+    AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(pISynapsesProps);
 
     BGFLOAT &decay = pSynapsesProps->decay[iSyn];
     BGFLOAT &psr = pSynapsesProps->psr[iSyn];
-    BGFLOAT &summationPoint = *(pSynapsesProps->summationPoint[iSyn]);
 
     // is an input in the queue?
-    bool fPre = isSpikeQueue(iSyn, iStepOffset); 
-    bool fPost = isSpikeQueuePost(iSyn, iStepOffset);
+    bool fPre = isSpikeQueue(iSyn, iStepOffset, pISynapsesProps); 
+    bool fPost = isSpikeQueuePost(iSyn, iStepOffset, pISynapsesProps);
+
     if (fPre || fPost) {
         BGFLOAT &tauspre = pSynapsesProps->tauspre[iSyn];
         BGFLOAT &tauspost = pSynapsesProps->tauspost[iSyn];
@@ -174,7 +176,6 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
         int &total_delay = pSynapsesProps->total_delay[iSyn];
         bool &useFroemkeDanSTDP = pSynapsesProps->useFroemkeDanSTDP[iSyn];
 
-        BGFLOAT deltaT = sim_info->deltaT;
         AllSpikingNeurons* spNeurons = dynamic_cast<AllSpikingNeurons*>(neurons);
 
         // pre and post neurons index
@@ -188,7 +189,7 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
             // spikeCount points to the next available position of spike_history,
             // so the getSpikeHistory w/offset = -2 will return the spike time 
             // just one before the last spike.
-            spikeHistory = spNeurons->getSpikeHistory(idxPre, -2, sim_info);
+            spikeHistory = spNeurons->getSpikeHistory(idxPre, -2, maxSpikes);
             if (spikeHistory != ULONG_MAX && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
                 delta = ((int64_t)g_simulationStep + iStepOffset - spikeHistory) * deltaT;
@@ -201,7 +202,7 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
             // pre-post spikes
             int offIndex = -1;	// last spike
             while (true) {
-                spikeHistory = spNeurons->getSpikeHistory(idxPost, offIndex, sim_info);
+                spikeHistory = spNeurons->getSpikeHistory(idxPost, offIndex, maxSpikes);
                 if (spikeHistory == ULONG_MAX)
                     break;
                 // delta is the spike interval between pre-post spikes
@@ -221,7 +222,7 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
                 if (delta <= -3.0 * tauneg)
                     break;
                 if (useFroemkeDanSTDP) {
-                    spikeHistory2 = spNeurons->getSpikeHistory(idxPost, offIndex-1, sim_info);
+                    spikeHistory2 = spNeurons->getSpikeHistory(idxPost, offIndex-1, maxSpikes);
                     if (spikeHistory2 == ULONG_MAX)
                         break;
                     epost = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspost);
@@ -232,14 +233,14 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
                 --offIndex;
             }
 
-            changePSR(iSyn, deltaT, iStepOffset);
+            changePSR(iSyn, deltaT, iStepOffset, pISynapsesProps);
         }
 
         if (fPost) {	// postSpikeHit
             // spikeCount points to the next available position of spike_history,
             // so the getSpikeHistory w/offset = -2 will return the spike time
             // just one before the last spike.
-            spikeHistory = spNeurons->getSpikeHistory(idxPost, -2, sim_info);
+            spikeHistory = spNeurons->getSpikeHistory(idxPost, -2, maxSpikes);
             if (spikeHistory != ULONG_MAX && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
                 delta = ((int64_t)g_simulationStep + iStepOffset - spikeHistory) * deltaT;
@@ -252,7 +253,7 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
             // post-pre spikes
             int offIndex = -1;	// last spike
             while (true) {
-                spikeHistory = spNeurons->getSpikeHistory(idxPre, offIndex, sim_info);
+                spikeHistory = spNeurons->getSpikeHistory(idxPre, offIndex, maxSpikes);
                 if (spikeHistory == ULONG_MAX)
                     break;
                 // delta is the spike interval between post-pre spikes
@@ -271,7 +272,7 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
                 if (delta <= 0 || delta >= 3.0 * taupos)
                     break;
                 if (useFroemkeDanSTDP) {
-                    spikeHistory2 = spNeurons->getSpikeHistory(idxPre, offIndex-1, sim_info);
+                    spikeHistory2 = spNeurons->getSpikeHistory(idxPre, offIndex-1, maxSpikes);
                     if (spikeHistory2 == ULONG_MAX)
                         break;                
                     epre = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspre);
@@ -286,8 +287,6 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
 
     // decay the post spike response
     psr *= decay;
-    // and apply it to the summation point
-    summationPoint += psr;
 }
 
 /*
@@ -299,7 +298,7 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
  *  @param  epost       Params for the rule given in Froemke and Dan (2002).
  *  @param  epre        Params for the rule given in Froemke and Dan (2002).
  */
-void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost, double epre)
+CUDA_CALLABLE void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost, double epre)
 {
     AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
@@ -346,13 +345,14 @@ void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost
 /*
  *  Checks if there is an input spike in the queue (for back propagation).
  *
- *  @param  iSyn   Index of the Synapse to connect to.
- *  @param  iStepOffset  Offset from the current simulation step.
+ *  @param  iSyn             Index of the Synapse to connect to.
+ *  @param  iStepOffset      Offset from the current simulation step.
+ *  @param  pISynapsesProps  Pointer to the synapses properties.
  *  @return true if there is an input spike event.
  */
-bool AllSTDPSynapses::isSpikeQueuePost(const BGSIZE iSyn, int iStepOffset)
+CUDA_CALLABLE bool AllSTDPSynapses::isSpikeQueuePost(const BGSIZE iSyn, int iStepOffset, IAllSynapsesProps* pISynapsesProps)
 {
-    AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
+    AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(pISynapsesProps);
 
     // Checks if there is an event in the queue
     return pSynapsesProps->postSpikeQueue->checkAnEvent(iSyn, iStepOffset);
@@ -364,7 +364,7 @@ bool AllSTDPSynapses::isSpikeQueuePost(const BGSIZE iSyn, int iStepOffset)
  *  @param  iSyn   Index of the Synapse to connect to.
  *  @param  iStepOffset  Offset from the current simulation step.
  */
-void AllSTDPSynapses::postSpikeHit(const BGSIZE iSyn, int iStepOffset)
+CUDA_CALLABLE void AllSTDPSynapses::postSpikeHit(const BGSIZE iSyn, int iStepOffset)
 {
     AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
@@ -375,24 +375,11 @@ void AllSTDPSynapses::postSpikeHit(const BGSIZE iSyn, int iStepOffset)
 }
 
 /*
- *  Advance all the Synapses in the simulation.
- *
- *  @param  sim_info         SimulationInfo class to read information from.
- *  @param  neurons          The Neuron list to search from.
- *  @param  synapseIndexMap  Pointer to the synapse index map.
- *  @param  iStepOffset      Offset from the current simulation step.
- */
-void AllSTDPSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap, int iStepOffset)
-{
-    AllSpikingSynapses::advanceSynapses(sim_info, neurons, synapseIndexMap, iStepOffset);
-}
-
-/*
  * Advances synapses spike event queue state of the cluster one simulation step.
  *
  * @param iStep     simulation steps to advance.
  */
-void AllSTDPSynapses::advanceSpikeQueue(int iStep)
+CUDA_CALLABLE void AllSTDPSynapses::advanceSpikeQueue(int iStep)
 {
     AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
