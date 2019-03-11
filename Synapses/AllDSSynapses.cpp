@@ -91,18 +91,17 @@ void AllDSSynapses::createSynapse(const BGSIZE iSyn, int source_index, int dest_
     pSynapsesProps->F[iSyn] = F;
 }
 
-#if !defined(USE_GPU)
 /*
  *  Calculate the post synapse response after a spike.
  *
- *  @param  iSyn            Index of the synapse to set.
- *  @param  deltaT          Inner simulation step duration.
- *  @param  iStepOffset     Offset from the current simulation step.
-*  @param  pISynapsesProps  Pointer to the synapses properties.
+ *  @param  iSyn             Index of the synapse to set.
+ *  @param  deltaT           Inner simulation step duration.
+ *  @param  simulationStep   The current simulation step.
+ *  @param  pISynapsesProps  Pointer to the synapses properties.
  */
-CUDA_CALLABLE void AllDSSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset, IAllSynapsesProps* pISynapsesProps)
+CUDA_CALLABLE void AllDSSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, uint64_t simulationStep, IAllSynapsesProps* pISynapsesProps)
 {
-    AllDSSynapsesProps *pSynapsesProps = dynamic_cast<AllDSSynapsesProps*>(pISynapsesProps);
+    AllDSSynapsesProps *pSynapsesProps = reinterpret_cast<AllDSSynapsesProps*>(pISynapsesProps);
 
     BGFLOAT &psr = pSynapsesProps->psr[iSyn];
     BGFLOAT &W = pSynapsesProps->W[iSyn];
@@ -115,7 +114,6 @@ CUDA_CALLABLE void AllDSSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT del
     BGFLOAT &U = pSynapsesProps->U[iSyn];
 
     // adjust synapse parameters
-    uint64_t simulationStep = g_simulationStep + iStepOffset;
     if (lastSpike != ULONG_MAX) {
         BGFLOAT isi = (simulationStep - lastSpike) * deltaT ;
         r = 1 + ( r * ( 1 - u ) - 1 ) * exp( -isi / D );
@@ -124,9 +122,42 @@ CUDA_CALLABLE void AllDSSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT del
     psr += ( ( W / decay ) * u * r );    // calculate psr
     lastSpike = simulationStep;          // record the time of the spike
 }
-#endif // !defined(USE_GPU)
 
 #if defined(USE_GPU)
+
+/*
+ *  Create a AllSynapses class object in device
+ *
+ *  @param pAllSynapses_d       Device memory address to save the pointer of created AllSynapses object.
+ *  @param pAllSynapsesProps_d  Pointer to the synapses properties in device memory.
+ */
+void AllDSSynapses::createAllSynapsesInDevice(IAllSynapses** pAllSynapses_d, IAllSynapsesProps *pAllSynapsesProps_d)
+{
+    IAllSynapses **pAllSynapses_t; // temporary buffer to save pointer to IAllSynapses object.
+
+    // allocate device memory for the buffer.
+    checkCudaErrors( cudaMalloc( ( void ** ) &pAllSynapses_t, sizeof( IAllSynapses * ) ) );
+
+    // create an AllSynapses object in device memory.
+    allocAllDSSynapsesDevice <<< 1, 1 >>> ( pAllSynapses_t, pAllSynapsesProps_d );
+
+    // save the pointer of the object.
+    checkCudaErrors( cudaMemcpy ( pAllSynapses_d, pAllSynapses_t, sizeof( IAllSynapses * ), cudaMemcpyDeviceToHost ) );
+
+    // free device memory for the buffer.
+    checkCudaErrors( cudaFree( pAllSynapses_t ) );
+}
+
+/* -------------------------------------*\
+|* # CUDA Global Functions
+\* -------------------------------------*/
+
+__global__ void allocAllDSSynapsesDevice(IAllSynapses **pAllSynapses, IAllSynapsesProps *pAllSynapsesProps)
+{
+    *pAllSynapses = new AllDSSynapses();
+    (*pAllSynapses)->setSynapsesProps(pAllSynapsesProps);
+}
+
 /**
  *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
  *  The class ID will be set to classSynapses_d in device memory,

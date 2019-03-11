@@ -249,6 +249,9 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
   // set some parameters used for advanceNeuronsDevice
   m_neurons->setAdvanceNeuronsDeviceParams(*m_synapses);
 
+  // create an AllSynapses class object in device
+  m_synapses->createAllSynapsesInDevice(&m_synapsesDevice, m_allSynapsesDeviceProps);
+
   // set some parameters used for advanceSynapsesDevice
   m_synapses->setAdvanceSynapsesDeviceParams();
 
@@ -294,6 +297,9 @@ void GPUSpikingCluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *cl
 
   // delete an AllNeurons class object in device
   m_neurons->deleteAllNeuronsInDevice(m_neuronsDevice);
+
+  // delete an AllSynapses class object in device
+  m_synapses->deleteAllSynapsesInDevice(m_synapsesDevice);
 
 #ifdef PERFORMANCE_METRICS
   cudaEventDestroy( clr_info->start );
@@ -483,12 +489,15 @@ void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, ClusterI
 #endif // PERFORMANCE_METRICS
 
   // Advance synapses ------------->
-  m_synapses->advanceSynapses(m_allSynapsesDeviceProps, m_allNeuronsDeviceProps, m_synapseIndexMapDevice, sim_info, clr_info, iStepOffset);
+  m_synapses->advanceSynapses(m_allSynapsesDeviceProps, m_allNeuronsDeviceProps, m_synapseIndexMapDevice, sim_info, clr_info, iStepOffset, m_synapsesDevice, m_neuronsDevice);
 
 #ifdef PERFORMANCE_METRICS
   cudaLapTime(clr_info, clr_info->t_gpu_advanceSynapses);
   cudaStartTimer(clr_info);
 #endif // PERFORMANCE_METRICS
+
+  // wait until all CUDA related tasks complete
+  checkCudaErrors( cudaDeviceSynchronize() );
 
   // calculate summation point
   (this->*(clr_info->fpCalcSummationMap))(sim_info, clr_info);

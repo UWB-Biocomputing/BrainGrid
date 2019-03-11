@@ -134,6 +134,9 @@ class ClusterInfo
 
         //! Memory to save global state for curand.
         curandState* devStates_d;
+
+        //! List of synapses for stimulus input (Poisson) in device memory.
+        IAllSynapses *synapsesDeviceSInput;
 #endif // USE_GPU
 
         //! variables for stimulus input (Regular)

@@ -10,6 +10,7 @@
 #include "SimulationInfo.h"
 #include "ClusterInfo.h"
 #include "IAllSynapsesProps.h"
+#include "IAllNeuronsProps.h"
 
 class IAllNeurons;
 class IAllSynapses;
@@ -145,17 +146,42 @@ class IAllSynapses
 #if defined(USE_GPU)
     public:
         /**
+         *  Set neurons properties.
+         *
+         *  @param  pAllSynapsesProps  Pointer to the neurons properties.
+         */
+        CUDA_CALLABLE virtual void setSynapsesProps(void *pAllSynapsesProps) = 0;
+
+        /**
          *  Advance all the Synapses in the simulation.
          *  Update the state of all synapses for a time step.
          *
-         *  @param  allSynapsesProps      Reference to the allSynapses struct on device memory.
-         *  @param  allNeuronsProps       Reference to the allNeurons struct on device memory.
+         *  @param  allSynapsesProps       Reference to the AllSynapsesProps struct
+         *                                 on device memory.
+         *  @param  allNeuronsProps        Reference to the allNeurons struct on device memory.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  sim_info               SimulationInfo class to read information from.
          *  @param  clr_info               ClusterInfo to refer from.
          *  @param  iStepOffset            Offset from the current simulation step.
+         *  @param  synapsesDevice         Pointer to the Synapses object in device memory.
+         *  @param  neuronsDevice          Pointer to the Neurons object in device memory.
          */
-        virtual void advanceSynapses(void* allSynapsesProps, void* allNeuronsProps, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset) = 0;
+        virtual void advanceSynapses(void* allSynapsesProps, void* allNeuronsProps, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset, IAllSynapses* synapsesDevice, IAllNeurons* neuronsDevice) = 0;
+
+        /**
+         *  Create a AllSynapses class object in device
+         *
+         *  @param pAllSynapses_d      Device memory address to save the pointer of created AllSynapses object.
+         *  @param pAllSynapsesProps_d  Pointer to the synapses properties in device memory.
+         */
+        virtual void createAllSynapsesInDevice(IAllSynapses** pAllSynapses_d, IAllSynapsesProps *pAllSynapsesProps_d) = 0;
+
+        /**
+         * Delete an Synapses class object in device
+         *
+         * @param pAllSynapses_d    Pointer to the AllSynapses object to be deleted in device.
+         */
+        virtual void deleteAllSynapsesInDevice(IAllSynapses* pAllSynapses_d) = 0;
 
         /**
          *  Set some parameters used for advanceSynapsesDevice.
@@ -188,18 +214,6 @@ class IAllSynapses
         virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap, int iStepOffset) = 0;
 
         /**
-         *  Advance one specific Synapse.
-         *
-         *  @param  iSyn             Index of the Synapse to connect to.
-         *  @param  deltaT           Inner simulation step duration.
-         *  @param  neurons          The Neuron list to search from.
-         *  @param  iStepOffset      Offset from the current simulation step.
-         *  @param  maxSpikes        Maximum number of spikes per neuron per epoch.
-         *  @param  pISynapsesProps  Pointer to the synapses properties.
-         */
-        CUDA_CALLABLE virtual void advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, int iStepOffset, int maxSpikes, IAllSynapsesProps* pISynapsesProps) = 0;
-
-        /**
          *  Remove a synapse from the network.
          *
          *  @param  neuron_index   Index of a neuron to remove from.
@@ -207,4 +221,19 @@ class IAllSynapses
          */
         virtual void eraseSynapse(const int neuron_index, const BGSIZE iSyn) = 0;
 #endif // defined(USE_GPU)
+
+    public:
+        /**
+         *  Advance one specific Synapse.
+         *
+         *  @param  iSyn             Index of the Synapse to connect to.
+         *  @param  deltaT           Inner simulation step duration.
+         *  @param  neurons          The Neuron list to search from.
+         *  @param  simulationStep   The current simulation step.
+         *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  maxSpikes        Maximum number of spikes per neuron per epoch.
+         *  @param  pISynapsesProps  Pointer to the synapses properties.
+         *  @param  pINeuronsProps   Pointer to the neurons properties.
+         */
+        CUDA_CALLABLE virtual void advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, uint64_t simulationStep, int iStepOffset, int maxSpikes, IAllSynapsesProps* pISynapsesProps, IAllNeuronsProps* pINeuronsProps) = 0;
 };

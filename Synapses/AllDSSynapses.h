@@ -98,6 +98,14 @@ class AllDSSynapses : public AllSpikingSynapses
 #if defined(USE_GPU)
     public:
         /**
+         *  Create a AllSynapses class object in device
+         *
+         *  @param pAllSynapses_d      Device memory address to save the pointer of created AllSynapses object.
+         *  @param pAllSynapsesProps_d  Pointer to the synapses properties in device memory.
+         */
+        virtual void createAllSynapsesInDevice(IAllSynapses** pAllSynapses_d, IAllSynapsesProps *pAllSynapsesProps_d);
+
+        /**
          *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
          *  The class ID will be set to classSynapses_d in device memory,
          *  and the classSynapses_d will be referred to call a device function for the
@@ -109,57 +117,26 @@ class AllDSSynapses : public AllSpikingSynapses
          */
         virtual void setSynapseClassID();
 
-    protected:
-        /**
-         *  Allocate GPU memories to store all synapses' states,
-         *  and copy them from host to GPU memory.
-         *  (Helper function of allocSynapseDeviceStruct)
-         *
-         *  @param  allSynapsesProps  Reference to the allSynapses struct on device memory.
-         *  @param  num_neurons           Number of neurons.
-         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
-         *  @param  clusterID             The cluster ID of the cluster.
-         */
-        void allocDeviceStruct( AllDSSynapsesProps &allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID );
+#endif // defined(USE_GPU)
 
-        /**
-         *  Delete GPU memories.
-         *  (Helper function of deleteSynapseDeviceStruct)
-         *
-         *  @param  allSynapsesProps  Reference to the allSynapses struct on device memory.
-         */
-        void deleteDeviceStruct( AllDSSynapsesProps& allSynapsesProps );
-
-        /**
-         *  Copy all synapses' data from host to device.
-         *  (Helper function of copySynapseHostToDevice)
-         *
-         *  @param  allSynapsesProps  Reference to the allSynapses struct on device memory.
-         *  @param  num_neurons           Number of neurons.
-         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
-         */
-        void copyHostToDevice( void* allSynapsesDevice, AllDSSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron );
-
-        /**
-         *  Copy all synapses' data from device to host.
-         *  (Helper function of copySynapseDeviceToHost)
-         *
-         *  @param  allSynapsesProps  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        void copyDeviceToHost( AllDSSynapsesProps& allSynapsesProps, const SimulationInfo *sim_info, const ClusterInfo *clr_info );
-#else // !defined(USE_GPU)
     protected:
         /**
          *  Calculate the post synapse response after a spike.
          *
          *  @param  iSyn             Index of the synapse to set.
          *  @param  deltaT           Inner simulation step duration.
-         *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  simulationStep   The current simulation step.
          *  @param  pISynapsesProps  Pointer to the synapses properties.
          */
-        CUDA_CALLABLE virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset, IAllSynapsesProps* pISynapsesProps);
-#endif // defined(USE_GPU)
+        CUDA_CALLABLE virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, uint64_t simulationStep,  IAllSynapsesProps* pISynapsesProps);
 };
 
+#if defined(USE_GPU)
+
+/* -------------------------------------*\
+|* # CUDA Global Functions
+\* -------------------------------------*/
+
+__global__ void allocAllDSSynapsesDevice(IAllSynapses **pAllSynapses, IAllSynapsesProps *pAllSynapsesProps);
+
+#endif // USE_GPU

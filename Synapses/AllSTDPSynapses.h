@@ -124,19 +124,6 @@ class AllSTDPSynapses : public AllSpikingSynapses
 #if defined(USE_GPU)
     public:
         /**
-         *  Advance all the Synapses in the simulation.
-         *  Update the state of all synapses for a time step.
-         *
-         *  @param  allSynapsesProps      Reference to the allSynapses struct on device memory.
-         *  @param  allNeuronsProps       Reference to the allNeurons struct on device memory.
-         *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
-         *  @param  sim_info               SimulationInfo class to read information from.
-         *  @param  clr_info               ClusterInfo to refer from.
-         *  @param  iStepOffset            Offset from the current simulation step.
-         */
-        virtual void advanceSynapses(void* allSynapsesProps, void* allNeuronsProps, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset);
-
-        /**
          * Advances synapses spike event queue state of the cluster one simulation step.
          *
          *  @param  allSynapsesProps      Reference to the AllSynapsesProps struct
@@ -144,6 +131,14 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  iStep                  Simulation steps to advance.
          */
         virtual void advanceSpikeQueue(void* allSynapsesProps, int iStep);
+
+        /**
+         *  Create a AllSynapses class object in device
+         *
+         *  @param pAllSynapses_d      Device memory address to save the pointer of created AllSynapses object.
+         *  @param pAllSynapsesProps_d  Pointer to the synapses properties in device memory.
+         */
+        virtual void createAllSynapsesInDevice(IAllSynapses** pAllSynapses_d, IAllSynapsesProps *pAllSynapsesProps_d);
 
         /**
          *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
@@ -156,14 +151,17 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  (see issue#137).
          */
         virtual void setSynapseClassID();
-#else // USE_GPU
+#endif // USE_GPU
+
     public:
+#if !defined(USE_GPU)
         /*
          * Advances synapses spike event queue state of the cluster one simulation step.
          *
          * @param iStep     simulation steps to advance.
          */
         CUDA_CALLABLE virtual void advanceSpikeQueue(int iStep);
+#endif // !USE_GPU
 
         /**
          *  Advance one specific Synapse.
@@ -172,12 +170,15 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  iSyn             Index of the Synapse to connect to.
          *  @param  deltaT           Inner simulation step duration.
          *  @param  neurons          The Neuron list to search from.
-         *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  simulationStep   The current simulation step.
+         *  @param  iStepOffset      Offset from the current global simulation step.
          *  @param  maxSpikes        Maximum number of spikes per neuron per epoch.
          *  @param  pISynapsesProps  Pointer to the synapses properties.
+         *  @param  pINeuronsProps   Pointer to the neurons properties.
          */
-        CUDA_CALLABLE virtual void advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, int iStepOffset, int maxSpikes, IAllSynapsesProps* pISynapsesProps);
+        CUDA_CALLABLE virtual void advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, uint64_t simulationStep, int iStepOffset, int maxSpikes, IAllSynapsesProps* pISynapsesProps, IAllNeuronsProps* pINeuronsProps);
 
+#if !defined(USE_GPU)
         /**
          *  Prepares Synapse for a spike hit (for back propagation).
          *
@@ -185,6 +186,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  iStepOffset  Offset from the current simulation step.
          */
         CUDA_CALLABLE virtual void postSpikeHit(const BGSIZE iSyn, int iStepOffset);
+#endif
 
     protected:
         /**
@@ -202,12 +204,21 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  Adjust synapse weight according to the Spike-timing-dependent synaptic modification
          *  induced by natural spike trains
          *
-         *  @param  iSyn        Index of the synapse to set.
-         *  @param  delta       Pre/post synaptic spike interval.
-         *  @param  epost       Params for the rule given in Froemke and Dan (2002).
-         *  @param  epre        Params for the rule given in Froemke and Dan (2002).
+         *  @param  iSyn             Index of the synapse to set.
+         *  @param  delta            Pre/post synaptic spike interval.
+         *  @param  epost            Params for the rule given in Froemke and Dan (2002).
+         *  @param  epre             Params for the rule given in Froemke and Dan (2002).
+         *  @param  pISynapsesProps  Pointer to the synapses properties.
          */
-        CUDA_CALLABLE void stdpLearning(const BGSIZE iSyn,double delta, double epost, double epre);
-
-#endif
+        CUDA_CALLABLE void stdpLearning(const BGSIZE iSyn,double delta, double epost, double epre, IAllSynapsesProps* pISynapsesProps);
 };
+
+#if defined(USE_GPU)
+
+/* -------------------------------------*\
+|* # CUDA Global Functions
+\* -------------------------------------*/
+
+__global__ void allocAllSTDPSynapsesDevice(IAllSynapses **pAllSynapses, IAllSynapsesProps *pAllSynapsesProps);
+
+#endif // USE_GPU

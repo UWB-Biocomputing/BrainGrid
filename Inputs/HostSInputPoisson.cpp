@@ -91,7 +91,9 @@ void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pc
         // process synapse & apply psr to the summation point
         AllSynapses *pSynapses = dynamic_cast<AllSynapses*>(pci->synapsesSInput);
         int maxSpikes = (int) ((psi->epochDuration * psi->maxFiringRate));
-        pSynapses->advanceSynapse(iSyn, psi->deltaT, NULL, iStepOffset, maxSpikes, pSynapses->m_pSynapsesProps);
+        uint64_t simulationStep = g_simulationStep + iStepOffset;
+
+        pSynapses->advanceSynapse(iSyn, psi->deltaT, NULL, simulationStep, iStepOffset, maxSpikes, pSynapses->m_pSynapsesProps, NULL);
     }
 }
 

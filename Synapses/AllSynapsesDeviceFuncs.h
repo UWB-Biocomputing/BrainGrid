@@ -4,39 +4,10 @@
 #include "AllDSSynapses.h"
 #include "AllSTDPSynapses.h"
 #include "ConnStatic.h"
-#include <thrust/sort.h>
-#include <thrust/execution_policy.h>
 
 #if defined(__CUDACC__)
 
 extern __device__ enumClassSynapses classSynapses_d;
-
-/**
- *  CUDA code for advancing spiking synapses.
- *  Perform updating synapses for one time step.
- *
- *  @param[in] total_synapse_counts  Number of synapses.
- *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
- *  @param[in] simulationStep        The current simulation step.
- *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] allSynapsesProps     Pointer to Synapse structures in device memory.
- *  @param[in] iStepOffset           Offset from the current simulation step.
- */
-extern __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesProps* allSynapsesProps, int iStepOffset );
-
-/*
- *  CUDA code for advancing STDP synapses.
- *  Perform updating synapses for one time step.
- *
- *  @param[in] total_synapse_counts  Number of synapses.
- *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
- *  @param[in] simulationStep        The current simulation step.
- *  @param[in] deltaT                Inner simulation step duration.
- *  @param[in] allSynapsesProps     Pointer to AllSTDPSynapsesProps structures 
- *                                   on device memory.
- *  @param[in] iStepOffset           Offset from the current simulation step.
- */
-extern __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSTDPSynapsesProps* allSynapsesProps, AllSpikingNeuronsProps* allNeuronsProps, int max_spikes, int width, int iStepOffset );
 
 /**
  * Adjust the strength of the synapse or remove it from the synapse map if it has gone below

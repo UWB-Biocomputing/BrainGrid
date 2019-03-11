@@ -89,6 +89,14 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
 #if defined(USE_GPU)
     public:
         /**
+         *  Create a AllSynapses class object in device
+         *
+         *  @param pAllSynapses_d      Device memory address to save the pointer of created AllSynapses object.
+         *  @param pAllSynapsesProps_d  Pointer to the synapses properties in device memory.
+         */
+        virtual void createAllSynapsesInDevice(IAllSynapses** pAllSynapses_d, IAllSynapsesProps *pAllSynapsesProps_d);
+
+        /**
          *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
          *  The class ID will be set to classSynapses_d in device memory,
          *  and the classSynapses_d will be referred to call a device function for the
@@ -99,17 +107,26 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  (see issue#137).
          */
         virtual void setSynapseClassID();
-#else // USE_GPU
+#endif // USE_GPU
+
     protected:
         /**
          *  Calculate the post synapse response after a spike.
          *
          *  @param  iSyn             Index of the synapse to set.
          *  @param  deltaT           Inner simulation step duration.
-         *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  simulationStep   The current simulation step.
          *  @param  pISynapsesProps  Pointer to the synapses properties.
          */
-        CUDA_CALLABLE virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset, IAllSynapsesProps* pISynapsesProps);
-#endif // defined(USE_GPU)
+        CUDA_CALLABLE virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, uint64_t simulationStep, IAllSynapsesProps* pISynapsesProps);
 };
 
+#if defined(USE_GPU)
+
+/* -------------------------------------*\
+|* # CUDA Global Functions
+\* -------------------------------------*/
+
+__global__ void allocAllDynamicSTDPSynapsesDevice(IAllSynapses **pAllSynapses, IAllSynapsesProps *pAllSynapsesProps);
+
+#endif // USE_GPU

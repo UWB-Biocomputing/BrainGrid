@@ -1,6 +1,7 @@
 #include "AllSynapses.h"
 #include "AllNeurons.h"
 #include "SynapseIndexMap.h"
+#include "AllSynapsesDeviceFuncs.h"
 
 // Default constructor
 AllSynapses::AllSynapses()
@@ -165,7 +166,40 @@ void AllSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
     dynamic_cast<AllSynapsesProps*>(m_pSynapsesProps)->psr[iSyn] = 0.0;
 }
 
-#if !defined(USE_GPU)
+#if defined(USE_GPU)
+
+/*
+ *  Advance all the Synapses in the simulation.
+ *  Update the state of all synapses for a time step.
+ *
+ *  @param  allSynapsesProps       Reference to the AllSynapsesProps struct
+ *                                 on device memory.
+ *  @param  allNeuronsProps        Reference to the allNeurons struct on device memory.
+ *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
+ *  @param  sim_info               SimulationInfo class to read information from.
+ *  @param  clr_info               ClusterInfo to refer from.
+ *  @param  iStepOffset            Offset from the current simulation step.
+ *  @param  synapsesDevice         Pointer to the Synapses object in device memory.
+ *  @param  neuronsDevice          Pointer to the Neurons object in device memory.
+ */
+void AllSynapses::advanceSynapses(void* allSynapsesProps, void* allNeuronsProps, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset, IAllSynapses* synapsesDevice, IAllNeurons* neuronsDevice)
+{
+    BGSIZE total_synapse_counts = m_pSynapsesProps->total_synapse_counts;
+    if (total_synapse_counts == 0)
+        return;
+
+    int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
+
+    // CUDA parameters
+    const int threadsPerBlock = 256;
+    int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
+
+    // Advance synapses ------------->
+    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, maxSpikes, sim_info->deltaT, (IAllSynapsesProps*)allSynapsesProps, iStepOffset, synapsesDevice, neuronsDevice, (IAllNeuronsProps*)allNeuronsProps );
+}
+
+#else // USE_GPU
+
 /*
  *  Advance all the Synapses in the simulation.
  *
@@ -178,11 +212,13 @@ void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *n
 {
     int maxSpikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
     AllSynapsesProps* pSynapsesProps = m_pSynapsesProps;
+    uint64_t simulationStep = g_simulationStep + iStepOffset;
+    IAllNeuronsProps *pINeuronsProps = dynamic_cast<AllNeurons*>(neurons)->m_pNeuronsProps;
 
     for (BGSIZE i = 0; i < m_pSynapsesProps->total_synapse_counts; i++) {
         // advance one specific Synapse
         BGSIZE iSyn = synapseIndexMap->incomingSynapseIndexMap[i];
-        advanceSynapse(iSyn, sim_info->deltaT, neurons, iStepOffset, maxSpikes, m_pSynapsesProps);
+        advanceSynapse(iSyn, sim_info->deltaT, neurons, simulationStep, iStepOffset, maxSpikes, m_pSynapsesProps, pINeuronsProps);
 
         // and apply the post spike response to the summation point
         BGFLOAT &summationPoint = *(pSynapsesProps->summationPoint[iSyn]);
@@ -191,6 +227,9 @@ void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *n
     }
 }
 
+#endif // !USE_GPU
+
+#if !defined(USE_GPU)
 /*
  *  Remove a synapse from the network.
  *
@@ -263,3 +302,63 @@ int AllSynapses::synSign(const synapseType type)
     return 0;
 }
 
+#if defined(USE_GPU)
+
+/*
+ * Delete an AllSynapses class object in device
+ *
+ * @param pAllSynapses_d    Pointer to the AllSynapses object to be deleted in device.
+ */
+void AllSynapses::deleteAllSynapsesInDevice(IAllSynapses* pAllSynapses_d)
+{
+    // delete AllSynapses object in device memory.
+    deleteAllSynapsesDevice <<< 1, 1 >>> ( pAllSynapses_d );
+}
+
+/*
+ *  Set neurons properties.
+ *
+ *  @param  pAllSynapsesProps  Pointer to the neurons properties.
+ */
+CUDA_CALLABLE void AllSynapses::setSynapsesProps(void *pAllSynapsesProps)
+{
+    m_pSynapsesProps = static_cast<AllSynapsesProps*>(pAllSynapsesProps);
+}
+
+__global__ void deleteAllSynapsesDevice(IAllSynapses *pAllSynapses)
+{
+    delete pAllSynapses;
+}
+
+/* --------------------------------------*\
+|* # Global Functions for advanceSynapses
+\* --------------------------------------*/
+
+//extern CUDA_CALLABLE void advanceSynapseDevice(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons * neurons, uint64_t simulationStep, int iStepOffset, int maxSpikes, IAllSynapsesProps* pISynapsesProps, IAllNeuronsProps* pINeuronsProps);
+
+/*
+ *  CUDA code for advancing spiking synapses.
+ *  Perform updating synapses for one time step.
+ *
+ *  @param[in] total_synapse_counts  Number of synapses.
+ *  @param[in] synapseIndexMapDevice Reference to the SynapseIndexMap on device memory.
+ *  @param[in] simulationStep        The current simulation step.
+ *  @param[in] deltaT                Inner simulation step duration.
+ *  @param[in] maxSpikes             Maximum number of spikes per neuron per epoch.
+ *  @param[in] pISynapsesProps       Pointer to the synapses properties.
+ *  @param[in] iStepOffset           Offset from the current simulation step.
+ *  @param[in] synapsesDevice        Pointer to the Synapses object in device memory.
+ *  @param[in] neuronsDevice         Pointer to the Neurons object in device memory.
+ *  @param[in] pINeuronsProps        Pointer to the neurons properties.
+ */
+__global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, int maxSpikes, const BGFLOAT deltaT, IAllSynapsesProps* pISynapsesProps, int iStepOffset, IAllSynapses* synapsesDevice, IAllNeurons* neuronsDevice, IAllNeuronsProps* pINeuronsProps ) {
+        int idx = blockIdx.x * blockDim.x + threadIdx.x;
+        if ( idx >= total_synapse_counts )
+                return;
+
+        BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
+
+        synapsesDevice->advanceSynapse( iSyn, deltaT, neuronsDevice, simulationStep, iStepOffset, maxSpikes, pISynapsesProps, pINeuronsProps );
+}
+
+#endif // USE_GPU

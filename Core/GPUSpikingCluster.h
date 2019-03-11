@@ -246,6 +246,11 @@ public:
         IAllNeurons* m_neuronsDevice;
 
         /**
+         *  Pointer to the Synapses object in device memory.
+         */
+        IAllSynapses* m_synapsesDevice;
+
+        /**
          *  Copy SynapseIndexMap in host memory to SynapseIndexMap in device memory.
          *
          *  @param  clr_info    ClusterInfo to refer from.

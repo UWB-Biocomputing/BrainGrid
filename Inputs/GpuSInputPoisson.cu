@@ -84,7 +84,8 @@ void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci
     inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->nISIs_d, pci->masks_d, psi->deltaT, m_lambda, pci->devStates_d, pci->allSynapsesDeviceSInput, pci->clusterID, iStepOffset );
 
     // advance synapses
-    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, pci->synapseIndexMapDeviceSInput, g_simulationStep, psi->deltaT, (AllSpikingSynapsesProps*)pci->allSynapsesDeviceSInput, iStepOffset );
+    int maxSpikes = (int)((psi->epochDuration * psi->maxFiringRate));
+    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, pci->synapseIndexMapDeviceSInput, g_simulationStep, maxSpikes, psi->deltaT, (IAllSynapsesProps*)pci->allSynapsesDeviceSInput, iStepOffset, pci->synapsesDeviceSInput, NULL, NULL );
 
     // update summation point
     applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->allSynapsesDeviceSInput );
@@ -165,6 +166,9 @@ void GpuSInputPoisson::allocDeviceValues(SimulationInfo* psi, vector<ClusterInfo
 
         // setup seeds
         setupSeeds <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->devStates_d, time(NULL) );
+
+      // create an AllSynapses class object in device
+      pci->synapsesSInput->createAllSynapsesInDevice(&(pci->synapsesDeviceSInput), pci->allSynapsesDeviceSInput);
     }
 }
 
@@ -195,6 +199,9 @@ void GpuSInputPoisson::deleteDeviceValues(vector<ClusterInfo *> &vtClrInfo )
         checkCudaErrors( cudaMemcpy ( &synapseIndexMap, pci->synapseIndexMapDeviceSInput, sizeof( SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
         checkCudaErrors( cudaFree( synapseIndexMap.incomingSynapseIndexMap ) );
         checkCudaErrors( cudaFree( pci->synapseIndexMapDeviceSInput ) );
+
+        // delete an AllSynapses class object in device
+        pci->synapsesSInput->deleteAllSynapsesInDevice(pci->synapsesDeviceSInput);
     }
 }
 

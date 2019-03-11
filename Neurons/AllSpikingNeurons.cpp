@@ -85,18 +85,23 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
     }
 }
 
+#endif // !USE_GPU
+
 /*
  *  Get the spike history of neuron[index] at the location offIndex.
  *
  *  @param  index            Index of the neuron to get spike history.
  *  @param  offIndex         Offset of the history buffer to get from.
  *  @param  maxSpikes        Maximum number of spikes per neuron per epoch.
+ *  @param  pINeuronsProps   Pointer to Neuron structures in device memory.
  */
-CUDA_CALLABLE uint64_t AllSpikingNeurons::getSpikeHistory(int index, int offIndex, int maxSpikes)
+CUDA_CALLABLE uint64_t AllSpikingNeurons::getSpikeHistory(int index, int offIndex, int maxSpikes, IAllNeuronsProps* pINeuronsProps)
 {
-    int *spikeCountOffset = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spikeCountOffset;
-    int *spikeCount = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spikeCount; 
-    uint64_t **spike_history = dynamic_cast<AllSpikingNeuronsProps*>(m_pNeuronsProps)->spike_history;
+    AllSpikingNeuronsProps *pNeuronsProps = reinterpret_cast<AllSpikingNeuronsProps*>(pINeuronsProps);
+
+    int *spikeCountOffset = pNeuronsProps->spikeCountOffset;
+    int *spikeCount = pNeuronsProps->spikeCount; 
+    uint64_t **spike_history = pNeuronsProps->spike_history;
 
     // offIndex is a minus offset
     int idxSp = (spikeCount[index] + spikeCountOffset[index] +  maxSpikes + offIndex) % maxSpikes;
@@ -104,7 +109,7 @@ CUDA_CALLABLE uint64_t AllSpikingNeurons::getSpikeHistory(int index, int offInde
     return spike_history[index][idxSp];
 }
 
-#else // USE_GPU
+#if defined(USE_GPU)
 
 /*
  *  Update the state of all neurons for a time step

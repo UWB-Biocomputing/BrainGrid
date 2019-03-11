@@ -91,16 +91,17 @@ class AllSpikingNeurons : public AllNeurons
          */
         virtual void advanceNeurons(IAllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap, const ClusterInfo *clr_info, int iStepOffset);
 
+#endif // !defined(USE_GPU)
+
         /**
          *  Get the spike history of neuron[index] at the location offIndex.
          *
          *  @param  index            Index of the neuron to get spike history.
          *  @param  offIndex         Offset of the history buffer to get from.
          *  @param  maxSpikes        Maximum number of spikes per neuron per epoch.
+         *  @param  pINeuronsProps   Pointer to Neuron structures in device memory.
          */
-        CUDA_CALLABLE uint64_t getSpikeHistory(int index, int offIndex, int maxSpikes);
-
-#endif // !defined(USE_GPU)
+        CUDA_CALLABLE uint64_t getSpikeHistory(int index, int offIndex, int maxSpikes, IAllNeuronsProps* pINeuronsProps);
 
 #if defined(USE_GPU)
 
