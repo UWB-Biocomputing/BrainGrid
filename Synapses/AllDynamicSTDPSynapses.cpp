@@ -97,11 +97,11 @@ void AllDynamicSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, 
  *  @param  iSyn             Index of the synapse to set.
  *  @param  deltaT           Inner simulation step duration.
  *  @param  simulationStep   The current simulation step.
- *  @param  pISynapsesProps  Pointer to the synapses properties.
+ *  @param  pSpikingSynapsesProps  Pointer to the synapses properties.
  */
-CUDA_CALLABLE void AllDynamicSTDPSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, uint64_t simulationStep, IAllSynapsesProps* pISynapsesProps)
+CUDA_CALLABLE void AllDynamicSTDPSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, uint64_t simulationStep, AllSpikingSynapsesProps* pSpikingSynapsesProps)
 {
-    AllDynamicSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllDynamicSTDPSynapsesProps*>(pISynapsesProps);
+    AllDynamicSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllDynamicSTDPSynapsesProps*>(pSpikingSynapsesProps);
 
     BGFLOAT &psr = pSynapsesProps->psr[iSyn];
     BGFLOAT &W = pSynapsesProps->W[iSyn];
@@ -158,20 +158,4 @@ __global__ void allocAllDynamicSTDPSynapsesDevice(IAllSynapses **pAllSynapses, I
     (*pAllSynapses)->setSynapsesProps(pAllSynapsesProps);
 }
 
-/**
- *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
- *  The class ID will be set to classSynapses_d in device memory,
- *  and the classSynapses_d will be referred to call a device function for the
- *  particular synapse class.
- *  Because we cannot use virtual function (Polymorphism) in device functions,
- *  we use this scheme.
- *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
- *  (see issue#137).
- */
-void AllDynamicSTDPSynapses::setSynapseClassID()
-{
-    enumClassSynapses classSynapses_h = classAllDynamicSTDPSynapses;
-
-    checkCudaErrors( cudaMemcpyToSymbol(classSynapses_d, &classSynapses_h, sizeof(enumClassSynapses)) );
-}
 #endif // USE_GPU

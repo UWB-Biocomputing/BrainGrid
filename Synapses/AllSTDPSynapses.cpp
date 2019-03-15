@@ -105,20 +105,6 @@ void AllSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, int des
 #if defined(USE_GPU)
 
 /*
- * Advances synapses spike event queue state of the cluster one simulation step.
- *
- *  @param  allSynapsesProps      Reference to the AllSynapsesProps struct
- *                                 on device memory.
- *  @param  iStep                  Simulation steps to advance.
- */
-void AllSTDPSynapses::advanceSpikeQueue(void* allSynapsesProps, int iStep)
-{
-    AllSpikingSynapses::advanceSpikeQueue(allSynapsesProps, iStep);
-
-    advanceSTDPSynapsesEventQueueDevice <<< 1, 1 >>> ( (AllSTDPSynapsesProps*)allSynapsesProps, iStep );
-}
-
-/*
  *  Create a AllSynapses class object in device
  *
  *  @param pAllSynapses_d       Device memory address to save the pointer of created AllSynapses object.
@@ -162,19 +148,18 @@ __global__ void allocAllSTDPSynapsesDevice(IAllSynapses **pAllSynapses, IAllSyna
  *  @param  simulationStep   The current simulation step.
  *  @param  iStepOffset      Offset from the current global simulation step.
  *  @param  maxSpikes        Maximum number of spikes per neuron per epoch.
- *  @param  pISynapsesProps  Pointer to the synapses properties.
  *  @param  pINeuronsProps   Pointer to the neurons properties.
  */
-CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, uint64_t simulationStep, int iStepOffset, int maxSpikes, IAllSynapsesProps* pISynapsesProps, IAllNeuronsProps* pINeuronsProps)
+CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, uint64_t simulationStep, int iStepOffset, int maxSpikes, IAllNeuronsProps* pINeuronsProps)
 {
-    AllSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllSTDPSynapsesProps*>(pISynapsesProps);
+    AllSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
     BGFLOAT &decay = pSynapsesProps->decay[iSyn];
     BGFLOAT &psr = pSynapsesProps->psr[iSyn];
 
     // is an input in the queue?
-    bool fPre = isSpikeQueue(iSyn, iStepOffset, pISynapsesProps); 
-    bool fPost = isSpikeQueuePost(iSyn, iStepOffset, pISynapsesProps);
+    bool fPre = isSpikeQueue(iSyn, iStepOffset, pSynapsesProps); 
+    bool fPost = isSpikeQueuePost(iSyn, iStepOffset, pSynapsesProps);
 
     if (fPre || fPost) {
         BGFLOAT &tauspre = pSynapsesProps->tauspre[iSyn];
@@ -237,11 +222,11 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
                 } else {
                     epost = 1.0;
                 }
-                stdpLearning(iSyn, delta, epost, epre, pISynapsesProps);
+                stdpLearning(iSyn, delta, epost, epre, pSynapsesProps);
                 --offIndex;
             }
 
-            changePSR(iSyn, deltaT, simulationStep, pISynapsesProps);
+            changePSR(iSyn, deltaT, simulationStep, pSynapsesProps);
         }
 
         if (fPost) {	// postSpikeHit
@@ -287,7 +272,7 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
                 } else {
                     epre = 1.0;
                 }
-                stdpLearning(iSyn, delta, epost, epre, pISynapsesProps);
+                stdpLearning(iSyn, delta, epost, epre, pSynapsesProps);
                 --offIndex;
             }
         }
@@ -307,10 +292,8 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
  *  @param  epre             Params for the rule given in Froemke and Dan (2002).
  *  @param  pISynapsesProps  Pointer to the synapses properties.
  */
-CUDA_CALLABLE void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost, double epre, IAllSynapsesProps* pISynapsesProps)
+CUDA_CALLABLE void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost, double epre, AllSTDPSynapsesProps* pSynapsesProps)
 {
-    AllSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllSTDPSynapsesProps*>(pISynapsesProps);
-
     BGFLOAT STDPgap = pSynapsesProps->STDPgap[iSyn];
     BGFLOAT muneg = pSynapsesProps->muneg[iSyn];
     BGFLOAT mupos = pSynapsesProps->mupos[iSyn];
@@ -356,18 +339,17 @@ CUDA_CALLABLE void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta
  *
  *  @param  iSyn             Index of the Synapse to connect to.
  *  @param  iStepOffset      Offset from the current simulation step.
- *  @param  pISynapsesProps  Pointer to the synapses properties.
+ *  @param  pSynapsesProps   Pointer to the synapses properties.
  *  @return true if there is an input spike event.
  */
-CUDA_CALLABLE bool AllSTDPSynapses::isSpikeQueuePost(const BGSIZE iSyn, int iStepOffset, IAllSynapsesProps* pISynapsesProps)
+CUDA_CALLABLE bool AllSTDPSynapses::isSpikeQueuePost(const BGSIZE iSyn, int iStepOffset, AllSpikingSynapsesProps* pSpikingSynapsesProps)
 {
-    AllSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllSTDPSynapsesProps*>(pISynapsesProps);
+    AllSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllSTDPSynapsesProps*>(pSpikingSynapsesProps);
 
     // Checks if there is an event in the queue
     return pSynapsesProps->postSpikeQueue->checkAnEvent(iSyn, iStepOffset);
 }
 
-#if !defined(USE_GPU)
 /*
  *  Prepares Synapse for a spike hit (for back propagation).
  *
@@ -376,30 +358,27 @@ CUDA_CALLABLE bool AllSTDPSynapses::isSpikeQueuePost(const BGSIZE iSyn, int iSte
  */
 CUDA_CALLABLE void AllSTDPSynapses::postSpikeHit(const BGSIZE iSyn, int iStepOffset)
 {
-    AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
+    AllSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
     int &total_delay = pSynapsesProps->total_delayPost[iSyn];
 
     // Add to spike queue
     pSynapsesProps->postSpikeQueue->addAnEvent(iSyn, total_delay, iStepOffset);
 }
-#endif
 
-#if !defined(USE_GPU)
 /*
  * Advances synapses spike event queue state of the cluster one simulation step.
  *
- * @param iStep     simulation steps to advance.
+ * @param iStep            simulation steps to advance.
  */
 CUDA_CALLABLE void AllSTDPSynapses::advanceSpikeQueue(int iStep)
 {
-    AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
+    AllSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
     AllSpikingSynapses::advanceSpikeQueue(iStep);
 
     pSynapsesProps->postSpikeQueue->advanceEventQueue(iStep);
 }
-#endif
 
 /*
  *  Check if the back propagation (notify a spike event to the pre neuron)
@@ -407,27 +386,9 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSpikeQueue(int iStep)
  *
  *  @retrun true if the back propagation is allowed.
  */
-bool AllSTDPSynapses::allowBackPropagation()
+CUDA_CALLABLE bool AllSTDPSynapses::allowBackPropagation()
 {
     return true;
 }
 
-#if defined(USE_GPU)
-/**
- *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
- *  The class ID will be set to classSynapses_d in device memory,
- *  and the classSynapses_d will be referred to call a device function for the
- *  particular synapse class.
- *  Because we cannot use virtual function (Polymorphism) in device functions,
- *  we use this scheme.
- *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
- *  (see issue#137).
- */
-void AllSTDPSynapses::setSynapseClassID()
-{
-    enumClassSynapses classSynapses_h = classAllSTDPSynapses;
-
-    checkCudaErrors( cudaMemcpyToSymbol(classSynapses_d, &classSynapses_h, sizeof(enumClassSynapses)) );
-}
-#endif // USE_GPU
 

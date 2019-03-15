@@ -57,7 +57,7 @@ class AllSpikingNeurons : public AllNeurons
          *  Update the state of all neurons for a time step
          *  Notify outgoing synapses if neuron has fired.
          *
-         *  @param  synapses               Reference to the allSynapses struct on host memory.
+         *  @param  synapsesDevice         Reference to the allSynapses struct on device memory.
          *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
          *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
          *  @param  sim_info               SimulationInfo to refer from.
@@ -67,14 +67,7 @@ class AllSpikingNeurons : public AllNeurons
          *  @param  iStepOffset            Offset from the current simulation step.
          *  @param  neuronsDevice          Pointer to the Neurons object in device memory.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset, IAllNeurons* neuronsDevice);
-
-        /**
-         *  Set some parameters used for advanceNeuronsDevice.
-         *
-         *  @param  synapses               Reference to the allSynapses struct on host memory.
-         */
-        virtual void setAdvanceNeuronsDeviceParams(IAllSynapses &synapses);
+        virtual void advanceNeurons(IAllSynapses *synapsesDevice, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset, IAllNeurons* neuronsDevice);
 
 #else // !defined(USE_GPU)
 
@@ -146,14 +139,6 @@ class AllSpikingNeurons : public AllNeurons
          *  @param  pINeuronsProps        Pointer to the neurons properties.
          */
         CUDA_CALLABLE virtual void fire(const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, IAllNeuronsProps* pINeuronsProps) const;
-
-    protected:
-        /**
-         *  True if back propagaion is allowed.
-         *  (parameters used for advanceNeuronsDevice.)
-         */
-        bool m_fAllowBackPropagation;
-
 };
 
 #if defined(USE_GPU)
@@ -170,10 +155,10 @@ class AllSpikingNeurons : public AllNeurons
  *  @param[in] pINeuronsProps        Pointer to Neuron structures in device memory.
  *  @param[in] allSynapsesProps      Pointer to Synapse structures in device memory.
  *  @param[in] synapseIndexMap       Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
- *  @param[in] fAllowBackPropagation True if back propagaion is allowed.
  *  @param[in] iStepOffset           Offset from the current simulation step.
  *  @param[in] neuronsDevice         Pointer to the Neurons object in device memory.
+ *  @param[in] SynapsesDevice        Pointer to the Synapses object in device memory.
  */
-extern __global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, IAllNeuronsProps* pINeuronsProps, AllSpikingSynapsesProps* allSynapsesProps, SynapseIndexMap* synapseIndexMapDevice, bool fAllowBackPropagation, int iStepOffset, IAllNeurons* neuronsDevice );
+extern __global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, IAllNeuronsProps* pINeuronsProps, AllSpikingSynapsesProps* allSynapsesProps, SynapseIndexMap* synapseIndexMapDevice, int iStepOffset, IAllNeurons* neuronsDevice, IAllSynapses* synapsesDevice );
 
 #endif // USE_GPU

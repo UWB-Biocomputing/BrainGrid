@@ -93,7 +93,7 @@ void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pc
         int maxSpikes = (int) ((psi->epochDuration * psi->maxFiringRate));
         uint64_t simulationStep = g_simulationStep + iStepOffset;
 
-        pSynapses->advanceSynapse(iSyn, psi->deltaT, NULL, simulationStep, iStepOffset, maxSpikes, pSynapses->m_pSynapsesProps, NULL);
+        pSynapses->advanceSynapse(iSyn, psi->deltaT, NULL, simulationStep, iStepOffset, maxSpikes, NULL);
     }
 }
 

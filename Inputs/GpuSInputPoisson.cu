@@ -81,14 +81,14 @@ void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // add input spikes to each synapse
-    inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->nISIs_d, pci->masks_d, psi->deltaT, m_lambda, pci->devStates_d, pci->allSynapsesDeviceSInput, pci->clusterID, iStepOffset );
+    inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->nISIs_d, pci->masks_d, psi->deltaT, m_lambda, pci->devStates_d, pci->synapsesPropsDeviceSInput, pci->clusterID, iStepOffset );
 
     // advance synapses
     int maxSpikes = (int)((psi->epochDuration * psi->maxFiringRate));
-    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, pci->synapseIndexMapDeviceSInput, g_simulationStep, maxSpikes, psi->deltaT, (IAllSynapsesProps*)pci->allSynapsesDeviceSInput, iStepOffset, pci->synapsesDeviceSInput, NULL, NULL );
+    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, pci->synapseIndexMapDeviceSInput, g_simulationStep, maxSpikes, psi->deltaT, iStepOffset, pci->synapsesDeviceSInput, NULL, NULL );
 
     // update summation point
-    applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->allSynapsesDeviceSInput );
+    applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->synapsesPropsDeviceSInput );
     
 }
 
@@ -101,7 +101,7 @@ void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci
 void GpuSInputPoisson::advanceSInputState(const ClusterInfo *pci, int iStep)
 {
     // Advances synapses pre spike event queue state of the cluster iStep simulation step
-    advanceSpikingSynapsesEventQueueDevice <<< 1, 1 >>> ((AllSpikingSynapsesProps*)pci->allSynapsesDeviceSInput, iStep);
+    advanceSpikeQueueDevice <<< 1, 1 >>> (iStep, pci->synapsesDeviceSInput);
 }
 
 /*
@@ -132,13 +132,13 @@ void GpuSInputPoisson::allocDeviceValues(SimulationInfo* psi, vector<ClusterInfo
 
         // create an input synapse layer in device
         AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(pci->synapsesSInput)->m_pSynapsesProps;
-        pSynapsesProps->setupSynapsesDeviceProps( (void **)&(pci->allSynapsesDeviceSInput), neuron_count, 1 ); 
-        pSynapsesProps->copySynapseHostToDeviceProps( pci->allSynapsesDeviceSInput, neuron_count, 1 );
+        pSynapsesProps->setupSynapsesDeviceProps( (void **)&(pci->synapsesPropsDeviceSInput), neuron_count, 1 ); 
+        pSynapsesProps->copySynapseHostToDeviceProps( pci->synapsesPropsDeviceSInput, neuron_count, 1 );
 
         const int threadsPerBlock = 256;
         int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
-        initSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->allSynapsesDeviceSInput, pci->pClusterSummationMap, psi->width, psi->deltaT, m_weight );
+        initSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->synapsesPropsDeviceSInput, pci->pClusterSummationMap, psi->width, psi->deltaT, m_weight );
 
         // allocate memory for curand global state
         checkCudaErrors( cudaMalloc ( &(pci->devStates_d), neuron_count * sizeof( curandState ) ) );
@@ -168,7 +168,7 @@ void GpuSInputPoisson::allocDeviceValues(SimulationInfo* psi, vector<ClusterInfo
         setupSeeds <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->devStates_d, time(NULL) );
 
       // create an AllSynapses class object in device
-      pci->synapsesSInput->createAllSynapsesInDevice(&(pci->synapsesDeviceSInput), pci->allSynapsesDeviceSInput);
+      pci->synapsesSInput->createAllSynapsesInDevice(&(pci->synapsesDeviceSInput), pci->synapsesPropsDeviceSInput);
     }
 }
 
@@ -192,7 +192,7 @@ void GpuSInputPoisson::deleteDeviceValues(vector<ClusterInfo *> &vtClrInfo )
         checkCudaErrors( cudaFree( pci->masks_d ) );
 
         AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(pci->synapsesSInput)->m_pSynapsesProps;
-        pSynapsesProps->cleanupSynapsesDeviceProps( pci->allSynapsesDeviceSInput );
+        pSynapsesProps->cleanupSynapsesDeviceProps( pci->synapsesPropsDeviceSInput );
 
         // deallocate memory for synapse index map
         SynapseIndexMap synapseIndexMap;

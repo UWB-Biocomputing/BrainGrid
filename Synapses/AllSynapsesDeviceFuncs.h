@@ -7,8 +7,6 @@
 
 #if defined(__CUDACC__)
 
-extern __device__ enumClassSynapses classSynapses_d;
-
 /**
  * Adjust the strength of the synapse or remove it from the synapse map if it has gone below
  * zero.
@@ -67,21 +65,4 @@ extern __global__ void setupConnectionsDevice( int num_neurons, int totalCluster
  */
 extern __global__ void initSynapsesDevice( int n, AllDSSynapsesProps* allSynapsesProps, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight );
 
-/**
- * Perform updating preSpikeQueue for one time step.
- *
- *  @param  allSynapsesProps  Reference to the AllSpikingSynapsesProps struct
- *                             on device memory.
- *  @param  iStep              Simulation steps to advance.
- */
-extern __global__ void advanceSpikingSynapsesEventQueueDevice(AllSpikingSynapsesProps* allSynapsesProps, int iStep);
-
-/**
- * Perform updating postSpikeQueue for one time step.
- *
- *  @param  allSynapsesProps  Reference to the AllSpikingSynapsesProps struct
- *                             on device memory.
- *  @param  iStep              Simulation steps to advance.
- */
-extern __global__ void advanceSTDPSynapsesEventQueueDevice(AllSTDPSynapsesProps* allSynapsesProps, int iStep);
 #endif 

@@ -132,11 +132,7 @@ class EventQueue
          * @param clusterID The cluster ID where the event to be added.
          * @param iStepOffset  offset from the current simulation step.
          */
-#if !defined(USE_GPU)
-        void addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID, int iStepOffset);
-#else // USE_GPU
-        __device__ void addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID, int iStepOffset);
-#endif // USE_GPU
+        CUDA_CALLABLE void addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID, int iStepOffset);
 
         /**
          * Add an event in the queue.

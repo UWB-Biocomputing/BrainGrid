@@ -156,8 +156,6 @@ class IAllSynapses
          *  Advance all the Synapses in the simulation.
          *  Update the state of all synapses for a time step.
          *
-         *  @param  allSynapsesProps       Reference to the AllSynapsesProps struct
-         *                                 on device memory.
          *  @param  allNeuronsProps        Reference to the allNeurons struct on device memory.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  sim_info               SimulationInfo class to read information from.
@@ -166,7 +164,7 @@ class IAllSynapses
          *  @param  synapsesDevice         Pointer to the Synapses object in device memory.
          *  @param  neuronsDevice          Pointer to the Neurons object in device memory.
          */
-        virtual void advanceSynapses(void* allSynapsesProps, void* allNeuronsProps, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset, IAllSynapses* synapsesDevice, IAllNeurons* neuronsDevice) = 0;
+        virtual void advanceSynapses(void* allNeuronsProps, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset, IAllSynapses* synapsesDevice, IAllNeurons* neuronsDevice) = 0;
 
         /**
          *  Create a AllSynapses class object in device
@@ -182,23 +180,6 @@ class IAllSynapses
          * @param pAllSynapses_d    Pointer to the AllSynapses object to be deleted in device.
          */
         virtual void deleteAllSynapsesInDevice(IAllSynapses* pAllSynapses_d) = 0;
-
-        /**
-         *  Set some parameters used for advanceSynapsesDevice.
-         */
-        virtual void setAdvanceSynapsesDeviceParams() = 0;
-
-        /**
-         *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
-         *  The class ID will be set to classSynapses_d in device memory,
-         *  and the classSynapses_d will be referred to call a device function for the
-         *  particular synapse class.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
-         *  (see issue#137).
-         */
-        virtual void setSynapseClassID() = 0;
 
 #else // !defined(USE_GPU)
     public:
@@ -232,8 +213,7 @@ class IAllSynapses
          *  @param  simulationStep   The current simulation step.
          *  @param  iStepOffset      Offset from the current simulation step.
          *  @param  maxSpikes        Maximum number of spikes per neuron per epoch.
-         *  @param  pISynapsesProps  Pointer to the synapses properties.
          *  @param  pINeuronsProps   Pointer to the neurons properties.
          */
-        CUDA_CALLABLE virtual void advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, uint64_t simulationStep, int iStepOffset, int maxSpikes, IAllSynapsesProps* pISynapsesProps, IAllNeuronsProps* pINeuronsProps) = 0;
+        CUDA_CALLABLE virtual void advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, uint64_t simulationStep, int iStepOffset, int maxSpikes, IAllNeuronsProps* pINeuronsProps) = 0;
 };

@@ -54,7 +54,7 @@ class ClusterInfo
 #if defined(USE_GPU)
             initValues_d(NULL),
             nShiftValues_d(NULL),
-            allSynapsesDeviceSInput(NULL),
+            synapsesPropsDeviceSInput(NULL),
             synapseIndexMapDeviceSInput(NULL),
             nISIs_d(NULL),
             masks_d(NULL),            
@@ -121,7 +121,7 @@ class ClusterInfo
         //! variables for stimulus inputs (Poisson)
 
         //! Synapse structures in device memory.
-        AllDSSynapsesProps* allSynapsesDeviceSInput;
+        AllDSSynapsesProps* synapsesPropsDeviceSInput;
 
         //! Pointer to synapse index map in device memory.
         SynapseIndexMap* synapseIndexMapDeviceSInput;

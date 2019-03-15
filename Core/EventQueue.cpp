@@ -134,18 +134,14 @@ __host__ void EventQueue::initEventQueue(CLUSTER_INDEX_TYPE clusterID, BGSIZE nM
  * @param clusterID The cluster ID where the event to be added.
  * @param iStepOffset  offset from the current simulation step.
  */
-#if !defined(USE_GPU)
-void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID, int iStepOffset)
-#else // USE_GPU
-__device__ void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID, int iStepOffset)
-#endif // USE_GPU
+CUDA_CALLABLE void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYPE clusterID, int iStepOffset)
 {
     if (clusterID != m_clusterID) {
-#if !defined(USE_GPU)
+#if !defined(__CUDA_ARCH__)
         // notify the event to other cluster
         assert( m_eventHandler != NULL );
         m_eventHandler->addAnEvent(idx, clusterID, iStepOffset);
-#else // USE_GPU
+#else // __CUDA_ARCH__
         // save the inter clusters outgoing events in the outgoing events queue
         OUTGOING_SYNAPSE_INDEX_TYPE idxOutSyn = SynapseIndexMap::getOutgoingSynapseIndex(clusterID, idx);
 
@@ -163,7 +159,7 @@ __device__ void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYP
         m_interClustersOutgoingEvents[currEventIdx].idxSyn = idxOutSyn;
         m_interClustersOutgoingEvents[currEventIdx].iStepOffset = iStepOffset;
         assert( m_nInterClustersOutgoingEvents <= m_nMaxInterClustersOutgoingEvents );
-#endif // USE_GPU
+#endif // __CUDA_ARCH__
     } else {
         // Add to event queue
 
@@ -171,7 +167,7 @@ __device__ void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYP
         uint32_t idxQueue = m_idxQueue + iStepOffset;
         idxQueue = (idxQueue < LENGTH_OF_DELAYQUEUE) ? idxQueue : idxQueue - LENGTH_OF_DELAYQUEUE;
 
-#if !defined(USE_GPU)
+#if !defined(__CUDA_ARCH__)
         // When advanceNeurons and advanceSynapses in different clusters
         // are running concurrently, there might be race condition at
         // event queues (host only). For example, EventQueue::addAnEvent() is called
@@ -188,12 +184,12 @@ __device__ void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYP
             newQueueEvent = currQueueEvent | (0x1 << idxQueue);
             currQueueEvent = __sync_val_compare_and_swap(&m_queueEvent[idx], oldQueueEvent, newQueueEvent);
         } while (currQueueEvent != oldQueueEvent);
-#else // USE_GPU
+#else // __CUDA_ARCH__
         // set a spike
         BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
         assert( !(queue & (0x1 << idxQueue)) );
         queue |= (0x1 << idxQueue);
-#endif // USE_GPU
+#endif // __CUDA_ARCH__
     }
 }
 

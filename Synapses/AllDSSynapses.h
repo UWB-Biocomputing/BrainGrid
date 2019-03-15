@@ -105,18 +105,6 @@ class AllDSSynapses : public AllSpikingSynapses
          */
         virtual void createAllSynapsesInDevice(IAllSynapses** pAllSynapses_d, IAllSynapsesProps *pAllSynapsesProps_d);
 
-        /**
-         *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
-         *  The class ID will be set to classSynapses_d in device memory,
-         *  and the classSynapses_d will be referred to call a device function for the
-         *  particular synapse class.         
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.         
-         *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
-         *  (see issue#137).
-         */
-        virtual void setSynapseClassID();
-
 #endif // defined(USE_GPU)
 
     protected:
@@ -126,9 +114,9 @@ class AllDSSynapses : public AllSpikingSynapses
          *  @param  iSyn             Index of the synapse to set.
          *  @param  deltaT           Inner simulation step duration.
          *  @param  simulationStep   The current simulation step.
-         *  @param  pISynapsesProps  Pointer to the synapses properties.
+         *  @param  pSpikingSynapsesProps  Pointer to the synapses properties.
          */
-        CUDA_CALLABLE virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, uint64_t simulationStep,  IAllSynapsesProps* pISynapsesProps);
+        CUDA_CALLABLE virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, uint64_t simulationStep,  AllSpikingSynapsesProps* pSpikingSynapsesProps);
 };
 
 #if defined(USE_GPU)

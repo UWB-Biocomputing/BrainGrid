@@ -107,7 +107,7 @@ class IAllNeurons
          *  Update the state of all neurons for a time step
          *  Notify outgoing synapses if neuron has fired.
          *
-         *  @param  synapses               Reference to the allSynapses struct on host memory.
+         *  @param  synapsesDevice         Reference to the allSynapses struct on device memory.
          *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
          *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
          *  @param  sim_info               SimulationInfo to refer from.
@@ -117,14 +117,7 @@ class IAllNeurons
          *  @param  iStepOffset            Offset from the current simulation step.
          *  @param  neuronsDevice          Pointer to the Neurons object in device memory.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset, IAllNeurons* neuronsDevice) = 0;
-
-        /**
-         *  Set some parameters used for advanceNeuronsDevice.
-         *
-         *  @param  synapses               Reference to the allSynapses struct on host memory.
-         */
-        virtual void setAdvanceNeuronsDeviceParams(IAllSynapses &synapses) = 0;
+        virtual void advanceNeurons(IAllSynapses *synapsesDevice, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset, IAllNeurons* neuronsDevice) = 0;
 
         /**
          *  Create an AllNeurons class object in device

@@ -175,8 +175,6 @@ class AllSynapses : public IAllSynapses
          *  Advance all the Synapses in the simulation.
          *  Update the state of all synapses for a time step.
          *
-         *  @param  allSynapsesProps       Reference to the AllSynapsesProps struct
-         *                                 on device memory.
          *  @param  allNeuronsProps        Reference to the allNeurons struct on device memory.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  sim_info               SimulationInfo class to read information from.
@@ -185,7 +183,7 @@ class AllSynapses : public IAllSynapses
          *  @param  synapsesDevice         Pointer to the Synapses object in device memory.
          *  @param  neuronsDevice          Pointer to the Neurons object in device memory.
          */
-        virtual void advanceSynapses(void* allSynapsesProps, void* allNeuronsProps, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset, IAllSynapses* synapsesDevice, IAllNeurons* neuronsDevice);
+        virtual void advanceSynapses(void* allNeuronsProps, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset, IAllSynapses* synapsesDevice, IAllNeurons* neuronsDevice);
 
 #else // USE_GPU
 
@@ -260,12 +258,11 @@ __global__ void deleteAllSynapsesDevice(IAllSynapses *pAllSynapses);
  *  @param[in] simulationStep        The current simulation step.
  *  @param[in] deltaT                Inner simulation step duration.
  *  @param[in] maxSpikes             Maximum number of spikes per neuron per epoch.
- *  @param[in] pISynapseProps        Pointer to the synapses properties.
  *  @param[in] iStepOffset           Offset from the current simulation step.
  *  @param[in] synapsesDevice        Pointer to the Synapses object in device memory.
  *  @param[in] neuronsDevice         Pointer to the Neurons object in device memory.
  *  @param[in] pINeuronsProps        Pointer to the neurons properties.
  */
-__global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, int maxSpikes, const BGFLOAT deltaT, IAllSynapsesProps* pISynapseProps, int iStepOffset, IAllSynapses* synapsesDevice, IAllNeurons* neuronsDevice, IAllNeuronsProps* pINeuronsProps );
+__global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, int maxSpikes, const BGFLOAT deltaT, int iStepOffset, IAllSynapses* synapsesDevice, IAllNeurons* neuronsDevice, IAllNeuronsProps* pINeuronsProps );
 
 #endif // USE_GPU

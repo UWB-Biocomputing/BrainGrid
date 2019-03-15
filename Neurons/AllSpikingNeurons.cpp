@@ -115,10 +115,10 @@ CUDA_CALLABLE uint64_t AllSpikingNeurons::getSpikeHistory(int index, int offInde
  *  Update the state of all neurons for a time step
  *  Notify outgoing synapses if neuron has fired.
  *
- *  @param  synapses               Reference to the allSynapses struct on host memory.
- *  @param  allNeuronsProps       Reference to the allNeuronsProps struct
+ *  @param  synapsesDevice         Reference to the allSynapses struct on device memory.
+ *  @param  allNeuronsProps        Reference to the allNeuronsProps struct
  *                                 on device memory.
- *  @param  allSynapsesProps      Reference to the allSynapsesProps struct
+ *  @param  allSynapsesProps       Reference to the allSynapsesProps struct
  *                                 on device memory.
  *  @param  sim_info               SimulationInfo to refer from.
  *  @param  randNoise              Reference to the random noise array.
@@ -127,7 +127,7 @@ CUDA_CALLABLE uint64_t AllSpikingNeurons::getSpikeHistory(int index, int offInde
  *  @param  iStepOffset            Offset from the current simulation step.
  *  @param  neuronsDevice          Pointer to the Neurons object in device memory.
  */
-void AllSpikingNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsProps, void* allSynapsesProps, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset, IAllNeurons* neuronsDevice )
+void AllSpikingNeurons::advanceNeurons( IAllSynapses *synapsesDevice, void* allNeuronsProps, void* allSynapsesProps, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset, IAllNeurons* neuronsDevice )
 {
     DEBUG (
     int deviceId;
@@ -143,47 +143,7 @@ void AllSpikingNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeurons
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance neurons ------------->
-    advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (IAllNeuronsProps *)allNeuronsProps, (AllSpikingSynapsesProps*)allSynapsesProps, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset, neuronsDevice );
-}
-
-/* -------------------------------------*\
-|* # Device Functions for advanceNeurons
-\* -------------------------------------*/
-
-/*
- *  Prepares Synapse for a spike hit.
- *
- *  @param[in] iSyn                  Index of the Synapse to update.
- *  @param[in] allSynapsesProps     Pointer to AllSpikingSynapsesProps structures
- *                                   on device memory.
- *  @param[in] iStepOffset           Offset from the current simulation step.
- */
-__device__ void preSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesProps* allSynapsesProps, const CLUSTER_INDEX_TYPE iCluster, int iStepOffset ) {
-        allSynapsesProps->preSpikeQueue->addAnEvent(iSyn, iCluster, iStepOffset);
-}
-
-/*
- *  Prepares Synapse for a spike hit (for back propagation).
- *
- *  @param[in] iSyn                  Index of the Synapse to update.
- *  @param[in] allSynapsesProps     Pointer to AllSpikingSynapsesProps structures
- *                                   on device memory.
- *  @param[in] iStepOffset           Offset from the current simulation step.
- */
-__device__ void postSpikingSynapsesSpikeHitDevice( const BGSIZE iSyn, AllSpikingSynapsesProps* allSynapsesProps, int iStepOffset ) {
-}
-
-/*
- *  Prepares Synapse for a spike hit (for back propagation).
- *
- *  @param[in] iSyn                  Index of the Synapse to update.
- *  @param[in] allSynapsesProps     Pointer to AllSTDPSynapsesProps structures
- *                                   on device memory.
- *  @param[in] iStepOffset           Offset from the current simulation step.
- */
-__device__ void postSTDPSynapseSpikeHitDevice( const BGSIZE iSyn, AllSTDPSynapsesProps* allSynapsesProps, int iStepOffset ) {
-        int total_delay = allSynapsesProps->total_delayPost[iSyn];
-        allSynapsesProps->postSpikeQueue->addAnEvent(iSyn, total_delay, iStepOffset);
+    advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (IAllNeuronsProps *)allNeuronsProps, (AllSpikingSynapsesProps*)allSynapsesProps, synapseIndexMapDevice, iStepOffset, neuronsDevice, synapsesDevice );
 }
 
 /* -------------------------------------*\
@@ -202,17 +162,18 @@ __device__ void postSTDPSynapseSpikeHitDevice( const BGSIZE iSyn, AllSTDPSynapse
  *  @param[in] pINeuronsProps        Pointer to Neuron structures in device memory.
  *  @param[in] allSynapsesProps      Pointer to Synapse structures in device memory.
  *  @param[in] synapseIndexMap       Inverse map, which is a table indexed by an input neuron and maps to the synapses that provide input to that neuron.
- *  @param[in] fAllowBackPropagation True if back propagaion is allowed.
  *  @param[in] iStepOffset           Offset from the current simulation step.
  *  @param[in] neuronsDevice         Pointer to the Neurons object in device memory.
+ *  @param[in] SynapsesDevice        Pointer to the Synapses object in device memory.
  */
-__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, IAllNeuronsProps* pINeuronsProps, AllSpikingSynapsesProps* allSynapsesProps, SynapseIndexMap* synapseIndexMapDevice, bool fAllowBackPropagation, int iStepOffset, IAllNeurons* neuronsDevice ) {
+__global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, IAllNeuronsProps* pINeuronsProps, AllSpikingSynapsesProps* allSynapsesProps, SynapseIndexMap* synapseIndexMapDevice, int iStepOffset, IAllNeurons* neuronsDevice, IAllSynapses* synapsesDevice ) {
         // determine which neuron this thread is processing
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if ( idx >= totalNeurons )
                 return;
 
         AllSpikingNeuronsProps *pNeuronsProps = reinterpret_cast<AllSpikingNeuronsProps*>(pINeuronsProps);
+        AllSpikingSynapses *pSynapses = reinterpret_cast<AllSpikingSynapses*>(synapsesDevice);
         bool &hasFired = pNeuronsProps->hasFired[idx];
 
         static_cast<AllSpikingNeurons*>(neuronsDevice)->advanceNeuron( idx, maxSpikes, deltaT, simulationStep + iStepOffset, pINeuronsProps, randNoise );
@@ -232,37 +193,22 @@ __global__ void advanceNeuronsDevice( int totalNeurons, int maxSynapses, int max
                         // outgoing synapse index consists of cluster index + synapse index
                         CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIndex(idx);
                         BGSIZE iSyn = SynapseIndexMap::getSynapseIndex(idx);
-                        preSpikingSynapsesSpikeHitDevice(iSyn, allSynapsesProps, iCluster, iStepOffset);
+                        pSynapses->preSpikeHit(iSyn, iCluster, iStepOffset);
                     }
                 }
 
                 // notify incomming synapses of spike
                 synapse_counts = synapseIndexMapDevice->incomingSynapseCount[idx];
-                if (fAllowBackPropagation && synapse_counts != 0) {
+                if (pSynapses->allowBackPropagation() && synapse_counts != 0) {
                     // get the index of where this neuron's list of synapses are
                     BGSIZE beginIndex = synapseIndexMapDevice->incomingSynapseBegin[idx];
                     // get the memory location of where that list begins
                     BGSIZE* incomingMap_begin = &(synapseIndexMapDevice->incomingSynapseIndexMap[beginIndex]);
 
-                    // for each synapse, let them know we have fired
-                    switch (classSynapses_d) {
-                    case classAllSTDPSynapses:
-                    case classAllDynamicSTDPSynapses:
-                        for (BGSIZE i = 0; i < synapse_counts; i++) {
-                            postSTDPSynapseSpikeHitDevice(incomingMap_begin[i], static_cast<AllSTDPSynapsesProps *>(allSynapsesProps), iStepOffset);
-                        } // end for
-                        break;
-
-                    case classAllSpikingSynapses:
-                    case classAllDSSynapses:
-                        for (BGSIZE i = 0; i < synapse_counts; i++) {
-                            postSpikingSynapsesSpikeHitDevice(incomingMap_begin[i], allSynapsesProps, iStepOffset);
-                        } // end for
-                        break;
-
-                    default:
-                        assert(false);
-                    } // end switch
+                    for (BGSIZE i = 0; i < synapse_counts; i++) {
+                        BGSIZE iSyn = incomingMap_begin[i];
+                        pSynapses->postSpikeHit(iSyn, iStepOffset);
+                    } // end for
                 }
         }
 }
@@ -301,22 +247,3 @@ CUDA_CALLABLE void AllSpikingNeurons::fire(const int index, int maxSpikes, const
     // increment spike count and total spike count
     spikeCount[index]++;
 }
-
-#if defined(USE_GPU)
-
-/*
- *  Set some parameters used for advanceNeuronsDevice.
- *  Currently we set the two member variables: m_fpPreSpikeHit_h and m_fpPostSpikeHit_h.
- *  These are function pointers for PreSpikeHit and PostSpikeHit device functions
- *  respectively, and these functions are called from advanceNeuronsDevice device
- *  function. We use this scheme because we cannot not use virtual function (Polymorphism)
- *  in device functions.
- *
- *  @param  synapses               Reference to the allSynapses struct on host memory.
- */
-void AllSpikingNeurons::setAdvanceNeuronsDeviceParams(IAllSynapses &synapses)
-{
-    AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
-    m_fAllowBackPropagation = spSynapses.allowBackPropagation();
-}
-#endif // USE_GPU

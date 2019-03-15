@@ -7,7 +7,8 @@
 
 
 // a device variable to store synapse class ID.
-__device__ enumClassSynapses classSynapses_d = undefClassSynapses; 
+__device__ enumClassSynapses classSynapses_d = classAllDSSynapses; 
+//__device__ enumClassSynapses classSynapses_d = undefClassSynapses; 
 
 /* ------------------------------------*\
 |* # Device Functions for createSynapse
@@ -687,29 +688,5 @@ __global__ void initSynapsesDevice( int n, AllDSSynapsesProps* allSynapsesProps,
     synapseType type = allSynapsesProps->type[neuron_index];
     createDSSynapse(allSynapsesProps, neuron_index, 0, 0, neuron_index, sum_point, deltaT, type );
     allSynapsesProps->W[neuron_index] = weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
-}
-
-/*
- * Perform updating preSpikeQueue for one time step.
- *
- *  @param  allSynapsesProps  Reference to the AllSpikingSynapsesProps struct
- *                             on device memory.
- *  @param  iStep              Simulation steps to advance.
- */
-__global__ void advanceSpikingSynapsesEventQueueDevice(AllSpikingSynapsesProps* allSynapsesProps, int iStep)
-{
-    allSynapsesProps->preSpikeQueue->advanceEventQueue(iStep);
-}
-
-/*
- * Perform updating postSpikeQueue for one time step.
- *
- *  @param  allSynapsesProps  Reference to the AllSpikingSynapsesProps struct
- *                             on device memory.
- *  @param  iStep              Simulation steps to advance.
- */
-__global__ void advanceSTDPSynapsesEventQueueDevice(AllSTDPSynapsesProps* allSynapsesProps, int iStep)
-{
-    allSynapsesProps->postSpikeQueue->advanceEventQueue(iStep);
 }
 

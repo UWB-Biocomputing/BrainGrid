@@ -102,7 +102,7 @@ class AllSpikingSynapses : public AllSynapses
          *
          *  @retrun true if the back propagation is allowed.
          */
-        virtual bool allowBackPropagation();
+        CUDA_CALLABLE virtual bool allowBackPropagation();
 
     protected:
         /**
@@ -118,15 +118,6 @@ class AllSpikingSynapses : public AllSynapses
 
     public:
         /**
-         * Advances synapses spike event queue state of the cluster one simulation step.
-         *
-         *  @param  allSynapsesProps      Reference to the AllSynapsesProps struct
-         *                                 on device memory.
-         *  @param  iStep                  Simulation steps to advance.
-         */
-        virtual void advanceSpikeQueue(void* allSynapsesProps, int iStep);
-
-        /**
          *  Create a AllSynapses class object in device
          *
          *  @param pAllSynapses_d      Device memory address to save the pointer of created AllSynapses object.
@@ -134,23 +125,6 @@ class AllSpikingSynapses : public AllSynapses
          */
         virtual void createAllSynapsesInDevice(IAllSynapses** pAllSynapses_d, IAllSynapsesProps *pAllSynapsesProps_d);
 
-        /**
-         *  Set some parameters used for advanceSynapsesDevice.
-         *  Currently we set a member variable: m_fpChangePSR_h.
-         */
-        virtual void setAdvanceSynapsesDeviceParams();
-
-        /**
-         *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
-         *  The class ID will be set to classSynapses_d in device memory,
-         *  and the classSynapses_d will be referred to call a device function for the
-         *  particular synapse class.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
-         *  (see issue#137).
-         */
-        virtual void setSynapseClassID();
 #endif  // defined(USE_GPU)
 
 public:
@@ -163,17 +137,15 @@ public:
          *  @param  simulationStep   The current simulation step.
          *  @param  iStepOffset      Offset from the current global simulation step.
          *  @param  maxSpikes        Maximum number of spikes per neuron per epoch.
-         *  @param  pISynapsesProps  Pointer to the synapses properties.
          *  @param  pINeuronsProps   Pointer to the neurons properties.
          */
-        CUDA_CALLABLE virtual void advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, uint64_t simulationStep, int iStepOffset, int maxSpikes, IAllSynapsesProps* pISynapsesProps, IAllNeuronsProps* pINeuronsProps);
+        CUDA_CALLABLE virtual void advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, uint64_t simulationStep, int iStepOffset, int maxSpikes, IAllNeuronsProps* pINeuronsProps);
 
-#if !defined(USE_GPU)
         /**
          *  Prepares Synapse for a spike hit.
          *
-         *  @param  iSyn      Index of the Synapse to update.
-         *  @param  iCluster  Cluster ID of cluster where the spike is added.
+         *  @param  iSyn             Index of the Synapse to update.
+         *  @param  iCluster         Cluster ID of cluster where the spike is added.
          *  @param  iStepOffset      Offset from the current simulation step.
          */
         CUDA_CALLABLE virtual void preSpikeHit(const BGSIZE iSyn, const CLUSTER_INDEX_TYPE iCluster, int iStepOffset);
@@ -189,10 +161,9 @@ public:
         /*
          * Advances synapses spike event queue state of the cluster one simulation step.
          *
-         * @param iStep     simulation steps to advance.
+         * @param iStep            simulation steps to advance.
          */
         CUDA_CALLABLE virtual void advanceSpikeQueue(int iStep);
-#endif
 
     protected:
         /**
@@ -200,10 +171,10 @@ public:
          *
          *  @param  iSyn             Index of the Synapse to connect to.
          *  @param  iStepOffset      Offset from the current global simulation step.
-         *  @param  pISynapsesProps  Pointer to the synapses properties.
+         *  @param  pSynapsesProps   Pointer to the synapses properties.
          *  @return true if there is an input spike event.
          */
-        CUDA_CALLABLE bool isSpikeQueue(const BGSIZE iSyn, int iStepOffset, IAllSynapsesProps* pISynapsesProps);
+        CUDA_CALLABLE bool isSpikeQueue(const BGSIZE iSyn, int iStepOffset, AllSpikingSynapsesProps* pSynapsesProps);
 
         /**
          *  Calculate the post synapse response after a spike.
@@ -211,9 +182,9 @@ public:
          *  @param  iSyn             Index of the synapse to set.
          *  @param  deltaT           Inner simulation step duration.
          *  @param  simulationStep   The current simulation step.
-         *  @param  pISynapsesProps  Pointer to the synapses properties.
+         *  @param  pSpikingSynapsesProps  Pointer to the synapses properties.
          */
-        CUDA_CALLABLE virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, uint64_t simulationStep, IAllSynapsesProps* pISynapsesProps);
+        CUDA_CALLABLE virtual void changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, uint64_t simulationStep, AllSpikingSynapsesProps* pSpikingSynapsesProps);
 };
 
 #if defined(USE_GPU)
@@ -223,5 +194,7 @@ public:
 \* -------------------------------------*/
 
 __global__ void allocAllSpikingSynapsesDevice(IAllSynapses **pAllSynapses, IAllSynapsesProps *pAllSynapsesProps);
+
+extern __global__ void advanceSpikeQueueDevice(int iStep, IAllSynapses* synapsesDevice);
 
 #endif // USE_GPU

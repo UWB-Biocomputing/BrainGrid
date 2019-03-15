@@ -246,14 +246,8 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
   // create an AllNeurons class object in device
   m_neurons->createAllNeuronsInDevice(&m_neuronsDevice, m_allNeuronsDeviceProps);
 
-  // set some parameters used for advanceNeuronsDevice
-  m_neurons->setAdvanceNeuronsDeviceParams(*m_synapses);
-
   // create an AllSynapses class object in device
   m_synapses->createAllSynapsesInDevice(&m_synapsesDevice, m_allSynapsesDeviceProps);
-
-  // set some parameters used for advanceSynapsesDevice
-  m_synapses->setAdvanceSynapsesDeviceParams();
 
   // assign an address of summation function
 
@@ -398,7 +392,7 @@ void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterIn
   }
 
   // Advance neurons ------------->
-  m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDeviceProps, m_allSynapsesDeviceProps, sim_info, randNoiseDevice, m_synapseIndexMapDevice, clr_info, iStepOffset, m_neuronsDevice);
+  m_neurons->advanceNeurons(m_synapsesDevice, m_allNeuronsDeviceProps, m_allSynapsesDeviceProps, sim_info, randNoiseDevice, m_synapseIndexMapDevice, clr_info, iStepOffset, m_neuronsDevice);
 
 #else // !VALIDATION
 
@@ -410,7 +404,7 @@ void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterIn
 #endif // PERFORMANCE_METRICS
 
   // Advance neurons ------------->
-  m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDeviceProps, m_allSynapsesDeviceProps, sim_info, randNoise_d, m_synapseIndexMapDevice, clr_info, iStepOffset, m_neuronsDevice);
+  m_neurons->advanceNeurons(m_synapsesDevice, m_allNeuronsDeviceProps, m_allSynapsesDeviceProps, sim_info, randNoise_d, m_synapseIndexMapDevice, clr_info, iStepOffset, m_neuronsDevice);
 
 #endif // !VALIDATION
 
@@ -489,7 +483,7 @@ void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, ClusterI
 #endif // PERFORMANCE_METRICS
 
   // Advance synapses ------------->
-  m_synapses->advanceSynapses(m_allSynapsesDeviceProps, m_allNeuronsDeviceProps, m_synapseIndexMapDevice, sim_info, clr_info, iStepOffset, m_synapsesDevice, m_neuronsDevice);
+  m_synapses->advanceSynapses(m_allNeuronsDeviceProps, m_synapseIndexMapDevice, sim_info, clr_info, iStepOffset, m_synapsesDevice, m_neuronsDevice);
 
 #ifdef PERFORMANCE_METRICS
   cudaLapTime(clr_info, clr_info->t_gpu_advanceSynapses);
@@ -524,7 +518,7 @@ void GPUSpikingCluster::advanceSpikeQueue(const SimulationInfo *sim_info, const 
   // Set device ID
   checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
 
-  (dynamic_cast<AllSpikingSynapses*>(m_synapses))->advanceSpikeQueue(m_allSynapsesDeviceProps, iStep);
+  advanceSpikeQueueDevice <<< 1, 1 >>> (iStep, m_synapsesDevice);
 
   if (sim_info->pInput != NULL) {
       // advance input stimulus state
