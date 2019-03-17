@@ -1,7 +1,6 @@
 #include "AllSpikingSynapses.h"
 #if defined(USE_GPU)
 #include <helper_cuda.h>
-#include "AllSynapsesDeviceFuncs.h"
 #endif // USE_GPU
 
 // Default constructor
@@ -53,7 +52,7 @@ void AllSpikingSynapses::serialize(ostream& output, const ClusterInfo *clr_info)
  *  @param  iSyn     Index of the synapse to set.
  *  @param  deltaT   Inner simulation step duration
  */
-void AllSpikingSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
+CUDA_CALLABLE void AllSpikingSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
 {
     AllSynapses::resetSynapse(iSyn, deltaT);
 
@@ -71,9 +70,9 @@ void AllSpikingSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
  *  @param  deltaT      Inner simulation step duration.
  *  @param  type        Type of the Synapse to create.
  */
-void AllSpikingSynapses::createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+CUDA_CALLABLE void AllSpikingSynapses::createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
-    AllSpikingSynapsesProps *pSynapsesProps = dynamic_cast<AllSpikingSynapsesProps*>(m_pSynapsesProps);
+    AllSpikingSynapsesProps *pSynapsesProps = reinterpret_cast<AllSpikingSynapsesProps*>(m_pSynapsesProps);
     BGFLOAT delay;
 
     pSynapsesProps->in_use[iSyn] = true;
@@ -222,9 +221,9 @@ CUDA_CALLABLE void AllSpikingSynapses::changePSR(const BGSIZE iSyn, const BGFLOA
  *  @param  iSyn    Index of the synapse to set.
  *  @param  deltaT  Inner simulation step duration
  */
-bool AllSpikingSynapses::updateDecay(const BGSIZE iSyn, const BGFLOAT deltaT)
+CUDA_CALLABLE bool AllSpikingSynapses::updateDecay(const BGSIZE iSyn, const BGFLOAT deltaT)
 {
-        AllSpikingSynapsesProps *pSynapsesProps = dynamic_cast<AllSpikingSynapsesProps*>(m_pSynapsesProps);
+        AllSpikingSynapsesProps *pSynapsesProps = reinterpret_cast<AllSpikingSynapsesProps*>(m_pSynapsesProps);
 
         BGFLOAT &tau = pSynapsesProps->tau[iSyn];
         BGFLOAT &decay = pSynapsesProps->decay[iSyn];

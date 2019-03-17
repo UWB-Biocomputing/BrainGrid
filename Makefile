@@ -115,7 +115,6 @@ CUDAOBJS =   \
                 $(NEURONDIR)/AllSpikingNeuronsProps_cuda.o \
                 $(NEURONDIR)/AllIFNeuronsProps_cuda.o \
                 $(NEURONDIR)/AllIZHNeuronsProps_cuda.o \
-		$(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o \
 		$(SYNAPSEDIR)/AllSynapses_cuda.o \
 		$(SYNAPSEDIR)/AllSpikingSynapses_cuda.o \
 		$(SYNAPSEDIR)/AllDSSynapses_cuda.o \
@@ -161,7 +160,6 @@ CUDAOBJS =   \
                 $(NEURONDIR)/AllSpikingNeuronsProps_cuda.o \
                 $(NEURONDIR)/AllIFNeuronsProps_cuda.o \
                 $(NEURONDIR)/AllIZHNeuronsProps_cuda.o \
-                $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o \
                 $(SYNAPSEDIR)/AllSynapses_cuda.o \
                 $(SYNAPSEDIR)/AllSpikingSynapses_cuda.o \
                 $(SYNAPSEDIR)/AllDSSynapses_cuda.o \
@@ -332,9 +330,6 @@ $(RNGDIR)/MersenneTwister_d.o: $(RNGDIR)/MersenneTwister_d.cu $(UTILDIR)/Global.
 
 $(COREDIR)/GPUSpikingCluster.o: $(COREDIR)/GPUSpikingCluster.cu $(UTILDIR)/Global.h $(COREDIR)/GPUSpikingCluster.h $(NEURONDIR)/AllIFNeurons.h $(SYNAPSEDIR)/AllSynapses.h $(COREDIR)/IModel.h  
 	nvcc -c $(NVCCFLAGS) $(COREDIR)/GPUSpikingCluster.cu $(CGPUFLAGS) -o $(COREDIR)/GPUSpikingCluster.o
-
-$(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o: $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.cu $(UTILDIR)/Global.h $(SYNAPSEDIR)/AllSynapsesDeviceFuncs.h
-	nvcc -c $(NVCCFLAGS) $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.cu $(CGPUFLAGS) -o $(SYNAPSEDIR)/AllSynapsesDeviceFuncs_d.o
 
 $(CONNDIR)/ConnGrowth_d.o: $(CONNDIR)/ConnGrowth_d.cu $(UTILDIR)/Global.h $(CONNDIR)/ConnGrowth.h
 	nvcc -c $(NVCCFLAGS) $(CONNDIR)/ConnGrowth_d.cu $(CGPUFLAGS) -o $(CONNDIR)/ConnGrowth_d.o

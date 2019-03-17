@@ -138,7 +138,7 @@ void GpuSInputPoisson::allocDeviceValues(SimulationInfo* psi, vector<ClusterInfo
         const int threadsPerBlock = 256;
         int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
-        initSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->synapsesPropsDeviceSInput, pci->pClusterSummationMap, psi->width, psi->deltaT, m_weight );
+        initSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( pci->synapsesDeviceSInput, neuron_count, pci->synapsesPropsDeviceSInput, pci->pClusterSummationMap, psi->width, psi->deltaT, m_weight );
 
         // allocate memory for curand global state
         checkCudaErrors( cudaMalloc ( &(pci->devStates_d), neuron_count * sizeof( curandState ) ) );
@@ -280,3 +280,31 @@ __global__ void setupSeeds( int n, curandState* devStates_d, unsigned long seed 
 
     curand_init( seed, idx, 0, &devStates_d[idx] );
 } 
+
+/*
+ * Adds a synapse to the network.  Requires the locations of the source and
+ * destination neurons.
+ *
+ * @param synapsesDevice         Pointer to the Synapses object in device memory.
+ * @param allSynapsesProps       Pointer to the Synapse structures in device memory.
+ * @param pSummationMap          Pointer to the summation point.
+ * @param width                  Width of neuron map (assumes square).
+ * @param deltaT                 The simulation time step size.
+ * @param weight                 Synapse weight.
+ */
+__global__ void initSynapsesDevice( IAllSynapses* synapsesDevice, int n, AllDSSynapsesProps* allSynapsesProps, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight )
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( idx >= n )
+        return;
+
+    // create a synapse
+    int neuron_index = idx;
+    BGFLOAT* sum_point = &( pSummationMap[neuron_index] );
+    synapseType type = allSynapsesProps->type[neuron_index];
+
+    BGSIZE iSyn = allSynapsesProps->maxSynapsesPerNeuron * neuron_index;
+    synapsesDevice->createSynapse(iSyn, 0, neuron_index, sum_point, deltaT, type);
+    allSynapsesProps->W[neuron_index] = weight * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+}
+

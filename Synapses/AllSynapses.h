@@ -108,14 +108,6 @@ class AllSynapses : public IAllSynapses
         virtual void printParameters(ostream &output) const;
 
         /**
-         *  Reset time varying state vars and recompute decay.
-         *
-         *  @param  iSyn     Index of the synapse to set.
-         *  @param  deltaT   Inner simulation step duration
-         */
-        virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT);
-
-        /**
          *  Sets the data for Synapses to input's data.
          *
          *  @param  input  istream to read from.
@@ -131,34 +123,18 @@ class AllSynapses : public IAllSynapses
          */
         virtual void serialize(ostream& output, const ClusterInfo *clr_info);
 
-#if !defined(USE_GPU)
         /**
          *  Adds a Synapse to the model, connecting two Neurons.
          *
          *  @param  iSyn        Index of the synapse to be added.
          *  @param  type        The type of the Synapse to add.
-         *  @param  src_neuron  The Neuron that sends to this Synapse.
-         *  @param  dest_neuron The Neuron that receives from the Synapse.
+         *  @param  src_neuron  The Neuron that sends to this Synapse (layout index).
+         *  @param  dest_neuron The Neuron that receives from the Synapse (layout index).
          *  @param  sum_point   Summation point address.
          *  @param  deltaT      Inner simulation step duration
-         *  @param  clr_info    ClusterInfo to refer from.
+         *  @param  iNeuron     Index of the destination neuron in the cluster.
          */
-        virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT, const ClusterInfo *clr_info);
-
-#endif // !USE_GPU
-
-        /**
-         *  Create a Synapse and connect it to the model.
-         *
-         *  @param  synapses    The synapse list to reference.
-         *  @param  iSyn        Index of the synapse to set.
-         *  @param  source      Coordinates of the source Neuron.
-         *  @param  dest        Coordinates of the destination Neuron.
-         *  @param  sum_point   Summation point address.
-         *  @param  deltaT      Inner simulation step duration.
-         *  @param  type        Type of the Synapse to create.
-         */
-        virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
+        CUDA_CALLABLE virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT, int iNeuron);
 
         /**
          *  Get the sign of the synapseType.
@@ -166,7 +142,25 @@ class AllSynapses : public IAllSynapses
          *  @param    type    synapseType I to I, I to E, E to I, or E to E
          *  @return   1 or -1, or 0 if error
          */
-        int synSign(const synapseType type);
+        CUDA_CALLABLE int synSign(const synapseType type);
+
+        /**
+         *  Returns the type of synapse at the given coordinates
+         *
+         *  @param    neuron_type_map  The neuron type map (INH, EXC).
+         *  @param    src_neuron  integer that points to a Neuron in the type map as a source.
+         *  @param    dest_neuron integer that points to a Neuron in the type map as a destination.
+         *  @return type of the synapse.
+         */
+        CUDA_CALLABLE virtual synapseType synType(neuronType* neuron_type_map, const int src_neuron, const int dest_neuron);
+
+        /**
+         *  Reset time varying state vars and recompute decay.
+         *
+         *  @param  iSyn     Index of the synapse to set.
+         *  @param  deltaT   Inner simulation step duration
+         */
+        CUDA_CALLABLE virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT);
 
 #if defined(USE_GPU)
 
@@ -201,7 +195,6 @@ class AllSynapses : public IAllSynapses
 
 #endif // !USE_GPU
 
-#if !defined(USE_GPU)
     public:
         /**
          *  Remove a synapse from the network.
@@ -209,9 +202,7 @@ class AllSynapses : public IAllSynapses
          *  @param  neuron_index   Index of a neuron to remove from.
          *  @param  iSyn           Index of a synapse to remove.
          */
-        virtual void eraseSynapse(const int neuron_index, const BGSIZE iSyn);
-
-#endif // !defined(USE_GPU)
+        CUDA_CALLABLE virtual void eraseSynapse(const int neuron_index, const BGSIZE iSyn);
 
 #if defined(USE_GPU)
     public:

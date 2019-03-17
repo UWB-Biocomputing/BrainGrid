@@ -1,7 +1,6 @@
 #include "AllDynamicSTDPSynapses.h"
 #if defined(USE_GPU)
 #include <helper_cuda.h>
-#include "AllSynapsesDeviceFuncs.h"
 #endif // USE_GPU
 
 // Default constructor
@@ -27,9 +26,9 @@ void AllDynamicSTDPSynapses::createSynapsesProps()
  *  @param  iSyn            Index of the synapse to set.
  *  @param  deltaT          Inner simulation step duration
  */
-void AllDynamicSTDPSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
+CUDA_CALLABLE void AllDynamicSTDPSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
 {
-    AllDynamicSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllDynamicSTDPSynapsesProps*>(m_pSynapsesProps);
+    AllDynamicSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllDynamicSTDPSynapsesProps*>(m_pSynapsesProps);
 
     AllSTDPSynapses::resetSynapse(iSyn, deltaT);
 
@@ -49,9 +48,9 @@ void AllDynamicSTDPSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT delta
  *  @param  deltaT      Inner simulation step duration.
  *  @param  type        Type of the Synapse to create.
  */
-void AllDynamicSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+CUDA_CALLABLE void AllDynamicSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
-    AllDynamicSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllDynamicSTDPSynapsesProps*>(m_pSynapsesProps);
+    AllDynamicSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllDynamicSTDPSynapsesProps*>(m_pSynapsesProps);
 
     AllSTDPSynapses::createSynapse(iSyn, source_index, dest_index, sum_point, deltaT, type);
 

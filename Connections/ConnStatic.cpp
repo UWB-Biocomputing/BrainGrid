@@ -60,23 +60,24 @@ void ConnStatic::setupConnections(const SimulationInfo *sim_info, Layout *layout
         // pick the shortest m_nConnsPerNeuron connections
         for (BGSIZE i = 0; i < distDestNeurons[dest_neuron].size() && (int)i < m_nConnsPerNeuron; i++) {
             int src_neuron = distDestNeurons[dest_neuron][i].src_neuron;
-            synapseType type = layout->synType(src_neuron, dest_neuron);
-
-            // create a synapse at the cluster of the destination neuron
-
             // get the cluster index where the destination neuron exits
             CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIdxFromNeuronLayoutIdx(dest_neuron, vtClrInfo);
+            int iNeuron = dest_neuron - vtClrInfo[iCluster]->clusterNeuronsBegin;
+
             AllNeurons *neurons = dynamic_cast<AllNeurons*>(vtClr[iCluster]->m_neurons);
             AllNeuronsProps *pNeuronsProps = neurons->m_pNeuronsProps;
             AllSynapses *synapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
             AllSynapsesProps *pSynapsesProps = synapses->m_pSynapsesProps;
 
+            synapseType type = synapses->synType(layout->neuron_type_map, src_neuron, dest_neuron);
+
+            // create a synapse at the cluster of the destination neuron
+
             DEBUG_MID (cout << "source: " << src_neuron << " dest: " << dest_neuron << " dist: " << distDestNeurons[src_neuron][i].dist << endl;)
 
-            int iNeuron = dest_neuron - vtClrInfo[iCluster]->clusterNeuronsBegin;
             BGFLOAT* sum_point = &( pNeuronsProps->summation_map[iNeuron] );
             BGSIZE iSyn;
-            synapses->addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT, vtClrInfo[iCluster]);
+            synapses->addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT, iNeuron);
                 added++;
 
             // set synapse weight

@@ -469,7 +469,7 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
             for (int iNeuron = 0; iNeuron < totalClusterNeurons; dest_neuron++, iNeuron++) {
                 // visit each synapse at (xa,ya)
                 bool connected = false;
-                synapseType type = layout->synType(src_neuron, dest_neuron);
+                synapseType type = synapses->synType(layout->neuron_type_map, src_neuron, dest_neuron);
 
                 // for each existing synapse
                 BGSIZE synapse_counts = pSynapsesProps->synapse_counts[iNeuron];
@@ -510,7 +510,7 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
                     added++;
     
                     BGSIZE iSyn;
-                    synapses->addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT, vtClrInfo[iCluster]);
+                    synapses->addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, sim_info->deltaT, iNeuron);
                     pSynapsesProps->W[iSyn] = (*W)(src_neuron, dest_neuron) * synapses->synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
 
                 }

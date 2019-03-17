@@ -67,7 +67,7 @@ class IAllSynapses
          *  @param  iSyn     Index of the synapse to set.
          *  @param  deltaT   Inner simulation step duration
          */
-        virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT) = 0;
+        CUDA_CALLABLE virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT) = 0;
 
         /**
          *  Checks the number of required parameters to read.
@@ -107,20 +107,18 @@ class IAllSynapses
          */
         virtual void serialize(ostream& output, const ClusterInfo *clr_info) = 0;
 
-#if !defined(USE_GPU)
         /**
          *  Adds a Synapse to the model, connecting two Neurons.
          *
          *  @param  iSyn        Index of the synapse to be added.
          *  @param  type        The type of the Synapse to add.
-         *  @param  src_neuron  The Neuron that sends to this Synapse.
-         *  @param  dest_neuron The Neuron that receives from the Synapse.
+         *  @param  src_neuron  The Neuron that sends to this Synapse (layout index).
+         *  @param  dest_neuron The Neuron that receives from the Synapse (layout index).
          *  @param  sum_point   Summation point address.
          *  @param  deltaT      Inner simulation step duration
-         *  @param  clr_info    ClusterInfo class to read information from.
+         *  @param  iNeuron     Index of the destination neuron in the cluster.
          */
-        virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT, const ClusterInfo *clr_info) = 0;
-#endif // !USE_GPU
+        CUDA_CALLABLE virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT, int iNeuron) = 0;
 
         /**
          *  Create a Synapse and connect it to the model.
@@ -133,7 +131,7 @@ class IAllSynapses
          *  @param  deltaT      Inner simulation step duration.
          *  @param  type        Type of the Synapse to create.
          */
-        virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
+        CUDA_CALLABLE virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
 
         /**
          *  Get the sign of the synapseType.
@@ -141,7 +139,17 @@ class IAllSynapses
          *  @param    type    synapseType I to I, I to E, E to I, or E to E
          *  @return   1 or -1, or 0 if error
          */
-        virtual int synSign(const synapseType type) = 0;
+        CUDA_CALLABLE virtual int synSign(const synapseType type) = 0;
+
+        /**
+         *  Returns the type of synapse at the given coordinates
+         *
+         *  @param    neuron_type_map  The neuron type map (INH, EXC).
+         *  @param    src_neuron  integer that points to a Neuron in the type map as a source.
+         *  @param    dest_neuron integer that points to a Neuron in the type map as a destination.
+         *  @return type of the synapse.
+         */
+        CUDA_CALLABLE virtual synapseType synType(neuronType* neuron_type_map, const int src_neuron, const int dest_neuron) = 0;
 
 #if defined(USE_GPU)
     public:
@@ -193,6 +201,7 @@ class IAllSynapses
          *  @param  iStepOffset      Offset from the current simulation step.
          */
         virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap, int iStepOffset) = 0;
+#endif // defined(USE_GPU)
 
         /**
          *  Remove a synapse from the network.
@@ -200,8 +209,7 @@ class IAllSynapses
          *  @param  neuron_index   Index of a neuron to remove from.
          *  @param  iSyn           Index of a synapse to remove.
          */
-        virtual void eraseSynapse(const int neuron_index, const BGSIZE iSyn) = 0;
-#endif // defined(USE_GPU)
+        CUDA_CALLABLE virtual void eraseSynapse(const int neuron_index, const BGSIZE iSyn) = 0;
 
     public:
         /**

@@ -32,7 +32,6 @@
 #define _GPUSINPUTPOISSON_H_
 
 #include "SInputPoisson.h"
-#include "AllSynapsesDeviceFuncs.h"
 #include "curand_kernel.h"
 
 class GpuSInputPoisson : public SInputPoisson
@@ -66,6 +65,20 @@ private:
 extern __global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, BGFLOAT deltaT, BGFLOAT lambda, curandState* devStates_d, AllDSSynapsesProps* allSynapsesProps, CLUSTER_INDEX_TYPE clusterID, int iStepOffset );
 extern __global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapsesProps* allSynapsesDevice );
 extern __global__ void setupSeeds( int n, curandState* devStates_d, unsigned long seed );
+
+/**
+ * Adds a synapse to the network.  Requires the locations of the source and
+ * destination neurons.
+ *
+ * @param synapsesDevice         Pointer to the Synapses object in device memory.
+ * @param allSynapsesProps       Pointer to the Synapse structures in device memory.
+ * @param pSummationMap          Pointer to the summation point.
+ * @param width                  Width of neuron map (assumes square).
+ * @param deltaT                 The simulation time step size.
+ * @param weight                 Synapse weight.
+ */
+extern __global__ void initSynapsesDevice( IAllSynapses* synapsesDevice, int n, AllDSSynapsesProps* allSynapsesProps, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight );
+
 #endif
 
 #endif // _GPUSINPUTPOISSON_H_

@@ -80,7 +80,7 @@ class AllDSSynapses : public AllSpikingSynapses
          *  @param  iSyn     Index of the synapse to set.
          *  @param  deltaT   Inner simulation step duration
          */
-        virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT);
+        CUDA_CALLABLE virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT);
 
         /**
          *  Create a Synapse and connect it to the model.
@@ -93,7 +93,7 @@ class AllDSSynapses : public AllSpikingSynapses
          *  @param  deltaT      Inner simulation step duration.
          *  @param  type        Type of the Synapse to create.
          */
-        virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
+        CUDA_CALLABLE virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
 
 #if defined(USE_GPU)
     public:

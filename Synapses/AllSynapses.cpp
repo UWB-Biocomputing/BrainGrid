@@ -1,7 +1,6 @@
 #include "AllSynapses.h"
 #include "AllNeurons.h"
 #include "SynapseIndexMap.h"
-#include "AllSynapsesDeviceFuncs.h"
 
 // Default constructor
 AllSynapses::AllSynapses()
@@ -155,17 +154,6 @@ void AllSynapses::serialize(ostream& output, const ClusterInfo *clr_info)
     }
 }
 
-/*
- *  Reset time varying state vars and recompute decay.
- *
- *  @param  iSyn     Index of the synapse to set.
- *  @param  deltaT   Inner simulation step duration
- */
-void AllSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
-{
-    dynamic_cast<AllSynapsesProps*>(m_pSynapsesProps)->psr[iSyn] = 0.0;
-}
-
 #if defined(USE_GPU)
 
 /*
@@ -227,14 +215,13 @@ void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *n
 
 #endif // !USE_GPU
 
-#if !defined(USE_GPU)
 /*
  *  Remove a synapse from the network.
  *
  *  @param  neuron_index   Index of a neuron to remove from.
  *  @param  iSyn           Index of a synapse to remove.
  */
-void AllSynapses::eraseSynapse(const int neuron_index, const BGSIZE iSyn)
+CUDA_CALLABLE void AllSynapses::eraseSynapse(const int neuron_index, const BGSIZE iSyn)
 {
     m_pSynapsesProps->synapse_counts[neuron_index]--;
     m_pSynapsesProps->in_use[iSyn] = false;
@@ -246,18 +233,16 @@ void AllSynapses::eraseSynapse(const int neuron_index, const BGSIZE iSyn)
  *
  *  @param  iSyn        Index of the synapse to be added.
  *  @param  type        The type of the Synapse to add.
- *  @param  src_neuron  The Neuron that sends to this Synapse.
- *  @param  dest_neuron The Neuron that receives from the Synapse.
+ *  @param  src_neuron  The Neuron that sends to this Synapse (layout index).
+ *  @param  dest_neuron The Neuron that receives from the Synapse (layout index).
  *  @param  sum_point   Summation point address.
  *  @param  deltaT      Inner simulation step duration
- *  @param  clr_info    ClusterInfo to refer from.
+ *  @param  iNeuron     Index of the destination neuron in the cluster.
  */
-void AllSynapses::addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT, const ClusterInfo *clr_info)
+CUDA_CALLABLE void AllSynapses::addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT, int iNeuron)
 {
-    int iNeuron = dest_neuron - clr_info->clusterNeuronsBegin;
- 
     if (m_pSynapsesProps->synapse_counts[iNeuron] >= m_pSynapsesProps->maxSynapsesPerNeuron) {
-        DEBUG ( cout << "Neuron : " << dest_neuron << " ran out of space for new synapses." << endl; )
+        DEBUG ( printf("Neuron : %d ran out of space for new synapses.\n", dest_neuron); )
         return; // TODO: ERROR!
     }
 
@@ -275,7 +260,6 @@ void AllSynapses::addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuro
     // create a synapse
     createSynapse(iSyn, src_neuron, dest_neuron, sum_point, deltaT, type );
 }
-#endif // !defined(USE_GPU)
 
 /*
  *  Get the sign of the synapseType.
@@ -283,7 +267,7 @@ void AllSynapses::addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuro
  *  @param    type    synapseType I to I, I to E, E to I, or E to E
  *  @return   1 or -1, or 0 if error
  */
-int AllSynapses::synSign(const synapseType type)
+CUDA_CALLABLE int AllSynapses::synSign(const synapseType type)
 {
     switch ( type ) {
         case II:
@@ -298,6 +282,39 @@ int AllSynapses::synSign(const synapseType type)
     }
 
     return 0;
+}
+
+/**
+ *  Returns the type of synapse at the given coordinates
+ *
+ *  @param    neuron_type_map  The neuron type map (INH, EXC).
+ *  @param    src_neuron  integer that points to a Neuron in the type map as a source.
+ *  @param    dest_neuron integer that points to a Neuron in the type map as a destination.
+ *  @return type of the synapse.
+ */
+CUDA_CALLABLE synapseType AllSynapses::synType(neuronType* neuron_type_map, const int src_neuron, const int dest_neuron)
+{
+    if ( neuron_type_map[src_neuron] == INH && neuron_type_map[dest_neuron] == INH )
+        return II;
+    else if ( neuron_type_map[src_neuron] == INH && neuron_type_map[dest_neuron] == EXC )
+        return IE;
+    else if ( neuron_type_map[src_neuron] == EXC && neuron_type_map[dest_neuron] == INH )
+        return EI;
+    else if ( neuron_type_map[src_neuron] == EXC && neuron_type_map[dest_neuron] == EXC )
+        return EE;
+
+    return STYPE_UNDEF;
+}
+
+/*
+ *  Reset time varying state vars and recompute decay.
+ *
+ *  @param  iSyn     Index of the synapse to set.
+ *  @param  deltaT   Inner simulation step duration
+ */
+CUDA_CALLABLE void AllSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
+{
+    dynamic_cast<AllSynapsesProps*>(m_pSynapsesProps)->psr[iSyn] = 0.0;
 }
 
 #if defined(USE_GPU)
