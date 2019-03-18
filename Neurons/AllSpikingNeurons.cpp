@@ -1,7 +1,6 @@
 #include "AllSpikingNeurons.h"
 #include "AllSpikingSynapses.h"
 #if defined(USE_GPU)
-#include "AllSynapsesDeviceFuncs.h"
 #include <helper_cuda.h>
 #endif
 
