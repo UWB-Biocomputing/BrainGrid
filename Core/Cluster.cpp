@@ -194,13 +194,17 @@ void Cluster::advanceThread(const SimulationInfo *sim_info, ClusterInfo *clr_inf
         m_barrierAdvance->Sync();
 
         // Process outgoing spiking data between clusters
-        processInterClustesOutgoingSpikes(clr_info);
+        if (sim_info->numClusters >= 2) {
+            processInterClustesOutgoingSpikes(clr_info);
+        }
 
         // wait until all threads are complete
         m_barrierAdvance->Sync();
 
         // Process incoming spiking data between clusters
-        processInterClustesIncomingSpikes(clr_info);
+        if (sim_info->numClusters >= 2) {
+            processInterClustesIncomingSpikes(clr_info);
+        }
 
         // wait until all threads are complete
         m_barrierAdvance->Sync();
