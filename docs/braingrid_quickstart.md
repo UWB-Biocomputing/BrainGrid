@@ -30,7 +30,7 @@ As a quick start and sanity test, let's run a small, prepackaged simulation to m
 
    **!!!** Note: Make sure your output file extension in the configuration file (under BrainGrid/configfiles/) matches your choice of **CUSEHDF5** flag. Otherwise an error will be thrown upon compilation. 
 
-   For example, if you are using HDF5, the output file extension should be **.h5** instead of **.xml**. 
+   For example, if you are using HDF5, the output file extension should be **.h5** instead of **.xml**. At runtime, the simulator will select the output format based on the filename extension. So, the compile flag merely builds in support for HDF5; the filename is what selects which format will actually be used.
 
    ```xml
    <OutputParams name="OutputParams">
@@ -68,7 +68,7 @@ As a quick start and sanity test, let's run a small, prepackaged simulation to m
    or run in multithreaded mode:
    
    ```shell
-   $ ./growth -c # ./configfiles/test-small.xml
+   $ ./growth -c # -t ./configfiles/test-small.xml
    ```
 
 5. The program will then run and display the current step and epoch of the simulation. The output of the simulation (after the end of the simulation) will be saved in the ```output``` folder.
@@ -110,7 +110,7 @@ The `screen` command will essentially allow you to start a simulation and then d
 
 
 -------------
-[>> Next: 4. Configuration](http://uwb-biocomputing.github.io/BrainGrid/4_configuration)
+[>> Next: 4. Configuration](braingrid_configuration)
 
 -------------
 [<< Go back to BrainGrid Home page](http://uwb-biocomputing.github.io/BrainGrid/)
