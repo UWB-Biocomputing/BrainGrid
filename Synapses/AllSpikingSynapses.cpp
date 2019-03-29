@@ -4,11 +4,11 @@
 #endif // USE_GPU
 
 // Default constructor
-AllSpikingSynapses::AllSpikingSynapses() 
+CUDA_CALLABLE AllSpikingSynapses::AllSpikingSynapses() 
 {
 }
 
-AllSpikingSynapses::~AllSpikingSynapses()
+CUDA_CALLABLE AllSpikingSynapses::~AllSpikingSynapses()
 {
 }
 

@@ -4,11 +4,11 @@
 #endif // USE_GPU
 
 // Default constructor
-AllDSSynapses::AllDSSynapses()
+CUDA_CALLABLE AllDSSynapses::AllDSSynapses()
 {
 }
 
-AllDSSynapses::~AllDSSynapses()
+CUDA_CALLABLE AllDSSynapses::~AllDSSynapses()
 {
 }
 

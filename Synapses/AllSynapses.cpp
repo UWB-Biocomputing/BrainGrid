@@ -3,11 +3,11 @@
 #include "SynapseIndexMap.h"
 
 // Default constructor
-AllSynapses::AllSynapses()
+CUDA_CALLABLE AllSynapses::AllSynapses()
 {
 }
 
-AllSynapses::~AllSynapses()
+CUDA_CALLABLE AllSynapses::~AllSynapses()
 {
 }
 

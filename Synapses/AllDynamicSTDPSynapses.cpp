@@ -4,11 +4,11 @@
 #endif // USE_GPU
 
 // Default constructor
-AllDynamicSTDPSynapses::AllDynamicSTDPSynapses()
+CUDA_CALLABLE AllDynamicSTDPSynapses::AllDynamicSTDPSynapses()
 {
 }
 
-AllDynamicSTDPSynapses::~AllDynamicSTDPSynapses()
+CUDA_CALLABLE AllDynamicSTDPSynapses::~AllDynamicSTDPSynapses()
 {
 }
 
