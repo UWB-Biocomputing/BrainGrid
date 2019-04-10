@@ -63,9 +63,6 @@ void ConnGrowth::updateConns(const SimulationInfo *sim_info, vector<Cluster *> &
  */
 void ConnGrowth::updateConnsThread(const SimulationInfo *sim_info, Cluster *clr, ClusterInfo *clr_info)
 {
-    int blockPerGrid = clr_info->blocksPerGrid;
-    int threadsPerBlock = clr_info->threadsPerBlock;
-
     // pointer to the GPU global memory to save rates and radii
     BGFLOAT* rates_d;
     BGFLOAT* radii_d;
@@ -96,7 +93,7 @@ void ConnGrowth::updateConnsThread(const SimulationInfo *sim_info, Cluster *clr,
 #endif // PERFORMANCE_METRICS
 
     // CUDA kernel function for calculating firing rates, neuron radii change and assign new values
-    updateConnsDevice <<< blockPerGrid, threadsPerBlock >>> (allNeuronsDevice, totalClusterNeurons, max_spikes, sim_info->epochDuration, m_growth.maxRate, m_growth.beta, m_growth.rho, m_growth.epsilon, rates_d, radii_d);
+    updateConnsDevice <<< clr_info->blocksPerGrid, clr_info->threadsPerBlock >>> (allNeuronsDevice, totalClusterNeurons, max_spikes, sim_info->epochDuration, m_growth.maxRate, m_growth.beta, m_growth.rho, m_growth.epsilon, rates_d, radii_d);
 
 #ifdef PERFORMANCE_METRICS
     cudaLapTime(clr_info, clr_info->t_gpu_updateConns);
@@ -146,9 +143,6 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
  */
 void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Layout *layout, Cluster *clr, ClusterInfo *clr_info)
 {
-    int blockPerGrid = clr_info->blocksPerGrid;
-    int threadsPerBlock = clr_info->threadsPerBlock;
-
     // For now, we just set the weights to equal the areas. We will later
     // scale it and set its sign (when we index and get its sign).
 
@@ -193,7 +187,7 @@ void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Lay
     cudaStartTimer(clr_info);
 #endif // PERFORMANCE_METRICS
 
-    updateSynapsesWeightsDevice <<< blocksPerGrid, threadsPerBlock >>> (sim_info->totalNeurons, deltaT, sim_info->maxSynapsesPerNeuron, allNeuronsDevice, allSynapsesDevice, neuron_type_map_d, totalClusterNeurons, clusterNeuronsBegin, radii_d, xloc_d, yloc_d);
+    updateSynapsesWeightsDevice <<< clr_info->blocksPerGrid, clr_info->threadsPerBlock >>> (sim_info->totalNeurons, deltaT, sim_info->maxSynapsesPerNeuron, allNeuronsDevice, allSynapsesDevice, neuron_type_map_d, totalClusterNeurons, clusterNeuronsBegin, radii_d, xloc_d, yloc_d);
 
 #ifdef PERFORMANCE_METRICS
     cudaLapTime(clr_info, clr_info->t_gpu_updateSynapsesWeights);

@@ -29,10 +29,7 @@ void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevi
     int neuron_count = clr_info->totalClusterNeurons;
     int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
 
-    // CUDA parameters
-    int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-
     // Advance neurons ------------->
-    advanceLIFNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeuronsDeviceProperties *)allNeuronsDevice, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset );
+    advanceLIFNeuronsDevice <<< clr_info->blocksPerGrid, clr_info->threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeuronsDeviceProperties *)allNeuronsDevice, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset );
 }
 

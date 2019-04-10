@@ -82,9 +82,9 @@ class ClusterInfo
         long seed;
 
 
-        extern const int threadsPerBlock = 1024;
+        const int threadsPerBlock = 1024;
 
-        extern int blocksPerGrid;
+        int blocksPerGrid;
 
 #if defined(USE_GPU)
         //! CUDA device ID
