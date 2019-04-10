@@ -30,7 +30,6 @@ void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevi
     int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
 
     // CUDA parameters
-    const int threadsPerBlock = 256;
     int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance neurons ------------->
