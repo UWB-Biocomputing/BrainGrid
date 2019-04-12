@@ -76,18 +76,14 @@ void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci
     int neuron_count = pci->totalClusterNeurons;
     int synapse_count = pci->totalClusterNeurons;
 
-    // CUDA parameters
-    const int threadsPerBlock = 256;
-    int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-
     // add input spikes to each synapse
-    inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->nISIs_d, pci->masks_d, psi->deltaT, m_lambda, pci->devStates_d, pci->allSynapsesDeviceSInput, pci->clusterID, iStepOffset );
+    inputStimulusDevice <<< pci->blocksPerGrid, pci->threadsPerBlock >>> ( neuron_count, pci->nISIs_d, pci->masks_d, psi->deltaT, m_lambda, pci->devStates_d, pci->allSynapsesDeviceSInput, pci->clusterID, iStepOffset );
 
     // advance synapses
-    advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, pci->synapseIndexMapDeviceSInput, g_simulationStep, psi->deltaT, (AllSpikingSynapsesDeviceProperties*)pci->allSynapsesDeviceSInput, iStepOffset );
+    advanceSpikingSynapsesDevice <<< pci->blocksPerGrid, pci->threadsPerBlock >>> ( synapse_count, pci->synapseIndexMapDeviceSInput, g_simulationStep, psi->deltaT, (AllSpikingSynapsesDeviceProperties*)pci->allSynapsesDeviceSInput, iStepOffset );
 
     // update summation point
-    applyI2SummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->allSynapsesDeviceSInput );
+    applyI2SummationMap <<< pci->blocksPerGrid, pci->threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->allSynapsesDeviceSInput );
     
 }
 
@@ -133,10 +129,7 @@ void GpuSInputPoisson::allocDeviceValues(SimulationInfo* psi, vector<ClusterInfo
         (pci->synapsesSInput)->allocSynapseDeviceStruct( (void **)&(pci->allSynapsesDeviceSInput), neuron_count, 1, pci->clusterID ); 
         (pci->synapsesSInput)->copySynapseHostToDevice( pci->allSynapsesDeviceSInput, neuron_count, 1 );
 
-        const int threadsPerBlock = 256;
-        int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-
-        initSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->allSynapsesDeviceSInput, pci->pClusterSummationMap, psi->width, psi->deltaT, m_weight );
+        initSynapsesDevice <<< pci->blocksPerGrid, pci->threadsPerBlock >>> ( neuron_count, pci->allSynapsesDeviceSInput, pci->pClusterSummationMap, psi->width, psi->deltaT, m_weight );
 
         // allocate memory for curand global state
         checkCudaErrors( cudaMalloc ( &(pci->devStates_d), neuron_count * sizeof( curandState ) ) );

@@ -216,6 +216,8 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
     // create clusters
     int numClusterNeurons = simInfo->totalNeurons / g_numClusters;	// number of neurons in cluster
 
+    simInfo->neuronBlocksPerGrid = (simInfo->totalClusterNeurons + simInfo->threadsPerBlock - 1) / simInfo->threadsPerBlock;
+
     for (int iCluster = 0; iCluster < g_numClusters; iCluster++) {
         // create a cluster information
         ClusterInfo *clusterInfo = new ClusterInfo();

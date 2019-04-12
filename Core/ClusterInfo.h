@@ -81,11 +81,6 @@ class ClusterInfo
         //! Seed used for the simulation random SINGLE THREADED
         long seed;
 
-
-        const int threadsPerBlock = 1024;
-
-        int blocksPerGrid;
-
 #if defined(USE_GPU)
         //! CUDA device ID
         int deviceId;

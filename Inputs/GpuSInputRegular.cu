@@ -88,15 +88,8 @@ void GpuSInputRegular::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci
     // for each cluster
     checkCudaErrors( cudaSetDevice( pci->deviceId ) );
 
-    int neuron_count = pci->totalClusterNeurons;
-
-    // CUDA parameters
-    const int threadsPerBlock = 256;
-    int blocksPerGrid; 
-
     // add input to each summation point
-    blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-    inputStimulusDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->initValues_d, pci->nShiftValues_d, pci->nStepsInCycle, m_nStepsCycle, m_nStepsDuration );
+    inputStimulusDevice <<< pci->blocksPerGrid, pci->threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->initValues_d, pci->nShiftValues_d, pci->nStepsInCycle, m_nStepsCycle, m_nStepsDuration );
 
     // update cycle count
     pci->nStepsInCycle = (pci->nStepsInCycle + 1) % m_nStepsCycle;
