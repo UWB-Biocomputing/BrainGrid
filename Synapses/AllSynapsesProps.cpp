@@ -109,6 +109,7 @@ void AllSynapsesProps::allocSynapsesDeviceProps( AllSynapsesProps &allSynapsesPr
     checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.sourceNeuronLayoutIndex, size * sizeof( int ) ) );
     checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.destNeuronLayoutIndex, size * sizeof( int ) ) );
     checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.W, size * sizeof( BGFLOAT ) ) );
+    checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.summationPoint, size * sizeof( BGFLOAT* ) ) );
     checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.type, size * sizeof( synapseType ) ) );
     checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.psr, size * sizeof( BGFLOAT ) ) );
     checkCudaErrors( cudaMalloc( ( void ** ) &allSynapsesProps.in_use, size * sizeof( bool ) ) );
@@ -126,6 +127,7 @@ void AllSynapsesProps::deleteSynapsesDeviceProps( AllSynapsesProps& allSynapsesP
     checkCudaErrors( cudaFree( allSynapsesProps.sourceNeuronLayoutIndex ) );
     checkCudaErrors( cudaFree( allSynapsesProps.destNeuronLayoutIndex ) );
     checkCudaErrors( cudaFree( allSynapsesProps.W ) );
+    checkCudaErrors( cudaFree( allSynapsesProps.summationPoint ) );
     checkCudaErrors( cudaFree( allSynapsesProps.type ) );
     checkCudaErrors( cudaFree( allSynapsesProps.psr ) );
     checkCudaErrors( cudaFree( allSynapsesProps.in_use ) );
