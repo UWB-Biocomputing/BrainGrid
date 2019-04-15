@@ -216,8 +216,6 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
     // create clusters
     int numClusterNeurons = simInfo->totalNeurons / g_numClusters;	// number of neurons in cluster
 
-    simInfo->neuronBlocksPerGrid = (numClusterNeurons + simInfo->threadsPerBlock - 1) / simInfo->threadsPerBlock;
-
     for (int iCluster = 0; iCluster < g_numClusters; iCluster++) {
         // create a cluster information
         ClusterInfo *clusterInfo = new ClusterInfo();
@@ -231,6 +229,8 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
         clusterInfo->seed = simInfo->seed + iCluster;
 #if defined(USE_GPU)
         clusterInfo->deviceId = g_deviceId + iCluster;
+        clusterInfo->threadsPerBlock = 1024;
+        clusterInfo->neuronBlocksPerGrid = (numClusterNeurons + clusterInfo->threadsPerBlock - 1) / clusterInfo->threadsPerBlock;
 #endif // USE_GPU
 
         // save the cluser information to the vector

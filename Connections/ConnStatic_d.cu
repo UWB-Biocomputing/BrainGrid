@@ -96,7 +96,7 @@ void ConnStatic::setupConnectionsThread(const SimulationInfo *sim_info, Layout *
     cudaStartTimer(clr_info);
 #endif // PERFORMANCE_METRICS
 
-    setupConnectionsDevice <<< sim_info->neuronBlocksPerGrid, sim_info->threadsPerBlock >>> (num_neurons, totalClusterNeurons, clusterNeuronsBegin, xloc_d, yloc_d, m_nConnsPerNeuron, m_threshConnsRadius, neuron_type_map_d, rDistDestNeuron_d, sim_info->deltaT, allNeuronsDevice, allSynapsesDevice, m_excWeight[0], m_excWeight[1], m_inhWeight[0], m_inhWeight[1], devStates_d, time(NULL));
+    setupConnectionsDevice <<< clr_info->neuronBlocksPerGrid, clr_info->threadsPerBlock >>> (num_neurons, totalClusterNeurons, clusterNeuronsBegin, xloc_d, yloc_d, m_nConnsPerNeuron, m_threshConnsRadius, neuron_type_map_d, rDistDestNeuron_d, sim_info->deltaT, allNeuronsDevice, allSynapsesDevice, m_excWeight[0], m_excWeight[1], m_inhWeight[0], m_inhWeight[1], devStates_d, time(NULL));
 
 #ifdef PERFORMANCE_METRICS
     cudaLapTime(clr_info, clr_info->t_gpu_setupConns);

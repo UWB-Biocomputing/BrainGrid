@@ -530,7 +530,7 @@ void GPUSpikingCluster::calcSummationMap_1(const SimulationInfo *sim_info, const
   }
 
   // call parallel reduction base summation kernel
-  calcSummationMapDevice_1 <<< 1, 1 >>> (numTotalSynapses, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron, clr_info->clusterNeuronsBegin);
+  calcSummationMapDevice_1 <<< 1, 1 >>> (numTotalSynapses, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron, clr_info->clusterNeuronsBegin, clr_info->threadsPerBlock);
 }
 
 /*
@@ -553,7 +553,7 @@ void GPUSpikingCluster::calcSummationMap_2(const SimulationInfo *sim_info, const
   }
 
   // call sequential addtion base summation kernel
-  calcSummationMapDevice_2 <<< sim_info->neuronBlocksPerGrid, sim_info->threadsPerBlock >>> ( clr_info->totalClusterNeurons, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice );
+  calcSummationMapDevice_2 <<< clr_info->neuronBlocksPerGrid, clr_info->threadsPerBlock >>> ( clr_info->totalClusterNeurons, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice );
 }
 
 /* ------------------*\
@@ -689,10 +689,9 @@ void GPUSpikingCluster::copySynapseIndexMapHostToDevice(const ClusterInfo *clr_i
  * @param[in] maxSynapsesPerNeuron   Maximum number of synapses per neuron. 
  * @param[in] clusterNeuronsBegin    Start neuron index of the cluster.
  */
-__global__ void calcSummationMapDevice_1(BGSIZE numTotalSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int maxSynapsesPerNeuron, int clusterNeuronsBegin)
+__global__ void calcSummationMapDevice_1(BGSIZE numTotalSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int maxSynapsesPerNeuron, int clusterNeuronsBegin, int threadsPerBlock)
 {
   // CUDA  parameters
-  const int threadsPerBlock = 256;
   int blocksPerGrid = ( numTotalSynapses + threadsPerBlock - 1 ) / threadsPerBlock;
 
   // pointer to the incoming synapses index map

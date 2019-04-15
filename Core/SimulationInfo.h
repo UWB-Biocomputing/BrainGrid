@@ -155,10 +155,6 @@ public:
 
         //! Stimulus input object.
         ISInput* pInput;
-
-        //! CUDA GPU params
-        const int threadsPerBlock = 1024;
-        int neuronBlocksPerGrid;
     
 #ifdef PERFORMANCE_METRICS
         /**
