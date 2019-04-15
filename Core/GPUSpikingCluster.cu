@@ -553,7 +553,7 @@ void GPUSpikingCluster::calcSummationMap_2(const SimulationInfo *sim_info, const
   }
 
   // call sequential addtion base summation kernel
-  calcSummationMapDevice_2 <<< clr_info->blocksPerGrid, clr_info->threadsPerBlock >>> ( clr_info->totalClusterNeurons, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice );
+  calcSummationMapDevice_2 <<< sim_info->neuronBlocksPerGrid, sim_info->threadsPerBlock >>> ( clr_info->totalClusterNeurons, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice );
 }
 
 /* ------------------*\

@@ -30,6 +30,6 @@ void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevi
     int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
 
     // Advance neurons ------------->
-    advanceLIFNeuronsDevice <<< clr_info->blocksPerGrid, clr_info->threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeuronsDeviceProperties *)allNeuronsDevice, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset );
+    advanceLIFNeuronsDevice <<< sim_info->neuronBlocksPerGrid, sim_info->threadsPerBlock >>> ( neuron_count, sim_info->maxSynapsesPerNeuron, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeuronsDeviceProperties *)allNeuronsDevice, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset );
 }
 

@@ -89,7 +89,7 @@ void GpuSInputRegular::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci
     checkCudaErrors( cudaSetDevice( pci->deviceId ) );
 
     // add input to each summation point
-    inputStimulusDevice <<< pci->blocksPerGrid, pci->threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->initValues_d, pci->nShiftValues_d, pci->nStepsInCycle, m_nStepsCycle, m_nStepsDuration );
+    inputStimulusDevice <<< psi->neuronBlocksPerGrid, pci->threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->initValues_d, pci->nShiftValues_d, pci->nStepsInCycle, m_nStepsCycle, m_nStepsDuration );
 
     // update cycle count
     pci->nStepsInCycle = (pci->nStepsInCycle + 1) % m_nStepsCycle;

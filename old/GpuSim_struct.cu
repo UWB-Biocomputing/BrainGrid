@@ -167,10 +167,6 @@ void allocDeviceStruct( SimulationInfo* psi,
 	// Set device ID
 	HANDLE_ERROR( cudaSetDevice( g_deviceId ) );
 
-	// CUDA parameters
-	const int threadsPerBlock = 256;
-	int blocksPerGrid;
-
 	// Allocate GPU device memory
 	int neuron_count = psi->cNeurons;
 	int synapse_count = neuron_count * maxSynapses;
@@ -199,8 +195,7 @@ void allocDeviceStruct( SimulationInfo* psi,
 	HANDLE_ERROR( cudaMemcpy ( rgNeuronTypeMap_d, psi->rgNeuronTypeMap, rgNeuronTypeMap_d_size, cudaMemcpyHostToDevice ) );
 
 	int width = psi->width;	
-	blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-	calcOffsets<<< blocksPerGrid, threadsPerBlock >>>( neuron_count, summationPoint_d, width, randNoise_d );
+	calcOffsets<<< psi->neuronBlocksPerGrid, psi->threadsPerBlock >>>( neuron_count, summationPoint_d, width, randNoise_d );
 
 	// create synapse inverse map
 	createSynapseImap( psi, maxSynapses );
@@ -249,10 +244,6 @@ void advanceGPU( SimulationInfo* psi, int maxSynapses )
 	
 	DEBUG(cout << "Beginning GPU sim cycle, simTime = " << g_simulationStep * deltaT << ", endTime = " << endStep * deltaT << endl;)
 
-	// CUDA parameters
-	const int threadsPerBlock = 256;
-	int blocksPerGrid;
-
 	uint64_t count = 0;
 
 #ifdef PERFORMANCE_METRICS
@@ -290,14 +281,13 @@ void advanceGPU( SimulationInfo* psi, int maxSynapses )
 
 		// display running info to console
 		// Advance neurons ------------->
-		blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 #ifdef PERFORMANCE_METRICS
 		cudaEventRecord( start, 0 );
 #endif // PERFORMANCE_METRICS
 #ifdef STORE_SPIKEHISTORY
 		advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, spikeHistory_d, g_simulationStep, maxSpikes, delayIdx.getIndex(), maxSynapses );
 #else
-		advanceNeuronsDevice <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, g_simulationStep, delayIdx.getIndex(), maxSynapses );
+		advanceNeuronsDevice <<< psi->neuronBlocksPerGrid, psi->threadsPerBlock >>> ( neuron_count, g_simulationStep, delayIdx.getIndex(), maxSynapses );
 #endif // STORE_SPIKEHISTORY
 #ifdef PERFORMANCE_METRICS
 		cudaEventRecord( stop, 0 );
@@ -307,12 +297,12 @@ void advanceGPU( SimulationInfo* psi, int maxSynapses )
 #endif // PERFORMANCE_METRICS
 
 		// Advance synapses ------------->
-		blocksPerGrid = ( synapse_count + threadsPerBlock - 1 ) / threadsPerBlock;
+		int blocksPerGrid = ( synapse_count + psi->threadsPerBlock - 1 ) / psi->threadsPerBlock;
 #ifdef PERFORMANCE_METRICS
 		cudaEventRecord( start, 0 );
 #endif // PERFORMANCE_METRICS
 		uint32_t bmask = delayIdx.getBitmask(  );
-		advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( synapse_count, width, g_simulationStep, bmask );
+		advanceSynapsesDevice <<< blocksPerGrid, psi->threadsPerBlock >>> ( synapse_count, width, g_simulationStep, bmask );
 #ifdef PERFORMANCE_METRICS
 		cudaEventRecord( stop, 0 );
 		cudaEventSynchronize( stop );
@@ -321,11 +311,10 @@ void advanceGPU( SimulationInfo* psi, int maxSynapses )
 #endif // PERFORMANCE_METRICS
 
 		// calculate summation point
-		blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
 #ifdef PERFORMANCE_METRICS
 		cudaEventRecord( start, 0 );
 #endif // PERFORMANCE_METRICS
-		calcSummationMap <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, inverseMap_d );
+		calcSummationMap <<< psi->blocksPerGrid, psi->threadsPerBlock >>> ( neuron_count, inverseMap_d );
 #ifdef PERFORMANCE_METRICS
 		cudaEventRecord( stop, 0 );
 		cudaEventSynchronize( stop );
@@ -391,10 +380,6 @@ void updateNetworkGPU( SimulationInfo* psi, CompleteMatrix& W, int maxSynapses )
 	int width = psi->width;
 	FLOAT deltaT = psi->deltaT;
 
-        // CUDA parameters
-        const int threadsPerBlock = 256;
-        int blocksPerGrid;
-
 	// allocate memories
 	size_t W_d_size = neuron_count * neuron_count * sizeof (FLOAT);
 	FLOAT* W_h = new FLOAT[W_d_size];
@@ -408,8 +393,7 @@ void updateNetworkGPU( SimulationInfo* psi, CompleteMatrix& W, int maxSynapses )
 
 	HANDLE_ERROR( cudaMemcpy ( W_d, W_h, W_d_size, cudaMemcpyHostToDevice ) );
 
-	blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-	updateNetworkDevice <<< blocksPerGrid, threadsPerBlock >>> ( summationPoint_d, rgNeuronTypeMap_d, neuron_count, width, deltaT, W_d, maxSynapses );
+	updateNetworkDevice <<< psi->blocksPerGrid, psi->threadsPerBlock >>> ( summationPoint_d, rgNeuronTypeMap_d, neuron_count, width, deltaT, W_d, maxSynapses );
 
 	// free memories
 	HANDLE_ERROR( cudaFree( W_d ) );

@@ -270,10 +270,9 @@ void AllSTDPSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuronsD
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
     // CUDA parameters
-    const int threadsPerBlock = 256;
-    int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
+    int blocksPerGrid = ( total_synapse_counts + sim_info->threadsPerBlock - 1 ) / sim_info->threadsPerBlock;
     // Advance synapses ------------->
-    advanceSTDPSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapsesDeviceProperties*)allSynapsesDevice, (AllSpikingNeuronsDeviceProperties*)allNeuronsDevice, max_spikes, sim_info->width, iStepOffset );
+    advanceSTDPSynapsesDevice <<< blocksPerGrid, sim_info->threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSTDPSynapsesDeviceProperties*)allSynapsesDevice, (AllSpikingNeuronsDeviceProperties*)allNeuronsDevice, max_spikes, sim_info->width, iStepOffset );
 }
 
 /*
