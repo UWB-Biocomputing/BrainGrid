@@ -282,7 +282,7 @@ __host__ void EventQueue::processInterClustersIncomingEvents(EventQueue* pEventQ
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( m_nInterClustersIncomingEvents + threadsPerBlock - 1 ) / threadsPerBlock;
 
-    processInterClustersIncomingEventsDevice <<< blocksPerGrid, clr_info->threadsPerBlock >>> ( m_nInterClustersIncomingEvents, pEventQueue );
+    processInterClustersIncomingEventsDevice <<< blocksPerGrid, threadsPerBlock >>> ( m_nInterClustersIncomingEvents, pEventQueue );
 
     // reset the host & device side number of incoming events
     m_nInterClustersIncomingEvents = 0;
