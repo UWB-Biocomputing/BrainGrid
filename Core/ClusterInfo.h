@@ -85,7 +85,7 @@ class ClusterInfo
         //! CUDA device ID
         int deviceId;
         int threadsPerBlock;
-        int neuronBlocksPerGrid
+        int neuronBlocksPerGrid;
 
         //! Function pointer to the summation map function
         typedef void (GPUSpikingCluster::*FCALCSUM) (const SimulationInfo*, const ClusterInfo*);

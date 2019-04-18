@@ -186,7 +186,7 @@ __device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeuronsDeviceProp
  */
 __global__ void advanceSpikingSynapsesDevice(int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int iStepOffset) {
     int idx_raw = 4 * (blockIdx.x * blockDim.x + threadIdx.x);
-#pragma unroll (1)
+
     for (int i = 0; i < 4; i++) {
         int idx = idx_raw + i;
         if (idx >= total_synapse_counts)
