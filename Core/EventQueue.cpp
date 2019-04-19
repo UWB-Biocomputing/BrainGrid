@@ -191,7 +191,7 @@ __device__ void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_TYP
 #else // USE_GPU
         // set a spike
         BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
-        assert( !(queue & (0x1 << idxQueue)) );
+        //assert( !(queue & (0x1 << idxQueue)) );
         queue |= (0x1 << idxQueue);
 #endif // USE_GPU
     }

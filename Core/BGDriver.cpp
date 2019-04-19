@@ -229,7 +229,7 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
         clusterInfo->seed = simInfo->seed + iCluster;
 #if defined(USE_GPU)
         clusterInfo->deviceId = g_deviceId + iCluster;
-        clusterInfo->threadsPerBlock = 1024;
+        clusterInfo->threadsPerBlock = 256;
         clusterInfo->neuronBlocksPerGrid = (numClusterNeurons + clusterInfo->threadsPerBlock - 1) / clusterInfo->threadsPerBlock;
 #endif // USE_GPU
 
