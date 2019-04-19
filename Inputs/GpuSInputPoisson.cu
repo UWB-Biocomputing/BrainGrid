@@ -80,7 +80,7 @@ void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci
     inputStimulusDevice <<< pci->neuronBlocksPerGrid, pci->threadsPerBlock >>> ( neuron_count, pci->nISIs_d, pci->masks_d, psi->deltaT, m_lambda, pci->devStates_d, pci->allSynapsesDeviceSInput, pci->clusterID, iStepOffset );
 
     // advance synapses
-    advanceSpikingSynapsesDevice <<< pci->neuronBlocksPerGrid, pci->threadsPerBlock >>> ( synapse_count, pci->synapseIndexMapDeviceSInput, g_simulationStep, psi->deltaT, (AllSpikingSynapsesDeviceProperties*)pci->allSynapsesDeviceSInput, iStepOffset );
+    advanceSpikingSynapsesDevice <<< pci->neuronBlocksPerGrid, pci->threadsPerBlock >>> ( synapse_count, pci->synapseIndexMapDeviceSInput, g_simulationStep, psi->deltaT, (AllSpikingSynapsesDeviceProperties*)pci->allSynapsesDeviceSInput, iStepOffset, 2 );
 
     // update summation point
     applyI2SummationMap <<< pci->neuronBlocksPerGrid, pci->threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->allSynapsesDeviceSInput );
