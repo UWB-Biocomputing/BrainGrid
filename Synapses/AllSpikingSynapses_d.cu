@@ -372,7 +372,7 @@ void AllSpikingSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuro
         return;
 
     // CUDA parameters
-    int threadGranularity = 2;
+    int threadGranularity = 4;
     int blocksPerGrid = ( total_synapse_counts + clr_info->threadsPerBlock - 1 ) / (clr_info->threadsPerBlock * threadGranularity);
 
     // Advance synapses ------------->

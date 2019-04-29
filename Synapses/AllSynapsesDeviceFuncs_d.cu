@@ -192,15 +192,33 @@ __global__ void advanceSpikingSynapsesDevice(int total_synapse_counts, SynapseIn
         if (idx >= total_synapse_counts)
             return;
         BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
-
+        BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
+        BGFLOAT decay = allSynapsesDevice->decay[iSyn];
         // is an input in the queue?
         if (isSpikingSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn, iStepOffset)) {
             switch (classSynapses_d) {
             case classAllSpikingSynapses:
-                changeSpikingSynapsesPSRDevice(static_cast<AllSpikingSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
+                BGFLOAT &W = allSynapsesDevice->W[iSyn];
+                psr += (W / decay);    // calculate psr
                 break;
             case classAllDSSynapses:
-                changeDSSynapsePSRDevice(static_cast<AllDSSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT, iStepOffset);
+                uint64_t &lastSpike = allSynapsesDevice->lastSpike[iSyn];
+                BGFLOAT &r = allSynapsesDevice->r[iSyn];
+                BGFLOAT &u = allSynapsesDevice->u[iSyn];
+                BGFLOAT D = allSynapsesDevice->D[iSyn];
+                BGFLOAT F = allSynapsesDevice->F[iSyn];
+                BGFLOAT U = allSynapsesDevice->U[iSyn];
+                BGFLOAT W = allSynapsesDevice->W[iSyn];
+
+                // adjust synapse parameters
+                if (lastSpike != ULONG_MAX) {
+                    BGFLOAT isi = (simulationStep + iStepOffset - lastSpike) * deltaT;
+                    r = 1 + (r * (1 - u) - 1) * exp(-isi / D);
+                    u = U + u * (1 - U) * exp(-isi / F);
+                }
+                psr += ((W / decay) * u * r);// calculate psr
+                lastSpike = simulationStep + iStepOffset; // record the time of the spike
+
                 break;
             default:
                 assert(false);
@@ -208,7 +226,7 @@ __global__ void advanceSpikingSynapsesDevice(int total_synapse_counts, SynapseIn
         }
 
         // decay the post spike response
-        allSynapsesDevice->psr[iSyn] *= allSynapsesDevice->decay[iSyn];
+        psr *= decay;
     }
 }
 

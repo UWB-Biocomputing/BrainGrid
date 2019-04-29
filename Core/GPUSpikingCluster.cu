@@ -378,7 +378,7 @@ void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterIn
   }
 
   // Advance neurons ------------->
-  m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoiseDevice, m_synapseIndexMapDevice, clr_info, iStepOffset);
+  //m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoiseDevice, m_synapseIndexMapDevice, clr_info, iStepOffset);
 
 #else // !VALIDATION
 
@@ -389,10 +389,12 @@ void GPUSpikingCluster::advanceNeurons(const SimulationInfo *sim_info, ClusterIn
   cudaStartTimer(clr_info);
 #endif // PERFORMANCE_METRICS
 
+#endif // !VALIDATION
+
   // Advance neurons ------------->
   m_neurons->advanceNeurons(*m_synapses, m_allNeuronsDevice, m_allSynapsesDevice, sim_info, randNoise_d, m_synapseIndexMapDevice, clr_info, iStepOffset);
 
-#endif // !VALIDATION
+
 
 #ifdef PERFORMANCE_METRICS
   cudaLapTime(clr_info, clr_info->t_gpu_advanceNeurons);
