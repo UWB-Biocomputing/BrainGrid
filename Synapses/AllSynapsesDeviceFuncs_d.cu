@@ -194,21 +194,22 @@ __global__ void advanceSpikingSynapsesDevice(int total_synapse_counts, SynapseIn
         BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
         BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
         BGFLOAT decay = allSynapsesDevice->decay[iSyn];
+        BGFLOAT &W = allSynapsesDevice->W[iSyn];
+
         // is an input in the queue?
         if (isSpikingSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn, iStepOffset)) {
             switch (classSynapses_d) {
             case classAllSpikingSynapses:
-                BGFLOAT &W = allSynapsesDevice->W[iSyn];
                 psr += (W / decay);    // calculate psr
                 break;
             case classAllDSSynapses:
+                static_cast<AllDSSynapsesDeviceProperties*>(allSynapsesDevice);
                 uint64_t &lastSpike = allSynapsesDevice->lastSpike[iSyn];
                 BGFLOAT &r = allSynapsesDevice->r[iSyn];
                 BGFLOAT &u = allSynapsesDevice->u[iSyn];
                 BGFLOAT D = allSynapsesDevice->D[iSyn];
                 BGFLOAT F = allSynapsesDevice->F[iSyn];
                 BGFLOAT U = allSynapsesDevice->U[iSyn];
-                BGFLOAT W = allSynapsesDevice->W[iSyn];
 
                 // adjust synapse parameters
                 if (lastSpike != ULONG_MAX) {
@@ -218,7 +219,6 @@ __global__ void advanceSpikingSynapsesDevice(int total_synapse_counts, SynapseIn
                 }
                 psr += ((W / decay) * u * r);// calculate psr
                 lastSpike = simulationStep + iStepOffset; // record the time of the spike
-
                 break;
             default:
                 assert(false);

@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Run simulation
-    //simulator->simulate(simInfo);
+    simulator->simulate(simInfo);
 
     // Terminate the stimulus input 
     if (simInfo->pInput != NULL)
