@@ -191,25 +191,26 @@ __global__ void advanceSpikingSynapsesDevice(int total_synapse_counts, SynapseIn
         int idx = idx_raw + i;
         if (idx >= total_synapse_counts)
             return;
+        int &total_delay = allSynapsesDevice->total_delay[iSyn];
         BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
         BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
         BGFLOAT decay = allSynapsesDevice->decay[iSyn];
         BGFLOAT &W = allSynapsesDevice->W[iSyn];
 
         // is an input in the queue?
-        if (isSpikingSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn, iStepOffset)) {
+        if (allSynapsesDevice->preSpikeQueue->checkAnEvent(iSyn, total_delay, iStepOffset)) {
             switch (classSynapses_d) {
             case classAllSpikingSynapses:
                 psr += (W / decay);    // calculate psr
                 break;
             case classAllDSSynapses:
-                static_cast<AllDSSynapsesDeviceProperties*>(allSynapsesDevice);
-                uint64_t &lastSpike = allSynapsesDevice->lastSpike[iSyn];
-                BGFLOAT &r = allSynapsesDevice->r[iSyn];
-                BGFLOAT &u = allSynapsesDevice->u[iSyn];
-                BGFLOAT D = allSynapsesDevice->D[iSyn];
-                BGFLOAT F = allSynapsesDevice->F[iSyn];
-                BGFLOAT U = allSynapsesDevice->U[iSyn];
+                AllDSSynapsesDeviceProperties *allDSSSynapsesDevice = static_cast<AllDSSynapsesDeviceProperties*>(allSynapsesDevice);
+                uint64_t &lastSpike = allDSSSynapsesDevice->lastSpike[iSyn];
+                BGFLOAT &r = allDSSSynapsesDevice->r[iSyn];
+                BGFLOAT &u = allDSSSynapsesDevice->u[iSyn];
+                BGFLOAT D = allDSSSynapsesDevice->D[iSyn];
+                BGFLOAT F = allDSSSynapsesDevice->F[iSyn];
+                BGFLOAT U = allDSSSynapsesDevice->U[iSyn];
 
                 // adjust synapse parameters
                 if (lastSpike != ULONG_MAX) {

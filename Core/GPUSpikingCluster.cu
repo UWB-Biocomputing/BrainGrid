@@ -412,7 +412,7 @@ void GPUSpikingCluster::processInterClustesOutgoingSpikes(ClusterInfo *clr_info)
   checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
 
   // wait until all CUDA related tasks complete
-  checkCudaErrors( cudaDeviceSynchronize() );
+  //checkCudaErrors( cudaDeviceSynchronize() );
 
 #ifdef PERFORMANCE_METRICS
   cudaStartTimer(clr_info);
@@ -437,7 +437,7 @@ void GPUSpikingCluster::processInterClustesIncomingSpikes(ClusterInfo *clr_info)
   checkCudaErrors( cudaSetDevice( clr_info->deviceId ) );
 
   // wait until all CUDA related tasks complete
-  checkCudaErrors( cudaDeviceSynchronize() );
+  //checkCudaErrors( cudaDeviceSynchronize() );
 
 #ifdef PERFORMANCE_METRICS
   cudaStartTimer(clr_info);
@@ -484,7 +484,7 @@ void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, ClusterI
 #endif // PERFORMANCE_METRICS
 
   // wait until all CUDA related tasks complete
-  checkCudaErrors( cudaDeviceSynchronize() );
+  //checkCudaErrors( cudaDeviceSynchronize() );
 }
 
 /*
@@ -509,7 +509,7 @@ void GPUSpikingCluster::advanceSpikeQueue(const SimulationInfo *sim_info, const 
   }
 
   // wait until all CUDA related tasks complete
-  checkCudaErrors( cudaDeviceSynchronize() );
+  //checkCudaErrors( cudaDeviceSynchronize() );
 }
 
 /*
