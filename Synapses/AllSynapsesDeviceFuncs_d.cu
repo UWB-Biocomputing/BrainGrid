@@ -184,51 +184,48 @@ __device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeuronsDeviceProp
  *                                   on device memory.
  *  @param[in] iStepOffset           Offset from the current simulation step.
  */
-__global__ void advanceSpikingSynapsesDevice(int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int iStepOffset, int threadGranularity) {
-    int idx_raw = threadGranularity * (blockIdx.x * blockDim.x + threadIdx.x);
+__global__ void advanceSpikingSynapsesDevice(const int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, const uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int iStepOffset) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    for (int i = 0; i < threadGranularity; i++) {
-        int idx = idx_raw + i;
-        if (idx >= total_synapse_counts)
-            return;
-        int &total_delay = allSynapsesDevice->total_delay[iSyn];
-        BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
-        BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
-        BGFLOAT decay = allSynapsesDevice->decay[iSyn];
-        BGFLOAT &W = allSynapsesDevice->W[iSyn];
+    if (idx >= total_synapse_counts)
+        return;
+    int &total_delay = allSynapsesDevice->total_delay[iSyn];
+    BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
+    BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
+    BGFLOAT decay = allSynapsesDevice->decay[iSyn];
+    BGFLOAT &W = allSynapsesDevice->W[iSyn];
 
-        // is an input in the queue?
-        if (allSynapsesDevice->preSpikeQueue->checkAnEvent(iSyn, total_delay, iStepOffset)) {
-            switch (classSynapses_d) {
-            case classAllSpikingSynapses:
-                psr += (W / decay);    // calculate psr
-                break;
-            case classAllDSSynapses:
-                AllDSSynapsesDeviceProperties *allDSSSynapsesDevice = static_cast<AllDSSynapsesDeviceProperties*>(allSynapsesDevice);
-                uint64_t &lastSpike = allDSSSynapsesDevice->lastSpike[iSyn];
-                BGFLOAT &r = allDSSSynapsesDevice->r[iSyn];
-                BGFLOAT &u = allDSSSynapsesDevice->u[iSyn];
-                BGFLOAT D = allDSSSynapsesDevice->D[iSyn];
-                BGFLOAT F = allDSSSynapsesDevice->F[iSyn];
-                BGFLOAT U = allDSSSynapsesDevice->U[iSyn];
+    // is an input in the queue?
+    if (allSynapsesDevice->preSpikeQueue->checkAnEvent(iSyn, total_delay, iStepOffset)) {
+        switch (classSynapses_d) {
+        case classAllSpikingSynapses:
+            psr += (W / decay);    // calculate psr
+            break;
+        case classAllDSSynapses:
+            AllDSSynapsesDeviceProperties *allDSSSynapsesDevice = static_cast<AllDSSynapsesDeviceProperties*>(allSynapsesDevice);
+            uint64_t &lastSpike = allDSSSynapsesDevice->lastSpike[iSyn];
+            BGFLOAT &r = allDSSSynapsesDevice->r[iSyn];
+            BGFLOAT &u = allDSSSynapsesDevice->u[iSyn];
+            BGFLOAT D = allDSSSynapsesDevice->D[iSyn];
+            BGFLOAT F = allDSSSynapsesDevice->F[iSyn];
+            BGFLOAT U = allDSSSynapsesDevice->U[iSyn];
 
-                // adjust synapse parameters
-                if (lastSpike != ULONG_MAX) {
-                    BGFLOAT isi = (simulationStep + iStepOffset - lastSpike) * deltaT;
-                    r = 1 + (r * (1 - u) - 1) * exp(-isi / D);
-                    u = U + u * (1 - U) * exp(-isi / F);
-                }
-                psr += ((W / decay) * u * r);// calculate psr
-                lastSpike = simulationStep + iStepOffset; // record the time of the spike
-                break;
-            default:
-                assert(false);
+            // adjust synapse parameters
+            if (lastSpike != ULONG_MAX) {
+                BGFLOAT isi = (simulationStep + iStepOffset - lastSpike) * deltaT;
+                r = 1 + (r * (1 - u) - 1) * exp(-isi / D);
+                u = U + u * (1 - U) * exp(-isi / F);
             }
+            psr += ((W / decay) * u * r);// calculate psr
+            lastSpike = simulationStep + iStepOffset; // record the time of the spike
+            break;
+        default:
+            assert(false);
         }
-
-        // decay the post spike response
-        psr *= decay;
     }
+
+    // decay the post spike response
+    psr *= decay;
 }
 
 /*

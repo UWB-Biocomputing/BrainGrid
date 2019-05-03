@@ -346,7 +346,7 @@ CUDA_CALLABLE void EventQueue::addAnEvent(const BGSIZE idx, const int delay, int
  * @param iStepOffset  offset from the current simulation step.
  * @return true if there is an event.
  */
-CUDA_CALLABLE bool EventQueue::checkAnEvent(const BGSIZE idx, int iStepOffset)
+CUDA_CALLABLE bool EventQueue::checkAnEvent(const BGSIZE idx, const int iStepOffset)
 {
     // check and reset the event
     uint32_t idxQueue = m_idxQueue + iStepOffset;

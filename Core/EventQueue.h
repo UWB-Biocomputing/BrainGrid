@@ -154,7 +154,7 @@ class EventQueue
          * @param iStepOffset  offset from the current simulation step.
          * @return true if there is an event.
          */
-        CUDA_CALLABLE bool checkAnEvent(const BGSIZE, int iStepOffset);
+        CUDA_CALLABLE bool checkAnEvent(const BGSIZE, const int iStepOffset);
 
         /**
          * Checks if there is an event in the queue.

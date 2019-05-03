@@ -22,7 +22,7 @@ extern __device__ enumClassSynapses classSynapses_d;
  *  @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
  *  @param[in] iStepOffset           Offset from the current simulation step.
  */
-extern __global__ void advanceSpikingSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int iStepOffset, int threadGranularity);
+extern __global__ void advanceSpikingSynapsesDevice ( const int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, const uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int iStepOffset);
 
 /*
  *  CUDA code for advancing STDP synapses.
