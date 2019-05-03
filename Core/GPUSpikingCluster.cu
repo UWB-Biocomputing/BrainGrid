@@ -131,30 +131,30 @@ void GPUSpikingCluster::allocDeviceStruct(void** allNeuronsDevice, void** allSyn
  * @param[in]  sim_info                  Pointer to the simulation information.
  * @param[in]  clr_info                  Pointer to the cluster information.
  */
-void GPUSpikingCluster::deleteDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info, ClusterInfo *clr_info)
+void GPUSpikingCluster::deleteDeviceStruct(void** allNeuronsDevice, void** allSynapsesDevice, SimulationInfo *sim_info, ClusterInfo *clr_info) 
 {
-  // copy device synapse and neuron structs to host memory
-  m_neurons->copyNeuronDeviceToHost( *allNeuronsDevice, sim_info, clr_info );
+    // copy device synapse and neuron structs to host memory
+    m_neurons->copyNeuronDeviceToHost( *allNeuronsDevice, sim_info, clr_info );
 
-  // Deallocate device memory
-  m_neurons->deleteNeuronDeviceStruct( *allNeuronsDevice, clr_info );
+    // Deallocate device memory
+    m_neurons->deleteNeuronDeviceStruct( *allNeuronsDevice, clr_info );
 
-  // copy device synapse and neuron structs to host memory
-  m_synapses->copySynapseDeviceToHost( *allSynapsesDevice, sim_info, clr_info );
+    // copy device synapse and neuron structs to host memory
+    m_synapses->copySynapseDeviceToHost( *allSynapsesDevice, sim_info, clr_info );
 
-  // Deallocate device memory
-  m_synapses->deleteSynapseDeviceStruct( *allSynapsesDevice );
+    // Deallocate device memory
+    m_synapses->deleteSynapseDeviceStruct( *allSynapsesDevice );
 
-  deleteSynapseImap();
+    deleteSynapseImap();
 
-#if defined(VALIDATION)
-  // Deallocate buffer to save random numbers in host memory
-  if (clr_info->clusterID == 0) {
-    delete[] m_randNoiseHost;
-  }
-#endif // VALIDATION
+    #if defined(VALIDATION)
+    // Deallocate buffer to save random numbers in host memory
+    if (clr_info->clusterID == 0) {
+        delete[] m_randNoiseHost;
+    }
+    #endif // VALIDATION
 
-  checkCudaErrors( cudaFree( randNoise_d ) );
+    checkCudaErrors( cudaFree( randNoise_d ) );
 }
 
 /*
@@ -253,21 +253,7 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
   // real execution time of each kernel. 
 
   // sequential addtion base summation
-  clr_info->fpCalcSummationMap = &GPUSpikingCluster::calcSummationMap_2;
-
-#if 0
-  // Disabled parallel reduction base summatio kernel. 
-  // In most case, sequential addtion base summation kernel exhibits better 
-  // performance.
-  BGFLOAT K = 1.0;
-  if (sim_info->maxSynapsesPerNeuron * K > clr_info->totalClusterNeurons) {
-    // parallel reduction base summation
-    clr_info->fpCalcSummationMap = &GPUSpikingCluster::calcSummationMap_1;
-  } else {
-    // sequential addtion base summation
-    clr_info->fpCalcSummationMap = &GPUSpikingCluster::calcSummationMap_2;
-  }
-#endif
+  clr_info->fpCalcSummationMap = &GPUSpikingCluster::calcSummationMap;
 }
 
 /* 
@@ -514,35 +500,12 @@ void GPUSpikingCluster::advanceSpikeQueue(const SimulationInfo *sim_info, const 
 
 /*
  * Add psr of all incoming synapses to summation points.
- * (parallel reduction base summation)
- *
- * @param[in] sim_info                   Pointer to the simulation information.
- * @param[in] clr_info                   Pointer to the cluster information.
- */
-void GPUSpikingCluster::calcSummationMap_1(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
-{
-  if (m_synapseIndexMap == NULL) {
-    return;
-  }
-
-  BGSIZE numTotalSynapses = m_synapseIndexMap->num_incoming_synapses;
-
-  if (numTotalSynapses == 0) {
-    return;
-  }
-
-  // call parallel reduction base summation kernel
-  calcSummationMapDevice_1 <<< 1, 1 >>> (numTotalSynapses, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice, sim_info->maxSynapsesPerNeuron, clr_info->clusterNeuronsBegin, clr_info->threadsPerBlock);
-}
-
-/*
- * Add psr of all incoming synapses to summation points.
  * (sequential addtion base summation)
  *
  * @param[in] sim_info                   Pointer to the simulation information.
  * @param[in] clr_info                   Pointer to the cluster information.
  */
-void GPUSpikingCluster::calcSummationMap_2(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+void GPUSpikingCluster::calcSummationMap(const SimulationInfo *sim_info, const ClusterInfo *clr_info)
 {
   if (m_synapseIndexMap == NULL) {
     return;
@@ -555,7 +518,7 @@ void GPUSpikingCluster::calcSummationMap_2(const SimulationInfo *sim_info, const
   }
 
   // call sequential addtion base summation kernel
-  calcSummationMapDevice_2 <<< clr_info->neuronBlocksPerGrid, clr_info->threadsPerBlock >>> ( clr_info->totalClusterNeurons, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice );
+  calcSummationMapDevice <<< clr_info->neuronBlocksPerGrid, clr_info->threadsPerBlock >>> ( clr_info->totalClusterNeurons, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice );
 }
 
 /* ------------------*\
@@ -676,116 +639,6 @@ void GPUSpikingCluster::copySynapseIndexMapHostToDevice(const ClusterInfo *clr_i
 
 /**
  * Calculate the sum of synaptic input to each neuron.
- * (use parallel reduction method)
- *
- * Calculate the sum of synaptic input to each neuron's block. This kernel
- * spawns another kernel function (reduceSummationMapKernel), which 
- * corresponfs each incoming synapse, to perform  parallel reduction 
- * method to calculate the summation of synaptic inputs (dynamic 
- * parallelism in CUDA).
- *
- * @param[in] numTotalSynapses       Number of total incoming synapses.
- * @param[in,out] allNeuronsDevice   Pointer to Neuron structures in device memory.
- * @param[in] synapseIndexMapDevice  Pointer to synapse index  map structures in device memory.
- * @param[in] allSynapsesDevice      Pointer to Synapse structures in device memory.
- * @param[in] maxSynapsesPerNeuron   Maximum number of synapses per neuron. 
- * @param[in] clusterNeuronsBegin    Start neuron index of the cluster.
- */
-__global__ void calcSummationMapDevice_1(BGSIZE numTotalSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int maxSynapsesPerNeuron, int clusterNeuronsBegin, int threadsPerBlock)
-{
-  // CUDA  parameters
-  int blocksPerGrid = ( numTotalSynapses + threadsPerBlock - 1 ) / threadsPerBlock;
-
-  // pointer to the incoming synapses index map
-  BGSIZE* indexMap = synapseIndexMapDevice->incomingSynapseIndexMap;
-
-  // pointer to the count of each neuron's block of incoming map entries
-  BGSIZE* synapseCount = synapseIndexMapDevice->incomingSynapseCount;
-
-  // pointer to the start of each neuron's block of incoming map entries
-  BGSIZE* synapseBegin = synapseIndexMapDevice->incomingSynapseBegin;
-
-  // do reduction
-  for (unsigned int s = 1; s < maxSynapsesPerNeuron; s *= 2) {
-    // Call another CUDA kernel (dynamic parallelism in CUDA) here.
-    // Because CUDA does not have global thread synchronization, we need to invoke
-    // another CUDA kernel function to synchronize reduction steps.
-
-    reduceSummationMapKernel <<< blocksPerGrid, threadsPerBlock >>> (numTotalSynapses, s, allSynapsesDevice, allNeuronsDevice, indexMap, synapseCount, synapseBegin, clusterNeuronsBegin);
-  }
-}
-
-/**
- * Helper kernel function for calcSummationMapDevice.
- *
- * Calculate the sum of synaptic input to each neuron's block. 
- * One thread corresponfs each incoming synapse and performs one step of 
- * parallel reduction method to calculate the summation of synaptic inputs.
- *
- * @param[in] numTotalSynapses      Number of total incoming synapses.
- * @param[in] s                     Size of stride of the reduction.
- * @param[in] allSynapsesDevice     Pointer to Synapse structures in device memory.
- * @param[in,out] allNeuronsDevice  Pointer to Neuron structures in device memory.
- * @param[in] indexMap              Pointer to incoming synapses index map.
- * @param[in] synapseCount          Pointer to count of each neuron's block of incoming map entries.
- * @param[in] synapseBegin          Pointer to start of each neuron's block of incoming map entries.
- * @param[in] clusterNeuronsBegin   Start neuron index of the cluster.
- */
-__global__ void reduceSummationMapKernel(BGSIZE numTotalSynapses, unsigned int s, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, BGSIZE* indexMap, BGSIZE* synapseCount, BGSIZE* synapseBegin, int clusterNeuronsBegin)
-{
-  int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  if ( idx >= numTotalSynapses )
-    return;
-
-  // Add two 'psr' (post synapti response) values of synapses, indexed by 'synIndex_1' and
-  // 'synIndex_2' (synIndex_1+s), and stores the result to 'summation' of the first synapse.
-  // At end of reduction, the 'summation' has the total 'psr' summation of each neuron's block.
-  // 'indexMap' stores all incoming synapse indexes. Synapses that have the same destination
-  // neuron (same 'destNeuronLayoutIndex') belong to the same neuron's bloack, and 
-  // are stored sequencially in the 'indexMap'. Start index and number of synapses of each 
-  // neuron's block (specified by 'neuIndex_1') are identfied by 'synapseBegin[neuIndex_1]' 
-  // and 'synapseCount[neuIndex_1]' respectively.
-  // 'destNeuronLayoutIndex' is global neuron index, and 'neuIndex_1' is local (cluster)
-  // neuron index, so we need conversion (subtracting clusterNeuronsBegin).
-
-  BGSIZE synIndex_1 = indexMap[idx]; 
-  int neuIndex_1 = allSynapsesDevice->destNeuronLayoutIndex[synIndex_1] - clusterNeuronsBegin;
-  BGSIZE synCount = synapseCount[neuIndex_1];
-  if (s > synCount)
-    return;
-
-  BGSIZE beginIndex = synapseBegin[neuIndex_1];
-  int offsetIndex = idx - beginIndex;
-  DEBUG_MID( assert( offsetIndex >= 0 ); )
-
-  if (offsetIndex % (2*s) == 0) {
-    if (s == 1) {
-      allSynapsesDevice->summation[synIndex_1] = allSynapsesDevice->psr[synIndex_1];
-    }
-
-    if (offsetIndex + s < synCount ) {
-      BGSIZE synIndex_2 = indexMap[idx + s];
-
-      DEBUG_MID(
-      int neuIndex_2 = allSynapsesDevice->destNeuronLayoutIndex[synIndex_2] - clusterNeuronsBegin;
-      assert( neuIndex_1 == neuIndex_2 );
-      ) // end DEBUG
-
-      if (s == 1) {
-        allSynapsesDevice->summation[synIndex_2] = allSynapsesDevice->psr[synIndex_2];
-      }
-
-      allSynapsesDevice->summation[synIndex_1] = allSynapsesDevice->summation[synIndex_1] + allSynapsesDevice->summation[synIndex_2];
-    }
-
-    if ( (2*s) >= synCount) {
-      allNeuronsDevice->summation_map[neuIndex_1] = allSynapsesDevice->summation[synIndex_1];
-    }
-  }
-}
-
-/**
- * Calculate the sum of synaptic input to each neuron.
  *
  * Calculate the sum of synaptic input to each neuron. One thread
  * corresponds to one neuron. Iterates sequentially through the
@@ -802,38 +655,29 @@ __global__ void reduceSummationMapKernel(BGSIZE numTotalSynapses, unsigned int s
  * @param[in] synapseIndexMapDevice  Pointer to forward map structures in device memory.
  * @param[in] allSynapsesDevice      Pointer to Synapse structures in device memory.
  */
-__global__ void calcSummationMapDevice_2(int totalNeurons, 
+__global__ void calcSummationMapDevice(int totalNeurons, 
 				       AllSpikingNeuronsDeviceProperties* __restrict__ allNeuronsDevice, 
 				       const SynapseIndexMap* __restrict__ synapseIndexMapDevice, 
 				       const AllSpikingSynapsesDeviceProperties* __restrict__ allSynapsesDevice)
 {
-  // The usual thread ID calculation and guard against excess threads
-  // (beyond the number of neurons, in this case).
-  int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  if ( idx >= totalNeurons )
-    return;
+	int idx = blockIdx.x * blockDim.x + threadIdx.x;
+	if ( idx >= totalNeurons )
+		return;
+	const BGSIZE synCount = synapseIndexMapDevice->incomingSynapseCount[idx];
 
-  // Number of incoming synapses
-  const BGSIZE synCount = synapseIndexMapDevice->incomingSynapseCount[idx];
-  // Optimization: terminate thread if no incoming synapses
-  if (synCount != 0) {
-    // Index of start of this neuron's block of forward map entries
-    const int beginIndex = synapseIndexMapDevice->incomingSynapseBegin[idx];
-    // Address of the start of this neuron's block of forward map entries
-    const BGSIZE* activeMap_begin = 
-      &(synapseIndexMapDevice->incomingSynapseIndexMap[beginIndex]);
-    // Summed postsynaptic response (PSR)
-    BGFLOAT sum = 0.0;
-    // Index of the current incoming synapse
-    BGSIZE synIndex;
-    // Repeat for each incoming synapse
-    for (BGSIZE i = 0; i < synCount; i++) {
-      // Get index of current incoming synapse
-      synIndex = activeMap_begin[i];
-      // Fetch its PSR and add into sum
-      sum += allSynapsesDevice->psr[synIndex];
-    }
-    // Store summed PSR into this neuron's summation point
-    allNeuronsDevice->summation_map[idx] = sum;
-  }
+	if (synCount != 0) {
+		const int beginIndex = synapseIndexMapDevice->incomingSynapseBegin[idx];
+		const BGSIZE* activeMap_begin = 
+			&(synapseIndexMapDevice->incomingSynapseIndexMap[beginIndex]);
+
+		BGFLOAT sum = 0.0;
+		BGSIZE synIndex;
+
+		for (BGSIZE i = 0; i < synCount; i++) {
+			synIndex = activeMap_begin[i];
+			sum += allSynapsesDevice->psr[synIndex];
+		}
+		// Store summed PSR into this neuron's summation point
+		allNeuronsDevice->summation_map[idx] = sum;
+	}
 }
