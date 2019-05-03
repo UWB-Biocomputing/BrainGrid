@@ -27,6 +27,7 @@
 #include "GPUSpikingCluster.h"
 #include "ISInput.h"
 #include "MersenneTwister_d.h"
+#include <thrust/reduce.h>
 
 // ----------------------------------------------------------------------------
 
@@ -669,7 +670,7 @@ __global__ void calcSummationMapDevice(int totalNeurons,
 		const int beginIndex = synapseIndexMapDevice->incomingSynapseBegin[idx];
 		const BGSIZE* activeMap_begin = 
 			&(synapseIndexMapDevice->incomingSynapseIndexMap[beginIndex]);
-
+		/*
 		BGFLOAT sum = 0.0;
 		BGSIZE synIndex;
 
@@ -678,6 +679,11 @@ __global__ void calcSummationMapDevice(int totalNeurons,
 			sum += allSynapsesDevice->psr[synIndex];
 		}
 		// Store summed PSR into this neuron's summation point
-		allNeuronsDevice->summation_map[idx] = sum;
+		allNeuronsDevice->summation_map[idx] = sum;*/
+
+
+		allNeuronsDevice->summation_map[idx] = thrust::reduce(activeMap_begin, activeMap_begin + synCount);
 	}
+
+	
 }
