@@ -27,7 +27,6 @@
 #include "GPUSpikingCluster.h"
 #include "ISInput.h"
 #include "MersenneTwister_d.h"
-#include <thrust/reduce.h>
 
 // ----------------------------------------------------------------------------
 
