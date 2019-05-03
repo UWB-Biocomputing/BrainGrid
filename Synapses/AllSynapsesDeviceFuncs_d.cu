@@ -189,8 +189,10 @@ __global__ void advanceSpikingSynapsesDevice(const int total_synapse_counts, Syn
 
     if (idx >= total_synapse_counts)
         return;
-    int &total_delay = allSynapsesDevice->total_delay[iSyn];
-    BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
+    
+	BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
+
+	int &total_delay = allSynapsesDevice->total_delay[iSyn];
     BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
     BGFLOAT decay = allSynapsesDevice->decay[iSyn];
     BGFLOAT &W = allSynapsesDevice->W[iSyn];

@@ -66,99 +66,104 @@ __device__ void postSTDPSynapseSpikeHitDevice( const BGSIZE iSyn, AllSTDPSynapse
  *  @param[in] iStepOffset           Offset from the current simulation step.
  */
 __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, float* randNoise, AllIFNeuronsDeviceProperties* allNeuronsDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, SynapseIndexMap* synapseIndexMapDevice, bool fAllowBackPropagation, int iStepOffset ) {
-        // determine which neuron this thread is processing
-        int idx = blockIdx.x * blockDim.x + threadIdx.x;
-        if ( idx >= totalNeurons )
-                return;
+    // determine which neuron this thread is processing
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( idx >= totalNeurons )
+            return;
 
-        allNeuronsDevice->hasFired[idx] = false;
-        BGFLOAT& sp = allNeuronsDevice->summation_map[idx];
-        BGFLOAT& vm = allNeuronsDevice->Vm[idx];
-        BGFLOAT r_sp = sp;
-        BGFLOAT r_vm = vm;
+	BGFLOAT& sp = allNeuronsDevice->summation_map[idx];
 
-        if ( allNeuronsDevice->nStepsInRefr[idx] > 0 ) { // is neuron refractory?
-                --allNeuronsDevice->nStepsInRefr[idx];
-        } else if ( r_vm >= allNeuronsDevice->Vthresh[idx] ) { // should it fire?
-                int& spikeCount = allNeuronsDevice->spikeCount[idx];
-                int& spikeCountOffset = allNeuronsDevice->spikeCountOffset[idx];
+	if (allNeuronsDevice->nStepsInRefr[idx] > 0) { // is neuron refractory?
+		allNeuronsDevice->hasFired[idx] = false;
+		--allNeuronsDevice->nStepsInRefr[idx];
+		sp = 0;
+		return;
+	}
 
-                // Note that the neuron has fired!
-                allNeuronsDevice->hasFired[idx] = true;
+	BGFLOAT& vm = allNeuronsDevice->Vm[idx];
 
-                // record spike time
-                int idxSp = (spikeCount + spikeCountOffset) % maxSpikes;
-                allNeuronsDevice->spike_history[idx][idxSp] = simulationStep + iStepOffset;
-                spikeCount++;
+    if ( vm >= allNeuronsDevice->Vthresh[idx] ) { // should it fire?
+        int& spikeCount = allNeuronsDevice->spikeCount[idx];
+        int& spikeCountOffset = allNeuronsDevice->spikeCountOffset[idx];
 
-                DEBUG_SYNAPSE(
-                    printf("advanceLIFNeuronsDevice\n");
-                    printf("          index: %d\n", idx);
-                    printf("          simulationStep: %d\n\n", simulationStep + iStepOffset);
-                );
+        // Note that the neuron has fired!
+        allNeuronsDevice->hasFired[idx] = true;
 
-                // calculate the number of steps in the absolute refractory period
-                allNeuronsDevice->nStepsInRefr[idx] = static_cast<int> ( allNeuronsDevice->Trefract[idx] / deltaT + 0.5 );
+        // record spike time
+        int idxSp = (spikeCount + spikeCountOffset) % maxSpikes;
+        allNeuronsDevice->spike_history[idx][idxSp] = simulationStep + iStepOffset;
+        spikeCount++;
 
-                // reset to 'Vreset'
-                vm = allNeuronsDevice->Vreset[idx];
+        DEBUG_SYNAPSE(
+            printf("advanceLIFNeuronsDevice\n");
+            printf("          index: %d\n", idx);
+            printf("          simulationStep: %d\n\n", simulationStep + iStepOffset);
+        );
 
-                // notify outgoing synapses of spike
-                BGSIZE synapse_counts = synapseIndexMapDevice->outgoingSynapseCount[idx];
-                if (synapse_counts != 0) {
-                    // get the index of where this neuron's list of synapses are
-                    BGSIZE beginIndex = synapseIndexMapDevice->outgoingSynapseBegin[idx];
-                    // get the memory location of where that list begins
-                    OUTGOING_SYNAPSE_INDEX_TYPE* outgoingMap_begin = &(synapseIndexMapDevice->outgoingSynapseIndexMap[beginIndex]);
+        // calculate the number of steps in the absolute refractory period
+        allNeuronsDevice->nStepsInRefr[idx] = static_cast<int> ( allNeuronsDevice->Trefract[idx] / deltaT + 0.5 );
 
-                    // for each synapse, let them know we have fired
-                    for (BGSIZE i = 0; i < synapse_counts; i++) {
-                        OUTGOING_SYNAPSE_INDEX_TYPE idx = outgoingMap_begin[i];
-                        // outgoing synapse index consists of cluster index + synapse index
-                        CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIndex(idx);
-                        BGSIZE iSyn = SynapseIndexMap::getSynapseIndex(idx);
-                        preSpikingSynapsesSpikeHitDevice(iSyn, allSynapsesDevice, iCluster, iStepOffset);
-                    }
-                }
+        // reset to 'Vreset'
+        vm = allNeuronsDevice->Vreset[idx];
 
-                // notify incomming synapses of spike
-                synapse_counts = synapseIndexMapDevice->incomingSynapseCount[idx];
-                if (fAllowBackPropagation && synapse_counts != 0) {
-                    // get the index of where this neuron's list of synapses are
-                    BGSIZE beginIndex = synapseIndexMapDevice->incomingSynapseBegin[idx];
-                    // get the memory location of where that list begins
-                    BGSIZE* incomingMap_begin = &(synapseIndexMapDevice->incomingSynapseIndexMap[beginIndex]);
+        // notify outgoing synapses of spike
+        BGSIZE synapse_counts = synapseIndexMapDevice->outgoingSynapseCount[idx];
+        if (synapse_counts != 0) {
+            // get the index of where this neuron's list of synapses are
+            BGSIZE beginIndex = synapseIndexMapDevice->outgoingSynapseBegin[idx];
+            // get the memory location of where that list begins
+            OUTGOING_SYNAPSE_INDEX_TYPE* outgoingMap_begin = &(synapseIndexMapDevice->outgoingSynapseIndexMap[beginIndex]);
 
-                    // for each synapse, let them know we have fired
-                    switch (classSynapses_d) {
-                    case classAllSTDPSynapses:
-                    case classAllDynamicSTDPSynapses:
-                        for (BGSIZE i = 0; i < synapse_counts; i++) {
-                            postSTDPSynapseSpikeHitDevice(incomingMap_begin[i], static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice), iStepOffset);
-                        } // end for
-                        break;
-
-                    case classAllSpikingSynapses:
-                    case classAllDSSynapses:
-                        for (BGSIZE i = 0; i < synapse_counts; i++) {
-                            postSpikingSynapsesSpikeHitDevice(incomingMap_begin[i], allSynapsesDevice, iStepOffset);
-                        } // end for
-                        break;
-
-                    default:
-                        assert(false);
-                    } // end switch
-                }
-        } else {
-                r_sp += allNeuronsDevice->I0[idx]; // add IO
-
-                // Random number alg. goes here
-                r_sp += (randNoise[idx] * allNeuronsDevice->Inoise[idx]); // add cheap noise
-                vm = allNeuronsDevice->C1[idx] * r_vm + allNeuronsDevice->C2[idx] * ( r_sp ); // decay Vm and add inputs
+            // for each synapse, let them know we have fired
+            for (BGSIZE i = 0; i < synapse_counts; i++) {
+                OUTGOING_SYNAPSE_INDEX_TYPE idx = outgoingMap_begin[i];
+                // outgoing synapse index consists of cluster index + synapse index
+                CLUSTER_INDEX_TYPE iCluster = SynapseIndexMap::getClusterIndex(idx);
+                BGSIZE iSyn = SynapseIndexMap::getSynapseIndex(idx);
+				allSynapsesDevice->preSpikeQueue->addAnEvent(iSyn, iCluster, iStepOffset);
+            }
         }
 
-        // clear synaptic input for next time step
-        sp = 0;
+        // notify incomming synapses of spike
+        synapse_counts = synapseIndexMapDevice->incomingSynapseCount[idx];
+        if (fAllowBackPropagation && synapse_counts != 0) {
+            switch (classSynapses_d) {
+            case classAllSTDPSynapses:
+            case classAllDynamicSTDPSynapses:
+				// get the index of where this neuron's list of synapses are
+				BGSIZE beginIndex = synapseIndexMapDevice->incomingSynapseBegin[idx];
+				// get the memory location of where that list begins
+				BGSIZE* incomingMap_begin = &(synapseIndexMapDevice->incomingSynapseIndexMap[beginIndex]);
+
+				// for each synapse, let them know we have fired
+
+                for (BGSIZE i = 0; i < synapse_counts; i++) {
+                    postSTDPSynapseSpikeHitDevice(incomingMap_begin[i], static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice), iStepOffset);
+                }
+                break;
+
+            case classAllSpikingSynapses:
+            case classAllDSSynapses:
+                //for (BGSIZE i = 0; i < synapse_counts; i++) {
+                //    postSpikingSynapsesSpikeHitDevice(incomingMap_begin[i], allSynapsesDevice, iStepOffset);
+                //}
+                break;
+
+            default:
+                assert(false);
+            }
+        }
+    } else {
+		BGFLOAT r_sp = sp + allNeuronsDevice->I0[idx]; // add IO
+		allNeuronsDevice->hasFired[idx] = false;
+
+        // Random number alg. goes here
+        r_sp += (randNoise[idx] * allNeuronsDevice->Inoise[idx]); // add cheap noise
+        vm = allNeuronsDevice->C1[idx] * vm + allNeuronsDevice->C2[idx] * r_sp; // decay Vm and add inputs
+    }
+
+    // clear synaptic input for next time step
+    sp = 0;
 }
 
 /*

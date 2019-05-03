@@ -372,11 +372,10 @@ void AllSpikingSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuro
         return;
 
     // CUDA parameters
-    int threadGranularity = 1;
-    int blocksPerGrid = ( total_synapse_counts + clr_info->threadsPerBlock - 1 ) / (clr_info->threadsPerBlock * threadGranularity);
+    int blocksPerGrid = ( total_synapse_counts + clr_info->threadsPerBlock - 1 ) / clr_info->threadsPerBlock;
 
     // Advance synapses ------------->
-    advanceSpikingSynapsesDevice <<< blocksPerGrid, clr_info->threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, iStepOffset, threadGranularity);
+    advanceSpikingSynapsesDevice <<< blocksPerGrid, clr_info->threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, iStepOffset);
 }
 
 /*
