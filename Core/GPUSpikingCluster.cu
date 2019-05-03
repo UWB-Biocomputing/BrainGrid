@@ -519,27 +519,7 @@ void GPUSpikingCluster::calcSummationMap(const SimulationInfo *sim_info, const C
   }
 
   // call sequential addtion base summation kernel
-  //calcSummationMapDevice <<< clr_info->neuronBlocksPerGrid, clr_info->threadsPerBlock >>> ( clr_info->totalClusterNeurons, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice );
-
-
-	int totalNeurons = clr_info->totalClusterNeurons;
-	AllSpikingNeuronsDeviceProperties* allNeuronsDevice = m_allNeuronsDevice;
-	const SynapseIndexMap* synapseIndexMapDevice = m_synapseIndexMapDevice;
-	const AllSpikingSynapsesDeviceProperties* allSynapsesDevice = m_allSynapsesDevice;
-
-	for (int idx = 0; idx < totalNeurons; idx++) {
-		if ( idx >= totalNeurons )
-			return;
-		const BGSIZE synCount = synapseIndexMapDevice->incomingSynapseCount[idx];
-
-		if (synCount != 0) {
-			const int beginIndex = synapseIndexMapDevice->incomingSynapseBegin[idx];
-			const BGSIZE* activeMap_begin = 
-				&(synapseIndexMapDevice->incomingSynapseIndexMap[beginIndex]);
-
-			allNeuronsDevice->summation_map[idx] = thrust::reduce(activeMap_begin, activeMap_begin + synCount);
-		}
-	}
+  calcSummationMapDevice <<< clr_info->neuronBlocksPerGrid, clr_info->threadsPerBlock >>> ( clr_info->totalClusterNeurons, m_allNeuronsDevice, m_synapseIndexMapDevice, m_allSynapsesDevice );
 }
 
 /* ------------------*\
@@ -690,7 +670,6 @@ __global__ void calcSummationMapDevice(int totalNeurons,
 		const int beginIndex = synapseIndexMapDevice->incomingSynapseBegin[idx];
 		const BGSIZE* activeMap_begin = 
 			&(synapseIndexMapDevice->incomingSynapseIndexMap[beginIndex]);
-		/*
 		BGFLOAT sum = 0.0;
 		BGSIZE synIndex;
 
@@ -699,10 +678,7 @@ __global__ void calcSummationMapDevice(int totalNeurons,
 			sum += allSynapsesDevice->psr[synIndex];
 		}
 		// Store summed PSR into this neuron's summation point
-		allNeuronsDevice->summation_map[idx] = sum;*/
-
-
-		allNeuronsDevice->summation_map[idx] = thrust::reduce(activeMap_begin, activeMap_begin + synCount);
+		allNeuronsDevice->summation_map[idx] = sum;
 	}
 
 	
