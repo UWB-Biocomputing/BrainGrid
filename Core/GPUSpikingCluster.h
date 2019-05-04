@@ -65,6 +65,8 @@
 #include "Model.h"
 #include "AllSpikingNeurons.h"
 #include "AllSpikingSynapses.h"
+#include "ISInput.h"
+#include "MersenneTwister_d.h"
 #ifdef __CUDACC__
 #include <helper_cuda.h>
 #endif
@@ -87,7 +89,7 @@ inline void cudaLapTime(ClusterInfo *clr_info, double& t_event) {
 	// The CUDA functions return time in milliseconds
 	t_event += clr_info->g_time / 1000.0;
 };
-#endif // PERFORMANCE_METRICS
+#endif
 
 class AllSpikingSynapses;
 
@@ -96,7 +98,7 @@ class GPUSpikingCluster : public Cluster {
 
 public:
 	GPUSpikingCluster(IAllNeurons *neurons, IAllSynapses *synapses);
-	virtual ~GPUSpikingCluster();
+	virtual ~GPUSpikingCluster() {}
 
 	/**
 	 * Set up model state, if anym for a specific simulation run.
@@ -131,7 +133,7 @@ public:
 	 * @param clr_info - parameters defining the cluster to be run with the given collection of neurons.
 	 */
 	virtual void genRandNumbers(const SimulationInfo *sim_info, ClusterInfo *clr_info);
-#endif // VALIDATION
+#endif
 
 	/**
 	 * Advances neurons network state of the cluster one simulation step.
@@ -178,6 +180,22 @@ public:
 	 */
 	virtual void advanceSpikeQueue(const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStep);
 
+	//! Pointer to synapse index map in device memory.
+	SynapseIndexMap* m_synapseIndexMapDevice;
+
+	//! Synapse structures in device memory.
+	AllSpikingSynapsesDeviceProperties* m_allSynapsesDevice;
+
+	//! Neuron structure in device memory.
+	AllSpikingNeuronsDeviceProperties* m_allNeuronsDevice;
+
+	/**
+	 *  Copy SynapseIndexMap in host memory to SynapseIndexMap in device memory.
+	 *
+	 *  @param  clr_info    ClusterInfo to refer from.
+	 */
+	void copySynapseIndexMapHostToDevice(const ClusterInfo *clr_info);
+
 protected:
 	/**
 	* Allocates  and initializes memories on CUDA device.
@@ -208,62 +226,25 @@ protected:
 	 */
 	virtual void calcSummationMap(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
-	/* ------------------*\
-	|* # Helper Functions
-	\* ------------------*/
-
 	//! Pointer to device random noise array.
-	float* randNoise_d;
-
-	/*----------------------------------------------*\
-	|  Member variables
-	\*----------------------------------------------*/
-
-public:
-	//! Pointer to synapse index map in device memory.
-	SynapseIndexMap* m_synapseIndexMapDevice;
-
-	//! Synapse structures in device memory.
-	AllSpikingSynapsesDeviceProperties* m_allSynapsesDevice;
-
-	//! Neuron structure in device memory.
-	AllSpikingNeuronsDeviceProperties* m_allNeuronsDevice;
-
-	/**
-	 *  Copy SynapseIndexMap in host memory to SynapseIndexMap in device memory.
-	 *
-	 *  @param  clr_info    ClusterInfo to refer from.
-	 */
-	void copySynapseIndexMapHostToDevice(const ClusterInfo *clr_info);
+	float* randNoise_d;	
 
 private:
-	/* ------------------*\
-	|* # Helper Functions
-	\* ------------------*/
-
 	/**
 	 *  Allocate device memory for synapse inverse map.
 	 *  @param  count       The number of neurons.
 	 */
 	void allocSynapseImap(int count);
 
-
 	/**
 	 *  Deallocate device memory for synapse inverse map.
 	 */
 	void deleteSynapseImap();
 
-	// # Load Memory
-	// -------------
-
-	// # Create All Neurons
-	// --------------------
-
-	// # Advance Network/Model
-	// -----------------------
-
-	// # Update Connections
-	// --------------------
+	/**
+	 *  Helper function for printing debugging information.
+	 */
+	void GPUSpikingCluster::reportGPUMemoryUsage(ClusterInfo *clr_info);
 
 	// TODO
 	void eraseSynapse(IAllSynapses &synapses, const int neuron_index, const int synapse_index);
@@ -272,15 +253,14 @@ private:
 	// TODO
 	void createSynapse(IAllSynapses &synapses, const int neuron_index, const int synapse_index, Coordinate source, Coordinate dest, BGFLOAT* sp, BGFLOAT deltaT, synapseType type);
 
-	/*----------------------------------------------*\
-	|  Generic Functions for handling synapse types
-	\*----------------------------------------------*/
-
 #if defined(VALIDATION)
-private:
 	//! Buffer to save random numbers in host memory. 
 	static float* m_randNoiseHost;
-#endif // VALIDATION 
+
+	// Buffer to save random numbers in host memory
+	float* GPUSpikingCluster::m_randNoiseHost;
+
+#endif
 };
 
 #if defined(__CUDACC__)
@@ -290,7 +270,7 @@ extern "C" {
 }
 
 //! Calculate summation point.
-extern __global__ void calcSummationMapDevice(int totalNeurons,
+extern __global__ void calcSummationMapDevice(const int totalNeurons,
 	AllSpikingNeuronsDeviceProperties* __restrict__ allNeurnsDevice,
 	const SynapseIndexMap* __restrict__ synapseIndexMapDevice,
 	const AllSpikingSynapsesDeviceProperties* __restrict__ allSynapsesDevice);
