@@ -244,7 +244,7 @@ private:
 	/**
 	 *  Helper function for printing debugging information.
 	 */
-	void GPUSpikingCluster::reportGPUMemoryUsage(ClusterInfo *clr_info);
+	void reportGPUMemoryUsage(const ClusterInfo *clr_info);
 
 	// TODO
 	void eraseSynapse(IAllSynapses &synapses, const int neuron_index, const int synapse_index);

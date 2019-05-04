@@ -70,7 +70,7 @@ void GPUSpikingCluster::allocDeviceStruct(void** allNeuronsDevice, void** allSyn
 	DEBUG({reportGPUMemoryUsage(clr_info);})
 }
 
-void GPUSpikingCluster::reportGPUMemoryUsage(ClusterInfo *clr_info)
+void GPUSpikingCluster::reportGPUMemoryUsage(const ClusterInfo *clr_info)
 {
 	printf("\n");
 
