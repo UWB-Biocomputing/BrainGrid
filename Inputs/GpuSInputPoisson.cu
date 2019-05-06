@@ -85,7 +85,6 @@ void GpuSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pci
 
     // update summation point
     applyI2SummationMap <<< pci->neuronBlocksPerGrid, pci->threadsPerBlock >>> ( neuron_count, pci->pClusterSummationMap, pci->allSynapsesDeviceSInput );
-    
 }
 
 /*

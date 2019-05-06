@@ -200,7 +200,6 @@ __global__ void advanceSpikingSynapsesDevice(const int total_synapse_counts, Syn
     // is an input in the queue?
     if (allSynapsesDevice->preSpikeQueue->checkAnEvent(iSyn, total_delay, iStepOffset)) {
         psr += (W / decay);    // calculate psr
-        break;
     }
 
     // decay the post spike response
@@ -232,12 +231,12 @@ __global__ void advanceDSSSynapsesDevice(const int total_synapse_counts, Synapse
 
         // adjust synapse parameters
         if (lastSpike != ULONG_MAX) {
-            BGFLOAT isi = (simulationStep + iStepOffset - lastSpike) * deltaT;
+            BGFLOAT isi = (simulationStep + iStepOffset - allSynapsesDevice->lastSpike[iSyn]) * deltaT;
             r = 1 + (r * (1 - u) - 1) * exp(-isi / D);
             u = U + u * (1 - U) * exp(-isi / F);
         }
         psr += ((W / decay) * u * r);// calculate psr
-        allDSSSynapsesDevice->lastSpike[iSyn] = simulationStep + iStepOffset; // record the time of the spike
+        allSynapsesDevice->lastSpike[iSyn] = simulationStep + iStepOffset; // record the time of the spike
     }
 
     // decay the post spike response
