@@ -219,9 +219,10 @@ __global__ void advanceDSSSynapsesDevice(const int total_synapse_counts, Synapse
 	int &total_delay = allSynapsesDevice->total_delay[iSyn];
     BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
     BGFLOAT decay = allSynapsesDevice->decay[iSyn];
-    BGFLOAT &W = allSynapsesDevice->W[iSyn];
+    BGFLOAT W = allSynapsesDevice->W[iSyn];
 
     // is an input in the queue?
+    // Does this need to be a device side function for each thread?
     if (allSynapsesDevice->preSpikeQueue->checkAnEvent(iSyn, total_delay, iStepOffset)) {
         BGFLOAT &r = allSynapsesDevice->r[iSyn];
         BGFLOAT &u = allSynapsesDevice->u[iSyn];
@@ -230,7 +231,7 @@ __global__ void advanceDSSSynapsesDevice(const int total_synapse_counts, Synapse
         BGFLOAT U = allSynapsesDevice->U[iSyn];
 
         // adjust synapse parameters
-        if (lastSpike != ULONG_MAX) {
+        if (allSynapsesDevice->lastSpike[iSyn] != ULONG_MAX) {
             BGFLOAT isi = (simulationStep + iStepOffset - allSynapsesDevice->lastSpike[iSyn]) * deltaT;
             r = 1 + (r * (1 - u) - 1) * exp(-isi / D);
             u = U + u * (1 - U) * exp(-isi / F);

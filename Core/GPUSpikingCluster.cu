@@ -203,7 +203,7 @@ void GPUSpikingCluster::setupCluster(SimulationInfo *sim_info, Layout *layout, C
 	m_neurons->setAdvanceNeuronsDeviceParams(*m_synapses);
 	m_synapses->setAdvanceSynapsesDeviceParams();
 
-	clr_info->fpCalcSummationMap = &GPUSpikingCluster::calcSummationMap;
+	//clr_info->fpCalcSummationMap = &GPUSpikingCluster::calcSummationMap;
 }
 
 /* 
@@ -389,7 +389,7 @@ void GPUSpikingCluster::advanceSynapses(const SimulationInfo *sim_info, ClusterI
 	#endif
 
 	// calculate summation point
-	(this->*(clr_info->fpCalcSummationMap))(sim_info, clr_info);
+    calcSummationMap(sim_info, clr_info);
 
 	#ifdef PERFORMANCE_METRICS
 		cudaLapTime(clr_info, clr_info->t_gpu_calcSummation);

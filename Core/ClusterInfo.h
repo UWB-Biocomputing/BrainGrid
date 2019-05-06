@@ -88,8 +88,8 @@ class ClusterInfo
         int neuronBlocksPerGrid;
 
         //! Function pointer to the summation map function
-        typedef void (GPUSpikingCluster::*FCALCSUM) (const SimulationInfo*, const ClusterInfo*);
-        FCALCSUM fpCalcSummationMap;
+        //typedef void (GPUSpikingCluster::*FCALCSUM) (const SimulationInfo*, const ClusterInfo*);
+        //FCALCSUM fpCalcSummationMap;
 #endif // USE_GPU
 
 #if !defined(USE_GPU)
