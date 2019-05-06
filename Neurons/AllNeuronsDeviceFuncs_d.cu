@@ -95,7 +95,7 @@ __global__ void advanceLIFNeuronsDevice(const int totalNeurons, const int maxSpi
 
                 AllSTDPSynapsesDeviceProperties * synapseDevice = static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice);
                 for (BGSIZE i = 0; i < synapse_counts; i++)
-                    synapseDevice->postSpikeQueue->addAnEvent(iSyn, synapseDevice->total_delayPost[iSyn], iStepOffset);
+                    synapseDevice->postSpikeQueue->addAnEvent(incomingMap_begin[i], synapseDevice->total_delayPost[iSyn], iStepOffset);
                 break;
             }
         case classAllSpikingSynapses:
@@ -105,7 +105,7 @@ __global__ void advanceLIFNeuronsDevice(const int totalNeurons, const int maxSpi
             assert(false);
         }
     } else {
-		BGFLOAT r_sp = sp + allNeuronsDevice->I0[idx]; // add IO
+		BGFLOAT r_sp += allNeuronsDevice->I0[idx]; // add IO
 		allNeuronsDevice->hasFired[idx] = false;
 
         // Random number alg. goes here
@@ -204,7 +204,7 @@ __global__ void advanceIZHNeuronsDevice(const int totalNeurons, const int maxSpi
             case classAllDynamicSTDPSynapses:
                 AllSTDPSynapsesDeviceProperties * synapseDevice = static_cast<AllSTDPSynapsesDeviceProperties *>(allSynapsesDevice);
                 for (BGSIZE i = 0; i < synapse_counts; i++) {
-                    synapseDevice->postSpikeQueue->addAnEvent(iSyn, synapseDevice->total_delayPost[iSyn], iStepOffset);
+                    synapseDevice->postSpikeQueue->addAnEvent(incomingMap_begin[i], synapseDevice->total_delayPost[iSyn], iStepOffset);
                 } // end for
                 break;
                     
