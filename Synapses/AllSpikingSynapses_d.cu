@@ -375,7 +375,8 @@ void AllSpikingSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuro
     int blocksPerGrid = ( total_synapse_counts + clr_info->threadsPerBlock - 1 ) / clr_info->threadsPerBlock;
 
     // Advance synapses ------------->
-    advanceSpikingSynapsesDevice <<< blocksPerGrid, clr_info->threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, iStepOffset);
+    //advanceSpikingSynapsesDevice <<< blocksPerGrid, clr_info->threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, iStepOffset);
+    advanceDSSSynapsesDevice << < blocksPerGrid, clr_info->threadsPerBlock >> > (total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllDSSynapsesDeviceProperties*)allSynapsesDevice, iStepOffset);
 }
 
 /*
