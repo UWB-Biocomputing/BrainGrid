@@ -205,7 +205,6 @@ __global__ void advanceSpikingSynapsesDevice(const int total_synapse_counts, Syn
             break;
         case classAllDSSynapses:
             AllDSSynapsesDeviceProperties *allDSSSynapsesDevice = static_cast<AllDSSynapsesDeviceProperties*>(allSynapsesDevice);
-            uint64_t &lastSpike = allDSSSynapsesDevice->lastSpike[iSyn];
             BGFLOAT &r = allDSSSynapsesDevice->r[iSyn];
             BGFLOAT &u = allDSSSynapsesDevice->u[iSyn];
             BGFLOAT D = allDSSSynapsesDevice->D[iSyn];
@@ -219,7 +218,7 @@ __global__ void advanceSpikingSynapsesDevice(const int total_synapse_counts, Syn
                 u = U + u * (1 - U) * exp(-isi / F);
             }
             psr += ((W / decay) * u * r);// calculate psr
-            lastSpike = simulationStep + iStepOffset; // record the time of the spike
+            allDSSSynapsesDevice->lastSpike[iSyn] = simulationStep + iStepOffset; // record the time of the spike
             break;
         default:
             assert(false);
@@ -857,18 +856,11 @@ __global__ void updateSynapsesWeightsDevice(int num_neurons, BGFLOAT deltaT, int
     if (idx >= totalClusterNeurons)
         return;
 
-    int adjusted = 0;
-    int removed = 0;
-    int added = 0;
-
-    int iNeuron = idx;
     int dest_neuron = clusterNeuronsBegin + idx;
 
     for (int src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
-        if (dest_neuron == src_neuron) {
-            // we don't create a synapse between the same neuron.
-            continue;
-        }
+        // we don't create a synapse between the same neuron.
+        if (dest_neuron == src_neuron) continue;
 
         // Update the areas of overlap in between Neurons
         BGFLOAT distX = xloc_d[dest_neuron] - xloc_d[src_neuron];
@@ -879,24 +871,21 @@ __global__ void updateSynapsesWeightsDevice(int num_neurons, BGFLOAT deltaT, int
         BGFLOAT area = 0.0;
 
         if (delta < 0) {
-            BGFLOAT lenAB = dist;
             BGFLOAT r1 = radii_d[dest_neuron];
             BGFLOAT r2 = radii_d[src_neuron];
 
-            if (lenAB + min(r1, r2) <= max(r1, r2)) {
+            if (dist + min(r1, r2) <= max(r1, r2)) {
                 area = CUDART_PI_F * min(r1, r2) * min(r1, r2); // Completely overlapping unit
             }
             else {
-                // Partially overlapping unit
-                BGFLOAT lenAB2 = dist2;
                 BGFLOAT r12 = r1 * r1;
                 BGFLOAT r22 = r2 * r2;
 
-                BGFLOAT cosCBA = (r22 + lenAB2 - r12) / (2.0 * r2 * lenAB);
+                BGFLOAT cosCBA = (r22 + dist2 - r12) / (2.0 * r2 * dist);
                 BGFLOAT angCBA = acos(cosCBA);
                 BGFLOAT angCBD = 2.0 * angCBA;
 
-                BGFLOAT cosCAB = (r12 + lenAB2 - r22) / (2.0 * r1 * lenAB);
+                BGFLOAT cosCAB = (r12 + dist2 - r22) / (2.0 * r1 * dist);
                 BGFLOAT angCAB = acos(cosCAB);
                 BGFLOAT angCAD = 2.0 * angCAB;
 
@@ -909,15 +898,14 @@ __global__ void updateSynapsesWeightsDevice(int num_neurons, BGFLOAT deltaT, int
         synapseType type = synType(neuron_type_map_d, src_neuron, dest_neuron);
 
         // for each existing synapse
-        BGSIZE existing_synapses = allSynapsesDevice->synapse_counts[iNeuron];
+        BGSIZE existing_synapses = allSynapsesDevice->synapse_counts[idx];
         int existing_synapses_checked = 0;
         for (BGSIZE synapse_index = 0; (existing_synapses_checked < existing_synapses) && !connected; synapse_index++) {
-            BGSIZE iSyn = maxSynapses * iNeuron + synapse_index;
-            if (allSynapsesDevice->in_use[iSyn] == true) {
+            BGSIZE iSyn = maxSynapses * idx + synapse_index;
+            if (allSynapsesDevice->in_use[iSyn]) {
                 // if there is a synapse between a and b
                 if (allSynapsesDevice->sourceNeuronLayoutIndex[iSyn] == src_neuron) {
                     connected = true;
-                    adjusted++;
 
                     // adjust the strength of the synapse or remove
                     // it from the synapse map if it has gone below
@@ -925,8 +913,7 @@ __global__ void updateSynapsesWeightsDevice(int num_neurons, BGFLOAT deltaT, int
 
                     // W_d[] is indexed by (dest_neuron (local index) * totalNeurons + src_neuron)
                     if (area < 0) {
-                        removed++;
-                        eraseSpikingSynapse(allSynapsesDevice, iNeuron, synapse_index, maxSynapses);
+                        eraseSpikingSynapse(allSynapsesDevice, idx, synapse_index, maxSynapses);
                     }
                     else {
                         // adjust
@@ -941,11 +928,10 @@ __global__ void updateSynapsesWeightsDevice(int num_neurons, BGFLOAT deltaT, int
         // if not connected and weight(a,b) > 0, add a new synapse from a to b
         if (!connected && (area > 0)) {
             // locate summation point
-            BGFLOAT* sum_point = &(allNeuronsDevice->summation_map[iNeuron]);
-            added++;
+            BGFLOAT* sum_point = &(allNeuronsDevice->summation_map[idx]);
 
             BGFLOAT weight = area * synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
-            addSpikingSynapse(allSynapsesDevice, type, iNeuron, src_neuron, dest_neuron, sum_point, deltaT, weight);
+            addSpikingSynapse(allSynapsesDevice, type, idx, src_neuron, dest_neuron, sum_point, deltaT, weight);
         }
     }
 }
