@@ -18,7 +18,9 @@
  *  @param  clr_info               ClusterInfo to refer from.
  *  @param  iStepOffset            Offset from the current simulation step.
  */
-void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset )
+void AllLIFNeurons::advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, 
+                                   const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, 
+                                   const ClusterInfo *clr_info, int iStepOffset )
 {
     DEBUG (
     int deviceId;
@@ -26,10 +28,11 @@ void AllLIFNeurons::advanceNeurons( IAllSynapses &synapses, void* allNeuronsDevi
     assert(deviceId == clr_info->deviceId);
     ); // end DEBUG
 
-    int neuron_count = clr_info->totalClusterNeurons;
     int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
 
     // Advance neurons ------------->
-    advanceLIFNeuronsDevice <<< clr_info->neuronBlocksPerGrid, clr_info->threadsPerBlock >>> ( neuron_count, maxSpikes, sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeuronsDeviceProperties *)allNeuronsDevice, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset );
+    advanceLIFNeuronsDevice <<< clr_info->neuronBlocksPerGrid, clr_info->threadsPerBlock >>> (clr_info->totalClusterNeurons, maxSpikes, 
+                            sim_info->deltaT, g_simulationStep, randNoise, (AllIFNeuronsDeviceProperties *)allNeuronsDevice, 
+                            (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice, synapseIndexMapDevice, m_fAllowBackPropagation, iStepOffset );
 }
 

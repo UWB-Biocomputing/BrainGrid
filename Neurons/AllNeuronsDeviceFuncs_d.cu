@@ -1,9 +1,5 @@
 #include "AllNeuronsDeviceFuncs.h"
 
-/* -------------------------------------*\
-|* # Global Functions for advanceNeurons
-\* -------------------------------------*/
-
 /*
  *  CUDA code for advancing LIF neurons
  * 
