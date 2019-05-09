@@ -8,7 +8,7 @@
     </PoolSize>
     <SimParams name="SimParams">
       <Tsim name="Tsim">10.0</Tsim>
-      <numSims name="numSims">2</numSims>
+      <numSims name="numSims">8</numSims>
     </SimParams>
     <SimConfig name="SimConfig">
       <maxFiringRate name="maxFiringRate">200</maxFiringRate>
@@ -69,7 +69,7 @@
         <rho name="rho">0.0001</rho>
         <targetRate name="targetRate">1.0</targetRate>
         <minRadius name="minRadius">0.1</minRadius>
-        <startRadius name="startRadius">0.4</startRadius>
+        <startRadius name="startRadius">3.0</startRadius>
       </GrowthParams>
     </ConnectionsParams>
 

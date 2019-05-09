@@ -184,27 +184,28 @@ __device__ uint64_t getSTDPSynapseSpikeHistoryDevice(AllSpikingNeuronsDeviceProp
  *                                   on device memory.
  *  @param[in] iStepOffset           Offset from the current simulation step.
  */
-__global__ void advanceSpikingSynapsesDevice(const int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, const uint64_t simulationStep, const BGFLOAT deltaT, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int iStepOffset) {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (idx >= total_synapse_counts)
-        return;
-    
-	BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
-
-	int &total_delay = allSynapsesDevice->total_delay[iSyn];
-    BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
-    BGFLOAT decay = allSynapsesDevice->decay[iSyn];
-    BGFLOAT &W = allSynapsesDevice->W[iSyn];
-
-    // is an input in the queue?
-    if (allSynapsesDevice->preSpikeQueue->checkAnEvent(iSyn, total_delay, iStepOffset)) {
-        psr += (W / decay);    // calculate psr
-    }
-
-    // decay the post spike response
-    psr *= decay;
-}
+//__global__ void advanceSpikingSynapsesDevice(const int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, 
+//                                             AllSpikingSynapsesDeviceProperties* allSynapsesDevice, const int iStepOffset) {
+//    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+//
+//    if (idx >= total_synapse_counts)
+//        return;
+//    
+//	BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
+//
+//	int &total_delay = allSynapsesDevice->total_delay[iSyn];
+//    BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
+//    BGFLOAT decay = allSynapsesDevice->decay[iSyn];
+//    BGFLOAT &W = allSynapsesDevice->W[iSyn];
+//
+//    // is an input in the queue?
+//    if (allSynapsesDevice->preSpikeQueue->checkAnEvent(iSyn, total_delay, iStepOffset)) {
+//        psr += (W / decay);    // calculate psr
+//    }
+//
+//    // decay the post spike response
+//    psr *= decay;
+//}
 
 __global__ void advanceDSSSynapsesDevice(const int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, 
                                          const uint64_t simulationStep, const BGFLOAT deltaT, 
@@ -224,7 +225,7 @@ __global__ void advanceDSSSynapsesDevice(const int total_synapse_counts, Synapse
     // is an input in the queue?
     // Does this need to be a device side function for each thread?
     if (allSynapsesDevice->preSpikeQueue->checkAnEvent(iSyn, total_delay, iStepOffset)) {
-        uint64_t &lastSpike = allSynapsesDevice->lastSpike[iSyn]
+        uint64_t &lastSpike = allSynapsesDevice->lastSpike[iSyn];
         BGFLOAT &r = allSynapsesDevice->r[iSyn];
         BGFLOAT &u = allSynapsesDevice->u[iSyn];
         const BGFLOAT D = allSynapsesDevice->D[iSyn];
