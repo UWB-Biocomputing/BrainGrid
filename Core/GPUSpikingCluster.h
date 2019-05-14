@@ -208,7 +208,7 @@ protected:
          * @param[in] sim_info                   Pointer to the simulation information.
          * @param[in] clr_info                   Pointer to the cluster information.
          */
-	virtual void calcSummationMap_1(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+	//virtual void calcSummationMap_1(const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
          * Add psr of all incoming synapses to summation points.
@@ -311,10 +311,10 @@ void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, uns
 }       
         
 //! Calculate summation point (use parallel reduction method).
-extern __global__ void calcSummationMapDevice_1(BGSIZE numTotalSynapses, AllSpikingNeuronsProps* allNeuronsProps, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesProps* allSynapsesProps, int maxSynapsesPerNeuron, int clusterNeuronsBegin);
+//extern __global__ void calcSummationMapDevice_1(BGSIZE numTotalSynapses, AllSpikingNeuronsProps* allNeuronsProps, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesProps* allSynapsesProps, int maxSynapsesPerNeuron, int clusterNeuronsBegin);
 
 //! Helper kernel function for calcSummationMapDevice.
-extern __global__ void reduceSummationMapKernel(BGSIZE numTotalSynapses, unsigned int s, AllSpikingSynapsesProps* allSynapsesProps, AllSpikingNeuronsProps* allNeuronsProps, BGSIZE* indexMap, BGSIZE* synapseCount, BGSIZE* synapseBegin, int clusterNeuronsBegin);
+//extern __global__ void reduceSummationMapKernel(BGSIZE numTotalSynapses, unsigned int s, AllSpikingSynapsesProps* allSynapsesProps, AllSpikingNeuronsProps* allNeuronsProps, BGSIZE* indexMap, BGSIZE* synapseCount, BGSIZE* synapseBegin, int clusterNeuronsBegin);
 
 //! Calculate summation point.
 extern __global__ void calcSummationMapDevice_2(int totalNeurons,

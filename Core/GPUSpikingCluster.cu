@@ -529,6 +529,7 @@ void GPUSpikingCluster::advanceSpikeQueue(const SimulationInfo *sim_info, const 
   checkCudaErrors( cudaDeviceSynchronize() );
 }
 
+#if 0
 /*
  * Add psr of all incoming synapses to summation points.
  * (parallel reduction base summation)
@@ -551,6 +552,7 @@ void GPUSpikingCluster::calcSummationMap_1(const SimulationInfo *sim_info, const
   // call parallel reduction base summation kernel
   calcSummationMapDevice_1 <<< 1, 1 >>> (numTotalSynapses, m_allNeuronsDeviceProps, m_synapseIndexMapDevice, m_allSynapsesDeviceProps, sim_info->maxSynapsesPerNeuron, clr_info->clusterNeuronsBegin);
 }
+#endif
 
 /*
  * Add psr of all incoming synapses to summation points.
@@ -695,6 +697,7 @@ void GPUSpikingCluster::copySynapseIndexMapHostToDevice(const ClusterInfo *clr_i
    |* # Global Functions
    \* ------------------*/
 
+#if 0
 /**
  * Calculate the sum of synaptic input to each neuron.
  * (use parallel reduction method)
@@ -805,6 +808,7 @@ __global__ void reduceSummationMapKernel(BGSIZE numTotalSynapses, unsigned int s
     }
   }
 }
+#endif
 
 /**
  * Calculate the sum of synaptic input to each neuron.
