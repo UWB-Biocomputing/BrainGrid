@@ -4,8 +4,6 @@
 #include "AllDSSynapses.h"
 #include "AllSTDPSynapses.h"
 #include "ConnStatic.h"
-#include <thrust/sort.h>
-#include <thrust/execution_policy.h>
 
 #if defined(__CUDACC__)
 
