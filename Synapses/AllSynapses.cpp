@@ -175,13 +175,14 @@ void AllSynapses::advanceSynapses(void* allNeuronsProps, void* synapseIndexMapDe
         return;
 
     int maxSpikes = (int)((sim_info->epochDuration * sim_info->maxFiringRate));
+    uint64_t simulationStep = g_simulationStep + iStepOffset;
 
     // CUDA parameters
     const int threadsPerBlock = 256;
     int blocksPerGrid = ( total_synapse_counts + threadsPerBlock - 1 ) / threadsPerBlock;
 
     // Advance synapses ------------->
-    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, maxSpikes, sim_info->deltaT, iStepOffset, synapsesDevice, neuronsDevice, (IAllNeuronsProps*)allNeuronsProps );
+    advanceSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, simulationStep, maxSpikes, sim_info->deltaT, iStepOffset, synapsesDevice, neuronsDevice, (IAllNeuronsProps*)allNeuronsProps );
 }
 
 #else // USE_GPU
