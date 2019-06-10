@@ -1,0 +1,33 @@
+digraph{
+	 graph [splines=ortho]
+
+	subgraph clusterRNG {
+		style = rounded
+		bgcolor = grey90
+		color = limegreen
+		node [shape = record, color = limegreen];
+
+		MersenneTwister[label = MersenneTwister, style = filled];
+		MersenneTwister_d[label = MersenneTwister_d, style = filled];
+		Norm[label = Norm, style = filled];
+		RNG[label =< <B> RNG</B>>, style = bold, fillcolor = white, style = filled];
+
+
+		//------LAYOUT FOR SUBGRAPH------
+
+
+		rankdir = BT; // Rank Direction Bottom to Top
+		nodesep = 1.3; // Node Separation
+		ranksep = 1.3; // Rank Separation
+
+
+		//INHERITANCE//
+
+
+
+		//COMPOSITION//
+
+
+		Norm -> MersenneTwister [arrowhead=ediamond];
+	}//end subgraph RNG
+}//end digraph
