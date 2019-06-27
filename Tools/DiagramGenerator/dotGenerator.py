@@ -59,6 +59,7 @@ Changes made Summer 2019, in order of most substantial to least:
                             - All subsystems have labels (master nodes) 
                             - Master nodes have bold labels and a more pronounced appearance 
                             - In the block overview, edges go between subsystem blocks rather than between master nodes.
+                            - Containment relationships now has the diamond on the correct side of the arcs
 
     - Flexible input:    Now also checks if the given file name is in __file_hash values if it's not in keys.
                         This gives the user the option to pass in the file name or the path (i.e. You can now 
@@ -259,11 +260,11 @@ def print_block_layout(block_file):
         
         start = ""
         end = ""
-        if r[0] in global_dict_subsystems:
-            start = "ltail = cluster" + r[0] + ","
         if r[1] in global_dict_subsystems:
+            start = "ltail = cluster" + r[0] + ","
+        if r[0] in global_dict_subsystems:
             end = "lhead = cluster" + r[1]
-        line = r[0] + " -> " + r[1] + " [arrowhead=ediamond, " + start + end + "];" + os.linesep
+        line = r[1] + " -> " + r[0] + " [arrowhead=ediamond, " + start + end + "];" + os.linesep
         block_file.write(str.encode(line))
 
 
@@ -274,10 +275,10 @@ def print_classes(dot_file, sys_overview_file, block_file, use_old_style_systems
     sub_name_index = 0
     for sub in subgraphs:
         sub_name = sub_names[sub_name_index] if use_old_style_systems else get_sub_name_new_style([item['name'] for item in sub])
-
-        print_subgraph(dot_file, sub_name, sub, 'd')
-        print_subgraph(sys_overview_file, sub_name, sub, 'o')
-        print_subgraph(block_file, sub_name, sub, 'b')
+        if sub_name != "NAME_ERROR":
+            print_subgraph(dot_file, sub_name, sub, 'd')
+            print_subgraph(sys_overview_file, sub_name, sub, 'o')
+            print_subgraph(block_file, sub_name, sub, 'b')
 
         sub_name_index = 0 if sub_name_index >= (len(sub_names) - 1) else sub_name_index + 1
 
@@ -335,7 +336,7 @@ def print_layout(dot_file, sys_overview_file, block_file):
                 dot_file.write(color_line)
                 sys_overview_file.write(color_line)
 
-            line = str.encode(c[0] + " -> " + c[1] + " [arrowhead=ediamond];" + os.linesep)
+            line = str.encode(c[1] + " -> " + c[0] + " [arrowhead=ediamond];" + os.linesep)
             dot_file.write(line)
             sys_overview_file.write(line)
 
@@ -421,9 +422,9 @@ def print_subgraph_layout(subgraph_inheritance, subgraph_includes, behavior='d')
             to_print += "" + os.linesep
         last_c = c
         if behavior == 'd':
-            to_print += "\t\t" + c[0] + " -> " + c[1] + " [arrowhead=ediamond];" + os.linesep
+            to_print += "\t\t" + c[1] + " -> " + c[0] + " [arrowhead=ediamond];" + os.linesep
         else:
-            to_print += "\t\t" + c[0] + " -> " + c[1] + " [style=invis];" + os.linesep
+            to_print += "\t\t" + c[1] + " -> " + c[0] + " [style=invis];" + os.linesep
 
     return to_print
 
