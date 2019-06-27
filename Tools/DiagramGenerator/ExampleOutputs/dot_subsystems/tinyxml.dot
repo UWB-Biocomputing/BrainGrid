@@ -27,6 +27,6 @@ digraph{
 		//COMPOSITION//
 
 
-		tinyxml -> tinystr [arrowhead=ediamond];
+		tinystr -> tinyxml [arrowhead=ediamond];
 	}//end subgraph tinyxml
 }//end digraph

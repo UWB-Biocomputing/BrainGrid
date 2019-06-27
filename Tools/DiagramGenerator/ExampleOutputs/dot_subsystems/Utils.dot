@@ -31,7 +31,7 @@ digraph{
 		//COMPOSITION//
 
 
-		Global -> BGTypes [arrowhead=ediamond];
-		Global -> Coordinate [arrowhead=ediamond];
+		BGTypes -> Global [arrowhead=ediamond];
+		Coordinate -> Global [arrowhead=ediamond];
 	}//end subgraph Utils
 }//end digraph

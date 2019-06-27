@@ -43,28 +43,28 @@ digraph{
 		//COMPOSITION//
 
 
-		Cluster -> SimulationInfo [arrowhead=ediamond];
+		SimulationInfo -> Cluster [arrowhead=ediamond];
 
-		ClusterInfo -> InterClustersEventHandler [arrowhead=ediamond];
-
-		EventQueue -> InterClustersEventHandler [arrowhead=ediamond];
-		EventQueue -> SimulationInfo [arrowhead=ediamond];
-		EventQueue -> SynapseIndexMap [arrowhead=ediamond];
-
-		IModel -> Cluster [arrowhead=ediamond];
-		IModel -> SimulationInfo [arrowhead=ediamond];
+		InterClustersEventHandler -> ClusterInfo [arrowhead=ediamond];
 
 		InterClustersEventHandler -> EventQueue [arrowhead=ediamond];
+		SimulationInfo -> EventQueue [arrowhead=ediamond];
+		SynapseIndexMap -> EventQueue [arrowhead=ediamond];
 
-		Model -> GPUSpikingCluster [arrowhead=ediamond];
-		Model -> SynapseIndexMap [arrowhead=ediamond];
+		Cluster -> IModel [arrowhead=ediamond];
+		SimulationInfo -> IModel [arrowhead=ediamond];
 
-		Simulator -> IModel [arrowhead=ediamond];
-		Simulator -> SimulationInfo [arrowhead=ediamond];
+		EventQueue -> InterClustersEventHandler [arrowhead=ediamond];
 
-		SynapseIndexMap -> Cluster [arrowhead=ediamond];
-		SynapseIndexMap -> ClusterInfo [arrowhead=ediamond];
-		SynapseIndexMap -> GPUSpikingCluster [arrowhead=ediamond];
-		SynapseIndexMap -> SimulationInfo [arrowhead=ediamond];
+		GPUSpikingCluster -> Model [arrowhead=ediamond];
+		SynapseIndexMap -> Model [arrowhead=ediamond];
+
+		IModel -> Simulator [arrowhead=ediamond];
+		SimulationInfo -> Simulator [arrowhead=ediamond];
+
+		Cluster -> SynapseIndexMap [arrowhead=ediamond];
+		ClusterInfo -> SynapseIndexMap [arrowhead=ediamond];
+		GPUSpikingCluster -> SynapseIndexMap [arrowhead=ediamond];
+		SimulationInfo -> SynapseIndexMap [arrowhead=ediamond];
 	}//end subgraph Core
 }//end digraph

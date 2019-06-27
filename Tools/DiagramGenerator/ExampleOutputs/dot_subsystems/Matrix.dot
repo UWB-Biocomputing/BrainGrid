@@ -37,9 +37,9 @@ digraph{
 		//COMPOSITION//
 
 
-		Matrix -> MatrixExceptions [arrowhead=ediamond];
+		MatrixExceptions -> Matrix [arrowhead=ediamond];
 
-		SparseMatrix -> Matrix [arrowhead=ediamond];
-		SparseMatrix -> VectorMatrix [arrowhead=ediamond];
+		Matrix -> SparseMatrix [arrowhead=ediamond];
+		VectorMatrix -> SparseMatrix [arrowhead=ediamond];
 	}//end subgraph Matrix
 }//end digraph

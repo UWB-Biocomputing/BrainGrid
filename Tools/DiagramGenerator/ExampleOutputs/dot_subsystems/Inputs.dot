@@ -45,10 +45,10 @@ digraph{
 		//COMPOSITION//
 
 
-		FSInput -> GpuSInputPoisson [arrowhead=ediamond];
-		FSInput -> GpuSInputRegular [arrowhead=ediamond];
-		FSInput -> HostSInputPoisson [arrowhead=ediamond];
-		FSInput -> HostSInputRegular [arrowhead=ediamond];
-		FSInput -> ISInput [arrowhead=ediamond];
+		GpuSInputPoisson -> FSInput [arrowhead=ediamond];
+		GpuSInputRegular -> FSInput [arrowhead=ediamond];
+		HostSInputPoisson -> FSInput [arrowhead=ediamond];
+		HostSInputRegular -> FSInput [arrowhead=ediamond];
+		ISInput -> FSInput [arrowhead=ediamond];
 	}//end subgraph Inputs
 }//end digraph

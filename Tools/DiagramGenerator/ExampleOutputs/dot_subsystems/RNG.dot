@@ -28,6 +28,6 @@ digraph{
 		//COMPOSITION//
 
 
-		Norm -> MersenneTwister [arrowhead=ediamond];
+		MersenneTwister -> Norm [arrowhead=ediamond];
 	}//end subgraph RNG
 }//end digraph

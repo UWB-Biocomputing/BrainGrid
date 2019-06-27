@@ -42,8 +42,8 @@ digraph{
 		//COMPOSITION//
 
 
-		AllSynapsesDeviceFuncs -> AllDSSynapses [arrowhead=ediamond];
-		AllSynapsesDeviceFuncs -> AllSTDPSynapses [arrowhead=ediamond];
-		AllSynapsesDeviceFuncs -> AllSpikingSynapses [arrowhead=ediamond];
+		AllDSSynapses -> AllSynapsesDeviceFuncs [arrowhead=ediamond];
+		AllSTDPSynapses -> AllSynapsesDeviceFuncs [arrowhead=ediamond];
+		AllSpikingSynapses -> AllSynapsesDeviceFuncs [arrowhead=ediamond];
 	}//end subgraph Synapses
 }//end digraph
