@@ -37,8 +37,8 @@ digraph {
 		//COMPOSITION//
 
 
-		Global -> BGTypes [style=invis];
-		Global -> Coordinate [style=invis];
+		BGTypes -> Global [style=invis];
+		Coordinate -> Global [style=invis];
 	}//end subgraph Utils
 
 
@@ -111,29 +111,29 @@ digraph {
 		//COMPOSITION//
 
 
-		Cluster -> SimulationInfo [style=invis];
+		SimulationInfo -> Cluster [style=invis];
 
-		ClusterInfo -> InterClustersEventHandler [style=invis];
-
-		EventQueue -> InterClustersEventHandler [style=invis];
-		EventQueue -> SimulationInfo [style=invis];
-		EventQueue -> SynapseIndexMap [style=invis];
-
-		IModel -> Cluster [style=invis];
-		IModel -> SimulationInfo [style=invis];
+		InterClustersEventHandler -> ClusterInfo [style=invis];
 
 		InterClustersEventHandler -> EventQueue [style=invis];
+		SimulationInfo -> EventQueue [style=invis];
+		SynapseIndexMap -> EventQueue [style=invis];
 
-		Model -> GPUSpikingCluster [style=invis];
-		Model -> SynapseIndexMap [style=invis];
+		Cluster -> IModel [style=invis];
+		SimulationInfo -> IModel [style=invis];
 
-		Simulator -> IModel [style=invis];
-		Simulator -> SimulationInfo [style=invis];
+		EventQueue -> InterClustersEventHandler [style=invis];
 
-		SynapseIndexMap -> Cluster [style=invis];
-		SynapseIndexMap -> ClusterInfo [style=invis];
-		SynapseIndexMap -> GPUSpikingCluster [style=invis];
-		SynapseIndexMap -> SimulationInfo [style=invis];
+		GPUSpikingCluster -> Model [style=invis];
+		SynapseIndexMap -> Model [style=invis];
+
+		IModel -> Simulator [style=invis];
+		SimulationInfo -> Simulator [style=invis];
+
+		Cluster -> SynapseIndexMap [style=invis];
+		ClusterInfo -> SynapseIndexMap [style=invis];
+		GPUSpikingCluster -> SynapseIndexMap [style=invis];
+		SimulationInfo -> SynapseIndexMap [style=invis];
 	}//end subgraph Core
 
 
@@ -220,11 +220,11 @@ digraph {
 		//COMPOSITION//
 
 
-		FSInput -> GpuSInputPoisson [style=invis];
-		FSInput -> GpuSInputRegular [style=invis];
-		FSInput -> HostSInputPoisson [style=invis];
-		FSInput -> HostSInputRegular [style=invis];
-		FSInput -> ISInput [style=invis];
+		GpuSInputPoisson -> FSInput [style=invis];
+		GpuSInputRegular -> FSInput [style=invis];
+		HostSInputPoisson -> FSInput [style=invis];
+		HostSInputRegular -> FSInput [style=invis];
+		ISInput -> FSInput [style=invis];
 	}//end subgraph Inputs
 
 
@@ -311,9 +311,9 @@ digraph {
 		//COMPOSITION//
 
 
-		AllSynapsesDeviceFuncs -> AllDSSynapses [style=invis];
-		AllSynapsesDeviceFuncs -> AllSTDPSynapses [style=invis];
-		AllSynapsesDeviceFuncs -> AllSpikingSynapses [style=invis];
+		AllDSSynapses -> AllSynapsesDeviceFuncs [style=invis];
+		AllSTDPSynapses -> AllSynapsesDeviceFuncs [style=invis];
+		AllSpikingSynapses -> AllSynapsesDeviceFuncs [style=invis];
 	}//end subgraph Synapses
 
 
@@ -410,7 +410,7 @@ digraph {
 		//COMPOSITION//
 
 
-		Norm -> MersenneTwister [style=invis];
+		MersenneTwister -> Norm [style=invis];
 	}//end subgraph RNG
 
 
@@ -450,10 +450,10 @@ digraph {
 		//COMPOSITION//
 
 
-		Matrix -> MatrixExceptions [style=invis];
+		MatrixExceptions -> Matrix [style=invis];
 
-		SparseMatrix -> Matrix [style=invis];
-		SparseMatrix -> VectorMatrix [style=invis];
+		Matrix -> SparseMatrix [style=invis];
+		VectorMatrix -> SparseMatrix [style=invis];
 	}//end subgraph Matrix
 
 
@@ -483,108 +483,8 @@ digraph {
 		//COMPOSITION//
 
 
-		tinyxml -> tinystr [style=invis];
+		tinystr -> tinyxml [style=invis];
 	}//end subgraph tinyxml
-
-
-	subgraph NAME_ERROR {
-		node [shape = record];
-
-
-		BGDriver[label = BGDriver, style = filled];
-		NAME_ERROR[label = NAME_ERROR, style = filled];
-
-
-		//------LAYOUT FOR SUBGRAPH------
-
-
-		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
-
-
-		//INHERITANCE//
-
-
-
-		//COMPOSITION//
-
-	}//end subgraph NAME_ERROR
-
-
-	subgraph NAME_ERROR {
-		node [shape = record];
-
-
-		bgtypes[label = bgtypes, style = filled];
-		NAME_ERROR[label = NAME_ERROR, style = filled];
-
-
-		//------LAYOUT FOR SUBGRAPH------
-
-
-		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
-
-
-		//INHERITANCE//
-
-
-
-		//COMPOSITION//
-
-	}//end subgraph NAME_ERROR
-
-
-	subgraph NAME_ERROR {
-		node [shape = record];
-
-
-		curand_kernel[label = curand_kernel, style = filled];
-		NAME_ERROR[label = NAME_ERROR, style = filled];
-
-
-		//------LAYOUT FOR SUBGRAPH------
-
-
-		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
-
-
-		//INHERITANCE//
-
-
-
-		//COMPOSITION//
-
-	}//end subgraph NAME_ERROR
-
-
-	subgraph NAME_ERROR {
-		node [shape = record];
-
-
-		H5Cpp[label = H5Cpp, style = filled];
-		NAME_ERROR[label = NAME_ERROR, style = filled];
-
-
-		//------LAYOUT FOR SUBGRAPH------
-
-
-		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
-
-
-		//INHERITANCE//
-
-
-
-		//COMPOSITION//
-
-	}//end subgraph NAME_ERROR
 //-------LAYOUT OF RELATIONSHIPS BETWEEN SUBGRAPHS------//
 rankdir = BT; // Rank Direction Top to Bottom
 nodesep = 0.325; // Node Separation
@@ -636,197 +536,197 @@ FClassOfCategory -> Connections [arrowhead=empty];
 FClassOfCategory -> Layout [arrowhead=empty];
 
 edge [color=black];
-BGDriver -> Global [arrowhead=ediamond];
-BGDriver -> ParamContainer [arrowhead=ediamond];
-BGDriver -> Model [arrowhead=ediamond];
-BGDriver -> FClassOfCategory [arrowhead=ediamond];
-BGDriver -> IRecorder [arrowhead=ediamond];
-BGDriver -> FSInput [arrowhead=ediamond];
-BGDriver -> Simulator [arrowhead=ediamond];
-BGDriver -> GPUSpikingCluster [arrowhead=ediamond];
-BGDriver -> SingleThreadedCluster [arrowhead=ediamond];
+Global -> BGDriver [arrowhead=ediamond];
+ParamContainer -> BGDriver [arrowhead=ediamond];
+Model -> BGDriver [arrowhead=ediamond];
+FClassOfCategory -> BGDriver [arrowhead=ediamond];
+IRecorder -> BGDriver [arrowhead=ediamond];
+FSInput -> BGDriver [arrowhead=ediamond];
+Simulator -> BGDriver [arrowhead=ediamond];
+GPUSpikingCluster -> BGDriver [arrowhead=ediamond];
+SingleThreadedCluster -> BGDriver [arrowhead=ediamond];
 
 edge [color=darkgoldenrod];
-SingleThreadedCluster -> ISInput [arrowhead=ediamond];
-Cluster -> ISInput [arrowhead=ediamond];
-Cluster -> Global [arrowhead=ediamond];
-Cluster -> IAllNeurons [arrowhead=ediamond];
-Cluster -> IAllSynapses [arrowhead=ediamond];
-Cluster -> Connections [arrowhead=ediamond];
-Cluster -> Layout [arrowhead=ediamond];
+ISInput -> SingleThreadedCluster [arrowhead=ediamond];
+ISInput -> Cluster [arrowhead=ediamond];
+Global -> Cluster [arrowhead=ediamond];
+IAllNeurons -> Cluster [arrowhead=ediamond];
+IAllSynapses -> Cluster [arrowhead=ediamond];
+Connections -> Cluster [arrowhead=ediamond];
+Layout -> Cluster [arrowhead=ediamond];
 
 edge [color=indianred];
-Layout -> ParseParamError [arrowhead=ediamond];
-Layout -> Util [arrowhead=ediamond];
-Layout -> Global [arrowhead=ediamond];
-Layout -> SimulationInfo [arrowhead=ediamond];
+ParseParamError -> Layout [arrowhead=ediamond];
+Util -> Layout [arrowhead=ediamond];
+Global -> Layout [arrowhead=ediamond];
+SimulationInfo -> Layout [arrowhead=ediamond];
 
 edge [color=darkgoldenrod];
-SimulationInfo -> ParseParamError [arrowhead=ediamond];
-SimulationInfo -> Global [arrowhead=ediamond];
+ParseParamError -> SimulationInfo [arrowhead=ediamond];
+Global -> SimulationInfo [arrowhead=ediamond];
 
 edge [color=coral];
-Global -> bgtypes [arrowhead=ediamond];
-Global -> Norm [arrowhead=ediamond];
-Global -> VectorMatrix [arrowhead=ediamond];
-
-edge [color=mediumseagreen];
+bgtypes -> Global [arrowhead=ediamond];
+Norm -> Global [arrowhead=ediamond];
 VectorMatrix -> Global [arrowhead=ediamond];
 
+edge [color=mediumseagreen];
+Global -> VectorMatrix [arrowhead=ediamond];
+
 edge [color=limegreen];
-MersenneTwister -> BGTypes [arrowhead=ediamond];
+BGTypes -> MersenneTwister [arrowhead=ediamond];
 
 edge [color=mediumseagreen];
-SparseMatrix -> Global [arrowhead=ediamond];
-Matrix -> tinyxml [arrowhead=ediamond];
+Global -> SparseMatrix [arrowhead=ediamond];
+tinyxml -> Matrix [arrowhead=ediamond];
 
 edge [color=mediumturquoise];
-tinyxml -> BGTypes [arrowhead=ediamond];
+BGTypes -> tinyxml [arrowhead=ediamond];
 
 edge [color=mediumseagreen];
-CompleteMatrix -> Global [arrowhead=ediamond];
+Global -> CompleteMatrix [arrowhead=ediamond];
 
 edge [color=hotpink];
-Connections -> ParseParamError [arrowhead=ediamond];
-Connections -> IAllSynapses [arrowhead=ediamond];
-Connections -> Global [arrowhead=ediamond];
-Connections -> SimulationInfo [arrowhead=ediamond];
-Connections -> AllSpikingNeurons [arrowhead=ediamond];
-Connections -> AllSpikingSynapses [arrowhead=ediamond];
-Connections -> Layout [arrowhead=ediamond];
-Connections -> IRecorder [arrowhead=ediamond];
+ParseParamError -> Connections [arrowhead=ediamond];
+IAllSynapses -> Connections [arrowhead=ediamond];
+Global -> Connections [arrowhead=ediamond];
+SimulationInfo -> Connections [arrowhead=ediamond];
+AllSpikingNeurons -> Connections [arrowhead=ediamond];
+AllSpikingSynapses -> Connections [arrowhead=ediamond];
+Layout -> Connections [arrowhead=ediamond];
+IRecorder -> Connections [arrowhead=ediamond];
 
 edge [color=darkorange];
-IRecorder -> Global [arrowhead=ediamond];
-IRecorder -> SimulationInfo [arrowhead=ediamond];
-IRecorder -> AllSpikingNeurons [arrowhead=ediamond];
+Global -> IRecorder [arrowhead=ediamond];
+SimulationInfo -> IRecorder [arrowhead=ediamond];
+AllSpikingNeurons -> IRecorder [arrowhead=ediamond];
 
 edge [color=darkturquoise];
-AllSpikingNeurons -> AllSpikingSynapses [arrowhead=ediamond];
-AllSpikingNeurons -> Global [arrowhead=ediamond];
-
-edge [color=gold];
 AllSpikingSynapses -> AllSpikingNeurons [arrowhead=ediamond];
-
-edge [color=darkgoldenrod];
-InterClustersEventHandler -> Global [arrowhead=ediamond];
-SynapseIndexMap -> AllSynapses [arrowhead=ediamond];
-SynapseIndexMap -> Timer [arrowhead=ediamond];
-SynapseIndexMap -> BGTypes [arrowhead=ediamond];
-ClusterInfo -> Global [arrowhead=ediamond];
-ClusterInfo -> curand_kernel [arrowhead=ediamond];
-GPUSpikingCluster -> ISInput [arrowhead=ediamond];
-GPUSpikingCluster -> MersenneTwister_d [arrowhead=ediamond];
-Model -> tinyxml [arrowhead=ediamond];
-Model -> ParseParamError [arrowhead=ediamond];
-Model -> Util [arrowhead=ediamond];
-Model -> ConnGrowth [arrowhead=ediamond];
-Model -> ISInput [arrowhead=ediamond];
-Model -> Coordinate [arrowhead=ediamond];
-IModel -> tinyxml [arrowhead=ediamond];
-IModel -> Global [arrowhead=ediamond];
-IModel -> IAllNeurons [arrowhead=ediamond];
-IModel -> IAllSynapses [arrowhead=ediamond];
-IModel -> IRecorder [arrowhead=ediamond];
-IModel -> Connections [arrowhead=ediamond];
-IModel -> Layout [arrowhead=ediamond];
+Global -> AllSpikingNeurons [arrowhead=ediamond];
 
 edge [color=gold];
-IAllSynapses -> Global [arrowhead=ediamond];
-IAllSynapses -> SimulationInfo [arrowhead=ediamond];
-IAllSynapses -> ClusterInfo [arrowhead=ediamond];
+AllSpikingNeurons -> AllSpikingSynapses [arrowhead=ediamond];
+
+edge [color=darkgoldenrod];
+Global -> InterClustersEventHandler [arrowhead=ediamond];
+AllSynapses -> SynapseIndexMap [arrowhead=ediamond];
+Timer -> SynapseIndexMap [arrowhead=ediamond];
+BGTypes -> SynapseIndexMap [arrowhead=ediamond];
+Global -> ClusterInfo [arrowhead=ediamond];
+curand_kernel -> ClusterInfo [arrowhead=ediamond];
+ISInput -> GPUSpikingCluster [arrowhead=ediamond];
+MersenneTwister_d -> GPUSpikingCluster [arrowhead=ediamond];
+tinyxml -> Model [arrowhead=ediamond];
+ParseParamError -> Model [arrowhead=ediamond];
+Util -> Model [arrowhead=ediamond];
+ConnGrowth -> Model [arrowhead=ediamond];
+ISInput -> Model [arrowhead=ediamond];
+Coordinate -> Model [arrowhead=ediamond];
+tinyxml -> IModel [arrowhead=ediamond];
+Global -> IModel [arrowhead=ediamond];
+IAllNeurons -> IModel [arrowhead=ediamond];
+IAllSynapses -> IModel [arrowhead=ediamond];
+IRecorder -> IModel [arrowhead=ediamond];
+Connections -> IModel [arrowhead=ediamond];
+Layout -> IModel [arrowhead=ediamond];
+
+edge [color=gold];
+Global -> IAllSynapses [arrowhead=ediamond];
+SimulationInfo -> IAllSynapses [arrowhead=ediamond];
+ClusterInfo -> IAllSynapses [arrowhead=ediamond];
 
 edge [color=darkturquoise];
-IAllNeurons -> Layout [arrowhead=ediamond];
-IAllNeurons -> ClusterInfo [arrowhead=ediamond];
+Layout -> IAllNeurons [arrowhead=ediamond];
+ClusterInfo -> IAllNeurons [arrowhead=ediamond];
 
 edge [color=darksalmon];
-ISInput -> Global [arrowhead=ediamond];
-ISInput -> SimulationInfo [arrowhead=ediamond];
-ISInput -> IModel [arrowhead=ediamond];
-ISInput -> tinyxml [arrowhead=ediamond];
+Global -> ISInput [arrowhead=ediamond];
+SimulationInfo -> ISInput [arrowhead=ediamond];
+IModel -> ISInput [arrowhead=ediamond];
+tinyxml -> ISInput [arrowhead=ediamond];
 
 edge [color=hotpink];
-ConnGrowth -> ParseParamError [arrowhead=ediamond];
-ConnGrowth -> IAllSynapses [arrowhead=ediamond];
-ConnGrowth -> XmlGrowthRecorder [arrowhead=ediamond];
-ConnGrowth -> Hdf5GrowthRecorder [arrowhead=ediamond];
-ConnGrowth -> Global [arrowhead=ediamond];
-
-edge [color=darkorange];
-Hdf5GrowthRecorder -> AllIFNeurons [arrowhead=ediamond];
-Hdf5GrowthRecorder -> ConnGrowth [arrowhead=ediamond];
-Hdf5GrowthRecorder -> Model [arrowhead=ediamond];
-Hdf5GrowthRecorder -> H5Cpp [arrowhead=ediamond];
-Hdf5Recorder -> AllIFNeurons [arrowhead=ediamond];
-Hdf5Recorder -> H5Cpp [arrowhead=ediamond];
-
-edge [color=darkturquoise];
-AllIFNeurons -> ParseParamError [arrowhead=ediamond];
-AllIFNeurons -> Global [arrowhead=ediamond];
-
-edge [color=darkorange];
-XmlGrowthRecorder -> AllIFNeurons [arrowhead=ediamond];
+ParseParamError -> ConnGrowth [arrowhead=ediamond];
+IAllSynapses -> ConnGrowth [arrowhead=ediamond];
 XmlGrowthRecorder -> ConnGrowth [arrowhead=ediamond];
-XmlGrowthRecorder -> Model [arrowhead=ediamond];
-XmlRecorder -> AllIFNeurons [arrowhead=ediamond];
-XmlRecorder -> ConnGrowth [arrowhead=ediamond];
+Hdf5GrowthRecorder -> ConnGrowth [arrowhead=ediamond];
+Global -> ConnGrowth [arrowhead=ediamond];
 
-edge [color=gold];
-AllSynapses -> Global [arrowhead=ediamond];
+edge [color=darkorange];
+AllIFNeurons -> Hdf5GrowthRecorder [arrowhead=ediamond];
+ConnGrowth -> Hdf5GrowthRecorder [arrowhead=ediamond];
+Model -> Hdf5GrowthRecorder [arrowhead=ediamond];
+H5Cpp -> Hdf5GrowthRecorder [arrowhead=ediamond];
+AllIFNeurons -> Hdf5Recorder [arrowhead=ediamond];
+H5Cpp -> Hdf5Recorder [arrowhead=ediamond];
 
 edge [color=darkturquoise];
-AllNeurons -> Global [arrowhead=ediamond];
-AllNeurons -> Layout [arrowhead=ediamond];
+ParseParamError -> AllIFNeurons [arrowhead=ediamond];
+Global -> AllIFNeurons [arrowhead=ediamond];
 
-edge [color=darkgoldenrod];
-Simulator -> Global [arrowhead=ediamond];
-Simulator -> ISInput [arrowhead=ediamond];
-
-edge [color=darksalmon];
-FSInput -> tinyxml [arrowhead=ediamond];
-GpuSInputPoisson -> AllSynapsesDeviceFuncs [arrowhead=ediamond];
-GpuSInputPoisson -> curand_kernel [arrowhead=ediamond];
+edge [color=darkorange];
+AllIFNeurons -> XmlGrowthRecorder [arrowhead=ediamond];
+ConnGrowth -> XmlGrowthRecorder [arrowhead=ediamond];
+Model -> XmlGrowthRecorder [arrowhead=ediamond];
+AllIFNeurons -> XmlRecorder [arrowhead=ediamond];
+ConnGrowth -> XmlRecorder [arrowhead=ediamond];
 
 edge [color=gold];
-AllSynapsesDeviceFuncs -> ConnStatic [arrowhead=ediamond];
+Global -> AllSynapses [arrowhead=ediamond];
 
-edge [color=hotpink];
-ConnStatic -> ParseParamError [arrowhead=ediamond];
-ConnStatic -> IAllSynapses [arrowhead=ediamond];
-ConnStatic -> XmlRecorder [arrowhead=ediamond];
-ConnStatic -> Hdf5Recorder [arrowhead=ediamond];
-ConnStatic -> Global [arrowhead=ediamond];
-
-edge [color=darksalmon];
-SInputPoisson -> tinyxml [arrowhead=ediamond];
-SInputPoisson -> AllDSSynapses [arrowhead=ediamond];
-SInputRegular -> tinyxml [arrowhead=ediamond];
-HostSInputPoisson -> tinyxml [arrowhead=ediamond];
+edge [color=darkturquoise];
+Global -> AllNeurons [arrowhead=ediamond];
+Layout -> AllNeurons [arrowhead=ediamond];
 
 edge [color=darkgoldenrod];
-FClassOfCategory -> AllLIFNeurons [arrowhead=ediamond];
-FClassOfCategory -> AllIZHNeurons [arrowhead=ediamond];
-FClassOfCategory -> AllDSSynapses [arrowhead=ediamond];
-FClassOfCategory -> AllSTDPSynapses [arrowhead=ediamond];
-FClassOfCategory -> AllDynamicSTDPSynapses [arrowhead=ediamond];
-FClassOfCategory -> ConnGrowth [arrowhead=ediamond];
-FClassOfCategory -> ConnStatic [arrowhead=ediamond];
-FClassOfCategory -> FixedLayout [arrowhead=ediamond];
-FClassOfCategory -> DynamicLayout [arrowhead=ediamond];
-FClassOfCategory -> ParseParamError [arrowhead=ediamond];
-FClassOfCategory -> Global [arrowhead=ediamond];
+Global -> Simulator [arrowhead=ediamond];
+ISInput -> Simulator [arrowhead=ediamond];
+
+edge [color=darksalmon];
+tinyxml -> FSInput [arrowhead=ediamond];
+AllSynapsesDeviceFuncs -> GpuSInputPoisson [arrowhead=ediamond];
+curand_kernel -> GpuSInputPoisson [arrowhead=ediamond];
+
+edge [color=gold];
+ConnStatic -> AllSynapsesDeviceFuncs [arrowhead=ediamond];
+
+edge [color=hotpink];
+ParseParamError -> ConnStatic [arrowhead=ediamond];
+IAllSynapses -> ConnStatic [arrowhead=ediamond];
+XmlRecorder -> ConnStatic [arrowhead=ediamond];
+Hdf5Recorder -> ConnStatic [arrowhead=ediamond];
+Global -> ConnStatic [arrowhead=ediamond];
+
+edge [color=darksalmon];
+tinyxml -> SInputPoisson [arrowhead=ediamond];
+AllDSSynapses -> SInputPoisson [arrowhead=ediamond];
+tinyxml -> SInputRegular [arrowhead=ediamond];
+tinyxml -> HostSInputPoisson [arrowhead=ediamond];
+
+edge [color=darkgoldenrod];
+AllLIFNeurons -> FClassOfCategory [arrowhead=ediamond];
+AllIZHNeurons -> FClassOfCategory [arrowhead=ediamond];
+AllDSSynapses -> FClassOfCategory [arrowhead=ediamond];
+AllSTDPSynapses -> FClassOfCategory [arrowhead=ediamond];
+AllDynamicSTDPSynapses -> FClassOfCategory [arrowhead=ediamond];
+ConnGrowth -> FClassOfCategory [arrowhead=ediamond];
+ConnStatic -> FClassOfCategory [arrowhead=ediamond];
+FixedLayout -> FClassOfCategory [arrowhead=ediamond];
+DynamicLayout -> FClassOfCategory [arrowhead=ediamond];
+ParseParamError -> FClassOfCategory [arrowhead=ediamond];
+Global -> FClassOfCategory [arrowhead=ediamond];
 
 edge [color=indianred];
-DynamicLayout -> ParseParamError [arrowhead=ediamond];
-DynamicLayout -> Util [arrowhead=ediamond];
-FixedLayout -> ParseParamError [arrowhead=ediamond];
-FixedLayout -> Util [arrowhead=ediamond];
+ParseParamError -> DynamicLayout [arrowhead=ediamond];
+Util -> DynamicLayout [arrowhead=ediamond];
+ParseParamError -> FixedLayout [arrowhead=ediamond];
+Util -> FixedLayout [arrowhead=ediamond];
 
 edge [color=darkturquoise];
-AllIZHNeurons -> ParseParamError [arrowhead=ediamond];
-AllIZHNeurons -> Global [arrowhead=ediamond];
-AllLIFNeurons -> ParseParamError [arrowhead=ediamond];
-AllLIFNeurons -> Global [arrowhead=ediamond];
-AllLIFNeurons -> AllSpikingSynapses [arrowhead=ediamond];
+ParseParamError -> AllIZHNeurons [arrowhead=ediamond];
+Global -> AllIZHNeurons [arrowhead=ediamond];
+ParseParamError -> AllLIFNeurons [arrowhead=ediamond];
+Global -> AllLIFNeurons [arrowhead=ediamond];
+AllSpikingSynapses -> AllLIFNeurons [arrowhead=ediamond];
 }//End digraph declaration
