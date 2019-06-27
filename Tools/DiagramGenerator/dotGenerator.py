@@ -1,6 +1,8 @@
-#USAGE: python dotGenerator.py input_file_name.cpp output_file_name
+# Python 3
+
+#USAGE: python dotGenerator.py input_file_name.cpp output_file_name 
 #
-#Put this script into the same directory as the file you want to pass it
+#Put this script into the same (or higher) directory as the file you want to pass it
 #and run it by passing in the file you want to start with and a name for the
 #output. It will then start with that file and recursively look through
 #directories from that location down for files that that file includes.
@@ -18,13 +20,61 @@
 #have been removed; and a subsystem diagram that shows only connections between
 #subsystems at the system level (so no connections between individual files).
 #
-#It also generates a folder and places all the subsystems that it has identified
-#into it. It has no good way of naming those, so it currently just goes through
-#the alphabet and numbers, so the outputs will be A.dot, B.dot, etc.
+#It also generates a folder called dot_subsystems and places all the subsystems 
+#that it has identified into it
+#
+# It also generates images (as PDFs, pngs, whatever the user specifies, but PDF by default) 
+# from all the dot files and places them in a top level folder called dot_diagrams.
 #
 #To ignore certain files - simply modify the ignore list near the top of this
-#script.
+#script
 
+"""
+Changes made Summer 2019, in order of most substantial to least:
+    
+    - Upgrade:          Script has been updated from Python 2 to Python 3. 
+                        Specifically, the following changes were made:
+                                - print 'x' --> print('x')
+                                - strings are converted to bytes using str.encode(string) when writing to dot files
+                                - unsupported dictionary operations updated to the Python 3 equivalent:
+                                         d.has_key(k) --> k in d 
+                                         d.iterkeys() --> iter(d.keys())
+                                         d.itervalues() --> iter(d.values())
+                                - sorted(sub) where sub is a list of nodes --> sorted(sub, key = lambda node : node["name"]) to sort alphabetically
+
+    - PDF automation:   The script now automates pdf file generation from all dot files.
+                        All the pdf files are placed into a generated top level folder called
+                        "dot_diagrams." If the user wants to generate visual output in some
+                        other file format (say, png) they can modify the global constant
+                        OUTPUT_FORMAT. Note that the user will need to have graphviz installed.
+
+
+    - Bug fix 1:        Fixed a bug with is_inheritance -- it no longer always returns False.  
+                        Specifically, the regex is fixed.
+
+    - Visual improvements:   
+                            - Edges are now drawn orthogonally, which is an improvement from the free floating spaghetti, especially
+                                in the overview diagrams.
+                            - Subsystems are distinguished by a light gray background color. 
+                            - All subsystems have labels (master nodes) 
+                            - Master nodes have bold labels and a more pronounced appearance 
+                            - In the block overview, edges go between subsystem blocks rather than between master nodes.
+                            - Containment relationships now has the diamond on the correct side of the arcs
+
+    - Flexible input:    Now also checks if the given file name is in __file_hash values if it's not in keys.
+                        This gives the user the option to pass in the file name or the path (i.e. You can now 
+                        pass "./Core/BGDriver.cpp" OR "BGDriver.cpp" as arguments in the command line and both
+                        will work) without raising an IOError. 
+
+                        Note that Windows users will have to use "\" instead of "/".
+
+    - Bug 1:            For some reason, "concentrate = true" causes errors when graphviz
+                        renders the diagrams. It's set to false here.
+
+    - Documentation:    Updated some documentation to more accurately reflect the script's
+                        functionalities.
+
+"""
 
 import os
 import sys
@@ -71,7 +121,7 @@ subgraph_texts = []
 
 # There are lots of allowable colors in dot - you can also specify them by their RGB values, e.g. (#0FA23C)
 SUBSYSTEM_COLORS = [
-    "aquamarine",
+    # "aquamarine", # t00 intense 
     # "blue",  # Too dark
     # "chartreuse", # Too bright
     "coral",
@@ -86,12 +136,12 @@ SUBSYSTEM_COLORS = [
     "gold",
     "hotpink",
     "indianred",
-    "khaki",
+    #"khaki", # bit too light
     # "lightcyan",  # A little too light
-    "lightgoldenrod",
+    # "lightgoldenrod", # Bit too light
     "limegreen",
     "mediumseagreen",
-    "mediumturquoise"
+    "mediumturquoise",
     # "navyblue",  # Way too dark
     "olivedrab",
     "orange",
@@ -105,9 +155,15 @@ SUBSYSTEM_COLORS = [
     "skyblue",
     "tomato",
     "violetred",
-    "wheat",
-    "yellowgreen"
+    #"wheat", # too light
+    "yellowgreen",
+    "indigo",
+    "chocolate",
+    "orchid"
 ]
+
+# constant for subgraph cluster background color
+lightgray = "grey90"
 
 # A dictionary of subsystem_names to subsystem_colors; populated during the execution of the script
 subsystem_color_map = {}
@@ -122,12 +178,18 @@ global_dict_subsystems = {}
 # A dictionary (used as a hash table) for storing files we have already looked up.
 __file_hash = {}
 
+# Output format when converting from dot file to something we can see
+OUTPUT_FORMAT = "pdf"
+
 #########FUNCTIONS#########
 
 
 # Printing functions
 
-def print_all_subsystems():
+def print_all_subsystems(destination):
+    """
+    :param destination: destination directory to output files to
+    """
     dir_name = "dot_subsystems"
     if os.path.isdir(dir_name):
         shutil.rmtree(dir_name)
@@ -136,10 +198,14 @@ def print_all_subsystems():
         f_name = graph_text.strip().split(os.linesep)[0].split(' ')[1][7:]      # This is a bit of a hack...
         f_name_with_dir = os.path.join(dir_name, f_name + ".dot")
         f = open(f_name_with_dir, 'wb')
-        f.write("digraph{")
-        f.write(graph_text)
-        f.write("}//end digraph")
+        f.write(str.encode("digraph{" + os.linesep + "\t graph [splines=ortho]"))
+        f.write(str.encode(graph_text))
+        f.write(str.encode("}//end digraph"))
         f.close()
+        # convert to image
+        os.chdir(os.getcwd() + os.sep + dir_name)
+        output_as(f_name, OUTPUT_FORMAT, destination)
+        os.chdir("..")
 
 
 def print_block_layout(block_file):
@@ -150,7 +216,6 @@ def print_block_layout(block_file):
         tup0_system = get_color_from_name(relationship[0])
         tup1_system = get_color_from_name(relationship[1])
         if tup0_system != tup1_system:
-#            inter_system_relationships.append((relationship[0], relationship[1], tup0_system))
             inter_system_relationships.append(relationship)
 
     temp = []
@@ -188,12 +253,19 @@ def print_block_layout(block_file):
         color = r[2]
         if not color and current_color != "black":
             current_color = "black"
-            block_file.write(os.linesep + "edge [color=black];" + os.linesep)
+            block_file.write(str.encode(os.linesep + "edge [color=black];" + os.linesep))
         elif color and current_color != color:
             current_color = color
-            block_file.write(os.linesep + "edge [color=" + color + "];" + os.linesep)
-        line = r[0] + " -> " + r[1] + " [arrowhead=ediamond];" + os.linesep
-        block_file.write(line)
+            block_file.write(str.encode(os.linesep + "edge [color=" + color + "];" + os.linesep))
+        
+        start = ""
+        end = ""
+        if r[1] in global_dict_subsystems:
+            start = "ltail = cluster" + r[0] + ","
+        if r[0] in global_dict_subsystems:
+            end = "lhead = cluster" + r[1]
+        line = r[1] + " -> " + r[0] + " [arrowhead=ediamond, " + start + end + "];" + os.linesep
+        block_file.write(str.encode(line))
 
 
 def print_classes(dot_file, sys_overview_file, block_file, use_old_style_systems=False):
@@ -203,23 +275,23 @@ def print_classes(dot_file, sys_overview_file, block_file, use_old_style_systems
     sub_name_index = 0
     for sub in subgraphs:
         sub_name = sub_names[sub_name_index] if use_old_style_systems else get_sub_name_new_style([item['name'] for item in sub])
-
-        print_subgraph(dot_file, sub_name, sub, 'd')
-        print_subgraph(sys_overview_file, sub_name, sub, 'o')
-        print_subgraph(block_file, sub_name, sub, 'b')
+        if sub_name != "NAME_ERROR":
+            print_subgraph(dot_file, sub_name, sub, 'd')
+            print_subgraph(sys_overview_file, sub_name, sub, 'o')
+            print_subgraph(block_file, sub_name, sub, 'b')
 
         sub_name_index = 0 if sub_name_index >= (len(sub_names) - 1) else sub_name_index + 1
 
 
 def print_end(dot_file, sys_overview_file, block_file):
-    line = "}//End digraph declaration" + os.linesep
+    line = str.encode("}//End digraph declaration" + os.linesep)
     dot_file.write(line)
     sys_overview_file.write(line)
     block_file.write(line)
 
 
 def print_file(dot_file, sys_overview_file, block_file, use_old_style_systems=False):
-    print "Generating dot files..."
+    print("Generating dot files...")
     print_opening(dot_file, sys_overview_file, block_file)
     print_classes(dot_file, sys_overview_file, block_file, use_old_style_systems)
     print_layout(dot_file, sys_overview_file, block_file)
@@ -242,11 +314,11 @@ def print_layout(dot_file, sys_overview_file, block_file):
                 sys_overview_file.write(os.linesep + "edge [color=black];" + os.linesep)
             elif color and current_color != color:
                 current_color = color
-                color_line = os.linesep + "edge [color=" + color + "];" + os.linesep
+                color_line = str.encode(os.linesep + "edge [color=" + color + "];" + os.linesep)
                 dot_file.write(color_line)
                 sys_overview_file.write(color_line)
 
-            line = c[0] + " -> " + c[1] + " [arrowhead=empty];" + os.linesep
+            line = str.encode(c[0] + " -> " + c[1] + " [arrowhead=empty];" + os.linesep)
             dot_file.write(line)
             sys_overview_file.write(line)
 
@@ -256,15 +328,15 @@ def print_layout(dot_file, sys_overview_file, block_file):
             color = get_color_from_name(c[0])
             if not color and current_color != "black":
                 current_color = "black"
-                dot_file.write(os.linesep + "edge [color=black];" + os.linesep)
-                sys_overview_file.write(os.linesep + "edge [color=black];" + os.linesep)
+                dot_file.write(str.encode(os.linesep + "edge [color=black];" + os.linesep))
+                sys_overview_file.write(str.encode(os.linesep + "edge [color=black];" + os.linesep))
             elif color and current_color != color:
                 current_color = color
-                color_line = os.linesep + "edge [color=" + color + "];" + os.linesep
+                color_line = str.encode(os.linesep + "edge [color=" + color + "];" + os.linesep)
                 dot_file.write(color_line)
                 sys_overview_file.write(color_line)
 
-            line = c[0] + " -> " + c[1] + " [arrowhead=ediamond];" + os.linesep
+            line = str.encode(c[1] + " -> " + c[0] + " [arrowhead=ediamond];" + os.linesep)
             dot_file.write(line)
             sys_overview_file.write(line)
 
@@ -272,8 +344,8 @@ def print_layout(dot_file, sys_overview_file, block_file):
 
 
 def print_layout_boilerplate(dot_file, behavior='d'):
-    header = "//-------LAYOUT OF RELATIONSHIPS BETWEEN SUBGRAPHS------//" + os.linesep
-    rankdir = "rankdir = BT; // Rank Direction Top to Bottom" + os.linesep
+    header = str.encode("//-------LAYOUT OF RELATIONSHIPS BETWEEN SUBGRAPHS------//" + os.linesep)
+    rankdir = str.encode("rankdir = BT; // Rank Direction Top to Bottom" + os.linesep)
     if behavior == 'd':
         nodesep = ranksep = 0.02 * len(classes)
     elif behavior == 'b':
@@ -281,22 +353,24 @@ def print_layout_boilerplate(dot_file, behavior='d'):
     else:
         nodesep = 0.005 * len(classes)
         ranksep = 0.02 * len(classes)
-    nodesep = "nodesep = " + str(nodesep) + "; // Node Separation" + os.linesep
-    ranksep = "ranksep = " + str(ranksep) + "; // Rank Separation" + os.linesep
-
-    concentrate = "concentrate = true;" + os.linesep
+    nodesep = str.encode("nodesep = " + str(nodesep) + "; // Node Separation" + os.linesep)
+    ranksep = str.encode("ranksep = " + str(ranksep) + "; // Rank Separation" + os.linesep)
+    
+    # For some reason, "concentrate = true" causes pdf errors. In case
+    # someone is able to find a solution, it's commented here.  
+    # concentrate = str.encode("concentrate = true;" + os.linesep)
 
     dot_file.write(header)
     dot_file.write(rankdir)
     dot_file.write(nodesep)
     dot_file.write(ranksep)
-    dot_file.write(concentrate)
-    dot_file.write(os.linesep)
+    # dot_file.write(concentrate)
+    dot_file.write(str.encode(os.linesep))
 
 
 def print_opening(dot_file, sys_overview_file, block_file):
-    opening_blurb = "//BrainGrid Overview" + os.linesep + "//Written in the Dot language (See Graphviz)" + os.linesep
-    opening_digraph = "" + os.linesep + "digraph {" + os.linesep + os.linesep + os.linesep
+    opening_blurb = str.encode("//BrainGrid Overview" + os.linesep + "//Written in the Dot language (See Graphviz)" + os.linesep)
+    opening_digraph = str.encode("" + os.linesep + "digraph {" + os.linesep + "\t graph[splines=ortho,compound=true]" + os.linesep + os.linesep + os.linesep)
 
     dot_file.write(opening_blurb)
     dot_file.write(opening_digraph)
@@ -348,9 +422,9 @@ def print_subgraph_layout(subgraph_inheritance, subgraph_includes, behavior='d')
             to_print += "" + os.linesep
         last_c = c
         if behavior == 'd':
-            to_print += "\t\t" + c[0] + " -> " + c[1] + " [arrowhead=ediamond];" + os.linesep
+            to_print += "\t\t" + c[1] + " -> " + c[0] + " [arrowhead=ediamond];" + os.linesep
         else:
-            to_print += "\t\t" + c[0] + " -> " + c[1] + " [style=invis];" + os.linesep
+            to_print += "\t\t" + c[1] + " -> " + c[0] + " [style=invis];" + os.linesep
 
     return to_print
 
@@ -379,23 +453,25 @@ def print_subgraph(dot_file, sub_name, sub, behavior='d'):
     subsystem_color_map_inverse[color] = sub_name
 
     if color is not None:
+        to_print += "\t\tstyle = rounded" + os.linesep
+        to_print += "\t\tbgcolor = " + lightgray + os.linesep
         to_print += "\t\tcolor = " + color + os.linesep
         to_print += "\t\tnode [shape = record, color = " + color + "];" + os.linesep + os.linesep
     else:
         to_print += "\t\tnode [shape = record];" + os.linesep + os.linesep + os.linesep
 
     # Alphabetize the subgraph's nodes for human-readability of the DOT file
-    sub = sorted(sub)
+    sub = sorted(sub, key = lambda nodeInfo: nodeInfo['name'])
 
     # Print the subgraph's nodes
     for c in sub:
         to_print += "\t\t" + c.get("name") + "[label = " + c.get("name") + ", style = filled"
         to_print += "];" + os.linesep
 
-    # If block diagram, print the master node for the subgraph
-    if behavior == 'b' and len(sub) > 1:
+    # print the master node for the subgraph
+    if behavior == 'b' or behavior == 'o' or behavior == 'd' and len(sub) > 1:
         if sub[0].get("color") is not None:
-            to_print += "\t\t" + sub_name + "[label = \"" + sub_name + " (" + color + ")\"" + ", style = filled"
+            to_print += "\t\t" + sub_name + "[label =< <B> " + sub_name  + "</B>>, style = bold, fillcolor = white, style = filled"
         else:
             to_print += "\t\t" + sub_name + "[label = " + sub_name + ", style = filled"
         to_print += "];" + os.linesep
@@ -413,7 +489,7 @@ def print_subgraph(dot_file, sub_name, sub, behavior='d'):
 
     to_print += "\t}//end subgraph " + sub_name + os.linesep
 
-    dot_file.write(to_print)
+    dot_file.write(str.encode(to_print))
 
     if behavior == 'd':
         if len(sub) > 1:
@@ -435,7 +511,7 @@ def color_subsystems(subsystems, use_old_discover_mode=False):
     :return: Nothing
     """
     sys_index = 0
-    iterable = subsystems if use_old_discover_mode else subsystems.itervalues()
+    iterable = subsystems if use_old_discover_mode else iter(subsystems.values())
     for sys in iterable:
         if (len(sys) > 1 and use_old_discover_mode) or (len(sys) > 0 and not use_old_discover_mode):
             list_of_each_dictionary = [item for item in classes if item.get("name") in sys]
@@ -538,7 +614,7 @@ def create_subgraphs(subsystems, use_old_discover_mode=False):
     :param use_old_discover_mode: Whether or not subsystems was generated using the old-style generation method.
     :return: Nothing
     """
-    iterable = subsystems if use_old_discover_mode else subsystems.itervalues()
+    iterable = subsystems if use_old_discover_mode else iter(subsystems.values())
     for j, sub in enumerate(iterable):
         list_of_each_dictionary = [item for item in classes if item.get("name") in sub]
         for dic in list_of_each_dictionary:
@@ -553,9 +629,13 @@ def find_file(name, open_mode):
     :param open_mode:
     :return:
     """
+    
     # All useful files have already been hashed. So just check the hash.
     if __file_hash.get(name):
         return open(__file_hash[name], open_mode)
+    # This elif clause checks if the user passed in the file path instead of just the file name
+    elif name in iter(__file_hash.values()):
+        return open(name, open_mode)
     else:
         raise IOError
 
@@ -564,6 +644,7 @@ def find_includes(includer):
     found_list = []
     inside_multi_line_comment = False
     for line in includer:
+        line = str(line)
         if re.compile('.*(/\*).*').search(line):
             inside_multi_line_comment = True
         if re.compile('.*(\*).*').search(line):
@@ -631,7 +712,6 @@ def form_subsystems_from_inclusions_in_other_subsystems(subsystems):
     Check each subsystem A to see if any other subsystem B includes items from A,
     if B includes any items from A and it is the ONLY subsystem that includes any items from A,
     merge A into B.
-
     E.g. Model, in subsystem B, includes Coordinate, which is its own subsystem A. (Model in B, Coordinate = A).
     B is the ONLY subsystem that includes anything in A, so A should be merged INTO B.
     :param subsystems:
@@ -733,7 +813,7 @@ def get_sub_name_new_style(sub):
     :param sub:
     :return: The name of the passed in subgraph.
     """
-    for name in global_dict_subsystems.iterkeys():
+    for name in iter(global_dict_subsystems.keys()):
         system = global_dict_subsystems[name]
         if set(system) == set(sub):
             return name
@@ -798,14 +878,14 @@ def is_inheritance(derived, base):
         return False
     # decide if the "derived" class actually derives from base
     # read file in line by line into a string.
-    lines = [line for line in derived_file]
+    lines = [str(line) for line in derived_file]
     derived_file.close()
     contents = ""
     for line in lines:
         contents += line
 
-    # match the string's first occurrence of this: .*"class" <whitespace>+ <derived's name> <whitespace>+ ":" .* <base's name> .* "{"
-    regex = '(class)(\s)+(' + derived + ')(\s)+(:)(.)*(' + base + ')(.)*\{'
+    # match the string's first occurrence of this: .*"class" <whitespace>+ <derived's name> <whitespace>+ ":" .* <base's name> .* 
+    regex = '(class)(\s)+(' + derived + ')(\s)+(:)(.)*(' + base + ')(.)*'
     pattern = re.compile(regex)
     match_obj = pattern.search(contents)
     if match_obj:
@@ -817,7 +897,6 @@ def is_inheritance(derived, base):
 def list_includes_any_items_from_other_list(list_a, list_b):
     """
     This method doesn't do at all what it sounds like.
-
     It checks list_a and returns True if any of the items in it include any of the items in list b.
     That is, if any item in list_a inherits from or includes any item in list_b, this method returns True.
     False otherwise.
@@ -845,19 +924,19 @@ def map_directories(file_paths):
     votes = {}
     for path in file_paths:
         path_minus_name = os.sep.join(path.strip().split(os.sep)[0:-1])
-        votes[path_minus_name] = votes[path_minus_name] + 1 if votes.has_key(path_minus_name) else 1
+        votes[path_minus_name] = votes[path_minus_name] + 1 if path_minus_name in votes else 1
 
     # Get the path that is used the majority of the files in the module or the last one if tied
     item_path = ""
     total_votes = 0
-    for key in votes.iterkeys():
+    for key in iter(votes.keys()):
         if votes[key] >= total_votes:
             total_votes = votes[key]
             item_path = key
 
     folder = item_path.split(os.sep)[-1]
     file_name = file_paths[0].split(os.sep)[-1].split('.')[0]
-    if global_dict_subsystems.has_key(folder):
+    if folder in global_dict_subsystems:
         global_dict_subsystems[folder].append(file_name)
     else:
         global_dict_subsystems[folder] = [file_name]
@@ -868,13 +947,12 @@ def map_inheritance_and_composition(list_of_include_groups, use_old_discovery_mo
     This function maps the relationships between the files which are related and fills the global
     "includes" and "inheritance" lists with tuples of the form: (includer, included).
     This function also populates the "classes" list.
-
     :param list_of_include_groups: A list of lists, each of the form [file_name_A, file_name_B, file_name_C, etc.] where
     file_name_B and file_name_C, etc. are all included BY file A.
     :param use_old_discovery_mode: Whether or not to use the old way of discovering subsystems (heuristics). The new
     way uses the directory structure to determine subsystems.
     """
-    print "Mapping relationships and identifying subsystems..."
+    print("Mapping relationships and identifying subsystems...")
     for include_group in list_of_include_groups:
         # For each include_group, determine the type of relationship it is
         if len(include_group) > 1:
@@ -885,7 +963,7 @@ def map_inheritance_and_composition(list_of_include_groups, use_old_discovery_mo
                 classes.append({"name": parent_name})
 
             rest_of_layer = include_group[1:]
-            print "Mapping relationships for " + parent_name
+            print("Mapping relationships for " + parent_name)
             for item in rest_of_layer:
                 # If the item is not in the list of classes, add it
                 if {"name": item} not in classes:
@@ -894,10 +972,10 @@ def map_inheritance_and_composition(list_of_include_groups, use_old_discovery_mo
                 # Determine the type of relationship between the parent and this item
                 relationship = (parent_name, item)
                 if is_inheritance(parent_name, item) and not relationship in inheritance:
-                    print parent_name + " INHERITS from " + item
+                    print(parent_name + " INHERITS from " + item)
                     inheritance.append(relationship)
                 elif relationship not in includes and not relationship in inheritance:  # Don't include if already in inheritance
-                    print parent_name + " DEPENDS on " + item
+                    print(parent_name + " DEPENDS on " + item)
                     includes.append(relationship)
 
     # At this point, the "classes" list is filled with all the files that this script has examined, and the
@@ -978,9 +1056,39 @@ def trim_directory():
             if ignore_dir:
                 ignores.append(d)
 
-    for extension in exts.iterkeys():
+    for extension in iter(exts.keys()):
         if not exts[extension]:
             extension_ignores.append(extension)
+
+
+def create_diagram_directory():
+    """
+    initializes directory to put all output diagrams in, called "dot_diagrams"
+    Returns the path of that directory. 
+    """
+    dir_name = "dot_diagrams"
+    if os.path.isdir(dir_name):
+        shutil.rmtree(dir_name)
+    os.makedirs(dir_name)
+    return os.getcwd() + os.sep + dir_name
+
+
+def output_as(dot_file_name, file_ext, destination):
+    """
+    Runs the command line command "dot -T(file_ext) inp_file.dot > out_file.dot.(file_ext)"
+    on all dot files created. In other word, this functions converts the dot files to something
+    we can actually make sense of. The output files are all put in a top level folder called
+    "dot_diagrams"
+    :param dot_file_name: the dot_file name (string) 
+    :param file_ext: the file extension to output the graphs as, e.g. "png" or "pdf"
+    :param destination: the directory to put the output file in, as a string
+    """
+    os.system("dot -T" + file_ext + " " + dot_file_name + ".dot > out_" + dot_file_name + ".dot." + file_ext)
+    outfile_name = "out_" + dot_file_name + ".dot." + file_ext
+
+    # move the output file to this directory 
+    cwd = os.getcwd()
+    shutil.move(cwd + os.sep + outfile_name, destination + os.sep + outfile_name)
 
 
 def main(center_file_names, dot_file_name, old_style_sub_discovery=False):
@@ -1001,15 +1109,19 @@ def main(center_file_names, dot_file_name, old_style_sub_discovery=False):
             center_file.close()
 
         except IOError as ex:
-            print "No file " + center_file_name
+            print("No file " + center_file_name)
 
     # Walk through each list of includings and decide what relationship exists amongst them
     map_inheritance_and_composition(files_to_map, old_style_sub_discovery)
 
     # Print the dot files for the overview
-    dot_file = open(dot_file_name + ".dot", 'wb')
-    overview_file = open(dot_file_name + "_sys_overview.dot", 'wb')
-    block_file = open(dot_file_name + "_block_overview.dot", 'wb')
+    complete_file_name = dot_file_name + "_sys_complete"
+    overview_file_name = dot_file_name + "_sys_overview"
+    block_file_name = dot_file_name + "_block_overview"
+
+    dot_file = open(complete_file_name + ".dot", 'wb')
+    overview_file = open(overview_file_name + ".dot", 'wb')
+    block_file = open(block_file_name + ".dot", 'wb')
 
     print_file(dot_file, overview_file, block_file, old_style_sub_discovery)
 
@@ -1017,8 +1129,16 @@ def main(center_file_names, dot_file_name, old_style_sub_discovery=False):
     overview_file.close()
     block_file.close()
 
+    print("Generating " + OUTPUT_FORMAT + " files...")
+    dest = create_diagram_directory()
+
     # Print the subsystems
-    print_all_subsystems()
+    print_all_subsystems(dest)
+
+    # Generate images
+    output_as(complete_file_name, OUTPUT_FORMAT, dest)
+    output_as(overview_file_name, OUTPUT_FORMAT, dest)
+    output_as(block_file_name, OUTPUT_FORMAT, dest)
 
 
 #############MAIN SCRIPT#############
@@ -1034,7 +1154,7 @@ if len(sys.argv) is not 3 and len(sys.argv) is not 4:
     help_str += "EXAMPLE USAGE: python " + sys.argv[0] + " ./Core/BGDriver.cpp output" + os.linesep
     help_str += "In this example, the script would look for BGDriver.cpp in ./Core/ then it would glean its includes,"
     help_str += " and look for them from the directory that the script is currently in on down."
-    print help_str
+    print(help_str)
     exit(0)
 else:
     center_file_name = sys.argv[1]
@@ -1043,29 +1163,32 @@ else:
 
 
 # Before we do anything else, let's trim the directory to only those folders that actually have useful files
-print "Optimizing directory search..."
+print("Optimizing directory search...")
 trim_directory()
 
 # Remove those file extensions from allowables that don't exist
 remove_extensions()
 
 # Now hash all of the files so that finding them is super fast later
-print "Hashing files...."
+print("Hashing files....")
 hash_all_files()
 
 # Find the given "center" file
 try:
     extension = '.' + center_file_name.split('.')[-1]
     if extension not in allowable_file_types:
-        print "This will only work in this directory on files of type:"
+        print("This will only work in this directory on files of type:")
         for ext in allowable_file_types:
-            print " " + ext
-        print ".....Please give me one of those."
+            print(" " + ext)
+        print(".....Please give me one of those.")
+        print("Did you make sure to run this script from the desired directory?")
         exit(-1)
     else:
         center_file = find_file(center_file_name, 'rb')
 except IOError as ex:
-    print "File not found or some other IO error."
+    print("File not found or some other IO error.")
+    print("Did you make sure to run this script from the desired directory?")
     exit(-1)
 
 main([center_file_name], dot_file_name, old_style_subsystem_discovery)
+

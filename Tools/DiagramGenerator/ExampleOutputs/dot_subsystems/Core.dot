@@ -1,45 +1,70 @@
 digraph{
+	 graph [splines=ortho]
 
 	subgraph clusterCore {
-		color = aquamarine
-		node [shape = record, color = aquamarine];
+		style = rounded
+		bgcolor = grey90
+		color = darkgoldenrod
+		node [shape = record, color = darkgoldenrod];
 
+		Cluster[label = Cluster, style = filled];
+		ClusterInfo[label = ClusterInfo, style = filled];
+		EventQueue[label = EventQueue, style = filled];
 		FClassOfCategory[label = FClassOfCategory, style = filled];
-		GPUSpikingModel[label = GPUSpikingModel, style = filled];
+		GPUSpikingCluster[label = GPUSpikingCluster, style = filled];
 		IModel[label = IModel, style = filled];
+		InterClustersEventHandler[label = InterClustersEventHandler, style = filled];
 		Model[label = Model, style = filled];
 		SimulationInfo[label = SimulationInfo, style = filled];
 		Simulator[label = Simulator, style = filled];
-		SingleThreadedSpikingModel[label = SingleThreadedSpikingModel, style = filled];
+		SingleThreadedCluster[label = SingleThreadedCluster, style = filled];
 		SynapseIndexMap[label = SynapseIndexMap, style = filled];
+		Core[label =< <B> Core</B>>, style = bold, fillcolor = white, style = filled];
 
 
 		//------LAYOUT FOR SUBGRAPH------
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 0.96; // Node Separation
-		ranksep = 0.96; // Rank Separation
+		nodesep = 1.3; // Node Separation
+		ranksep = 1.3; // Rank Separation
 
 
 		//INHERITANCE//
 
 
-		GPUSpikingModel -> Model [arrowhead=empty];
+		GPUSpikingCluster -> Model [arrowhead=empty];
 
 		Model -> IModel [arrowhead=empty];
 
-		SingleThreadedSpikingModel -> Model [arrowhead=empty];
+		SingleThreadedCluster -> Cluster [arrowhead=empty];
 
 
 		//COMPOSITION//
 
 
-		IModel -> SimulationInfo [arrowhead=ediamond];
+		SimulationInfo -> Cluster [arrowhead=ediamond];
 
-		Model -> SynapseIndexMap [arrowhead=ediamond];
+		InterClustersEventHandler -> ClusterInfo [arrowhead=ediamond];
 
-		Simulator -> IModel [arrowhead=ediamond];
-		Simulator -> SimulationInfo [arrowhead=ediamond];
+		InterClustersEventHandler -> EventQueue [arrowhead=ediamond];
+		SimulationInfo -> EventQueue [arrowhead=ediamond];
+		SynapseIndexMap -> EventQueue [arrowhead=ediamond];
+
+		Cluster -> IModel [arrowhead=ediamond];
+		SimulationInfo -> IModel [arrowhead=ediamond];
+
+		EventQueue -> InterClustersEventHandler [arrowhead=ediamond];
+
+		GPUSpikingCluster -> Model [arrowhead=ediamond];
+		SynapseIndexMap -> Model [arrowhead=ediamond];
+
+		IModel -> Simulator [arrowhead=ediamond];
+		SimulationInfo -> Simulator [arrowhead=ediamond];
+
+		Cluster -> SynapseIndexMap [arrowhead=ediamond];
+		ClusterInfo -> SynapseIndexMap [arrowhead=ediamond];
+		GPUSpikingCluster -> SynapseIndexMap [arrowhead=ediamond];
+		SimulationInfo -> SynapseIndexMap [arrowhead=ediamond];
 	}//end subgraph Core
 }//end digraph
