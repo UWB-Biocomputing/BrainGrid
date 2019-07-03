@@ -19,6 +19,7 @@
  */
 
 #include "ParameterManager.h"
+#include "tinyxml.h"
 // TODO: are these declarations necessary?
 #include <iostream>
 #include <string>
@@ -32,7 +33,7 @@
  * Initialize any heap variables to null
  */
 ParameterManager::ParameterManager() {
-    // TODO: anything here?
+    xmlDoc = nullptr;
 }
 
 /**
@@ -40,12 +41,20 @@ ParameterManager::ParameterManager() {
  * Deallocate all heap memory managed by the class
  */
 ParameterManager::~ParameterManager() {
-    // TODO: anything here?
+    delete xmlDoc;
 }
 
 
 bool ParameterManager::loadParameterFile(string path) {
-    // TODO: implement this
+    xmlDoc = new TiXmlDocument(path.c_str());
+    if (!xmlDoc->LoadFile()) {
+        cerr << "Failed loading simulation parameter file "
+             << path << ":" << "\n\t" << xmlDoc->ErrorDesc()
+             << endl;
+        cerr << " error: " << xmlDoc->ErrorRow() << ", " << xmlDoc->ErrorCol()
+             << endl;
+        return false;
+    }
     return false;
 }
 

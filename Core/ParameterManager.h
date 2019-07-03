@@ -18,13 +18,14 @@
  * Supervised by Dr. Michael Stiber, UW Bothell CSSE Division
  */
 
+#include "tinyxml.h"
 // TODO: are these declarations necessary?
 #include <iostream>
 #include <string>
 
 using namespace std;
 
-class ParameterManager : TinyXmlDoc {
+class ParameterManager {
     public:
         // Utility methods
         ParameterManager();
@@ -36,5 +37,5 @@ class ParameterManager : TinyXmlDoc {
         double getDoubleByXpath(string xpath);
         float getFloatByXpath(string xpath);
     private:
-
+        TiXmlDocument* xmlDoc;
 };
