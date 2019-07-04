@@ -20,7 +20,15 @@ bool testConstructor() {
 }
 
 bool testValidXmlFileReading() {
-    // TODO
+    ParameterManager* pm = new ParameterManager();
+    // does the object get destroyed?
+    string valid[] = {"../configfiles/test-medium-100.xml", "../configfiles/test-large-conected.xml", "../configfiles/test-medium.xml", "../configfiles/test-tiny.xml"};
+    string invalid[] = {"../Core/BGDriver.cpp", "./this/path/doesnt/exist", "../configfiles/test-large-connected.xml", ""};
+    for (int i = 0; i < 4; i++) 
+        assert(pm->loadParameterFile(valid[i]));
+    for (int i = 0; i < 4; i++) 
+        assert(!pm->loadParameterFile(invalid[i]));
+    delete pm;
     return true;
 }
 

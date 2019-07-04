@@ -55,7 +55,7 @@ bool ParameterManager::loadParameterFile(string path) {
              << endl;
         return false;
     }
-    return false;
+    return true;
 }
 
 // ----------------------------------------------------

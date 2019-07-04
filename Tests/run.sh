@@ -11,3 +11,4 @@ if [[ $? != 0 ]]; then
 fi
 
 ./test
+rm test
