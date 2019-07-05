@@ -32,10 +32,24 @@ bool testValidXmlFileReading() {
     return true;
 }
 
+bool testValidStringTargeting() {
+    /*
+     * Testing string retrieval for ../configfiles/test-medium-500.xml
+     */
+    ParameterManager* pm = new ParameterManager();
+    if (pm->loadParameterFile("../configfiles/test-medium-500.xml")) {
+        string xpaths[] = {"/BGSimParams/SimInfoParams/"};
+        string result[] = {};
+        string s;
+    }
+}
+
 int main() {
     bool success = testConstructor();
     if (!success) return 1;
     success = testValidXmlFileReading();
+    if (!success) return 1;
+    success = testValidStringTargeting();
     if (!success) return 1;
     return 0;
 }

@@ -25,6 +25,9 @@
 
 using namespace std;
 
+#ifndef PARAMETER_MANAGER_H__
+#define PARAMETER_MANAGER_H__
+
 class ParameterManager {
     public:
         // Utility methods
@@ -32,10 +35,14 @@ class ParameterManager {
         ~ParameterManager();
         bool loadParameterFile(string path);
         // Interface methods for simulator objects
-        string getStringByXpath(string xpath);
+        bool getStringByXpath(string xpath, string& result);
         int getIntByXpath(string xpath);
         double getDoubleByXpath(string xpath);
         float getFloatByXpath(string xpath);
     private:
         TiXmlDocument* xmlDoc;
+        TiXmlElement* root;
+        bool checkDocumentStatus();
 };
+
+#endif          // PARAMETER_MANAGER_H__
