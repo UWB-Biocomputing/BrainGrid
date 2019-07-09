@@ -49,8 +49,9 @@ Changes made Summer 2019, in order of most substantial to least:
                         OUTPUT_FORMAT. Note that the user will need to have graphviz installed.
 
 
-    - Bug fix 1:        Fixed a bug with is_inheritance -- it no longer always returns False.  
-                        Specifically, the regex is fixed.
+    - Bug fix :        Fixed a bug with is_inheritance -- it no longer always returns False.  
+                        Specifically, the regex is fixed. Now detects inheritance through .h files that
+                        are not directly included. 
 
     - Visual improvements:   
                             - Edges are now drawn orthogonally, which is an improvement from the free floating spaghetti, especially
@@ -891,7 +892,39 @@ def is_inheritance(derived, base):
     if match_obj:
         return True
     else:
+       return False
+
+def inherits_from(derived):
+    """
+    This function returns a string of the class that derived inherits from. Called only if
+    derived could inherit from a class that its file does not directly include.
+    """
+    # check if derived inherits from a class that is not directly included 
+    try:
+        derived_file = find_file(derived + ".h", 'rb')
+    except IOError as ex:
         return False
+    # decide if the "derived" class actually derives from base
+    # read file in line by line into a string.
+    lines = [str(line) for line in derived_file]
+    derived_file.close()
+    contents = ""
+    for line in lines:
+        contents += line
+
+    # match the string's first occurrence of this: .*"class" <whitespace>+ <derived's name> <whitespace>+ ":" .* <base's name> .* 
+    regex = '(class)(\s)+(' + derived + ')(\s)+(:)(\s)*(public)(.+?)(?=\{)'
+    pattern = re.compile(regex, re.DOTALL)
+    match_obj = pattern.search(contents)
+    if match_obj:
+        base = match_obj.groups()[-1]
+        base = base.strip()
+        i = base.find('\\')
+        if i != -1:
+            base = base[:i]
+        return base
+    else:
+       return None
 
 
 def list_includes_any_items_from_other_list(list_a, list_b):
@@ -977,6 +1010,12 @@ def map_inheritance_and_composition(list_of_include_groups, use_old_discovery_mo
                 elif relationship not in includes and not relationship in inheritance:  # Don't include if already in inheritance
                     print(parent_name + " DEPENDS on " + item)
                     includes.append(relationship)
+                # otherwise check if it inherits from something that it does not directly include
+                possible_base = inherits_from(parent_name)
+                relationship = (parent_name, possible_base)
+                if type(possible_base) is str and not relationship in inheritance:
+                    print(parent_name + " INHERITS from " + possible_base)
+                    inheritance.append(relationship)
 
     # At this point, the "classes" list is filled with all the files that this script has examined, and the
     # "inheritance" and "includes" lists are also filled with the correct relationships. Use them to determine
@@ -1146,7 +1185,7 @@ def main(center_file_names, dot_file_name, old_style_sub_discovery=False):
 
 # Get the input arg as the "center" file
 if len(sys.argv) is not 3 and len(sys.argv) is not 4:
-    help_str = "USAGE: " + sys.argv[0] + "<FILE_NAME> <OUTPUT_NAME_WO_EXTENSION> <ARGS>"
+    help_str = "USAGE: " + sys.argv[0] + " <FILE_NAME> <OUTPUT_NAME_WO_EXTENSION> <ARGS>"
     help_str += ", where <ARGS> is currently just -sub for the old-style sub-system generation. Use -sub if you want"
     help_str += " to have this script attempt to generate subsystems for you, otherwise it will do so based on"
     help_str += " directory structures."
@@ -1154,6 +1193,8 @@ if len(sys.argv) is not 3 and len(sys.argv) is not 4:
     help_str += "EXAMPLE USAGE: python " + sys.argv[0] + " ./Core/BGDriver.cpp output" + os.linesep
     help_str += "In this example, the script would look for BGDriver.cpp in ./Core/ then it would glean its includes,"
     help_str += " and look for them from the directory that the script is currently in on down."
+    help_str += " Note that the './' is required."
+    print()
     print(help_str)
     exit(0)
 else:

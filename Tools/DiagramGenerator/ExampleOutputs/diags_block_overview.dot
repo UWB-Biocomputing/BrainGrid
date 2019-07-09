@@ -26,8 +26,8 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
@@ -56,8 +56,8 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
@@ -94,13 +94,14 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
 
 
+		GPUSpikingCluster -> Cluster [style=invis];
 		GPUSpikingCluster -> Model [style=invis];
 
 		Model -> IModel [style=invis];
@@ -155,8 +156,8 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
@@ -197,8 +198,8 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
@@ -235,11 +236,16 @@ digraph {
 		node [shape = record, color = darkturquoise];
 
 		AllIFNeurons[label = AllIFNeurons, style = filled];
+		AllIFNeuronsProps[label = AllIFNeuronsProps, style = filled];
 		AllIZHNeurons[label = AllIZHNeurons, style = filled];
+		AllIZHNeuronsProps[label = AllIZHNeuronsProps, style = filled];
 		AllLIFNeurons[label = AllLIFNeurons, style = filled];
 		AllNeurons[label = AllNeurons, style = filled];
+		AllNeuronsProps[label = AllNeuronsProps, style = filled];
 		AllSpikingNeurons[label = AllSpikingNeurons, style = filled];
+		AllSpikingNeuronsProps[label = AllSpikingNeuronsProps, style = filled];
 		IAllNeurons[label = IAllNeurons, style = filled];
+		IAllNeuronsProps[label = IAllNeuronsProps, style = filled];
 		Neurons[label =< <B> Neurons</B>>, style = bold, fillcolor = white, style = filled];
 
 
@@ -247,8 +253,8 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
@@ -256,17 +262,32 @@ digraph {
 
 		AllIFNeurons -> AllSpikingNeurons [style=invis];
 
+		AllIFNeuronsProps -> AllSpikingNeuronsProps [style=invis];
+
 		AllIZHNeurons -> AllIFNeurons [style=invis];
+
+		AllIZHNeuronsProps -> AllIFNeuronsProps [style=invis];
 
 		AllLIFNeurons -> AllIFNeurons [style=invis];
 
+		AllNeurons -> AllNeuronsProps [style=invis];
 		AllNeurons -> IAllNeurons [style=invis];
 
+		AllNeuronsProps -> IAllNeuronsProps [style=invis];
+
 		AllSpikingNeurons -> AllNeurons [style=invis];
+
+		AllSpikingNeuronsProps -> AllNeuronsProps [style=invis];
 
 
 		//COMPOSITION//
 
+
+		AllIFNeuronsProps -> AllIFNeurons [style=invis];
+
+		AllIZHNeuronsProps -> AllIZHNeurons [style=invis];
+
+		AllSpikingNeuronsProps -> AllSpikingNeurons [style=invis];
 	}//end subgraph Neurons
 
 
@@ -277,12 +298,17 @@ digraph {
 		node [shape = record, color = gold];
 
 		AllDSSynapses[label = AllDSSynapses, style = filled];
+		AllDSSynapsesProps[label = AllDSSynapsesProps, style = filled];
 		AllDynamicSTDPSynapses[label = AllDynamicSTDPSynapses, style = filled];
+		AllDynamicSTDPSynapsesProps[label = AllDynamicSTDPSynapsesProps, style = filled];
 		AllSTDPSynapses[label = AllSTDPSynapses, style = filled];
+		AllSTDPSynapsesProps[label = AllSTDPSynapsesProps, style = filled];
 		AllSpikingSynapses[label = AllSpikingSynapses, style = filled];
+		AllSpikingSynapsesProps[label = AllSpikingSynapsesProps, style = filled];
 		AllSynapses[label = AllSynapses, style = filled];
-		AllSynapsesDeviceFuncs[label = AllSynapsesDeviceFuncs, style = filled];
+		AllSynapsesProps[label = AllSynapsesProps, style = filled];
 		IAllSynapses[label = IAllSynapses, style = filled];
+		IAllSynapsesProps[label = IAllSynapsesProps, style = filled];
 		Synapses[label =< <B> Synapses</B>>, style = bold, fillcolor = white, style = filled];
 
 
@@ -290,8 +316,8 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
@@ -299,21 +325,36 @@ digraph {
 
 		AllDSSynapses -> AllSpikingSynapses [style=invis];
 
+		AllDSSynapsesProps -> AllSpikingSynapsesProps [style=invis];
+
 		AllDynamicSTDPSynapses -> AllSTDPSynapses [style=invis];
 
+		AllDynamicSTDPSynapsesProps -> AllSTDPSynapsesProps [style=invis];
+
+		AllSTDPSynapses -> AllSTDPSynapsesProps [style=invis];
 		AllSTDPSynapses -> AllSpikingSynapses [style=invis];
 
+		AllSTDPSynapsesProps -> AllSpikingSynapsesProps [style=invis];
+
+		AllSpikingSynapses -> AllSpikingSynapsesProps [style=invis];
 		AllSpikingSynapses -> AllSynapses [style=invis];
 
+		AllSpikingSynapsesProps -> AllSynapsesProps [style=invis];
+
+		AllSynapses -> AllSynapsesProps [style=invis];
 		AllSynapses -> IAllSynapses [style=invis];
+
+		AllSynapsesProps -> IAllSynapsesProps [style=invis];
 
 
 		//COMPOSITION//
 
 
-		AllDSSynapses -> AllSynapsesDeviceFuncs [style=invis];
-		AllSTDPSynapses -> AllSynapsesDeviceFuncs [style=invis];
-		AllSpikingSynapses -> AllSynapsesDeviceFuncs [style=invis];
+		AllDSSynapsesProps -> AllDSSynapses [style=invis];
+
+		AllDynamicSTDPSynapsesProps -> AllDynamicSTDPSynapses [style=invis];
+
+		IAllSynapsesProps -> IAllSynapses [style=invis];
 	}//end subgraph Synapses
 
 
@@ -333,8 +374,8 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
@@ -366,8 +407,8 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
@@ -399,8 +440,8 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
@@ -432,8 +473,8 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
@@ -472,8 +513,8 @@ digraph {
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
@@ -487,101 +528,115 @@ digraph {
 	}//end subgraph tinyxml
 //-------LAYOUT OF RELATIONSHIPS BETWEEN SUBGRAPHS------//
 rankdir = BT; // Rank Direction Top to Bottom
-nodesep = 0.325; // Node Separation
-ranksep = 0.325; // Rank Separation
+nodesep = 0.375; // Node Separation
+ranksep = 0.375; // Rank Separation
 
-
-edge [color=black];
-Recorders -> BGDriver [arrowhead=ediamond, ltail = clusterBGDriver,];
-
-edge [color=darkturquoise];
-Utils -> Neurons [arrowhead=ediamond, ltail = clusterNeurons,lhead = clusterUtils];
-
-edge [color=darkorange];
-Core -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterCore];
-
-edge [color=mediumseagreen];
-tinyxml -> Matrix [arrowhead=ediamond, ltail = clusterMatrix,lhead = clustertinyxml];
-
-edge [color=black];
-Utils -> BGDriver [arrowhead=ediamond, ltail = clusterBGDriver,];
-
-edge [color=darkorange];
-Neurons -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterNeurons];
-
-edge [color=mediumseagreen];
-Utils -> Matrix [arrowhead=ediamond, ltail = clusterMatrix,lhead = clusterUtils];
-
-edge [color=darkgoldenrod];
-Neurons -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterNeurons];
-
-edge [color=indianred];
-Utils -> Layouts [arrowhead=ediamond, ltail = clusterLayouts,lhead = clusterUtils];
-
-edge [color=limegreen];
-Utils -> RNG [arrowhead=ediamond, ltail = clusterRNG,lhead = clusterUtils];
-
-edge [color=darkorange];
-Connections -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterConnections];
-
-edge [color=hotpink];
-Synapses -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterSynapses];
-
-edge [color=darkgoldenrod];
-Connections -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterConnections];
-Layouts -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterLayouts];
-
-edge [color=darksalmon];
-Core -> Inputs [arrowhead=ediamond, ltail = clusterInputs,lhead = clusterCore];
-
-edge [color=coral];
-Matrix -> Utils [arrowhead=ediamond, ltail = clusterUtils,lhead = clusterMatrix];
-
-edge [color=darkturquoise];
-Core -> Neurons [arrowhead=ediamond, ltail = clusterNeurons,lhead = clusterCore];
-
-edge [color=darksalmon];
-Synapses -> Inputs [arrowhead=ediamond, ltail = clusterInputs,lhead = clusterSynapses];
-
-edge [color=hotpink];
-Core -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterCore];
-
-edge [color=darkgoldenrod];
-curand_kernel -> Core [arrowhead=ediamond, lhead = clustercurand_kernel];
-
-edge [color=gold];
-Core -> Synapses [arrowhead=ediamond, ltail = clusterSynapses,lhead = clusterCore];
-
-edge [color=black];
-Core -> BGDriver [arrowhead=ediamond, ltail = clusterBGDriver,];
-
-edge [color=darksalmon];
-curand_kernel -> Inputs [arrowhead=ediamond, lhead = clustercurand_kernel];
-
-edge [color=darkturquoise];
-Synapses -> Neurons [arrowhead=ediamond, ltail = clusterNeurons,lhead = clusterSynapses];
-
-edge [color=gold];
-Neurons -> Synapses [arrowhead=ediamond, ltail = clusterSynapses,lhead = clusterNeurons];
 
 edge [color=hotpink];
 Recorders -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterRecorders];
 
 edge [color=gold];
-Utils -> Synapses [arrowhead=ediamond, ltail = clusterSynapses,lhead = clusterUtils];
+Neurons -> Synapses [arrowhead=ediamond, ltail = clusterSynapses,lhead = clusterNeurons];
+
+edge [color=hotpink];
+Synapses -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterSynapses];
+
+edge [color=gold];
+Core -> Synapses [arrowhead=ediamond, ltail = clusterSynapses,lhead = clusterCore];
+
+edge [color=darkturquoise];
+Core -> Neurons [arrowhead=ediamond, ltail = clusterNeurons,lhead = clusterCore];
+
+edge [color=mediumseagreen];
+Utils -> Matrix [arrowhead=ediamond, ltail = clusterMatrix,lhead = clusterUtils];
 
 edge [color=darksalmon];
 tinyxml -> Inputs [arrowhead=ediamond, ltail = clusterInputs,lhead = clustertinyxml];
+
+edge [color=darkgoldenrod];
+Layouts -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterLayouts];
 
 edge [color=hotpink];
 Utils -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterUtils];
 
 edge [color=darkgoldenrod];
-Synapses -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterSynapses];
-RNG -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterRNG];
-Inputs -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterInputs];
 Utils -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterUtils];
+Neurons -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterNeurons];
+
+edge [color=darkorange];
+H5Cpp -> Recorders [arrowhead=ediamond, lhead = clusterH5Cpp];
+
+edge [color=darkgoldenrod];
+Recorders -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterRecorders];
+Connections -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterConnections];
+
+edge [color=black];
+Inputs -> BGDriver [arrowhead=ediamond, ltail = clusterBGDriver,];
+
+edge [color=indianred];
+Utils -> Layouts [arrowhead=ediamond, ltail = clusterLayouts,lhead = clusterUtils];
+
+edge [color=mediumturquoise];
+Utils -> tinyxml [arrowhead=ediamond, ltail = clustertinyxml,lhead = clusterUtils];
+
+edge [color=hotpink];
+Core -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterCore];
+
+edge [color=darkgoldenrod];
+tinyxml -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clustertinyxml];
+
+edge [color=darkorange];
+Core -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterCore];
+
+edge [color=hotpink];
+Neurons -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterNeurons];
+
+edge [color=darksalmon];
+Core -> Inputs [arrowhead=ediamond, ltail = clusterInputs,lhead = clusterCore];
 
 edge [color=coral];
-bgtypes -> Utils [arrowhead=ediamond, lhead = clusterbgtypes];
+RNG -> Utils [arrowhead=ediamond, ltail = clusterUtils,lhead = clusterRNG];
+
+edge [color=darkorange];
+Utils -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterUtils];
+
+edge [color=darkgoldenrod];
+TiXmlVisitor -> Core [arrowhead=ediamond, lhead = clusterTiXmlVisitor];
+Synapses -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterSynapses];
+
+edge [color=hotpink];
+Layouts -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterLayouts];
+
+edge [color=darkorange];
+Connections -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterConnections];
+
+edge [color=darkturquoise];
+Utils -> Neurons [arrowhead=ediamond, ltail = clusterNeurons,lhead = clusterUtils];
+
+edge [color=darkgoldenrod];
+Inputs -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterInputs];
+
+edge [color=darkturquoise];
+Layouts -> Neurons [arrowhead=ediamond, ltail = clusterNeurons,lhead = clusterLayouts];
+
+edge [color=indianred];
+Core -> Layouts [arrowhead=ediamond, ltail = clusterLayouts,lhead = clusterCore];
+
+edge [color=darkturquoise];
+Synapses -> Neurons [arrowhead=ediamond, ltail = clusterNeurons,lhead = clusterSynapses];
+
+edge [color=gold];
+Utils -> Synapses [arrowhead=ediamond, ltail = clusterSynapses,lhead = clusterUtils];
+
+edge [color=black];
+Core -> BGDriver [arrowhead=ediamond, ltail = clusterBGDriver,];
+
+edge [color=mediumseagreen];
+RNG -> Matrix [arrowhead=ediamond, ltail = clusterMatrix,lhead = clusterRNG];
+
+edge [color=black];
+paramcontainer -> BGDriver [arrowhead=ediamond, ltail = clusterBGDriver,];
+
+edge [color=darkorange];
+Neurons -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterNeurons];
 }//End digraph declaration
