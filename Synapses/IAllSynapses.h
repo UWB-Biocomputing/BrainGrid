@@ -9,6 +9,8 @@
 #include "Global.h"
 #include "SimulationInfo.h"
 #include "ClusterInfo.h"
+#include "IAllSynapsesProps.h"
+#include "IAllNeuronsProps.h"
 
 class IAllNeurons;
 class IAllSynapses;
@@ -22,7 +24,12 @@ enum enumClassSynapses {classAllSpikingSynapses, classAllDSSynapses, classAllSTD
 class IAllSynapses
 {
     public:
-        virtual ~IAllSynapses() {};
+        CUDA_CALLABLE virtual ~IAllSynapses() {};
+
+        /**
+         *  Create and setup synapses properties.
+         */
+        virtual void createSynapsesProps() = 0;
 
         /**
          *  Assignment operator: copy synapses parameters.
@@ -60,7 +67,7 @@ class IAllSynapses
          *  @param  iSyn     Index of the synapse to set.
          *  @param  deltaT   Inner simulation step duration
          */
-        virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT) = 0;
+        CUDA_CALLABLE virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT) = 0;
 
         /**
          *  Checks the number of required parameters to read.
@@ -105,13 +112,13 @@ class IAllSynapses
          *
          *  @param  iSyn        Index of the synapse to be added.
          *  @param  type        The type of the Synapse to add.
-         *  @param  src_neuron  The Neuron that sends to this Synapse.
-         *  @param  dest_neuron The Neuron that receives from the Synapse.
+         *  @param  src_neuron  The Neuron that sends to this Synapse (layout index).
+         *  @param  dest_neuron The Neuron that receives from the Synapse (layout index).
          *  @param  sum_point   Summation point address.
          *  @param  deltaT      Inner simulation step duration
-         *  @param  clr_info    ClusterInfo class to read information from.
+         *  @param  iNeuron     Index of the destination neuron in the cluster.
          */
-        virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT, const ClusterInfo *clr_info) = 0;
+        CUDA_CALLABLE virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT, int iNeuron) = 0;
 
         /**
          *  Create a Synapse and connect it to the model.
@@ -124,7 +131,7 @@ class IAllSynapses
          *  @param  deltaT      Inner simulation step duration.
          *  @param  type        Type of the Synapse to create.
          */
-        virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
+        CUDA_CALLABLE virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
 
         /**
          *  Get the sign of the synapseType.
@@ -132,112 +139,55 @@ class IAllSynapses
          *  @param    type    synapseType I to I, I to E, E to I, or E to E
          *  @return   1 or -1, or 0 if error
          */
-        virtual int synSign(const synapseType type) = 0;
+        CUDA_CALLABLE virtual int synSign(const synapseType type) = 0;
+
+        /**
+         *  Returns the type of synapse at the given coordinates
+         *
+         *  @param    neuron_type_map  The neuron type map (INH, EXC).
+         *  @param    src_neuron  integer that points to a Neuron in the type map as a source.
+         *  @param    dest_neuron integer that points to a Neuron in the type map as a destination.
+         *  @return type of the synapse.
+         */
+        CUDA_CALLABLE virtual synapseType synType(neuronType* neuron_type_map, const int src_neuron, const int dest_neuron) = 0;
 
 #if defined(USE_GPU)
     public:
         /**
-         *  Allocate GPU memories to store all synapses' states,
-         *  and copy them from host to GPU memory.
+         *  Set neurons properties.
          *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
+         *  @param  pAllSynapsesProps  Pointer to the neurons properties.
          */
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) = 0;
-
-        /**
-         *  Allocate GPU memories to store all synapses' states,
-         *  and copy them from host to GPU memory.
-         *
-         *  @param  allSynapsesDevice     Reference to the allSynapses struct on device memory.
-         *  @param  num_neurons           Number of neurons.
-         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
-         *  @param  clusterID             The cluster ID of the cluster.
-         */
-        virtual void allocSynapseDeviceStruct( void** allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron, CLUSTER_INDEX_TYPE clusterID ) = 0;
-
-        /**
-         *  Delete GPU memories.
-         *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         */
-        virtual void deleteSynapseDeviceStruct( void* allSynapsesDevice ) = 0;
-
-        /**
-         *  Copy all synapses' data from host to device.
-         *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void copySynapseHostToDevice( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) = 0;
-
-        /**
-         *  Copy all synapses' data from host to device.
-         *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  num_neurons           Number of neurons.
-         *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
-         */
-        virtual void copySynapseHostToDevice( void* allSynapsesDevice, int num_neurons, int maxSynapsesPerNeuron ) = 0;
-
-        /**
-         *  Copy all synapses' data from device to host.
-         *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) = 0;
-
-        /**
-         *  Get synapse_counts in AllSynapses struct on device memory.
-         *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void copyDeviceSynapseCountsToHost(void* allSynapsesDevice, const ClusterInfo *clr_info) = 0;
-
-        /**
-         *  Get sourceNeuronLayoutIndex and in_use in AllSynapses struct on device memory.
-         *
-         *  @param  allSynapsesDevice  Reference to the allSynapses struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void copyDeviceSourceNeuronIdxToHost(void* allSynapsesDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info) = 0;
+        CUDA_CALLABLE virtual void setSynapsesProps(void *pAllSynapsesProps) = 0;
 
         /**
          *  Advance all the Synapses in the simulation.
          *  Update the state of all synapses for a time step.
          *
-         *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
-         *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
+         *  @param  allNeuronsProps        Reference to the allNeurons struct on device memory.
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  sim_info               SimulationInfo class to read information from.
          *  @param  clr_info               ClusterInfo to refer from.
          *  @param  iStepOffset            Offset from the current simulation step.
+         *  @param  synapsesDevice         Pointer to the Synapses object in device memory.
+         *  @param  neuronsDevice          Pointer to the Neurons object in device memory.
          */
-        virtual void advanceSynapses(void* allSynapsesDevice, void* allNeuronsDevice, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset) = 0;
+        virtual void advanceSynapses(void* allNeuronsProps, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset, IAllSynapses* synapsesDevice, IAllNeurons* neuronsDevice) = 0;
 
         /**
-         *  Set some parameters used for advanceSynapsesDevice.
+         *  Create a AllSynapses class object in device
+         *
+         *  @param pAllSynapses_d      Device memory address to save the pointer of created AllSynapses object.
+         *  @param pAllSynapsesProps_d  Pointer to the synapses properties in device memory.
          */
-        virtual void setAdvanceSynapsesDeviceParams() = 0;
+        virtual void createAllSynapsesInDevice(IAllSynapses** pAllSynapses_d, IAllSynapsesProps *pAllSynapsesProps_d) = 0;
 
         /**
-         *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
-         *  The class ID will be set to classSynapses_d in device memory,
-         *  and the classSynapses_d will be referred to call a device function for the
-         *  particular synapse class.
-         *  Because we cannot use virtual function (Polymorphism) in device functions,
-         *  we use this scheme.
-         *  Note: we used to use a function pointer; however, it caused the growth_cuda crash
-         *  (see issue#137).
+         * Delete an Synapses class object in device
+         *
+         * @param pAllSynapses_d    Pointer to the AllSynapses object to be deleted in device.
          */
-        virtual void setSynapseClassID() = 0;
+        virtual void deleteAllSynapsesInDevice(IAllSynapses* pAllSynapses_d) = 0;
 
 #else // !defined(USE_GPU)
     public:
@@ -251,16 +201,7 @@ class IAllSynapses
          *  @param  iStepOffset      Offset from the current simulation step.
          */
         virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap, int iStepOffset) = 0;
-
-        /**
-         *  Advance one specific Synapse.
-         *
-         *  @param  iSyn      Index of the Synapse to connect to.
-         *  @param  sim_info  SimulationInfo class to read information from.
-         *  @param  neurons   The Neuron list to search from.
-         *  @param  iStepOffset      Offset from the current simulation step.
-         */
-        virtual void advanceSynapse(const BGSIZE iSyn, const SimulationInfo *sim_info, IAllNeurons *neurons, int iStepOffset) = 0;
+#endif // defined(USE_GPU)
 
         /**
          *  Remove a synapse from the network.
@@ -268,6 +209,19 @@ class IAllSynapses
          *  @param  neuron_index   Index of a neuron to remove from.
          *  @param  iSyn           Index of a synapse to remove.
          */
-        virtual void eraseSynapse(const int neuron_index, const BGSIZE iSyn) = 0;
-#endif // defined(USE_GPU)
+        CUDA_CALLABLE virtual void eraseSynapse(const int neuron_index, const BGSIZE iSyn) = 0;
+
+    public:
+        /**
+         *  Advance one specific Synapse.
+         *
+         *  @param  iSyn             Index of the Synapse to connect to.
+         *  @param  deltaT           Inner simulation step duration.
+         *  @param  neurons          The Neuron list to search from.
+         *  @param  simulationStep   The current simulation step.
+         *  @param  iStepOffset      Offset from the current simulation step.
+         *  @param  maxSpikes        Maximum number of spikes per neuron per epoch.
+         *  @param  pINeuronsProps   Pointer to the neurons properties.
+         */
+        CUDA_CALLABLE virtual void advanceSynapse(const BGSIZE iSyn, const BGFLOAT deltaT, IAllNeurons *neurons, uint64_t simulationStep, int iStepOffset, int maxSpikes, IAllNeuronsProps* pINeuronsProps) = 0;
 };

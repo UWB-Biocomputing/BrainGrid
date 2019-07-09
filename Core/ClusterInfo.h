@@ -34,7 +34,7 @@
 #if defined(USE_GPU)
 #include "curand_kernel.h"
 class SynapseIndexMap;
-class AllDSSynapsesDeviceProperties;
+class AllDSSynapsesProps;
 class GPUSpikingCluster;
 class SimulationInfo;
 #endif // USE_GPU
@@ -54,7 +54,7 @@ class ClusterInfo
 #if defined(USE_GPU)
             initValues_d(NULL),
             nShiftValues_d(NULL),
-            allSynapsesDeviceSInput(NULL),
+            synapsesPropsDeviceSInput(NULL),
             synapseIndexMapDeviceSInput(NULL),
             nISIs_d(NULL),
             masks_d(NULL),            
@@ -121,7 +121,7 @@ class ClusterInfo
         //! variables for stimulus inputs (Poisson)
 
         //! Synapse structures in device memory.
-        AllDSSynapsesDeviceProperties* allSynapsesDeviceSInput;
+        AllDSSynapsesProps* synapsesPropsDeviceSInput;
 
         //! Pointer to synapse index map in device memory.
         SynapseIndexMap* synapseIndexMapDeviceSInput;
@@ -134,6 +134,9 @@ class ClusterInfo
 
         //! Memory to save global state for curand.
         curandState* devStates_d;
+
+        //! List of synapses for stimulus input (Poisson) in device memory.
+        IAllSynapses *synapsesDeviceSInput;
 #endif // USE_GPU
 
         //! variables for stimulus input (Regular)

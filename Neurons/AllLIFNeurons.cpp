@@ -1,108 +1,140 @@
 #include "AllLIFNeurons.h"
 #include "ParseParamError.h"
+#if defined(USE_GPU)
+#include <helper_cuda.h>
+#endif
 
 // Default constructor
-AllLIFNeurons::AllLIFNeurons() : AllIFNeurons()
+CUDA_CALLABLE AllLIFNeurons::AllLIFNeurons()
 {
 }
 
-// Copy constructor
-AllLIFNeurons::AllLIFNeurons(const AllLIFNeurons &r_neurons) : AllIFNeurons(r_neurons)
+CUDA_CALLABLE AllLIFNeurons::~AllLIFNeurons()
 {
 }
 
-AllLIFNeurons::~AllLIFNeurons()
-{
-}
 
-/*
- *  Assignment operator: copy neurons parameters.
- *
- *  @param  r_neurons  Neurons class object to copy from.
- */
-IAllNeurons &AllLIFNeurons::operator=(const IAllNeurons &r_neurons)
-{
-    copyParameters(dynamic_cast<const AllLIFNeurons &>(r_neurons));
-
-    return (*this);
-}
-
-/*
- *  Copy neurons parameters.
- *
- *  @param  r_neurons  Neurons class object to copy from.
- */
-void AllLIFNeurons::copyParameters(const AllLIFNeurons &r_neurons)
-{
-    AllIFNeurons::copyParameters(r_neurons);
-}
-
-#if !defined(USE_GPU)
 /*
  *  Update internal state of the indexed Neuron (called by every simulation step).
  *
- *  @param  index       Index of the Neuron to update.
- *  @param  sim_info    SimulationInfo class to read information from.
- *  @param  clr_info    ClusterInfo class to read information from.
- *  @param  iStepOffset      Offset from the current simulation step.
+ *  @param  index                 Index of the Neuron to update.
+ *  @param  maxSpikes             Maximum number of spikes per neuron per epoch.
+ *  @param  deltaT                Inner simulation step duration.
+ *  @param  simulationStep        The current simulation step.
+ *  @param  pINeuronsProps        Pointer to the neurons properties. 
+ *  @param  randNoise             Pointer to device random noise array.
+ *  @param  normRand              Pointer to the normalized random number generator.
  */
-void AllLIFNeurons::advanceNeuron(const int index, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset)
+CUDA_CALLABLE void AllLIFNeurons::advanceNeuron(const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, IAllNeuronsProps* pINeuronsProps, 
+#if defined(USE_GPU)
+float* randNoise)
+#else // defined(USE_GPU)
+Norm* normRand)
+#endif // defined(USE_GPU)
 {
-    BGFLOAT &Vm = this->Vm[index];
-    BGFLOAT &Vthresh = this->Vthresh[index];
-    BGFLOAT &summationPoint = this->summation_map[index];
-    BGFLOAT &I0 = this->I0[index];
-    BGFLOAT &Inoise = this->Inoise[index];
-    BGFLOAT &C1 = this->C1[index];
-    BGFLOAT &C2 = this->C2[index];
-    int &nStepsInRefr = this->nStepsInRefr[index];
+    AllIFNeuronsProps *pNeuronsProps = reinterpret_cast<AllIFNeuronsProps*>(pINeuronsProps);
+    BGFLOAT &Vm = pNeuronsProps->Vm[index];
+    BGFLOAT &Vthresh = pNeuronsProps->Vthresh[index];
+    BGFLOAT &summationPoint = pNeuronsProps->summation_map[index];
+    BGFLOAT &I0 = pNeuronsProps->I0[index];
+    BGFLOAT &Inoise = pNeuronsProps->Inoise[index];
+    BGFLOAT &C1 = pNeuronsProps->C1[index];
+    BGFLOAT &C2 = pNeuronsProps->C2[index];
+    int &nStepsInRefr = pNeuronsProps->nStepsInRefr[index];
+    bool &hasFired = pNeuronsProps->hasFired[index];
 
-    if (nStepsInRefr > 0) {
-        // is neuron refractory?
+    hasFired = false;
+
+    if (nStepsInRefr > 0) { // is neuron refractory?
         --nStepsInRefr;
-    } else if (Vm >= Vthresh) {
-        // should it fire?
-        fire(index, sim_info, iStepOffset);
+    } else if (Vm >= Vthresh) { // should it fire?
+        fire(index, maxSpikes, deltaT, simulationStep, pINeuronsProps);
     } else {
         summationPoint += I0; // add IO
         // add noise
-        BGFLOAT noise = (*clr_info->normRand)();
-        DEBUG_MID(cout << "ADVANCE NEURON[" << index << "] :: noise = " << noise << endl;)
+#if defined(USE_GPU)
+        BGFLOAT noise = randNoise[index];
+#else // defined(USE_GPU)
+        BGFLOAT noise = (*normRand)();
+#endif // defined(USE_GPU)
+        DEBUG_MID(printf("ADVANCE NEURON[%d] :: noise = %f\n", index, noise);)
         summationPoint += noise * Inoise; // add noise
         Vm = C1 * Vm + C2 * summationPoint; // decay Vm and add inputs
     }
     // clear synaptic input for next time step
     summationPoint = 0;
 
-    DEBUG_MID(cout << index << " " << Vm << endl;)
-        DEBUG_MID(cout << "NEURON[" << index << "] {" << endl
-            << "\tVm = " << Vm << endl
-            << "\tVthresh = " << Vthresh << endl
-            << "\tsummationPoint = " << summationPoint << endl
-            << "\tI0 = " << I0 << endl
-            << "\tInoise = " << Inoise << endl
-            << "\tC1 = " << C1 << endl
-            << "\tC2 = " << C2 << endl
-            << "}" << endl
+    DEBUG_MID(printf("%d %f\n",  index, Vm);)
+        DEBUG_MID(printf("NEURON[%d] {\n", index);
+            printf("\tVm = %f\n", Vm);
+            printf("\tVthresh = %f\n", Vthresh);
+            printf("\tsummationPoint = %f\n", summationPoint);
+            printf("\tI0 = %f\n", I0);
+            printf("\tInoise = %f\n", Inoise);
+            printf("\tC1 = %f\n", C1);
+            printf("\tC2 = %f\n}\n", C2);
     ;)
 }
 
 /*
  *  Fire the selected Neuron and calculate the result.
  *
- *  @param  index       Index of the Neuron to update.
- *  @param  sim_info    SimulationInfo class to read information from.
- *  @param  iStepOffset      Offset from the current simulation step.
+ *  @param  index                 Index of the Neuron to update.
+ *  @param  maxSpikes             Maximum number of spikes per neuron per epoch.
+ *  @param  deltaT                Inner simulation step duration.
+ *  @param  simulationStep        The current simulation step.
+ *  @param  pINeuronsProps        Pointer to the neurons properties.
  */
-void AllLIFNeurons::fire(const int index, const SimulationInfo *sim_info, int iStepOffset) const
+CUDA_CALLABLE void AllLIFNeurons::fire(const int index, int maxSpikes, const BGFLOAT deltaT, uint64_t simulationStep, IAllNeuronsProps* pINeuronsProps) const
 {
-    const BGFLOAT deltaT = sim_info->deltaT;
-    AllSpikingNeurons::fire(index, sim_info, iStepOffset);
+    AllIFNeuronsProps *pNeuronsProps = reinterpret_cast<AllIFNeuronsProps*>(pINeuronsProps);
+    int &nStepsInRefr = pNeuronsProps->nStepsInRefr[index];
+    BGFLOAT &Trefract = pNeuronsProps->Trefract[index];
+    BGFLOAT &Vm = pNeuronsProps->Vm[index];
+    BGFLOAT &Vreset = pNeuronsProps->Vreset[index];
+
+    AllSpikingNeurons::fire(index, maxSpikes, deltaT, simulationStep, pINeuronsProps);
 
     // calculate the number of steps in the absolute refractory period
-    nStepsInRefr[index] = static_cast<int> ( Trefract[index] / deltaT + 0.5 );
+    nStepsInRefr = static_cast<int> ( Trefract / deltaT + 0.5 );
 
     // reset to 'Vreset'
-    Vm[index] = Vreset[index];
+    Vm = Vreset;
 }
-#endif
+
+#if defined(USE_GPU)
+
+/*
+ *  Create an AllNeurons class object in device
+ *
+ *  @param pAllNeurons_d       Device memory address to save the pointer of created AllNeurons object.
+ *  @param pAllNeuronsProps_d  Pointer to the neurons properties in device memory.
+ */
+void AllLIFNeurons::createAllNeuronsInDevice(IAllNeurons** pAllNeurons_d, IAllNeuronsProps *pAllNeuronsProps_d)
+{
+    IAllNeurons **pAllNeurons_t; // temporary buffer to save pointer to IAllNeurons object.
+
+    // allocate device memory for the buffer.
+    checkCudaErrors( cudaMalloc( ( void ** ) &pAllNeurons_t, sizeof( IAllNeurons * ) ) );
+
+    // create an AllNeurons object in device memory.
+    allocAllLIFNeuronsDevice <<< 1, 1 >>> ( pAllNeurons_t, pAllNeuronsProps_d );
+
+    // save the pointer of the object.
+    checkCudaErrors( cudaMemcpy ( pAllNeurons_d, pAllNeurons_t, sizeof( IAllNeurons * ), cudaMemcpyDeviceToHost ) );
+
+    // free device memory for the buffer.
+    checkCudaErrors( cudaFree( pAllNeurons_t ) );
+}
+
+/* -------------------------------------*\
+|* # CUDA Global Functions
+\* -------------------------------------*/
+
+__global__ void allocAllLIFNeuronsDevice(IAllNeurons **pAllNeurons, IAllNeuronsProps *pAllNeuronsProps)
+{
+    *pAllNeurons = new AllLIFNeurons();
+    (*pAllNeurons)->setNeuronsProps(pAllNeuronsProps);
+}
+
+#endif // USE_GPU

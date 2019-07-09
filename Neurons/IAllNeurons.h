@@ -13,11 +13,12 @@ using namespace std;
 
 class IAllSynapses;
 class SynapseIndexMap;
+class IAllNeuronsProps;
 
 class IAllNeurons
 {
     public:
-        virtual ~IAllNeurons() {}
+        CUDA_CALLABLE virtual ~IAllNeurons() {}
 
         /**
          *  Assignment operator: copy neurons parameters.
@@ -25,6 +26,11 @@ class IAllNeurons
          *  @param  r_neurons  Neurons class object to copy from.
          */
         virtual IAllNeurons &operator=(const IAllNeurons &r_neurons) = 0;
+
+        /**
+         *  Create and setup neurons properties.
+         */
+        virtual void createNeuronsProps() = 0;
 
         /**
          *  Setup the internal structure of the class. 
@@ -73,14 +79,6 @@ class IAllNeurons
         virtual void createAllNeurons(SimulationInfo *sim_info, Layout *layout, ClusterInfo *clr_info) = 0;
 
         /**
-         *  Outputs state of the neuron chosen as a string.
-         *
-         *  @param  i   index of the neuron (in neurons) to output info from.
-         *  @return the complete state of the neuron.
-         */
-        virtual string toString(const int i) const = 0;
-
-        /**
          *  Reads and sets the data for all neurons from input stream.
          *
          *  @param  input       istream to read from.
@@ -99,46 +97,17 @@ class IAllNeurons
 #if defined(USE_GPU)
     public:
         /**
-         *  Allocate GPU memories to store all neurons' states,
-         *  and copy them from host to GPU memory.
+         *  Set neurons properties.
          *
-         *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
+         *  @param  pAllNeuronsProps  Pointer to the neurons properties.
          */
-        virtual void allocNeuronDeviceStruct( void** allNeuronsDevice, SimulationInfo *sim_info, ClusterInfo *clr_info ) = 0;
-
-        /**
-         *  Delete GPU memories.
-         *
-         *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void deleteNeuronDeviceStruct( void* allNeuronsDevice, const ClusterInfo *clr_info ) = 0;
-
-        /**
-         *  Copy all neurons' data from host to device.
-         *
-         *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void copyNeuronHostToDevice( void* allNeuronsDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) = 0;
-
-        /**
-         *  Copy all neurons' data from device to host.
-         *
-         *  @param  allNeuronsDevice   Reference to the allNeurons struct on device memory.
-         *  @param  sim_info           SimulationInfo to refer from.
-         *  @param  clr_info           ClusterInfo to refer from.
-         */
-        virtual void copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info ) = 0;
+        CUDA_CALLABLE virtual void setNeuronsProps(void *pAllNeuronsProps) = 0;
 
         /**
          *  Update the state of all neurons for a time step
          *  Notify outgoing synapses if neuron has fired.
          *
-         *  @param  synapses               Reference to the allSynapses struct on host memory.
+         *  @param  synapsesDevice         Reference to the allSynapses struct on device memory.
          *  @param  allNeuronsDevice       Reference to the allNeurons struct on device memory.
          *  @param  allSynapsesDevice      Reference to the allSynapses struct on device memory.
          *  @param  sim_info               SimulationInfo to refer from.
@@ -146,15 +115,25 @@ class IAllNeurons
          *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
          *  @param  clr_info               ClusterInfo to refer from.
          *  @param  iStepOffset            Offset from the current simulation step.
+         *  @param  neuronsDevice          Pointer to the Neurons object in device memory.
          */
-        virtual void advanceNeurons(IAllSynapses &synapses, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset) = 0;
+        virtual void advanceNeurons(IAllSynapses *synapsesDevice, void* allNeuronsDevice, void* allSynapsesDevice, const SimulationInfo *sim_info, float* randNoise, SynapseIndexMap* synapseIndexMapDevice, const ClusterInfo *clr_info, int iStepOffset, IAllNeurons* neuronsDevice) = 0;
 
         /**
-         *  Set some parameters used for advanceNeuronsDevice.
+         *  Create an AllNeurons class object in device
          *
-         *  @param  synapses               Reference to the allSynapses struct on host memory.
+         *  @param pAllNeurons_d       Device memory address to save the pointer of created AllNeurons object.
+         *  @param pAllNeuronsProps_d  Pointer to the neurons properties in device memory.
          */
-        virtual void setAdvanceNeuronsDeviceParams(IAllSynapses &synapses) = 0;
+        virtual void createAllNeuronsInDevice(IAllNeurons** pAllNeurons_d, IAllNeuronsProps *pAllNeuronsProps_d) = 0;
+
+        /**
+         * Delete an AllNeurons class object in device
+         *
+         * @param pAllNeurons_d    Pointer to the AllNeurons object to be deleted in device.
+         */
+        virtual void deleteAllNeuronsInDevice(IAllNeurons* pAllNeurons_d) = 0;
+
 #else // !defined(USE_GPU)
     public:
         /**

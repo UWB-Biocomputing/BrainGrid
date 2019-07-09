@@ -41,6 +41,7 @@
 #include "Global.h"
 #include "SimulationInfo.h"
 #include "IAllSynapses.h"
+#include "AllSynapsesProps.h"
 
 #ifdef _WIN32
 typedef unsigned _int8 uint8_t;
@@ -51,9 +52,8 @@ class IAllNeurons;
 class AllSynapses : public IAllSynapses
 {
     public:
-        AllSynapses();
-        AllSynapses(const AllSynapses &r_synapses);
-        virtual ~AllSynapses();
+        CUDA_CALLABLE AllSynapses();
+        CUDA_CALLABLE virtual ~AllSynapses();
 
         /**
          *  Assignment operator: copy synapses parameters.
@@ -86,12 +86,26 @@ class AllSynapses : public IAllSynapses
         virtual void cleanupSynapses();
 
         /**
-         *  Reset time varying state vars and recompute decay.
+         *  Checks the number of required parameters to read.
          *
-         *  @param  iSyn     Index of the synapse to set.
-         *  @param  deltaT   Inner simulation step duration
+         * @return true if all required parameters were successfully read, false otherwise.
          */
-        virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT);
+        virtual bool checkNumParameters();
+
+        /**
+         *  Attempts to read parameters from a XML file.
+         *
+         *  @param  element TiXmlElement to examine.
+         *  @return true if successful, false otherwise.
+         */
+        virtual bool readParameters(const TiXmlElement& element);
+
+        /**
+         *  Prints out all parameters of the neurons to ostream.
+         *
+         *  @param  output  ostream to send output to.
+         */
+        virtual void printParameters(ostream &output) const;
 
         /**
          *  Sets the data for Synapses to input's data.
@@ -114,26 +128,13 @@ class AllSynapses : public IAllSynapses
          *
          *  @param  iSyn        Index of the synapse to be added.
          *  @param  type        The type of the Synapse to add.
-         *  @param  src_neuron  The Neuron that sends to this Synapse.
-         *  @param  dest_neuron The Neuron that receives from the Synapse.
+         *  @param  src_neuron  The Neuron that sends to this Synapse (layout index).
+         *  @param  dest_neuron The Neuron that receives from the Synapse (layout index).
          *  @param  sum_point   Summation point address.
          *  @param  deltaT      Inner simulation step duration
-         *  @param  clr_info    ClusterInfo to refer from.
+         *  @param  iNeuron     Index of the destination neuron in the cluster.
          */
-        virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT, const ClusterInfo *clr_info);
-
-        /**
-         *  Create a Synapse and connect it to the model.
-         *
-         *  @param  synapses    The synapse list to reference.
-         *  @param  iSyn        Index of the synapse to set.
-         *  @param  source      Coordinates of the source Neuron.
-         *  @param  dest        Coordinates of the destination Neuron.
-         *  @param  sum_point   Summation point address.
-         *  @param  deltaT      Inner simulation step duration.
-         *  @param  type        Type of the Synapse to create.
-         */
-        virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type) = 0;
+        CUDA_CALLABLE virtual void addSynapse(BGSIZE &iSyn, synapseType type, const int src_neuron, const int dest_neuron, BGFLOAT *sum_point, const BGFLOAT deltaT, int iNeuron);
 
         /**
          *  Get the sign of the synapseType.
@@ -141,41 +142,45 @@ class AllSynapses : public IAllSynapses
          *  @param    type    synapseType I to I, I to E, E to I, or E to E
          *  @return   1 or -1, or 0 if error
          */
-        int synSign(const synapseType type);
-
-    protected:
-        /**
-         *  Copy synapses parameters.
-         *
-         *  @param  r_synapses  Synapses class object to copy from.
-         */
-        void copyParameters(const AllSynapses &r_synapses);
+        CUDA_CALLABLE int synSign(const synapseType type);
 
         /**
-         *  Sets the data for Synapse to input's data.
+         *  Returns the type of synapse at the given coordinates
          *
-         *  @param  input  istream to read from.
-         *  @param  iSyn   Index of the synapse to set.
+         *  @param    neuron_type_map  The neuron type map (INH, EXC).
+         *  @param    src_neuron  integer that points to a Neuron in the type map as a source.
+         *  @param    dest_neuron integer that points to a Neuron in the type map as a destination.
+         *  @return type of the synapse.
          */
-        virtual void readSynapse(istream &input, const BGSIZE iSyn);
+        CUDA_CALLABLE virtual synapseType synType(neuronType* neuron_type_map, const int src_neuron, const int dest_neuron);
 
         /**
-         *  Write the synapse data to the stream.
+         *  Reset time varying state vars and recompute decay.
          *
-         *  @param  output  stream to print out to.
-         *  @param  iSyn    Index of the synapse to print out.
+         *  @param  iSyn     Index of the synapse to set.
+         *  @param  deltaT   Inner simulation step duration
          */
-        virtual void writeSynapse(ostream& output, const BGSIZE iSyn) const;
+        CUDA_CALLABLE virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT);
 
+#if defined(USE_GPU)
+
+    public:
         /**
-         *  Returns an appropriate synapseType object for the given integer.
+         *  Advance all the Synapses in the simulation.
+         *  Update the state of all synapses for a time step.
          *
-         *  @param  type_ordinal    Integer that correspond with a synapseType.
-         *  @return the SynapseType that corresponds with the given integer.
+         *  @param  allNeuronsProps        Reference to the allNeurons struct on device memory.
+         *  @param  synapseIndexMapDevice  Reference to the SynapseIndexMap on device memory.
+         *  @param  sim_info               SimulationInfo class to read information from.
+         *  @param  clr_info               ClusterInfo to refer from.
+         *  @param  iStepOffset            Offset from the current simulation step.
+         *  @param  synapsesDevice         Pointer to the Synapses object in device memory.
+         *  @param  neuronsDevice          Pointer to the Neurons object in device memory.
          */
-        synapseType synapseOrdinalToType(const int type_ordinal);
+        virtual void advanceSynapses(void* allNeuronsProps, void* synapseIndexMapDevice, const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStepOffset, IAllSynapses* synapsesDevice, IAllNeurons* neuronsDevice);
 
-#if !defined(USE_GPU)
+#else // USE_GPU
+
     public:
         /**
          *  Advance all the Synapses in the simulation.
@@ -188,145 +193,67 @@ class AllSynapses : public IAllSynapses
          */
         virtual void advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *neurons, SynapseIndexMap *synapseIndexMap, int iStepOffset);
 
+#endif // !USE_GPU
+
+    public:
         /**
          *  Remove a synapse from the network.
          *
          *  @param  neuron_index   Index of a neuron to remove from.
          *  @param  iSyn           Index of a synapse to remove.
          */
-        virtual void eraseSynapse(const int neuron_index, const BGSIZE iSyn);
-#endif // !defined(USE_GPU)
+        CUDA_CALLABLE virtual void eraseSynapse(const int neuron_index, const BGSIZE iSyn);
+
+#if defined(USE_GPU)
+    public:
+        /**
+         *  Set neurons properties.
+         *
+         *  @param  pAllSynapsesProps  Pointer to the neurons properties.
+         */
+        CUDA_CALLABLE virtual void setSynapsesProps(void *pAllSynapsesProps);
+
+        /**
+         * Delete an Synapses class object in device
+         *
+         * @param pAllSynapses_d    Pointer to the AllSynapses object to be deleted in device.
+         */
+        virtual void deleteAllSynapsesInDevice(IAllSynapses* pAllSynapses_d);
+
+#endif // defined(USE_GPU)
+
     public:
         // The factor to adjust overlapping area to synapse weight.
         static constexpr BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
- 
-        /**
-         *  The location of the source neuron.
-         */
-        int *sourceNeuronLayoutIndex;
-
-        /** 
-         *  The location of the destination neuron.
-         */
-        int *destNeuronLayoutIndex;
 
         /**
-         *   The weight (scaling factor, strength, maximal amplitude) of the synapse.
+         * Pointer to the synapses property data.
          */
-         BGFLOAT *W;
-
-        /**
-         *  This synapse's summation point's address.
-         */
-        BGFLOAT **summationPoint;
-
-    	/**
-         *  Synapse type
-         */
-        synapseType *type;
-
-        /** 
-         *  The post-synaptic response is the result of whatever computation 
-         *  is going on in the synapse.
-         */
-        BGFLOAT *psr;
-
-    	/**
-         *  The boolean value indicating the entry in the array is in use.
-         */
-        bool *in_use;
-
-        /**
-         *  The number of (incoming) synapses for each neuron.
-         *  Note: Likely under a different name in GpuSim_struct, see synapse_count. -Aaron
-         */
-        BGSIZE *synapse_counts;
-
-        /**
-         *  The total number of active synapses.
-         */
-        BGSIZE total_synapse_counts;
-
-    	/**
-         *  The maximum number of synapses for each neurons.
-         */
-        BGSIZE maxSynapsesPerNeuron;
-
-        /**
-         *  The number of neurons
-         *  Aaron: Is this even supposed to be here?!
-         *  Usage: Used by destructor
-         */
-        int count_neurons;
-
-    protected:
-
-        /**
-         *  Number of parameters read.
-         */
-        int nParams;
+        class AllSynapsesProps* m_pSynapsesProps;
 };
 
 #if defined(USE_GPU)
-struct AllSynapsesDeviceProperties 
-{
-        /**
-         *  The location of the source neuron
-         */
-        int *sourceNeuronLayoutIndex;
 
-        /** 
-         *  The location of the destination neuron
-         */
-        int *destNeuronLayoutIndex;
+/* -------------------------------------*\
+|* # CUDA Global Functions
+\* -------------------------------------*/
 
-        /**
-         *   The weight (scaling factor, strength, maximal amplitude) of the synapse.
-         */
-         BGFLOAT *W;
+__global__ void deleteAllSynapsesDevice(IAllSynapses *pAllSynapses);
 
-    	/**
-         *  Synapse type
-         */
-        synapseType *type;
+/*
+ *  CUDA code for advancing spiking synapses.
+ *  Perform updating synapses for one time step.
+ *
+ *  @param[in] total_synapse_counts  Number of synapses.
+ *  @param  synapseIndexMapDevice    Reference to the SynapseIndexMap on device memory.
+ *  @param[in] simulationStep        The current simulation step.
+ *  @param[in] deltaT                Inner simulation step duration.
+ *  @param[in] maxSpikes             Maximum number of spikes per neuron per epoch.
+ *  @param[in] iStepOffset           Offset from the current simulation step.
+ *  @param[in] synapsesDevice        Pointer to the Synapses object in device memory.
+ *  @param[in] neuronsDevice         Pointer to the Neurons object in device memory.
+ *  @param[in] pINeuronsProps        Pointer to the neurons properties.
+ */
+__global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, int maxSpikes, const BGFLOAT deltaT, int iStepOffset, IAllSynapses* synapsesDevice, IAllNeurons* neuronsDevice, IAllNeuronsProps* pINeuronsProps );
 
-        /** 
-         *  The post-synaptic response is the result of whatever computation 
-         *  is going on in the synapse.
-         */
-        BGFLOAT *psr;
-
-    	/**
-         *  The boolean value indicating the entry in the array is in use.
-         */
-        bool *in_use;
-
-        /**
-         *  The number of synapses for each neuron.
-         *  Note: Likely under a different name in GpuSim_struct, see synapse_count. -Aaron
-         */
-        BGSIZE *synapse_counts;
-
-        /**
-         *  The total number of active synapses.
-         */
-        BGSIZE total_synapse_counts;
-
-    	/**
-         *  The maximum number of synapses for each neurons.
-         */
-        BGSIZE maxSynapsesPerNeuron;
-
-        /**
-         *  The number of neurons
-         *  Aaron: Is this even supposed to be here?!
-         *  Usage: Used by destructor
-         */
-        int count_neurons;
-
-        /**
-         *  A temporary variable used for parallel reduction in calcSummationMapDevice. 
-         */
-        BGFLOAT *summation;
-}; 
-#endif // defined(USE_GPU)
+#endif // USE_GPU

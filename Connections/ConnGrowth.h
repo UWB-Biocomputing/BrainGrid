@@ -301,5 +301,25 @@ private:
  *  @param  rates_d                Pointer to rates data array.
  *  @param  radii_d                Pointer to radii data array.
  */
-extern __global__ void updateConnsDevice( AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int totalClusterNeurons, int max_spikes, BGFLOAT epochDuration, BGFLOAT maxRate, BGFLOAT beta, BGFLOAT rho, BGFLOAT epsilon, BGFLOAT* rates_d, BGFLOAT* radii_d );
+extern __global__ void updateConnsDevice( AllSpikingNeuronsProps* allNeuronsProps, int totalClusterNeurons, int max_spikes, BGFLOAT epochDuration, BGFLOAT maxRate, BGFLOAT beta, BGFLOAT rho, BGFLOAT epsilon, BGFLOAT* rates_d, BGFLOAT* radii_d );
+
+/**
+ * Adjust the strength of the synapse or remove it from the synapse map if it has gone below
+ * zero.
+ *
+ * @param[in] synapsesDevice     Pointer to the Synapses object in device memory.
+ * @param[in] num_neurons        Number of neurons.
+ * @param[in] deltaT             The time step size.
+ * @param[in] maxSynapses        Maximum number of synapses per neuron.
+ * @param[in] allNeuronsProps    Pointer to the Neuron structures in device memory.
+ * @param[in] allSynapsesProps   Pointer to the Synapse structures in device memory.
+ * @param[in] neuron_type_map_d  Pointer to the neurons type map in device memory.
+ * @param[in] totalClusterNeurons  Total number of neurons in the cluster.
+ * @param[in] clusterNeuronsBegin  Begin neuron index of the cluster.
+ * @param[in] radii_d            Pointer to the rates data array.
+ * @param[in] xloc_d             Pointer to the neuron's x location array.
+ * @param[in] yloc_d             Pointer to the neuron's y location array.
+ */
+extern __global__ void updateSynapsesWeightsDevice( IAllSynapses* synapsesDevice, int num_neurons, BGFLOAT deltaT, int maxSynapses, AllSpikingNeuronsProps* allNeuronsProps, AllSpikingSynapsesProps* allSynapsesProps, neuronType* neuron_type_map_d, int totalClusterNeurons, int clusterNeuronsBegin, BGFLOAT* radii_d, BGFLOAT* xloc_d,  BGFLOAT* yloc_d );
+
 #endif // USE_GPU && __CUDACC__

@@ -64,7 +64,9 @@
 #pragma once
 #include "Model.h"
 #include "AllSpikingNeurons.h"
+#include "AllSpikingNeuronsProps.h"
 #include "AllSpikingSynapses.h"
+#include "AllSpikingSynapsesProps.h"
 #ifdef __CUDACC__
 #include <helper_cuda.h>
 #endif
@@ -233,10 +235,20 @@ public:
 	SynapseIndexMap* m_synapseIndexMapDevice;
 
 	//! Synapse structures in device memory.
-	AllSpikingSynapsesDeviceProperties* m_allSynapsesDevice;
+	AllSpikingSynapsesProps* m_allSynapsesDeviceProps;
 
 	//! Neuron structure in device memory.
-	AllSpikingNeuronsDeviceProperties* m_allNeuronsDevice;
+	AllSpikingNeuronsProps* m_allNeuronsDeviceProps;
+
+        /**
+         *  Pointer to the Neurons object in device memory.
+         */
+        IAllNeurons* m_neuronsDevice;
+
+        /**
+         *  Pointer to the Synapses object in device memory.
+         */
+        IAllSynapses* m_synapsesDevice;
 
         /**
          *  Copy SynapseIndexMap in host memory to SynapseIndexMap in device memory.
@@ -299,14 +311,14 @@ void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, uns
 }       
         
 //! Calculate summation point (use parallel reduction method).
-//extern __global__ void calcSummationMapDevice_1(BGSIZE numTotalSynapses, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, int maxSynapsesPerNeuron, int clusterNeuronsBegin);
+//extern __global__ void calcSummationMapDevice_1(BGSIZE numTotalSynapses, AllSpikingNeuronsProps* allNeuronsProps, SynapseIndexMap* synapseIndexMapDevice, AllSpikingSynapsesProps* allSynapsesProps, int maxSynapsesPerNeuron, int clusterNeuronsBegin);
 
 //! Helper kernel function for calcSummationMapDevice.
-//extern __global__ void reduceSummationMapKernel(BGSIZE numTotalSynapses, unsigned int s, AllSpikingSynapsesDeviceProperties* allSynapsesDevice, AllSpikingNeuronsDeviceProperties* allNeuronsDevice, BGSIZE* indexMap, BGSIZE* synapseCount, BGSIZE* synapseBegin, int clusterNeuronsBegin);
+//extern __global__ void reduceSummationMapKernel(BGSIZE numTotalSynapses, unsigned int s, AllSpikingSynapsesProps* allSynapsesProps, AllSpikingNeuronsProps* allNeuronsProps, BGSIZE* indexMap, BGSIZE* synapseCount, BGSIZE* synapseBegin, int clusterNeuronsBegin);
 
 //! Calculate summation point.
 extern __global__ void calcSummationMapDevice_2(int totalNeurons,
-		    AllSpikingNeuronsDeviceProperties* __restrict__ allNeurnsDevice,
+		    AllSpikingNeuronsProps* __restrict__ allNeurnsProps,
 		    const SynapseIndexMap* __restrict__ synapseIndexMapDevice,
-                    const AllSpikingSynapsesDeviceProperties* __restrict__ allSynapsesDevice );
+                    const AllSpikingSynapsesProps* __restrict__ allSynapsesProps );
 #endif // __CUDACC__

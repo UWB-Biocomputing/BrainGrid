@@ -1,185 +1,23 @@
 #include "AllDynamicSTDPSynapses.h"
+#if defined(USE_GPU)
+#include <helper_cuda.h>
+#endif // USE_GPU
 
 // Default constructor
-AllDynamicSTDPSynapses::AllDynamicSTDPSynapses() : AllSTDPSynapses()
+CUDA_CALLABLE AllDynamicSTDPSynapses::AllDynamicSTDPSynapses()
 {
-    lastSpike = NULL;
-    r = NULL;
-    u = NULL;
-    D = NULL;
-    U = NULL;
-    F = NULL;
 }
 
-// Copy constructor
-AllDynamicSTDPSynapses::AllDynamicSTDPSynapses(const AllDynamicSTDPSynapses &r_synapses) : AllSTDPSynapses(r_synapses)
-{
-    lastSpike = NULL;
-    r = NULL;
-    u = NULL;
-    D = NULL;
-    U = NULL;
-    F = NULL;
-}
-
-AllDynamicSTDPSynapses::~AllDynamicSTDPSynapses()
-{
-    cleanupSynapses();
-}
-
-/*
- *  Assignment operator: copy synapses parameters.
- *
- *  @param  r_synapses  Synapses class object to copy from.
- */
-IAllSynapses &AllDynamicSTDPSynapses::operator=(const IAllSynapses &r_synapses)
-{
-    copyParameters(dynamic_cast<const AllDynamicSTDPSynapses &>(r_synapses));
-
-    return (*this);
-}
-
-/*
- *  Copy synapses parameters.
- *
- *  @param  r_synapses  Synapses class object to copy from.
- */
-void AllDynamicSTDPSynapses::copyParameters(const AllDynamicSTDPSynapses &r_synapses)
-{
-    AllSTDPSynapses::copyParameters(r_synapses);
-}
-
-/*
- *  Setup the internal structure of the class (allocate memories and initialize them).
- *
- *  @param  sim_info  SimulationInfo class to read information from.
- *  @param  clr_info  ClusterInfo class to read information from.
- */
-void AllDynamicSTDPSynapses::setupSynapses(SimulationInfo *sim_info, ClusterInfo *clr_info)
-{
-    setupSynapses(clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron, sim_info, clr_info);
-}
-
-/*
- *  Setup the internal structure of the class (allocate memories and initialize them).
- * 
- *  @param  num_neurons   Total number of neurons in the network.
- *  @param  max_synapses  Maximum number of synapses per neuron.
- *  @param  sim_info      SimulationInfo class to read information from.
- *  @param  clr_info      ClusterInfo class to read information from.
- */
-void AllDynamicSTDPSynapses::setupSynapses(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info)
-{
-    AllSTDPSynapses::setupSynapses(num_neurons, max_synapses, sim_info, clr_info);
-
-    BGSIZE max_total_synapses = max_synapses * num_neurons;
-
-    if (max_total_synapses != 0) {
-        lastSpike = new uint64_t[max_total_synapses];
-        r = new BGFLOAT[max_total_synapses];
-        u = new BGFLOAT[max_total_synapses];
-        D = new BGFLOAT[max_total_synapses];
-        U = new BGFLOAT[max_total_synapses];
-        F = new BGFLOAT[max_total_synapses];
-    }
-}
-
-/*
- *  Cleanup the class (deallocate memories).
- */
-void AllDynamicSTDPSynapses::cleanupSynapses()
-{
-    BGSIZE max_total_synapses = maxSynapsesPerNeuron * count_neurons;
-
-    if (max_total_synapses != 0) {
-        delete[] lastSpike;
-        delete[] r;
-        delete[] u;
-        delete[] D;
-        delete[] U;
-        delete[] F;
-    }
-
-    lastSpike = NULL;
-    r = NULL;
-    u = NULL;
-    D = NULL;
-    U = NULL;
-    F = NULL;
-
-    AllSTDPSynapses::cleanupSynapses();
-}
-
-/*
- *  Checks the number of required parameters.
- *
- * @return true if all required parameters were successfully read, false otherwise.
- */
-bool AllDynamicSTDPSynapses::checkNumParameters()
-{
-    return (nParams >= 0);
-}
-
-/*
- *  Attempts to read parameters from a XML file.
- *
- *  @param  element TiXmlElement to examine.
- *  @return true if successful, false otherwise.
- */
-bool AllDynamicSTDPSynapses::readParameters(const TiXmlElement& element)
-{
-    if (AllSTDPSynapses::readParameters(element)) {
-        // this parameter was already handled
-        return true;
-    }
-
-    return false;
-}
-
-/*
- *  Prints out all parameters of the neurons to ostream.
- *
- *  @param  output  ostream to send output to.
- */
-void AllDynamicSTDPSynapses::printParameters(ostream &output) const
+CUDA_CALLABLE AllDynamicSTDPSynapses::~AllDynamicSTDPSynapses()
 {
 }
 
 /*
- *  Sets the data for Synapse to input's data.
- *
- *  @param  input  istream to read from.
- *  @param  iSyn   Index of the synapse to set.
+ *  Create and setup synapses properties.
  */
-void AllDynamicSTDPSynapses::readSynapse(istream &input, const BGSIZE iSyn)
+void AllDynamicSTDPSynapses::createSynapsesProps()
 {
-    AllSTDPSynapses::readSynapse(input, iSyn);
-
-    // input.ignore() so input skips over end-of-line characters.
-    input >> lastSpike[iSyn]; input.ignore();
-    input >> r[iSyn]; input.ignore();
-    input >> u[iSyn]; input.ignore();
-    input >> D[iSyn]; input.ignore();
-    input >> U[iSyn]; input.ignore();
-    input >> F[iSyn]; input.ignore();
-}
-
-/*
- *  Write the synapse data to the stream.
- *
- *  @param  output  stream to print out to.
- *  @param  iSyn    Index of the synapse to print out.
- */
-void AllDynamicSTDPSynapses::writeSynapse(ostream& output, const BGSIZE iSyn) const 
-{
-    AllSTDPSynapses::writeSynapse(output, iSyn);
-
-    output << lastSpike[iSyn] << ends;
-    output << r[iSyn] << ends;
-    output << u[iSyn] << ends;
-    output << D[iSyn] << ends;
-    output << U[iSyn] << ends;
-    output << F[iSyn] << ends;
+    m_pSynapsesProps = new AllDynamicSTDPSynapsesProps();
 }
 
 /*
@@ -188,13 +26,15 @@ void AllDynamicSTDPSynapses::writeSynapse(ostream& output, const BGSIZE iSyn) co
  *  @param  iSyn            Index of the synapse to set.
  *  @param  deltaT          Inner simulation step duration
  */
-void AllDynamicSTDPSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
+CUDA_CALLABLE void AllDynamicSTDPSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
 {
+    AllDynamicSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllDynamicSTDPSynapsesProps*>(m_pSynapsesProps);
+
     AllSTDPSynapses::resetSynapse(iSyn, deltaT);
 
-    u[iSyn] = DEFAULT_U;
-    r[iSyn] = 1.0;
-    lastSpike[iSyn] = ULONG_MAX;
+    pSynapsesProps->u[iSyn] = DEFAULT_U;
+    pSynapsesProps->r[iSyn] = 1.0;
+    pSynapsesProps->lastSpike[iSyn] = ULONG_MAX;
 }
 
 /*
@@ -208,11 +48,13 @@ void AllDynamicSTDPSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT delta
  *  @param  deltaT      Inner simulation step duration.
  *  @param  type        Type of the Synapse to create.
  */
-void AllDynamicSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
+CUDA_CALLABLE void AllDynamicSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
+    AllDynamicSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllDynamicSTDPSynapsesProps*>(m_pSynapsesProps);
+
     AllSTDPSynapses::createSynapse(iSyn, source_index, dest_index, sum_point, deltaT, type);
 
-    U[iSyn] = DEFAULT_U;
+    pSynapsesProps->U[iSyn] = DEFAULT_U;
 
     BGFLOAT U;
     BGFLOAT D;
@@ -243,33 +85,34 @@ void AllDynamicSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, 
             break;
     }
 
-    this->U[iSyn] = U;
-    this->D[iSyn] = D;
-    this->F[iSyn] = F;
+    pSynapsesProps->U[iSyn] = U;
+    pSynapsesProps->D[iSyn] = D;
+    pSynapsesProps->F[iSyn] = F;
 }
 
-#if !defined(USE_GPU)
 /*
  *  Calculate the post synapse response after a spike.
  *
- *  @param  iSyn        Index of the synapse to set.
- *  @param  deltaT      Inner simulation step duration.
- *  @param  iStepOffset      Offset from the current simulation step.
+ *  @param  iSyn             Index of the synapse to set.
+ *  @param  deltaT           Inner simulation step duration.
+ *  @param  simulationStep   The current simulation step.
+ *  @param  pSpikingSynapsesProps  Pointer to the synapses properties.
  */
-void AllDynamicSTDPSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, int iStepOffset)
+CUDA_CALLABLE void AllDynamicSTDPSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, uint64_t simulationStep, AllSpikingSynapsesProps* pSpikingSynapsesProps)
 {
-    BGFLOAT &psr = this->psr[iSyn];
-    BGFLOAT &W = this->W[iSyn];
-    BGFLOAT &decay = this->decay[iSyn];
-    uint64_t &lastSpike = this->lastSpike[iSyn];
-    BGFLOAT &r = this->r[iSyn];
-    BGFLOAT &u = this->u[iSyn];
-    BGFLOAT &D = this->D[iSyn];
-    BGFLOAT &F = this->F[iSyn];
-    BGFLOAT &U = this->U[iSyn];
+    AllDynamicSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllDynamicSTDPSynapsesProps*>(pSpikingSynapsesProps);
+
+    BGFLOAT &psr = pSynapsesProps->psr[iSyn];
+    BGFLOAT &W = pSynapsesProps->W[iSyn];
+    BGFLOAT &decay = pSynapsesProps->decay[iSyn];
+    uint64_t &lastSpike = pSynapsesProps->lastSpike[iSyn];
+    BGFLOAT &r = pSynapsesProps->r[iSyn];
+    BGFLOAT &u = pSynapsesProps->u[iSyn];
+    BGFLOAT &D = pSynapsesProps->D[iSyn];
+    BGFLOAT &F = pSynapsesProps->F[iSyn];
+    BGFLOAT &U = pSynapsesProps->U[iSyn];
 
     // adjust synapse parameters
-    uint64_t simulationStep = g_simulationStep + iStepOffset;
     if (lastSpike != ULONG_MAX) {
         BGFLOAT isi = (simulationStep - lastSpike) * deltaT ;
         r = 1 + ( r * ( 1 - u ) - 1 ) * exp( -isi / D );
@@ -279,4 +122,39 @@ void AllDynamicSTDPSynapses::changePSR(const BGSIZE iSyn, const BGFLOAT deltaT, 
     lastSpike = simulationStep;          // record the time of the spike
 }
 
-#endif // !defined(USE_GPU)
+#if defined(USE_GPU)
+
+/*
+ *  Create a AllSynapses class object in device
+ *
+ *  @param pAllSynapses_d       Device memory address to save the pointer of created AllSynapses object.
+ *  @param pAllSynapsesProps_d  Pointer to the synapses properties in device memory.
+ */
+void AllDynamicSTDPSynapses::createAllSynapsesInDevice(IAllSynapses** pAllSynapses_d, IAllSynapsesProps *pAllSynapsesProps_d)
+{
+    IAllSynapses **pAllSynapses_t; // temporary buffer to save pointer to IAllSynapses object.
+
+    // allocate device memory for the buffer.
+    checkCudaErrors( cudaMalloc( ( void ** ) &pAllSynapses_t, sizeof( IAllSynapses * ) ) );
+
+    // create an AllSynapses object in device memory.
+    allocAllDynamicSTDPSynapsesDevice <<< 1, 1 >>> ( pAllSynapses_t, pAllSynapsesProps_d );
+
+    // save the pointer of the object.
+    checkCudaErrors( cudaMemcpy ( pAllSynapses_d, pAllSynapses_t, sizeof( IAllSynapses * ), cudaMemcpyDeviceToHost ) );
+
+    // free device memory for the buffer.
+    checkCudaErrors( cudaFree( pAllSynapses_t ) );
+}
+
+/* -------------------------------------*\
+|* # CUDA Global Functions
+\* -------------------------------------*/
+
+__global__ void allocAllDynamicSTDPSynapsesDevice(IAllSynapses **pAllSynapses, IAllSynapsesProps *pAllSynapsesProps)
+{
+    *pAllSynapses = new AllDynamicSTDPSynapses();
+    (*pAllSynapses)->setSynapsesProps(pAllSynapsesProps);
+}
+
+#endif // USE_GPU

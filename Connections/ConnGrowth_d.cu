@@ -1,8 +1,8 @@
 #include "ConnGrowth.h"
 #include "AllSpikingSynapses.h"
-#include "AllSynapsesDeviceFuncs.h"
 #include "GPUSpikingCluster.h"
 #include <helper_cuda.h>
+#include "math_constants.h"
 
 //  Initialize the Barrier Synchnonize object for update connections.
 Barrier *ConnGrowth::m_barrierUpdateConnections = NULL;
@@ -89,7 +89,7 @@ void ConnGrowth::updateConnsThread(const SimulationInfo *sim_info, Cluster *clr,
 
     // executes a CUDA kernel function
     GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(clr);
-    AllSpikingNeuronsDeviceProperties* allNeuronsDevice = GPUClr->m_allNeuronsDevice;      
+    AllSpikingNeuronsProps* allNeuronsProps = GPUClr->m_allNeuronsDeviceProps;      
 
 #ifdef PERFORMANCE_METRICS
     // Reset CUDA timer to start measurement of GPU operation
@@ -98,7 +98,7 @@ void ConnGrowth::updateConnsThread(const SimulationInfo *sim_info, Cluster *clr,
 
     // CUDA kernel function for calculating firing rates, neuron radii change and assign new values
     blockPerGrid = ( totalClusterNeurons + threadsPerBlock - 1) / threadsPerBlock;
-    updateConnsDevice <<< blockPerGrid, threadsPerBlock >>> (allNeuronsDevice, totalClusterNeurons, max_spikes, sim_info->epochDuration, m_growth.maxRate, m_growth.beta, m_growth.rho, m_growth.epsilon, rates_d, radii_d );
+    updateConnsDevice <<< blockPerGrid, threadsPerBlock >>> (allNeuronsProps, totalClusterNeurons, max_spikes, sim_info->epochDuration, m_growth.maxRate, m_growth.beta, m_growth.rho, m_growth.epsilon, rates_d, radii_d );
 
 #ifdef PERFORMANCE_METRICS
     cudaLapTime(clr_info, clr_info->t_gpu_updateConns);
@@ -188,8 +188,8 @@ void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Lay
 
     // executes a CUDA kernel function
     GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(clr);
-    AllSpikingNeuronsDeviceProperties* allNeuronsDevice = GPUClr->m_allNeuronsDevice;
-    AllSpikingSynapsesDeviceProperties* allSynapsesDevice = GPUClr->m_allSynapsesDevice;
+    AllSpikingNeuronsProps* allNeuronsDeviceProps = GPUClr->m_allNeuronsDeviceProps;
+    AllSpikingSynapsesProps* allSynapsesDeviceProps = GPUClr->m_allSynapsesDeviceProps;
 
 #ifdef PERFORMANCE_METRICS
     // Reset CUDA timer to start measurement of GPU operation
@@ -197,7 +197,7 @@ void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Lay
 #endif // PERFORMANCE_METRICS
 
     blocksPerGrid = ( totalClusterNeurons + threadsPerBlock - 1 ) / threadsPerBlock;
-    updateSynapsesWeightsDevice <<< blocksPerGrid, threadsPerBlock >>> ( sim_info->totalNeurons, deltaT, sim_info->maxSynapsesPerNeuron, allNeuronsDevice, allSynapsesDevice, neuron_type_map_d, totalClusterNeurons, clusterNeuronsBegin, radii_d, xloc_d, yloc_d );
+    updateSynapsesWeightsDevice <<< blocksPerGrid, threadsPerBlock >>> ( GPUClr->m_synapsesDevice, sim_info->totalNeurons, deltaT, sim_info->maxSynapsesPerNeuron, allNeuronsDeviceProps, allSynapsesDeviceProps, neuron_type_map_d, totalClusterNeurons, clusterNeuronsBegin, radii_d, xloc_d, yloc_d );
 
 #ifdef PERFORMANCE_METRICS
     cudaLapTime(clr_info, clr_info->t_gpu_updateSynapsesWeights);
@@ -205,10 +205,11 @@ void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Lay
 
     // copy device synapse count to host memory
     AllSynapses *synapses = dynamic_cast<AllSynapses*>(clr->m_synapses);
-    synapses->copyDeviceSynapseCountsToHost(allSynapsesDevice, clr_info);
+    AllSpikingSynapsesProps *pSynapsesProps = dynamic_cast<AllSpikingSynapsesProps*>(synapses->m_pSynapsesProps);
+    pSynapsesProps->copyDeviceSynapseCountsToHost(allSynapsesDeviceProps, clr_info);
 
     // copy device sourceNeuronLayoutIndex and in_use to host memory
-    synapses->copyDeviceSourceNeuronIdxToHost(allSynapsesDevice, sim_info, clr_info);
+    pSynapsesProps->copyDeviceSourceNeuronIdxToHost(allSynapsesDeviceProps, sim_info, clr_info);
 
   DEBUG(
     {
@@ -246,7 +247,7 @@ void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Lay
 /*
  *  CUDA kernel function for calculating firing rates, neuron radii change and assign new values.
  *
- *  @param  allNeuronsDevice       Pointer to Neuron structures in device memory.
+ *  @param  allNeuronsProps   Pointer to Neuron structures in device memory.
  *  @param  totalClusterNeurons    Number of neurons in the cluster.
  *  @param  max_spikes             Maximum firing rate.
  *  @param  epochDuration          One epoch duration in second.
@@ -257,7 +258,7 @@ void ConnGrowth::updateSynapsesWeightsThread(const SimulationInfo *sim_info, Lay
  *  @param  rates_d                Pointer to rates data array.
  *  @param  radii_d                Pointer to radii data array.
  */
-__global__ void updateConnsDevice( AllSpikingNeuronsDeviceProperties* allNeuronsDevice, int totalClusterNeurons, int max_spikes, BGFLOAT epochDuration, BGFLOAT maxRate, BGFLOAT beta, BGFLOAT rho, BGFLOAT epsilon, BGFLOAT* rates_d, BGFLOAT* radii_d )
+__global__ void updateConnsDevice( AllSpikingNeuronsProps* allNeuronsProps, int totalClusterNeurons, int max_spikes, BGFLOAT epochDuration, BGFLOAT maxRate, BGFLOAT beta, BGFLOAT rho, BGFLOAT epsilon, BGFLOAT* rates_d, BGFLOAT* radii_d )
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if ( idx >= totalClusterNeurons )
@@ -265,12 +266,132 @@ __global__ void updateConnsDevice( AllSpikingNeuronsDeviceProperties* allNeurons
 
     int iNeuron = idx;
 
-    DEBUG( assert(allNeuronsDevice->spikeCount[iNeuron] < max_spikes); )
+    DEBUG( assert(allNeuronsProps->spikeCount[iNeuron] < max_spikes); )
 
     // compute neuron radii change and assign new values
-    rates_d[iNeuron] = allNeuronsDevice->spikeCount[iNeuron] / epochDuration;
+    rates_d[iNeuron] = allNeuronsProps->spikeCount[iNeuron] / epochDuration;
     BGFLOAT outgrowth = 1.0 - 2.0 / (1.0 + exp(static_cast<double>((epsilon - rates_d[iNeuron] / maxRate)) / beta));
     BGFLOAT deltaR = epochDuration * rho * outgrowth;
     radii_d[iNeuron] += deltaR;
+}
+
+/* -------------------------------------*\
+|* # Global Functions for updateSynapses
+\* -------------------------------------*/
+
+/*
+ * Adjust the strength of the synapse or remove it from the synapse map if it has gone below
+ * zero.
+ *
+ * @param[in] synapsesDevice     Pointer to the Synapses object in device memory.
+ * @param[in] num_neurons        Total number of neurons.
+ * @param[in] deltaT             The time step size.
+ * @param[in] maxSynapses        Maximum number of synapses per neuron.
+ * @param[in] allNeuronsProps    Pointer to the Neuron structures in device memory.
+ * @param[in] allSynapsesProps   Pointer to the Synapse structures in device memory.
+ * @param[in] neuron_type_map_d    Pointer to the neurons type map in device memory.
+ * @param[in] totalClusterNeurons  Total number of neurons in the cluster.
+ * @param[in] clusterNeuronsBegin  Begin neuron index of the cluster.
+ * @param[in] radii_d            Pointer to the rates data array.
+ * @param[in] xloc_d             Pointer to the neuron's x location array.
+ * @param[in] yloc_d             Pointer to the neuron's y location array.
+ */
+__global__ void updateSynapsesWeightsDevice( IAllSynapses* synapsesDevice, int num_neurons, BGFLOAT deltaT, int maxSynapses, AllSpikingNeuronsProps* allNeuronsProps, AllSpikingSynapsesProps* allSynapsesProps, neuronType* neuron_type_map_d, int totalClusterNeurons, int clusterNeuronsBegin, BGFLOAT* radii_d, BGFLOAT* xloc_d,  BGFLOAT* yloc_d )
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( idx >= totalClusterNeurons )
+        return;
+
+    int adjusted = 0;
+    int removed = 0;
+    int added = 0;
+
+    int iNeuron = idx;
+    int dest_neuron = clusterNeuronsBegin + idx;
+
+    for (int src_neuron = 0; src_neuron < num_neurons; src_neuron++) {
+        if (dest_neuron == src_neuron) {
+            // we don't create a synapse between the same neuron.
+            continue;
+        }
+
+        // Update the areas of overlap in between Neurons
+        BGFLOAT distX = xloc_d[dest_neuron] - xloc_d[src_neuron];
+        BGFLOAT distY = yloc_d[dest_neuron] - yloc_d[src_neuron];
+        BGFLOAT dist2 = distX * distX + distY * distY;
+        BGFLOAT dist = sqrt(dist2);
+        BGFLOAT delta = dist - (radii_d[dest_neuron] + radii_d[src_neuron]);
+        BGFLOAT area = 0.0;
+
+        if (delta < 0) {
+            BGFLOAT lenAB = dist;
+            BGFLOAT r1 = radii_d[dest_neuron];
+            BGFLOAT r2 = radii_d[src_neuron];
+
+            if (lenAB + min(r1, r2) <= max(r1, r2)) {
+                area = CUDART_PI_F * min(r1, r2) * min(r1, r2); // Completely overlapping unit
+            } else {
+                // Partially overlapping unit
+                BGFLOAT lenAB2 = dist2;
+                BGFLOAT r12 = r1 * r1;
+                BGFLOAT r22 = r2 * r2;
+
+                BGFLOAT cosCBA = (r22 + lenAB2 - r12) / (2.0 * r2 * lenAB);
+                BGFLOAT angCBA = acos(cosCBA);
+                BGFLOAT angCBD = 2.0 * angCBA;
+
+                BGFLOAT cosCAB = (r12 + lenAB2 - r22) / (2.0 * r1 * lenAB);
+                BGFLOAT angCAB = acos(cosCAB);
+                BGFLOAT angCAD = 2.0 * angCAB;
+
+                area = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
+            }
+        }
+
+        // visit each synapse at (xa,ya)
+        bool connected = false;
+        synapseType type = synapsesDevice->synType(neuron_type_map_d, src_neuron, dest_neuron);
+
+        // for each existing synapse
+        BGSIZE existing_synapses = allSynapsesProps->synapse_counts[iNeuron];
+        int existing_synapses_checked = 0;
+        for (BGSIZE synapse_index = 0; (existing_synapses_checked < existing_synapses) && !connected; synapse_index++) {
+            BGSIZE iSyn = maxSynapses * iNeuron + synapse_index;
+            if (allSynapsesProps->in_use[iSyn] == true) {
+                // if there is a synapse between a and b
+                if (allSynapsesProps->sourceNeuronLayoutIndex[iSyn] == src_neuron) {
+                    connected = true;
+                    adjusted++;
+
+                    // adjust the strength of the synapse or remove
+                    // it from the synapse map if it has gone below
+                    // zero.
+
+                    // W_d[] is indexed by (dest_neuron (local index) * totalNeurons + src_neuron)
+                    if (area < 0) {
+                        removed++;
+                        synapsesDevice->eraseSynapse(iNeuron, iSyn);
+                    } else {
+                        // adjust
+                        // g_synapseStrengthAdjustmentConstant is 1.0e-8;
+                        allSynapsesProps->W[iSyn] = area * synapsesDevice->synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+                    }
+                }
+                existing_synapses_checked++;
+            }
+        }
+
+        // if not connected and weight(a,b) > 0, add a new synapse from a to b
+        if (!connected && (area > 0)) {
+            // locate summation point
+            BGFLOAT* sum_point = &( allNeuronsProps->summation_map[iNeuron] );
+            added++;
+
+            BGSIZE iSyn;
+            synapsesDevice->addSynapse(iSyn, type, src_neuron, dest_neuron, sum_point, deltaT, iNeuron);
+            BGFLOAT weight = area * synapsesDevice->synSign(type) * AllSynapses::SYNAPSE_STRENGTH_ADJUSTMENT;
+            allSynapsesProps->W[iSyn] = weight;
+        }
+    }
 }
 

@@ -303,11 +303,13 @@ void Model::updateConnections(const SimulationInfo *sim_info)
 #if defined(USE_GPU)
     // for each cluster
     for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < m_vtClr.size(); iCluster++) {
-        // copy neuron's data from device memory to host
         AllSpikingNeurons *neurons = dynamic_cast<AllSpikingNeurons*>(m_vtClr[iCluster]->m_neurons);
+        AllSpikingNeuronsProps *pNeuronsProps = dynamic_cast<AllSpikingNeuronsProps*>(neurons->m_pNeuronsProps);
         GPUSpikingCluster *GPUClr = dynamic_cast<GPUSpikingCluster *>(m_vtClr[iCluster]);
-        neurons->copyNeuronDeviceSpikeCountsToHost(GPUClr->m_allNeuronsDevice, m_vtClrInfo[iCluster]);
-        neurons->copyNeuronDeviceSpikeHistoryToHost(GPUClr->m_allNeuronsDevice, sim_info, m_vtClrInfo[iCluster]);
+
+        // copy neuron's spiking data from device memory to host
+        pNeuronsProps->copyNeuronDeviceSpikeCountsToHost(GPUClr->m_allNeuronsDeviceProps, m_vtClrInfo[iCluster]);
+        pNeuronsProps->copyNeuronDeviceSpikeHistoryToHost(GPUClr->m_allNeuronsDeviceProps, sim_info, m_vtClrInfo[iCluster]);
     }
 #endif // USE_GPU
 

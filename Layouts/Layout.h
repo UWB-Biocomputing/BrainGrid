@@ -78,15 +78,6 @@ class Layout
          */
         virtual void initStarterMap(const int num_neurons);
 
-        /**
-         *  Returns the type of synapse at the given coordinates
-         *
-         *  @param    src_neuron  integer that points to a Neuron in the type map as a source.
-         *  @param    dest_neuron integer that points to a Neuron in the type map as a destination.
-         *  @return type of the synapse.
-         */
-        synapseType synType(const int src_neuron, const int dest_neuron);
-
         //! Store neuron i's x location.
         BGFLOAT *xloc;
 

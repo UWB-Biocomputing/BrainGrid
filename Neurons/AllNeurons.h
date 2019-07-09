@@ -41,13 +41,19 @@ using namespace std;
 #include "IAllNeurons.h"
 #include "SimulationInfo.h"
 #include "Layout.h"
+#include "AllNeuronsProps.h"
 
 class AllNeurons : public IAllNeurons
 {
     public:
-        AllNeurons();
-        AllNeurons(const AllNeurons &r_neurons);
-        virtual ~AllNeurons();
+        CUDA_CALLABLE AllNeurons();
+        CUDA_CALLABLE virtual ~AllNeurons();
+
+        /**
+         *  Cleanup the class.
+         *  Deallocate memories.
+         */
+        virtual void cleanupNeurons();
 
         /**
          *  Assignment operator: copy neurons parameters.
@@ -57,7 +63,7 @@ class AllNeurons : public IAllNeurons
         virtual IAllNeurons &operator=(const IAllNeurons &r_neurons);
 
         /**
-         *  Setup the internal structure of the class. 
+         *  Setup the internal structure of the class.
          *  Allocate memories to store all neurons' state.
          *
          *  @param  sim_info  SimulationInfo class to read information from.
@@ -65,56 +71,82 @@ class AllNeurons : public IAllNeurons
          */
         virtual void setupNeurons(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
+#if defined(USE_GPU)
         /**
-         *  Cleanup the class.
-         *  Deallocate memories. 
-         */
-        virtual void cleanupNeurons();
-
-        /** 
-         *  The summation point for each neuron.
-         *  Summation points are places where the synapses connected to the neuron 
-         *  apply (summed up) their PSRs (Post-Synaptic-Response). 
-         *  On the next advance cycle, neurons add the values stored in their corresponding 
-         *  summation points to their Vm and resets the summation points to zero
-         */
-        BGFLOAT *summation_map;
-
-    protected:
-        /**
-         *  Copy neurons parameters.
+         * Delete an AllNeurons class object in device
          *
-         *  @param  r_neurons  Neurons class object to copy from.
+         * @param pAllNeurons_d    Pointer to the AllNeurons object to be deleted in device.
          */
-        void copyParameters(const AllNeurons &r_neurons);
+        virtual void deleteAllNeuronsInDevice(IAllNeurons* pAllNeurons_d);
 
         /**
-         *  Total number of neurons.
+         *  Set neurons properties.
+         *
+         *  @param  pAllNeuronsProps  Pointer to the neurons properties.
          */
-        int size;
+        CUDA_CALLABLE virtual void setNeuronsProps(void *pAllNeuronsProps);
+#endif // USE_GPU
 
         /**
-         *  Number of parameters read.
+         *  Checks the number of required parameters to read.
+         *
+         * @return true if all required parameters were successfully read, false otherwise.
          */
-        int nParams;
- 
-    private:
+        virtual bool checkNumParameters();
+
         /**
-         *  Deallocate all resources
+         *  Attempts to read parameters from a XML file.
+         *
+         *  @param  element TiXmlElement to examine.
+         *  @return true if successful, false otherwise.
          */
-        void freeResources();
+        virtual bool readParameters(const TiXmlElement& element);
+
+        /**
+         *  Prints out all parameters of the neurons to ostream.
+         *
+         *  @param  output  ostream to send output to.
+         */
+        virtual void printParameters(ostream &output) const;
+
+        /**
+         *  Creates all the Neurons and assigns initial data for them.
+         *
+         *  @param  sim_info    SimulationInfo class to read information from.
+         *  @param  layout      Layout information of the neunal network.
+         *  @param  clr_info    ClusterInfo class to read information from.
+         */
+        virtual void createAllNeurons(SimulationInfo *sim_info, Layout *layout, ClusterInfo *clr_info);
+
+        /**
+         *  Reads and sets the data for all neurons from input stream.
+         *
+         *  @param  input       istream to read from.
+         *  @param  clr_info    ClusterInfo class to read information from.
+         */
+        virtual void deserialize(istream &input, const ClusterInfo *clr_info);
+
+        /**
+         *  Writes out the data in all neurons to output stream.
+         *
+         *  @param  output      stream to write out to.
+         *  @param  clr_info    ClusterInfo class to read information from.
+         */
+        virtual void serialize(ostream& output, const ClusterInfo *clr_info) const;
+
+    public:
+        /**
+         * Pointer to the neurons property data.
+         */
+        class AllNeuronsProps* m_pNeuronsProps;
 };
 
 #if defined(USE_GPU)
-struct AllNeuronsDeviceProperties
-{
-        /** 
-         *  The summation point for each neuron.
-         *  Summation points are places where the synapses connected to the neuron 
-         *  apply (summed up) their PSRs (Post-Synaptic-Response). 
-         *  On the next advance cycle, neurons add the values stored in their corresponding 
-         *  summation points to their Vm and resets the summation points to zero
-         */
-        BGFLOAT *summation_map;
-};
-#endif // defined(USE_GPU)
+
+/* -------------------------------------*\
+|* # CUDA Global Functions
+\* -------------------------------------*/
+
+__global__ void deleteAllNeuronsDevice(IAllNeurons *pAllNeurons);
+
+#endif // USE_GPU

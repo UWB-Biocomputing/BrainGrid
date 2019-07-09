@@ -118,6 +118,10 @@ IAllNeurons* FClassOfCategory::createNeurons(const TiXmlNode* parms)
 {
     if (parms->ToElement()->QueryValueAttribute("class", &m_neuronsClassName) == TIXML_SUCCESS) {
         m_neurons = createNeuronsWithName(m_neuronsClassName);
+
+        // create neurons' properties
+        m_neurons->createNeuronsProps();
+
         return m_neurons;
     }
 
@@ -133,6 +137,11 @@ IAllNeurons* FClassOfCategory::createNeurons(const TiXmlNode* parms)
 IAllNeurons* FClassOfCategory::createNeurons()
 {
     IAllNeurons *neurons = createNeuronsWithName(m_neuronsClassName);
+
+    // create neurons' properties
+    neurons->createNeuronsProps();
+
+    // copy basic parameters
     *neurons = *m_neurons;
 
     return neurons;
@@ -148,6 +157,10 @@ IAllSynapses* FClassOfCategory::createSynapses(const TiXmlNode* parms)
 {
     if (parms->ToElement()->QueryValueAttribute("class", &m_synapsesClassName) == TIXML_SUCCESS) {
         m_synapses = createSynapsesWithName(m_synapsesClassName);
+
+        // create synapses' properties
+        m_synapses->createSynapsesProps();
+
         return m_synapses;
     }
 
@@ -163,6 +176,11 @@ IAllSynapses* FClassOfCategory::createSynapses(const TiXmlNode* parms)
 IAllSynapses* FClassOfCategory::createSynapses()
 {
     IAllSynapses *synapses = createSynapsesWithName(m_synapsesClassName);
+
+    // create synapses' properties
+    synapses->createSynapsesProps();
+
+    // copy basic parameters
     *synapses = *m_synapses;
 
     return synapses;
