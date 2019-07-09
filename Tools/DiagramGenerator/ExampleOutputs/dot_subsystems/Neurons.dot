@@ -8,11 +8,16 @@ digraph{
 		node [shape = record, color = darkturquoise];
 
 		AllIFNeurons[label = AllIFNeurons, style = filled];
+		AllIFNeuronsProps[label = AllIFNeuronsProps, style = filled];
 		AllIZHNeurons[label = AllIZHNeurons, style = filled];
+		AllIZHNeuronsProps[label = AllIZHNeuronsProps, style = filled];
 		AllLIFNeurons[label = AllLIFNeurons, style = filled];
 		AllNeurons[label = AllNeurons, style = filled];
+		AllNeuronsProps[label = AllNeuronsProps, style = filled];
 		AllSpikingNeurons[label = AllSpikingNeurons, style = filled];
+		AllSpikingNeuronsProps[label = AllSpikingNeuronsProps, style = filled];
 		IAllNeurons[label = IAllNeurons, style = filled];
+		IAllNeuronsProps[label = IAllNeuronsProps, style = filled];
 		Neurons[label =< <B> Neurons</B>>, style = bold, fillcolor = white, style = filled];
 
 
@@ -20,8 +25,8 @@ digraph{
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
@@ -29,16 +34,31 @@ digraph{
 
 		AllIFNeurons -> AllSpikingNeurons [arrowhead=empty];
 
+		AllIFNeuronsProps -> AllSpikingNeuronsProps [arrowhead=empty];
+
 		AllIZHNeurons -> AllIFNeurons [arrowhead=empty];
+
+		AllIZHNeuronsProps -> AllIFNeuronsProps [arrowhead=empty];
 
 		AllLIFNeurons -> AllIFNeurons [arrowhead=empty];
 
+		AllNeurons -> AllNeuronsProps [arrowhead=empty];
 		AllNeurons -> IAllNeurons [arrowhead=empty];
 
+		AllNeuronsProps -> IAllNeuronsProps [arrowhead=empty];
+
 		AllSpikingNeurons -> AllNeurons [arrowhead=empty];
+
+		AllSpikingNeuronsProps -> AllNeuronsProps [arrowhead=empty];
 
 
 		//COMPOSITION//
 
+
+		AllIFNeuronsProps -> AllIFNeurons [arrowhead=ediamond];
+
+		AllIZHNeuronsProps -> AllIZHNeurons [arrowhead=ediamond];
+
+		AllSpikingNeuronsProps -> AllSpikingNeurons [arrowhead=ediamond];
 	}//end subgraph Neurons
 }//end digraph

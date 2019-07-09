@@ -8,12 +8,17 @@ digraph{
 		node [shape = record, color = gold];
 
 		AllDSSynapses[label = AllDSSynapses, style = filled];
+		AllDSSynapsesProps[label = AllDSSynapsesProps, style = filled];
 		AllDynamicSTDPSynapses[label = AllDynamicSTDPSynapses, style = filled];
+		AllDynamicSTDPSynapsesProps[label = AllDynamicSTDPSynapsesProps, style = filled];
 		AllSTDPSynapses[label = AllSTDPSynapses, style = filled];
+		AllSTDPSynapsesProps[label = AllSTDPSynapsesProps, style = filled];
 		AllSpikingSynapses[label = AllSpikingSynapses, style = filled];
+		AllSpikingSynapsesProps[label = AllSpikingSynapsesProps, style = filled];
 		AllSynapses[label = AllSynapses, style = filled];
-		AllSynapsesDeviceFuncs[label = AllSynapsesDeviceFuncs, style = filled];
+		AllSynapsesProps[label = AllSynapsesProps, style = filled];
 		IAllSynapses[label = IAllSynapses, style = filled];
+		IAllSynapsesProps[label = IAllSynapsesProps, style = filled];
 		Synapses[label =< <B> Synapses</B>>, style = bold, fillcolor = white, style = filled];
 
 
@@ -21,8 +26,8 @@ digraph{
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
@@ -30,20 +35,35 @@ digraph{
 
 		AllDSSynapses -> AllSpikingSynapses [arrowhead=empty];
 
+		AllDSSynapsesProps -> AllSpikingSynapsesProps [arrowhead=empty];
+
 		AllDynamicSTDPSynapses -> AllSTDPSynapses [arrowhead=empty];
 
+		AllDynamicSTDPSynapsesProps -> AllSTDPSynapsesProps [arrowhead=empty];
+
+		AllSTDPSynapses -> AllSTDPSynapsesProps [arrowhead=empty];
 		AllSTDPSynapses -> AllSpikingSynapses [arrowhead=empty];
 
+		AllSTDPSynapsesProps -> AllSpikingSynapsesProps [arrowhead=empty];
+
+		AllSpikingSynapses -> AllSpikingSynapsesProps [arrowhead=empty];
 		AllSpikingSynapses -> AllSynapses [arrowhead=empty];
 
+		AllSpikingSynapsesProps -> AllSynapsesProps [arrowhead=empty];
+
+		AllSynapses -> AllSynapsesProps [arrowhead=empty];
 		AllSynapses -> IAllSynapses [arrowhead=empty];
+
+		AllSynapsesProps -> IAllSynapsesProps [arrowhead=empty];
 
 
 		//COMPOSITION//
 
 
-		AllDSSynapses -> AllSynapsesDeviceFuncs [arrowhead=ediamond];
-		AllSTDPSynapses -> AllSynapsesDeviceFuncs [arrowhead=ediamond];
-		AllSpikingSynapses -> AllSynapsesDeviceFuncs [arrowhead=ediamond];
+		AllDSSynapsesProps -> AllDSSynapses [arrowhead=ediamond];
+
+		AllDynamicSTDPSynapsesProps -> AllDynamicSTDPSynapses [arrowhead=ediamond];
+
+		IAllSynapsesProps -> IAllSynapses [arrowhead=ediamond];
 	}//end subgraph Synapses
 }//end digraph

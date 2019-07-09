@@ -16,8 +16,8 @@ digraph{
 
 
 		rankdir = BT; // Rank Direction Bottom to Top
-		nodesep = 1.3; // Node Separation
-		ranksep = 1.3; // Rank Separation
+		nodesep = 1.5; // Node Separation
+		ranksep = 1.5; // Rank Separation
 
 
 		//INHERITANCE//
