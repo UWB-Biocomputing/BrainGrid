@@ -42,8 +42,7 @@ ParameterManager::ParameterManager() {
  * Deallocate all heap memory managed by the class
  */
 ParameterManager::~ParameterManager() {
-    delete xmlDoc;
-    delete root;
+    if (xmlDoc != nullptr) delete xmlDoc;
 }
 
 /**
@@ -62,7 +61,7 @@ bool ParameterManager::loadParameterFile(string path) {
              << endl;
         return false;
     }
-    // instantiate the document root object
+    // assign the document root object
     root = xmlDoc->RootElement();
     return true;
 }
@@ -84,15 +83,14 @@ bool ParameterManager::checkDocumentStatus() {
  * Interface method to pull a string object from the xml 
  * schema. The calling object must know the xpath to retrieve 
  * the value.
- *
- * TODO: return what if not found?
+ * 
+ * @param xpath The xpath for the desired string value in the XML file
+ * @param var The variable to store the string result into
+ * @return bool A T/F flag indicating whether the retrieval succeeded
  */
 bool ParameterManager::getStringByXpath(string xpath, string& var) {
     if (!checkDocumentStatus()) return false;
-    // static implementation usage
-    string result;
-    bool succeeded = TinyXPath::o_xpath_string(root, xpath.c_str(), var);
-    if (!succeeded) {
+    if (!TinyXPath::o_xpath_string(root, xpath.c_str(), var)) {
         cerr << "Failed loading simulation parameter for xpath " 
              << xpath << endl;
         // TODO: possibly get better error information?
@@ -106,10 +104,19 @@ bool ParameterManager::getStringByXpath(string xpath, string& var) {
  * schema. The calling object must know the xpath to retrieve 
  * the value.
  *
- * TODO: return what if not found?
+ * @param xpath The xpath for the desired int value in the XML file
+ * @param var The variable to store the int result into
+ * @return bool A T/F flag indicating whether the retrieval succeeded
  */
-int ParameterManager::getIntByXpath(string xpath) {
-    return -1;
+bool ParameterManager::getIntByXpath(string xpath, int& var) {
+    if (!checkDocumentStatus()) return false;
+    if (!TinyXPath::o_xpath_int(root, xpath.c_str(), var)) {
+        cerr << "Failed loading simulation parameter for xpath " 
+             << xpath << endl;
+        // TODO: possibly get better error information?
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -117,19 +124,50 @@ int ParameterManager::getIntByXpath(string xpath) {
  * schema. The calling object must know the xpath to retrieve 
  * the value.
  *
- * TODO: return what if not found?
+ * NOTE: TinyXPath does not support value extraction for 
+ * floating-point numbers. As such, if floats are used, 
+ *
+ * @param xpath The xpath for the desired double value in the XML file
+ * @param var The variable to store the double result into
+ * @return bool A T/F flag indicating whether the retrieval succeeded
  */
-double ParameterManager::getDoubleByXpath(string xpath) {
-    return -1.0;
+bool ParameterManager::getDoubleByXpath(string xpath, double& var) {
+    if (!checkDocumentStatus()) return false;
+    if (!TinyXPath::o_xpath_double(root, xpath.c_str(), var)) {
+        cerr << "Failed loading simulation parameter for xpath " 
+             << xpath << endl;
+        // TODO: possibly get better error information?
+        return false;
+    }
+    return true;
 }
+
 
 /**
  * Interface method to pull a float value from the xml 
  * schema. The calling object must know the xpath to retrieve 
  * the value.
  *
- * TODO: return what if not found?
+ * NOTE: TinyXPath does not natively support value extraction 
+ * for floating-point numbers. As such, if floats are required, 
+ * understand that precision may be lost in raw casts.
+ *
+ * TODO: talk to Dr. Stiber about precision requirements for 
+ * non-integer values.
+ *
+ * @param xpath The xpath for the desired float value in the XML file
+ * @param var The variable to store the float result into
+ * @return bool A T/F flag indicating whether the retrieval succeeded
  */
-float ParameterManager::getFloatByXpath(string xpath) {
-    return -1.0;
+bool ParameterManager::getFloatByXpath(string xpath, float& var) {
+    if (!checkDocumentStatus()) return false;
+    double xmlFileVal;
+    if (!TinyXPath::o_xpath_double(root, xpath.c_str(), xmlFileVal)) {
+        cerr << "Failed loading simulation parameter for xpath " 
+             << xpath << endl;
+        // TODO: possibly get better error information?
+        return false;
+    }
+    var = (float) xmlFileVal;
+    return true;
 }

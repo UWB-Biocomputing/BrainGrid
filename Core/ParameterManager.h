@@ -19,8 +19,6 @@
  */
 
 #include "tinyxml.h"
-// TODO: are these declarations necessary?
-#include <iostream>
 #include <string>
 
 using namespace std;
@@ -36,9 +34,9 @@ class ParameterManager {
         bool loadParameterFile(string path);
         // Interface methods for simulator objects
         bool getStringByXpath(string xpath, string& result);
-        int getIntByXpath(string xpath);
-        double getDoubleByXpath(string xpath);
-        float getFloatByXpath(string xpath);
+        bool getIntByXpath(string xpath, int& var);
+        bool getDoubleByXpath(string xpath, double& var);
+        bool getFloatByXpath(string xpath, float& var);
     private:
         TiXmlDocument* xmlDoc;
         TiXmlElement* root;
