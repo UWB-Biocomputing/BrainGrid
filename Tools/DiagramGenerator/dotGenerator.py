@@ -1003,19 +1003,17 @@ def map_inheritance_and_composition(list_of_include_groups, use_old_discovery_mo
                     classes.append({"name": item})
 
                 # Determine the type of relationship between the parent and this item
-                relationship = (parent_name, item)
-                if is_inheritance(parent_name, item) and not relationship in inheritance:
-                    print(parent_name + " INHERITS from " + item)
-                    inheritance.append(relationship)
-                elif relationship not in includes and not relationship in inheritance:  # Don't include if already in inheritance
-                    print(parent_name + " DEPENDS on " + item)
-                    includes.append(relationship)
-                # otherwise check if it inherits from something that it does not directly include
                 possible_base = inherits_from(parent_name)
                 relationship = (parent_name, possible_base)
                 if type(possible_base) is str and not relationship in inheritance:
                     print(parent_name + " INHERITS from " + possible_base)
                     inheritance.append(relationship)
+                relationship = (parent_name, item)
+                if relationship not in includes and not relationship in inheritance:  # Don't include if already in inheritance
+                    print(parent_name + " DEPENDS on " + item)
+                    includes.append(relationship)
+                # otherwise check if it inherits from something that it does not directly include
+
 
     # At this point, the "classes" list is filled with all the files that this script has examined, and the
     # "inheritance" and "includes" lists are also filled with the correct relationships. Use them to determine
