@@ -197,3 +197,7 @@ make/growth*
 .gitignore
 /Tools/Workbench/target/
 /Tools/Workbench/WorkbenchProject/target/
+/dot_diagrams/
+/dot_subsystems/
+/*.dot
+
