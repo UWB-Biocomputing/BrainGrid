@@ -102,7 +102,6 @@ digraph {
 
 
 		GPUSpikingCluster -> Cluster [style=invis];
-		GPUSpikingCluster -> Model [style=invis];
 
 		Model -> IModel [style=invis];
 
@@ -119,6 +118,8 @@ digraph {
 		InterClustersEventHandler -> EventQueue [style=invis];
 		SimulationInfo -> EventQueue [style=invis];
 		SynapseIndexMap -> EventQueue [style=invis];
+
+		Model -> GPUSpikingCluster [style=invis];
 
 		Cluster -> IModel [style=invis];
 		SimulationInfo -> IModel [style=invis];
@@ -270,7 +271,6 @@ digraph {
 
 		AllLIFNeurons -> AllIFNeurons [style=invis];
 
-		AllNeurons -> AllNeuronsProps [style=invis];
 		AllNeurons -> IAllNeurons [style=invis];
 
 		AllNeuronsProps -> IAllNeuronsProps [style=invis];
@@ -286,6 +286,8 @@ digraph {
 		AllIFNeuronsProps -> AllIFNeurons [style=invis];
 
 		AllIZHNeuronsProps -> AllIZHNeurons [style=invis];
+
+		AllNeuronsProps -> AllNeurons [style=invis];
 
 		AllSpikingNeuronsProps -> AllSpikingNeurons [style=invis];
 	}//end subgraph Neurons
@@ -331,17 +333,14 @@ digraph {
 
 		AllDynamicSTDPSynapsesProps -> AllSTDPSynapsesProps [style=invis];
 
-		AllSTDPSynapses -> AllSTDPSynapsesProps [style=invis];
 		AllSTDPSynapses -> AllSpikingSynapses [style=invis];
 
 		AllSTDPSynapsesProps -> AllSpikingSynapsesProps [style=invis];
 
-		AllSpikingSynapses -> AllSpikingSynapsesProps [style=invis];
 		AllSpikingSynapses -> AllSynapses [style=invis];
 
 		AllSpikingSynapsesProps -> AllSynapsesProps [style=invis];
 
-		AllSynapses -> AllSynapsesProps [style=invis];
 		AllSynapses -> IAllSynapses [style=invis];
 
 		AllSynapsesProps -> IAllSynapsesProps [style=invis];
@@ -353,6 +352,12 @@ digraph {
 		AllDSSynapsesProps -> AllDSSynapses [style=invis];
 
 		AllDynamicSTDPSynapsesProps -> AllDynamicSTDPSynapses [style=invis];
+
+		AllSTDPSynapsesProps -> AllSTDPSynapses [style=invis];
+
+		AllSpikingSynapsesProps -> AllSpikingSynapses [style=invis];
+
+		AllSynapsesProps -> AllSynapses [style=invis];
 
 		IAllSynapsesProps -> IAllSynapses [style=invis];
 	}//end subgraph Synapses
@@ -481,20 +486,22 @@ digraph {
 
 
 		CompleteMatrix -> Matrix [style=invis];
-		CompleteMatrix -> VectorMatrix [style=invis];
 
-		VectorMatrix -> CompleteMatrix [style=invis];
 		VectorMatrix -> Matrix [style=invis];
-		VectorMatrix -> SparseMatrix [style=invis];
 
 
 		//COMPOSITION//
 
 
+		VectorMatrix -> CompleteMatrix [style=invis];
+
 		MatrixExceptions -> Matrix [style=invis];
 
 		Matrix -> SparseMatrix [style=invis];
 		VectorMatrix -> SparseMatrix [style=invis];
+
+		CompleteMatrix -> VectorMatrix [style=invis];
+		SparseMatrix -> VectorMatrix [style=invis];
 	}//end subgraph Matrix
 
 
@@ -533,7 +540,36 @@ ranksep = 0.375; // Rank Separation
 
 
 edge [color=hotpink];
+Core -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterCore];
 Recorders -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterRecorders];
+
+edge [color=darkorange];
+Utils -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterUtils];
+
+edge [color=mediumturquoise];
+Utils -> tinyxml [arrowhead=ediamond, ltail = clustertinyxml,lhead = clusterUtils];
+
+edge [color=darkturquoise];
+Core -> Neurons [arrowhead=ediamond, ltail = clusterNeurons,lhead = clusterCore];
+
+edge [color=darkgoldenrod];
+RNG -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterRNG];
+Connections -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterConnections];
+
+edge [color=coral];
+bgtypes -> Utils [arrowhead=ediamond, lhead = clusterbgtypes];
+
+edge [color=indianred];
+Core -> Layouts [arrowhead=ediamond, ltail = clusterLayouts,lhead = clusterCore];
+
+edge [color=darkgoldenrod];
+Synapses -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterSynapses];
+
+edge [color=gold];
+Core -> Synapses [arrowhead=ediamond, ltail = clusterSynapses,lhead = clusterCore];
+
+edge [color=darksalmon];
+Core -> Inputs [arrowhead=ediamond, ltail = clusterInputs,lhead = clusterCore];
 
 edge [color=gold];
 Neurons -> Synapses [arrowhead=ediamond, ltail = clusterSynapses,lhead = clusterNeurons];
@@ -541,102 +577,75 @@ Neurons -> Synapses [arrowhead=ediamond, ltail = clusterSynapses,lhead = cluster
 edge [color=hotpink];
 Synapses -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterSynapses];
 
-edge [color=gold];
-Core -> Synapses [arrowhead=ediamond, ltail = clusterSynapses,lhead = clusterCore];
+edge [color=coral];
+Matrix -> Utils [arrowhead=ediamond, ltail = clusterUtils,lhead = clusterMatrix];
 
-edge [color=darkturquoise];
-Core -> Neurons [arrowhead=ediamond, ltail = clusterNeurons,lhead = clusterCore];
+edge [color=darkorange];
+Connections -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterConnections];
 
-edge [color=mediumseagreen];
-Utils -> Matrix [arrowhead=ediamond, ltail = clusterMatrix,lhead = clusterUtils];
+edge [color=black];
+Core -> BGDriver [arrowhead=ediamond, ltail = clusterBGDriver,];
+
+edge [color=darkgoldenrod];
+Inputs -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterInputs];
+
+edge [color=darkorange];
+Core -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterCore];
+Neurons -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterNeurons];
+
+edge [color=darkgoldenrod];
+curand_kernel -> Core [arrowhead=ediamond, lhead = clustercurand_kernel];
+tinyxml -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clustertinyxml];
 
 edge [color=darksalmon];
 tinyxml -> Inputs [arrowhead=ediamond, ltail = clusterInputs,lhead = clustertinyxml];
 
+edge [color=mediumseagreen];
+RNG -> Matrix [arrowhead=ediamond, ltail = clusterMatrix,lhead = clusterRNG];
+
 edge [color=darkgoldenrod];
-Layouts -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterLayouts];
+Neurons -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterNeurons];
+
+edge [color=black];
+Inputs -> BGDriver [arrowhead=ediamond, ltail = clusterBGDriver,];
+
+edge [color=darkturquoise];
+Layouts -> Neurons [arrowhead=ediamond, ltail = clusterNeurons,lhead = clusterLayouts];
 
 edge [color=hotpink];
 Utils -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterUtils];
 
-edge [color=darkgoldenrod];
-Utils -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterUtils];
-Neurons -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterNeurons];
+edge [color=darkturquoise];
+Utils -> Neurons [arrowhead=ediamond, ltail = clusterNeurons,lhead = clusterUtils];
 
 edge [color=darkorange];
 H5Cpp -> Recorders [arrowhead=ediamond, lhead = clusterH5Cpp];
 
 edge [color=darkgoldenrod];
-Recorders -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterRecorders];
-Connections -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterConnections];
-
-edge [color=black];
-Inputs -> BGDriver [arrowhead=ediamond, ltail = clusterBGDriver,];
-
-edge [color=indianred];
-Utils -> Layouts [arrowhead=ediamond, ltail = clusterLayouts,lhead = clusterUtils];
-
-edge [color=mediumturquoise];
-Utils -> tinyxml [arrowhead=ediamond, ltail = clustertinyxml,lhead = clusterUtils];
-
-edge [color=hotpink];
-Core -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterCore];
-
-edge [color=darkgoldenrod];
-tinyxml -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clustertinyxml];
-
-edge [color=darkorange];
-Core -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterCore];
+Layouts -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterLayouts];
+TiXmlVisitor -> Core [arrowhead=ediamond, lhead = clusterTiXmlVisitor];
 
 edge [color=hotpink];
 Neurons -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterNeurons];
 
-edge [color=darksalmon];
-Core -> Inputs [arrowhead=ediamond, ltail = clusterInputs,lhead = clusterCore];
-
-edge [color=coral];
-RNG -> Utils [arrowhead=ediamond, ltail = clusterUtils,lhead = clusterRNG];
-
-edge [color=darkorange];
-Utils -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterUtils];
-
 edge [color=darkgoldenrod];
-TiXmlVisitor -> Core [arrowhead=ediamond, lhead = clusterTiXmlVisitor];
-Synapses -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterSynapses];
-
-edge [color=hotpink];
-Layouts -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterLayouts];
-
-edge [color=darkorange];
-Connections -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterConnections];
-
-edge [color=darkturquoise];
-Utils -> Neurons [arrowhead=ediamond, ltail = clusterNeurons,lhead = clusterUtils];
-
-edge [color=darkgoldenrod];
-Inputs -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterInputs];
-
-edge [color=darkturquoise];
-Layouts -> Neurons [arrowhead=ediamond, ltail = clusterNeurons,lhead = clusterLayouts];
-
-edge [color=indianred];
-Core -> Layouts [arrowhead=ediamond, ltail = clusterLayouts,lhead = clusterCore];
-
-edge [color=darkturquoise];
-Synapses -> Neurons [arrowhead=ediamond, ltail = clusterNeurons,lhead = clusterSynapses];
-
-edge [color=gold];
-Utils -> Synapses [arrowhead=ediamond, ltail = clusterSynapses,lhead = clusterUtils];
-
-edge [color=black];
-Core -> BGDriver [arrowhead=ediamond, ltail = clusterBGDriver,];
-
-edge [color=mediumseagreen];
-RNG -> Matrix [arrowhead=ediamond, ltail = clusterMatrix,lhead = clusterRNG];
+Utils -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterUtils];
 
 edge [color=black];
 paramcontainer -> BGDriver [arrowhead=ediamond, ltail = clusterBGDriver,];
 
-edge [color=darkorange];
-Neurons -> Recorders [arrowhead=ediamond, ltail = clusterRecorders,lhead = clusterNeurons];
+edge [color=hotpink];
+Layouts -> Connections [arrowhead=ediamond, ltail = clusterConnections,lhead = clusterLayouts];
+
+edge [color=mediumseagreen];
+Utils -> Matrix [arrowhead=ediamond, ltail = clusterMatrix,lhead = clusterUtils];
+
+edge [color=gold];
+Utils -> Synapses [arrowhead=ediamond, ltail = clusterSynapses,lhead = clusterUtils];
+
+edge [color=darkgoldenrod];
+Recorders -> Core [arrowhead=ediamond, ltail = clusterCore,lhead = clusterRecorders];
+
+edge [color=indianred];
+Utils -> Layouts [arrowhead=ediamond, ltail = clusterLayouts,lhead = clusterUtils];
 }//End digraph declaration

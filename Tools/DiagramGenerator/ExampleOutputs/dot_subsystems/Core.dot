@@ -34,7 +34,6 @@ digraph{
 
 
 		GPUSpikingCluster -> Cluster [arrowhead=empty];
-		GPUSpikingCluster -> Model [arrowhead=empty];
 
 		Model -> IModel [arrowhead=empty];
 
@@ -51,6 +50,8 @@ digraph{
 		InterClustersEventHandler -> EventQueue [arrowhead=ediamond];
 		SimulationInfo -> EventQueue [arrowhead=ediamond];
 		SynapseIndexMap -> EventQueue [arrowhead=ediamond];
+
+		Model -> GPUSpikingCluster [arrowhead=ediamond];
 
 		Cluster -> IModel [arrowhead=ediamond];
 		SimulationInfo -> IModel [arrowhead=ediamond];

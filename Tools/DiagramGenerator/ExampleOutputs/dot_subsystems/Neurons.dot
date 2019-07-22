@@ -42,7 +42,6 @@ digraph{
 
 		AllLIFNeurons -> AllIFNeurons [arrowhead=empty];
 
-		AllNeurons -> AllNeuronsProps [arrowhead=empty];
 		AllNeurons -> IAllNeurons [arrowhead=empty];
 
 		AllNeuronsProps -> IAllNeuronsProps [arrowhead=empty];
@@ -58,6 +57,8 @@ digraph{
 		AllIFNeuronsProps -> AllIFNeurons [arrowhead=ediamond];
 
 		AllIZHNeuronsProps -> AllIZHNeurons [arrowhead=ediamond];
+
+		AllNeuronsProps -> AllNeurons [arrowhead=ediamond];
 
 		AllSpikingNeuronsProps -> AllSpikingNeurons [arrowhead=ediamond];
 	}//end subgraph Neurons

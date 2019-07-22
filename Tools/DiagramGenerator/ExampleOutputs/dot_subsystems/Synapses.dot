@@ -41,17 +41,14 @@ digraph{
 
 		AllDynamicSTDPSynapsesProps -> AllSTDPSynapsesProps [arrowhead=empty];
 
-		AllSTDPSynapses -> AllSTDPSynapsesProps [arrowhead=empty];
 		AllSTDPSynapses -> AllSpikingSynapses [arrowhead=empty];
 
 		AllSTDPSynapsesProps -> AllSpikingSynapsesProps [arrowhead=empty];
 
-		AllSpikingSynapses -> AllSpikingSynapsesProps [arrowhead=empty];
 		AllSpikingSynapses -> AllSynapses [arrowhead=empty];
 
 		AllSpikingSynapsesProps -> AllSynapsesProps [arrowhead=empty];
 
-		AllSynapses -> AllSynapsesProps [arrowhead=empty];
 		AllSynapses -> IAllSynapses [arrowhead=empty];
 
 		AllSynapsesProps -> IAllSynapsesProps [arrowhead=empty];
@@ -63,6 +60,12 @@ digraph{
 		AllDSSynapsesProps -> AllDSSynapses [arrowhead=ediamond];
 
 		AllDynamicSTDPSynapsesProps -> AllDynamicSTDPSynapses [arrowhead=ediamond];
+
+		AllSTDPSynapsesProps -> AllSTDPSynapses [arrowhead=ediamond];
+
+		AllSpikingSynapsesProps -> AllSpikingSynapses [arrowhead=ediamond];
+
+		AllSynapsesProps -> AllSynapses [arrowhead=ediamond];
 
 		IAllSynapsesProps -> IAllSynapses [arrowhead=ediamond];
 	}//end subgraph Synapses
