@@ -315,7 +315,7 @@ CUDA_CALLABLE synapseType AllSynapses::synType(neuronType* neuron_type_map, cons
  */
 CUDA_CALLABLE void AllSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
 {
-    dynamic_cast<AllSynapsesProps*>(m_pSynapsesProps)->psr[iSyn] = 0.0;
+    reinterpret_cast<AllSynapsesProps*>(m_pSynapsesProps)->psr[iSyn] = 0.0;
 }
 
 #if defined(USE_GPU)
