@@ -27,19 +27,21 @@ digraph{
 
 
 		CompleteMatrix -> Matrix [arrowhead=empty];
-		CompleteMatrix -> VectorMatrix [arrowhead=empty];
 
-		VectorMatrix -> CompleteMatrix [arrowhead=empty];
 		VectorMatrix -> Matrix [arrowhead=empty];
-		VectorMatrix -> SparseMatrix [arrowhead=empty];
 
 
 		//COMPOSITION//
 
 
+		VectorMatrix -> CompleteMatrix [arrowhead=ediamond];
+
 		MatrixExceptions -> Matrix [arrowhead=ediamond];
 
 		Matrix -> SparseMatrix [arrowhead=ediamond];
 		VectorMatrix -> SparseMatrix [arrowhead=ediamond];
+
+		CompleteMatrix -> VectorMatrix [arrowhead=ediamond];
+		SparseMatrix -> VectorMatrix [arrowhead=ediamond];
 	}//end subgraph Matrix
 }//end digraph
