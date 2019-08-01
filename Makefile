@@ -42,8 +42,8 @@ CUDALIBDIR = /usr/local/cuda/lib64
 
 # hdf5
 ifeq ($(CUSEHDF5), yes)
-	H5INCDIR = /usr/include/hdf5/serial		   # include dir
-	H5LIBDIR = /usr/lib/x86_64-linux-gnu/hdf5/serial/  # library dir
+	H5INCDIR = /opt/hdf5/latest/include/               # include dir
+	H5LIBDIR = /opt/hdf5/latest/lib/                   # library dir
 	#H5LIBDIR = /usr/lib/x86_64-linux-gnu/	 	   # another library dir
 else
 	H5INCDIR = .
