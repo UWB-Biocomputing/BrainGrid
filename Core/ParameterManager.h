@@ -20,6 +20,7 @@
 
 #include "tinyxml.h"
 #include <string>
+#include "BGTypes.h"
 
 using namespace std;
 
@@ -37,6 +38,7 @@ class ParameterManager {
         bool getIntByXpath(string xpath, int& var);
         bool getDoubleByXpath(string xpath, double& var);
         bool getFloatByXpath(string xpath, float& var);
+        bool getBGFloatByXpath(string xpath, BGFLOAT& var);
     private:
         TiXmlDocument* xmlDoc;
         TiXmlElement* root;

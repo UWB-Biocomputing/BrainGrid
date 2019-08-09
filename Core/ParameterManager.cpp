@@ -24,6 +24,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include "BGTypes.h"
 
 // ----------------------------------------------------
 // ----------------- UTILITY METHODS ------------------
@@ -127,7 +128,6 @@ bool ParameterManager::getIntByXpath(string xpath, int& var) {
     }
     try {
         var = stoi(tmp);
-        cout << "Retrieved param: " << tmp << "\nConverted to: " << var;
     } catch (invalid_argument arg_exception) {
         cerr << "Parsed parameter could not be parsed as an integer. Value: "
              << tmp << endl;
@@ -151,10 +151,21 @@ bool ParameterManager::getIntByXpath(string xpath, int& var) {
  */
 bool ParameterManager::getDoubleByXpath(string xpath, double& var) {
     if (!checkDocumentStatus()) return false;
-    if (!TinyXPath::o_xpath_double(root, xpath.c_str(), var)) {
+    string tmp;
+    if (!getStringByXpath(xpath, tmp)) {
         cerr << "Failed loading simulation parameter for xpath " 
              << xpath << endl;
-        // TODO: possibly get better error information?
+        return false;
+    }
+    try {
+        var = stod(tmp);
+    } catch (invalid_argument arg_exception) {
+        cerr << "Parsed parameter could not be parsed as a double. Value: "
+             << tmp << endl;
+        return false;
+    } catch (out_of_range range_exception) {
+        cerr << "Parsed string parameter could not be converted to a double. Value: "
+             << tmp << endl;
         return false;
     }
     return true;
@@ -166,23 +177,54 @@ bool ParameterManager::getDoubleByXpath(string xpath, double& var) {
  * schema. The calling object must know the xpath to retrieve 
  * the value.
  *
- * NOTE: TinyXPath does not natively support value extraction 
- * for floating-point numbers. As such, if floats are required, 
- * understand that precision may be lost in raw casts.
- *
  * @param xpath The xpath for the desired float value in the XML file
  * @param var The variable to store the float result into
  * @return bool A T/F flag indicating whether the retrieval succeeded
  */
 bool ParameterManager::getFloatByXpath(string xpath, float& var) {
     if (!checkDocumentStatus()) return false;
-    double xmlFileVal;
-    if (!TinyXPath::o_xpath_double(root, xpath.c_str(), xmlFileVal)) {
+    string tmp;
+    if (!getStringByXpath(xpath, tmp)) {
         cerr << "Failed loading simulation parameter for xpath " 
              << xpath << endl;
-        // TODO: possibly get better error information?
         return false;
     }
-    var = (float) xmlFileVal;
+    try {
+        var = stof(tmp);
+    } catch (invalid_argument arg_exception) {
+        cerr << "Parsed parameter could not be parsed as a float. Value: "
+             << tmp << endl;
+        return false;
+    } catch (out_of_range range_exception) {
+        cerr << "Parsed string parameter could not be converted to a float. Value: "
+             << tmp << endl;
+        return false;
+    }
     return true;
+}
+
+/**
+ * Interface method to pull a BGFLOAT value from the xml 
+ * schema. The calling object must know the xpath to retrieve 
+ * the value.
+ *
+ * This method is a wrapper to run the correct calls based on 
+ * how BGFLOAT is defined for the simulator. (For multi-threaded
+ * usage, floats are used due to register size on GPUs, and 
+ * double usage is available for single-threaded CPU instances.)
+ *
+ * @param xpath The xpath for the desired float value in the XML file
+ * @param var The variable to store the float result into
+ * @return bool A T/F flag indicating whether the retrieval succeeded
+ */
+bool ParameterManager::getBGFloatByXpath(string xpath, BGFLOAT& var) {
+    #ifdef SINGLEPRECISION
+        return getFloatByXpath(xpath, var);
+    #endif
+    #ifdef DOUBLEPRECISION
+        return getDoubleByXpath(xpath, var);
+    #endif
+    cerr << "Could not infer primitive type for BGFLOAT variable."
+         << endl;
+    return false;
 }
