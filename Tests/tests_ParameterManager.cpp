@@ -60,24 +60,41 @@ bool testValidStringTargeting() {
 }
 
 bool testValidIntTargeting() {
-    cout << "\nEntered test method for targeting integers in XML file" << endl;
+    cout << "\nEntered test method for targeting valid integers in XML file" << endl;
     ParameterManager* pm = new ParameterManager();
-    cout << "Testing valid integers..." << endl;
     if (pm->loadParameterFile("../configfiles/test-medium-500.xml")) {
+        cout << "Testing valid integers..." << endl;
         string valid_xpath[] = {"//maxFiringRate/text()", "//PoolSize/x/text()", "//PoolSize/y/text()", "//PoolSize/z/text()", "//Seed/value/text()", "//numSims/text()"};
         int result[] = {200, 30, 30, 1, 1, 500};
         int val;
         for (int i = 0; i < 6; i++) {
-            cout << "Testing xpath: " << valid_xpath[i] << endl;
+            cout << "\tTesting xpath: " << valid_xpath[i] << endl;
             assert(pm->getIntByXpath(valid_xpath[i], val));
-            cout << "\tretrieved: " << val << endl;
             assert(val == result[i]);
-            cout << "\tsucceeded" << endl;
+        }
+        /*
+         * Test the following invalid paths:
+         * string result from XMLNode
+         * string result from string text() value
+         * float/double result
+         * float/double result with scientific notation
+         * @name value that is a string
+         * invalid xpath (node doesn't exist)
+         */
+        cout << "Testing NON-valid integers..." << endl;
+        string invalid_xpath[] = {"//Iinject", "//activeNListFileName/text()", 
+                                  "//beta/text()", "//Iinject/min/text()", 
+                                  "//LayoutFiles/@name", "//NoSuchPath", ""};
+        for (int i = 0; i < 7; i++) {
+            cout << "\tTesting xpath: '" << invalid_xpath[i] << "'" << endl;
+            assert(!(pm->getIntByXpath(invalid_xpath[i], val)));
         }
     }
     delete pm;
     return true;
 }
+
+
 
 bool testValidFloatTargeting() {
     return true;
@@ -95,7 +112,6 @@ int main() {
     if (!success) return 1;
     success = testValidStringTargeting();
     if (!success) return 1;
-    cout << "About to run testValidIntTargeting()..." << endl;
     success = testValidIntTargeting();
     if (!success) return 1;
     success = testValidFloatTargeting();

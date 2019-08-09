@@ -4,10 +4,10 @@
  *
  * The class provides a simple interface to access 
  * parameters with the following assumptions:
- *   - The class' TODO is correct?: ::PopulateParameters() 
+ *   - The client's TODO is correct?: ::PopulateParameters() 
  *     method knows the XML layout of the parameter file.
- *   - The class makes all its own schema calls as needed.
- *   - The class will validate its own parameters unless 
+ *   - The client makes all its own schema calls as needed.
+ *   - The client will validate its own parameters unless 
  *     otherwise defined here.
  *
  * This class makes use of TinyXPath, an open-source utility 
@@ -23,6 +23,7 @@
 #include "xpath_static.h"
 #include <iostream>
 #include <string>
+#include <stdexcept>
 
 // ----------------------------------------------------
 // ----------------- UTILITY METHODS ------------------
@@ -110,10 +111,30 @@ bool ParameterManager::getStringByXpath(string xpath, string& var) {
  */
 bool ParameterManager::getIntByXpath(string xpath, int& var) {
     if (!checkDocumentStatus()) return false;
-    if (!TinyXPath::o_xpath_int(root, xpath.c_str(), var)) {
+    string tmp;
+    if (!getStringByXpath(xpath, tmp)) {
         cerr << "Failed loading simulation parameter for xpath " 
              << xpath << endl;
-        // TODO: possibly get better error information?
+        return false;
+    }
+    // TODO: optimize this. could use <regex>, isdigit(), or others.
+    // Workaround for standard value conversion functions.
+    // stoi() will cast floats to ints.
+    if (tmp.find('e') != string::npos || tmp.find('.') != string::npos) {
+        cerr << "Parsed parameter is likely a float/double value. "
+             << "Terminating integer cast. Value: " << tmp << endl;
+        return false;
+    }
+    try {
+        var = stoi(tmp);
+        cout << "Retrieved param: " << tmp << "\nConverted to: " << var;
+    } catch (invalid_argument arg_exception) {
+        cerr << "Parsed parameter could not be parsed as an integer. Value: "
+             << tmp << endl;
+        return false;
+    } catch (out_of_range range_exception) {
+        cerr << "Parsed string parameter could not be converted to an integer. Value: "
+             << tmp << endl;
         return false;
     }
     return true;
@@ -123,9 +144,6 @@ bool ParameterManager::getIntByXpath(string xpath, int& var) {
  * Interface method to pull a double value from the xml 
  * schema. The calling object must know the xpath to retrieve 
  * the value.
- *
- * NOTE: TinyXPath does not support value extraction for 
- * floating-point numbers. As such, if floats are used, 
  *
  * @param xpath The xpath for the desired double value in the XML file
  * @param var The variable to store the double result into
@@ -151,9 +169,6 @@ bool ParameterManager::getDoubleByXpath(string xpath, double& var) {
  * NOTE: TinyXPath does not natively support value extraction 
  * for floating-point numbers. As such, if floats are required, 
  * understand that precision may be lost in raw casts.
- *
- * TODO: talk to Dr. Stiber about precision requirements for 
- * non-integer values.
  *
  * @param xpath The xpath for the desired float value in the XML file
  * @param var The variable to store the float result into

@@ -3,15 +3,25 @@
 echo "TESTING COMPILATION......"
 
 # g++ -o test ../TinyXPath/*.cpp ../Core/ParameterManager.cpp tests_ParameterManager.cpp -g
-g++ -o test ../TinyXPath/*.cpp ../Core/ParameterManager.cpp tests_ParameterManager.cpp -g -DTIXML_USE_STL -I../Utils -I../RNG -I../Matrix -I../TinyXPath
+g++ -o test ../TinyXPath/*.cpp ../Core/ParameterManager.cpp tests_ParameterManager.cpp -g -DTIXML_USE_STL -I../Utils -I../RNG -I../Matrix -I../TinyXPath -g
 
 if [[ $? != 0 ]]; then
     echo -e "\nCompilation unsuccessful; exiting."
     exit 0
 fi
 
+echo -e "\nWould you like to run gdb? (y/n)"
+read gdb
+
 echo -e "\nTESTING EXECUTION......"
-./test
+if [[ $gdb == "y" ]]; then
+    gdb ./test
+elif [[ $gdb == "n" ]]; then
+    ./test
+else
+    echo "Unknown option; exiting."
+    exit 1
+fi
 
 echo -e "\nTESTING WITH VALGRIND......"
 valgrind ./test &> valgrind_out.txt
