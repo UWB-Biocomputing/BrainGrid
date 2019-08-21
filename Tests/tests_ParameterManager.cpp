@@ -7,10 +7,10 @@
 #include <cassert>
 #include <iostream>
 #include <string>
-#include "../Core/ParameterManager.h"
 #include <limits>
 #include <algorithm>
 #include <cmath>
+#include "ParameterManager.h"
 #include "BGTypes.h"
 
 using namespace std;
@@ -20,10 +20,8 @@ static bool AreEqual(T f1, T f2) {
   return (fabs(f1 - f2) <= numeric_limits<T>::epsilon() * fmax(fabs(f1), fabs(f2)));
 }
 
-bool testConstructor() {
-    // does the object get created?
+bool testConstructorAndDestructor() {
     ParameterManager* pm = new ParameterManager();
-    // does the object get destroyed?
     delete pm;
     return true;
 }
@@ -133,8 +131,8 @@ bool testValidDoubleTargeting() {
             assert(pm->getDoubleByXpath(valid_xpaths[i], var));
             assert(AreEqual(var, vals[i]));
         }
-        string invalid_xpaths[] = { "//starter_vthresh", "//nonexistent", "" };
-        for (int i = 0; i < 3; i++) {
+        string invalid_xpaths[] = { "//stateOutputFileName/text()", "//starter_vthresh", "//nonexistent", "" };
+        for (int i = 0; i < 4; i++) {
             assert(!pm->getDoubleByXpath(invalid_xpaths[i], var));
         }
     }
@@ -152,8 +150,8 @@ bool testValidBGFloatTargeting() {
             assert(pm->getBGFloatByXpath(valid_xpaths[i], var));
             assert(AreEqual(var, vals[i]));
         }
-        string invalid_xpaths[] = { "//starter_vthresh", "//nonexistent", "" };
-        for (int i = 0; i < 3; i++) {
+        string invalid_xpaths[] = { "//stateOutputFileName/text()", "//starter_vthresh", "//nonexistent", "" };
+        for (int i = 0; i < 4; i++) {
             assert(!pm->getBGFloatByXpath(invalid_xpaths[i], var));
         }
     }
@@ -162,7 +160,7 @@ bool testValidBGFloatTargeting() {
 
 int main() {
     cout << "\nRunning tests for ParameterManager.cpp functionality..." << endl;
-    bool success = testConstructor();
+    bool success = testConstructorAndDestructor();
     if (!success) return 1;
     success = testValidXmlFileReading();
     if (!success) return 1;
