@@ -18,12 +18,13 @@
  * Supervised by Dr. Michael Stiber, UW Bothell CSSE Division
  */
 
-#include "ParameterManager.h"
-#include "tinyxml.h"
-#include "xpath_static.h"
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <regex>
+#include "ParameterManager.h"
+#include "tinyxml.h"
+#include "xpath_static.h"
 #include "BGTypes.h"
 
 // ----------------------------------------------------
@@ -118,12 +119,17 @@ bool ParameterManager::getIntByXpath(string xpath, int& var) {
              << xpath << endl;
         return false;
     }
-    // TODO: optimize this. could use <regex>, isdigit(), or others.
     // Workaround for standard value conversion functions.
     // stoi() will cast floats to ints.
-    if (tmp.find('e') != string::npos || tmp.find('.') != string::npos) {
+    if (regex_match(tmp, regex("\\d+[.]\\d+(e[+-]?\\d+)?f?|\\d+[.]?\\d+(e[+-]?\\d+)?f"))) {
         cerr << "Parsed parameter is likely a float/double value. "
-             << "Terminating integer cast. Value: " << tmp << endl;
+             << "Terminating integer cast. Value: " 
+             << tmp << endl;
+        return false;
+    } else if (regex_match(tmp, regex(".*[^[:d:]ef.]+.*"))) {
+        cerr << "Parsed parameter is likely a string. "
+             << "Terminating integer cast. Value: " 
+             << tmp << endl;
         return false;
     }
     try {
@@ -157,6 +163,12 @@ bool ParameterManager::getDoubleByXpath(string xpath, double& var) {
              << xpath << endl;
         return false;
     }
+    if (regex_match(tmp, regex(".*[^[:d:]ef.+-]+.*"))) {
+        cerr << "Parsed parameter is likely a string. "
+             << "Terminating double conversion. Value: " 
+             << tmp << endl;
+        return false;
+    }
     try {
         var = stod(tmp);
     } catch (invalid_argument arg_exception) {
@@ -187,6 +199,12 @@ bool ParameterManager::getFloatByXpath(string xpath, float& var) {
     if (!getStringByXpath(xpath, tmp)) {
         cerr << "Failed loading simulation parameter for xpath " 
              << xpath << endl;
+        return false;
+    }
+    if (regex_match(tmp, regex(".*[^[:d:]ef.+-]+.*"))) {
+        cerr << "Parsed parameter is likely a string. "
+             << "Terminating double conversion. Value: " 
+             << tmp << endl;
         return false;
     }
     try {
