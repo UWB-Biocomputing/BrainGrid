@@ -29,6 +29,7 @@
 #define _SIMULATIONINFO_H_
 
 #include "Global.h"
+#include "ParameterManager.h"
 
 class IModel;
 class IRecorder;
@@ -39,7 +40,7 @@ class ISInput;
 #endif
 
 //! Class design to hold all of the parameters of the simulation.
-class SimulationInfo : public TiXmlVisitor
+class SimulationInfo 
 {
 public:
         SimulationInfo() :
@@ -54,7 +55,7 @@ public:
             minSynapticTransDelay(MIN_SYNAPTIC_TRANS_DELAY), 
             deltaT(DEFAULT_dt),
             maxRate(0),
-	    seed(0),
+            seed(0),
             numClusters(0),
             model(NULL),
             simRecorder(NULL),
@@ -65,12 +66,13 @@ public:
         virtual ~SimulationInfo() {}
 
         /**
-         *  Attempts to read parameters from a XML file.
+         *  Attempts to parse parameters from a XML file
+         *  using provided ParameterManager functionality.
          *
-         *  @param  simDoc  the TiXmlDocument to read from.
+         *  @param  paramMgr    The instance of ParameterManager.
          *  @return true if successful, false otherwise.
          */
-        bool readParameters(TiXmlDocument* simDoc);
+        bool readParameters(ParameterManager* paramMgr);
 
         /**
          *  Prints out loaded parameters to ostream.
@@ -78,18 +80,6 @@ public:
          *  @param  output  ostream to send output to.
          */
         void printParameters(ostream &output) const;
-
-    protected:
-        using TiXmlVisitor::VisitEnter;
-
-        /*
-         *  Handles loading of parameters using tinyxml from the parameter file.
-         *
-         *  @param  element TiXmlElement to examine.
-         *  @param  firstAttribute  ***NOT USED***.
-         *  @return true if method finishes without errors.
-         */
-        virtual bool VisitEnter(const TiXmlElement& element, const TiXmlAttribute* firstAttribute);
 
     public:
 
@@ -167,16 +157,6 @@ public:
         Timer short_timer;
 #endif
 
-    private:
-        /**
-         *  Checks the number of required parameters to read.
-         *
-         *  @return true if all required parameters were successfully read, false otherwise.
-         */
-        virtual bool checkNumParameters();
-
-        //! Number of parameters read.
-        int nParams;
 };
 
 #endif // _SIMULATIONINFO_H_

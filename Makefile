@@ -34,7 +34,7 @@ PARAMDIR = $(MAIN)/paramcontainer
 RECORDERDIR = $(MAIN)/Recorders
 RNGDIR = $(MAIN)/RNG
 SYNAPSEDIR = $(MAIN)/Synapses
-XMLDIR = $(MAIN)/tinyxml
+XMLDIR = $(MAIN)/TinyXPath
 UTILDIR = $(MAIN)/Utils
 
 # cuda

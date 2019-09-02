@@ -11,7 +11,7 @@
 #include <fstream>
 #include "Global.h"
 #include "ParamContainer.h"
-
+#include "ParameterManager.h"
 #include "Model.h"
 #include "FClassOfCategory.h"
 #include "IRecorder.h"
@@ -36,7 +36,6 @@
 using namespace std;
 
 // functions
-bool LoadAllParameters(SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 void printParams(SimulationInfo *simInfo);
 bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo);
 bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
@@ -59,6 +58,7 @@ int main(int argc, char* argv[]) {
 
     vector<ClusterInfo *> vtClrInfo;   // Vector of Cluster information
     vector<Cluster *> vtClr;           // Vector of Cluster object
+    ParameterManager* parameterManager = NULL;  // XML param reader
 
     // create simulation info object
     simInfo = new SimulationInfo();
@@ -69,9 +69,29 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    // Create all model instances and load parameters from a file.
-    if (!LoadAllParameters(simInfo, vtClr, vtClrInfo)) {
-        cerr << "! ERROR: failed while parsing simulation parameters." << endl;
+    // create XML parameter reader
+    parameterManager = new ParameterManager();
+    // load XML parameter file into parameter reader
+    parameterManager->loadParameterFile(simInfo->stateInputFileName);
+
+    // initialize global simulation parameters
+    if (!simInfo->readParameters(parameterManager)) {
+        cerr << "! ERROR: failed loading global simulation parameters" << endl;
+        return -1;
+    } else {
+        cout << "Printing global simulation parameters..." << endl;
+        simInfo->printParameters(cout);
+    }
+    
+    /*
+    // create instances of all model classes & load parameters
+    DEBUG(cerr << "creating instances of all classes" << endl;)
+    if (createAllModelClassInstances(&simDoc, simInfo, vtClr, vtClrInfo) != true) {
+        return -1;
+    }
+
+    if (simInfo->stateOutputFileName.empty()) {
+        cerr << "! ERROR: no stateOutputFileName is specified." << endl;
         return -1;
     }
 
@@ -170,7 +190,7 @@ int main(int argc, char* argv[]) {
     for (vector<ClusterInfo *>::iterator clrInfo = vtClrInfo.begin(); clrInfo !=vtClrInfo.end(); clrInfo++) {
         delete *clrInfo;
     }
-
+    */
     delete simInfo->model;
     simInfo->model = NULL;
     
@@ -292,49 +312,6 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
 
     // create the model
     simInfo->model = new Model(conns, layout, vtClr, vtClrInfo);
-
-    return true;
-}
-
-/*
- *  Load parameters from a file.
- *
- *  @param  simInfo       SimulationInfo class to read information from.
- *  @param  cluster       Cluster class object to be created.
- *  @param  clusterInfo   ClusterInfo class to be ceated.
- *  @return true if successful, false if not
- */
-bool LoadAllParameters(SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
-{
-    DEBUG(cerr << "reading parameters from xml file" << endl;)
-
-    TiXmlDocument simDoc(simInfo->stateInputFileName.c_str());
-    if (!simDoc.LoadFile()) {
-        cerr << "Failed loading simulation parameter file "
-             << simInfo->stateInputFileName << ":" << "\n\t" << simDoc.ErrorDesc()
-             << endl;
-        cerr << " error: " << simDoc.ErrorRow() << ", " << simDoc.ErrorCol()
-             << endl;
-        return false;
-    }
-
-    // load simulation parameters
-    if (simInfo->readParameters(&simDoc) != true) {
-        return false; }
-
-    // create instances of all model classes & load parameters
-    DEBUG(cerr << "creating instances of all classes" << endl;)
-    if (createAllModelClassInstances(&simDoc, simInfo, vtClr, vtClrInfo) != true) {
-        return false;
-    }
-
-    if (simInfo->stateOutputFileName.empty()) {
-        cerr << "! ERROR: no stateOutputFileName is specified." << endl;
-        return -1;
-    }
-
-    /*    verify that params were read correctly */
-    DEBUG(printParams(simInfo);)
 
     return true;
 }
