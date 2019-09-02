@@ -158,6 +158,39 @@ bool testValidBGFloatTargeting() {
     return true;
 }
 
+bool testValidLongTargeting() {
+    cout << "\nEntered test method for targeting valid integers in XML file" << endl;
+    ParameterManager* pm = new ParameterManager();
+    if (pm->loadParameterFile("../configfiles/test-medium-500.xml")) {
+        cout << "Testing valid integers..." << endl;
+        string valid_xpath[] = {"//maxFiringRate/text()", "//PoolSize/x/text()", "//PoolSize/y/text()", "//PoolSize/z/text()", "//Seed/value/text()", "//numSims/text()"};
+        long result[] = {200, 30, 30, 1, 1, 500};
+        long val;
+        for (int i = 0; i < 6; i++) {
+            assert(pm->getLongByXpath(valid_xpath[i], val));
+            assert(val == result[i]);
+        }
+        /*
+         * Test the following invalid paths:
+         * string result from XMLNode
+         * string result from string text() value
+         * float/double result
+         * float/double result with scientific notation
+         * @name value that is a string
+         * invalid xpath (node doesn't exist)
+         */
+        cout << "Testing NON-valid integers..." << endl;
+        string invalid_xpath[] = {"//Iinject", "//activeNListFileName/text()", 
+                                  "//beta/text()", "//Iinject/min/text()", 
+                                  "//LayoutFiles/@name", "//NoSuchPath", ""};
+        for (int i = 0; i < 7; i++) {
+            assert(!(pm->getLongByXpath(invalid_xpath[i], val)));
+        }
+    }
+    delete pm;
+    return true;
+}
+
 int main() {
     cout << "\nRunning tests for ParameterManager.cpp functionality..." << endl;
     bool success = testConstructorAndDestructor();
@@ -173,6 +206,8 @@ int main() {
     success = testValidDoubleTargeting();
     if (!success) return 1;
     success = testValidBGFloatTargeting();
+    if (!success) return 1;
+    success = testValidLongTargeting();
     if (!success) return 1;
     return 0;
 }

@@ -39,6 +39,7 @@ class ParameterManager {
         bool getDoubleByXpath(string xpath, double& var);
         bool getFloatByXpath(string xpath, float& var);
         bool getBGFloatByXpath(string xpath, BGFLOAT& var);
+        bool getLongByXpath(string xpath, long& var);
     private:
         TiXmlDocument* xmlDoc;
         TiXmlElement* root;

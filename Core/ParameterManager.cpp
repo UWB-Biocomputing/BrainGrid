@@ -246,3 +246,31 @@ bool ParameterManager::getBGFloatByXpath(string xpath, BGFLOAT& var) {
          << endl;
     return false;
 }
+
+bool ParameterManager::getLongByXpath(string xpath, long& var) {
+    if (!checkDocumentStatus()) return false;
+    string tmp;
+    if (!getStringByXpath(xpath, tmp)) {
+        cerr << "Failed loading simulation parameter for xpath " 
+             << xpath << endl;
+        return false;
+    }
+    if (!regex_match(tmp, regex("[[:d:]]+l?"))) {
+        cerr << "Parsed parameter is not a valid long format. "
+             << "Terminating long conversion. Value: " 
+             << tmp << endl;
+        return false;
+    }
+    try {
+        var = stol(tmp);
+    } catch (invalid_argument arg_exception) {
+        cerr << "Parsed parameter could not be parsed as a long. Value: "
+             << tmp << endl;
+        return false;
+    } catch (out_of_range range_exception) {
+        cerr << "Parsed string parameter could not be converted to a long. Value: "
+             << tmp << endl;
+        return false;
+    }
+    return true;
+}
