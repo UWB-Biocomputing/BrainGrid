@@ -207,7 +207,8 @@ MATRIXOBJS =	$(MATRIXDIR)/CompleteMatrix.o \
 		$(MATRIXDIR)/SparseMatrix.o \
 		$(MATRIXDIR)/VectorMatrix.o 
 
-PARAMOBJS =	$(PARAMDIR)/ParamContainer.o
+PARAMOBJS =	$(PARAMDIR)/ParamContainer.o \
+		$(COREDIR)/ParameterManager.o
 
 RNGOBJS =	$(RNGDIR)/Norm.o \
 		$(RNGDIR)/MersenneTwister.o
@@ -298,7 +299,18 @@ endif
 XMLOBJS =	$(XMLDIR)/tinyxml.o \
 		$(XMLDIR)/tinyxmlparser.o \
 		$(XMLDIR)/tinyxmlerror.o \
-		$(XMLDIR)/tinystr.o
+		$(XMLDIR)/tinystr.o \
+		$(XMLDIR)/tinyxpath.o \
+		$(XMLDIR)/xpath_processor.o \
+		$(XMLDIR)/xpath_stack.o \
+		$(XMLDIR)/action_store.o \
+		$(XMLDIR)/xpath_expression.o \
+		$(XMLDIR)/xpath_stream.o \
+		$(XMLDIR)/lex_util.o \
+		$(XMLDIR)/xml_util.o \
+		$(XMLDIR)/xpath_syntax.o \
+		$(XMLDIR)/tokenlist.o \
+		$(XMLDIR)/node_set.o
 
 ################################################################################
 # Targets
@@ -493,6 +505,9 @@ $(SYNAPSEDIR)/AllDynamicSTDPSynapsesProps.o: $(SYNAPSEDIR)/AllDynamicSTDPSynapse
 $(UTILDIR)/Global.o: $(UTILDIR)/Global.cpp $(UTILDIR)/Global.h
 	$(CXX) $(CXXFLAGS) $(UTILDIR)/Global.cpp -o $(UTILDIR)/Global.o
 
+$(COREDIR)/ParameterManager.o: $(COREDIR)/ParameterManager.cpp $(COREDIR)/ParameterManager.h
+	$(CXX) $(CXXFLAGS) $(COREDIR)/ParameterManager.cpp -o $(COREDIR)/ParameterManager.o
+
 $(COREDIR)/Simulator.o: $(COREDIR)/Simulator.cpp $(COREDIR)/Simulator.h $(UTILDIR)/Global.h $(COREDIR)/SimulationInfo.h
 	$(CXX) $(CXXFLAGS) $(COREDIR)/Simulator.cpp -o $(COREDIR)/Simulator.o
 
@@ -621,6 +636,39 @@ $(XMLDIR)/tinyxmlerror.o: $(XMLDIR)/tinyxmlerror.cpp $(XMLDIR)/tinyxml.h
 
 $(XMLDIR)/tinystr.o: $(XMLDIR)/tinystr.cpp $(XMLDIR)/tinystr.h
 	$(CXX) $(CXXFLAGS) $(XMLDIR)/tinystr.cpp -o $(XMLDIR)/tinystr.o
+
+$(XMLDIR)/xpath_processor.o: $(XMLDIR)/xpath_processor.cpp $(XMLDIR)/xpath_processor.h
+	$(CXX) $(CXXFLAGS) $(XMLDIR)/xpath_processor.cpp -o $(XMLDIR)/xpath_processor.o
+
+$(XMLDIR)/tinyxpath.o: $(XMLDIR)/xpath_static.cpp $(XMLDIR)/xpath_static.h
+	$(CXX) $(CXXFLAGS) $(XMLDIR)/xpath_static.cpp -o $(XMLDIR)/tinyxpath.o
+
+$(XMLDIR)/xpath_stack.o: $(XMLDIR)/xpath_stack.cpp $(XMLDIR)/xpath_stack.h
+	$(CXX) $(CXXFLAGS) $(XMLDIR)/xpath_stack.cpp -o $(XMLDIR)/xpath_stack.o
+
+$(XMLDIR)/action_store.o: $(XMLDIR)/action_store.cpp $(XMLDIR)/action_store.h
+	$(CXX) $(CXXFLAGS) $(XMLDIR)/action_store.cpp -o $(XMLDIR)/action_store.o
+
+$(XMLDIR)/xpath_expression.o: $(XMLDIR)/xpath_expression.cpp $(XMLDIR)/xpath_expression.h
+	$(CXX) $(CXXFLAGS) $(XMLDIR)/xpath_expression.cpp -o $(XMLDIR)/xpath_expression.o
+
+$(XMLDIR)/node_set.o: $(XMLDIR)/node_set.cpp $(XMLDIR)/node_set.h
+	$(CXX) $(CXXFLAGS) $(XMLDIR)/node_set.cpp -o $(XMLDIR)/node_set.o
+
+$(XMLDIR)/lex_util.o: $(XMLDIR)/lex_util.cpp $(XMLDIR)/lex_util.h
+	$(CXX) $(CXXFLAGS) $(XMLDIR)/lex_util.cpp -o $(XMLDIR)/lex_util.o
+
+$(XMLDIR)/xml_util.o: $(XMLDIR)/xml_util.cpp $(XMLDIR)/xml_util.h
+	$(CXX) $(CXXFLAGS) $(XMLDIR)/xml_util.cpp -o $(XMLDIR)/xml_util.o
+
+$(XMLDIR)/xpath_syntax.o: $(XMLDIR)/xpath_syntax.cpp $(XMLDIR)/xpath_syntax.h
+	$(CXX) $(CXXFLAGS) $(XMLDIR)/xpath_syntax.cpp -o $(XMLDIR)/xpath_syntax.o
+
+$(XMLDIR)/xpath_stream.o: $(XMLDIR)/xpath_stream.cpp $(XMLDIR)/xpath_stream.h
+	$(CXX) $(CXXFLAGS) $(XMLDIR)/xpath_stream.cpp -o $(XMLDIR)/xpath_stream.o
+
+$(XMLDIR)/tokenlist.o: $(XMLDIR)/tokenlist.cpp $(XMLDIR)/tokenlist.h
+	$(CXX) $(CXXFLAGS) $(XMLDIR)/tokenlist.cpp -o $(XMLDIR)/tokenlist.o
 
 # Input
 # ------------------------------------------------------------------------------
