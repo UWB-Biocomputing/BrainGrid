@@ -37,6 +37,7 @@ distribution.
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "BGTypes.h"
 
 // Help out windows:
 #if defined( _DEBUG ) && !defined( DEBUG )
@@ -998,6 +999,14 @@ public:
 		}
 		return result;
 	}
+    
+    int QueryFLOATAttribute(const char* name, BGFLOAT* _value) const {
+#if defined(SINGLEPRECISION)
+        return QueryFloatAttribute(name, _value);
+#else
+        return QueryDoubleAttribute(name, _value);
+#endif
+    }
 
     #ifdef TIXML_USE_STL
 	/** Template form of the attribute query which will try to read the
