@@ -21,7 +21,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
-#include <regex>
+#include <boost/regex.hpp>
 #include "ParameterManager.h"
 #include "tinyxml.h"
 #include "xpath_static.h"
@@ -121,12 +121,12 @@ bool ParameterManager::getIntByXpath(string xpath, int& var) {
     }
     // Workaround for standard value conversion functions.
     // stoi() will cast floats to ints.
-    if (regex_match(tmp, regex("\\d+[.]\\d+(e[+-]?\\d+)?f?|\\d+[.]?\\d+(e[+-]?\\d+)?f"))) {
+    if (boost::regex_match(tmp, boost::regex("\\d+[.]\\d+(e[+-]?\\d+)?f?|\\d+[.]?\\d+(e[+-]?\\d+)?f"))) {
         cerr << "Parsed parameter is likely a float/double value. "
              << "Terminating integer cast. Value: " 
              << tmp << endl;
         return false;
-    } else if (regex_match(tmp, regex(".*[^[:d:]ef.]+.*"))) {
+    } else if (boost::regex_match(tmp, boost::regex(".*[^\\def.]+.*"))) {
         cerr << "Parsed parameter is likely a string. "
              << "Terminating integer cast. Value: " 
              << tmp << endl;
@@ -134,11 +134,11 @@ bool ParameterManager::getIntByXpath(string xpath, int& var) {
     }
     try {
         var = stoi(tmp);
-    } catch (invalid_argument arg_exception) {
+    } catch (invalid_argument& arg_exception) {
         cerr << "Parsed parameter could not be parsed as an integer. Value: "
              << tmp << endl;
         return false;
-    } catch (out_of_range range_exception) {
+    } catch (out_of_range& range_exception) {
         cerr << "Parsed string parameter could not be converted to an integer. Value: "
              << tmp << endl;
         return false;
@@ -163,7 +163,7 @@ bool ParameterManager::getDoubleByXpath(string xpath, double& var) {
              << xpath << endl;
         return false;
     }
-    if (regex_match(tmp, regex(".*[^[:d:]ef.+-]+.*"))) {
+    if (boost::regex_match(tmp, boost::regex(".*[^\\def.+-]+.*"))) {
         cerr << "Parsed parameter is likely a string. "
              << "Terminating double conversion. Value: " 
              << tmp << endl;
@@ -171,11 +171,11 @@ bool ParameterManager::getDoubleByXpath(string xpath, double& var) {
     }
     try {
         var = stod(tmp);
-    } catch (invalid_argument arg_exception) {
+    } catch (invalid_argument& arg_exception) {
         cerr << "Parsed parameter could not be parsed as a double. Value: "
              << tmp << endl;
         return false;
-    } catch (out_of_range range_exception) {
+    } catch (out_of_range& range_exception) {
         cerr << "Parsed string parameter could not be converted to a double. Value: "
              << tmp << endl;
         return false;
@@ -201,7 +201,7 @@ bool ParameterManager::getFloatByXpath(string xpath, float& var) {
              << xpath << endl;
         return false;
     }
-    if (regex_match(tmp, regex(".*[^[:d:]ef.+-]+.*"))) {
+    if (boost::regex_match(tmp, boost::regex(".*[^\\def.+-]+.*"))) {
         cerr << "Parsed parameter is likely a string. "
              << "Terminating double conversion. Value: " 
              << tmp << endl;
@@ -209,11 +209,11 @@ bool ParameterManager::getFloatByXpath(string xpath, float& var) {
     }
     try {
         var = stof(tmp);
-    } catch (invalid_argument arg_exception) {
+    } catch (invalid_argument& arg_exception) {
         cerr << "Parsed parameter could not be parsed as a float. Value: "
              << tmp << endl;
         return false;
-    } catch (out_of_range range_exception) {
+    } catch (out_of_range& range_exception) {
         cerr << "Parsed string parameter could not be converted to a float. Value: "
              << tmp << endl;
         return false;
@@ -255,7 +255,7 @@ bool ParameterManager::getLongByXpath(string xpath, long& var) {
              << xpath << endl;
         return false;
     }
-    if (!regex_match(tmp, regex("[[:d:]]+l?"))) {
+    if (!boost::regex_match(tmp, boost::regex("[\\d]+l?"))) {
         cerr << "Parsed parameter is not a valid long format. "
              << "Terminating long conversion. Value: " 
              << tmp << endl;
@@ -263,11 +263,11 @@ bool ParameterManager::getLongByXpath(string xpath, long& var) {
     }
     try {
         var = stol(tmp);
-    } catch (invalid_argument arg_exception) {
+    } catch (invalid_argument& arg_exception) {
         cerr << "Parsed parameter could not be parsed as a long. Value: "
              << tmp << endl;
         return false;
-    } catch (out_of_range range_exception) {
+    } catch (out_of_range& range_exception) {
         cerr << "Parsed string parameter could not be converted to a long. Value: "
              << tmp << endl;
         return false;

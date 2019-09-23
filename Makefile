@@ -40,6 +40,10 @@ UTILDIR = $(MAIN)/Utils
 # cuda
 CUDALIBDIR = /usr/local/cuda/lib64
 
+# boost
+BOOSTLIBDIR = /usr/local/lib
+BOOSTINCLUDE = /usr/local/include/boost
+
 # hdf5
 ifeq ($(CUSEHDF5), yes)
 	H5INCDIR = /opt/hdf5/latest/include/               # include dir
@@ -81,6 +85,8 @@ else
 	LH5FLAGS =
 	H5FLAGS = 
 endif
+
+BOOSTFLAGS = -L$(BOOSTLIBDIR) -lboost_regex
 
 ifeq ($(CVALIDATION), yes)
         VDFLAGS = -DVALIDATION
@@ -318,12 +324,12 @@ XMLOBJS =	$(XMLDIR)/tinyxml.o \
 # make growth (single threaded version)
 # ------------------------------------------------------------------------------
 growth: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS)
-	$(LD) -o growth -g $(CXXLDFLAGS) $(LH5FLAGS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(LIBOBJS) 
+	$(LD) -o growth -g $(CXXLDFLAGS) $(LH5FLAGS) $(BOOSTFLAGS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(LIBOBJS) 
 
 # make growth_cuda (multi-threaded version)
 # ------------------------------------------------------------------------------
 growth_cuda: 	$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS) 
-		$(LD_cuda) -o growth_cuda $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) 
+		$(LD_cuda) -o growth_cuda $(LH5FLAGS) $(BOOSTFLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS)
 
 # make clean
 # ------------------------------------------------------------------------------
