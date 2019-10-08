@@ -13,7 +13,7 @@
 #include "ParamContainer.h"
 #include "ParameterManager.h"
 #include "Model.h"
-#include "FClassOfCategory.h"
+#include "FNeurons.h"
 #include "IRecorder.h"
 #include "FSInput.h"
 #include "Simulator.h"
@@ -38,7 +38,7 @@ using namespace std;
 // functions
 void printParams(SimulationInfo *simInfo);
 bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo);
-bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
+bool createAllModelClassInstances(ParameterManager* parameterManager, SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 void printKeyStateInfo(SimulationInfo *simInfo, vector<Cluster *> &vtClr);
 void serializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator, vector<Cluster *> &vtClr);
 bool deserializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
@@ -72,7 +72,10 @@ int main(int argc, char* argv[]) {
     // create XML parameter reader
     parameterManager = new ParameterManager();
     // load XML parameter file into parameter reader
-    parameterManager->loadParameterFile(simInfo->stateInputFileName);
+    if (!parameterManager->loadParameterFile(simInfo->stateInputFileName)) {
+        cerr << "! ERROR: failed loading XML parameter file" << endl;
+        return -1;
+    }
 
     // initialize global simulation parameters
     if (!simInfo->readParameters(parameterManager)) {
@@ -83,13 +86,13 @@ int main(int argc, char* argv[]) {
         simInfo->printParameters(cout);
     }
     
-    /*
     // create instances of all model classes & load parameters
     DEBUG(cerr << "creating instances of all classes" << endl;)
-    if (createAllModelClassInstances(&simDoc, simInfo, vtClr, vtClrInfo) != true) {
+    if (createAllModelClassInstances(parameterManager, simInfo, vtClr, vtClrInfo) != true) {
         return -1;
     }
 
+    /*
     if (simInfo->stateOutputFileName.empty()) {
         cerr << "! ERROR: no stateOutputFileName is specified." << endl;
         return -1;
@@ -217,51 +220,49 @@ int main(int argc, char* argv[]) {
  *  @param  clusterInfo   ClusterInfo class to be ceated.
  *  @retrun true if successful, false if not
  */
-bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
+bool createAllModelClassInstances(ParameterManager* pm, SimulationInfo *simInfo, 
+        vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
-    TiXmlElement* parms = NULL;
-
-    //cout << "Child:" <<  simDoc->FirstChildElement()->Value() << endl;
-
-    if ((parms = simDoc->FirstChildElement()->FirstChildElement("ModelParams")) == NULL) {
-        cerr << "Could not find <MoelParms> in simulation parameter file " << endl;
-        return false;
-    }
-
     // create neurons, synapses, connections, and layout objects specified in the description file
     IAllNeurons *neurons = NULL;
     IAllSynapses *synapses = NULL;
     Connections *conns = NULL;
     Layout *layout = NULL;
-    const TiXmlNode* pNode = NULL;
 
-    while ((pNode = parms->IterateChildren(pNode)) != NULL) {
-        if (strcmp(pNode->Value(), "NeuronsParams") == 0) {
-            neurons = FClassOfCategory::get()->createNeurons(pNode);
-        } else if (strcmp(pNode->Value(), "SynapsesParams") == 0) {
-            synapses = FClassOfCategory::get()->createSynapses(pNode);
-        } else if (strcmp(pNode->Value(), "ConnectionsParams") == 0) {
-            conns = FClassOfCategory::get()->createConnections(pNode);
-        } else if (strcmp(pNode->Value(), "LayoutParams") == 0) {
-            layout = FClassOfCategory::get()->createLayout(pNode);
-        }
+    string neuronClassName;
+    string synapseClassName;
+    string connectionClassName;
+    string layoutClassName;
+
+    if (parameterManager->getStringByXpath("//NeuronsParams/@class", neuronClassName) {
+        neurons = FNeurons::get()->createNeurons(neuronClassName);
+    }
+    if (parameterManager->getStringByXpath("//SynapsesParams/@class", synapseClassName) {
+        synapses = FSynapses::get()->createSynapses(synapseClassName);
+    }
+    if (parameterManager->getStringByXpath("//ConnectionsParams/@class", connectionClassName) {
+        conns = FConnections::get()->createConnections(connectionClassName);
+    }
+    if (parameterManager->getStringByXpath("//LayoutParams/@class", layoutClassName) {
+        layout = FLayout::get()->createLayout(layoutClassName);
     }
 
-    if (neurons == NULL){ cout << "N" << endl;}
-    if (synapses == NULL){ cout << "S" << endl;}
-    if (conns == NULL){ cout << "C" << endl;}
-    if (layout == NULL){ cout << "L" << endl;}
-
+    // TODO: refactor this so the error message shows which class(es) failed
     if (neurons == NULL || synapses == NULL || conns == NULL || layout == NULL) {
         cerr << "!ERROR: failed to create classes" << endl;
         return false;
     }
 
-    // load parameters for all models
-    if (FClassOfCategory::get()->readParameters(simDoc) != true) {
+    // load parameters for all simulator components
+    if (!neurons->readParameters(parameterManager) ||
+        !synapses->readParameters(parameterManager) ||
+        !conns->readParameters(parameterManager) ||
+        !layout->readParameters(parameterManager)) {
         return false;
     }
 
+    /* Cannot test until factory work is completed
+     * 
     // create clusters
     int numClusterNeurons = simInfo->totalNeurons / g_numClusters;	// number of neurons in cluster
 
@@ -293,7 +294,7 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
 #endif
         } else {
             // create a new neurons class object and copy properties from the reference neurons class object
-            IAllNeurons *neurons_1 = FClassOfCategory::get()->createNeurons();
+            IAllNeurons *neurons_1 = FNeurons::get()->createNeurons();
 
             // create a new synapses class object and copy properties from the reference synapses class object
             IAllSynapses *synapses_1 = FClassOfCategory::get()->createSynapses();
@@ -312,7 +313,7 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
 
     // create the model
     simInfo->model = new Model(conns, layout, vtClr, vtClrInfo);
-
+    */
     return true;
 }
 
@@ -325,9 +326,11 @@ void printParams(SimulationInfo *simInfo) {
     cout << "\nPrinting simulation parameters...\n";
     simInfo->printParameters(cout);
 
+    /*
     cout << "Model Parameters:" << endl;
     FClassOfCategory::get()->printParameters(cout);
     cout << "Done printing parameters" << endl;
+    */
 }
 
 /*
