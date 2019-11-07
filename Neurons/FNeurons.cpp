@@ -24,7 +24,7 @@ FNeurons::~FNeurons() {
  *  @param  neuronsClassName  neurons class name.
  *  @param  Pointer to the class creation function.
  */
-void FNeurons::registerNeuron(const string &neuronsClassName, CreateNeuronsFn* function) {
+void FNeurons::registerNeurons(const string &neuronsClassName, CreateNeuronsFn* function) {
     createFunctions[neuronsClassName] = function;
 }
 

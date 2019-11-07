@@ -28,8 +28,6 @@ class FLayout {
         // No copy method required for this class at this time.
         
     private:
-        void registerLayout(const string& layoutClassName, CreateLayoutFn* function);
-        Layout* invokeLayoutCreateFunction(const string& className);
         // Pointer to layout instance
         Layout* layoutInstance;
         string layoutClassName;
@@ -40,4 +38,7 @@ class FLayout {
         typedef map<string, CreateLayoutFn> LayoutFunctionMap;
         // Makes class-to-function map an internal factory member.
         LayoutFunctionMap createFunctions;
+        // Retrieves and invokes correct ::Create() function
+        Layout* invokeLayoutCreateFunction(const string& className);
+        void registerLayout(const string& layoutClassName, CreateLayoutFn* function);
 };

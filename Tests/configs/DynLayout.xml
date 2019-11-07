@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<BGSimParams>
+    <ModelParams>
+        <LayoutParams class="DynamicLayout" name="LayoutParams">
+    <LayoutFiles name="LayoutFiles">
+        <activeNListFileName name="activeNListFileName" type="InputFile">configfiles/NList/ActiveNList2x2.xml</activeNListFileName>
+        <inhNListFileName name="inhNListFileName" type="InputFile">configfiles/NList/InhibitoryNList2x2.xml</inhNListFileName>
+        <probedNListFileName name="prbNListFileName" type="InputFile"/>
+    </LayoutFiles>
+</LayoutParams>
+    </ModelParams>
+</BGSimParams>
