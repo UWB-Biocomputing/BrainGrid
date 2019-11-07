@@ -28,10 +28,8 @@ class FConnections {
         // No copy method required for this class at this time.
         
     private:
-        void registerConnection(const string& connectionsClassName, CreateConnectionsFn* function);
-        Connections* invokeConnectionsCreateFunction(const string& className);
         // Pointer to connections instance
-        IAllConnections* connectionsInstance;
+        Connections* connectionsInstance;
         string connectionClassName;
         /* Type definitions */
         // Defines function type for usage in internal map
@@ -40,5 +38,8 @@ class FConnections {
         typedef map<string, CreateConnectionsFn> ConnectionFunctionMap;
         // Makes class-to-function map an internal factory member.
         ConnectionFunctionMap createFunctions;
+        // Retrieves and invokes correct ::Create() function
+        Connections* invokeConnectionsCreateFunction(const string& className);
+        void registerConnection(const string& connectionsClassName, CreateConnectionsFn* function);
 
 };

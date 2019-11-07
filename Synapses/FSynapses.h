@@ -27,8 +27,6 @@ class FSynapses {
         IAllSynapses* createSynapses(const string& className);
         
     private:
-        void registerSynapse(const string& className, CreateSynapsesFn* function);
-        IAllSynapses* invokeSynapseCreateFunction(const string& className);
         // Pointer to synapses instance
         IAllSynapses* synapsesInstance;
         string synapseClassName;
@@ -39,5 +37,8 @@ class FSynapses {
         typedef map<string, CreateSynapsesFn> SynapseFunctionMap;
         // Makes class-to-function map an internal factory member.
         SynapseFunctionMap createFunctions;
+        // Retrieves and invokes correct ::Create() function
+        IAllSynapses* invokeSynapseCreateFunction(const string& className);
+        void registerSynapse(const string& className, CreateSynapsesFn* function);
 
 };

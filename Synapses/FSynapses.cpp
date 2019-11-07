@@ -4,7 +4,6 @@
  */
 
 #include <string>
-#include "FNeurons.h"
 #include "AllDSSynapses.h"
 #include "AllSTDPSynapses.h"
 #include "AllDynamicSTDPSynapses.h"

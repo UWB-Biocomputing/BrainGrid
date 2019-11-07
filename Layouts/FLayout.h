@@ -8,7 +8,6 @@
 #include <map>
 #include <string>
 #include "Global.h"
-#include "Layout.h"
 
 using namespace std;
 
