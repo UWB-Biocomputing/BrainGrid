@@ -4,6 +4,8 @@
  */
 
 #include <string>
+#include "FSynapses.h"
+#include "AllSpikingSynapses.h"
 #include "AllDSSynapses.h"
 #include "AllSTDPSynapses.h"
 #include "AllDynamicSTDPSynapses.h"
@@ -29,7 +31,7 @@ FSynapses::~FSynapses() {
  *  @param  synapseClassName  synapse class name.
  *  @param  Pointer to the class creation function.
  */
-void FSynapses::registerSynapse(const string &synapseClassName, CreateSynapsesFn* function) {
+void FSynapses::registerSynapses(const string &synapseClassName, CreateSynapsesFn function) {
     createFunctions[synapseClassName] = function;
 }
 

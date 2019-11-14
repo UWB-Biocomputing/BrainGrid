@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 #include "Global.h"
+#include "Layout.h"
 
 using namespace std;
 
@@ -39,5 +40,5 @@ class FLayout {
         LayoutFunctionMap createFunctions;
         // Retrieves and invokes correct ::Create() function
         Layout* invokeLayoutCreateFunction(const string& className);
-        void registerLayout(const string& layoutClassName, CreateLayoutFn* function);
+        void registerLayout(const string& layoutClassName, CreateLayoutFn function);
 };

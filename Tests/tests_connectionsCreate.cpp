@@ -1,7 +1,9 @@
 #include "ConnGrowth.h"
 #include "ConnStatic.h"
 #include "FConnections.h"
+#include "Connections.h"
 #include "ParameterManager.h"
+#include "FSynapses.h"
 #include <string>
 #include <iostream>
 #include <cassert>
@@ -24,7 +26,7 @@ bool testConStaticCreate() {
     assert(className == "ConnStatic");
     Connections* n = FConnections::get()->createConnections(className);
     assert(n != NULL);
-    if (dynamic_cast<ConnStatic*>(n) == NULL) {
+    if (! (typeid(n) == typeid(ConnStatic))) {
         // aPtr is NOT instance of B
         return false;
     }
@@ -44,7 +46,7 @@ bool testConGrowthCreate() {
     assert(className == "ConnGrowth");
     Connections* n = FConnections::get()->createConnections(className);
     assert(n != NULL);
-    if (dynamic_cast<ConnGrowth*>(n) == NULL) {
+    if (! (typeid(n) == typeid(ConnGrowth))) {
         // aPtr is NOT instance of B
         return false;
     }

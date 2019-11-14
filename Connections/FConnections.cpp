@@ -24,7 +24,7 @@ FConnections::~FConnections() {
  *  @param  connectionsClassName  connections class name.
  *  @param  Pointer to the class creation function.
  */
-void FConnections::registerConnection(const string &connectionsClassName, CreateConnectionsFn* function) {
+void FConnections::registerConnection(const string &connectionsClassName, CreateConnectionsFn function) {
     createFunctions[connectionsClassName] = function;
 }
 

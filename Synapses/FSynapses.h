@@ -39,6 +39,6 @@ class FSynapses {
         SynapseFunctionMap createFunctions;
         // Retrieves and invokes correct ::Create() function
         IAllSynapses* invokeSynapseCreateFunction(const string& className);
-        void registerSynapse(const string& className, CreateSynapsesFn* function);
+        void registerSynapses(const string& className, CreateSynapsesFn function);
 
 };

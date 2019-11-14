@@ -24,7 +24,7 @@ FLayout::~FLayout() {
  *  @param  layoutClassName  layout class name.
  *  @param  Pointer to the class creation function.
  */
-void FLayout::registerLayout(const string &layoutClassName, CreateLayoutFn* function) {
+void FLayout::registerLayout(const string &layoutClassName, CreateLayoutFn function) {
     createFunctions[layoutClassName] = function;
 }
 

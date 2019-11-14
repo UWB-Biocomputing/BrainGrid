@@ -41,5 +41,5 @@ class FNeurons {
         NeuronFunctionMap createFunctions;
         // Retrieves and invokes correct ::Create() function
         IAllNeurons* invokeNeuronsCreateFunction(const string& className);
-        void registerNeurons(const string& neuronsClassName, CreateNeuronsFn* function);
+        void registerNeurons(const string& neuronsClassName, CreateNeuronsFn function);
 };

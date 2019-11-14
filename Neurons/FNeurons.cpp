@@ -24,7 +24,7 @@ FNeurons::~FNeurons() {
  *  @param  neuronsClassName  neurons class name.
  *  @param  Pointer to the class creation function.
  */
-void FNeurons::registerNeurons(const string &neuronsClassName, CreateNeuronsFn* function) {
+void FNeurons::registerNeurons(const string &neuronsClassName, CreateNeuronsFn function) {
     createFunctions[neuronsClassName] = function;
 }
 
@@ -58,7 +58,7 @@ IAllNeurons* FNeurons::invokeNeuronsCreateFunction(const string& className) {
  * @return Poiner to the neurons object.
  */
 IAllNeurons* FNeurons::createNeuronsCopy() {
-    IAllNeurons* neurons = createNeuronsWithName(neuronClassName);
+    IAllNeurons* neurons = invokeNeuronsCreateFunction(neuronClassName);
     neurons->createNeuronsProps();
     // copy basic parameters
     *neurons = *neuronsInstance;

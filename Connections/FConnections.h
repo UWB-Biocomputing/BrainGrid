@@ -40,6 +40,6 @@ class FConnections {
         ConnectionFunctionMap createFunctions;
         // Retrieves and invokes correct ::Create() function
         Connections* invokeConnectionsCreateFunction(const string& className);
-        void registerConnection(const string& connectionsClassName, CreateConnectionsFn* function);
+        void registerConnection(const string& connectionsClassName, CreateConnectionsFn function);
 
 };
