@@ -26,7 +26,7 @@ bool testConStaticCreate() {
     assert(className == "ConnStatic");
     Connections* n = FConnections::get()->createConnections(className);
     assert(n != NULL);
-    if (! (typeid(n) == typeid(ConnStatic))) {
+    if (dynamic_cast<ConnStatic*>(n) == NULL) {
         // aPtr is NOT instance of B
         return false;
     }
@@ -46,7 +46,7 @@ bool testConGrowthCreate() {
     assert(className == "ConnGrowth");
     Connections* n = FConnections::get()->createConnections(className);
     assert(n != NULL);
-    if (! (typeid(n) == typeid(ConnGrowth))) {
+    if (dynamic_cast<ConnGrowth*>(n) == NULL) {
         // aPtr is NOT instance of B
         return false;
     }

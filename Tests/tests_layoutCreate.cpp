@@ -41,7 +41,7 @@ bool testDynamicLayoutCreate() {
     if (! pm->getStringByXpath("//LayoutParams/@class", className)) {
         return false;
     }
-    assert(className == "Dynamic");
+    assert(className == "DynamicLayout");
     Layout* n = FLayout::get()->createLayout(className);
     assert(n != NULL);
     if (dynamic_cast<DynamicLayout*>(n) == NULL) {
