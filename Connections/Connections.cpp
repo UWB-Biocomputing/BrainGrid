@@ -47,16 +47,4 @@ Connections::~Connections()
 {
 }
 
-/*
- *  Update the connections status in every epoch.
- *
- *  @param  sim_info    SimulationInfo class to read information from.
- *  @param  layout      Layout information of the neunal network.
- *  @param  vtClr       Vector of Cluster class objects.
- *  @param  vtClrInfo   Vector of ClusterInfo.
- *  @return true if successful, false otherwise.
- */
-void Connections::updateConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
-{
-}
 

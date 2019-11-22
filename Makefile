@@ -16,7 +16,7 @@ all: growth growth_cuda
 # CVALIDATION:   yes - make validation version (see issue #239)
 #                no  - make production version
 ################################################################################
-CUSEHDF5 = yes
+CUSEHDF5 = no
 CPMETRICS = no
 CVALIDATION = no
 

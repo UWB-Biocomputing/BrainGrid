@@ -111,13 +111,15 @@ class Connections
 
         /**
          *  Update the connections status in every epoch.
+         *  By default, this method does nothing. Override in a subclass to
+         *  implement desired functionality.
          *
          *  @param  sim_info    SimulationInfo class to read information from.
          *  @param  layout      Layout information of the neunal network.
          *  @param  vtClr       Vector of Cluster class objects.
          *  @param  vtClrInfo   Vector of ClusterInfo.
          */
-        virtual void updateConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
+   virtual void updateConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo) {}
 
         /**
          *  Creates a recorder class object for the connection.
