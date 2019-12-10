@@ -95,7 +95,7 @@ void AllSynapses::printParameters(ostream &output) const
  *  @param  input  istream to read from.
  *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info)
+/*void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info)
 {
         AllNeuronsProps *pNeuronsProps = dynamic_cast<AllNeurons&>(neurons).m_pNeuronsProps;
 
@@ -129,7 +129,7 @@ void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const Cluste
                 m_pSynapsesProps->synapse_counts[i] = read_synapses_counts[i];
         }
         delete[] read_synapses_counts;
-}
+}*/
 
 /*
  *  Write the synapses data to the stream.
@@ -137,7 +137,7 @@ void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const Cluste
  *  @param  output  stream to print out to.
  *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllSynapses::serialize(ostream& output, const ClusterInfo *clr_info)
+/*void AllSynapses::serialize(ostream& output, const ClusterInfo *clr_info)
 {
     // write the synapse data
     int synapse_count = 0;
@@ -152,7 +152,7 @@ void AllSynapses::serialize(ostream& output, const ClusterInfo *clr_info)
             m_pSynapsesProps->writeSynapseProps(output, iSyn);
         }
     }
-}
+}*/
 
 #if defined(USE_GPU)
 

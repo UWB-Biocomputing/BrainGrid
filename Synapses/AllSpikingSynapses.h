@@ -46,6 +46,12 @@ typedef void (*fpPostSynapsesSpikeHit_t)(const BGSIZE, AllSpikingSynapsesProps*)
 
 #include "AllSpikingNeurons.h"
 
+/**
+ * cereal
+ */
+#include <cereal/types/polymorphic.hpp> //for inheritance
+#include <cereal/types/base_class.hpp> //for inherit parent's data member
+
 class AllSpikingSynapses : public AllSynapses
 {
     public:
@@ -65,7 +71,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  input  istream to read from.
          *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clrm_info);
+        //virtual void deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clrm_info);
 
         /**
          *  Write the synapses data to the stream.
@@ -73,7 +79,7 @@ class AllSpikingSynapses : public AllSynapses
          *  @param  output  stream to print out to.
          *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void serialize(ostream& output, const ClusterInfo *clr_info);
+        //virtual void serialize(ostream& output, const ClusterInfo *clr_info);
 
         /**
          *  Reset time varying state vars and recompute decay.
@@ -103,6 +109,10 @@ class AllSpikingSynapses : public AllSynapses
          *  @retrun true if the back propagation is allowed.
          */
         CUDA_CALLABLE virtual bool allowBackPropagation();
+
+        //! Cereal
+        template<class Archive>
+        void serialize(Archive & archive);
 
     protected:
         /**
@@ -198,3 +208,12 @@ __global__ void allocAllSpikingSynapsesDevice(IAllSynapses **pAllSynapses, IAllS
 extern __global__ void advanceSpikeQueueDevice(int iStep, IAllSynapses* synapsesDevice);
 
 #endif // USE_GPU
+
+//! Cereal Serialization/Deserialization Method
+template<class Archive>
+void AllSpikingSynapses::serialize(Archive & archive) {
+    archive(cereal::base_class<AllSynapses>(this));
+}
+
+//! Cereal
+CEREAL_REGISTER_TYPE(AllSpikingSynapses)

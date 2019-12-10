@@ -50,14 +50,14 @@ Cluster::~Cluster()
  *  @param  sim_info    used as a reference to set info for neurons and synapses.
  *  @param  clr_info    cluster informaion, used as a reference to set info for neurons and synapses.
  */
-void Cluster::deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+/*void Cluster::deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info)
 {
     // read the neurons data & create neurons
     m_neurons->deserialize(input, clr_info);
 
     // read the synapse data & create synapses
     m_synapses->deserialize(input, *m_neurons, clr_info);
-}
+}*/
 
 /*
  * Serializes internal state for the current simulation.
@@ -68,14 +68,14 @@ void Cluster::deserialize(istream& input, const SimulationInfo *sim_info, const 
  *  @param  sim_info    used as a reference to set info for neurons and synapses.
  *  @param  clr_info    cluster informaion, used as a reference to set info for neurons and synapses.
  */
-void Cluster::serialize(ostream& output, const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+/*void Cluster::serialize(ostream& output, const SimulationInfo *sim_info, const ClusterInfo *clr_info)
 {
     // write the neurons data
     m_neurons->serialize(output, clr_info);
 
     // write the synapse data
     m_synapses->serialize(output, clr_info);
-}
+}*/
 
 /*
  *  Creates all the Neurons and generates data for them.

@@ -310,7 +310,7 @@ void GPUSpikingCluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *cl
  *  @param  sim_info    used as a reference to set info for neurons and synapses.
  *  @param  clr_info  ClusterInfo to refer.
  */
-void GPUSpikingCluster::deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+/*void GPUSpikingCluster::deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info)
 {
   Cluster::deserialize(input, sim_info, clr_info);
 
@@ -320,7 +320,7 @@ void GPUSpikingCluster::deserialize(istream& input, const SimulationInfo *sim_in
 
   AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(m_synapses)->m_pSynapsesProps;
   pSynapsesProps->copySynapseHostToDeviceProps( m_allSynapsesDeviceProps, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );
-}
+}*/
 
 #if defined(VALIDATION)
 /*

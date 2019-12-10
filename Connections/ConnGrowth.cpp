@@ -258,7 +258,7 @@ void ConnGrowth::printParameters(ostream &output) const
  *  @param  input    istream to read status from.
  *  @param  sim_info SimulationInfo class to read information from.
  */
-void ConnGrowth::deserialize(istream& input, const SimulationInfo *sim_info)
+/*void ConnGrowth::deserialize(istream& input, const SimulationInfo *sim_info)
 {
     // read the radii
     for (int i = 0; i < sim_info->totalNeurons; i++) {
@@ -277,7 +277,7 @@ void ConnGrowth::deserialize(istream& input, const SimulationInfo *sim_info)
             input >> (*rates)[i]; input.ignore();
 #endif // !USE_GPU
     }
-}
+}*/
 
 /*
  *  Writes the intermediate connection status to ostream.
@@ -285,7 +285,7 @@ void ConnGrowth::deserialize(istream& input, const SimulationInfo *sim_info)
  *  @param  output   ostream to write status to.
  *  @param  sim_info SimulationInfo class to read information from.
  */
-void ConnGrowth::serialize(ostream& output, const SimulationInfo *sim_info)
+/*void ConnGrowth::serialize(ostream& output, const SimulationInfo *sim_info)
 {
     // write the final radii
     for (int i = 0; i < sim_info->totalNeurons; i++) {
@@ -304,7 +304,7 @@ void ConnGrowth::serialize(ostream& output, const SimulationInfo *sim_info)
         output << (*rates)[i] << ends;
 #endif // !USE_GPU
     }
-}
+}*/
 
 #if !defined(USE_GPU)
 /*

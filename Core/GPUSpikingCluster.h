@@ -71,6 +71,13 @@
 #include <helper_cuda.h>
 #endif
 
+/**
+ * cereal
+ */
+#include <cereal/types/polymorphic.hpp> //for inheritance
+#include <cereal/types/base_class.hpp> //inherit data member from base class
+#include <cereal/access.hpp> //for load and construct
+
 const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
 
 /*-----------------------------------------------------*\
@@ -123,7 +130,7 @@ public:
          *  @param  sim_info    used as a reference to set info for neurons and synapses.
          *  @param  clr_info    used as a reference to set info for neurons and synapses.
          */
-        virtual void deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        //virtual void deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
 #if defined(VALIDATION)
         /**
@@ -179,6 +186,13 @@ public:
          * @param iStep    - simulation steps to advance.
          */
         virtual void advanceSpikeQueue(const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStep);
+        
+        //! Cereal
+        template<class Archive>
+        static void load_and_construct(Archive& ar, cereal::construct<GPUSpikingCluster>& construct);
+
+        template<class Archive>
+        void serialize(Archive & archive);
 
 protected:
         /**
@@ -303,6 +317,27 @@ private:
         static float* m_randNoiseHost;
 #endif // VALIDATION 
 };
+
+//! Cereal Serialization/Deserialization Method
+template<class Archive>
+void GPUSpikingCluster::serialize(Archive & archive) {
+        archive(cereal::base_class<Cluster>(this));
+}
+
+//! Cereal Load_and_construct Method
+template<class Archive>
+void GPUSpikingCluster::load_and_construct(Archive& ar, cereal::construct<GPUSpikingCluster>& construct)
+{
+        IAllNeurons *m_neurons2 = nullptr;
+        IAllSynapses *m_synapses2 = nullptr;
+        AllSynapses * castm_synapses = dynamic_cast<AllSynapses*>(m_synapses2);
+        ar(*castm_synapses);
+        construct(m_neurons2,m_synapses2);
+}
+
+//! Cereal
+CEREAL_REGISTER_TYPE(GPUSpikingCluster)
+
 
 #if defined(__CUDACC__)
 extern "C" {

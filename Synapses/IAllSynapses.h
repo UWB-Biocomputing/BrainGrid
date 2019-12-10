@@ -97,7 +97,7 @@ class IAllSynapses
          *  @param  input  istream to read from.
          *  @param clr_info  ClusterInfo class to read information from.
          */
-        virtual void deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info) = 0;
+        //virtual void deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info) = 0;
 
         /**
          *  Write the synapses data to the stream.
@@ -105,7 +105,7 @@ class IAllSynapses
          *  @param  output  stream to print out to.
          *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void serialize(ostream& output, const ClusterInfo *clr_info) = 0;
+        //virtual void serialize(ostream& output, const ClusterInfo *clr_info) = 0;
 
         /**
          *  Adds a Synapse to the model, connecting two Neurons.

@@ -124,7 +124,7 @@ class AllNeurons : public IAllNeurons
          *  @param  input       istream to read from.
          *  @param  clr_info    ClusterInfo class to read information from.
          */
-        virtual void deserialize(istream &input, const ClusterInfo *clr_info);
+        //virtual void deserialize(istream &input, const ClusterInfo *clr_info);
 
         /**
          *  Writes out the data in all neurons to output stream.
@@ -132,7 +132,7 @@ class AllNeurons : public IAllNeurons
          *  @param  output      stream to write out to.
          *  @param  clr_info    ClusterInfo class to read information from.
          */
-        virtual void serialize(ostream& output, const ClusterInfo *clr_info) const;
+        //virtual void serialize(ostream& output, const ClusterInfo *clr_info) const;
 
     public:
         /**

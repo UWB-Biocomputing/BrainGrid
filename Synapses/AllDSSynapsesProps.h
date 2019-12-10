@@ -8,6 +8,14 @@
 
 #include "AllSpikingSynapsesProps.h"
 
+/**
+ * cereal
+ */
+#include <cereal/types/polymorphic.hpp> //for inheritance
+#include <cereal/types/base_class.hpp> //for inherit parent's data member
+#include <cereal/types/vector.hpp>
+#include <vector>
+
 class AllDSSynapsesProps : public AllSpikingSynapsesProps
 {
     public:
@@ -23,6 +31,10 @@ class AllDSSynapsesProps : public AllSpikingSynapsesProps
          *  @param  clr_info  ClusterInfo class to read information from.
          */
         virtual void setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
+        
+        //! Cereal
+        template<class Archive>
+        void serialize(Archive & archive);
 
 #if defined(USE_GPU)
     public:
@@ -154,3 +166,12 @@ class AllDSSynapsesProps : public AllSpikingSynapsesProps
          */
         BGFLOAT *F;
 };
+
+//! Cereal Serialization/Deserialization Method
+template<class Archive>
+void AllDSSynapsesProps ::serialize(Archive & archive) {
+    archive(cereal::base_class<AllSpikingSynapsesProps>(this));
+}
+
+//! Cereal
+CEREAL_REGISTER_TYPE(AllDSSynapsesProps)

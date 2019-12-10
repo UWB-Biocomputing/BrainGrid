@@ -19,6 +19,10 @@
 #include "Simulator.h"
 #include <vector>
 
+//! Cereal
+#include <cereal/archives/xml.hpp>
+#include <cereal/types/vector.hpp>
+
 // Uncomment to use visual leak detector (Visual Studios Plugin)
 // #include <vld.h>
 
@@ -90,10 +94,11 @@ int main(int argc, char* argv[]) {
     // Deserializes internal state from a prior run of the simulation
     if (!simInfo->memInputFileName.empty()) {
         DEBUG(cerr << "Deserializing state from file." << endl;)
-        ifstream memory_in;
-        memory_in.open(simInfo->memInputFileName.c_str(), ofstream::binary | ofstream::in);
-        simulator->deserialize(memory_in, simInfo);
-        memory_in.close();
+        ifstream memory_in(simInfo->memInputFileName.c_str());
+        cereal::XMLInputArchive archive(memory_in);
+        for(int i = 0; i < vtClr.size(); i++) {
+            archive(*vtClr[i]);
+        }
     }
 
     // Run simulation
@@ -110,11 +115,12 @@ int main(int argc, char* argv[]) {
     simulator->saveData(simInfo);
 
     // Serializes internal state for the current simulation
-    ofstream memory_out;
     if (!simInfo->memOutputFileName.empty()) {
-        memory_out.open(simInfo->memOutputFileName.c_str(),ofstream::binary | ofstream::trunc);
-        simulator->serialize(memory_out, simInfo);
-        memory_out.close();
+        ofstream memory_out (simInfo->memOutputFileName.c_str());
+        cereal::XMLOutputArchive archive(memory_out);
+        for(int i = 0; i < vtClr.size(); i++) {
+            archive(*vtClr[i]);
+        }
     }
 
     // Tell simulation to clean-up and run any post-simulation logic.

@@ -8,6 +8,13 @@
 
 #include "IAllSynapsesProps.h"
 
+/**
+ * cereal
+ */
+#include <cereal/types/polymorphic.hpp> //for inheritance
+#include <cereal/types/vector.hpp>
+#include <vector>
+
 class AllSynapsesProps : public IAllSynapsesProps
 {
     public:
@@ -23,6 +30,10 @@ class AllSynapsesProps : public IAllSynapsesProps
          *  @param  clr_info  ClusterInfo class to read information from.
          */
         virtual void setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
+        
+        //! Cereal
+        template<class Archive>
+        void serialize(Archive & archive);
 
 #if defined(USE_GPU)
     protected:
@@ -196,3 +207,17 @@ class AllSynapsesProps : public IAllSynapsesProps
          */
         BGFLOAT *summation;
 };
+
+//! Cereal Serialization/Deserialization Method
+template<class Archive>
+void AllSynapsesProps::serialize(Archive & archive) {
+    vector<BGFLOAT> temp;
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        temp.push_back(W[i]);
+    }
+    archive(temp);
+}
+
+//! Cereal
+CEREAL_REGISTER_TYPE(AllSynapsesProps)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(IAllSynapsesProps,AllSynapsesProps)

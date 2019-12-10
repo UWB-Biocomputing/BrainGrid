@@ -99,7 +99,7 @@ class Connections
          *  @param  input    istream to read status from.
          *  @param  sim_info SimulationInfo class to read information from.
          */
-        virtual void deserialize(istream& input, const SimulationInfo *sim_info) = 0;
+        //virtual void deserialize(istream& input, const SimulationInfo *sim_info) = 0;
 
         /**
          *  Writes the intermediate connection status to ostream.
@@ -107,7 +107,7 @@ class Connections
          *  @param  output   ostream to write status to.
          *  @param  sim_info SimulationInfo class to read information from.
          */
-        virtual void serialize(ostream& output, const SimulationInfo *sim_info) = 0;
+        //virtual void serialize(ostream& output, const SimulationInfo *sim_info) = 0;
 
         /**
          *  Update the connections status in every epoch.

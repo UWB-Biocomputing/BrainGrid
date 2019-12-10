@@ -46,7 +46,7 @@ Model::~Model()
  *  @param  input       istream to read from.
  *  @param  sim_info    used as a reference to set info for neurons and synapses.
  */
-void Model::deserialize(istream& input, const SimulationInfo *sim_info)
+/*void Model::deserialize(istream& input, const SimulationInfo *sim_info)
 {
     // read the clusters data
     m_vtClr[0]->deserialize(input, sim_info, m_vtClrInfo[0]);
@@ -56,7 +56,7 @@ void Model::deserialize(istream& input, const SimulationInfo *sim_info)
 
     // read the connections data
     m_conns->deserialize(input, sim_info);
-}
+}*/
 
 /*
  * Serializes internal state for the current simulation.
@@ -66,19 +66,19 @@ void Model::deserialize(istream& input, const SimulationInfo *sim_info)
  *  @param  output      The filestream to write.
  *  @param  sim_info    used as a reference to set info for neurons and synapses.
  */
-void Model::serialize(ostream& output, const SimulationInfo *sim_info)
+/*void Model::serialize(ostream& output, const SimulationInfo *sim_info)
 {
     // write the neurons data
-    output << sim_info->totalNeurons << ends;
+    //output << sim_info->totalNeurons << ends;
 
     // write clusters data
-    m_vtClr[0]->serialize(output, sim_info, m_vtClrInfo[0]);
+    //m_vtClr[0]->serialize(output, sim_info, m_vtClrInfo[0]);
 
     // write the connections data
-    m_conns->serialize(output, sim_info);
+    //m_conns->serialize(output, sim_info);
 
-    output << flush;
-}
+    //output << flush;
+}*/
 
 /*
  *  Save simulation results to an output destination.

@@ -209,7 +209,7 @@ void Simulator::saveData(SimulationInfo *sim_info) const
  *  @param memory_in - where to read the state from.
  *  @param  sim_info    parameters for the simulation. 
  */
-void Simulator::deserialize(istream &memory_in, SimulationInfo *sim_info)
+/*void Simulator::deserialize(istream &memory_in, SimulationInfo *sim_info)
 {
   // read the neuron data
   memory_in >> sim_info->totalNeurons; memory_in.ignore();
@@ -217,7 +217,7 @@ void Simulator::deserialize(istream &memory_in, SimulationInfo *sim_info)
 
   // Init history matrices with current values
   sim_info->simRecorder->initValues();
-}
+}*/
 
 /*
  * Serializes internal state for the current simulation.
@@ -228,11 +228,11 @@ void Simulator::deserialize(istream &memory_in, SimulationInfo *sim_info)
  *  @param memory_out - where to write the state to.
  *  @param  sim_info    parameters for the simulation. 
  */
-void Simulator::serialize(ostream &memory_out, SimulationInfo *sim_info) const
+/*void Simulator::serialize(ostream &memory_out, SimulationInfo *sim_info) const
 {
   cerr << "Simulator::writeSimMemory was called. " << endl;
   // get history matrices with current values
   sim_info->simRecorder->getValues();
 
   sim_info->model->serialize(memory_out, sim_info);
-}
+}*/

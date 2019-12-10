@@ -54,6 +54,11 @@
 #include <thread>
 #include "Barrier.hpp"
 
+/**
+ * cereal
+ */
+#include <cereal/access.hpp> //for load and construct
+
 class Cluster
 {
     public:
@@ -69,7 +74,7 @@ class Cluster
          *  @param  sim_info    used as a reference to set info for neurons and synapses.
          *  @param  clr_info    cluster informaion, used as a reference to set info for neurons and synapses.
          */
-        virtual void deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        //virtual void deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
          * Serializes internal state for the current simulation.
@@ -80,7 +85,7 @@ class Cluster
          *  @param  sim_info    used as a reference to set info for neurons and synapses.
          *  @param  clr_info    cluster informaion, used as a reference to set info for neurons and synapses.
          */
-        virtual void serialize(ostream& output, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        //virtual void serialize(ostream& output, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
         /**
          *  Creates all the Neurons and generates data for them.
@@ -98,6 +103,13 @@ class Cluster
          *  @param  clr_info    ClusterInfo to refer.
          */
         virtual void cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        //! Cereal
+        template<class Archive>
+        static void load_and_construct(Archive& ar, cereal::construct<Cluster>& construct);
+
+        template<class Archive>
+        void serialize(Archive & archive);
 
 #if defined(VALIDATION)
         /**
@@ -215,3 +227,21 @@ class Cluster
          */
         static int m_nSynapticTransDelay;
 };
+
+//! Cereal Serialization/Deserialization Method
+template<class Archive>
+void Cluster::serialize(Archive & archive) {
+    AllSynapses * castm_synapses = dynamic_cast<AllSynapses*>(m_synapses);
+    archive(*castm_synapses);
+}
+
+//! Cereal Load_and_construct Method
+template <class Archive>
+void Cluster::load_and_construct( Archive & ar, cereal::construct<Cluster> & construct )
+{  
+    IAllNeurons *m_neurons2 = nullptr;
+    IAllSynapses *m_synapses2 = nullptr;
+    AllSynapses * castm_synapses = dynamic_cast<AllSynapses*>(m_synapses2);
+    ar(*castm_synapses);
+    construct(m_neurons2, m_synapses2);
+}

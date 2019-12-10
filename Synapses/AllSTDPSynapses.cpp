@@ -27,14 +27,14 @@ void AllSTDPSynapses::createSynapsesProps()
  *  @param  input  istream to read from.
  *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllSTDPSynapses::deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info)
+/*void AllSTDPSynapses::deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info)
 {
     AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
     AllSpikingSynapses::deserialize(input, neurons, clr_info);
 
     pSynapsesProps->postSpikeQueue->deserialize(input);
-}
+}*/
 
 /*
  *  Write the synapses data to the stream.
@@ -42,14 +42,14 @@ void AllSTDPSynapses::deserialize(istream& input, IAllNeurons &neurons, const Cl
  *  @param  output  stream to print out to.
  *  @param  clr_info  ClusterInfo class to read information from.
  */
-void AllSTDPSynapses::serialize(ostream& output, const ClusterInfo *clr_info)
+/*void AllSTDPSynapses::serialize(ostream& output, const ClusterInfo *clr_info)
 {
     AllSTDPSynapsesProps *pSynapsesProps = dynamic_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
     AllSpikingSynapses::serialize(output, clr_info);
 
     pSynapsesProps->postSpikeQueue->serialize(output);
-}
+}*/
 
 /*
  *  Reset time varying state vars and recompute decay.

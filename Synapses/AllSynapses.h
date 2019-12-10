@@ -47,6 +47,11 @@
 typedef unsigned _int8 uint8_t;
 #endif
 
+/**
+ * cereal
+ */
+#include <cereal/types/polymorphic.hpp> //for inheritance
+
 class IAllNeurons;
 
 class AllSynapses : public IAllSynapses
@@ -113,7 +118,7 @@ class AllSynapses : public IAllSynapses
          *  @param  input  istream to read from.
          *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info);
+        //virtual void deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info);
 
         /**
          *  Write the synapses data to the stream.
@@ -121,7 +126,7 @@ class AllSynapses : public IAllSynapses
          *  @param  output  stream to print out to.
          *  @param  clr_info  ClusterInfo class to read information from.
          */
-        virtual void serialize(ostream& output, const ClusterInfo *clr_info);
+        //virtual void serialize(ostream& output, const ClusterInfo *clr_info);
 
         /**
          *  Adds a Synapse to the model, connecting two Neurons.
@@ -161,6 +166,10 @@ class AllSynapses : public IAllSynapses
          *  @param  deltaT   Inner simulation step duration
          */
         CUDA_CALLABLE virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT);
+        
+        //! Cereal
+        template<class Archive>
+        void serialize(Archive & archive);
 
 #if defined(USE_GPU)
 
@@ -257,3 +266,13 @@ __global__ void deleteAllSynapsesDevice(IAllSynapses *pAllSynapses);
 __global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, int maxSpikes, const BGFLOAT deltaT, int iStepOffset, IAllSynapses* synapsesDevice, IAllNeurons* neuronsDevice, IAllNeuronsProps* pINeuronsProps );
 
 #endif // USE_GPU
+
+//! Cereal Serialization/Deserialization Method
+template<class Archive>
+void AllSynapses::serialize(Archive & archive) {
+    archive(*m_pSynapsesProps);
+}
+
+//! Cereal
+CEREAL_REGISTER_TYPE(AllSynapses)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(IAllSynapses,AllSynapses)
