@@ -104,6 +104,16 @@ class Cluster
          */
         virtual void cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
+#if defined(USE_GPU)        
+        /**
+         *  Copy GPU Synapse data back to CPU.
+         *
+         *  @param  sim_info    SimulationInfo to refer.
+         *  @param  clr_info    ClusterInfo to refer.
+         */
+        virtual void copyGPUSynapseToCPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
+#endif // USE_GPU
+
         //! Cereal
         template<class Archive>
         static void load_and_construct(Archive& ar, cereal::construct<Cluster>& construct);

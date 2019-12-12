@@ -30,10 +30,18 @@ class AllSynapsesProps : public IAllSynapsesProps
          *  @param  clr_info  ClusterInfo class to read information from.
          */
         virtual void setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        virtual void printWeights();
         
         //! Cereal
+        //template<class Archive>
+        //void serialize(Archive & archive);
+
         template<class Archive>
-        void serialize(Archive & archive);
+        void save(Archive & archive) const;
+
+        template<class Archive>
+        void load(Archive & archive);
 
 #if defined(USE_GPU)
     protected:
@@ -209,13 +217,34 @@ class AllSynapsesProps : public IAllSynapsesProps
 };
 
 //! Cereal Serialization/Deserialization Method
-template<class Archive>
+/*template<class Archive>
 void AllSynapsesProps::serialize(Archive & archive) {
     vector<BGFLOAT> temp;
     for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
         temp.push_back(W[i]);
     }
     archive(temp);
+}*/
+
+template<class Archive>
+void AllSynapsesProps::save(Archive & archive) const
+{
+    vector<BGFLOAT> temp;
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        temp.push_back(W[i]);
+    }
+    archive(temp);
+}
+
+template<class Archive>
+void AllSynapsesProps::load(Archive & archive) 
+{
+    vector<BGFLOAT> temp;
+    archive(temp);
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        W[i] = temp[i];
+    }
+
 }
 
 //! Cereal

@@ -99,6 +99,11 @@ int main(int argc, char* argv[]) {
         for(int i = 0; i < vtClr.size(); i++) {
             archive(*vtClr[i]);
         }
+        //deserialization test
+        /*for(int i = 0; i < vtClr.size(); i++) {
+            dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printWeights(); 
+        }*/
+        //create synapses from w Connections::createSynapsesFromWeights() 
     }
 
     // Run simulation
@@ -113,6 +118,11 @@ int main(int argc, char* argv[]) {
 
     // Writes simulation results to an output destination
     simulator->saveData(simInfo);
+
+#if defined(USE_GPU)
+    // Copy GPU Synapse data back to CPU for serialization
+    simulator->copyGPUSynapsesToCPU(simInfo);
+#endif // USE_GPU
 
     // Serializes internal state for the current simulation
     if (!simInfo->memOutputFileName.empty()) {

@@ -25,6 +25,15 @@ AllSynapsesProps::~AllSynapsesProps()
     cleanupSynapsesProps();
 }
 
+void AllSynapsesProps::printWeights() 
+{
+        cout << "Non-zero weights:" << endl;
+        for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+                if (W[i] != 0.0)
+                        cout << "W[" << i << "] = " << W[i] << endl;
+        }
+}
+
 /*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *

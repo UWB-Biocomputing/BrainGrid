@@ -124,6 +124,14 @@ public:
 	virtual void cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
+         *  Copy GPU Synapse data back to CPU.
+         *
+         *  @param  sim_info    SimulationInfo to refer.
+         *  @param  clr_info    ClusterInfo to refer.
+         */
+        virtual void copyGPUSynapseToCPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
          *  Loads the simulation based on istream input.
          *
          *  @param  input       istream to read from.

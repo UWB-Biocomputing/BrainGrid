@@ -61,6 +61,17 @@ void Simulator::finish(SimulationInfo *sim_info)
   sim_info->model->cleanupSim(sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
 }
 
+#if defined(USE_GPU)  
+/*
+ *  Copy GPU Synapse data back to CPU after simulation.
+ *
+ *  @param  sim_info    parameters for the simulation.
+ */
+void Simulator::copyGPUSynapseToCPU(SimulationInfo *sim_info) {
+  sim_info->model->copyGPUSynapseToCPUSim(sim_info); 
+}
+#endif // USE_GPU
+
 /*
  * Resets all of the maps.
  * Releases and re-allocates memory for each map, clearing them as necessary.

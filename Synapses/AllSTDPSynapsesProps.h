@@ -33,8 +33,8 @@ class AllSTDPSynapsesProps : public AllSpikingSynapsesProps
         virtual void setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
         
         //! Cereal
-        template<class Archive>
-        void serialize(Archive & archive);
+        //template<class Archive>
+        //void serialize(Archive & archive);
 
 #if defined(USE_GPU)
     public:
@@ -210,10 +210,10 @@ class AllSTDPSynapsesProps : public AllSpikingSynapsesProps
 };
 
 //! Cereal Serialization/Deserialization Method
-template<class Archive>
+/*template<class Archive>
 void AllSTDPSynapsesProps::serialize(Archive & archive) {
     archive(cereal::base_class<AllSpikingSynapsesProps>(this));
-}
+}*/
 
 //! Cereal
 CEREAL_REGISTER_TYPE(AllSTDPSynapsesProps)

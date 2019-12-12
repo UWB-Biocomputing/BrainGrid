@@ -102,6 +102,15 @@ class Model : public IModel
          */
         virtual void cleanupSim(SimulationInfo *sim_info);
 
+#if defined(USE_GPU) 
+        /**
+         * Copy GPU Synapse data back to CPU following a simulation.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         */
+        virtual void copyGPUSynapseToCPUSim(SimulationInfo *sim_info);
+#endif // USE_GPU
+
         /**
          *  Get the Connections class object.
          *
