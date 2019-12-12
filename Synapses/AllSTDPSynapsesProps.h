@@ -216,4 +216,4 @@ void AllSTDPSynapsesProps::serialize(Archive & archive) {
 }*/
 
 //! Cereal
-CEREAL_REGISTER_TYPE(AllSTDPSynapsesProps)
+//CEREAL_REGISTER_TYPE(AllSTDPSynapsesProps)
