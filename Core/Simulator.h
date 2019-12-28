@@ -54,11 +54,18 @@ class Simulator
 
 #if defined(USE_GPU)        
         /**
-         * copy GPU Synapse data back to CPU after simulation.
+         * Copy GPU Synapse data to CPU.
          *
          *  @param  sim_info    parameters for the simulation.
          */
         void copyGPUSynapseToCPU(SimulationInfo *sim_info);
+
+        /**
+         * Copy CPU Synapse data to GPU.
+         *
+         *  @param  sim_info    parameters for the simulation.
+         */
+        void copyCPUSynapseToGPU(SimulationInfo *sim_info);
 #endif // USE_GPU
 
         /** 

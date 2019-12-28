@@ -392,3 +392,53 @@ void AllSTDPSynapsesProps::writeSynapseProps(ostream& output, const BGSIZE iSyn)
     output << muneg[iSyn] << ends;
     output << useFroemkeDanSTDP[iSyn] << ends;
 }
+
+/*
+ *  Prints all SynapsesProps data.
+ */
+void AllSTDPSynapsesProps::printSynapsesProps() 
+{
+    cout << "This is SynapsesProps data:" << endl;
+    AllSpikingSynapsesProps::printSynapsesProps();
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        if (W[i] != 0.0) {
+            cout << "total_delayPost: " << total_delayPost[i];
+            cout << " tauspost: " << tauspost[i];
+            cout << " tauspre: " << tauspre[i];
+            cout << " taupos: " << taupos[i];
+            cout << " tauneg: " << tauneg[i];
+            cout << " STDPgap: " << STDPgap[i];
+            cout << " Wex: " << Wex[i];
+            cout << " Aneg: " << Aneg[i];
+            cout << " Apos: " << Apos[i];
+            cout << " mupos: " << mupos[i];
+            cout << " muneg: " << muneg[i];
+            cout << " useFroemkeDanSTDP: " << useFroemkeDanSTDP[i];
+            cout << " postSpikeQueue: " << postSpikeQueue->m_queueEvent[i] << endl;
+        } else {
+            if(total_delayPost[i] != 0.0 || tauspost[i] != 0.0 || 
+            tauspre[i] != 0.0 || taupos[i] != 0.0 ||
+            tauneg[i] != 0.0 || STDPgap[i] != 0.0 ||
+            Wex[i] != 0.0 || Aneg[i] != 0.0 ||
+            Apos[i] != 0.0 || mupos[i] ||
+            muneg[i] != 0.0 || useFroemkeDanSTDP[i] != 0.0 ||
+            postSpikeQueue->m_queueEvent[i] != 0.0) {
+                cout << "---------------------ERROR!!!!!!!!-------------" << endl;
+                cout << " total_delayPost: " << total_delayPost[i];
+                cout << " tauspost: " << tauspost[i];
+                cout << " tauspre: " << tauspre[i];
+                cout << " taupos: " << taupos[i];
+                cout << " tauneg: " << tauneg[i];
+                cout << " STDPgap: " << STDPgap[i];
+                cout << " Wex: " << Wex[i];
+                cout << " Aneg: " << Aneg[i];
+                cout << " Apos: " << Apos[i];
+                cout << " mupos: " << mupos[i];
+                cout << " muneg: " << muneg[i];
+                cout << " useFroemkeDanSTDP: " << useFroemkeDanSTDP[i];
+                cout << " postSpikeQueue: " << postSpikeQueue->m_queueEvent[i] << endl;
+            }
+        }
+    }
+
+}

@@ -25,14 +25,6 @@ AllSynapsesProps::~AllSynapsesProps()
     cleanupSynapsesProps();
 }
 
-void AllSynapsesProps::printWeights() 
-{
-        cout << "Non-zero weights:" << endl;
-        for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
-                if (W[i] != 0.0)
-                        cout << "W[" << i << "] = " << W[i] << endl;
-        }
-}
 
 /*
  *  Setup the internal structure of the class (allocate memories and initialize them).
@@ -197,7 +189,7 @@ void AllSynapsesProps::copyDeviceToHostProps( AllSynapsesProps& allSynapsesProps
 
     checkCudaErrors( cudaMemcpy ( synapse_counts, allSynapsesProps.synapse_counts,
             num_neurons * sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
-    this-> maxSynapsesPerNeuron = allSynapsesProps.maxSynapsesPerNeuron;
+    this->maxSynapsesPerNeuron = allSynapsesProps.maxSynapsesPerNeuron;
     this->total_synapse_counts = allSynapsesProps.total_synapse_counts;
     this->count_neurons = allSynapsesProps.count_neurons;
 
@@ -316,4 +308,43 @@ synapseType AllSynapsesProps::synapseOrdinalToType(const int type_ordinal)
         default:
                 return STYPE_UNDEF;
         }
+}
+
+/*
+ *  Prints all SynapsesProps data.
+ */
+void AllSynapsesProps::printSynapsesProps() 
+{
+    cout << "This is SynapsesProps data:" << endl;
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        if (W[i] != 0.0) {
+                cout << "W[" << i << "] = " << W[i];
+                cout << " sourNeuron: " << sourceNeuronLayoutIndex[i];
+                cout << " desNeuron: " << destNeuronLayoutIndex[i];
+                cout << " type: " << type[i];
+                cout << " psr: " << psr[i];
+                cout << " in_use:" << in_use[i];
+                if(summationPoint[i] != NULL) {
+                     cout << " summationPoint: is created!" << endl;    
+                } else {
+                     cout << " summationPoint: is EMPTY!!!!!" << endl;  
+                }
+        } else {
+                if(sourceNeuronLayoutIndex[i] != 0.0 || destNeuronLayoutIndex[i] != 0.0 || type[i] != 0 || psr[i] != 0.0 ||in_use[i] != 0.0 || summationPoint[i] != NULL) {
+                        cout << "---------------------ERROR!!!!!!!!-------------" << endl;
+                        cout << "s: " << sourceNeuronLayoutIndex[i];
+                        cout << "d:" << destNeuronLayoutIndex[i];
+                        cout << "in_use:" << in_use[i] << endl;
+                }
+        }
+    }
+    
+    for (int i = 0; i < count_neurons; i++) {
+        cout << "synapse_counts:" << "[" << i  << "]" << synapse_counts[i] << " ";
+    }
+    cout << endl;
+    
+    cout << "total_synapse_counts:" << total_synapse_counts << endl;
+    cout << "maxSynapsesPerNeuron:" << maxSynapsesPerNeuron << endl;
+    cout << "count_neurons:" << count_neurons << endl;
 }

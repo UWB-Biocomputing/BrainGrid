@@ -96,14 +96,32 @@ int main(int argc, char* argv[]) {
         DEBUG(cerr << "Deserializing state from file." << endl;)
         ifstream memory_in(simInfo->memInputFileName.c_str());
         cereal::XMLInputArchive archive(memory_in);
+
+        // Prints out SynapsesProps before deserialization
+        cout << "------------------------------Before Deserialization:--------------------------" << endl;
+        for(int i = 0; i < vtClr.size(); i++) {
+            dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
+        }
+        // Deserializes synapse weight(s) along with each synapse's source neuron and destination neuron
         for(int i = 0; i < vtClr.size(); i++) {
             archive(*vtClr[i]);
         }
-        //deserialization test
-        /*for(int i = 0; i < vtClr.size(); i++) {
-            dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printWeights(); 
-        }*/
-        //create synapses from w Connections::createSynapsesFromWeights() 
+
+        // Creates synapse(s) from weight(s) 
+        dynamic_cast<Model *>(simInfo->model)->m_conns->createSynapsesFromWeights(simInfo, dynamic_cast<Model *>(simInfo->model)->m_layout, vtClr, vtClrInfo);
+
+#if defined(USE_GPU)
+        // Copy CPU Synapse data to GPU after deserialization
+        simulator->copyCPUSynapsesToGPU(simInfo);
+#endif // USE_GPU
+
+        SynapseIndexMap::createSynapseImap(simInfo, vtClr, vtClrInfo);
+
+        // Prints out SynapsesProps after deserialization
+        cout << "------------------------------After Deserialization:--------------------------" << endl;
+        for(int i = 0; i < vtClr.size(); i++) {
+            dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
+        }
     }
 
     // Run simulation
@@ -119,19 +137,22 @@ int main(int argc, char* argv[]) {
     // Writes simulation results to an output destination
     simulator->saveData(simInfo);
 
-#if defined(USE_GPU)
-    // Copy GPU Synapse data back to CPU for serialization
-    simulator->copyGPUSynapsesToCPU(simInfo);
-#endif // USE_GPU
-
     // Serializes internal state for the current simulation
     if (!simInfo->memOutputFileName.empty()) {
         ofstream memory_out (simInfo->memOutputFileName.c_str());
         cereal::XMLOutputArchive archive(memory_out);
+#if defined(USE_GPU)
+        // Copy GPU Synapse data to CPU for serialization
+        simulator->copyGPUSynapsesToCPU(simInfo);
+#endif // USE_GPU
         for(int i = 0; i < vtClr.size(); i++) {
             archive(*vtClr[i]);
         }
     }
+
+    //for(int i = 0; i < vtClr.size(); i++) {
+      //  dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
+    //}
 
     // Tell simulation to clean-up and run any post-simulation logic.
     simulator->finish(simInfo);

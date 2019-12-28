@@ -441,7 +441,7 @@ CUDA_CALLABLE void EventQueue::regEventHandler(InterClustersEventHandler* eventH
  *
  * output  stream to print out to.
  */
-void EventQueue::serialize(ostream& output)
+/*void EventQueue::serialize(ostream& output)
 {
     output << m_idxQueue << ends;
     output << m_nMaxEvent << ends;
@@ -449,14 +449,14 @@ void EventQueue::serialize(ostream& output)
     for (BGSIZE idx = 0; idx < m_nMaxEvent; idx++) {
         output << m_queueEvent[idx] << ends;
     }
-}
+}*/
 
 /*
  * Sets the data for the queue to input's data.
  *
  * input istream to read from.
  */
-void EventQueue::deserialize(istream& input)
+/*void EventQueue::deserialize(istream& input)
 {
     BGSIZE nMaxEvent;
 
@@ -471,7 +471,7 @@ void EventQueue::deserialize(istream& input)
     for (BGSIZE idx = 0; idx < m_nMaxEvent; idx++) {
         input >> m_queueEvent[idx]; input.ignore();
     }
-}
+}*/
 
 #if defined(USE_GPU)
 /*

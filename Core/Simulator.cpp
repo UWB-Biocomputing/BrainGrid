@@ -62,14 +62,25 @@ void Simulator::finish(SimulationInfo *sim_info)
 }
 
 #if defined(USE_GPU)  
-/*
- *  Copy GPU Synapse data back to CPU after simulation.
+
+/**
+ * Copy GPU Synapse data to CPU.
  *
  *  @param  sim_info    parameters for the simulation.
  */
 void Simulator::copyGPUSynapseToCPU(SimulationInfo *sim_info) {
   sim_info->model->copyGPUSynapseToCPUSim(sim_info); 
 }
+/**
+ * Copy CPU Synapse data to GPU.
+ *
+ *  @param  sim_info    parameters for the simulation.
+ */
+void Simulator::copyCPUSynapseToGPU(SimulationInfo *sim_info) {
+  sim_info->model->copyCPUSynapseToGPUSim(sim_info); 
+}
+
+
 #endif // USE_GPU
 
 /*

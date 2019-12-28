@@ -294,3 +294,31 @@ void AllDynamicSTDPSynapsesProps::writeSynapseProps(ostream& output, const BGSIZ
     output << U[iSyn] << ends;
     output << F[iSyn] << ends;
 }
+
+/*
+ *  Prints all SynapsesProps data.
+ */
+void AllDynamicSTDPSynapsesProps::printSynapsesProps() 
+{
+    AllSTDPSynapsesProps::printSynapsesProps();
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        if (W[i] != 0.0) {
+            cout << "lastSpike: " << lastSpike[i];
+            cout << " r: " << r[i];
+            cout << " u: " << u[i];
+            cout << " D: " << D[i];
+            cout << " U: " << U[i];
+            cout << " F: " << F[i] << endl;
+        } else {
+            if(lastSpike[i] != 0.0 || r[i] != 0.0 || u[i] != 0.0 || D[i] != 0.0 || U[i] != 0.0 || F[i] != 0.0) {
+                cout << "---------------------ERROR!!!!!!!!-------------" << endl;
+                cout << " lastSpike: " << lastSpike[i];
+                cout << " r: " << r[i];
+                cout << " u: " << u[i];
+                cout << " D: " << D[i];
+                cout << " U: " << U[i];
+                cout << " F: " << F[i] << endl;
+            }
+        }
+    }
+}

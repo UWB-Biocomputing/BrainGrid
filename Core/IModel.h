@@ -119,11 +119,17 @@ class IModel {
 
 #if defined(USE_GPU) 
         /**
-         * Copy GPU Synapse data back to CPU following a simulation.
+         * Copy GPU Synapse data to CPU.
          *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
         virtual void copyGPUSynapseToCPUSim(SimulationInfo *sim_info) = 0;
+        /**
+         * Copy CPU Synapse data to GPU.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         */
+        virtual void copyCPUSynapseToGPUSim(SimulationInfo *sim_info) = 0;
 #endif // USE_GPU
 
         /**

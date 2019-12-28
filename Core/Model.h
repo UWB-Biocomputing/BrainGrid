@@ -104,11 +104,19 @@ class Model : public IModel
 
 #if defined(USE_GPU) 
         /**
-         * Copy GPU Synapse data back to CPU following a simulation.
+         * Copy GPU Synapse data to CPU.
          *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
          */
         virtual void copyGPUSynapseToCPUSim(SimulationInfo *sim_info);
+
+        /**
+         * Copy CPU Synapse data to GPU.
+         *
+         * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
+         */
+        virtual void copyCPUSynapseToGPUSim(SimulationInfo *sim_info);
+
 #endif // USE_GPU
 
         /**
@@ -181,6 +189,8 @@ class Model : public IModel
         // kind of a hack to do error handling for read params
         int m_read_params;
 
+    // Dec 21st 2019: Modified access level here for allowing the access of Connections() and Layout() when calling Connections::createSynapsesFromWeights() method in BGDriver
+    public:       
         /**
          *  Pointer to the Connection object.
          */
@@ -191,6 +201,7 @@ class Model : public IModel
          */
         Layout *m_layout;
 
+    protected:
         /**
          *  Vecttor of pointer to the ClusterInfo object.
          */

@@ -36,6 +36,17 @@ class AllSTDPSynapsesProps : public AllSpikingSynapsesProps
         //template<class Archive>
         //void serialize(Archive & archive);
 
+        /*template<class Archive>
+        void save(Archive & archive) const;
+
+        template<class Archive>
+        void load(Archive & archive);*/
+
+        /**
+         *  Prints all SynapsesProps data.
+         */
+        virtual void printSynapsesProps();
+
 #if defined(USE_GPU)
     public:
         /**
@@ -213,6 +224,84 @@ class AllSTDPSynapsesProps : public AllSpikingSynapsesProps
 /*template<class Archive>
 void AllSTDPSynapsesProps::serialize(Archive & archive) {
     archive(cereal::base_class<AllSpikingSynapsesProps>(this));
+}*/
+
+/*template<class Archive>
+void AllSTDPSynapsesProps::save(Archive & archive) const
+{
+    vector<int> total_delayPostVector;
+    vector<BGFLOAT> tauspostVector;
+    vector<BGFLOAT> tauspreVector;
+    vector<BGFLOAT> tauposVector;
+    vector<BGFLOAT> taunegVector;
+    vector<BGFLOAT> STDPgapVector;
+    vector<BGFLOAT> WexVector;
+    vector<BGFLOAT> AnegVector;
+    vector<BGFLOAT> AposVector;
+    vector<BGFLOAT> muposVector;
+    vector<BGFLOAT> munegVector;
+    vector<bool> useFroemkeDanSTDPVector;
+
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        total_delayPostVector.push_back(total_delayPost[i]);
+        tauspostVector.push_back(tauspost[i]);
+        tauspreVector.push_back(tauspre[i]);
+        tauposVector.push_back(taupos[i]);
+        taunegVector.push_back(tauneg[i]);
+        STDPgapVector.push_back(STDPgap[i]);
+        WexVector.push_back(Wex[i]);
+        AnegVector.push_back(Aneg[i]);
+        AposVector.push_back(Apos[i]);
+        muposVector.push_back(mupos[i]);
+        munegVector.push_back(muneg[i]);
+        useFroemkeDanSTDPVector.push_back(useFroemkeDanSTDP[i]);
+    }
+
+    archive(cereal::base_class<AllSpikingSynapsesProps>(this),
+    total_delayPostVector, tauspostVector, tauspreVector,
+    tauposVector, taunegVector, STDPgapVector,
+    WexVector, AnegVector, AposVector,
+    muposVector, munegVector, useFroemkeDanSTDPVector,*postSpikeQueue
+    );
+}
+
+template<class Archive>
+void AllSTDPSynapsesProps::load(Archive & archive) 
+{
+    vector<int> total_delayPostVector;
+    vector<BGFLOAT> tauspostVector;
+    vector<BGFLOAT> tauspreVector;
+    vector<BGFLOAT> tauposVector;
+    vector<BGFLOAT> taunegVector;
+    vector<BGFLOAT> STDPgapVector;
+    vector<BGFLOAT> WexVector;
+    vector<BGFLOAT> AnegVector;
+    vector<BGFLOAT> AposVector;
+    vector<BGFLOAT> muposVector;
+    vector<BGFLOAT> munegVector;
+    vector<bool> useFroemkeDanSTDPVector;
+
+    archive(cereal::base_class<AllSpikingSynapsesProps>(this),
+    total_delayPostVector, tauspostVector, tauspreVector,
+    tauposVector, taunegVector, STDPgapVector,
+    WexVector, AnegVector, AposVector,
+    muposVector, munegVector, useFroemkeDanSTDPVector, *postSpikeQueue
+    );
+
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        total_delayPost[i] = total_delayPostVector[i];
+        tauspost[i] = tauspostVector[i];
+        tauspre[i] = tauspreVector[i];
+        taupos[i] = tauposVector[i];
+        tauneg[i] = taunegVector[i];
+        STDPgap[i] = STDPgapVector[i];
+        Wex[i] = WexVector[i];
+        Aneg[i] = AnegVector[i];
+        Apos[i] = AposVector[i];
+        mupos[i] = muposVector[i];
+        muneg[i] = munegVector[i];
+        useFroemkeDanSTDP[i] = useFroemkeDanSTDPVector[i];
+    }
 }*/
 
 //! Cereal

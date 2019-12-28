@@ -106,12 +106,19 @@ class Cluster
 
 #if defined(USE_GPU)        
         /**
-         *  Copy GPU Synapse data back to CPU.
+         *  Copy GPU Synapse data to CPU.
          *
          *  @param  sim_info    SimulationInfo to refer.
          *  @param  clr_info    ClusterInfo to refer.
          */
         virtual void copyGPUSynapseToCPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
+        /**
+         *  Copy CPU Synapse data to GPU.
+         *
+         *  @param  sim_info    SimulationInfo to refer.
+         *  @param  clr_info    ClusterInfo to refer.
+         */
+        virtual void copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
 #endif // USE_GPU
 
         //! Cereal

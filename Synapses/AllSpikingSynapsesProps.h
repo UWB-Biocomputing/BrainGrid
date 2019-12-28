@@ -36,6 +36,17 @@ class AllSpikingSynapsesProps : public AllSynapsesProps
         //template<class Archive>
         //void serialize(Archive & archive);
 
+        /*template<class Archive>
+        void save(Archive & archive) const;
+
+        template<class Archive>
+        void load(Archive & archive);*/
+
+        /**
+         *  Prints all SynapsesProps data.
+         */
+        virtual void printSynapsesProps();
+
 #if defined(USE_GPU)
     public:
         /**
@@ -195,6 +206,42 @@ class AllSpikingSynapsesProps : public AllSynapsesProps
 /*template<class Archive>
 void AllSpikingSynapsesProps::serialize(Archive & archive) {
     archive(cereal::base_class<AllSynapsesProps>(this));
+}*/
+
+/*template<class Archive>
+void AllSpikingSynapsesProps::save(Archive & archive) const
+{
+    vector<BGFLOAT> decayVector;
+    vector<BGFLOAT> tauVector;
+    vector<int> total_delayVector;
+
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        decayVector.push_back(decay[i]);
+        tauVector.push_back(tau[i]);
+        total_delayVector.push_back(total_delay[i]);
+    }
+
+    archive(cereal::base_class<AllSynapsesProps>(this),
+    decayVector, tauVector, total_delayVector, *preSpikeQueue
+    );
+}
+
+template<class Archive>
+void AllSpikingSynapsesProps::load(Archive & archive) 
+{
+    vector<BGFLOAT> decayVector;
+    vector<BGFLOAT> tauVector;
+    vector<int> total_delayVector;
+
+    archive(cereal::base_class<AllSynapsesProps>(this),
+    decayVector, tauVector, total_delayVector, *preSpikeQueue
+    );
+
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        decay[i] = decayVector[i];
+        tau[i] = tauVector[i];
+        total_delay[i] = total_delayVector[i];
+    }
 }*/
 
 //! Cereal

@@ -395,3 +395,28 @@ void AllSpikingSynapsesProps::writeSynapseProps(ostream& output, const BGSIZE iS
     output << total_delay[iSyn] << ends;
     output << tau[iSyn] << ends;
 }
+
+
+/*
+ *  Prints all SynapsesProps data.
+ */
+void AllSpikingSynapsesProps::printSynapsesProps() 
+{
+    AllSynapsesProps::printSynapsesProps();
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        if (W[i] != 0.0) {
+            cout << "decay: " << decay[i];
+            cout << " tau: " << tau[i];
+            cout << " total_delay: " << total_delay[i];
+            cout << " preSpikeQueue: " << preSpikeQueue->m_queueEvent[i] << endl;
+        } else {
+            if(decay[i] != 0.0 || tau[i] != 0.0 || total_delay[i] != NULL || preSpikeQueue->m_queueEvent[i] != 0.0) {
+                cout << "---------------------ERROR!!!!!!!!-------------" << endl;
+                cout << " decay: " << decay[i];
+                cout << " tau: " << tau[i];
+                cout << " total_delay: " << total_delay[i];
+                cout << " preSpikeQueue: " << preSpikeQueue->m_queueEvent[i] << endl;
+            }
+        }
+    }
+}

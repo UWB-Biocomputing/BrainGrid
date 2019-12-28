@@ -304,7 +304,7 @@ void GPUSpikingCluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *cl
 }
 
 /* 
- *  Copy GPU Synapse data back to CPU.
+ *  Copy GPU Synapse data to CPU.
  *
  *  @param  sim_info    SimulationInfo to refer.
  *  @param  clr_info    ClusterInfo to refer.
@@ -314,6 +314,19 @@ void GPUSpikingCluster::copyGPUSynapseToCPUCluster(SimulationInfo *sim_info, Clu
   // copy device synapse structs to host memory
   AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(m_synapses)->m_pSynapsesProps;
   pSynapsesProps->copySynapseDeviceToHostProps(m_allSynapsesDeviceProps, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );
+}
+
+/* 
+ *  Copy CPU Synapse data to GPU.
+ *
+ *  @param  sim_info    SimulationInfo to refer.
+ *  @param  clr_info    ClusterInfo to refer.
+ */
+void GPUSpikingCluster::copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
+{
+  // copy host synapse structs to device memory
+  AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(m_synapses)->m_pSynapsesProps;
+  pSynapsesProps->copySynapseHostToDeviceProps(m_allSynapsesDeviceProps, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );
 }
 
 /*

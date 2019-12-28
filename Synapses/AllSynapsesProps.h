@@ -31,7 +31,10 @@ class AllSynapsesProps : public IAllSynapsesProps
          */
         virtual void setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
 
-        virtual void printWeights();
+        /**
+         *  Prints all SynapsesProps data.
+         */
+        virtual void printSynapsesProps();
         
         //! Cereal
         //template<class Archive>
@@ -164,7 +167,7 @@ class AllSynapsesProps : public IAllSynapsesProps
         /**
          *   The weight (scaling factor, strength, maximal amplitude) of the synapse.
          */
-         BGFLOAT *W;
+        BGFLOAT *W;
 
         /**
          *  This synapse's summation point's address.
@@ -229,22 +232,60 @@ void AllSynapsesProps::serialize(Archive & archive) {
 template<class Archive>
 void AllSynapsesProps::save(Archive & archive) const
 {
-    vector<BGFLOAT> temp;
+    vector<BGFLOAT> WVector;
+    vector<int>sourceNeuronLayoutIndexVector;
+    vector<int>destNeuronLayoutIndexVector;
+    //vector<synapseType> typeVector;
+    //vector<BGFLOAT> psrVector;
+    //vector<bool> in_useVector;
+
+    //vector<BGSIZE> synapse_countsVector;
+
     for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
-        temp.push_back(W[i]);
+        WVector.push_back(W[i]);
+        sourceNeuronLayoutIndexVector.push_back(sourceNeuronLayoutIndex[i]);
+        destNeuronLayoutIndexVector.push_back(destNeuronLayoutIndex[i]);
+        //typeVector.push_back(type[i]);
+        //psrVector.push_back(psr[i]);
+        //in_useVector.push_back(in_use[i]);
     }
-    archive(temp);
+    //for (int i = 0; i < count_neurons; i++) {
+      //  synapse_countsVector.push_back(synapse_counts[i]);
+    //}
+    archive(WVector, sourceNeuronLayoutIndexVector, destNeuronLayoutIndexVector//,
+    //typeVector, psrVector, in_useVector, synapse_countsVector//,
+    //total_synapse_counts, maxSynapsesPerNeuron, count_neurons
+    );
 }
 
 template<class Archive>
 void AllSynapsesProps::load(Archive & archive) 
 {
-    vector<BGFLOAT> temp;
-    archive(temp);
-    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
-        W[i] = temp[i];
-    }
+    vector<BGFLOAT> WVector;
+    vector<int>sourceNeuronLayoutIndexVector;
+    vector<int>destNeuronLayoutIndexVector;
+    //vector<synapseType> typeVector;
+    //vector<BGFLOAT> psrVector;
+    //vector<bool> in_useVector;
 
+    //vector<BGSIZE> synapse_countsVector;
+
+    archive(WVector, sourceNeuronLayoutIndexVector, destNeuronLayoutIndexVector//,
+    //typeVector, psrVector, in_useVector, synapse_countsVector//,
+    //total_synapse_counts, maxSynapsesPerNeuron, count_neurons
+    );
+
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        W[i] = WVector[i];
+        sourceNeuronLayoutIndex[i] = sourceNeuronLayoutIndexVector[i];
+        destNeuronLayoutIndex[i] = destNeuronLayoutIndexVector[i];
+        //type[i] = typeVector[i];
+        //psr[i] = psrVector[i];
+        //in_use[i] = in_useVector[i];
+    }
+    //for (int i = 0; i < count_neurons; i++) {
+      //  synapse_counts[i] = synapse_countsVector[i];
+    //}
 }
 
 //! Cereal

@@ -191,7 +191,7 @@ void Model::cleanupSim(SimulationInfo *sim_info)
 
 #if defined(USE_GPU) 
 /*
- *  Copy GPU Synapse data back to CPU following a simulation.
+ *  Copy GPU Synapse data to CPU.
  *
  *  @param  sim_info    SimulationInfo to refer.
  */
@@ -201,6 +201,18 @@ virtual void Model::copyGPUSynapseToCPUSim(SimulationInfo *sim_info) {
 
     for (unsigned int i = 0; i < m_vtClr.size(); i++) {
         m_vtClr[i]->copyGPUSynapseToCPUCluster(sim_info, m_vtClrInfo[i]);
+    }
+}
+
+/*
+ *  Copy CPU Synapse data to GPU.
+ *
+ *  @param  sim_info    SimulationInfo to refer.
+ */
+virtual void Model::copyCPUSynapseToGPUSim(SimulationInfo *sim_info) {
+
+    for (unsigned int i = 0; i < m_vtClr.size(); i++) {
+        m_vtClr[i]->copyCPUSynapseToGPUCluster(sim_info, m_vtClrInfo[i]);
     }
 }
 #endif // USE_GPU

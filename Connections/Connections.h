@@ -119,7 +119,7 @@ class Connections
          *  @param  vtClr       Vector of Cluster class objects.
          *  @param  vtClrInfo   Vector of ClusterInfo.
          */
-   virtual void updateConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo) {}
+        virtual void updateConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo) {}
 
         /**
          *  Creates a recorder class object for the connection.
@@ -130,6 +130,16 @@ class Connections
          *  @return Pointer to the recorder class object.
          */
         virtual IRecorder* createRecorder(const SimulationInfo *sim_info) = 0;
+
+        /**
+         *  Creates synapse(s) from synapse weight(s) saved in the serialization file.
+         * 
+         *  @param  sim_info    SimulationInfo class to read information from.
+         *  @param  layout      Layout information of the neunal network.
+         *  @param  vtClr       Vector of Cluster class objects.
+         *  @param  vtClrInfo   Vector of ClusterInfo.
+         */
+        void createSynapsesFromWeights(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 
     protected:
         //!  Number of parameters read.

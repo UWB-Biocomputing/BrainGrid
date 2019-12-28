@@ -36,6 +36,17 @@ class AllDynamicSTDPSynapsesProps : public AllSTDPSynapsesProps
         //template<class Archive>
         //void serialize(Archive & archive);
 
+        /*template<class Archive>
+        void save(Archive & archive) const;
+
+        template<class Archive>
+        void load(Archive & archive);*/
+
+        /**
+         *  Prints all SynapsesProps data.
+         */
+        virtual void printSynapsesProps();
+
 #if defined(USE_GPU)
     public:
         /**
@@ -171,6 +182,54 @@ class AllDynamicSTDPSynapsesProps : public AllSTDPSynapsesProps
 /*template<class Archive>
 void AllDynamicSTDPSynapsesProps::serialize(Archive & archive) {
     archive(cereal::base_class<AllSTDPSynapsesProps>(this));
+}*/
+
+/*template<class Archive>
+void AllDynamicSTDPSynapsesProps::save(Archive & archive) const
+{
+    vector<uint64_t> lastSpikeVector;
+    vector<BGFLOAT> rVector;
+    vector<BGFLOAT> uVector;
+    vector<BGFLOAT> DVector;
+    vector<BGFLOAT> UVector;
+    vector<BGFLOAT> FVector;
+
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        lastSpikeVector.push_back(lastSpike[i]);
+        rVector.push_back(r[i]);
+        uVector.push_back(u[i]);
+        DVector.push_back(D[i]);
+        UVector.push_back(U[i]);
+        FVector.push_back(F[i]);
+    }
+
+    archive(cereal::base_class<AllSTDPSynapsesProps>(this),
+    lastSpikeVector, rVector, uVector,
+    DVector, UVector, FVector);
+}
+
+template<class Archive>
+void AllDynamicSTDPSynapsesProps::load(Archive & archive) 
+{
+    vector<uint64_t> lastSpikeVector;
+    vector<BGFLOAT> rVector;
+    vector<BGFLOAT> uVector;
+    vector<BGFLOAT> DVector;
+    vector<BGFLOAT> UVector;
+    vector<BGFLOAT> FVector;
+
+    archive(cereal::base_class<AllSTDPSynapsesProps>(this),
+    lastSpikeVector, rVector, uVector,
+    DVector, UVector, FVector);
+
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        lastSpike[i] = lastSpikeVector[i];
+        r[i] = rVector[i];
+        u[i] = uVector[i];
+        D[i] = DVector[i];
+        U[i] = UVector[i];
+        F[i] = FVector[i];
+    }
 }*/
 
 //! Cereal
