@@ -190,12 +190,13 @@ void Model::cleanupSim(SimulationInfo *sim_info)
 }
 
 #if defined(USE_GPU) 
+
 /*
  *  Copy GPU Synapse data to CPU.
  *
  *  @param  sim_info    SimulationInfo to refer.
  */
-virtual void Model::copyGPUSynapseToCPUSim(SimulationInfo *sim_info) {
+void Model::copyGPUSynapseToCPUSim(SimulationInfo *sim_info) {
     //ask prof
     //Cluster::quitAdvanceThread();
 
@@ -209,12 +210,13 @@ virtual void Model::copyGPUSynapseToCPUSim(SimulationInfo *sim_info) {
  *
  *  @param  sim_info    SimulationInfo to refer.
  */
-virtual void Model::copyCPUSynapseToGPUSim(SimulationInfo *sim_info) {
+void Model::copyCPUSynapseToGPUSim(SimulationInfo *sim_info) {
 
     for (unsigned int i = 0; i < m_vtClr.size(); i++) {
         m_vtClr[i]->copyCPUSynapseToGPUCluster(sim_info, m_vtClrInfo[i]);
     }
 }
+
 #endif // USE_GPU
 
 /*
