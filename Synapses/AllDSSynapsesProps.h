@@ -11,10 +11,10 @@
 /**
  * cereal
  */
-#include <cereal/types/polymorphic.hpp> //for inheritance
-#include <cereal/types/base_class.hpp> //for inherit parent's data member
-#include <cereal/types/vector.hpp>
-#include <vector>
+//#include <cereal/types/polymorphic.hpp> //for inheritance
+//#include <cereal/types/base_class.hpp> //for inherit parent's data member
+//#include <cereal/types/vector.hpp>
+//#include <vector>
 
 class AllDSSynapsesProps : public AllSpikingSynapsesProps
 {
@@ -36,11 +36,11 @@ class AllDSSynapsesProps : public AllSpikingSynapsesProps
         //template<class Archive>
         //void serialize(Archive & archive);
 
-        template<class Archive>
+        /*template<class Archive>
         void save(Archive & archive) const;
 
         template<class Archive>
-        void load(Archive & archive);
+        void load(Archive & archive);*/
 
         /**
          *  Prints all SynapsesProps data.

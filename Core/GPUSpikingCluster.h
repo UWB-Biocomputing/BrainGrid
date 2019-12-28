@@ -74,9 +74,9 @@
 /**
  * cereal
  */
-#include <cereal/types/polymorphic.hpp> //for inheritance
-#include <cereal/types/base_class.hpp> //inherit data member from base class
-#include <cereal/access.hpp> //for load and construct
+//#include <cereal/types/polymorphic.hpp> //for inheritance
+//#include <cereal/types/base_class.hpp> //inherit data member from base class
+//#include <cereal/access.hpp> //for load and construct
 
 const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
 
@@ -204,11 +204,11 @@ public:
         virtual void advanceSpikeQueue(const SimulationInfo *sim_info, const ClusterInfo *clr_info, int iStep);
         
         //! Cereal
-        template<class Archive>
+        /*template<class Archive>
         static void load_and_construct(Archive& ar, cereal::construct<GPUSpikingCluster>& construct);
 
         template<class Archive>
-        void serialize(Archive & archive);
+        void serialize(Archive & archive);*/
 
 protected:
         /**
@@ -335,7 +335,7 @@ private:
 };
 
 //! Cereal Serialization/Deserialization Method
-template<class Archive>
+/*template<class Archive>
 void GPUSpikingCluster::serialize(Archive & archive) {
         archive(cereal::base_class<Cluster>(this));
 }
@@ -352,7 +352,7 @@ void GPUSpikingCluster::load_and_construct(Archive& ar, cereal::construct<GPUSpi
 }
 
 //! Cereal
-CEREAL_REGISTER_TYPE(GPUSpikingCluster)
+CEREAL_REGISTER_TYPE(GPUSpikingCluster)*/
 
 
 #if defined(__CUDACC__)

@@ -48,9 +48,9 @@
 /**
  * cereal
  */
-#include <cereal/types/polymorphic.hpp> //for inheritance
-#include <cereal/types/base_class.hpp> //inherit data member from base class
-#include <cereal/access.hpp> //for load and construct
+//#include <cereal/types/polymorphic.hpp> //for inheritance
+//#include <cereal/types/base_class.hpp> //inherit data member from base class
+//#include <cereal/access.hpp> //for load and construct
 
 class SingleThreadedCluster : public Cluster {
     public:
@@ -76,11 +76,11 @@ class SingleThreadedCluster : public Cluster {
         virtual void cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         //! Cereal
-        template<class Archive>
+        /*template<class Archive>
         static void load_and_construct(Archive& ar, cereal::construct<SingleThreadedCluster>& construct);
 
         template<class Archive>
-        void serialize(Archive & archive);
+        void serialize(Archive & archive);*/
 
 #if defined(VALIDATION)
         /**
@@ -138,7 +138,7 @@ class SingleThreadedCluster : public Cluster {
 };
 
 //! Cereal Serialization/Deserialization Method
-template<class Archive>
+/*template<class Archive>
 void SingleThreadedCluster::serialize(Archive & archive) { 
         archive(cereal::base_class<Cluster>(this));
 }
@@ -152,7 +152,7 @@ void SingleThreadedCluster::load_and_construct(Archive& ar, cereal::construct<Si
         AllSynapses * castm_synapses = dynamic_cast<AllSynapses*>(m_synapses2);
         ar(*castm_synapses);
         construct(m_neurons2,m_synapses2);
-}
+}*/
 
 //! Cereal
-CEREAL_REGISTER_TYPE(SingleThreadedCluster)
+//CEREAL_REGISTER_TYPE(SingleThreadedCluster)

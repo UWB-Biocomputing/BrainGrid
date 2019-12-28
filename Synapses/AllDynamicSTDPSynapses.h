@@ -55,8 +55,8 @@
 /**
  * cereal
  */
-#include <cereal/types/polymorphic.hpp> //for inheritance
-#include <cereal/types/base_class.hpp> //for inherit parent's data member
+//#include <cereal/types/polymorphic.hpp> //for inheritance
+//#include <cereal/types/base_class.hpp> //for inherit parent's data member
 
 class AllDynamicSTDPSynapses : public AllSTDPSynapses
 {
@@ -93,8 +93,8 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
         CUDA_CALLABLE virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
         
         //! Cereal
-        template<class Archive>
-        void serialize(Archive & archive);
+        //template<class Archive>
+        //void serialize(Archive & archive);
 
 #if defined(USE_GPU)
     public:
@@ -131,10 +131,10 @@ __global__ void allocAllDynamicSTDPSynapsesDevice(IAllSynapses **pAllSynapses, I
 #endif // USE_GPU
 
 //! Cereal Serialization/Deserialization Method
-template<class Archive>
+/*template<class Archive>
 void AllDynamicSTDPSynapses::serialize(Archive & archive) {
     archive(cereal::base_class<AllSTDPSynapses>(this));
 }
 
 //! Cereal
-CEREAL_REGISTER_TYPE(AllDynamicSTDPSynapses)
+CEREAL_REGISTER_TYPE(AllDynamicSTDPSynapses)*/

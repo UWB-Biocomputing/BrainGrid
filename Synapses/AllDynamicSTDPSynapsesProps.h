@@ -11,10 +11,10 @@
 /**
  * cereal
  */
-#include <cereal/types/polymorphic.hpp> //for inheritance
-#include <cereal/types/base_class.hpp> //for inherit parent's data member
-#include <cereal/types/vector.hpp>
-#include <vector>
+//#include <cereal/types/polymorphic.hpp> //for inheritance
+//#include <cereal/types/base_class.hpp> //for inherit parent's data member
+//#include <cereal/types/vector.hpp>
+//#include <vector>
 
 class AllDynamicSTDPSynapsesProps : public AllSTDPSynapsesProps
 {
