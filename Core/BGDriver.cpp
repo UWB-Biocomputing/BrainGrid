@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
 
 #if defined(USE_GPU)
         // Copy CPU Synapse data to GPU after deserialization
-        simulator->copyCPUSynapsesToGPU(simInfo);
+        simulator->copyCPUSynapseToGPU(simInfo);
 #endif // USE_GPU
 
         SynapseIndexMap::createSynapseImap(simInfo, vtClr, vtClrInfo);
@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
         cereal::XMLOutputArchive archive(memory_out);
 #if defined(USE_GPU)
         // Copy GPU Synapse data to CPU for serialization
-        simulator->copyGPUSynapsesToCPU(simInfo);
+        simulator->copyGPUSynapseToCPU(simInfo);
 #endif // USE_GPU
         for(int i = 0; i < vtClr.size(); i++) {
             archive(*vtClr[i]);
