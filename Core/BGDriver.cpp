@@ -162,7 +162,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    cout << "---------------------------After Serialization---------------------------------"
+    cout << "---------------------------After Serialization---------------------------------" <<endl;
     for(int i = 0; i < vtClr.size(); i++) {
         dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
     }
