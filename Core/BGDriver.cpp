@@ -91,6 +91,12 @@ int main(int argc, char* argv[]) {
     DEBUG(cerr << "Setup simulation." << endl;)
     simulator->setup(simInfo);
 
+    // Prints out SynapsesProps before deserialization
+    cout << "------------------------------Before Deserialization:--------------------------" << endl;
+    for(int i = 0; i < vtClr.size(); i++) {
+        dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
+    }
+
     // Deserializes internal state from a prior run of the simulation
     if (!simInfo->memInputFileName.empty()) {
         DEBUG(cerr << "Deserializing state from file." << endl;)
@@ -98,10 +104,10 @@ int main(int argc, char* argv[]) {
         cereal::XMLInputArchive archive(memory_in);
 
         // Prints out SynapsesProps before deserialization
-        cout << "------------------------------Before Deserialization:--------------------------" << endl;
-        for(int i = 0; i < vtClr.size(); i++) {
-            dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
-        }
+        //cout << "------------------------------Before Deserialization:--------------------------" << endl;
+        //for(int i = 0; i < vtClr.size(); i++) {
+          //  dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
+        //}
         // Deserializes synapse weight(s) along with each synapse's source neuron and destination neuron
         for(int i = 0; i < vtClr.size(); i++) {
             archive(*vtClr[i]);
