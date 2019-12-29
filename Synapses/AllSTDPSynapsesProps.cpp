@@ -398,7 +398,6 @@ void AllSTDPSynapsesProps::writeSynapseProps(ostream& output, const BGSIZE iSyn)
  */
 void AllSTDPSynapsesProps::printSynapsesProps() 
 {
-    cout << "This is SynapsesProps data:" << endl;
     AllSpikingSynapsesProps::printSynapsesProps();
     for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
         if (W[i] != 0.0) {
@@ -423,7 +422,7 @@ void AllSTDPSynapsesProps::printSynapsesProps()
             Apos[i] != 0.0 || mupos[i] ||
             muneg[i] != 0.0 || useFroemkeDanSTDP[i] != 0.0 ||
             postSpikeQueue->m_queueEvent[i] != 0.0) {
-                cout << "---------------------ERROR!!!!!!!!-------------" << endl;
+                cout << "---------------------ERROR!!!!!!!!-------------";
                 cout << " total_delayPost: " << total_delayPost[i];
                 cout << " tauspost: " << tauspost[i];
                 cout << " tauspre: " << tauspre[i];

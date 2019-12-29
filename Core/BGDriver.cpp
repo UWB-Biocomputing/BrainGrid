@@ -118,10 +118,10 @@ int main(int argc, char* argv[]) {
         SynapseIndexMap::createSynapseImap(simInfo, vtClr, vtClrInfo);
 
         // Prints out SynapsesProps after deserialization
-        cout << "------------------------------After Deserialization:--------------------------" << endl;
-        for(int i = 0; i < vtClr.size(); i++) {
-            dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
-        }
+        //cout << "------------------------------After Deserialization:--------------------------" << endl;
+        //for(int i = 0; i < vtClr.size(); i++) {
+          //  dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
+        //}
     }
 
     // Run simulation

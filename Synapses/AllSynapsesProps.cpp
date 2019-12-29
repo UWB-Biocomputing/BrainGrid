@@ -331,7 +331,8 @@ void AllSynapsesProps::printSynapsesProps()
                 }
         } else {
                 if(sourceNeuronLayoutIndex[i] != 0.0 || destNeuronLayoutIndex[i] != 0.0 || type[i] != 0 || psr[i] != 0.0 ||in_use[i] != 0.0 || summationPoint[i] != NULL) {
-                        cout << "---------------------ERROR!!!!!!!!-------------" << endl;
+                        cout << "---------------------ERROR!!!!!!!!-------------";
+                        cout << "W[" << i << "] = " << W[i];
                         cout << "s: " << sourceNeuronLayoutIndex[i];
                         cout << "d:" << destNeuronLayoutIndex[i];
                         cout << "in_use:" << in_use[i] << endl;

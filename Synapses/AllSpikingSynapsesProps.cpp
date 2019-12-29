@@ -411,7 +411,7 @@ void AllSpikingSynapsesProps::printSynapsesProps()
             cout << " preSpikeQueue: " << preSpikeQueue->m_queueEvent[i] << endl;
         } else {
             if(decay[i] != 0.0 || tau[i] != 0.0 || total_delay[i] != NULL || preSpikeQueue->m_queueEvent[i] != 0.0) {
-                cout << "---------------------ERROR!!!!!!!!-------------" << endl;
+                cout << "---------------------ERROR!!!!!!!!-------------";
                 cout << " decay: " << decay[i];
                 cout << " tau: " << tau[i];
                 cout << " total_delay: " << total_delay[i];

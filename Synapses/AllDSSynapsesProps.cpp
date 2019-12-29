@@ -299,7 +299,6 @@ void AllDSSynapsesProps::writeSynapseProps(ostream& output, const BGSIZE iSyn) c
  */
 void AllDSSynapsesProps::printSynapsesProps() 
 {
-    cout << "This is SynapsesProps data:" << endl;
     AllSpikingSynapsesProps::printSynapsesProps();
     for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
         if (W[i] != 0.0) {
@@ -311,7 +310,7 @@ void AllDSSynapsesProps::printSynapsesProps()
             cout << " F: " << F[i] << endl;
         } else {
             if(lastSpike[i] != 0.0 || r[i] != 0.0 || u[i] != 0.0 || D[i] != 0.0 || U[i] != 0.0 || F[i] != 0.0) {
-                cout << "---------------------ERROR!!!!!!!!-------------" << endl;
+                cout << "---------------------ERROR!!!!!!!!-------------";
                 cout << " lastSpike: " << lastSpike[i];
                 cout << " r: " << r[i];
                 cout << " u: " << u[i];

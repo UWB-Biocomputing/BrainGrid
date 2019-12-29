@@ -311,7 +311,7 @@ void AllDynamicSTDPSynapsesProps::printSynapsesProps()
             cout << " F: " << F[i] << endl;
         } else {
             if(lastSpike[i] != 0.0 || r[i] != 0.0 || u[i] != 0.0 || D[i] != 0.0 || U[i] != 0.0 || F[i] != 0.0) {
-                cout << "---------------------ERROR!!!!!!!!-------------" << endl;
+                cout << "---------------------ERROR!!!!!!!!-------------";
                 cout << " lastSpike: " << lastSpike[i];
                 cout << " r: " << r[i];
                 cout << " u: " << u[i];
