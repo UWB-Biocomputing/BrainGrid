@@ -88,20 +88,20 @@ int main(int argc, char* argv[]) {
     simulator = new Simulator();
 
     // Prints out SynapsesProps before deserialization
-    cout << "------------------------------Before setup:--------------------------" << endl;
-    for(int i = 0; i < vtClr.size(); i++) {
-        dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
-    }
+    //cout << "------------------------------Before setup:--------------------------" << endl;
+    //for(int i = 0; i < vtClr.size(); i++) {
+      //  dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
+    //}
 	
     // setup simulation
     DEBUG(cerr << "Setup simulation." << endl;)
     simulator->setup(simInfo);
 
     // Prints out SynapsesProps before deserialization
-    //cout << "------------------------------Before Deserialization:--------------------------" << endl;
-    //for(int i = 0; i < vtClr.size(); i++) {
-      //  dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
-    //}
+    cout << "------------------------------Before Deserialization:--------------------------" << endl;
+    for(int i = 0; i < vtClr.size(); i++) {
+        dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
+    }
 
     // Deserializes internal state from a prior run of the simulation
     if (!simInfo->memInputFileName.empty()) {
@@ -162,10 +162,10 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    cout << "---------------------------After Serialization---------------------------------" <<endl;
-    for(int i = 0; i < vtClr.size(); i++) {
-        dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
-    }
+    //cout << "---------------------------After Serialization---------------------------------" <<endl;
+    //for(int i = 0; i < vtClr.size(); i++) {
+      //  dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
+    //}
 
     // Tell simulation to clean-up and run any post-simulation logic.
     simulator->finish(simInfo);
