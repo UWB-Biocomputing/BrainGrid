@@ -59,9 +59,7 @@ void Simulator::finish(SimulationInfo *sim_info)
 {
   // Terminate the simulator
   sim_info->model->cleanupSim(sim_info); // Can #term be removed w/ the new model architecture?  // =>ISIMULATION
-}
-
-#if defined(USE_GPU)  
+} 
 
 /**
  * Copy GPU Synapse data to CPU.
@@ -79,9 +77,6 @@ void Simulator::copyGPUSynapseToCPU(SimulationInfo *sim_info) {
 void Simulator::copyCPUSynapseToGPU(SimulationInfo *sim_info) {
   sim_info->model->copyCPUSynapseToGPUSim(sim_info); 
 }
-
-
-#endif // USE_GPU
 
 /*
  * Resets all of the maps.

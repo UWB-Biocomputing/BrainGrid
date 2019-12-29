@@ -128,3 +128,25 @@ void SingleThreadedCluster::advanceSpikeQueue(const SimulationInfo *sim_info, co
         sim_info->pInput->advanceSInputState(clr_info, iStep);
     }
 }
+
+/**
+ *  Copy GPU Synapse data to CPU.
+ *
+ *  @param  sim_info    SimulationInfo to refer.
+ *  @param  clr_info    ClusterInfo to refer.
+ */
+void SingleThreadedCluster::copyGPUSynapseToCPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
+{
+
+}
+
+/**
+ *  Copy CPU Synapse data to GPU.
+ *
+ *  @param  sim_info    SimulationInfo to refer.
+ *  @param  clr_info    ClusterInfo to refer.
+ */
+void SingleThreadedCluster::copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
+{
+    
+}

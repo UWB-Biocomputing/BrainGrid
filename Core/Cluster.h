@@ -103,8 +103,7 @@ class Cluster
          *  @param  clr_info    ClusterInfo to refer.
          */
         virtual void cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
-
-#if defined(USE_GPU)        
+       
         /**
          *  Copy GPU Synapse data to CPU.
          *
@@ -112,6 +111,7 @@ class Cluster
          *  @param  clr_info    ClusterInfo to refer.
          */
         virtual void copyGPUSynapseToCPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
+        
         /**
          *  Copy CPU Synapse data to GPU.
          *
@@ -119,7 +119,6 @@ class Cluster
          *  @param  clr_info    ClusterInfo to refer.
          */
         virtual void copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
-#endif // USE_GPU
 
         //! Cereal
         template<class Archive>

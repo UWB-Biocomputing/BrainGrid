@@ -109,10 +109,8 @@ int main(int argc, char* argv[]) {
         // Creates synapse(s) from weight(s) 
         dynamic_cast<Model *>(simInfo->model)->m_conns->createSynapsesFromWeights(simInfo, dynamic_cast<Model *>(simInfo->model)->m_layout, vtClr, vtClrInfo);
 
-#if defined(USE_GPU)
         // Copy CPU Synapse data to GPU after deserialization
         simulator->copyCPUSynapseToGPU(simInfo);
-#endif // USE_GPU
 
         SynapseIndexMap::createSynapseImap(simInfo, vtClr, vtClrInfo);
 
@@ -140,10 +138,8 @@ int main(int argc, char* argv[]) {
     if (!simInfo->memOutputFileName.empty()) {
         ofstream memory_out (simInfo->memOutputFileName.c_str());
         cereal::XMLOutputArchive archive(memory_out);
-#if defined(USE_GPU)
         // Copy GPU Synapse data to CPU for serialization
         simulator->copyGPUSynapseToCPU(simInfo);
-#endif // USE_GPU
         for(int i = 0; i < vtClr.size(); i++) {
             archive(*vtClr[i]);
         }

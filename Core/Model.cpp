@@ -189,8 +189,6 @@ void Model::cleanupSim(SimulationInfo *sim_info)
     delete m_eventHandler;
 }
 
-#if defined(USE_GPU) 
-
 /*
  *  Copy GPU Synapse data to CPU.
  *
@@ -216,8 +214,6 @@ void Model::copyCPUSynapseToGPUSim(SimulationInfo *sim_info) {
         m_vtClr[i]->copyCPUSynapseToGPUCluster(sim_info, m_vtClrInfo[i]);
     }
 }
-
-#endif // USE_GPU
 
 /*
  *  Log this simulation step.

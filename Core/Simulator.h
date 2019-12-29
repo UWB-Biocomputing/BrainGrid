@@ -51,8 +51,7 @@ class Simulator
          *  @param  sim_info    parameters for the simulation.
          */
         void finish(SimulationInfo *sim_info);
-
-#if defined(USE_GPU)        
+      
         /**
          * Copy GPU Synapse data to CPU.
          *
@@ -66,7 +65,6 @@ class Simulator
          *  @param  sim_info    parameters for the simulation.
          */
         void copyCPUSynapseToGPU(SimulationInfo *sim_info);
-#endif // USE_GPU
 
         /** 
          * Reset simulation objects.

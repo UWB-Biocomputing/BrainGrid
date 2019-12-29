@@ -82,6 +82,22 @@ class SingleThreadedCluster : public Cluster {
         template<class Archive>
         void serialize(Archive & archive);*/
 
+        /**
+         *  Copy GPU Synapse data to CPU.
+         *
+         *  @param  sim_info    SimulationInfo to refer.
+         *  @param  clr_info    ClusterInfo to refer.
+         */
+        virtual void copyGPUSynapseToCPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
+         *  Copy CPU Synapse data to GPU.
+         *
+         *  @param  sim_info    SimulationInfo to refer.
+         *  @param  clr_info    ClusterInfo to refer.
+         */
+        virtual void copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
+
 #if defined(VALIDATION)
         /**
          *  Generates random numbers.
