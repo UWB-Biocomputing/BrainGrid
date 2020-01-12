@@ -32,6 +32,11 @@
 // The tinyXML library, for deserialization via a MatrixFactory
 #include "tinyxml.h"
 
+/**
+ * cereal
+ */
+#include <cereal/types/string.hpp> // for string
+
 using namespace std;
 
 /**
@@ -62,6 +67,13 @@ public:
     @param os Output stream.
   */
   virtual void Print(ostream& os) const = 0;
+
+  //! Cereal
+  template<class Archive>
+  void save(Archive & archive) const;
+
+  template<class Archive>
+  void load(Archive & archive);
 
 protected:
 
@@ -124,5 +136,14 @@ protected:
  */
 ostream& operator<<(ostream& os, const Matrix& obj);
 
+//! Cereal Serialization/Deserialization Method
+template<class Archive>
+void Matrix::save(Archive & archive) const {
+  archive(type, init, rows, columns, multiplier, dimensions);
+}
+template<class Archive>
+void Matrix::load(Archive & archive) {
+  archive(type, init, rows, columns, multiplier, dimensions);
+}
 
 #endif

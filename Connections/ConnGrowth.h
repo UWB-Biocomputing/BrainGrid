@@ -84,6 +84,11 @@
 class Barrier;
 #endif // USE_GPU
 
+/**
+ * cereal
+ */
+#include <cereal/types/polymorphic.hpp> //for inheritance
+
 using namespace std;
 
 class ConnGrowth : public Connections
@@ -166,6 +171,10 @@ class ConnGrowth : public Connections
          *  @return Pointer to the recorder class object.
          */
         virtual IRecorder* createRecorder(const SimulationInfo *sim_info);
+
+        //! Cereal
+        template<class Archive>
+        void serialize(Archive & archive);
 
     private:
         /**
@@ -323,3 +332,19 @@ extern __global__ void updateConnsDevice( AllSpikingNeuronsProps* allNeuronsProp
 extern __global__ void updateSynapsesWeightsDevice( IAllSynapses* synapsesDevice, int num_neurons, BGFLOAT deltaT, int maxSynapses, AllSpikingNeuronsProps* allNeuronsProps, AllSpikingSynapsesProps* allSynapsesProps, neuronType* neuron_type_map_d, int totalClusterNeurons, int clusterNeuronsBegin, BGFLOAT* radii_d, BGFLOAT* xloc_d,  BGFLOAT* yloc_d );
 
 #endif // USE_GPU && __CUDACC__
+
+//! Cereal Serialization/Deserialization Method
+template<class Archive>
+void ConnGrowth::serialize(Archive & archive) {
+    archive(
+#if defined(USE_GPU)  
+
+#else // !USE_GPU  
+        *radii
+#endif // !USE_GPU
+    );
+}
+
+//! Cereal
+CEREAL_REGISTER_TYPE(ConnGrowth)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Connections,ConnGrowth)

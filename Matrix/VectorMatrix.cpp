@@ -175,6 +175,14 @@ void VectorMatrix::Print(ostream& os) const {
 		os << theVector[i] << " ";
 }
 
+// print vector
+void VectorMatrix::printVector() const {
+	for (int i = 0; i < size; i++) {
+		cout << theVector[i] << " ";
+	}
+	cout << endl;
+}
+
 // convert vector to XML string
 string VectorMatrix::toXML(string name) const {
 	stringstream os;

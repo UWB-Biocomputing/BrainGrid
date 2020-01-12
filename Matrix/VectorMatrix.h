@@ -39,6 +39,15 @@
 #include "SparseMatrix.h"
 #include "Norm.h"
 
+/**
+ * cereal
+ */
+#include <cereal/types/polymorphic.hpp> //for inheritance
+#include <cereal/types/base_class.hpp> //inherit data member from base class
+#include <cereal/access.hpp> //for load and construct
+#include <cereal/types/vector.hpp>
+#include <vector>
+
 using namespace std;
 
 // Forward declarations
@@ -127,6 +136,9 @@ public:
     @param os stream to output to
   */
   virtual void Print(ostream& os) const;
+
+  // print vector
+  void printVector() const;
 
   /**
     @brief Produce XML representation of vector in string return value.
@@ -346,6 +358,16 @@ public:
   const VectorMatrix exp(const VectorMatrix& v);
   //@}
 
+  //! Cereal
+  //template<class Archive>
+  //static void load_and_construct(Archive& ar, cereal::construct<VectorMatrix>& construct);
+
+  template<class Archive>
+  void save(Archive & archive) const;
+
+  template<class Archive>
+  void load(Archive & archive);
+
 protected:
 
   /** @name Internal Utilities
@@ -391,5 +413,54 @@ private:
 
 };
 
+//! Cereal Serialization/Deserialization Method
+template<class Archive>
+void VectorMatrix::save(Archive & archive) const{
+  vector<BGFLOAT> theVectorVector;
+  for(int i = 0; i < size; i++) {
+    theVectorVector.push_back(theVector[i]);
+  }
+  archive(cereal::base_class<Matrix>(this), theVectorVector, size);
+  //archive(theVectorVector);
+}
+
+template<class Archive>
+void VectorMatrix::load(Archive & archive) {
+  vector<BGFLOAT> theVectorVector;
+  archive(cereal::base_class<Matrix>(this), theVectorVector, size);
+  //archive(theVectorVector);
+  for(int i = 0; i < size; i++) {
+    theVector[i] = theVectorVector[i];
+  }
+}
+
+//! Cereal Load_and_construct Method
+/*template <class Archive>
+void VectorMatrix::load_and_construct( Archive & ar, cereal::construct<VectorMatrix> & construct ) {
+
+  string type2;
+  string init2;
+  int rows2;
+  int columns2;
+  BGFLOAT multiplier2;
+  string values2;
+
+
+  BGFLOAT *theVector2;
+  int size2;
+
+  vector<BGFLOAT> theVectorVector;
+  for(int i = 0; i < size2; i++) {
+    theVectorVector.push_back(theVector2[i]);
+  }
+
+  ar(theVectorVector);
+  construct(type2, init2, rows2, columns2, multiplier2, values2);
+
+}*/
+
+//! Cereal
+CEREAL_REGISTER_TYPE(VectorMatrix)
+//CEREAL_REGISTER_POLYMORPHIC_RELATION(Matrix,VectorMatrix)
 
 #endif
