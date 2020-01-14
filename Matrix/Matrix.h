@@ -68,12 +68,14 @@ public:
   */
   virtual void Print(ostream& os) const = 0;
 
+#if !defined(USE_GPU)
   //! Cereal
   template<class Archive>
   void save(Archive & archive) const;
 
   template<class Archive>
   void load(Archive & archive);
+#endif 
 
 protected:
 
@@ -137,6 +139,9 @@ protected:
 ostream& operator<<(ostream& os, const Matrix& obj);
 
 //! Cereal Serialization/Deserialization Method
+
+#if !defined(USE_GPU)
+
 template<class Archive>
 void Matrix::save(Archive & archive) const {
   archive(type, init, rows, columns, multiplier, dimensions);
@@ -145,5 +150,7 @@ template<class Archive>
 void Matrix::load(Archive & archive) {
   archive(type, init, rows, columns, multiplier, dimensions);
 }
+
+#endif // !USE_GPU
 
 #endif

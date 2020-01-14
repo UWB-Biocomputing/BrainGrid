@@ -172,9 +172,11 @@ class ConnGrowth : public Connections
          */
         virtual IRecorder* createRecorder(const SimulationInfo *sim_info);
 
+#if !defined(USE_GPU)
         //! Cereal
         template<class Archive>
         void serialize(Archive & archive);
+#endif       
 
     private:
         /**
@@ -334,17 +336,13 @@ extern __global__ void updateSynapsesWeightsDevice( IAllSynapses* synapsesDevice
 #endif // USE_GPU && __CUDACC__
 
 //! Cereal Serialization/Deserialization Method
+#if !defined(USE_GPU) 
 template<class Archive>
 void ConnGrowth::serialize(Archive & archive) {
-    archive(
-#if defined(USE_GPU)  
-
-#else // !USE_GPU  
-        *radii
-#endif // !USE_GPU
-    );
+    archive( *radii);
 }
 
 //! Cereal
 CEREAL_REGISTER_TYPE(ConnGrowth)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Connections,ConnGrowth)
+#endif // !USE_GPU

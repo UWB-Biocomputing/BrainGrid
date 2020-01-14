@@ -358,6 +358,7 @@ public:
   const VectorMatrix exp(const VectorMatrix& v);
   //@}
 
+#if !defined(USE_GPU)
   //! Cereal
   //template<class Archive>
   //static void load_and_construct(Archive& ar, cereal::construct<VectorMatrix>& construct);
@@ -367,6 +368,8 @@ public:
 
   template<class Archive>
   void load(Archive & archive);
+
+#endif // !USE_GPU
 
 protected:
 
@@ -414,8 +417,11 @@ private:
 };
 
 //! Cereal Serialization/Deserialization Method
+
+#if !defined(USE_GPU)
 template<class Archive>
 void VectorMatrix::save(Archive & archive) const{
+  assert(theVector != nullptr);
   vector<BGFLOAT> theVectorVector;
   for(int i = 0; i < size; i++) {
     theVectorVector.push_back(theVector[i]);
@@ -434,6 +440,7 @@ void VectorMatrix::load(Archive & archive) {
     theVector[i] = theVectorVector[i];
   }
 }
+
 
 //! Cereal Load_and_construct Method
 /*template <class Archive>
@@ -463,5 +470,6 @@ void VectorMatrix::load_and_construct( Archive & ar, cereal::construct<VectorMat
 //! Cereal
 CEREAL_REGISTER_TYPE(VectorMatrix)
 //CEREAL_REGISTER_POLYMORPHIC_RELATION(Matrix,VectorMatrix)
+#endif // !USE_GPU
 
 #endif
