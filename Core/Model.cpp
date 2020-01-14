@@ -195,9 +195,6 @@ void Model::cleanupSim(SimulationInfo *sim_info)
  *  @param  sim_info    SimulationInfo to refer.
  */
 void Model::copyGPUSynapseToCPUSim(SimulationInfo *sim_info) {
-    //ask prof
-    //Cluster::quitAdvanceThread();
-
     for (unsigned int i = 0; i < m_vtClr.size(); i++) {
         m_vtClr[i]->copyGPUSynapseToCPUCluster(sim_info, m_vtClrInfo[i]);
     }
@@ -209,7 +206,6 @@ void Model::copyGPUSynapseToCPUSim(SimulationInfo *sim_info) {
  *  @param  sim_info    SimulationInfo to refer.
  */
 void Model::copyCPUSynapseToGPUSim(SimulationInfo *sim_info) {
-
     for (unsigned int i = 0; i < m_vtClr.size(); i++) {
         m_vtClr[i]->copyCPUSynapseToGPUCluster(sim_info, m_vtClrInfo[i]);
     }

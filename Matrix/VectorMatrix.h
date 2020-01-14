@@ -426,6 +426,7 @@ void VectorMatrix::save(Archive & archive) const{
 
 template<class Archive>
 void VectorMatrix::load(Archive & archive) {
+  assert(theVector != nullptr);
   vector<BGFLOAT> theVectorVector;
   archive(cereal::base_class<Matrix>(this), theVectorVector, size);
   //archive(theVectorVector);

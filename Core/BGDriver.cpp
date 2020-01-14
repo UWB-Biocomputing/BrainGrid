@@ -119,8 +119,10 @@ int main(int argc, char* argv[]) {
         // Creates synapse index map
         SynapseIndexMap::createSynapseImap(simInfo, vtClr, vtClrInfo);
 
+        //print out weights on the GPU
+
         // Deserializes radii
-        archive(*(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)));
+        //archive(*(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)));
 
         // Prints out SynapsesProps after deserialization
         cout << "------------------------------After Deserialization:--------------------------" << endl;
@@ -156,7 +158,7 @@ int main(int argc, char* argv[]) {
             archive(*vtClr[i]);
         }
         // Serializes radii
-        archive(*(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)));
+        //archive(*(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)));
     }
 
     //cout << "---------------------------After Serialization---------------------------------" <<endl;
