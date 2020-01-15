@@ -47,6 +47,7 @@
 #include <cereal/access.hpp> //for load and construct
 #include <cereal/types/vector.hpp>
 #include <vector>
+#include <cereal/types/string.hpp> // for string
 
 using namespace std;
 
