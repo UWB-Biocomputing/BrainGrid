@@ -372,4 +372,6 @@ extern __global__ void calcSummationMapDevice_2(int totalNeurons,
 		    AllSpikingNeuronsProps* __restrict__ allNeurnsProps,
 		    const SynapseIndexMap* __restrict__ synapseIndexMapDevice,
                     const AllSpikingSynapsesProps* __restrict__ allSynapsesProps );
+
+extern __global__ void printGPUProps();                  
 #endif // __CUDACC__
