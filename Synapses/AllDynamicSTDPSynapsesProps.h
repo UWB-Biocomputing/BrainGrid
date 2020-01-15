@@ -131,7 +131,7 @@ class AllDynamicSTDPSynapsesProps : public AllSTDPSynapsesProps
          *  Prints all GPU SynapsesProps data.
          * (Helper function of printGPUSynapsesProps)
          */
-        void printGPUSynapsesPropsHelper( AllSynapsesProps& allSynapsesProps);
+        void printGPUSynapsesPropsHelper( AllDynamicSTDPSynapsesProps& allSynapsesProps);
 #endif // USE_GPU
 
         /**

@@ -450,7 +450,7 @@ void AllSTDPSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps )
     printGPUSynapsesPropsHelper( allSynapsesProps );
 }
 
-void AllSTDPSynapsesProps::printGPUSynapsesPropsHelper( AllSynapsesProps& allSynapsesProps )
+void AllSTDPSynapsesProps::printGPUSynapsesPropsHelper( AllSTDPSynapsesProps& allSynapsesProps )
 {
     cout << "This is GPU SynapsesProps data:" << endl;
     AllSpikingSynapsesProps::printGPUSynapsesPropsHelper( allSynapsesProps );

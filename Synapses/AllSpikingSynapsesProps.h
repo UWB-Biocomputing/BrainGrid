@@ -164,7 +164,7 @@ class AllSpikingSynapsesProps : public AllSynapsesProps
          *  Prints all GPU SynapsesProps data.
          * (Helper function of printGPUSynapsesProps)
          */
-        void printGPUSynapsesPropsHelper( AllSynapsesProps& allSynapsesProps);
+        void printGPUSynapsesPropsHelper( AllSpikingSynapsesProps& allSynapsesProps);
 #endif // USE_GPU
 
     public:
