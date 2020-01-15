@@ -329,7 +329,7 @@ void GPUSpikingCluster::copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, Clu
   pSynapsesProps->copySynapseHostToDeviceProps(m_allSynapsesDeviceProps, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );
 }
 
-void GPUSpikingCluster::printGPUPropsCluster()
+void GPUSpikingCluster::printGPUPropsCluster(ClusterInfo *clr_info)
 {  
   AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(m_synapses)->m_pSynapsesProps;
   pSynapsesProps->printGPUSynapsesProps( m_allSynapsesDeviceProps, clr_info->totalClusterNeurons );

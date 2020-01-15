@@ -422,7 +422,7 @@ void AllSpikingSynapsesProps::printSynapsesProps()
 }
 
 #if defined(USE_GPU)
-void AllSpikingSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps ) 
+void AllSpikingSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps, int num_neurons ) 
 {
     AllSpikingSynapsesProps allSynapsesProps;
     checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllSpikingSynapsesProps ), cudaMemcpyDeviceToHost ) );

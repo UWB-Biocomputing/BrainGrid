@@ -87,7 +87,7 @@ class AllDynamicSTDPSynapsesProps : public AllSTDPSynapsesProps
         /**
          *  Prints all GPU SynapsesProps data.
          */
-        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps);
+        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps, int num_neurons );
 
     protected:
         /**

@@ -63,7 +63,7 @@ class IAllSynapsesProps
          */
         virtual void copySynapseDeviceToHostProps( void* allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron ) = 0;
 
-        virtual void printGPUSynapsesProps( void* allSynapsesDeviceProps ) = 0;
+        virtual void printGPUSynapsesProps( void* allSynapsesDeviceProps, int num_neurons ) = 0;
 #endif // USE_GPU
 
         /**

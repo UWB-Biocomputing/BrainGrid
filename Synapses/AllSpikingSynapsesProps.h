@@ -120,7 +120,7 @@ class AllSpikingSynapsesProps : public AllSynapsesProps
         /**
          *  Prints all GPU SynapsesProps data.
          */
-        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps);
+        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps, int num_neurons );
 
     protected:
         /**

@@ -87,7 +87,7 @@ class AllDSSynapsesProps : public AllSpikingSynapsesProps
         /**
          *  Prints all GPU SynapsesProps data.
          */
-        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps);
+        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps, int num_neurons );
     protected:
         /**
          *  Allocate GPU memories to store all synapses' states.

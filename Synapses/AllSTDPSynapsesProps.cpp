@@ -443,7 +443,7 @@ void AllSTDPSynapsesProps::printSynapsesProps()
 }
 
 #if defined(USE_GPU)
-void AllSTDPSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps ) 
+void AllSTDPSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps, int num_neurons  ) 
 {
     AllSTDPSynapsesProps allSynapsesProps;
     checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllSTDPSynapsesProps ), cudaMemcpyDeviceToHost ) );
