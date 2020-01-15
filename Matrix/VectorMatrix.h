@@ -361,8 +361,8 @@ public:
 
 #if !defined(USE_GPU)
   //! Cereal
-  //template<class Archive>
-  //static void load_and_construct(Archive& ar, cereal::construct<VectorMatrix>& construct);
+  template<class Archive>
+  static void load_and_construct(Archive& ar, cereal::construct<VectorMatrix>& construct);
 
   template<class Archive>
   void save(Archive & archive) const;
@@ -422,7 +422,7 @@ private:
 #if !defined(USE_GPU)
 template<class Archive>
 void VectorMatrix::save(Archive & archive) const{
-  assert(theVector != nullptr);
+  assert(theVector != NULL);
   vector<BGFLOAT> theVectorVector;
   for(int i = 0; i < size; i++) {
     theVectorVector.push_back(theVector[i]);
@@ -444,7 +444,7 @@ void VectorMatrix::load(Archive & archive) {
 
 
 //! Cereal Load_and_construct Method
-/*template <class Archive>
+template <class Archive>
 void VectorMatrix::load_and_construct( Archive & ar, cereal::construct<VectorMatrix> & construct ) {
 
   string type2;
@@ -466,7 +466,7 @@ void VectorMatrix::load_and_construct( Archive & ar, cereal::construct<VectorMat
   ar(theVectorVector);
   construct(type2, init2, rows2, columns2, multiplier2, values2);
 
-}*/
+}
 
 //! Cereal
 CEREAL_REGISTER_TYPE(VectorMatrix)

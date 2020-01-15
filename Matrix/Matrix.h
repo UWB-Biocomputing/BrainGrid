@@ -71,10 +71,14 @@ public:
 #if !defined(USE_GPU)
   //! Cereal
   template<class Archive>
+  static void load_and_construct(Archive& ar, cereal::construct<Matrix>& construct);
+
+  template<class Archive>
   void save(Archive & archive) const;
 
   template<class Archive>
   void load(Archive & archive);
+
 #endif 
 
 protected:
@@ -149,6 +153,21 @@ void Matrix::save(Archive & archive) const {
 template<class Archive>
 void Matrix::load(Archive & archive) {
   archive(type, init, rows, columns, multiplier, dimensions);
+}
+
+//! Cereal Load_and_construct Method
+template <class Archive>
+void Matrix::load_and_construct( Archive & ar, cereal::construct<Matrix> & construct ) {
+  
+  string type2;
+  string init2;
+  int rows2;
+  int columns2;
+  BGFLOAT multiplier2;
+  int dimensions2;
+
+  ar(type2, init2, rows2, columns2, multiplier2, dimensions2);
+  construct( type2, init2, rows2, columns2, multiplier2 );
 }
 
 #endif // !USE_GPU
