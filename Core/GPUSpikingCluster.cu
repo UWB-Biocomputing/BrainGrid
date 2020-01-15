@@ -892,5 +892,5 @@ __global__ void calcSummationMapDevice_2(int totalNeurons,
 }
 
 __global__ void printGPUProps() {
-  printf("Hello from block");
+  printf("Hello from block %d", m_allSynapsesDeviceProps.total_synapse_counts);
 }
