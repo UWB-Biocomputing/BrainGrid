@@ -357,9 +357,17 @@ void AllDSSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps, in
             size * sizeof( bool ), cudaMemcpyDeviceToHost ) );*/
 
     //printGPUSynapsesPropsHelper( allSynapsesProps2 );
-    cout << "total_synapse_counts:" << total_synapse_counts2 << endl;
-    cout << "maxSynapsesPerNeuron:" << maxSynapsesPerNeuron2 << endl;
-    cout << "count_neurons:" << count_neurons2 << endl;
+    cout << "GPU total_synapse_counts:" << total_synapse_counts2 << endl;
+    cout << "GPU maxSynapsesPerNeuron:" << maxSynapsesPerNeuron2 << endl;
+    cout << "GPU count_neurons:" << count_neurons2 << endl;
+
+    // The preSpikeQueue points to an EventQueue objet in device memory. The pointer is copied to allSynapsesDeviceProps.
+    // To avoide illegeal deletion of the object at AllSpikingSynapsesProps::cleanupSynapsesProps(), set the pointer to NULL.
+    allSynapsesProps.preSpikeQueue = NULL;
+
+    // Set count_neurons to 0 to avoid illegal memory deallocation
+    // at AllDSSynapsesProps deconstructor.
+    allSynapsesProps.count_neurons = 0;
 }
 
 void AllDSSynapsesProps::printGPUSynapsesPropsHelper( AllDSSynapsesProps& allSynapsesProps )
