@@ -139,6 +139,8 @@ public:
          */
         virtual void copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
+        virtual void printGPUPropsCluster();
+
         /**
          *  Loads the simulation based on istream input.
          *
@@ -371,7 +373,5 @@ void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, uns
 extern __global__ void calcSummationMapDevice_2(int totalNeurons,
 		    AllSpikingNeuronsProps* __restrict__ allNeurnsProps,
 		    const SynapseIndexMap* __restrict__ synapseIndexMapDevice,
-                    const AllSpikingSynapsesProps* __restrict__ allSynapsesProps );
-
-extern __global__ void printGPUProps();                  
+                    const AllSpikingSynapsesProps* __restrict__ allSynapsesProps );             
 #endif // __CUDACC__

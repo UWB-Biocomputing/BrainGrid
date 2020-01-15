@@ -327,8 +327,14 @@ void GPUSpikingCluster::copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, Clu
   // copy host synapse structs to device memory
   AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(m_synapses)->m_pSynapsesProps;
   pSynapsesProps->copySynapseHostToDeviceProps(m_allSynapsesDeviceProps, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );
-  printGPUProps<<<1,1>>>();
 }
+
+void GPUSpikingCluster::printGPUPropsCluster()
+{  
+  AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(m_synapses)->m_pSynapsesProps;
+  pSynapsesProps->printGPUProps( &m_allSynapsesDeviceProps );
+}
+
 
 /*
  *  Loads the simulation based on istream input.
@@ -889,8 +895,4 @@ __global__ void calcSummationMapDevice_2(int totalNeurons,
     // Store summed PSR into this neuron's summation point
     allNeuronsProps->summation_map[idx] = sum;
   }
-}
-
-__global__ void printGPUProps() {
-  printf("Hello from block %d", m_allSynapsesDeviceProps.total_synapse_counts);
 }

@@ -349,3 +349,12 @@ void AllSynapsesProps::printSynapsesProps()
     cout << "maxSynapsesPerNeuron:" << maxSynapsesPerNeuron << endl;
     cout << "count_neurons:" << count_neurons << endl;
 }
+
+#if defined(USE_GPU)
+void AllSynapsesProps::printGPUSynapsesProps( void** allSynapsesDeviceProps ) 
+{
+    cout << "This is GPU SynapsesProps data:" << endl;
+    AllSynapsesProps allSynapsesProps;
+    checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllSynapsesProps ), cudaMemcpyDeviceToHost ) );
+}
+#endif // USE_GPU

@@ -119,7 +119,13 @@ int main(int argc, char* argv[]) {
         // Creates synapse index map
         SynapseIndexMap::createSynapseImap(simInfo, vtClr, vtClrInfo);
 
+#if defined(USE_GPU)
         //print out weights on the GPU
+        for(int i = 0; i < vtClr.size(); i++) {
+            vtClr[i]->printGPUPropsCluster();
+        }
+#endif // USE_GPU
+
 
         // Deserializes radii
         //archive(*(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)));

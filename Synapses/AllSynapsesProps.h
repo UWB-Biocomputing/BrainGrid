@@ -35,6 +35,11 @@ class AllSynapsesProps : public IAllSynapsesProps
          *  Prints all SynapsesProps data.
          */
         virtual void printSynapsesProps();
+
+        /**
+         *  Prints all GPU SynapsesProps data.
+         */
+        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps);
         
         //! Cereal
         //template<class Archive>
