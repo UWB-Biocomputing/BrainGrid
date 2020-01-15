@@ -62,6 +62,8 @@ class IAllSynapsesProps
          *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
          */
         virtual void copySynapseDeviceToHostProps( void* allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron ) = 0;
+
+        virtual void printGPUSynapsesProps( void* allSynapsesDeviceProps ) = 0;
 #endif // USE_GPU
 
         /**
