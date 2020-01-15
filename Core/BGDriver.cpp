@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
         for(int i = 0; i < vtClr.size(); i++) {
             dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
         }
-        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
+        //dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
 
         // Deserializes synapse weight(s) along with each synapse's source neuron and destination neuron
         for(int i = 0; i < vtClr.size(); i++) {
@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
         for(int i = 0; i < vtClr.size(); i++) {
             dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
         }
-        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
+        //dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
     }
 
     // Run simulation
