@@ -333,6 +333,9 @@ void AllDSSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps )
 void AllDSSynapsesProps::printGPUSynapsesPropsHelper( AllDSSynapsesProps& allSynapsesProps )
 {
     cout << "This is GPU SynapsesProps data:" << endl;
-    AllSpikingSynapsesProps::printGPUSynapsesPropsHelper( allSynapsesProps );
+    //AllSpikingSynapsesProps::printGPUSynapsesPropsHelper( allSynapsesProps );
+    cout << "total_synapse_counts:" << allSynapsesProps.total_synapse_counts << endl;
+    cout << "maxSynapsesPerNeuron:" << allSynapsesProps.maxSynapsesPerNeuron << endl;
+    cout << "count_neurons:" << allSynapsesProps.count_neurons << endl;
 }
 #endif // USE_GPU
