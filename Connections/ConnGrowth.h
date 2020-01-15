@@ -87,7 +87,7 @@ class Barrier;
 /**
  * cereal
  */
-#include <cereal/types/polymorphic.hpp> //for inheritance
+//#include <cereal/types/polymorphic.hpp> //for inheritance
 
 using namespace std;
 

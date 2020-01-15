@@ -35,7 +35,7 @@
 /**
  * cereal
  */
-#include <cereal/types/string.hpp> // for string
+//#include <cereal/types/string.hpp> // for string
 
 using namespace std;
 
@@ -70,14 +70,14 @@ public:
 
 #if !defined(USE_GPU)
   //! Cereal
-  template<class Archive>
+  /*template<class Archive>
   static void load_and_construct(Archive& ar, cereal::construct<Matrix>& construct);
 
   template<class Archive>
   void save(Archive & archive) const;
 
   template<class Archive>
-  void load(Archive & archive);
+  void load(Archive & archive);*/
 
 #endif 
 
@@ -146,7 +146,7 @@ ostream& operator<<(ostream& os, const Matrix& obj);
 
 #if !defined(USE_GPU)
 
-template<class Archive>
+/*template<class Archive>
 void Matrix::save(Archive & archive) const {
   archive(type, init, rows, columns, multiplier, dimensions);
 }
@@ -168,7 +168,7 @@ void Matrix::load_and_construct( Archive & ar, cereal::construct<Matrix> & const
 
   ar(type2, init2, rows2, columns2, multiplier2, dimensions2);
   construct( type2, init2, rows2, columns2, multiplier2 );
-}
+}*/
 
 #endif // !USE_GPU
 
