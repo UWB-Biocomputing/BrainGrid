@@ -420,8 +420,8 @@ private:
 //! Cereal Serialization/Deserialization Method
 
 #if !defined(USE_GPU)
-/*template<class Archive>
-void VectorMatrix::save(Archive & archive) const{
+//template<class Archive>
+//void VectorMatrix::save(Archive & archive) const{
   //assert(theVector != NULL);
   /*vector<BGFLOAT> theVectorVector;
   for(int i = 0; i < size; i++) {
@@ -430,21 +430,21 @@ void VectorMatrix::save(Archive & archive) const{
   //archive(cereal::base_class<Matrix>(this), theVectorVector, size);
   //archive(type, init, rows, columns, multiplier, dimensions,theVectorVector, size);
   //archive(theVectorVector);
-  archive(size);
-}
+  //archive(size);
+//}
 
-template<class Archive>
-void VectorMatrix::load(Archive & archive) {
+//template<class Archive>
+//void VectorMatrix::load(Archive & archive) {
   //assert(theVector != nullptr);
   //vector<BGFLOAT> theVectorVector;
   //archive(cereal::base_class<Matrix>(this), theVectorVector, size);
   //archive(type, init, rows, columns, multiplier, dimensions,theVectorVector, size);
   //archive(theVectorVector);
-  archive(size);
+  //archive(size);
   /*for(int i = 0; i < size; i++) {
     theVector[i] = theVectorVector[i];
   }*/
-}*/
+//}
 
 
 //! Cereal Load_and_construct Method
