@@ -326,34 +326,40 @@ void AllDSSynapsesProps::printSynapsesProps()
 void AllDSSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps, int num_neurons ) 
 {
     AllDSSynapsesProps allSynapsesProps;
-    AllDSSynapsesProps allSynapsesProps2;
+    BGSIZE total_synapse_counts2;
+    BGSIZE maxSynapsesPerNeuron2;
+    int count_neurons2;
+    BGSIZE *synapse_counts = new BGSIZE[num_neurons];
     checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllDSSynapsesProps ), cudaMemcpyDeviceToHost ) );
     
     BGSIZE size = maxSynapsesPerNeuron * num_neurons;
-    checkCudaErrors( cudaMemcpy ( allSynapsesProps2.synapse_counts, allSynapsesProps.synapse_counts,
+    checkCudaErrors( cudaMemcpy ( synapse_counts, allSynapsesProps.synapse_counts,
             num_neurons * sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
-    allSynapsesProps2.maxSynapsesPerNeuron = allSynapsesProps.maxSynapsesPerNeuron;
-    allSynapsesProps2.total_synapse_counts = allSynapsesProps.total_synapse_counts;
-    allSynapsesProps2.count_neurons = allSynapsesProps.count_neurons;
+    maxSynapsesPerNeuron2 = allSynapsesProps.maxSynapsesPerNeuron;
+    total_synapse_counts2 = allSynapsesProps.total_synapse_counts;
+    count_neurons2 = allSynapsesProps.count_neurons;
 
     // Set count_neurons to 0 to avoid illegal memory deallocation
     // at AllSynapsesProps deconstructor.
     allSynapsesProps.count_neurons = 0;
 
-    checkCudaErrors( cudaMemcpy ( allSynapsesProps2.sourceNeuronLayoutIndex, allSynapsesProps.sourceNeuronLayoutIndex,
+    /*checkCudaErrors( cudaMemcpy ( allSynapsesProps2.sourceNeuronLayoutIndex, &allSynapsesProps.sourceNeuronLayoutIndex,
             size * sizeof( int ), cudaMemcpyDeviceToHost ) );
-    checkCudaErrors( cudaMemcpy ( allSynapsesProps2.destNeuronLayoutIndex, allSynapsesProps.destNeuronLayoutIndex,
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps2.destNeuronLayoutIndex, &allSynapsesProps.destNeuronLayoutIndex,
             size * sizeof( int ), cudaMemcpyDeviceToHost ) );
-    checkCudaErrors( cudaMemcpy ( allSynapsesProps2.W, allSynapsesProps.W,
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps2.W, &allSynapsesProps.W,
             size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
     checkCudaErrors( cudaMemcpy ( allSynapsesProps2.type, allSynapsesProps.type,
             size * sizeof( synapseType ), cudaMemcpyDeviceToHost ) );
     checkCudaErrors( cudaMemcpy ( allSynapsesProps2.psr, allSynapsesProps.psr,
             size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
     checkCudaErrors( cudaMemcpy ( allSynapsesProps2.in_use, allSynapsesProps.in_use,
-            size * sizeof( bool ), cudaMemcpyDeviceToHost ) );
+            size * sizeof( bool ), cudaMemcpyDeviceToHost ) );*/
 
-    printGPUSynapsesPropsHelper( allSynapsesProps2 );
+    //printGPUSynapsesPropsHelper( allSynapsesProps2 );
+    cout << "total_synapse_counts:" << total_synapse_counts2 << endl;
+    cout << "maxSynapsesPerNeuron:" << maxSynapsesPerNeuron2 << endl;
+    cout << "count_neurons:" << count_neurons2 << endl;
 }
 
 void AllDSSynapsesProps::printGPUSynapsesPropsHelper( AllDSSynapsesProps& allSynapsesProps )
@@ -365,3 +371,39 @@ void AllDSSynapsesProps::printGPUSynapsesPropsHelper( AllDSSynapsesProps& allSyn
     cout << "count_neurons:" << allSynapsesProps.count_neurons << endl;
 }
 #endif // USE_GPU
+
+/*void AllDSSynapsesProps::copySynapseDeviceToHostProps( void* allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron )
+{
+    AllDSSynapsesProps allSynapsesProps;
+
+    checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllDSSynapsesProps ), cudaMemcpyDeviceToHost ) );
+    copyDeviceToHostProps( allSynapsesProps, num_neurons, maxSynapsesPerNeuron );
+
+    // The preSpikeQueue points to an EventQueue objet in device memory. The pointer is copied to allSynapsesDeviceProps.
+    // To avoide illegeal deletion of the object at AllSpikingSynapsesProps::cleanupSynapsesProps(), set the pointer to NULL.
+    allSynapsesProps.preSpikeQueue = NULL;
+
+    // Set count_neurons to 0 to avoid illegal memory deallocation
+    // at AllDSSynapsesProps deconstructor.
+    allSynapsesProps.count_neurons = 0;
+}
+
+void AllDSSynapsesProps::copyDeviceToHostProps( AllDSSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron)
+{
+    BGSIZE size = maxSynapsesPerNeuron * num_neurons;
+
+    AllSpikingSynapsesProps::copyDeviceToHostProps( allSynapsesProps, num_neurons, maxSynapsesPerNeuron);
+
+    checkCudaErrors( cudaMemcpy ( lastSpike, allSynapsesProps.lastSpike,
+            size * sizeof( uint64_t ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( r, allSynapsesProps.r,
+            size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( u, allSynapsesProps.u,
+            size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( D, allSynapsesProps.D,
+            size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( U, allSynapsesProps.U,
+            size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( F, allSynapsesProps.F,
+            size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+}*/
