@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
 #if defined(USE_GPU)
         //print out weights on the GPU
         for(int i = 0; i < vtClr.size(); i++) {
-            dynamic_cast<GPUSpikingCluster *> vtClr[i]->printGPUPropsCluster();
+            dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUPropsCluster();
         }
 #endif // USE_GPU
 
