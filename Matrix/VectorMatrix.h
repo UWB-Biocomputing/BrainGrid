@@ -472,7 +472,7 @@ void VectorMatrix::load_and_construct( Archive & ar, cereal::construct<VectorMat
 
 //! Cereal
 CEREAL_REGISTER_TYPE(VectorMatrix)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Matrix,VectorMatrix)
+//CEREAL_REGISTER_POLYMORPHIC_RELATION(Matrix,VectorMatrix)
 #endif // !USE_GPU
 
 #endif
