@@ -432,7 +432,7 @@ void AllSpikingSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProp
 void AllSpikingSynapsesProps::printGPUSynapsesPropsHelper( AllSynapsesProps& allSynapsesProps )
 {
     cout << "This is GPU SynapsesProps data:" << endl;
-    AllSpikingSynapsesProps * castallSynapsesProps =  dynamic_cast<AllSpikingSynapsesProps *> (allSynapsesProps);
+    AllSpikingSynapsesProps * castallSynapsesProps =  dynamic_cast<AllSpikingSynapsesProps *> (&allSynapsesProps);
     AllSynapsesProps::printGPUSynapsesPropsHelper( allSynapsesProps );
     for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
         if (castallSynapsesProps.W[i] != 0.0) {
