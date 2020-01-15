@@ -351,10 +351,9 @@ void AllSynapsesProps::printSynapsesProps()
 }
 
 #if defined(USE_GPU)
-void AllSynapsesProps::printGPUSynapsesProps( void** allSynapsesDeviceProps ) 
+void AllSynapsesProps::printGPUSynapsesPropsHelper( AllSynapsesProps& allSynapsesProps ) 
 {
     cout << "This is GPU SynapsesProps data:" << endl;
-    AllSynapsesProps allSynapsesProps;
-    checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllSynapsesProps ), cudaMemcpyDeviceToHost ) );
+    cout << "count_neurons:" << allSynapsesProps.count_neurons << endl;
 }
 #endif // USE_GPU

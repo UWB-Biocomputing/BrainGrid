@@ -35,11 +35,6 @@ class AllSynapsesProps : public IAllSynapsesProps
          *  Prints all SynapsesProps data.
          */
         virtual void printSynapsesProps();
-
-        /**
-         *  Prints all GPU SynapsesProps data.
-         */
-        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps);
         
         //! Cereal
         //template<class Archive>
@@ -89,6 +84,12 @@ class AllSynapsesProps : public IAllSynapsesProps
          *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
          */
         void copyDeviceToHostProps( AllSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron);
+
+        /**
+         *  Prints all GPU SynapsesProps data.
+         * (Helper function of printGPUSynapsesProps)
+         */
+        void printGPUSynapsesPropsHelper( AllSynapsesProps& allSynapsesProps);
 #endif // USE_GPU
 
     public:

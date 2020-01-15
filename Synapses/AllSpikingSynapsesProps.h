@@ -117,6 +117,11 @@ class AllSpikingSynapsesProps : public AllSynapsesProps
          */
         virtual void processInterClustesIncomingSpikes(void* allSynapsesProps);
 
+        /**
+         *  Prints all GPU SynapsesProps data.
+         */
+        virtual void printGPUSynapsesProps(void** allSynapsesDeviceProps);
+
     protected:
         /**
          *  Allocate GPU memories to store all synapses' states.
@@ -154,6 +159,12 @@ class AllSpikingSynapsesProps : public AllSynapsesProps
          *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
          */
         void copyDeviceToHostProps( AllSpikingSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron);
+
+        /**
+         *  Prints all GPU SynapsesProps data.
+         * (Helper function of printGPUSynapsesProps)
+         */
+        void printGPUSynapsesPropsHelper( AllSynapsesProps& allSynapsesProps);
 #endif // USE_GPU
 
     public:
