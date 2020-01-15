@@ -326,8 +326,34 @@ void AllDSSynapsesProps::printSynapsesProps()
 void AllDSSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps ) 
 {
     AllDSSynapsesProps allSynapsesProps;
+    AllDSSynapsesProps allSynapsesProps2;
     checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllDSSynapsesProps ), cudaMemcpyDeviceToHost ) );
-    printGPUSynapsesPropsHelper( allSynapsesProps );
+    
+    BGSIZE size = maxSynapsesPerNeuron * num_neurons;
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps2.synapse_counts, allSynapsesProps.synapse_counts,
+            num_neurons * sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
+    allSynapsesProps2.maxSynapsesPerNeuron = allSynapsesProps.maxSynapsesPerNeuron;
+    allSynapsesProps2.total_synapse_counts = allSynapsesProps.total_synapse_counts;
+    allSynapsesProps2.count_neurons = allSynapsesProps.count_neurons;
+
+    // Set count_neurons to 0 to avoid illegal memory deallocation
+    // at AllSynapsesProps deconstructor.
+    allSynapsesProps.count_neurons = 0;
+
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps2.sourceNeuronLayoutIndex, allSynapsesProps.sourceNeuronLayoutIndex,
+            size * sizeof( int ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps2.destNeuronLayoutIndex, allSynapsesProps.destNeuronLayoutIndex,
+            size * sizeof( int ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps2.W, allSynapsesProps.W,
+            size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps2.type, allSynapsesProps.type,
+            size * sizeof( synapseType ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps2.psr, allSynapsesProps.psr,
+            size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( allSynapsesProps2.in_use, allSynapsesProps.in_use,
+            size * sizeof( bool ), cudaMemcpyDeviceToHost ) );
+
+    printGPUSynapsesPropsHelper( allSynapsesProps2 );
 }
 
 void AllDSSynapsesProps::printGPUSynapsesPropsHelper( AllDSSynapsesProps& allSynapsesProps )
