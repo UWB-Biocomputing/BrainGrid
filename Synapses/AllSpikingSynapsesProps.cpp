@@ -432,22 +432,23 @@ void AllSpikingSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProp
 void AllSpikingSynapsesProps::printGPUSynapsesPropsHelper( AllSynapsesProps& allSynapsesProps )
 {
     cout << "This is GPU SynapsesProps data:" << endl;
+    AllSpikingSynapsesProps * castallSynapsesProps =  dynamic_cast<AllSpikingSynapsesProps *> (allSynapsesProps);
     AllSynapsesProps::printGPUSynapsesPropsHelper( allSynapsesProps );
     for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
-        if (allSynapsesProps.W[i] != 0.0) {
-            cout << "decay: " << allSynapsesProps.decay[i];
-            cout << " tau: " << allSynapsesProps.tau[i];
-            cout << " total_delay: " << allSynapsesProps.total_delay[i];
-            cout << " preSpikeQueue: " << allSynapsesProps.preSpikeQueue->m_queueEvent[i] << endl;
+        if (castallSynapsesProps.W[i] != 0.0) {
+            cout << "decay: " << castallSynapsesProps.decay[i];
+            cout << " tau: " << castallSynapsesProps.tau[i];
+            cout << " total_delay: " << castallSynapsesProps.total_delay[i];
+            cout << " preSpikeQueue: " << castallSynapsesProps.preSpikeQueue->m_queueEvent[i] << endl;
         } else {
-            if(allSynapsesProps.decay[i] != 0.0 || allSynapsesProps.tau[i] != 0.0 
-            || allSynapsesProps.total_delay[i] != NULL 
-            || allSynapsesProps.preSpikeQueue->m_queueEvent[i] != 0.0) {
+            if(castallSynapsesProps.decay[i] != 0.0 || castallSynapsesProps.tau[i] != 0.0 
+            || castallSynapsesProps.total_delay[i] != NULL 
+            || castallSynapsesProps.preSpikeQueue->m_queueEvent[i] != 0.0) {
                 cout << "---------------------ERROR!!!!!!!!-------------";
-                cout << " decay: " << allSynapsesProps.decay[i];
-                cout << " tau: " << allSynapsesProps.tau[i];
-                cout << " total_delay: " << allSynapsesProps.total_delay[i];
-                cout << " preSpikeQueue: " << allSynapsesProps.preSpikeQueue->m_queueEvent[i] << endl;
+                cout << " decay: " << castallSynapsesProps.decay[i];
+                cout << " tau: " << castallSynapsesProps.tau[i];
+                cout << " total_delay: " << castallSynapsesProps.total_delay[i];
+                cout << " preSpikeQueue: " << castallSynapsesProps.preSpikeQueue->m_queueEvent[i] << endl;
             }
         }
     }
