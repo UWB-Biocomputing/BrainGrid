@@ -322,3 +322,18 @@ void AllDynamicSTDPSynapsesProps::printSynapsesProps()
         }
     }
 }
+
+#if defined(USE_GPU)
+void AllDynamicSTDPSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps ) 
+{
+    AllDynamicSTDPSynapsesProps allSynapsesProps;
+    checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllDynamicSTDPSynapsesProps ), cudaMemcpyDeviceToHost ) );
+    printGPUSynapsesPropsHelper( allSynapsesProps );
+}
+
+void AllDynamicSTDPSynapsesProps::printGPUSynapsesPropsHelper( AllSynapsesProps& allSynapsesProps )
+{
+    cout << "This is GPU SynapsesProps data:" << endl;
+    AllSTDPSynapsesProps::printGPUSynapsesPropsHelper( allSynapsesProps );
+}
+#endif // USE_GPU

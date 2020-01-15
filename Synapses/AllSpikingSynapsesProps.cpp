@@ -424,17 +424,32 @@ void AllSpikingSynapsesProps::printSynapsesProps()
 #if defined(USE_GPU)
 void AllSpikingSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps ) 
 {
-    cout << "This is GPU SynapsesProps data:" << endl;
     AllSpikingSynapsesProps allSynapsesProps;
     checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllSpikingSynapsesProps ), cudaMemcpyDeviceToHost ) );
     printGPUSynapsesPropsHelper( allSynapsesProps );
- 
 }
 
 void AllSpikingSynapsesProps::printGPUSynapsesPropsHelper( AllSynapsesProps& allSynapsesProps )
 {
     cout << "This is GPU SynapsesProps data:" << endl;
     AllSynapsesProps::printGPUSynapsesPropsHelper( allSynapsesProps );
-
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        if (allSynapsesProps.W[i] != 0.0) {
+            cout << "decay: " << allSynapsesProps.decay[i];
+            cout << " tau: " << allSynapsesProps.tau[i];
+            cout << " total_delay: " << allSynapsesProps.total_delay[i];
+            cout << " preSpikeQueue: " << allSynapsesProps.preSpikeQueue->m_queueEvent[i] << endl;
+        } else {
+            if(allSynapsesProps.decay[i] != 0.0 || allSynapsesProps.tau[i] != 0.0 
+            || allSynapsesProps.total_delay[i] != NULL 
+            || allSynapsesProps.preSpikeQueue->m_queueEvent[i] != 0.0) {
+                cout << "---------------------ERROR!!!!!!!!-------------";
+                cout << " decay: " << allSynapsesProps.decay[i];
+                cout << " tau: " << allSynapsesProps.tau[i];
+                cout << " total_delay: " << allSynapsesProps.total_delay[i];
+                cout << " preSpikeQueue: " << allSynapsesProps.preSpikeQueue->m_queueEvent[i] << endl;
+            }
+        }
+    }
 }
 #endif // USE_GPU

@@ -124,10 +124,12 @@ int main(int argc, char* argv[]) {
 
         // Prints out SynapsesProps after deserialization
         cout << "------------------------------After Deserialization:--------------------------" << endl;
+#if !defined(USE_GPU)
         for(int i = 0; i < vtClr.size(); i++) {
             dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
         }
         //dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
+#endif // !USE_GPU
 
 #if defined(USE_GPU)
         //print out weights on the GPU

@@ -84,6 +84,11 @@ class AllSTDPSynapsesProps : public AllSpikingSynapsesProps
          */
         virtual void copySynapseDeviceToHostProps( void* allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron );
 
+        /**
+         *  Prints all GPU SynapsesProps data.
+         */
+        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps);
+
     protected:
         /**
          *  Allocate GPU memories to store all synapses' states.
@@ -121,6 +126,12 @@ class AllSTDPSynapsesProps : public AllSpikingSynapsesProps
          *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
          */
         void copyDeviceToHostProps( AllSTDPSynapsesProps& allSynapsesProps, int num_neurons, int maxSynapsesPerNeuron);
+
+        /**
+         *  Prints all GPU SynapsesProps data.
+         * (Helper function of printGPUSynapsesProps)
+         */
+        void printGPUSynapsesPropsHelper( AllSynapsesProps& allSynapsesProps);
 #endif // USE_GPU
 
         /**
