@@ -423,25 +423,27 @@ private:
 template<class Archive>
 void VectorMatrix::save(Archive & archive) const{
   //assert(theVector != NULL);
-  vector<BGFLOAT> theVectorVector;
+  /*vector<BGFLOAT> theVectorVector;
   for(int i = 0; i < size; i++) {
     theVectorVector.push_back(theVector[i]);
-  }
+  }*/
   //archive(cereal::base_class<Matrix>(this), theVectorVector, size);
   //archive(type, init, rows, columns, multiplier, dimensions,theVectorVector, size);
-  archive(theVectorVector);
+  //archive(theVectorVector);
+  archive(size);
 }
 
 template<class Archive>
 void VectorMatrix::load(Archive & archive) {
   //assert(theVector != nullptr);
-  vector<BGFLOAT> theVectorVector;
+  //vector<BGFLOAT> theVectorVector;
   //archive(cereal::base_class<Matrix>(this), theVectorVector, size);
   //archive(type, init, rows, columns, multiplier, dimensions,theVectorVector, size);
-  archive(theVectorVector);
-  for(int i = 0; i < size; i++) {
+  //archive(theVectorVector);
+  archive(size);
+  /*for(int i = 0; i < size; i++) {
     theVector[i] = theVectorVector[i];
-  }
+  }*/
 }
 
 
