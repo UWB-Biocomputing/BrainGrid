@@ -422,23 +422,23 @@ private:
 #if !defined(USE_GPU)
 template<class Archive>
 void VectorMatrix::save(Archive & archive) const{
-  assert(theVector != NULL);
+  //assert(theVector != NULL);
   vector<BGFLOAT> theVectorVector;
   for(int i = 0; i < size; i++) {
     theVectorVector.push_back(theVector[i]);
   }
   //archive(cereal::base_class<Matrix>(this), theVectorVector, size);
-  archive(type, init, rows, columns, multiplier, dimensions,theVectorVector, size);
-  //archive(theVectorVector);
+  //archive(type, init, rows, columns, multiplier, dimensions,theVectorVector, size);
+  archive(theVectorVector);
 }
 
 template<class Archive>
 void VectorMatrix::load(Archive & archive) {
-  assert(theVector != nullptr);
+  //assert(theVector != nullptr);
   vector<BGFLOAT> theVectorVector;
   //archive(cereal::base_class<Matrix>(this), theVectorVector, size);
-  archive(type, init, rows, columns, multiplier, dimensions,theVectorVector, size);
-  //archive(theVectorVector);
+  //archive(type, init, rows, columns, multiplier, dimensions,theVectorVector, size);
+  archive(theVectorVector);
   for(int i = 0; i < size; i++) {
     theVector[i] = theVectorVector[i];
   }
