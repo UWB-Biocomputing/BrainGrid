@@ -42,9 +42,9 @@
 /**
  * cereal
  */
-#include <cereal/types/polymorphic.hpp> //for inheritance
-#include <cereal/types/base_class.hpp> //inherit data member from base class
-#include <cereal/access.hpp> //for load and construct
+//#include <cereal/types/polymorphic.hpp> //for inheritance
+//#include <cereal/types/base_class.hpp> //inherit data member from base class
+//#include <cereal/access.hpp> //for load and construct
 #include <cereal/types/vector.hpp>
 #include <vector>
 #include <cereal/types/string.hpp> // for string
