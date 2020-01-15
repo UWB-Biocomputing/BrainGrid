@@ -422,7 +422,7 @@ void AllSpikingSynapsesProps::printSynapsesProps()
 }
 
 #if defined(USE_GPU)
-void AllSpikingSynapsesProps::printGPUSynapsesProps( void** allSynapsesDeviceProps ) 
+void AllSpikingSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps ) 
 {
     cout << "This is GPU SynapsesProps data:" << endl;
     AllSpikingSynapsesProps allSynapsesProps;

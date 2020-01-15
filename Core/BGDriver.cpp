@@ -119,14 +119,6 @@ int main(int argc, char* argv[]) {
         // Creates synapse index map
         SynapseIndexMap::createSynapseImap(simInfo, vtClr, vtClrInfo);
 
-#if defined(USE_GPU)
-        //print out weights on the GPU
-        for(int i = 0; i < vtClr.size(); i++) {
-            dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUPropsCluster();
-        }
-#endif // USE_GPU
-
-
         // Deserializes radii
         //archive(*(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)));
 
@@ -136,6 +128,14 @@ int main(int argc, char* argv[]) {
             dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
         }
         //dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
+
+#if defined(USE_GPU)
+        //print out weights on the GPU
+        for(int i = 0; i < vtClr.size(); i++) {
+            dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUPropsCluster();
+        }
+#endif // USE_GPU
+
     }
 
     // Run simulation
