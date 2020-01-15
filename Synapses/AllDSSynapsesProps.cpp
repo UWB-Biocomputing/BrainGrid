@@ -323,7 +323,7 @@ void AllDSSynapsesProps::printSynapsesProps()
 }
 
 #if defined(USE_GPU)
-void AllDSSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps ) 
+void AllDSSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps, int num_neurons ) 
 {
     AllDSSynapsesProps allSynapsesProps;
     AllDSSynapsesProps allSynapsesProps2;
