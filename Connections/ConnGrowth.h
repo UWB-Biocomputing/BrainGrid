@@ -174,8 +174,8 @@ class ConnGrowth : public Connections
 
 #if !defined(USE_GPU)
         //! Cereal
-        template<class Archive>
-        void serialize(Archive & archive);
+        //template<class Archive>
+        //void serialize(Archive & archive);
 #endif       
 
     private:
@@ -337,12 +337,12 @@ extern __global__ void updateSynapsesWeightsDevice( IAllSynapses* synapsesDevice
 
 //! Cereal Serialization/Deserialization Method
 #if !defined(USE_GPU) 
-template<class Archive>
+/*template<class Archive>
 void ConnGrowth::serialize(Archive & archive) {
     archive( *radii);
 }
 
 //! Cereal
 CEREAL_REGISTER_TYPE(ConnGrowth)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Connections,ConnGrowth)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Connections,ConnGrowth)*/
 #endif // !USE_GPU
