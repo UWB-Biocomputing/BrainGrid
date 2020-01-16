@@ -365,7 +365,7 @@ void AllDSSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps )
     
     // copy everything
     checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllDSSynapsesProps ), cudaMemcpyDeviceToHost ) );
-    checkCudaErrors( cudaMemcpy ( synapse_countsPrint, allSynapsesProps.synapse_counts, num_neurons * sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( synapse_countsPrint, allSynapsesProps.synapse_counts, count_neurons * sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
     maxSynapsesPerNeuronPrint = allSynapsesProps.maxSynapsesPerNeuron;
     total_synapse_countsPrint = allSynapsesProps.total_synapse_counts;
     count_neuronsPrint = allSynapsesProps.count_neurons;
