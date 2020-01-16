@@ -345,7 +345,7 @@ void AllDSSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps, in
     // at AllSynapsesProps deconstructor.
     allSynapsesProps.count_neurons = 0;
 
-    checkCudaErrors( cudaMemcpy ( W2, &allSynapsesProps.W, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( W2, allSynapsesProps.W, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 
     /*checkCudaErrors( cudaMemcpy ( allSynapsesProps2.sourceNeuronLayoutIndex, &allSynapsesProps.sourceNeuronLayoutIndex,
             size * sizeof( int ), cudaMemcpyDeviceToHost ) );
