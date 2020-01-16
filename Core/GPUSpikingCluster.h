@@ -139,7 +139,7 @@ public:
          */
         virtual void copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
-        virtual void printGPUPropsCluster(ClusterInfo *clr_info);
+        virtual void printGPUPropsCluster();
 
         /**
          *  Loads the simulation based on istream input.

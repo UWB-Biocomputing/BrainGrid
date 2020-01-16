@@ -324,11 +324,11 @@ void AllDynamicSTDPSynapsesProps::printSynapsesProps()
 }
 
 #if defined(USE_GPU)
-void AllDynamicSTDPSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps, int num_neurons  ) 
+void AllDynamicSTDPSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps ) 
 {
     AllDynamicSTDPSynapsesProps allSynapsesProps;
     checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllDynamicSTDPSynapsesProps ), cudaMemcpyDeviceToHost ) );
-    printGPUSynapsesPropsHelper( allSynapsesProps );
+    //printGPUSynapsesPropsHelper( allSynapsesProps );
 }
 
 void AllDynamicSTDPSynapsesProps::printGPUSynapsesPropsHelper( AllDynamicSTDPSynapsesProps& allSynapsesProps )
