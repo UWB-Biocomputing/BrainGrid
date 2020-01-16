@@ -100,10 +100,13 @@ int main(int argc, char* argv[]) {
 
         // Prints out SynapsesProps before deserialization
         cout << "------------------------------Before Deserialization:--------------------------" << endl;
-        //for(int i = 0; i < vtClr.size(); i++) {
-          //  dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
-        //}
+
+#if !defined(USE_GPU)
+        for(int i = 0; i < vtClr.size(); i++) {
+            dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
+        }
         //dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
+#endif // !USE_GPU
 
         // Deserializes synapse weight(s) along with each synapse's source neuron and destination neuron
         for(int i = 0; i < vtClr.size(); i++) {
@@ -125,9 +128,9 @@ int main(int argc, char* argv[]) {
         // Prints out SynapsesProps after deserialization
         cout << "------------------------------After Deserialization:--------------------------" << endl;
 #if !defined(USE_GPU)
-        //for(int i = 0; i < vtClr.size(); i++) {
-          //  dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
-        //}
+        for(int i = 0; i < vtClr.size(); i++) {
+            dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
+        }
         //dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
 #endif // !USE_GPU
 

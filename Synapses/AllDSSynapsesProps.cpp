@@ -329,11 +329,13 @@ void AllDSSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps, in
     BGSIZE total_synapse_counts2;
     BGSIZE maxSynapsesPerNeuron2;
     int count_neurons2;
-    BGSIZE *synapse_counts = new BGSIZE[num_neurons];
+    BGSIZE max_total_synapses = maxSynapsesPerNeuron * num_neurons;
+    BGSIZE *synapse_counts2 = new BGSIZE[num_neurons];
+    BGFLOAT *W2 = new BGFLOAT[max_total_synapses];;
     checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllDSSynapsesProps ), cudaMemcpyDeviceToHost ) );
     
     BGSIZE size = maxSynapsesPerNeuron * num_neurons;
-    checkCudaErrors( cudaMemcpy ( synapse_counts, allSynapsesProps.synapse_counts,
+    checkCudaErrors( cudaMemcpy ( synapse_counts2, allSynapsesProps.synapse_counts,
             num_neurons * sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
     maxSynapsesPerNeuron2 = allSynapsesProps.maxSynapsesPerNeuron;
     total_synapse_counts2 = allSynapsesProps.total_synapse_counts;
@@ -342,6 +344,8 @@ void AllDSSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps, in
     // Set count_neurons to 0 to avoid illegal memory deallocation
     // at AllSynapsesProps deconstructor.
     allSynapsesProps.count_neurons = 0;
+
+    checkCudaErrors( cudaMemcpy ( W2, &allSynapsesProps.W, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 
     /*checkCudaErrors( cudaMemcpy ( allSynapsesProps2.sourceNeuronLayoutIndex, &allSynapsesProps.sourceNeuronLayoutIndex,
             size * sizeof( int ), cudaMemcpyDeviceToHost ) );
@@ -360,6 +364,12 @@ void AllDSSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps, in
     cout << "GPU total_synapse_counts:" << total_synapse_counts2 << endl;
     cout << "GPU maxSynapsesPerNeuron:" << maxSynapsesPerNeuron2 << endl;
     cout << "GPU count_neurons:" << count_neurons2 << endl;
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        if (W2[i] != 0.0) {
+            cout << "W[" << i << "] = " << W2[i]; 
+        } 
+    }
+    cout << endl;
 
     // The preSpikeQueue points to an EventQueue objet in device memory. The pointer is copied to allSynapsesDeviceProps.
     // To avoide illegeal deletion of the object at AllSpikingSynapsesProps::cleanupSynapsesProps(), set the pointer to NULL.
