@@ -329,14 +329,6 @@ void AllSynapsesProps::printSynapsesProps()
                 } else {
                      cout << " summationPoint: is EMPTY!!!!!" << endl;  
                 }
-        } else {
-                if(sourceNeuronLayoutIndex[i] != 0.0 || destNeuronLayoutIndex[i] != 0.0 || type[i] != 0 || psr[i] != 0.0 ||in_use[i] != 0.0 || summationPoint[i] != NULL) {
-                        cout << "---------------------ERROR!!!!!!!!-------------";
-                        cout << "W[" << i << "] = " << W[i];
-                        cout << "s: " << sourceNeuronLayoutIndex[i];
-                        cout << "d:" << destNeuronLayoutIndex[i];
-                        cout << "in_use:" << in_use[i] << endl;
-                }
         }
     }
     
@@ -349,44 +341,3 @@ void AllSynapsesProps::printSynapsesProps()
     cout << "maxSynapsesPerNeuron:" << maxSynapsesPerNeuron << endl;
     cout << "count_neurons:" << count_neurons << endl;
 }
-
-#if defined(USE_GPU)
-void AllSynapsesProps::printGPUSynapsesPropsHelper( AllSynapsesProps& allSynapsesProps ) 
-{
-    cout << "This is GPU SynapsesProps data:" << endl;
-    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
-        if (allSynapsesProps.W[i] != 0.0) {
-                cout << "W[" << i << "] = " << allSynapsesProps.W[i];
-                cout << " sourNeuron: " << allSynapsesProps.sourceNeuronLayoutIndex[i];
-                cout << " desNeuron: " << allSynapsesProps.destNeuronLayoutIndex[i];
-                cout << " type: " << allSynapsesProps.type[i];
-                cout << " psr: " << allSynapsesProps.psr[i];
-                cout << " in_use:" << allSynapsesProps.in_use[i];
-                if(allSynapsesProps.summationPoint[i] != NULL) {
-                        cout << " summationPoint: is created!" << endl;    
-                } else {
-                        cout << " summationPoint: is EMPTY!!!!!" << endl;  
-                }
-        } else {
-                if(allSynapsesProps.sourceNeuronLayoutIndex[i] != 0.0 || allSynapsesProps.destNeuronLayoutIndex[i] != 0.0 
-                || allSynapsesProps.type[i] != 0 || allSynapsesProps.psr[i] != 0.0 
-                || allSynapsesProps.in_use[i] != 0.0 || allSynapsesProps.summationPoint[i] != NULL) {
-                        cout << "---------------------ERROR!!!!!!!!-------------";
-                        cout << "W[" << i << "] = " << allSynapsesProps.W[i];
-                        cout << "s: " << allSynapsesProps.sourceNeuronLayoutIndex[i];
-                        cout << "d:" << allSynapsesProps.destNeuronLayoutIndex[i];
-                        cout << "in_use:" << allSynapsesProps.in_use[i] << endl;
-                }
-        }
-    }
-    
-    for (int i = 0; i < count_neurons; i++) {
-        cout << "synapse_counts:" << "[" << i  << "]" << allSynapsesProps.synapse_counts[i] << " ";
-    }
-    cout << endl;
-    
-    cout << "total_synapse_counts:" << allSynapsesProps.total_synapse_counts << endl;
-    cout << "maxSynapsesPerNeuron:" << allSynapsesProps.maxSynapsesPerNeuron << endl;
-    cout << "count_neurons:" << allSynapsesProps.count_neurons << endl;
-}
-#endif // USE_GPU

@@ -409,47 +409,102 @@ void AllSpikingSynapsesProps::printSynapsesProps()
             cout << " tau: " << tau[i];
             cout << " total_delay: " << total_delay[i];
             cout << " preSpikeQueue: " << preSpikeQueue->m_queueEvent[i] << endl;
-        } else {
-            if(decay[i] != 0.0 || tau[i] != 0.0 || total_delay[i] != NULL || preSpikeQueue->m_queueEvent[i] != 0.0) {
-                cout << "---------------------ERROR!!!!!!!!-------------";
-                cout << " decay: " << decay[i];
-                cout << " tau: " << tau[i];
-                cout << " total_delay: " << total_delay[i];
-                cout << " preSpikeQueue: " << preSpikeQueue->m_queueEvent[i] << endl;
-            }
         }
     }
 }
 
 #if defined(USE_GPU)
+/**
+ *  Prints all GPU SynapsesProps data.
+ * 
+ *  @param  allSynapsesDeviceProps   Reference to the AllSTDPSynapsesProps class on device memory.
+ */
 void AllSpikingSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps ) 
 {
     AllSpikingSynapsesProps allSynapsesProps;
-    checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllSpikingSynapsesProps ), cudaMemcpyDeviceToHost ) );
-    //printGPUSynapsesPropsHelper( allSynapsesProps );
-}
 
-void AllSpikingSynapsesProps::printGPUSynapsesPropsHelper( AllSpikingSynapsesProps& allSynapsesProps )
-{
-    cout << "This is GPU SynapsesProps data:" << endl;
-    AllSynapsesProps::printGPUSynapsesPropsHelper( allSynapsesProps );
+    //allocate print out data members
+    BGSIZE size = maxSynapsesPerNeuron * count_neurons;
+
+    BGSIZE *synapse_countsPrint = new BGSIZE[count_neurons];
+    BGSIZE maxSynapsesPerNeuronPrint;
+    BGSIZE total_synapse_countsPrint;
+    int count_neuronsPrint;
+    int *sourceNeuronLayoutIndexPrint = new int[size];
+    int *destNeuronLayoutIndexPrint = new int[size];
+    BGFLOAT *WPrint = new BGFLOAT[size];
+
+    synapseType *typePrint = new synapseType[size];
+    BGFLOAT *psrPrint = new BGFLOAT[size];
+    bool *in_usePrint = new bool[size];
+
+    for (BGSIZE i = 0; i < size; i++) {
+        in_usePrint[i] = false;
+    }
+
+    for (int i = 0; i < count_neurons; i++) {
+        synapse_countsPrint[i] = 0;
+    }
+
+    BGFLOAT *decayPrint = new BGFLOAT[size];
+    int *total_delayPrint = new int[size];
+    BGFLOAT *tauPrint = new BGFLOAT[size];
+   
+    
+    // copy everything
+    checkCudaErrors( cudaMemcpy ( &allSynapsesProps, allSynapsesDeviceProps, sizeof( AllSpikingSynapsesProps ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( synapse_countsPrint, allSynapsesProps.synapse_counts, count_neurons * sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
+    maxSynapsesPerNeuronPrint = allSynapsesProps.maxSynapsesPerNeuron;
+    total_synapse_countsPrint = allSynapsesProps.total_synapse_counts;
+    count_neuronsPrint = allSynapsesProps.count_neurons;
+
+    // Set count_neurons to 0 to avoid illegal memory deallocation
+    // at AllSynapsesProps deconstructor.
+    allSynapsesProps.count_neurons = 0;
+
+    checkCudaErrors( cudaMemcpy ( sourceNeuronLayoutIndexPrint, allSynapsesProps.sourceNeuronLayoutIndex, size * sizeof( int ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( destNeuronLayoutIndexPrint, allSynapsesProps.destNeuronLayoutIndex, size * sizeof( int ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( WPrint, allSynapsesProps.W, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( typePrint, allSynapsesProps.type, size * sizeof( synapseType ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( psrPrint, allSynapsesProps.psr, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( in_usePrint, allSynapsesProps.in_use, size * sizeof( bool ), cudaMemcpyDeviceToHost ) );
+
+
+    checkCudaErrors( cudaMemcpy ( decayPrint, allSynapsesProps.decay, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( tauPrint, allSynapsesProps.tau, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( total_delayPrint, allSynapsesProps.total_delay,size * sizeof( int ), cudaMemcpyDeviceToHost ) );
+
+
     for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
-        if (allSynapsesProps.W[i] != 0.0) {
-            cout << "decay: " << allSynapsesProps.decay[i];
-            cout << " tau: " << allSynapsesProps.tau[i];
-            cout << " total_delay: " << allSynapsesProps.total_delay[i];
-            cout << " preSpikeQueue: " << allSynapsesProps.preSpikeQueue->m_queueEvent[i] << endl;
-        } else {
-            if(allSynapsesProps.decay[i] != 0.0 || allSynapsesProps.tau[i] != 0.0 
-            || allSynapsesProps.total_delay[i] != NULL 
-            || allSynapsesProps.preSpikeQueue->m_queueEvent[i] != 0.0) {
-                cout << "---------------------ERROR!!!!!!!!-------------";
-                cout << " decay: " << allSynapsesProps.decay[i];
-                cout << " tau: " << allSynapsesProps.tau[i];
-                cout << " total_delay: " << allSynapsesProps.total_delay[i];
-                cout << " preSpikeQueue: " << allSynapsesProps.preSpikeQueue->m_queueEvent[i] << endl;
-            }
+        if (WPrint[i] != 0.0) {
+            cout << "W[" << i << "] = " << WPrint[i];
+            cout << " sourNeuron: " << sourceNeuronLayoutIndexPrint[i];
+            cout << " desNeuron: " << destNeuronLayoutIndexPrint[i];
+            cout << " type: " << typePrint[i];
+            cout << " psr: " << psrPrint[i];
+            cout << " in_use:" << in_usePrint[i];
+
+            cout << "decay: " << decayPrint[i];
+            cout << " tau: " << tauPrint[i];
+            cout << " total_delay: " << total_delayPrint[i];
         }
     }
+
+    for (int i = 0; i < count_neurons; i++) {
+        cout << "synapse_counts:" << "[" << i  << "]" << synapse_countsPrint[i] << " ";
+    }
+    cout << endl;
+    
+    cout << "GPU total_synapse_counts:" << total_synapse_countsPrint << endl;
+    cout << "GPU maxSynapsesPerNeuron:" << maxSynapsesPerNeuronPrint << endl;
+    cout << "GPU count_neurons:" << count_neuronsPrint << endl;
+
+    // The preSpikeQueue points to an EventQueue objet in device memory. The pointer is copied to allSynapsesDeviceProps.
+    // To avoide illegeal deletion of the object at AllSpikingSynapsesProps::cleanupSynapsesProps(), set the pointer to NULL.
+    allSynapsesProps.preSpikeQueue = NULL;
+
+    // Set count_neurons to 0 to avoid illegal memory deallocation
+    // at AllDSSynapsesProps deconstructor.
+    allSynapsesProps.count_neurons = 0;
 }
 #endif // USE_GPU
