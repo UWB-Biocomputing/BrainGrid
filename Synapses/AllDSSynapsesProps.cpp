@@ -331,7 +331,7 @@ void AllDSSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps )
     //allocate print out data members
     BGSIZE size = maxSynapsesPerNeuron * count_neurons;
 
-    BGSIZE *synapse_countsPrint = new BGSIZE[num_neurons];
+    BGSIZE *synapse_countsPrint = new BGSIZE[count_neurons];
     BGSIZE maxSynapsesPerNeuronPrint;
     BGSIZE total_synapse_countsPrint;
     int count_neuronsPrint;
@@ -347,13 +347,13 @@ void AllDSSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps )
         in_usePrint[i] = false;
     }
 
-    for (int i = 0; i < num_neurons; i++) {
+    for (int i = 0; i < count_neurons; i++) {
         synapse_countsPrint[i] = 0;
     }
 
-    BGFLOAT *decayPrint = new BGFLOAT[max_total_synapses];
-    int *total_delayPrint = new int[max_total_synapses];
-    BGFLOAT *tauPrint = new BGFLOAT[max_total_synapses];
+    BGFLOAT *decayPrint = new BGFLOAT[size];
+    int *total_delayPrint = new int[size];
+    BGFLOAT *tauPrint = new BGFLOAT[size];
 
     uint64_t *lastSpikePrint = new uint64_t[size];
     BGFLOAT *rPrint = new BGFLOAT[size];
