@@ -107,6 +107,12 @@ int main(int argc, char* argv[]) {
         }
         //dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
 #endif // !USE_GPU
+#if defined(USE_GPU)
+        //print out weights on the GPU
+        for(int i = 0; i < vtClr.size(); i++) {
+            dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUPropsCluster();
+        }
+#endif // USE_GPU
 
         // Deserializes synapse weight(s) along with each synapse's source neuron and destination neuron
         for(int i = 0; i < vtClr.size(); i++) {
