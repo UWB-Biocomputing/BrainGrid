@@ -106,12 +106,12 @@ int main(int argc, char* argv[]) {
         for(int i = 0; i < vtClr.size(); i++) {
             dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUSynapsesPropsCluster();
         }
-        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->printRadii();
+        //dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->printRadii();
 #else
         for(int i = 0; i < vtClr.size(); i++) {
             dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
         }
-        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
+        //dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
 #endif  
         )
 
@@ -143,12 +143,12 @@ int main(int argc, char* argv[]) {
         for(int i = 0; i < vtClr.size(); i++) {
             dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUSynapsesPropsCluster();
         }
-        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->printRadii();
+        //dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->printRadii();
 #else
         for(int i = 0; i < vtClr.size(); i++) {
             dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
         }
-        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
+        //dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
 #endif
 
         )
