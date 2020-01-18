@@ -48,9 +48,9 @@ ConnGrowth::ConnGrowth() : Connections()
 {
     radii = NULL;
     rates = NULL;
+    size = 0;
 #if defined(USE_GPU)
     m_barrierUpdateConnections = NULL;
-    size = 0;
 #else // !USE_GPU
     W = NULL;
     delta = NULL;
@@ -76,9 +76,9 @@ ConnGrowth::~ConnGrowth()
 void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
     int num_neurons = sim_info->totalNeurons;
+    size = num_neurons;
 
 #if defined(USE_GPU)
-    size = num_neurons;
     radii = new BGFLOAT[num_neurons];
     rates = new BGFLOAT[num_neurons];
 
@@ -111,7 +111,6 @@ void ConnGrowth::cleanupConnections()
     if (m_barrierUpdateConnections != NULL) delete m_barrierUpdateConnections;
     if (radii != NULL) delete[] radii;
     if (rates != NULL) delete[] rates;
-    size = 0;
 #else // !USE_GPU
     if (W != NULL) delete W;
     if (radii != NULL) delete radii;
@@ -124,6 +123,7 @@ void ConnGrowth::cleanupConnections()
 
     radii = NULL;
     rates = NULL;
+    size = 0;
 #if defined(USE_GPU)
     m_barrierUpdateConnections = NULL;
 #else // !UDSE_GPU

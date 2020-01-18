@@ -270,6 +270,8 @@ class ConnGrowth : public Connections
         //! spike count for each epoch
         int *spikeCounts;
 
+        int size;
+
 #if defined(USE_GPU)
         //! neuron radii
         BGFLOAT *radii;
@@ -277,7 +279,6 @@ class ConnGrowth : public Connections
         //! spiking rate
         BGFLOAT *rates;
 
-        int size;
 #else // !USE_GPU
         //! synapse weight
         CompleteMatrix *W;
