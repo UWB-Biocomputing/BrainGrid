@@ -424,7 +424,7 @@ private:
 
 template<class Archive>
 void VectorMatrix::save(Archive & archive) const{
-  assert(theVector != nullptr);
+  //assert(theVector != nullptr);
   vector<BGFLOAT> theVectorVector;
   for(int i = 0; i < size; i++) {
     theVectorVector.push_back(theVector[i]);
@@ -437,7 +437,7 @@ void VectorMatrix::save(Archive & archive) const{
 
 template<class Archive>
 void VectorMatrix::load(Archive & archive) {
-  assert(theVector != nullptr);
+  //assert(theVector != nullptr);
   vector<BGFLOAT> theVectorVector;
   //archive(cereal::base_class<Matrix>(this), theVectorVector, size);
   //archive(type, init, rows, columns, multiplier, dimensions,theVectorVector, size);
