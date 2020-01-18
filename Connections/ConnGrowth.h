@@ -357,9 +357,9 @@ void ConnGrowth::save(Archive & archive) const {
     }
     archive(radiiVector);
 #else  
-    int a = 5;
-    archive(a);      
-    //archive(*radii);
+    //int a = 5;
+    //archive(a);      
+    archive(*radii);
 #endif 
 }
 
@@ -372,9 +372,9 @@ void ConnGrowth::load(Archive & archive) {
         radii[i] = radiiVector[i];
     }
 #else        
-    //archive(*radii);
-    int a = 5;
-    archive(a);
+    archive(*radii);
+    //int a = 5;
+    //archive(a);
 #endif 
 }
 
