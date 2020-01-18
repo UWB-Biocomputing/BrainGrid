@@ -142,7 +142,7 @@ public:
         /**
          *  Print out SynapseProps on the GPU.
          */
-        void printGPUPropsSynapsesCluster();
+        void printGPUSynapsesPropsCluster();
 
         /**
          *  Loads the simulation based on istream input.
