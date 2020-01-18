@@ -42,8 +42,6 @@
 /**
  * cereal
  */
-#if !defined(USE_GPU)
-
 //#include <cereal/types/polymorphic.hpp> //for inheritance
 //#include <cereal/types/base_class.hpp> //inherit data member from base class
 //#include <cereal/access.hpp> //for load and construct
@@ -51,7 +49,6 @@
 #include <vector>
 //#include <cereal/types/string.hpp> // for string
 
-#endif // !USE_GPU
 
 using namespace std;
 
@@ -364,7 +361,7 @@ public:
   const VectorMatrix exp(const VectorMatrix& v);
   //@}
 
-#if !defined(USE_GPU)
+
   //! Cereal
   //template<class Archive>
   //static void load_and_construct(Archive& ar, cereal::construct<VectorMatrix>& construct);
@@ -375,7 +372,7 @@ public:
   template<class Archive>
   void load(Archive & archive);
 
-#endif // !USE_GPU
+
 
 protected:
 
@@ -424,7 +421,7 @@ private:
 
 //! Cereal Serialization/Deserialization Method
 
-#if !defined(USE_GPU)
+
 template<class Archive>
 void VectorMatrix::save(Archive & archive) const{
   assert(theVector != nullptr);
@@ -480,6 +477,6 @@ void VectorMatrix::load_and_construct( Archive & ar, cereal::construct<VectorMat
 //! Cereal
 //CEREAL_REGISTER_TYPE(VectorMatrix)
 //CEREAL_REGISTER_POLYMORPHIC_RELATION(Matrix,VectorMatrix)
-#endif // !USE_GPU
+
 
 #endif
