@@ -44,7 +44,7 @@
  */
 #include <cereal/types/polymorphic.hpp> //for inheritance
 //#include <cereal/types/base_class.hpp> //inherit data member from base class
-//#include <cereal/access.hpp> //for load and construct
+#include <cereal/access.hpp> //for load and construct
 #include <cereal/types/vector.hpp>
 #include <vector>
 //#include <cereal/types/string.hpp> // for string
@@ -361,8 +361,8 @@ public:
 
 #if !defined(USE_GPU)
   //! Cereal
-  //template<class Archive>
-  //static void load_and_construct(Archive& ar, cereal::construct<VectorMatrix>& construct);
+  template<class Archive>
+  static void load_and_construct(Archive& ar, cereal::construct<VectorMatrix>& construct);
 
   template<class Archive>
   void save(Archive & archive) const;
@@ -448,7 +448,7 @@ void VectorMatrix::load(Archive & archive) {
 
 
 //! Cereal Load_and_construct Method
-/*template <class Archive>
+template <class Archive>
 void VectorMatrix::load_and_construct( Archive & ar, cereal::construct<VectorMatrix> & construct ) {
 
   string type2;
@@ -470,7 +470,7 @@ void VectorMatrix::load_and_construct( Archive & ar, cereal::construct<VectorMat
   ar(theVectorVector);
   construct(type2, init2, rows2, columns2, multiplier2, values2);
 
-}*/
+}
 
 //! Cereal
 CEREAL_REGISTER_TYPE(VectorMatrix)
