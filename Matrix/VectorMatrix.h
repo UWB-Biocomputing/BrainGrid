@@ -43,12 +43,14 @@
  * cereal
  */
 #if !defined(USE_GPU)
+
 #include <cereal/types/polymorphic.hpp> //for inheritance
 //#include <cereal/types/base_class.hpp> //inherit data member from base class
-#include <cereal/access.hpp> //for load and construct
+//#include <cereal/access.hpp> //for load and construct
 #include <cereal/types/vector.hpp>
 #include <vector>
 //#include <cereal/types/string.hpp> // for string
+
 #endif // !USE_GPU
 
 using namespace std;
@@ -476,8 +478,8 @@ void VectorMatrix::load_and_construct( Archive & ar, cereal::construct<VectorMat
 }*/
 
 //! Cereal
-CEREAL_REGISTER_TYPE(VectorMatrix)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Matrix,VectorMatrix)
+//CEREAL_REGISTER_TYPE(VectorMatrix)
+//CEREAL_REGISTER_POLYMORPHIC_RELATION(Matrix,VectorMatrix)
 #endif // !USE_GPU
 
 #endif
