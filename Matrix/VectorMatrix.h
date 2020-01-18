@@ -45,8 +45,8 @@
 //#include <cereal/types/polymorphic.hpp> //for inheritance
 //#include <cereal/types/base_class.hpp> //inherit data member from base class
 //#include <cereal/access.hpp> //for load and construct
-#include <cereal/types/vector.hpp>
-#include <vector>
+//#include <cereal/types/vector.hpp>
+//#include <vector>
 //#include <cereal/types/string.hpp> // for string
 
 
@@ -366,11 +366,11 @@ public:
   //template<class Archive>
   //static void load_and_construct(Archive& ar, cereal::construct<VectorMatrix>& construct);
 
-  template<class Archive>
-  void save(Archive & archive) const;
+  //template<class Archive>
+  //void save(Archive & archive) const;
 
-  template<class Archive>
-  void load(Archive & archive);
+  //template<class Archive>
+  //void load(Archive & archive);
 
 
 
@@ -422,7 +422,7 @@ private:
 //! Cereal Serialization/Deserialization Method
 
 
-template<class Archive>
+/*template<class Archive>
 void VectorMatrix::save(Archive & archive) const{
   //assert(theVector != nullptr);
   vector<BGFLOAT> theVectorVector;
@@ -446,7 +446,7 @@ void VectorMatrix::load(Archive & archive) {
   for(int i = 0; i < size; i++) {
     theVector[i] = theVectorVector[i];
   }
-}
+}*/
 
 
 //! Cereal Load_and_construct Method
