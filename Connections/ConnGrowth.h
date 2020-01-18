@@ -351,26 +351,34 @@ extern __global__ void updateSynapsesWeightsDevice( IAllSynapses* synapsesDevice
 template<class Archive>
 void ConnGrowth::save(Archive & archive) const {
 #if defined(USE_GPU)
-    vector<BGFLOAT> radiiVector;
+    /*vector<BGFLOAT> radiiVector;
     for(int i = 0; i < size; i++) {
         radiiVector.push_back(radii[i]);
-    }
-    archive(radiiVector);
-#else        
-    archive(*radii);
+    }*/
+    //archive(radiiVector);
+    int a = 5;
+    archive(a);
+#else  
+    int a = 5;
+    archive(a);      
+    //archive(*radii);
 #endif 
 }
 
 template<class Archive>
 void ConnGrowth::load(Archive & archive) {
 #if defined(USE_GPU)
-    vector<BGFLOAT> radiiVector;
+    /*vector<BGFLOAT> radiiVector;
     archive(radiiVector);
     for(int i = 0; i < size; i++) {
         radii[i] = radiiVector[i];
-    }
+    }*/
+    int a = 5;
+    archive(a);
 #else        
-    archive(*radii);
+    //archive(*radii);
+    int a = 5;
+    archive(a);
 #endif 
 }
 
