@@ -379,10 +379,10 @@ void ConnGrowth::load(Archive & archive) {
     }
 #else
     vector<BGFLOAT> radiiVector;
+    archive(radiiVector);
     for(int i = 0; i < size; i++) {
-        radiiVector.push_back(radii->theVector[i]);
-    }
-    archive(radiiVector);        
+        radii->theVector[i] = radiiVector[i];
+    }       
     //archive(*radii);
     //int a = 5;
     //archive(a);
