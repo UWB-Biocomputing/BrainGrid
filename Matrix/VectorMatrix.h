@@ -39,16 +39,6 @@
 #include "SparseMatrix.h"
 #include "Norm.h"
 
-/**
- * cereal
- */
-//#include <cereal/types/polymorphic.hpp> //for inheritance
-//#include <cereal/types/base_class.hpp> //inherit data member from base class
-//#include <cereal/access.hpp> //for load and construct
-#include <cereal/types/vector.hpp>
-#include <vector>
-//#include <cereal/types/string.hpp> // for string
-
 
 using namespace std;
 
@@ -66,6 +56,16 @@ const VectorMatrix operator*(const VectorMatrix& v, const SparseMatrix& m);
 const VectorMatrix sqrt(const VectorMatrix& v);
 
 const VectorMatrix exp(const VectorMatrix& v);
+
+/**
+ * cereal
+ */
+//#include <cereal/types/polymorphic.hpp> //for inheritance
+//#include <cereal/types/base_class.hpp> //inherit data member from base class
+//#include <cereal/access.hpp> //for load and construct
+#include <cereal/types/vector.hpp>
+#include <vector>
+//#include <cereal/types/string.hpp> // for string
 
 /**
   @class VectorMatrix
