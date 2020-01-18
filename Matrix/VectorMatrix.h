@@ -42,12 +42,14 @@
 /**
  * cereal
  */
+#if !defined(USE_GPU)
 #include <cereal/types/polymorphic.hpp> //for inheritance
 //#include <cereal/types/base_class.hpp> //inherit data member from base class
 #include <cereal/access.hpp> //for load and construct
 #include <cereal/types/vector.hpp>
 #include <vector>
 //#include <cereal/types/string.hpp> // for string
+#endif // !USE_GPU
 
 using namespace std;
 
@@ -138,9 +140,10 @@ public:
   */
   virtual void Print(ostream& os) const;
 
+#if !defined(USE_GPU)
   // print vector
   void printVector() const;
-
+#endif // !USE_GPU
   /**
     @brief Produce XML representation of vector in string return value.
   */

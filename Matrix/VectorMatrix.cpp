@@ -175,6 +175,7 @@ void VectorMatrix::Print(ostream& os) const {
 		os << theVector[i] << " ";
 }
 
+#if !defined(USE_GPU)
 // Print vector
 void VectorMatrix::printVector() const {
 	for (int i = 0; i < size; i++) {
@@ -182,6 +183,7 @@ void VectorMatrix::printVector() const {
 	}
 	cerr << endl;
 }
+#endif // !USE_GPU
 
 // convert vector to XML string
 string VectorMatrix::toXML(string name) const {
