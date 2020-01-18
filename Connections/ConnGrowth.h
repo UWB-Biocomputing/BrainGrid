@@ -87,7 +87,8 @@ class Barrier;
 /**
  * cereal
  */
-//#include <cereal/types/polymorphic.hpp> //for inheritance
+#include <cereal/types/polymorphic.hpp> //for inheritance
+#include <cereal/types/vector.hpp>
 
 using namespace std;
 
@@ -172,11 +173,19 @@ class ConnGrowth : public Connections
          */
         virtual IRecorder* createRecorder(const SimulationInfo *sim_info);
 
-#if !defined(USE_GPU)
         //! Cereal
         //template<class Archive>
         //void serialize(Archive & archive);
-#endif       
+
+        template<class Archive>
+        void save(Archive & archive) const;
+
+        template<class Archive>
+        void load(Archive & archive);  
+
+#if defined(USE_GPU)
+        void printRadii() const;
+#endif     
 
     private:
         /**
@@ -288,6 +297,8 @@ class ConnGrowth : public Connections
 
         //! displacement of neuron radii
         VectorMatrix *deltaR;
+
+        int size;
 #endif // !USE_GPU
 
 private:
@@ -336,13 +347,32 @@ extern __global__ void updateSynapsesWeightsDevice( IAllSynapses* synapsesDevice
 #endif // USE_GPU && __CUDACC__
 
 //! Cereal Serialization/Deserialization Method
-#if !defined(USE_GPU) 
-/*template<class Archive>
-void ConnGrowth::serialize(Archive & archive) {
-    archive( *radii);
+template<class Archive>
+void ConnGrowth::save(Archive & archive) const {
+#if defined(USE_GPU)
+    vector<BGFLOAT> radiiVector;
+    for(int i = 0; i < size; i++) {
+        radiiVector.push_back(radii[i]);
+    }
+    archive(radiiVector);
+#else        
+    archive(*radii);
+#endif 
+}
+
+template<class Archive>
+void ConnGrowth::load(Archive & archive) {
+#if defined(USE_GPU)
+    vector<BGFLOAT> radiiVector;
+    archive(radiiVector);
+    for(int i = 0; i < size; i++) {
+        radii[i] = radiiVector[i];
+    }
+#else        
+    archive(*radii);
+#endif 
 }
 
 //! Cereal
 CEREAL_REGISTER_TYPE(ConnGrowth)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Connections,ConnGrowth)*/
-#endif // !USE_GPU
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Connections,ConnGrowth)

@@ -42,11 +42,11 @@
 /**
  * cereal
  */
-//#include <cereal/types/polymorphic.hpp> //for inheritance
+#include <cereal/types/polymorphic.hpp> //for inheritance
 //#include <cereal/types/base_class.hpp> //inherit data member from base class
 //#include <cereal/access.hpp> //for load and construct
-//#include <cereal/types/vector.hpp>
-//#include <vector>
+#include <cereal/types/vector.hpp>
+#include <vector>
 //#include <cereal/types/string.hpp> // for string
 
 using namespace std;
@@ -364,11 +364,11 @@ public:
   //template<class Archive>
   //static void load_and_construct(Archive& ar, cereal::construct<VectorMatrix>& construct);
 
-  /*template<class Archive>
+  template<class Archive>
   void save(Archive & archive) const;
 
   template<class Archive>
-  void load(Archive & archive);*/
+  void load(Archive & archive);
 
 #endif // !USE_GPU
 
@@ -420,31 +420,31 @@ private:
 //! Cereal Serialization/Deserialization Method
 
 #if !defined(USE_GPU)
-//template<class Archive>
-//void VectorMatrix::save(Archive & archive) const{
-  //assert(theVector != NULL);
-  /*vector<BGFLOAT> theVectorVector;
+template<class Archive>
+void VectorMatrix::save(Archive & archive) const{
+  assert(theVector != nullptr);
+  vector<BGFLOAT> theVectorVector;
   for(int i = 0; i < size; i++) {
     theVectorVector.push_back(theVector[i]);
-  }*/
+  }
   //archive(cereal::base_class<Matrix>(this), theVectorVector, size);
   //archive(type, init, rows, columns, multiplier, dimensions,theVectorVector, size);
-  //archive(theVectorVector);
+  archive(theVectorVector);
   //archive(size);
-//}
+}
 
-//template<class Archive>
-//void VectorMatrix::load(Archive & archive) {
-  //assert(theVector != nullptr);
-  //vector<BGFLOAT> theVectorVector;
+template<class Archive>
+void VectorMatrix::load(Archive & archive) {
+  assert(theVector != nullptr);
+  vector<BGFLOAT> theVectorVector;
   //archive(cereal::base_class<Matrix>(this), theVectorVector, size);
   //archive(type, init, rows, columns, multiplier, dimensions,theVectorVector, size);
-  //archive(theVectorVector);
+  archive(theVectorVector);
   //archive(size);
-  /*for(int i = 0; i < size; i++) {
+  for(int i = 0; i < size; i++) {
     theVector[i] = theVectorVector[i];
-  }*/
-//}
+  }
+}
 
 
 //! Cereal Load_and_construct Method
@@ -473,8 +473,8 @@ void VectorMatrix::load_and_construct( Archive & ar, cereal::construct<VectorMat
 }*/
 
 //! Cereal
-//CEREAL_REGISTER_TYPE(VectorMatrix)
-//CEREAL_REGISTER_POLYMORPHIC_RELATION(Matrix,VectorMatrix)
+CEREAL_REGISTER_TYPE(VectorMatrix)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Matrix,VectorMatrix)
 #endif // !USE_GPU
 
 #endif

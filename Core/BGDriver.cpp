@@ -98,21 +98,22 @@ int main(int argc, char* argv[]) {
         ifstream memory_in(simInfo->memInputFileName.c_str());
         cereal::XMLInputArchive archive(memory_in);
 
+        DEBUG(
         // Prints out SynapsesProps before deserialization
-        cout << "------------------------------Before Deserialization:--------------------------" << endl;
-
-#if !defined(USE_GPU)
+        cerr << "------------------------------Before Deserialization:--------------------------" << endl;
+#if defined(USE_GPU)
+        // Prints out SynapsesProps on the GPU
+        for(int i = 0; i < vtClr.size(); i++) {
+            dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUSynapsesPropsCluster();
+        }
+        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->printRadii();
+#else
         for(int i = 0; i < vtClr.size(); i++) {
             dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
         }
-        //dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
-#endif // !USE_GPU
-#if defined(USE_GPU)
-        //print out weights on the GPU
-        for(int i = 0; i < vtClr.size(); i++) {
-            dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUPropsCluster();
-        }
-#endif // USE_GPU
+        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
+#endif  
+        )
 
         // Deserializes synapse weight(s) along with each synapse's source neuron and destination neuron
         for(int i = 0; i < vtClr.size(); i++) {
@@ -131,23 +132,26 @@ int main(int argc, char* argv[]) {
         SynapseIndexMap::createSynapseImap(simInfo, vtClr, vtClrInfo);
 
         // Deserializes radii
-        //archive(*(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)));
-
+        archive(*(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)));
+    
+        DEBUG(
         // Prints out SynapsesProps after deserialization
-        cout << "------------------------------After Deserialization:--------------------------" << endl;
-#if !defined(USE_GPU)
+        cerr << "------------------------------After Deserialization:--------------------------" << endl;
+
+#if defined(USE_GPU)
+        // Print out SynapsesProps on the GPU
+        for(int i = 0; i < vtClr.size(); i++) {
+            dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUSynapsesPropsCluster();
+        }
+        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->printRadii();
+#else
         for(int i = 0; i < vtClr.size(); i++) {
             dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
         }
-        //dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
-#endif // !USE_GPU
+        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
+#endif
 
-#if defined(USE_GPU)
-        //print out weights on the GPU
-        for(int i = 0; i < vtClr.size(); i++) {
-            dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUPropsCluster();
-        }
-#endif // USE_GPU
+        )
 
     }
 
@@ -179,13 +183,27 @@ int main(int argc, char* argv[]) {
             archive(*vtClr[i]);
         }
         // Serializes radii
-        //archive(*(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)));
+        archive(*(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)));
     }
 
-    //cout << "---------------------------After Serialization---------------------------------" <<endl;
-    //for(int i = 0; i < vtClr.size(); i++) {
-      //  dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
-    //}
+    DEBUG(
+        // Prints out SynapsesProps after deserialization
+        cerr << "------------------------------After Serialization:--------------------------" << endl;
+
+#if defined(USE_GPU)
+        // Print out SynapsesProps on the GPU
+        for(int i = 0; i < vtClr.size(); i++) {
+            dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUSynapsesPropsCluster();
+        }
+        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->printRadii();
+#else
+        for(int i = 0; i < vtClr.size(); i++) {
+            dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
+        }
+        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
+#endif
+
+    )
 
     // Tell simulation to clean-up and run any post-simulation logic.
     simulator->finish(simInfo);

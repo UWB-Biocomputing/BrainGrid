@@ -139,7 +139,10 @@ public:
          */
         virtual void copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
-        virtual void printGPUPropsCluster();
+        /**
+         *  Print out SynapseProps on the GPU.
+         */
+        virtual void printGPUPropsSynapsesCluster();
 
         /**
          *  Loads the simulation based on istream input.

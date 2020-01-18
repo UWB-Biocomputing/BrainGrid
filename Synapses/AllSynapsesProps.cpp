@@ -315,29 +315,29 @@ synapseType AllSynapsesProps::synapseOrdinalToType(const int type_ordinal)
  */
 void AllSynapsesProps::printSynapsesProps() 
 {
-    cout << "This is SynapsesProps data:" << endl;
+    cerr << "This is SynapsesProps data:" << endl;
     for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
         if (W[i] != 0.0) {
-                cout << "W[" << i << "] = " << W[i];
-                cout << " sourNeuron: " << sourceNeuronLayoutIndex[i];
-                cout << " desNeuron: " << destNeuronLayoutIndex[i];
-                cout << " type: " << type[i];
-                cout << " psr: " << psr[i];
-                cout << " in_use:" << in_use[i];
+                cerr << "W[" << i << "] = " << W[i];
+                cerr << " sourNeuron: " << sourceNeuronLayoutIndex[i];
+                cerr << " desNeuron: " << destNeuronLayoutIndex[i];
+                cerr << " type: " << type[i];
+                cerr << " psr: " << psr[i];
+                cerr << " in_use:" << in_use[i];
                 if(summationPoint[i] != NULL) {
-                     cout << " summationPoint: is created!" << endl;    
+                     cerr << " summationPoint: is created!" << endl;    
                 } else {
-                     cout << " summationPoint: is EMPTY!!!!!" << endl;  
+                     cerr << " summationPoint: is EMPTY!!!!!" << endl;  
                 }
         }
     }
     
     for (int i = 0; i < count_neurons; i++) {
-        cout << "synapse_counts:" << "[" << i  << "]" << synapse_counts[i] << " ";
+        cerr << "synapse_counts:" << "[" << i  << "]" << synapse_counts[i] << " ";
     }
-    cout << endl;
+    cerr << endl;
     
-    cout << "total_synapse_counts:" << total_synapse_counts << endl;
-    cout << "maxSynapsesPerNeuron:" << maxSynapsesPerNeuron << endl;
-    cout << "count_neurons:" << count_neurons << endl;
+    cerr << "total_synapse_counts:" << total_synapse_counts << endl;
+    cerr << "maxSynapsesPerNeuron:" << maxSynapsesPerNeuron << endl;
+    cerr << "count_neurons:" << count_neurons << endl;
 }

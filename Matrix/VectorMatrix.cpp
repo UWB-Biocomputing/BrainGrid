@@ -175,12 +175,12 @@ void VectorMatrix::Print(ostream& os) const {
 		os << theVector[i] << " ";
 }
 
-// print vector
+// Print vector
 void VectorMatrix::printVector() const {
 	for (int i = 0; i < size; i++) {
-		cout << theVector[i] << " ";
+		cerr << "radii: " << theVector[i] << " ";
 	}
-	cout << endl;
+	cerr << endl;
 }
 
 // convert vector to XML string
