@@ -276,6 +276,8 @@ class ConnGrowth : public Connections
 
         //! spiking rate
         BGFLOAT *rates;
+
+        int size;
 #else // !USE_GPU
         //! synapse weight
         CompleteMatrix *W;
@@ -298,7 +300,6 @@ class ConnGrowth : public Connections
         //! displacement of neuron radii
         VectorMatrix *deltaR;
 
-        int size;
 #endif // !USE_GPU
 
 private:
