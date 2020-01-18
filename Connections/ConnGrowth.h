@@ -356,10 +356,15 @@ void ConnGrowth::save(Archive & archive) const {
         radiiVector.push_back(radii[i]);
     }
     archive(radiiVector);
-#else  
+#else
+    vector<BGFLOAT> radiiVector;
+    for(int i = 0; i < size; i++) {
+        radiiVector.push_back(radii->theVector[i]);
+    }
+    archive(radiiVector);  
     //int a = 5;
     //archive(a);      
-    archive(*radii);
+    //archive(*radii);
 #endif 
 }
 
@@ -371,8 +376,13 @@ void ConnGrowth::load(Archive & archive) {
     for(int i = 0; i < size; i++) {
         radii[i] = radiiVector[i];
     }
-#else        
-    archive(*radii);
+#else
+    vector<BGFLOAT> radiiVector;
+    for(int i = 0; i < size; i++) {
+        radiiVector.push_back(radii->theVector[i]);
+    }
+    archive(radiiVector);        
+    //archive(*radii);
     //int a = 5;
     //archive(a);
 #endif 
