@@ -22,9 +22,9 @@
 // Initial revision
 //
 
-#pragma once
-//#ifndef _MATRIX_H_
-//#define _MATRIX_H_
+
+#ifndef _MATRIX_H_
+#define _MATRIX_H_
 
 #include <string>
 
@@ -36,7 +36,7 @@
 /**
  * cereal
  */
-//#include <cereal/types/string.hpp> // for string
+#include <cereal/types/string.hpp> // for string
 
 using namespace std;
 
@@ -169,4 +169,4 @@ void Matrix::load_and_construct( Archive & ar, cereal::construct<Matrix> & const
 }*/
 
 
-//#endif
+#endif
