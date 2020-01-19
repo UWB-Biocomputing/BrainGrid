@@ -28,9 +28,9 @@
 // Initial revision
 //
 
-#pragma once
-//#ifndef _VECTORMATRIX_H_
-//#define _VECTORMATRIX_H_
+
+#ifndef _VECTORMATRIX_H_
+#define _VECTORMATRIX_H_
 
 #include <string>
 
@@ -479,4 +479,4 @@ void VectorMatrix::load_and_construct( Archive & ar, cereal::construct<VectorMat
 //CEREAL_REGISTER_POLYMORPHIC_RELATION(Matrix,VectorMatrix)
 
 
-//#endif
+#endif
