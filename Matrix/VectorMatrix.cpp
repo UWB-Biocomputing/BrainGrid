@@ -177,14 +177,14 @@ void VectorMatrix::Print(ostream& os) const {
 
 #if !defined(USE_GPU)
 // Print vector
-void VectorMatrix::printVector() const {
+/*void VectorMatrix::printVector() const {
 	DEBUG (
 		for (int i = 0; i < size; i++) {
 			cerr << "radii: " << theVector[i] << " ";
 		}
 		cerr << endl;
 	)
-}
+}*/
 #endif // !USE_GPU
 
 // convert vector to XML string
