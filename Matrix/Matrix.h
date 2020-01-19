@@ -22,8 +22,9 @@
 // Initial revision
 //
 
-#ifndef _MATRIX_H_
-#define _MATRIX_H_
+#pragma once
+//#ifndef _MATRIX_H_
+//#define _MATRIX_H_
 
 #include <string>
 
@@ -168,4 +169,4 @@ void Matrix::load_and_construct( Archive & ar, cereal::construct<Matrix> & const
 }*/
 
 
-#endif
+//#endif

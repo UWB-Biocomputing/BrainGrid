@@ -178,10 +178,12 @@ void VectorMatrix::Print(ostream& os) const {
 #if !defined(USE_GPU)
 // Print vector
 void VectorMatrix::printVector() const {
-	for (int i = 0; i < size; i++) {
-		cerr << "radii: " << theVector[i] << " ";
-	}
-	cerr << endl;
+	DEBUG (
+		for (int i = 0; i < size; i++) {
+			cerr << "radii: " << theVector[i] << " ";
+		}
+		cerr << endl;
+	)
 }
 #endif // !USE_GPU
 

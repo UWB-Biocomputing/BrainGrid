@@ -28,9 +28,9 @@
 // Initial revision
 //
 
-
-#ifndef _VECTORMATRIX_H_
-#define _VECTORMATRIX_H_
+#pragma once
+//#ifndef _VECTORMATRIX_H_
+//#define _VECTORMATRIX_H_
 
 #include <string>
 
@@ -39,7 +39,7 @@
 #include "SparseMatrix.h"
 #include "Norm.h"
 
-
+#include <cereal/types/string.hpp> // for string
 using namespace std;
 
 // Forward declarations
@@ -479,4 +479,4 @@ void VectorMatrix::load_and_construct( Archive & ar, cereal::construct<VectorMat
 //CEREAL_REGISTER_POLYMORPHIC_RELATION(Matrix,VectorMatrix)
 
 
-#endif
+//#endif
