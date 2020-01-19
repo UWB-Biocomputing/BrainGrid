@@ -28,9 +28,9 @@
 // Initial revision
 //
 
-
-#ifndef _VECTORMATRIX_H_
-#define _VECTORMATRIX_H_
+#pragma once
+//#ifndef _VECTORMATRIX_H_
+//#define _VECTORMATRIX_H_
 
 #include <string>
 
@@ -63,7 +63,7 @@ const VectorMatrix exp(const VectorMatrix& v);
 //#include <cereal/types/polymorphic.hpp> //for inheritance
 //#include <cereal/types/base_class.hpp> //inherit data member from base class
 //#include <cereal/access.hpp> //for load and construct
-//#include <cereal/types/vector.hpp>
+#include <cereal/types/vector.hpp>
 //#include <vector>
 //#include <cereal/types/string.hpp> // for string
 
@@ -479,4 +479,4 @@ void VectorMatrix::load_and_construct( Archive & ar, cereal::construct<VectorMat
 //CEREAL_REGISTER_POLYMORPHIC_RELATION(Matrix,VectorMatrix)
 
 
-#endif
+//#endif
