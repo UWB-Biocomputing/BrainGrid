@@ -141,7 +141,7 @@ public:
 
 #if !defined(USE_GPU)
   // print vector
-  //void printVector() const;
+  void printVector() const;
 #endif // !USE_GPU
   /**
     @brief Produce XML representation of vector in string return value.
