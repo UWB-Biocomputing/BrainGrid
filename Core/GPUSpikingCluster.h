@@ -342,5 +342,5 @@ void initMTGPU(unsigned int seed, unsigned int blocks, unsigned int threads, uns
 extern __global__ void calcSummationMapDevice_2(int totalNeurons,
 		    AllSpikingNeuronsProps* __restrict__ allNeurnsProps,
 		    const SynapseIndexMap* __restrict__ synapseIndexMapDevice,
-                    const AllSpikingSynapsesProps* __restrict__ allSynapsesProps );             
+                    const AllSpikingSynapsesProps* __restrict__ allSynapsesProps );
 #endif // __CUDACC__
