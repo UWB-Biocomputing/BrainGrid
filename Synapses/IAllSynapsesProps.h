@@ -68,7 +68,7 @@ class IAllSynapsesProps
          * 
          *  @param  allSynapsesDeviceProps   Reference to the AllSTDPSynapsesProps class on device memory.
          */
-        virtual void printGPUSynapsesProps( void* allSynapsesDeviceProps ) = 0;
+        virtual void printGPUSynapsesProps( void* allSynapsesDeviceProps ) const = 0;
 #endif // USE_GPU
 
         /**

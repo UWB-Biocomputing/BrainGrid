@@ -63,12 +63,6 @@
 #include "AllSpikingSynapses.h"
 #include "AllSTDPSynapsesProps.h"
 
-/**
- * cereal
- */
-//#include <cereal/types/polymorphic.hpp> //for inheritance
-//#include <cereal/types/base_class.hpp> //for inherit parent's data member
-
 class AllSTDPSynapses : public AllSpikingSynapses
 {
     public:
@@ -126,10 +120,6 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  type        Type of the Synapse to create.
          */
         CUDA_CALLABLE virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
-        
-        //! Cereal
-        //template<class Archive>
-        //void serialize(Archive & archive);
 
 #if defined(USE_GPU)
     public:
@@ -207,12 +197,3 @@ class AllSTDPSynapses : public AllSpikingSynapses
 __global__ void allocAllSTDPSynapsesDevice(IAllSynapses **pAllSynapses, IAllSynapsesProps *pAllSynapsesProps);
 
 #endif // USE_GPU
-
-//! Cereal Serialization/Deserialization Method
-/*template<class Archive>
-void AllSTDPSynapses::serialize(Archive & archive) {
-    archive(cereal::base_class<AllSpikingSynapses>(this));
-}
-
-//! Cereal
-CEREAL_REGISTER_TYPE(AllSTDPSynapses)*/

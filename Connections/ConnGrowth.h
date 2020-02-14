@@ -87,7 +87,7 @@ class Barrier;
 /**
  * cereal
  */
-#include <cereal/types/polymorphic.hpp> //for inheritance
+#include <cereal/types/polymorphic.hpp> 
 #include <cereal/types/vector.hpp>
 
 using namespace std;
@@ -172,20 +172,26 @@ class ConnGrowth : public Connections
          *  @return Pointer to the recorder class object.
          */
         virtual IRecorder* createRecorder(const SimulationInfo *sim_info);
-
-        //! Cereal
-        //template<class Archive>
-        //void serialize(Archive & archive);
-
+ 
+        /**
+         *  Cereal serialization method
+         *  (Serializes radii)
+         */
         template<class Archive>
         void save(Archive & archive) const;
 
+        /**
+         *  Cereal deserialization method
+         *  (Deserializes radii)
+         */
         template<class Archive>
         void load(Archive & archive);  
 
-#if defined(USE_GPU)
-        void printRadii() const;
-#endif     
+        /**
+         *  Prints radii 
+         *  (either on CPU or GPU)
+         */
+        void printRadii() const;    
 
     private:
         /**
@@ -270,7 +276,8 @@ class ConnGrowth : public Connections
         //! spike count for each epoch
         int *spikeCounts;
 
-        int size;
+        //! radii size （2020/2/13 add radiiSize for use in serialization/deserialization)
+        int radiiSize;
 
 #if defined(USE_GPU)
         //! neuron radii
@@ -348,47 +355,70 @@ extern __global__ void updateSynapsesWeightsDevice( IAllSynapses* synapsesDevice
 
 #endif // USE_GPU && __CUDACC__
 
-//! Cereal Serialization/Deserialization Method
+/**
+ *  Cereal serialization method
+ *  (Serializes radii)
+ */
 template<class Archive>
 void ConnGrowth::save(Archive & archive) const {
 #if defined(USE_GPU)
+    // uses vector to save radii
     vector<BGFLOAT> radiiVector;
-    for(int i = 0; i < size; i++) {
+    for(int i = 0; i < radiiSize; i++) {
         radiiVector.push_back(radii[i]);
     }
+    // serialization
     archive(radiiVector);
 #else
+    // uses vector to save radii
     vector<BGFLOAT> radiiVector;
-    for(int i = 0; i < size; i++) {
+    for(int i = 0; i < radiiSize; i++) {
+        // access CPU radii in VectorMatrix
         radiiVector.push_back(radii->theVector[i]);
     }
+    // serialization
     archive(radiiVector);  
-    //int a = 5;
-    //archive(a);      
-    //archive(*radii);
 #endif 
 }
 
+/**
+ *  Cereal deserialization method
+ *  (Deserializes radii)
+ */
 template<class Archive>
 void ConnGrowth::load(Archive & archive) {
 #if defined(USE_GPU)
+    // uses vector to load radii
     vector<BGFLOAT> radiiVector;
+    // deserializing data to this vector
     archive(radiiVector);
-    for(int i = 0; i < size; i++) {
+
+    // assigns serialized data to objects
+    for(int i = 0; i < radiiSize; i++) {
         radii[i] = radiiVector[i];
     }
 #else
+    // uses vector to load radii
     vector<BGFLOAT> radiiVector;
+
+    // deserializing data to this vector
     archive(radiiVector);
-    for(int i = 0; i < size; i++) {
+
+    // check to see if serialized data size matches object size 
+    if(radiiVector.size() != radiiSize) {
+        cerr << "Failed deserializing radii. Please verify totalNeurons data member in SimulationInfo class." << endl;
+        throw cereal::Exception("Deserialization Error");
+    }
+
+    // assigns serialized data to objects
+    for(int i = 0; i < radiiSize; i++) {
         radii->theVector[i] = radiiVector[i];
     }       
-    //archive(*radii);
-    //int a = 5;
-    //archive(a);
 #endif 
 }
 
-//! Cereal
+/**
+ * cereal macro
+ */
 CEREAL_REGISTER_TYPE(ConnGrowth)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Connections,ConnGrowth)

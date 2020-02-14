@@ -8,14 +8,6 @@
 
 #include "AllSynapsesProps.h"
 
-/**
- * cereal
- */
-//#include <cereal/types/polymorphic.hpp> //for inheritance
-//#include <cereal/types/base_class.hpp> //for inherit parent's data member
-//#include <cereal/types/vector.hpp>
-//#include <vector>
-
 class AllSpikingSynapsesProps : public AllSynapsesProps
 {
     public:
@@ -31,21 +23,11 @@ class AllSpikingSynapsesProps : public AllSynapsesProps
          *  @param  clr_info  ClusterInfo class to read information from.
          */
         virtual void setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
-        
-        //! Cereal
-        //template<class Archive>
-        //void serialize(Archive & archive);
-
-        /*template<class Archive>
-        void save(Archive & archive) const;
-
-        template<class Archive>
-        void load(Archive & archive);*/
 
         /**
-         *  Prints all SynapsesProps data.
+         *  Prints SynapsesProps data.
          */
-        virtual void printSynapsesProps();
+        virtual void printSynapsesProps() const;
 
 #if defined(USE_GPU)
     public:
@@ -118,11 +100,11 @@ class AllSpikingSynapsesProps : public AllSynapsesProps
         virtual void processInterClustesIncomingSpikes(void* allSynapsesProps);
 
         /**
-         *  Prints all GPU SynapsesProps data.
+         *  Prints GPU SynapsesProps data.
          * 
-         *  @param  allSynapsesDeviceProps   Reference to the AllSTDPSynapsesProps class on device memory.
+         *  @param  allSynapsesDeviceProps   Reference to the AllSpikingSynapsesProps class on device memory.
          */
-        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps );
+        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps) const;
 
     protected:
         /**
@@ -209,47 +191,3 @@ class AllSpikingSynapsesProps : public AllSynapsesProps
         EventQueue *preSpikeQueue;
 };
 
-//! Cereal Serialization/Deserialization Method
-/*template<class Archive>
-void AllSpikingSynapsesProps::serialize(Archive & archive) {
-    archive(cereal::base_class<AllSynapsesProps>(this));
-}*/
-
-/*template<class Archive>
-void AllSpikingSynapsesProps::save(Archive & archive) const
-{
-    vector<BGFLOAT> decayVector;
-    vector<BGFLOAT> tauVector;
-    vector<int> total_delayVector;
-
-    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
-        decayVector.push_back(decay[i]);
-        tauVector.push_back(tau[i]);
-        total_delayVector.push_back(total_delay[i]);
-    }
-
-    archive(cereal::base_class<AllSynapsesProps>(this),
-    decayVector, tauVector, total_delayVector, *preSpikeQueue
-    );
-}
-
-template<class Archive>
-void AllSpikingSynapsesProps::load(Archive & archive) 
-{
-    vector<BGFLOAT> decayVector;
-    vector<BGFLOAT> tauVector;
-    vector<int> total_delayVector;
-
-    archive(cereal::base_class<AllSynapsesProps>(this),
-    decayVector, tauVector, total_delayVector, *preSpikeQueue
-    );
-
-    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
-        decay[i] = decayVector[i];
-        tau[i] = tauVector[i];
-        total_delay[i] = total_delayVector[i];
-    }
-}*/
-
-//! Cereal
-//CEREAL_REGISTER_TYPE(AllSpikingSynapsesProps)

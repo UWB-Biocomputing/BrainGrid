@@ -11,7 +11,7 @@
 /**
  * cereal
  */
-#include <cereal/types/polymorphic.hpp> //for inheritance
+#include <cereal/types/polymorphic.hpp> 
 #include <cereal/types/vector.hpp>
 #include <vector>
 
@@ -32,17 +32,21 @@ class AllSynapsesProps : public IAllSynapsesProps
         virtual void setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
-         *  Prints all SynapsesProps data.
+         *  Prints SynapsesProps data
          */
-        virtual void printSynapsesProps();
+        virtual void printSynapsesProps() const;
         
-        //! Cereal
-        //template<class Archive>
-        //void serialize(Archive & archive);
-
+        /**
+         *  Cereal serialization method
+         *  (Serializes synapse weights, source neurons, and destination neurons)
+         */
         template<class Archive>
         void save(Archive & archive) const;
 
+        /**
+         *  Cereal deserialization method
+         *  (Deserializes synapse weights, source neurons, and destination neurons)
+         */
         template<class Archive>
         void load(Archive & archive);
 
@@ -219,75 +223,59 @@ class AllSynapsesProps : public IAllSynapsesProps
         BGFLOAT *summation;
 };
 
-//! Cereal Serialization/Deserialization Method
-/*template<class Archive>
-void AllSynapsesProps::serialize(Archive & archive) {
-    vector<BGFLOAT> temp;
-    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
-        temp.push_back(W[i]);
-    }
-    archive(temp);
-}*/
-
+/**
+ *  Cereal serialization method
+ *  (Serializes synapse weights, source neurons, and destination neurons)
+ */
 template<class Archive>
 void AllSynapsesProps::save(Archive & archive) const
 {
+    // uses vector to save synapse weights, source neurons, and destination neurons
     vector<BGFLOAT> WVector;
     vector<int>sourceNeuronLayoutIndexVector;
     vector<int>destNeuronLayoutIndexVector;
-    //vector<synapseType> typeVector;
-    //vector<BGFLOAT> psrVector;
-    //vector<bool> in_useVector;
-
-    //vector<BGSIZE> synapse_countsVector;
 
     for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
         WVector.push_back(W[i]);
         sourceNeuronLayoutIndexVector.push_back(sourceNeuronLayoutIndex[i]);
         destNeuronLayoutIndexVector.push_back(destNeuronLayoutIndex[i]);
-        //typeVector.push_back(type[i]);
-        //psrVector.push_back(psr[i]);
-        //in_useVector.push_back(in_use[i]);
     }
-    //for (int i = 0; i < count_neurons; i++) {
-      //  synapse_countsVector.push_back(synapse_counts[i]);
-    //}
-    archive(WVector, sourceNeuronLayoutIndexVector, destNeuronLayoutIndexVector//,
-    //typeVector, psrVector, in_useVector, synapse_countsVector//,
-    //total_synapse_counts, maxSynapsesPerNeuron, count_neurons
-    );
+
+    // serialization
+    archive(WVector, sourceNeuronLayoutIndexVector, destNeuronLayoutIndexVector);
 }
 
+/**
+ *  Cereal deserialization method
+ *  (Deserializes synapse weights, source neurons, and destination neurons)
+ */
 template<class Archive>
 void AllSynapsesProps::load(Archive & archive) 
 {
+    // uses vectors to load synapse weights, source neurons, and destination neurons
     vector<BGFLOAT> WVector;
     vector<int>sourceNeuronLayoutIndexVector;
     vector<int>destNeuronLayoutIndexVector;
-    //vector<synapseType> typeVector;
-    //vector<BGFLOAT> psrVector;
-    //vector<bool> in_useVector;
+    
+    // deserializing data to these vectors
+    archive(WVector, sourceNeuronLayoutIndexVector, destNeuronLayoutIndexVector);
 
-    //vector<BGSIZE> synapse_countsVector;
+    // check to see if serialized data sizes matches object sizes  
+    if(WVector.size() != maxSynapsesPerNeuron * count_neurons) {
+        cerr << "Failed deserializing synapse weights, source neurons, and/or destination neurons. Please verify maxSynapsesPerNeuron and count_neurons data members in AllSynapsesProps class." << endl;
+        throw cereal::Exception("Deserialization Error");
+    }
 
-    archive(WVector, sourceNeuronLayoutIndexVector, destNeuronLayoutIndexVector//,
-    //typeVector, psrVector, in_useVector, synapse_countsVector//,
-    //total_synapse_counts, maxSynapsesPerNeuron, count_neurons
-    );
-
+    // assigns serialized data to objects 
     for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
         W[i] = WVector[i];
         sourceNeuronLayoutIndex[i] = sourceNeuronLayoutIndexVector[i];
         destNeuronLayoutIndex[i] = destNeuronLayoutIndexVector[i];
-        //type[i] = typeVector[i];
-        //psr[i] = psrVector[i];
-        //in_use[i] = in_useVector[i];
     }
-    //for (int i = 0; i < count_neurons; i++) {
-      //  synapse_counts[i] = synapse_countsVector[i];
-    //}
 }
 
-//! Cereal
+/**
+ * cereal macro
+ */
 CEREAL_REGISTER_TYPE(AllSynapsesProps)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(IAllSynapsesProps,AllSynapsesProps)

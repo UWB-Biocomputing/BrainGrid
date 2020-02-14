@@ -132,7 +132,7 @@ class Connections
         virtual IRecorder* createRecorder(const SimulationInfo *sim_info) = 0;
 
         /**
-         *  Creates synapse(s) from synapse weight(s) saved in the serialization file.
+         *  Creates synapses from synapse weights saved in the serialization file.
          * 
          *  @param  sim_info    SimulationInfo class to read information from.
          *  @param  layout      Layout information of the neunal network.

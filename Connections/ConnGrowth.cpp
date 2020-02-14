@@ -48,7 +48,7 @@ ConnGrowth::ConnGrowth() : Connections()
 {
     radii = NULL;
     rates = NULL;
-    size = 0;
+    radiiSize = 0;
 #if defined(USE_GPU)
     m_barrierUpdateConnections = NULL;
 #else // !USE_GPU
@@ -76,7 +76,7 @@ ConnGrowth::~ConnGrowth()
 void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
     int num_neurons = sim_info->totalNeurons;
-    size = num_neurons;
+    radiiSize = num_neurons;
 
 #if defined(USE_GPU)
     radii = new BGFLOAT[num_neurons];
@@ -123,7 +123,7 @@ void ConnGrowth::cleanupConnections()
 
     radii = NULL;
     rates = NULL;
-    size = 0;
+    radiiSize = 0;
 #if defined(USE_GPU)
     m_barrierUpdateConnections = NULL;
 #else // !UDSE_GPU
@@ -559,11 +559,19 @@ IRecorder* ConnGrowth::createRecorder(const SimulationInfo *simInfo)
     return simRecorder;
 }
 
-#if defined(USE_GPU)
+/**
+ *  Prints radii 
+ *  (either on CPU or GPU)
+ */
 void ConnGrowth::printRadii() const {
-	for (int i = 0; i < size; i++) {
-		cerr << "radii: " << radii[i] << " ";
+#if defined(USE_GPU)
+	for (int i = 0; i < radiiSize; i++) {
+		cout << "radii[" << i << "] = " << radii[i] << endl;
 	}
-	cerr << endl; 
+#else // !USE_GPU
+	for (int i = 0; i < radiiSize; i++) {
+		cout << "radii[" << i << "] = " << radii->theVector[i] << endl;
+	}
+#endif // !USE_GPU
 }
-#endif
+

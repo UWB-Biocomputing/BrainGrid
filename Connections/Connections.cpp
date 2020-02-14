@@ -48,7 +48,7 @@ Connections::~Connections()
 }
 
 /*
- *  Creates synapse(s) from synapse weight(s) saved in the serialization file.
+ *  Creates synapses from synapse weights saved in the serialization file.
  *
  *  @param  sim_info    SimulationInfo class to read information from.
  *  @param  layout      Layout information of the neunal network.
@@ -74,7 +74,6 @@ void Connections::createSynapsesFromWeights(const SimulationInfo *sim_info, Layo
                 if(pSynapsesProps->W[iSyn] != 0.0) {
                     BGFLOAT theW = pSynapsesProps->W[iSyn];
                     BGFLOAT* sum_point = &( pNeuronsProps->summation_map[iNeuron] );
-                    //pSynapsesProps->summationPoint[iSyn] = sum_point;
                     int src_neuron = pSynapsesProps->sourceNeuronLayoutIndex[iSyn];
                     int dest_neuron = pSynapsesProps->destNeuronLayoutIndex[iSyn];
                     synapseType type = synapses->synType(layout->neuron_type_map, src_neuron, dest_neuron);
@@ -84,10 +83,5 @@ void Connections::createSynapsesFromWeights(const SimulationInfo *sim_info, Layo
                 }
             }
         }
-
     }
-
-    // Create synapse index maps
-    //SynapseIndexMap::createSynapseImap(sim_info, vtClr, vtClrInfo);
-
 }

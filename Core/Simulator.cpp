@@ -69,6 +69,7 @@ void Simulator::finish(SimulationInfo *sim_info)
 void Simulator::copyGPUSynapseToCPU(SimulationInfo *sim_info) {
   sim_info->model->copyGPUSynapseToCPUSim(sim_info); 
 }
+
 /**
  * Copy CPU Synapse data to GPU.
  *

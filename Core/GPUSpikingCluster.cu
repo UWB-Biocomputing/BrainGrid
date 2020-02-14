@@ -332,7 +332,7 @@ void GPUSpikingCluster::copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, Clu
 /* 
  *  Print out SynapseProps on the GPU.
  */
-void GPUSpikingCluster::printGPUSynapsesPropsCluster()
+void GPUSpikingCluster::printGPUSynapsesPropsCluster() const
 {  
   AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(m_synapses)->m_pSynapsesProps;
   pSynapsesProps->printGPUSynapsesProps( m_allSynapsesDeviceProps );

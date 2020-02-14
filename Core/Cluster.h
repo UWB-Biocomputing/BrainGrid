@@ -57,7 +57,7 @@
 /**
  * cereal
  */
-#include <cereal/access.hpp> //for load and construct
+#include <cereal/access.hpp> 
 
 class Cluster
 {
@@ -120,10 +120,17 @@ class Cluster
          */
         virtual void copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
 
-        //! Cereal
+        /**
+         *  Cereal load and construct method
+         *  (this method is needed when the class has no zero-parameter constructor)
+         */
         template<class Archive>
         static void load_and_construct(Archive& ar, cereal::construct<Cluster>& construct);
-
+        
+        /**
+         *  Cereal serialization and deserialization method
+         *  (Serializes/deserializes synapses)
+         */
         template<class Archive>
         void serialize(Archive & archive);
 
@@ -244,20 +251,30 @@ class Cluster
         static int m_nSynapticTransDelay;
 };
 
-//! Cereal Serialization/Deserialization Method
+/**
+ *  Cereal serialization and deserialization method
+ *  (Serializes/deserializes synapses)
+ */
 template<class Archive>
 void Cluster::serialize(Archive & archive) {
+    // type cast 
     AllSynapses * castm_synapses = dynamic_cast<AllSynapses*>(m_synapses);
+    // saves synapse objects
     archive(*castm_synapses);
 }
 
-//! Cereal Load_and_construct Method
+/**
+ *  Cereal load and construct method
+ *  (this method is needed when the class has no zero-parameter constructor)
+ */
 template <class Archive>
 void Cluster::load_and_construct( Archive & ar, cereal::construct<Cluster> & construct )
 {  
     IAllNeurons *m_neurons2 = nullptr;
     IAllSynapses *m_synapses2 = nullptr;
     AllSynapses * castm_synapses = dynamic_cast<AllSynapses*>(m_synapses2);
+    // loads synapse objects
     ar(*castm_synapses);
+    // constructs object
     construct(m_neurons2, m_synapses2);
 }

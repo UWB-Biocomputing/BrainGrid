@@ -50,7 +50,7 @@ typedef unsigned _int8 uint8_t;
 /**
  * cereal
  */
-#include <cereal/types/polymorphic.hpp> //for inheritance
+#include <cereal/types/polymorphic.hpp> 
 
 class IAllNeurons;
 
@@ -167,7 +167,10 @@ class AllSynapses : public IAllSynapses
          */
         CUDA_CALLABLE virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT);
         
-        //! Cereal
+        /**
+         *  Cereal serialization and deserialization method
+         *  (Serializes/deserializes SynapseProps)
+         */
         template<class Archive>
         void serialize(Archive & archive);
 
@@ -267,12 +270,17 @@ __global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMa
 
 #endif // USE_GPU
 
-//! Cereal Serialization/Deserialization Method
+/**
+ *  Cereal serialization and deserialization method
+ *  (Serializes/deserializes SynapseProps)
+ */
 template<class Archive>
 void AllSynapses::serialize(Archive & archive) {
     archive(*m_pSynapsesProps);
 }
 
-//! Cereal
+/**
+ * cereal macro
+ */
 CEREAL_REGISTER_TYPE(AllSynapses)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(IAllSynapses,AllSynapses)

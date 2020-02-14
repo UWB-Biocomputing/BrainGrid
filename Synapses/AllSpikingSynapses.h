@@ -46,12 +46,6 @@ typedef void (*fpPostSynapsesSpikeHit_t)(const BGSIZE, AllSpikingSynapsesProps*)
 
 #include "AllSpikingNeurons.h"
 
-/**
- * cereal
- */
-//#include <cereal/types/polymorphic.hpp> //for inheritance
-//#include <cereal/types/base_class.hpp> //for inherit parent's data member
-
 class AllSpikingSynapses : public AllSynapses
 {
     public:
@@ -109,10 +103,6 @@ class AllSpikingSynapses : public AllSynapses
          *  @retrun true if the back propagation is allowed.
          */
         CUDA_CALLABLE virtual bool allowBackPropagation();
-
-        //! Cereal
-        //template<class Archive>
-        //void serialize(Archive & archive);
 
     protected:
         /**
@@ -209,11 +199,4 @@ extern __global__ void advanceSpikeQueueDevice(int iStep, IAllSynapses* synapses
 
 #endif // USE_GPU
 
-//! Cereal Serialization/Deserialization Method
-/*template<class Archive>
-void AllSpikingSynapses::serialize(Archive & archive) {
-    archive(cereal::base_class<AllSynapses>(this));
-}*/
 
-//! Cereal
-//CEREAL_REGISTER_TYPE(AllSpikingSynapses)

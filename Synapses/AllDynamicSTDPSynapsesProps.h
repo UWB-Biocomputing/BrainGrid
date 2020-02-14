@@ -8,14 +8,6 @@
 
 #include "AllSTDPSynapsesProps.h"
 
-/**
- * cereal
- */
-//#include <cereal/types/polymorphic.hpp> //for inheritance
-//#include <cereal/types/base_class.hpp> //for inherit parent's data member
-//#include <cereal/types/vector.hpp>
-//#include <vector>
-
 class AllDynamicSTDPSynapsesProps : public AllSTDPSynapsesProps
 {
     public:
@@ -31,21 +23,11 @@ class AllDynamicSTDPSynapsesProps : public AllSTDPSynapsesProps
          *  @param  clr_info  ClusterInfo class to read information from.
          */
         virtual void setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
-        
-        //! Cereal
-        //template<class Archive>
-        //void serialize(Archive & archive);
-
-        /*template<class Archive>
-        void save(Archive & archive) const;
-
-        template<class Archive>
-        void load(Archive & archive);*/
 
         /**
-         *  Prints all SynapsesProps data.
+         *  Prints SynapsesProps data.
          */
-        virtual void printSynapsesProps();
+        virtual void printSynapsesProps() const;
 
 #if defined(USE_GPU)
     public:
@@ -85,11 +67,11 @@ class AllDynamicSTDPSynapsesProps : public AllSTDPSynapsesProps
         virtual void copySynapseDeviceToHostProps( void* allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron );
 
         /**
-         *  Prints all GPU SynapsesProps data.
+         *  Prints GPU SynapsesProps data.
          * 
-         *  @param  allSynapsesDeviceProps   Reference to the AllSTDPSynapsesProps class on device memory.
+         *  @param  allSynapsesDeviceProps   Reference to the AllDynamicSTDPSynapsesProps class on device memory.
          */
-        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps );
+        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps) const;
 
     protected:
         /**
@@ -184,60 +166,3 @@ class AllDynamicSTDPSynapsesProps : public AllSTDPSynapsesProps
          */
         BGFLOAT *F;
 };
-
-//! Cereal Serialization/Deserialization Method
-/*template<class Archive>
-void AllDynamicSTDPSynapsesProps::serialize(Archive & archive) {
-    archive(cereal::base_class<AllSTDPSynapsesProps>(this));
-}*/
-
-/*template<class Archive>
-void AllDynamicSTDPSynapsesProps::save(Archive & archive) const
-{
-    vector<uint64_t> lastSpikeVector;
-    vector<BGFLOAT> rVector;
-    vector<BGFLOAT> uVector;
-    vector<BGFLOAT> DVector;
-    vector<BGFLOAT> UVector;
-    vector<BGFLOAT> FVector;
-
-    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
-        lastSpikeVector.push_back(lastSpike[i]);
-        rVector.push_back(r[i]);
-        uVector.push_back(u[i]);
-        DVector.push_back(D[i]);
-        UVector.push_back(U[i]);
-        FVector.push_back(F[i]);
-    }
-
-    archive(cereal::base_class<AllSTDPSynapsesProps>(this),
-    lastSpikeVector, rVector, uVector,
-    DVector, UVector, FVector);
-}
-
-template<class Archive>
-void AllDynamicSTDPSynapsesProps::load(Archive & archive) 
-{
-    vector<uint64_t> lastSpikeVector;
-    vector<BGFLOAT> rVector;
-    vector<BGFLOAT> uVector;
-    vector<BGFLOAT> DVector;
-    vector<BGFLOAT> UVector;
-    vector<BGFLOAT> FVector;
-
-    archive(cereal::base_class<AllSTDPSynapsesProps>(this),
-    lastSpikeVector, rVector, uVector,
-    DVector, UVector, FVector);
-
-    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
-        lastSpike[i] = lastSpikeVector[i];
-        r[i] = rVector[i];
-        u[i] = uVector[i];
-        D[i] = DVector[i];
-        U[i] = UVector[i];
-        F[i] = FVector[i];
-    }
-}*/
-
-//! Cereal
-//CEREAL_REGISTER_TYPE(AllDynamicSTDPSynapsesProps)

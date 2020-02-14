@@ -394,38 +394,38 @@ void AllSTDPSynapsesProps::writeSynapseProps(ostream& output, const BGSIZE iSyn)
 }
 
 /*
- *  Prints all SynapsesProps data.
+ *  Prints SynapsesProps data.
  */
-void AllSTDPSynapsesProps::printSynapsesProps() 
+void AllSTDPSynapsesProps::printSynapsesProps() const
 {
     AllSpikingSynapsesProps::printSynapsesProps();
     for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
         if (W[i] != 0.0) {
-            cerr << "total_delayPost: " << total_delayPost[i];
-            cerr << " tauspost: " << tauspost[i];
-            cerr << " tauspre: " << tauspre[i];
-            cerr << " taupos: " << taupos[i];
-            cerr << " tauneg: " << tauneg[i];
-            cerr << " STDPgap: " << STDPgap[i];
-            cerr << " Wex: " << Wex[i];
-            cerr << " Aneg: " << Aneg[i];
-            cerr << " Apos: " << Apos[i];
-            cerr << " mupos: " << mupos[i];
-            cerr << " muneg: " << muneg[i];
-            cerr << " useFroemkeDanSTDP: " << useFroemkeDanSTDP[i];
-            cerr << " postSpikeQueue: " << postSpikeQueue->m_queueEvent[i] << endl;
+            cout << "total_delayPost[" << i << "] = " << total_delayPost[i];
+            cout << " tauspost: " << tauspost[i];
+            cout << " tauspre: " << tauspre[i];
+            cout << " taupos: " << taupos[i];
+            cout << " tauneg: " << tauneg[i];
+            cout << " STDPgap: " << STDPgap[i];
+            cout << " Wex: " << Wex[i];
+            cout << " Aneg: " << Aneg[i];
+            cout << " Apos: " << Apos[i];
+            cout << " mupos: " << mupos[i];
+            cout << " muneg: " << muneg[i];
+            cout << " useFroemkeDanSTDP: " << useFroemkeDanSTDP[i];
+            cout << " postSpikeQueue: " << postSpikeQueue->m_queueEvent[i] << endl;
         }
     }
 
 }
 
 #if defined(USE_GPU)
-/**
- *  Prints all GPU SynapsesProps data.
+/*
+ *  Prints GPU SynapsesProps data.
  * 
  *  @param  allSynapsesDeviceProps   Reference to the AllSTDPSynapsesProps class on device memory.
  */
-void AllSTDPSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps ) 
+void AllSTDPSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps ) const
 {
     AllSTDPSynapsesProps allSynapsesProps;
 
@@ -506,40 +506,39 @@ void AllSTDPSynapsesProps::printGPUSynapsesProps( void* allSynapsesDeviceProps )
 
         for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
             if (WPrint[i] != 0.0) {
-                cerr << "W[" << i << "] = " << WPrint[i];
-                cerr << " sourNeuron: " << sourceNeuronLayoutIndexPrint[i];
-                cerr << " desNeuron: " << destNeuronLayoutIndexPrint[i];
-                cerr << " type: " << typePrint[i];
-                cerr << " psr: " << psrPrint[i];
-                cerr << " in_use:" << in_usePrint[i];
+                cout << "GPU W[" << i << "] = " << WPrint[i];
+                cout << " GPU sourNeuron: " << sourceNeuronLayoutIndexPrint[i];
+                cout << " GPU desNeuron: " << destNeuronLayoutIndexPrint[i];
+                cout << " GPU type: " << typePrint[i];
+                cout << " GPU psr: " << psrPrint[i];
+                cout << " GPU in_use:" << in_usePrint[i];
 
-                cerr << "decay: " << decayPrint[i];
-                cerr << " tau: " << tauPrint[i];
-                cerr << " total_delay: " << total_delayPrint[i];
+                cout << " GPU decay: " << decayPrint[i];
+                cout << " GPU tau: " << tauPrint[i];
+                cout << " GPU total_delay: " << total_delayPrint[i];
 
-                cerr << "total_delayPost: " << total_delayPostPrint[i];
-                cerr << " tauspost: " << tauspostPrint[i];
-                cerr << " tauspre: " << tausprePrint[i];
-                cerr << " taupos: " << tauposPrint[i];
-                cerr << " tauneg: " << taunegPrint[i];
-                cerr << " STDPgap: " << STDPgapPrint[i];
-                cerr << " Wex: " << WexPrint[i];
-                cerr << " Aneg: " << AnegPrint[i];
-                cerr << " Apos: " << AposPrint[i];
-                cerr << " mupos: " << muposPrint[i];
-                cerr << " muneg: " << munegPrint[i];
-                cerr << " useFroemkeDanSTDP: " << useFroemkeDanSTDPPrint[i];
+                cout << " GPU total_delayPost: " << total_delayPostPrint[i];
+                cout << " GPU tauspost: " << tauspostPrint[i];
+                cout << " GPU tauspre: " << tausprePrint[i];
+                cout << " GPU taupos: " << tauposPrint[i];
+                cout << " GPU tauneg: " << taunegPrint[i];
+                cout << " GPU STDPgap: " << STDPgapPrint[i];
+                cout << " GPU Wex: " << WexPrint[i];
+                cout << " GPU Aneg: " << AnegPrint[i];
+                cout << " GPU Apos: " << AposPrint[i];
+                cout << " GPU mupos: " << muposPrint[i];
+                cout << " GPU muneg: " << munegPrint[i];
+                cout << " GPU useFroemkeDanSTDP: " << useFroemkeDanSTDPPrint[i] << endl;
             }
         }
 
         for (int i = 0; i < count_neurons; i++) {
-            cerr << "synapse_counts:" << "[" << i  << "]" << synapse_countsPrint[i] << " ";
+            cout << "GPU synapse_counts:" << "neuron[" << i  << "]" << synapse_countsPrint[i] << endl;
         }
-        cerr << endl;
         
-        cerr << "GPU total_synapse_counts:" << total_synapse_countsPrint << endl;
-        cerr << "GPU maxSynapsesPerNeuron:" << maxSynapsesPerNeuronPrint << endl;
-        cerr << "GPU count_neurons:" << count_neuronsPrint << endl;
+        cout << "GPU total_synapse_counts:" << total_synapse_countsPrint << endl;
+        cout << "GPU maxSynapsesPerNeuron:" << maxSynapsesPerNeuronPrint << endl;
+        cout << "GPU count_neurons:" << count_neuronsPrint << endl;
 
         // The preSpikeQueue points to an EventQueue objet in device memory. The pointer is copied to allSynapsesDeviceProps.
         // To avoide illegeal deletion of the object at AllSpikingSynapsesProps::cleanupSynapsesProps(), set the pointer to NULL.

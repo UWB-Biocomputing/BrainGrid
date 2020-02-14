@@ -186,7 +186,7 @@ class Model : public IModel
         // kind of a hack to do error handling for read params
         int m_read_params;
 
-    // Dec 21st 2019: Modified access level here for allowing the access of Connections() and Layout() when calling Connections::createSynapsesFromWeights() method in BGDriver
+    // 2019/12/21 Modified access level to puclic for allowing the access of Connections() and Layout() when calling Connections::createSynapsesFromWeights() method in BGDriver
     public:       
         /**
          *  Pointer to the Connection object.

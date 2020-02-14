@@ -21,8 +21,11 @@
 
 //! Cereal
 #include <cereal/archives/xml.hpp>
+#include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 #include "ConnGrowth.h"
+#include <exception>
+#include <cereal/details/helpers.hpp>
 
 // Uncomment to use visual leak detector (Visual Studios Plugin)
 // #include <vld.h>
@@ -40,6 +43,9 @@ bool LoadAllParameters(SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector
 void printParams(SimulationInfo *simInfo);
 bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo);
 bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
+void printKeyStateInfo(SimulationInfo *simInfo, vector<Cluster *> &vtClr);
+void serializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator, vector<Cluster *> &vtClr);
+bool deserializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 
 /*
  *  Main for Simulator. Handles command line arguments and loads parameters
@@ -94,63 +100,25 @@ int main(int argc, char* argv[]) {
 
     // Deserializes internal state from a prior run of the simulation
     if (!simInfo->memInputFileName.empty()) {
-        DEBUG(cerr << "Deserializing state from file." << endl;)
-        ifstream memory_in(simInfo->memInputFileName.c_str());
-        cereal::XMLInputArchive archive(memory_in);
 
+        DEBUG(cerr << "Deserializing state from file." << endl;)
+      
         DEBUG(
-        // Prints out SynapsesProps before deserialization
-        cerr << "------------------------------Before Deserialization:--------------------------" << endl;
-#if defined(USE_GPU)
-        // Prints out SynapsesProps on the GPU
-        for(int i = 0; i < vtClr.size(); i++) {
-            dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUSynapsesPropsCluster();
-        }
-        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->printRadii();
-#else
-        for(int i = 0; i < vtClr.size(); i++) {
-            dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
-        }
-        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
-#endif  
+        // Prints out internal state information before deserialization
+        cout << "------------------------------Before Deserialization:------------------------------" << endl;
+        printKeyStateInfo(simInfo,vtClr);
         )
 
-        // Deserializes synapse weight(s) along with each synapse's source neuron and destination neuron
-        for(int i = 0; i < vtClr.size(); i++) {
-            archive(*vtClr[i]);
+        // Deserialization
+        if(!deserializeSynapseInfo(simInfo, simulator, vtClr, vtClrInfo)) {
+            cerr << "! ERROR: failed while deserializing objects" << endl;
+            return -1;
         }
-
-        // Creates synapse(s) from weight(s) 
-        dynamic_cast<Model *>(simInfo->model)->m_conns->createSynapsesFromWeights(simInfo, dynamic_cast<Model *>(simInfo->model)->m_layout, vtClr, vtClrInfo);
-
-#if defined(USE_GPU)
-        // Copy CPU Synapse data to GPU after deserialization
-        simulator->copyCPUSynapseToGPU(simInfo);
-#endif // USE_GPU
-
-        // Creates synapse index map
-        SynapseIndexMap::createSynapseImap(simInfo, vtClr, vtClrInfo);
-
-        // Deserializes radii
-        archive(*(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)));
     
         DEBUG(
-        // Prints out SynapsesProps after deserialization
-        cerr << "------------------------------After Deserialization:--------------------------" << endl;
-
-#if defined(USE_GPU)
-        // Print out SynapsesProps on the GPU
-        for(int i = 0; i < vtClr.size(); i++) {
-            dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUSynapsesPropsCluster();
-        }
-        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->printRadii();
-#else
-        for(int i = 0; i < vtClr.size(); i++) {
-            dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
-        }
-        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
-#endif
-
+        // Prints out internal state information after deserialization
+        cout << "------------------------------After Deserialization:------------------------------" << endl;
+        printKeyStateInfo(simInfo,vtClr);
         )
 
     }
@@ -170,40 +138,16 @@ int main(int argc, char* argv[]) {
 
     // Serializes internal state for the current simulation
     if (!simInfo->memOutputFileName.empty()) {
-        ofstream memory_out (simInfo->memOutputFileName.c_str());
-        cereal::XMLOutputArchive archive(memory_out);
+        
+        // Serialization
+        serializeSynapseInfo(simInfo, simulator, vtClr);
 
-#if defined(USE_GPU)        
-        // Copy GPU Synapse data to CPU for serialization
-        simulator->copyGPUSynapseToCPU(simInfo);
-#endif // USE_GPU
-
-        // Serializes synapse weight(s) along with each synapse's source neuron and destination neuron
-        for(int i = 0; i < vtClr.size(); i++) {
-            archive(*vtClr[i]);
-        }
-        // Serializes radii
-        archive(*(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)));
+        DEBUG(
+        // Prints out internal state information after serialization
+        cout << "------------------------------After Serialization:------------------------------" << endl;
+        printKeyStateInfo(simInfo,vtClr);
+        )
     }
-
-    DEBUG(
-        // Prints out SynapsesProps after deserialization
-        cerr << "------------------------------After Serialization:--------------------------" << endl;
-
-#if defined(USE_GPU)
-        // Print out SynapsesProps on the GPU
-        for(int i = 0; i < vtClr.size(); i++) {
-            dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUSynapsesPropsCluster();
-        }
-        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->printRadii();
-#else
-        for(int i = 0; i < vtClr.size(); i++) {
-            dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
-        }
-        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->radii->printVector();
-#endif
-
-    )
 
     // Tell simulation to clean-up and run any post-simulation logic.
     simulator->finish(simInfo);
@@ -476,4 +420,130 @@ bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo)
 #endif  // USE_GPU
 
     return true;
+}
+
+/*
+ *  Prints key internal state information 
+ *  (Used for serialization/deserialization verification)
+ *
+ *  @param  simInfo   SimulationInfo class to read information from.
+ *  @param  cluster   Cluster class object to be created.
+ */
+void printKeyStateInfo(SimulationInfo *simInfo, vector<Cluster *> &vtClr)
+{        
+#if defined(USE_GPU)
+    // Prints out SynapsesProps on the GPU
+    for(int i = 0; i < vtClr.size(); i++) {
+        dynamic_cast<GPUSpikingCluster *> (vtClr[i])->printGPUSynapsesPropsCluster();
+    }
+    // Prints out radii on the GPU (only if it is a connGrowth model)
+    if(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns) != nullptr) {
+        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->printRadii();
+    }
+#else
+    // Prints out SynapsesProps on the CPU
+    for(int i = 0; i < vtClr.size(); i++) {
+        dynamic_cast<AllSynapses *>(vtClr[i]->m_synapses)->m_pSynapsesProps->printSynapsesProps(); 
+    }
+    // Prints out radii on the CPU (only if it is a connGrowth model)
+    if(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns) != nullptr) {
+        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->printRadii();
+    }
+#endif       
+}
+
+/*
+ *  Serializes synapse weights, source neurons, destination neurons, 
+ *  maxSynapsesPerNeuron, totalClusterNeurons, and 
+ *  if running a connGrowth model, serializes radii as well 
+ *
+ *  @param  simInfo   SimulationInfo class to read information from.
+ *  @param  simulator Simulator class to perform actions.
+ *  @param  cluster   Cluster class object to be created.
+ */
+void serializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator, vector<Cluster *> &vtClr)
+{
+    ofstream memory_out (simInfo->memOutputFileName.c_str());
+    cereal::XMLOutputArchive archive(memory_out);
+    //ofstream memory_out (simInfo->memOutputFileName.c_str(), std::ios::binary);
+    //cereal::BinaryOutputArchive archive(memory_out);
+
+#if defined(USE_GPU)        
+    // Copies GPU Synapse props data to CPU for serialization
+    simulator->copyGPUSynapseToCPU(simInfo);
+#endif // USE_GPU
+
+    // Serializes synapse weights along with each synapse's source neuron and destination neuron
+    for(int i = 0; i < vtClr.size(); i++) {
+        archive(*vtClr[i]);
+    }
+    // Serializes radii (only if it is a connGrowth model)
+    if(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns) != nullptr) {
+        archive(*(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)));
+    }
+
+}
+
+/*
+ *  Deserializes synapse weights, source neurons, destination neurons, 
+ *  maxSynapsesPerNeuron, totalClusterNeurons, and 
+ *  if running a connGrowth model and radii is in serialization file, deserializes radii as well
+ *
+ *  @param  simInfo   SimulationInfo class to read information from.
+ *  @param  simulator Simulator class to perform actions.
+ *  @param  cluster   Cluster class object to be created.
+ *  @param  clusterInfo   ClusterInfo class to be ceated.
+ *  @returns    true if successful, false otherwise.
+ */
+bool deserializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
+{
+    ifstream memory_in(simInfo->memInputFileName.c_str());
+    //ifstream memory_in (simInfo->memInputFileName.c_str(), std::ios::binary);
+    
+    // Checks to see if serialization file exists
+    if(!memory_in) {
+        cerr << "The serialization file doesn't exist" << endl;
+        return false;
+    }
+
+    cereal::XMLInputArchive archive(memory_in);
+    //cereal::BinaryInputArchive archive(memory_in);
+
+    // Deserializes synapse weights along with each synapse's source neuron and destination neuron
+    for(int i = 0; i < vtClr.size(); i++) {
+        // Uses "try catch" to catch any cereal exception
+        try {
+            archive(*vtClr[i]);
+        }
+        catch(cereal::Exception e) {
+            cerr << "Failed deserializing synapse weights, source neurons, and/or destination neurons." << endl;
+            return false;
+        }
+    }
+
+    // Creates synapses from weights 
+    dynamic_cast<Model *>(simInfo->model)->m_conns->createSynapsesFromWeights(simInfo, dynamic_cast<Model *>(simInfo->model)->m_layout, vtClr, vtClrInfo);
+
+#if defined(USE_GPU)
+    // Copies CPU Synapse data to GPU after deserialization
+    simulator->copyCPUSynapseToGPU(simInfo);
+#endif // USE_GPU
+
+    // Creates synapse index map (includes copy CPU index map to GPU)
+    SynapseIndexMap::createSynapseImap(simInfo, vtClr, vtClrInfo);
+
+    // Deserializes radii (only when running a connGrowth model and radii is in serialization file)
+    if( dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns) != nullptr) {
+        // Uses "try catch" to catch any cereal exception
+        try {
+            archive(*(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)));
+        }
+        catch(cereal::Exception e) {
+            cerr << "Failed deserializing radii." << endl;
+            return false;
+        }
+    }
+
+    return true;
+    
 }
