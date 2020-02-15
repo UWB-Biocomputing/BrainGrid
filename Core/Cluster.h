@@ -270,11 +270,11 @@ void Cluster::serialize(Archive & archive) {
 template <class Archive>
 void Cluster::load_and_construct( Archive & ar, cereal::construct<Cluster> & construct )
 {  
-    IAllNeurons *m_neurons2 = nullptr;
-    IAllSynapses *m_synapses2 = nullptr;
-    AllSynapses * castm_synapses = dynamic_cast<AllSynapses*>(m_synapses2);
+    IAllNeurons *neurons = nullptr;
+    IAllSynapses *synapses = nullptr;
+    AllSynapses *cast_synapses = dynamic_cast<AllSynapses*>(synapses);
     // loads synapse objects
-    ar(*castm_synapses);
+    ar(*cast_synapses);
     // constructs object
-    construct(m_neurons2, m_synapses2);
+    construct(neurons, synapses);
 }
