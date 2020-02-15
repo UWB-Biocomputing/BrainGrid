@@ -463,6 +463,8 @@ void printKeyStateInfo(SimulationInfo *simInfo, vector<Cluster *> &vtClr)
  */
 void serializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator, vector<Cluster *> &vtClr)
 {
+    // We can serialize to a variety of archive file formats. Below, comment out
+    // all but the two lines that correspond to the desired format.
     ofstream memory_out (simInfo->memOutputFileName.c_str());
     cereal::XMLOutputArchive archive(memory_out);
     //ofstream memory_out (simInfo->memOutputFileName.c_str(), std::ios::binary);
@@ -497,6 +499,8 @@ void serializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator, vector<
  */
 bool deserializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
 {
+   // We can deserialize from a variety of archive file formats. Below, comment
+   // out all but the line that is compatible with the desired format.
     ifstream memory_in(simInfo->memInputFileName.c_str());
     //ifstream memory_in (simInfo->memInputFileName.c_str(), std::ios::binary);
     
@@ -506,6 +510,8 @@ bool deserializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator, vecto
         return false;
     }
 
+   // We can deserialize from a variety of archive file formats. Below, comment
+   // out all but the line that corresponds to the desired format.
     cereal::XMLInputArchive archive(memory_in);
     //cereal::BinaryInputArchive archive(memory_in);
 
@@ -525,7 +531,8 @@ bool deserializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator, vecto
     dynamic_cast<Model *>(simInfo->model)->m_conns->createSynapsesFromWeights(simInfo, dynamic_cast<Model *>(simInfo->model)->m_layout, vtClr, vtClrInfo);
 
 #if defined(USE_GPU)
-    // Copies CPU Synapse data to GPU after deserialization
+    // Copies CPU Synapse data to GPU after deserialization, if we're doing
+    // a GPU-based simulation.
     simulator->copyCPUSynapseToGPU(simInfo);
 #endif // USE_GPU
 
