@@ -138,7 +138,8 @@ void SingleThreadedCluster::advanceSpikeQueue(const SimulationInfo *sim_info, co
  */
 void SingleThreadedCluster::copyGPUSynapseToCPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    // no implementation here
+   cerr << "ERROR: SingleThreadedCluster::copyGPUSynapseToCPUCluster() was called." << endl;
+   exit(EXIT_FAILURE);
 }
 
 /**
@@ -150,5 +151,6 @@ void SingleThreadedCluster::copyGPUSynapseToCPUCluster(SimulationInfo *sim_info,
  */
 void SingleThreadedCluster::copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-    // no implementation here
+   cerr << "ERROR: SingleThreadedCluster::copyCPUSynapseToGPUCluster() was called." << endl;
+   exit(EXIT_FAILURE);
 }
