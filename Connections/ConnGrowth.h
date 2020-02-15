@@ -138,22 +138,6 @@ class ConnGrowth : public Connections
         virtual void printParameters(ostream &output) const;
 
         /**
-         *  Reads the intermediate connection status from istream.
-         *
-         *  @param  input    istream to read status from.
-         *  @param  sim_info SimulationInfo class to read information from.
-         */
-        //virtual void deserialize(istream& input, const SimulationInfo *sim_info);
-
-        /**
-         *  Writes the intermediate connection status to ostream.
-         *
-         *  @param  output   ostream to write status to.
-         *  @param  sim_info SimulationInfo class to read information from.
-         */
-        //virtual void serialize(ostream& output, const SimulationInfo *sim_info);
-
-        /**
          *  Update the connections status in every epoch.
          *
          *  @param  sim_info    SimulationInfo class to read information from.
@@ -390,9 +374,16 @@ void ConnGrowth::load(Archive & archive) {
 #if defined(USE_GPU)
     // uses vector to load radii
     vector<BGFLOAT> radiiVector;
+
     // deserializing data to this vector
     archive(radiiVector);
 
+    // check to see if serialized data size matches object size 
+    if(radiiVector.size() != radiiSize) {
+        cerr << "Failed deserializing radii. Please verify totalNeurons data member in SimulationInfo class." << endl;
+        throw cereal::Exception("Deserialization Error");
+    }
+    
     // assigns serialized data to objects
     for(int i = 0; i < radiiSize; i++) {
         radii[i] = radiiVector[i];

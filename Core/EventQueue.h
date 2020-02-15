@@ -33,12 +33,6 @@
 #include "SynapseIndexMap.h"
 #include "InterClustersEventHandler.h"
 
-/**
- * cereal
- */
-#include <cereal/types/vector.hpp>
-#include <vector>
-
 typedef struct {
     OUTGOING_SYNAPSE_INDEX_TYPE idxSyn;
     int iStepOffset;
@@ -62,16 +56,6 @@ class EventQueue
 
         //! The destructor for EventQueue.
         CUDA_CALLABLE virtual ~EventQueue();
-
-        //! Cereal
-        //template<class Archive>
-        //void serialize(Archive & archive);
-
-        /*template<class Archive>
-        void save(Archive & archive) const;
-
-        template<class Archive>
-        void load(Archive & archive);*/
 
 #if !defined(USE_GPU)
         /**
@@ -199,20 +183,6 @@ class EventQueue
          */
         CUDA_CALLABLE void regEventHandler(InterClustersEventHandler* eventHandler);
 
-        /**
-         * Writes the queue data to the stream.
-         *
-         * output  stream to print out to.
-         */
-        //void serialize(ostream& output);
-
-        /**
-         * Sets the data for the queue to input's data.
-         *
-         * input istream to read from.
-         */
-        //void deserialize(istream& input);
-
     public:
 
         //! Pointer to the collection of event queue.
@@ -327,29 +297,6 @@ class EventQueue
         interClustersIncomingEvents_t* m_interClustersIncomingEvents;
 #endif // USE_GPU
 };
-
-//! Cereal Serialization/Deserialization Method
-/*template<class Archive>
-void EventQueue::save(Archive & archive) const
-{
-    vector<BGQUEUE_ELEMENT> m_queueEventVector;
-    for(int i = 0; i < m_nMaxEvent; i++) {
-        m_queueEventVector.push_back(m_queueEvent[i]);
-    }
-    archive(m_queueEventVector//, m_nMaxEvent, m_idxQueue
-    );
-}
-
-template<class Archive>
-void EventQueue::load(Archive & archive) 
-{
-    vector<BGQUEUE_ELEMENT> m_queueEventVector;
-    archive(m_queueEventVector//, m_nMaxEvent, m_idxQueue
-    );
-    for(int i = 0; i < m_nMaxEvent; i++) {
-        m_queueEvent[i] = m_queueEventVector[i];
-    }
-}*/
 
 #if defined(USE_GPU)
 

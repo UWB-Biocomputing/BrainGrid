@@ -22,10 +22,7 @@
 //! Cereal
 #include <cereal/archives/xml.hpp>
 #include <cereal/archives/binary.hpp>
-#include <cereal/types/vector.hpp>
 #include "ConnGrowth.h"
-#include <exception>
-#include <cereal/details/helpers.hpp>
 
 // Uncomment to use visual leak detector (Visual Studios Plugin)
 // #include <vld.h>

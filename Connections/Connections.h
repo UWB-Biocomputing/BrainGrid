@@ -94,22 +94,6 @@ class Connections
         virtual void printParameters(ostream &output) const = 0;
 
         /**
-         *  Reads the intermediate connection status from istream.
-         *
-         *  @param  input    istream to read status from.
-         *  @param  sim_info SimulationInfo class to read information from.
-         */
-        //virtual void deserialize(istream& input, const SimulationInfo *sim_info) = 0;
-
-        /**
-         *  Writes the intermediate connection status to ostream.
-         *
-         *  @param  output   ostream to write status to.
-         *  @param  sim_info SimulationInfo class to read information from.
-         */
-        //virtual void serialize(ostream& output, const SimulationInfo *sim_info) = 0;
-
-        /**
          *  Update the connections status in every epoch.
          *  By default, this method does nothing. Override in a subclass to
          *  implement desired functionality.

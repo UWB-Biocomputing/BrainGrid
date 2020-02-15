@@ -218,39 +218,3 @@ void Simulator::saveData(SimulationInfo *sim_info) const
 {
   sim_info->model->saveData(sim_info);
 }
-
-/*
- * Deserializes internal state from a prior run of the simulation.
- * This allows simulations to be continued from a particular point, to be restarted, or to be
- * started from a known state.
- *
- *  @param memory_in - where to read the state from.
- *  @param  sim_info    parameters for the simulation. 
- */
-/*void Simulator::deserialize(istream &memory_in, SimulationInfo *sim_info)
-{
-  // read the neuron data
-  memory_in >> sim_info->totalNeurons; memory_in.ignore();
-  sim_info->model->deserialize(memory_in, sim_info);
-
-  // Init history matrices with current values
-  sim_info->simRecorder->initValues();
-}*/
-
-/*
- * Serializes internal state for the current simulation.
- * This allows simulations to be continued from a particular point, to be restarted, or to be
- * started from a known state.
- * This method needs to be debugged to verify that it works.
- *
- *  @param memory_out - where to write the state to.
- *  @param  sim_info    parameters for the simulation. 
- */
-/*void Simulator::serialize(ostream &memory_out, SimulationInfo *sim_info) const
-{
-  cerr << "Simulator::writeSimMemory was called. " << endl;
-  // get history matrices with current values
-  sim_info->simRecorder->getValues();
-
-  sim_info->model->serialize(memory_out, sim_info);
-}*/

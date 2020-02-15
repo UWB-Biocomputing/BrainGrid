@@ -255,60 +255,6 @@ void ConnGrowth::printParameters(ostream &output) const
 
 }
 
-/*
- *  Reads the intermediate connection status from istream.
- *
- *  @param  input    istream to read status from.
- *  @param  sim_info SimulationInfo class to read information from.
- */
-/*void ConnGrowth::deserialize(istream& input, const SimulationInfo *sim_info)
-{
-    // read the radii
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-#if defined(USE_GPU)
-            input >> radii[i]; input.ignore();
-#else // !USE_GPU
-            input >> (*radii)[i]; input.ignore();
-#endif // !USE_GPU
-    }
-
-    // read the rates
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-#if defined(USE_GPU)
-            input >> rates[i]; input.ignore();
-#else // !USE_GPU
-            input >> (*rates)[i]; input.ignore();
-#endif // !USE_GPU
-    }
-}*/
-
-/*
- *  Writes the intermediate connection status to ostream.
- *
- *  @param  output   ostream to write status to.
- *  @param  sim_info SimulationInfo class to read information from.
- */
-/*void ConnGrowth::serialize(ostream& output, const SimulationInfo *sim_info)
-{
-    // write the final radii
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-#if defined(USE_GPU)
-        output << radii[i] << ends;
-#else // !USE_GPU
-        output << (*radii)[i] << ends;
-#endif // !USE_GPU
-    }
-
-    // write the final rates
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-#if defined(USE_GPU)
-        output << rates[i] << ends;
-#else // !USE_GPU
-        output << (*rates)[i] << ends;
-#endif // !USE_GPU
-    }
-}*/
-
 #if !defined(USE_GPU)
 /*
  *  Update the connections status in every epoch.

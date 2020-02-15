@@ -190,4 +190,3 @@ class AllSpikingSynapsesProps : public AllSynapsesProps
          */
         EventQueue *preSpikeQueue;
 };
-

@@ -56,7 +56,6 @@ const VectorMatrix sqrt(const VectorMatrix& v);
 
 const VectorMatrix exp(const VectorMatrix& v);
 
-
 /**
   @class VectorMatrix
   @brief An efficient implementation of a dynamically-allocated 1D

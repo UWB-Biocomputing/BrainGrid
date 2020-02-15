@@ -338,26 +338,6 @@ void GPUSpikingCluster::printGPUSynapsesPropsCluster() const
   pSynapsesProps->printGPUSynapsesProps( m_allSynapsesDeviceProps );
 }
 
-
-/*
- *  Loads the simulation based on istream input.
- *
- *  @param  input   istream to read from.
- *  @param  sim_info    used as a reference to set info for neurons and synapses.
- *  @param  clr_info  ClusterInfo to refer.
- */
-/*void GPUSpikingCluster::deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info)
-{
-  Cluster::deserialize(input, sim_info, clr_info);
-
-  // Reinitialize device struct - Copy host neuron and synapse arrays into GPU device
-  AllNeuronsProps *pNeuronsProps = dynamic_cast<AllNeurons*>(m_neurons)->m_pNeuronsProps;
-  pNeuronsProps->copyNeuronHostToDeviceProps( m_allNeuronsDeviceProps, sim_info, clr_info );
-
-  AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(m_synapses)->m_pSynapsesProps;
-  pSynapsesProps->copySynapseHostToDeviceProps( m_allSynapsesDeviceProps, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );
-}*/
-
 #if defined(VALIDATION)
 /*
  *  Generates random numbers.

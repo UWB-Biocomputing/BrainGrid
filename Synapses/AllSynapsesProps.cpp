@@ -25,7 +25,6 @@ AllSynapsesProps::~AllSynapsesProps()
     cleanupSynapsesProps();
 }
 
-
 /*
  *  Setup the internal structure of the class (allocate memories and initialize them).
  *

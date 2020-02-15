@@ -105,32 +105,6 @@ void AllNeurons::printParameters(ostream &output) const
 }
 
 /*
- *  Sets the data for Neurons to input's data.
- *
- *  @param  input       istream to read from.
- *  @param  clr_info    used as a reference to set info for neurons.
- */
-/*void AllNeurons::deserialize(istream &input, const ClusterInfo *clr_info)
-{
-    for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
-        m_pNeuronsProps->readNeuronProps(input, i);
-    }
-}*/
-
-/*
- *  Writes out the data in Neurons.
- *
- *  @param  output      stream to write out to.
- *  @param  clr_info    used as a reference to set info for neuronss.
- */
-/*void AllNeurons::serialize(ostream& output, const ClusterInfo *clr_info) const
-{
-    for (int i = 0; i < clr_info->totalClusterNeurons; i++) {
-        m_pNeuronsProps->writeNeuronProps(output, i);
-    }
-}*/
-
-/*
  *  Creates all the Neurons and generates data for them.
  *
  *  @param  sim_info    SimulationInfo class to read information from.

@@ -165,4 +165,3 @@ class AllDSSynapsesProps : public AllSpikingSynapsesProps
          */
         BGFLOAT *F;
 };
-

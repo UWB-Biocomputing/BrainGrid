@@ -109,22 +109,6 @@ class ConnStatic : public Connections
         virtual void printParameters(ostream &output) const;
 
         /**
-         *  Reads the intermediate connection status from istream.
-         *
-         *  @param  input    istream to read status from.
-         *  @param  sim_info SimulationInfo class to read information from.
-         */
-        //virtual void deserialize(istream& input, const SimulationInfo *sim_info);
-
-        /**
-         *  Writes the intermediate connection status to ostream.
-         *
-         *  @param  output   ostream to write status to.
-         *  @param  sim_info SimulationInfo class to read information from.
-         */
-        //virtual void serialize(ostream& output, const SimulationInfo *sim_info);
-
-        /**
          *  Creates a recorder class object for the connection.
          *  This function tries to create either Xml recorder or
          *  Hdf5 recorder based on the extension of the file name.

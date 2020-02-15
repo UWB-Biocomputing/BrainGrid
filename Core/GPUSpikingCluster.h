@@ -71,7 +71,6 @@
 #include <helper_cuda.h>
 #endif
 
-
 const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
 
 /*-----------------------------------------------------*\
@@ -137,15 +136,6 @@ public:
          *  Print out SynapseProps on the GPU.
          */
         void printGPUSynapsesPropsCluster() const;
-
-        /**
-         *  Loads the simulation based on istream input.
-         *
-         *  @param  input       istream to read from.
-         *  @param  sim_info    used as a reference to set info for neurons and synapses.
-         *  @param  clr_info    used as a reference to set info for neurons and synapses.
-         */
-        //virtual void deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
 
 #if defined(VALIDATION)
         /**

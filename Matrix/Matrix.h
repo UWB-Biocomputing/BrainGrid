@@ -22,7 +22,6 @@
 // Initial revision
 //
 
-
 #ifndef _MATRIX_H_
 #define _MATRIX_H_
 
@@ -32,11 +31,6 @@
 
 // The tinyXML library, for deserialization via a MatrixFactory
 #include "tinyxml.h"
-
-/**
- * cereal
- */
-//#include <cereal/types/string.hpp> // for string
 
 using namespace std;
 
@@ -68,17 +62,6 @@ public:
     @param os Output stream.
   */
   virtual void Print(ostream& os) const = 0;
-
-  //! Cereal
-  /*template<class Archive>
-  static void load_and_construct(Archive& ar, cereal::construct<Matrix>& construct);
-
-  template<class Archive>
-  void save(Archive & archive) const;
-
-  template<class Archive>
-  void load(Archive & archive);*/
-
 
 protected:
 
@@ -140,33 +123,5 @@ protected:
   @param obj the Matrix object to send to the output stream
  */
 ostream& operator<<(ostream& os, const Matrix& obj);
-
-//! Cereal Serialization/Deserialization Method
-
-
-/*template<class Archive>
-void Matrix::save(Archive & archive) const {
-  archive(type, init, rows, columns, multiplier, dimensions);
-}
-template<class Archive>
-void Matrix::load(Archive & archive) {
-  archive(type, init, rows, columns, multiplier, dimensions);
-}
-
-//! Cereal Load_and_construct Method
-template <class Archive>
-void Matrix::load_and_construct( Archive & ar, cereal::construct<Matrix> & construct ) {
-  
-  string type2;
-  string init2;
-  int rows2;
-  int columns2;
-  BGFLOAT multiplier2;
-  int dimensions2;
-
-  ar(type2, init2, rows2, columns2, multiplier2, dimensions2);
-  construct( type2, init2, rows2, columns2, multiplier2 );
-}*/
-
 
 #endif
