@@ -8,14 +8,14 @@ AllSynapsesProps::AllSynapsesProps()
 {
     nParams = 0;
 
-    destNeuronLayoutIndex = NULL;
-    W = NULL;
-    summationPoint = NULL;
-    sourceNeuronLayoutIndex = NULL;
-    psr = NULL;
-    type = NULL;
-    in_use = NULL;
-    synapse_counts = NULL;
+    destNeuronLayoutIndex = nullptr;
+    W = nullptr;
+    summationPoint = nullptr;
+    sourceNeuronLayoutIndex = nullptr;
+    psr = nullptr;
+    type = nullptr;
+    in_use = nullptr;
+    synapse_counts = nullptr;
     maxSynapsesPerNeuron = 0;
     count_neurons = 0;
 }
@@ -53,7 +53,7 @@ void AllSynapsesProps::setupSynapsesProps(const int num_neurons, const int max_s
         synapse_counts = new BGSIZE[num_neurons];
 
         for (BGSIZE i = 0; i < max_total_synapses; i++) {
-            summationPoint[i] = NULL;
+            summationPoint[i] = nullptr;
             in_use[i] = false;
         }
 
@@ -82,14 +82,14 @@ void AllSynapsesProps::cleanupSynapsesProps()
         delete[] synapse_counts;
     }
 
-    destNeuronLayoutIndex = NULL;
-    W = NULL;
-    summationPoint = NULL;
-    sourceNeuronLayoutIndex = NULL;
-    psr = NULL;
-    type = NULL;
-    in_use = NULL;
-    synapse_counts = NULL;
+    destNeuronLayoutIndex = nullptr;
+    W = nullptr;
+    summationPoint = nullptr;
+    sourceNeuronLayoutIndex = nullptr;
+    psr = nullptr;
+    type = nullptr;
+    in_use = nullptr;
+    synapse_counts = nullptr;
 
     count_neurons = 0;
     maxSynapsesPerNeuron = 0;
@@ -324,7 +324,7 @@ void AllSynapsesProps::printSynapsesProps() const
                 cout << " type: " << type[i];
                 cout << " psr: " << psr[i];
                 cout << " in_use:" << in_use[i];
-                if(summationPoint[i] != NULL) {
+                if(summationPoint[i] != nullptr) {
                      cout << " summationPoint: is created!" << endl;    
                 } else {
                      cout << " summationPoint: is EMPTY!!!!!" << endl;  
