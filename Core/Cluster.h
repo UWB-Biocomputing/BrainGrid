@@ -54,11 +54,6 @@
 #include <thread>
 #include "Barrier.hpp"
 
-/**
- * cereal
- */
-#include <cereal/access.hpp> 
-
 class Cluster
 {
     public:
@@ -97,13 +92,6 @@ class Cluster
          *  @param  clr_info    ClusterInfo to refer.
          */
         virtual void copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
-
-        /**
-         *  Cereal load and construct method
-         *  (this method is needed when the class has no zero-parameter constructor)
-         */
-        template<class Archive>
-        static void load_and_construct(Archive& ar, cereal::construct<Cluster>& construct);
         
         /**
          *  Cereal serialization and deserialization method
@@ -241,18 +229,4 @@ void Cluster::serialize(Archive & archive) {
     archive(*castm_synapses);
 }
 
-/**
- *  Cereal load and construct method
- *  (this method is needed when the class has no zero-parameter constructor)
- */
-template <class Archive>
-void Cluster::load_and_construct( Archive & ar, cereal::construct<Cluster> & construct )
-{  
-    IAllNeurons *neurons = nullptr;
-    IAllSynapses *synapses = nullptr;
-    AllSynapses *cast_synapses = dynamic_cast<AllSynapses*>(synapses);
-    // loads synapse objects
-    ar(*cast_synapses);
-    // constructs object
-    construct(neurons, synapses);
-}
+
