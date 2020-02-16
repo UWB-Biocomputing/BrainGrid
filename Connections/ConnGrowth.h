@@ -87,7 +87,6 @@ class Barrier;
 /**
  * cereal
  */
-#include <cereal/types/polymorphic.hpp> 
 #include <cereal/types/vector.hpp>
 
 using namespace std;
@@ -408,8 +407,3 @@ void ConnGrowth::load(Archive & archive) {
 #endif 
 }
 
-/**
- * cereal macro
- */
-CEREAL_REGISTER_TYPE(ConnGrowth)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Connections,ConnGrowth)

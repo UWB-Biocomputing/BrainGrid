@@ -11,7 +11,6 @@
 /**
  * cereal
  */
-#include <cereal/types/polymorphic.hpp> 
 #include <cereal/types/vector.hpp>
 #include <vector>
 
@@ -273,9 +272,3 @@ void AllSynapsesProps::load(Archive & archive)
         destNeuronLayoutIndex[i] = destNeuronLayoutIndexVector[i];
     }
 }
-
-/**
- * cereal macro
- */
-CEREAL_REGISTER_TYPE(AllSynapsesProps)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(IAllSynapsesProps,AllSynapsesProps)

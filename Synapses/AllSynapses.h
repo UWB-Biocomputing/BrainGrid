@@ -47,11 +47,6 @@
 typedef unsigned _int8 uint8_t;
 #endif
 
-/**
- * cereal
- */
-#include <cereal/types/polymorphic.hpp> 
-
 class IAllNeurons;
 
 class AllSynapses : public IAllSynapses
@@ -263,8 +258,3 @@ void AllSynapses::serialize(Archive & archive) {
     archive(*m_pSynapsesProps);
 }
 
-/**
- * cereal macro
- */
-CEREAL_REGISTER_TYPE(AllSynapses)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(IAllSynapses,AllSynapses)
