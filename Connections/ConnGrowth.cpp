@@ -516,7 +516,7 @@ void ConnGrowth::printRadii() const {
 	}
 #else // !USE_GPU
 	for (int i = 0; i < radiiSize; i++) {
-		cout << "radii[" << i << "] = " << radii->theVector[i] << endl;
+		cout << "radii[" << i << "] = " << (*radii)[i] << endl;
 	}
 #endif // !USE_GPU
 }

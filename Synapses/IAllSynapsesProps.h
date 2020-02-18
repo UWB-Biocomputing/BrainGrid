@@ -115,4 +115,9 @@ class IAllSynapsesProps
          *  @param  iSyn    Index of the synapse to print out.
          */
         virtual void writeSynapseProps(ostream& output, const BGSIZE iSyn) const = 0;
+
+        /**
+         *  Prints SynapsesProps data.
+         */
+        virtual void printSynapsesProps() const = 0;
 };

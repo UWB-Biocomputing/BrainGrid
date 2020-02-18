@@ -378,12 +378,10 @@ protected:
   using Matrix::rows;
   using Matrix::columns;
 
-// 2020/2/9 changed *theVector access level to public due to serialization/deserialization of radii in the ConnGrowth class 
-public:
+private:
   /** Pointer to dynamically allocated 1D array */
   BGFLOAT *theVector;
 
-private:
   /** The number of elements in "theVector" */
   int size;
 
@@ -391,5 +389,4 @@ private:
   static Norm nRng;
 
 };
-
 #endif

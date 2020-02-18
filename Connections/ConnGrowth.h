@@ -352,16 +352,15 @@ void ConnGrowth::save(Archive & archive) const {
     }
     // serialization
     archive(radiiVector);
-#else
+#else // !USE_GPU
     // uses vector to save radii
     vector<BGFLOAT> radiiVector;
     for(int i = 0; i < radiiSize; i++) {
-        // access CPU radii in VectorMatrix
-        radiiVector.push_back(radii->theVector[i]);
+        radiiVector.push_back((*radii)[i]);
     }
     // serialization
-    archive(radiiVector);  
-#endif 
+    archive(radiiVector);
+#endif // !USE_GPU
 }
 
 /**
@@ -387,7 +386,7 @@ void ConnGrowth::load(Archive & archive) {
     for(int i = 0; i < radiiSize; i++) {
         radii[i] = radiiVector[i];
     }
-#else
+#else // !USE_GPU
     // uses vector to load radii
     vector<BGFLOAT> radiiVector;
 
@@ -399,11 +398,11 @@ void ConnGrowth::load(Archive & archive) {
         cerr << "Failed deserializing radii. Please verify totalNeurons data member in SimulationInfo class." << endl;
         throw cereal::Exception("Deserialization Error");
     }
-
+    
     // assigns serialized data to objects
     for(int i = 0; i < radiiSize; i++) {
-        radii->theVector[i] = radiiVector[i];
-    }       
-#endif 
+        (*radii)[i] = radiiVector[i];
+    }
+#endif // !USE_GPU
 }
 
