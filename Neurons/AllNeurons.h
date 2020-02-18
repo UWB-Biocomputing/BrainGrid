@@ -118,22 +118,6 @@ class AllNeurons : public IAllNeurons
          */
         virtual void createAllNeurons(SimulationInfo *sim_info, Layout *layout, ClusterInfo *clr_info);
 
-        /**
-         *  Reads and sets the data for all neurons from input stream.
-         *
-         *  @param  input       istream to read from.
-         *  @param  clr_info    ClusterInfo class to read information from.
-         */
-        virtual void deserialize(istream &input, const ClusterInfo *clr_info);
-
-        /**
-         *  Writes out the data in all neurons to output stream.
-         *
-         *  @param  output      stream to write out to.
-         *  @param  clr_info    ClusterInfo class to read information from.
-         */
-        virtual void serialize(ostream& output, const ClusterInfo *clr_info) const;
-
     public:
         /**
          * Pointer to the neurons property data.

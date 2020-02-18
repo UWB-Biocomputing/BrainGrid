@@ -84,6 +84,11 @@
 class Barrier;
 #endif // USE_GPU
 
+/**
+ * cereal
+ */
+#include <cereal/types/vector.hpp>
+
 using namespace std;
 
 class ConnGrowth : public Connections
@@ -132,22 +137,6 @@ class ConnGrowth : public Connections
         virtual void printParameters(ostream &output) const;
 
         /**
-         *  Reads the intermediate connection status from istream.
-         *
-         *  @param  input    istream to read status from.
-         *  @param  sim_info SimulationInfo class to read information from.
-         */
-        virtual void deserialize(istream& input, const SimulationInfo *sim_info);
-
-        /**
-         *  Writes the intermediate connection status to ostream.
-         *
-         *  @param  output   ostream to write status to.
-         *  @param  sim_info SimulationInfo class to read information from.
-         */
-        virtual void serialize(ostream& output, const SimulationInfo *sim_info);
-
-        /**
          *  Update the connections status in every epoch.
          *
          *  @param  sim_info    SimulationInfo class to read information from.
@@ -166,6 +155,26 @@ class ConnGrowth : public Connections
          *  @return Pointer to the recorder class object.
          */
         virtual IRecorder* createRecorder(const SimulationInfo *sim_info);
+ 
+        /**
+         *  Cereal serialization method
+         *  (Serializes radii)
+         */
+        template<class Archive>
+        void save(Archive & archive) const;
+
+        /**
+         *  Cereal deserialization method
+         *  (Deserializes radii)
+         */
+        template<class Archive>
+        void load(Archive & archive);  
+
+        /**
+         *  Prints radii 
+         *  (either on CPU or GPU)
+         */
+        void printRadii() const;    
 
     private:
         /**
@@ -250,12 +259,16 @@ class ConnGrowth : public Connections
         //! spike count for each epoch
         int *spikeCounts;
 
+        //! radii size （2020/2/13 add radiiSize for use in serialization/deserialization)
+        int radiiSize;
+
 #if defined(USE_GPU)
         //! neuron radii
         BGFLOAT *radii;
 
         //! spiking rate
         BGFLOAT *rates;
+
 #else // !USE_GPU
         //! synapse weight
         CompleteMatrix *W;
@@ -277,6 +290,7 @@ class ConnGrowth : public Connections
 
         //! displacement of neuron radii
         VectorMatrix *deltaR;
+
 #endif // !USE_GPU
 
 private:
@@ -323,3 +337,72 @@ extern __global__ void updateConnsDevice( AllSpikingNeuronsProps* allNeuronsProp
 extern __global__ void updateSynapsesWeightsDevice( IAllSynapses* synapsesDevice, int num_neurons, BGFLOAT deltaT, int maxSynapses, AllSpikingNeuronsProps* allNeuronsProps, AllSpikingSynapsesProps* allSynapsesProps, neuronType* neuron_type_map_d, int totalClusterNeurons, int clusterNeuronsBegin, BGFLOAT* radii_d, BGFLOAT* xloc_d,  BGFLOAT* yloc_d );
 
 #endif // USE_GPU && __CUDACC__
+
+/**
+ *  Cereal serialization method
+ *  (Serializes radii)
+ */
+template<class Archive>
+void ConnGrowth::save(Archive & archive) const {
+#if defined(USE_GPU)
+    // uses vector to save radii
+    vector<BGFLOAT> radiiVector;
+    for(int i = 0; i < radiiSize; i++) {
+        radiiVector.push_back(radii[i]);
+    }
+    // serialization
+    archive(radiiVector);
+#else // !USE_GPU
+    // uses vector to save radii
+    vector<BGFLOAT> radiiVector;
+    for(int i = 0; i < radiiSize; i++) {
+        radiiVector.push_back((*radii)[i]);
+    }
+    // serialization
+    archive(radiiVector);
+#endif // !USE_GPU
+}
+
+/**
+ *  Cereal deserialization method
+ *  (Deserializes radii)
+ */
+template<class Archive>
+void ConnGrowth::load(Archive & archive) {
+#if defined(USE_GPU)
+    // uses vector to load radii
+    vector<BGFLOAT> radiiVector;
+
+    // deserializing data to this vector
+    archive(radiiVector);
+
+    // check to see if serialized data size matches object size 
+    if(radiiVector.size() != radiiSize) {
+        cerr << "Failed deserializing radii. Please verify totalNeurons data member in SimulationInfo class." << endl;
+        throw cereal::Exception("Deserialization Error");
+    }
+    
+    // assigns serialized data to objects
+    for(int i = 0; i < radiiSize; i++) {
+        radii[i] = radiiVector[i];
+    }
+#else // !USE_GPU
+    // uses vector to load radii
+    vector<BGFLOAT> radiiVector;
+
+    // deserializing data to this vector
+    archive(radiiVector);
+
+    // check to see if serialized data size matches object size 
+    if(radiiVector.size() != radiiSize) {
+        cerr << "Failed deserializing radii. Please verify totalNeurons data member in SimulationInfo class." << endl;
+        throw cereal::Exception("Deserialization Error");
+    }
+    
+    // assigns serialized data to objects
+    for(int i = 0; i < radiiSize; i++) {
+        (*radii)[i] = radiiVector[i];
+    }
+#endif // !USE_GPU
+}
+

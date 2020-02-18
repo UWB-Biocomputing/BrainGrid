@@ -78,22 +78,6 @@ class IAllNeurons
          */
         virtual void createAllNeurons(SimulationInfo *sim_info, Layout *layout, ClusterInfo *clr_info) = 0;
 
-        /**
-         *  Reads and sets the data for all neurons from input stream.
-         *
-         *  @param  input       istream to read from.
-         *  @param  clr_info    used as a reference to set info for neuronss.
-         */
-        virtual void deserialize(istream &input, const ClusterInfo *clr_info) = 0;
-
-        /**
-         *  Writes out the data in all neurons to output stream.
-         *
-         *  @param  output      stream to write out to.
-         *  @param  clr_info    used as a reference to set info for neuronss.
-         */
-        virtual void serialize(ostream& output, const ClusterInfo *clr_info) const = 0;
-
 #if defined(USE_GPU)
     public:
         /**

@@ -24,6 +24,11 @@ class AllSpikingSynapsesProps : public AllSynapsesProps
          */
         virtual void setupSynapsesProps(const int num_neurons, const int max_synapses, SimulationInfo *sim_info, ClusterInfo *clr_info);
 
+        /**
+         *  Prints SynapsesProps data.
+         */
+        virtual void printSynapsesProps() const;
+
 #if defined(USE_GPU)
     public:
         /**
@@ -93,6 +98,13 @@ class AllSpikingSynapsesProps : public AllSynapsesProps
          *                                on device memory.
          */
         virtual void processInterClustesIncomingSpikes(void* allSynapsesProps);
+
+        /**
+         *  Prints GPU SynapsesProps data.
+         * 
+         *  @param  allSynapsesDeviceProps   Reference to the AllSpikingSynapsesProps class on device memory.
+         */
+        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps) const;
 
     protected:
         /**

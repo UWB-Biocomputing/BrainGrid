@@ -124,5 +124,4 @@ protected:
  */
 ostream& operator<<(ostream& os, const Matrix& obj);
 
-
 #endif

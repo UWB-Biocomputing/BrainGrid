@@ -47,4 +47,41 @@ Connections::~Connections()
 {
 }
 
+/*
+ *  Creates synapses from synapse weights saved in the serialization file.
+ *
+ *  @param  sim_info    SimulationInfo class to read information from.
+ *  @param  layout      Layout information of the neunal network.
+ *  @param  vtClr       Vector of Cluster class objects.
+ *  @param  vtClrInfo   Vector of ClusterInfo.
+ */
+void Connections::createSynapsesFromWeights(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo) 
+{
+    // for each each cluster
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClr.size(); iCluster++) {
+        AllNeurons *neurons = dynamic_cast<AllNeurons*>(vtClr[iCluster]->m_neurons);
+        AllNeuronsProps *pNeuronsProps = neurons->m_pNeuronsProps;
+        AllSynapses *synapses = dynamic_cast<AllSynapses*>(vtClr[iCluster]->m_synapses);
+        AllSynapsesProps *pSynapsesProps = synapses->m_pSynapsesProps;
 
+        // for each neuron in the cluster
+        int totalClusterNeurons = vtClrInfo[iCluster]->totalClusterNeurons;
+        for (int iNeuron = 0; iNeuron < totalClusterNeurons; iNeuron++) {
+            // for each synapse in the neuron
+            for (BGSIZE synapse_index = 0; synapse_index < pSynapsesProps->maxSynapsesPerNeuron; synapse_index++) {
+                BGSIZE iSyn = pSynapsesProps->maxSynapsesPerNeuron * iNeuron + synapse_index;
+                // if the synapse weight is not zero (which means there is a connection), create the synapse
+                if(pSynapsesProps->W[iSyn] != 0.0) {
+                    BGFLOAT theW = pSynapsesProps->W[iSyn];
+                    BGFLOAT* sum_point = &( pNeuronsProps->summation_map[iNeuron] );
+                    int src_neuron = pSynapsesProps->sourceNeuronLayoutIndex[iSyn];
+                    int dest_neuron = pSynapsesProps->destNeuronLayoutIndex[iSyn];
+                    synapseType type = synapses->synType(layout->neuron_type_map, src_neuron, dest_neuron);
+                    pSynapsesProps->synapse_counts[iNeuron]++;
+                    synapses->createSynapse(iSyn, src_neuron, dest_neuron, sum_point, sim_info->deltaT, type);
+                    pSynapsesProps->W[iSyn] = theW;
+                }
+            }
+        }
+    }
+}

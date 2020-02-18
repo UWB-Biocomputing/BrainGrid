@@ -183,20 +183,6 @@ class EventQueue
          */
         CUDA_CALLABLE void regEventHandler(InterClustersEventHandler* eventHandler);
 
-        /**
-         * Writes the queue data to the stream.
-         *
-         * output  stream to print out to.
-         */
-        void serialize(ostream& output);
-
-        /**
-         * Sets the data for the queue to input's data.
-         *
-         * input istream to read from.
-         */
-        void deserialize(istream& input);
-
     public:
 
         //! Pointer to the collection of event queue.

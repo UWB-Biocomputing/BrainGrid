@@ -379,7 +379,6 @@ protected:
   using Matrix::columns;
 
 private:
-
   /** Pointer to dynamically allocated 1D array */
   BGFLOAT *theVector;
 
@@ -390,6 +389,4 @@ private:
   static Norm nRng;
 
 };
-
-
 #endif

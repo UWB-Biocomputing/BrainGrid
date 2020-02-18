@@ -117,13 +117,25 @@ public:
 	virtual void cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
 
         /**
-         *  Loads the simulation based on istream input.
+         *  Copy GPU Synapse data to CPU.
          *
-         *  @param  input       istream to read from.
-         *  @param  sim_info    used as a reference to set info for neurons and synapses.
-         *  @param  clr_info    used as a reference to set info for neurons and synapses.
+         *  @param  sim_info    SimulationInfo to refer.
+         *  @param  clr_info    ClusterInfo to refer.
          */
-        virtual void deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
+        virtual void copyGPUSynapseToCPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
+         *  Copy CPU Synapse data to GPU.
+         *
+         *  @param  sim_info    SimulationInfo to refer.
+         *  @param  clr_info    ClusterInfo to refer.
+         */
+        virtual void copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
+
+        /**
+         *  Print out SynapseProps on the GPU.
+         */
+        void printGPUSynapsesPropsCluster() const;
 
 #if defined(VALIDATION)
         /**

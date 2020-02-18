@@ -434,45 +434,6 @@ CUDA_CALLABLE void EventQueue::regEventHandler(InterClustersEventHandler* eventH
     m_eventHandler = eventHandler;
 }
 
-/*
- * Writes the queue data to the stream.
- * We don't need to save inter clusters event data, because
- * these data are temporary used between advanceNeurons() and advanceSynapses().
- *
- * output  stream to print out to.
- */
-void EventQueue::serialize(ostream& output)
-{
-    output << m_idxQueue << ends;
-    output << m_nMaxEvent << ends;
-
-    for (BGSIZE idx = 0; idx < m_nMaxEvent; idx++) {
-        output << m_queueEvent[idx] << ends;
-    }
-}
-
-/*
- * Sets the data for the queue to input's data.
- *
- * input istream to read from.
- */
-void EventQueue::deserialize(istream& input)
-{
-    BGSIZE nMaxEvent;
-
-    input >> m_idxQueue; input.ignore();
-    input >> nMaxEvent; input.ignore();
-
-    // If the assertion hits, that means we restore simulation by using stored data
-    // of different configuration file.
-    assert( m_nMaxEvent == nMaxEvent );
-    m_nMaxEvent = nMaxEvent;
-
-    for (BGSIZE idx = 0; idx < m_nMaxEvent; idx++) {
-        input >> m_queueEvent[idx]; input.ignore();
-    }
-}
-
 #if defined(USE_GPU)
 /*
  * Create an EventQueue class object in device

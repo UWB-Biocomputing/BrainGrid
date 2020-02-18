@@ -8,14 +8,14 @@ AllSynapsesProps::AllSynapsesProps()
 {
     nParams = 0;
 
-    destNeuronLayoutIndex = NULL;
-    W = NULL;
-    summationPoint = NULL;
-    sourceNeuronLayoutIndex = NULL;
-    psr = NULL;
-    type = NULL;
-    in_use = NULL;
-    synapse_counts = NULL;
+    destNeuronLayoutIndex = nullptr;
+    W = nullptr;
+    summationPoint = nullptr;
+    sourceNeuronLayoutIndex = nullptr;
+    psr = nullptr;
+    type = nullptr;
+    in_use = nullptr;
+    synapse_counts = nullptr;
     maxSynapsesPerNeuron = 0;
     count_neurons = 0;
 }
@@ -52,7 +52,7 @@ void AllSynapsesProps::setupSynapsesProps(const int num_neurons, const int max_s
         synapse_counts = new BGSIZE[num_neurons];
 
         for (BGSIZE i = 0; i < max_total_synapses; i++) {
-            summationPoint[i] = NULL;
+            summationPoint[i] = nullptr;
             in_use[i] = false;
         }
 
@@ -81,14 +81,14 @@ void AllSynapsesProps::cleanupSynapsesProps()
         delete[] synapse_counts;
     }
 
-    destNeuronLayoutIndex = NULL;
-    W = NULL;
-    summationPoint = NULL;
-    sourceNeuronLayoutIndex = NULL;
-    psr = NULL;
-    type = NULL;
-    in_use = NULL;
-    synapse_counts = NULL;
+    destNeuronLayoutIndex = nullptr;
+    W = nullptr;
+    summationPoint = nullptr;
+    sourceNeuronLayoutIndex = nullptr;
+    psr = nullptr;
+    type = nullptr;
+    in_use = nullptr;
+    synapse_counts = nullptr;
 
     count_neurons = 0;
     maxSynapsesPerNeuron = 0;
@@ -188,7 +188,7 @@ void AllSynapsesProps::copyDeviceToHostProps( AllSynapsesProps& allSynapsesProps
 
     checkCudaErrors( cudaMemcpy ( synapse_counts, allSynapsesProps.synapse_counts,
             num_neurons * sizeof( BGSIZE ), cudaMemcpyDeviceToHost ) );
-    this-> maxSynapsesPerNeuron = allSynapsesProps.maxSynapsesPerNeuron;
+    this->maxSynapsesPerNeuron = allSynapsesProps.maxSynapsesPerNeuron;
     this->total_synapse_counts = allSynapsesProps.total_synapse_counts;
     this->count_neurons = allSynapsesProps.count_neurons;
 
@@ -307,4 +307,35 @@ synapseType AllSynapsesProps::synapseOrdinalToType(const int type_ordinal)
         default:
                 return STYPE_UNDEF;
         }
+}
+
+/*
+ *  Prints SynapsesProps data.
+ */
+void AllSynapsesProps::printSynapsesProps() const
+{
+    cout << "This is SynapsesProps data:" << endl;
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        if (W[i] != 0.0) {
+                cout << "W[" << i << "] = " << W[i];
+                cout << " sourNeuron: " << sourceNeuronLayoutIndex[i];
+                cout << " desNeuron: " << destNeuronLayoutIndex[i];
+                cout << " type: " << type[i];
+                cout << " psr: " << psr[i];
+                cout << " in_use:" << in_use[i];
+                if(summationPoint[i] != nullptr) {
+                     cout << " summationPoint: is created!" << endl;    
+                } else {
+                     cout << " summationPoint: is EMPTY!!!!!" << endl;  
+                }
+        }
+    }
+    
+    for (int i = 0; i < count_neurons; i++) {
+        cout << "synapse_counts:" << "neuron[" << i  << "]" << synapse_counts[i] << endl;
+    }
+    
+    cout << "total_synapse_counts:" << total_synapse_counts << endl;
+    cout << "maxSynapsesPerNeuron:" << maxSynapsesPerNeuron << endl;
+    cout << "count_neurons:" << count_neurons << endl;
 }

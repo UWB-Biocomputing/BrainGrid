@@ -94,22 +94,6 @@ class Connections
         virtual void printParameters(ostream &output) const = 0;
 
         /**
-         *  Reads the intermediate connection status from istream.
-         *
-         *  @param  input    istream to read status from.
-         *  @param  sim_info SimulationInfo class to read information from.
-         */
-        virtual void deserialize(istream& input, const SimulationInfo *sim_info) = 0;
-
-        /**
-         *  Writes the intermediate connection status to ostream.
-         *
-         *  @param  output   ostream to write status to.
-         *  @param  sim_info SimulationInfo class to read information from.
-         */
-        virtual void serialize(ostream& output, const SimulationInfo *sim_info) = 0;
-
-        /**
          *  Update the connections status in every epoch.
          *  By default, this method does nothing. Override in a subclass to
          *  implement desired functionality.
@@ -119,7 +103,7 @@ class Connections
          *  @param  vtClr       Vector of Cluster class objects.
          *  @param  vtClrInfo   Vector of ClusterInfo.
          */
-   virtual void updateConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo) {}
+        virtual void updateConnections(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo) {}
 
         /**
          *  Creates a recorder class object for the connection.
@@ -130,6 +114,16 @@ class Connections
          *  @return Pointer to the recorder class object.
          */
         virtual IRecorder* createRecorder(const SimulationInfo *sim_info) = 0;
+
+        /**
+         *  Creates synapses from synapse weights saved in the serialization file.
+         * 
+         *  @param  sim_info    SimulationInfo class to read information from.
+         *  @param  layout      Layout information of the neunal network.
+         *  @param  vtClr       Vector of Cluster class objects.
+         *  @param  vtClrInfo   Vector of ClusterInfo.
+         */
+        void createSynapsesFromWeights(const SimulationInfo *sim_info, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 
     protected:
         //!  Number of parameters read.

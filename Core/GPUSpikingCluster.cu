@@ -303,23 +303,39 @@ void GPUSpikingCluster::cleanupCluster(SimulationInfo *sim_info, ClusterInfo *cl
   Cluster::cleanupCluster(sim_info, clr_info);
 }
 
-/*
- *  Loads the simulation based on istream input.
+/* 
+ *  Copy GPU Synapse data to CPU.
  *
- *  @param  input   istream to read from.
- *  @param  sim_info    used as a reference to set info for neurons and synapses.
- *  @param  clr_info  ClusterInfo to refer.
+ *  @param  sim_info    SimulationInfo to refer.
+ *  @param  clr_info    ClusterInfo to refer.
  */
-void GPUSpikingCluster::deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info)
+void GPUSpikingCluster::copyGPUSynapseToCPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
 {
-  Cluster::deserialize(input, sim_info, clr_info);
-
-  // Reinitialize device struct - Copy host neuron and synapse arrays into GPU device
-  AllNeuronsProps *pNeuronsProps = dynamic_cast<AllNeurons*>(m_neurons)->m_pNeuronsProps;
-  pNeuronsProps->copyNeuronHostToDeviceProps( m_allNeuronsDeviceProps, sim_info, clr_info );
-
+  // copy device synapse structs to host memory
   AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(m_synapses)->m_pSynapsesProps;
-  pSynapsesProps->copySynapseHostToDeviceProps( m_allSynapsesDeviceProps, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );
+  pSynapsesProps->copySynapseDeviceToHostProps(m_allSynapsesDeviceProps, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );
+}
+
+/* 
+ *  Copy CPU Synapse data to GPU.
+ *
+ *  @param  sim_info    SimulationInfo to refer.
+ *  @param  clr_info    ClusterInfo to refer.
+ */
+void GPUSpikingCluster::copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info)
+{
+  // copy host synapse structs to device memory
+  AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(m_synapses)->m_pSynapsesProps;
+  pSynapsesProps->copySynapseHostToDeviceProps(m_allSynapsesDeviceProps, clr_info->totalClusterNeurons, sim_info->maxSynapsesPerNeuron );
+}
+
+/* 
+ *  Print out SynapseProps on the GPU.
+ */
+void GPUSpikingCluster::printGPUSynapsesPropsCluster() const
+{  
+  AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(m_synapses)->m_pSynapsesProps;
+  pSynapsesProps->printGPUSynapsesProps( m_allSynapsesDeviceProps );
 }
 
 #if defined(VALIDATION)

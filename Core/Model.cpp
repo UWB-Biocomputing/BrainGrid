@@ -39,48 +39,6 @@ Model::~Model()
 }
 
 /*
- * Deserializes internal state from a prior run of the simulation.
- * This allows simulations to be continued from a particular point, to be restarted, or to be
- * started from a known state.
- *
- *  @param  input       istream to read from.
- *  @param  sim_info    used as a reference to set info for neurons and synapses.
- */
-void Model::deserialize(istream& input, const SimulationInfo *sim_info)
-{
-    // read the clusters data
-    m_vtClr[0]->deserialize(input, sim_info, m_vtClrInfo[0]);
-
-    // create a synapse index map
-    SynapseIndexMap::createSynapseImap(sim_info, m_vtClr, m_vtClrInfo);
-
-    // read the connections data
-    m_conns->deserialize(input, sim_info);
-}
-
-/*
- * Serializes internal state for the current simulation.
- * This allows simulations to be continued from a particular point, to be restarted, or to be
- * started from a known state.
- *
- *  @param  output      The filestream to write.
- *  @param  sim_info    used as a reference to set info for neurons and synapses.
- */
-void Model::serialize(ostream& output, const SimulationInfo *sim_info)
-{
-    // write the neurons data
-    output << sim_info->totalNeurons << ends;
-
-    // write clusters data
-    m_vtClr[0]->serialize(output, sim_info, m_vtClrInfo[0]);
-
-    // write the connections data
-    m_conns->serialize(output, sim_info);
-
-    output << flush;
-}
-
-/*
  *  Save simulation results to an output destination.
  *
  *  @param  sim_info    parameters for the simulation. 
@@ -187,6 +145,28 @@ void Model::cleanupSim(SimulationInfo *sim_info)
     m_conns->cleanupConnections();
 
     delete m_eventHandler;
+}
+
+/*
+ *  Copy GPU Synapse data to CPU.
+ *
+ *  @param  sim_info    SimulationInfo to refer.
+ */
+void Model::copyGPUSynapseToCPUSim(SimulationInfo *sim_info) {
+    for (unsigned int i = 0; i < m_vtClr.size(); i++) {
+        m_vtClr[i]->copyGPUSynapseToCPUCluster(sim_info, m_vtClrInfo[i]);
+    }
+}
+
+/*
+ *  Copy CPU Synapse data to GPU.
+ *
+ *  @param  sim_info    SimulationInfo to refer.
+ */
+void Model::copyCPUSynapseToGPUSim(SimulationInfo *sim_info) {
+    for (unsigned int i = 0; i < m_vtClr.size(); i++) {
+        m_vtClr[i]->copyCPUSynapseToGPUCluster(sim_info, m_vtClrInfo[i]);
+    }
 }
 
 /*

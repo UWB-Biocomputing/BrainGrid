@@ -51,6 +51,20 @@ class Simulator
          *  @param  sim_info    parameters for the simulation.
          */
         void finish(SimulationInfo *sim_info);
+      
+        /**
+         * Copy GPU Synapse data to CPU.
+         *
+         *  @param  sim_info    parameters for the simulation.
+         */
+        void copyGPUSynapseToCPU(SimulationInfo *sim_info);
+
+        /**
+         * Copy CPU Synapse data to GPU.
+         *
+         *  @param  sim_info    parameters for the simulation.
+         */
+        void copyCPUSynapseToGPU(SimulationInfo *sim_info);
 
         /** 
          * Reset simulation objects.
@@ -80,27 +94,6 @@ class Simulator
          *  @param  sim_info    parameters for the simulation.
          */
         void saveData(SimulationInfo *sim_info) const;
-
-        /**
-         * Read serialized internal state from a previous run of the simulator.
-         * This allows simulations to be continued from a particular point, to be restarted, or to be
-         * started from a known state.
-         *
-         *  @param memory_in - where to read the state from.
-         *  @param  sim_info    parameters for the simulation.
-         */
-        void deserialize(istream &memory_inn, SimulationInfo *sim_info);
-
-        /**
-         * Serializes internal state for the current simulation.
-         * This allows simulations to be continued from a particular point, to be restarted, or to be
-         * started from a known state.
-         * This method needs to be debugged to verify that it works.
-         *
-         *  @param memory_out - where to write the state to.
-         *  @param  sim_info    parameters for the simulation.
-         */
-        void serialize(ostream &memory_out, SimulationInfo *sim_info) const;
 
     private:
         /**

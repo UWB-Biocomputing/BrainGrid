@@ -85,22 +85,6 @@ class AllSTDPSynapses : public AllSpikingSynapses
         CUDA_CALLABLE virtual bool allowBackPropagation();
 
         /**
-         *  Sets the data for Synapses to input's data.
-         *
-         *  @param  input  istream to read from.
-         *  @param  clr_info  ClusterInfo class to read information from.
-         */
-        virtual void deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info);
-
-        /**
-         *  Write the synapses data to the stream.
-         *
-         *  @param  output  stream to print out to.
-         *  @param  clr_info  ClusterInfo class to read information from.
-         */
-        virtual void serialize(ostream& output, const ClusterInfo *clr_info);
-
-        /**
          *  Reset time varying state vars and recompute decay.
          *
          *  @param  iSyn     Index of the synapse to set.

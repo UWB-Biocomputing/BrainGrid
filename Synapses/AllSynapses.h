@@ -108,22 +108,6 @@ class AllSynapses : public IAllSynapses
         virtual void printParameters(ostream &output) const;
 
         /**
-         *  Sets the data for Synapses to input's data.
-         *
-         *  @param  input  istream to read from.
-         *  @param  clr_info  ClusterInfo class to read information from.
-         */
-        virtual void deserialize(istream& input, IAllNeurons &neurons, const ClusterInfo *clr_info);
-
-        /**
-         *  Write the synapses data to the stream.
-         *
-         *  @param  output  stream to print out to.
-         *  @param  clr_info  ClusterInfo class to read information from.
-         */
-        virtual void serialize(ostream& output, const ClusterInfo *clr_info);
-
-        /**
          *  Adds a Synapse to the model, connecting two Neurons.
          *
          *  @param  iSyn        Index of the synapse to be added.
@@ -161,6 +145,13 @@ class AllSynapses : public IAllSynapses
          *  @param  deltaT   Inner simulation step duration
          */
         CUDA_CALLABLE virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT);
+        
+        /**
+         *  Cereal serialization and deserialization method
+         *  (Serializes/deserializes SynapseProps)
+         */
+        template<class Archive>
+        void serialize(Archive & archive);
 
 #if defined(USE_GPU)
 
@@ -257,3 +248,13 @@ __global__ void deleteAllSynapsesDevice(IAllSynapses *pAllSynapses);
 __global__ void advanceSynapsesDevice ( int total_synapse_counts, SynapseIndexMap* synapseIndexMapDevice, uint64_t simulationStep, int maxSpikes, const BGFLOAT deltaT, int iStepOffset, IAllSynapses* synapsesDevice, IAllNeurons* neuronsDevice, IAllNeuronsProps* pINeuronsProps );
 
 #endif // USE_GPU
+
+/**
+ *  Cereal serialization and deserialization method
+ *  (Serializes/deserializes SynapseProps)
+ */
+template<class Archive>
+void AllSynapses::serialize(Archive & archive) {
+    archive(*m_pSynapsesProps);
+}
+

@@ -61,28 +61,6 @@ class Cluster
         virtual ~Cluster();
 
         /**
-         * Deserializes internal state from a prior run of the simulation.
-         * This allows simulations to be continued from a particular point, to be restarted, or to be
-         * started from a known state.
-         *
-         *  @param  input       istream to read from.
-         *  @param  sim_info    used as a reference to set info for neurons and synapses.
-         *  @param  clr_info    cluster informaion, used as a reference to set info for neurons and synapses.
-         */
-        virtual void deserialize(istream& input, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
-
-        /**
-         * Serializes internal state for the current simulation.
-         * This allows simulations to be continued from a particular point, to be restarted, or to be
-         * started from a known state.
-         *
-         *  @param  output      The filestream to write.
-         *  @param  sim_info    used as a reference to set info for neurons and synapses.
-         *  @param  clr_info    cluster informaion, used as a reference to set info for neurons and synapses.
-         */
-        virtual void serialize(ostream& output, const SimulationInfo *sim_info, const ClusterInfo *clr_info);
-
-        /**
          *  Creates all the Neurons and generates data for them.
          *
          *  @param  sim_info    SimulationInfo class to read information from.
@@ -98,6 +76,29 @@ class Cluster
          *  @param  clr_info    ClusterInfo to refer.
          */
         virtual void cleanupCluster(SimulationInfo *sim_info, ClusterInfo *clr_info);
+       
+        /**
+         *  Copy GPU Synapse data to CPU.
+         *
+         *  @param  sim_info    SimulationInfo to refer.
+         *  @param  clr_info    ClusterInfo to refer.
+         */
+        virtual void copyGPUSynapseToCPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
+        
+        /**
+         *  Copy CPU Synapse data to GPU.
+         *
+         *  @param  sim_info    SimulationInfo to refer.
+         *  @param  clr_info    ClusterInfo to refer.
+         */
+        virtual void copyCPUSynapseToGPUCluster(SimulationInfo *sim_info, ClusterInfo *clr_info) = 0;
+        
+        /**
+         *  Cereal serialization and deserialization method
+         *  (Serializes/deserializes synapses)
+         */
+        template<class Archive>
+        void serialize(Archive & archive);
 
 #if defined(VALIDATION)
         /**
@@ -215,3 +216,17 @@ class Cluster
          */
         static int m_nSynapticTransDelay;
 };
+
+/**
+ *  Cereal serialization and deserialization method
+ *  (Serializes/deserializes synapses)
+ */
+template<class Archive>
+void Cluster::serialize(Archive & archive) {
+    // type cast 
+    AllSynapses * castm_synapses = dynamic_cast<AllSynapses*>(m_synapses);
+    // saves synapse objects
+    archive(*castm_synapses);
+}
+
+

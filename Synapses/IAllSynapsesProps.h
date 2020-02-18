@@ -62,6 +62,13 @@ class IAllSynapsesProps
          *  @param  maxSynapsesPerNeuron     Maximum number of synapses per neuron.
          */
         virtual void copySynapseDeviceToHostProps( void* allSynapsesDeviceProps, int num_neurons, int maxSynapsesPerNeuron ) = 0;
+        
+        /**
+         *  Prints all GPU SynapsesProps data.
+         * 
+         *  @param  allSynapsesDeviceProps   Reference to the AllSTDPSynapsesProps class on device memory.
+         */
+        virtual void printGPUSynapsesProps( void* allSynapsesDeviceProps ) const = 0;
 #endif // USE_GPU
 
         /**
@@ -108,4 +115,9 @@ class IAllSynapsesProps
          *  @param  iSyn    Index of the synapse to print out.
          */
         virtual void writeSynapseProps(ostream& output, const BGSIZE iSyn) const = 0;
+
+        /**
+         *  Prints SynapsesProps data.
+         */
+        virtual void printSynapsesProps() const = 0;
 };
