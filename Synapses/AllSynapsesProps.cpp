@@ -54,6 +54,7 @@ void AllSynapsesProps::setupSynapsesProps(const int num_neurons, const int max_s
         for (BGSIZE i = 0; i < max_total_synapses; i++) {
             summationPoint[i] = nullptr;
             in_use[i] = false;
+            W[i] = 0;
         }
 
         for (int i = 0; i < num_neurons; i++) {

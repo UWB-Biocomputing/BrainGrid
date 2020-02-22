@@ -162,6 +162,7 @@ CUDA_CALLABLE void AllSynapses::eraseSynapse(const int neuron_index, const BGSIZ
     m_pSynapsesProps->synapse_counts[neuron_index]--;
     m_pSynapsesProps->in_use[iSyn] = false;
     m_pSynapsesProps->summationPoint[iSyn] = NULL;
+    m_pSynapsesProps->W[iSyn] = 0;
 }
 
 /*
