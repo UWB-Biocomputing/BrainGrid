@@ -16,7 +16,7 @@ all: growth growth_cuda
 # CVALIDATION:   yes - make validation version (see issue #239)
 #                no  - make production version
 ################################################################################
-CUSEHDF5 = no
+CUSEHDF5 = yes
 CPMETRICS = no
 CVALIDATION = no
 
@@ -36,6 +36,7 @@ RNGDIR = $(MAIN)/RNG
 SYNAPSEDIR = $(MAIN)/Synapses
 XMLDIR = $(MAIN)/tinyxml
 UTILDIR = $(MAIN)/Utils
+CEREALDIR = $(MAIN)
 
 # cuda
 CUDALIBDIR = /usr/local/cuda/lib64
@@ -90,7 +91,7 @@ endif
 
 INCDIRS = -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) \
           -I$(MATRIXDIR) -I$(NEURONDIR) -I$(PARAMDIR) -I$(RECORDERDIR) \
-          -I$(RNGDIR) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(XMLDIR) 
+          -I$(RNGDIR) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(XMLDIR) -I$(CEREALDIR)
 
 CXXFLAGS = -O2 -std=c++11 -Wall -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) $(VDFLAGS)
 CGPUFLAGS = -std=c++11 -DUSE_GPU $(PMFLAGS) $(H5FLAGS) $(VDFLAGS)
