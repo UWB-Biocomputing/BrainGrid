@@ -418,7 +418,7 @@ __global__ void calcSummationMapDevice(int totalNeurons,
 void GPUSpikingModel::copyGPUSynapseToCPUCluster(SimulationInfo *sim_info)
 {
   // copy device synapse structs to host memory
-  m_synapses->copySynapseDeviceToHost(*m_allSynapsesDevice, sim_info );
+  m_synapses->copySynapseDeviceToHost(m_allSynapsesDevice, sim_info );
 }
 
 /* 
