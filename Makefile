@@ -88,7 +88,7 @@ CXXFLAGS = -O2 -std=c++11 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDI
 CGPUFLAGS = -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -L$(CUDALIBDIR) -lcuda -lcudart
-NVCCFLAGS = -g -arch=sm_20 -rdc=true $(INCDIRS)
+NVCCFLAGS = -g -arch=sm_35 -rdc=true $(INCDIRS)
 
 ################################################################################
 # Objects
