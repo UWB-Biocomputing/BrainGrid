@@ -367,7 +367,7 @@ void printKeyStateInfo(SimulationInfo *simInfo)
 {        
 #if defined(USE_GPU)
     // Prints out SynapsesProps on the GPU
-    dynamic_cast<GPUSpikingModel *>(simInfo->model)->m_allSynapsesDevice->printGPUSynapsesPropsCluster();
+    dynamic_cast<AllSpikingSynapses *>(dynamic_cast<Model *>(simInfo->model)->m_synapses)->printSynapsesProps(); 
     
     // Prints out radii on the GPU (only if it is a connGrowth model)
     if(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns) != nullptr) {
@@ -469,7 +469,7 @@ bool deserializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator)
     dynamic_cast<Model *>(simInfo->model)->m_synapses->createSynapseImap( dynamic_cast<Model *>(simInfo->model)->m_synapseIndexMap, simInfo );
 
 #if defined(USE_GPU)
-    dynamic_cast<GPUSpikingModel *>(simInfo->model)->copySynapseIndexMapHostToDevice(*(dynamic_cast<GPUSpikingModel *>(simInfo->model)->m_synapseIndexMap), sim_info->totalNeurons);
+    dynamic_cast<GPUSpikingModel *>(simInfo->model)->copySynapseIndexMapHostToDevice(*(dynamic_cast<GPUSpikingModel *>(simInfo->model)->m_synapseIndexMap), simInfo->totalNeurons);
 #endif // USE_GPU
 
     // Deserializes radii (only when running a connGrowth model and radii is in serialization file)
