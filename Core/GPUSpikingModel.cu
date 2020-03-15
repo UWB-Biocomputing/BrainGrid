@@ -430,7 +430,7 @@ void GPUSpikingModel::copyGPUSynapseToCPUCluster(SimulationInfo *sim_info)
 void GPUSpikingModel::copyCPUSynapseToGPUCluster(SimulationInfo *sim_info)
 {
   // copy host synapse structs to device memory
-  m_synapses->copySynapseHostToDevice( *m_allSynapsesDevice, sim_info );
+  m_synapses->copySynapseHostToDevice( m_allSynapsesDevice, sim_info );
 }
 
 /* 
