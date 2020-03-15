@@ -1,4 +1,7 @@
 #include "AllSpikingSynapses.h"
+#if defined(USE_GPU)
+#include <helper_cuda.h>
+#endif // USE_GPU
 
 AllSpikingSynapses::AllSpikingSynapses() : AllSynapses()
 {
