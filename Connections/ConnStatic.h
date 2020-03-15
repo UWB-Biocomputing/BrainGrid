@@ -99,7 +99,7 @@ class ConnStatic : public Connections
          *  @param  input    istream to read status from.
          *  @param  sim_info SimulationInfo class to read information from.
          */
-        virtual void deserialize(istream& input, const SimulationInfo *sim_info);
+        //virtual void deserialize(istream& input, const SimulationInfo *sim_info);
 
         /**
          *  Writes the intermediate connection status to ostream.
@@ -107,7 +107,7 @@ class ConnStatic : public Connections
          *  @param  output   ostream to write status to.
          *  @param  sim_info SimulationInfo class to read information from.
          */
-        virtual void serialize(ostream& output, const SimulationInfo *sim_info);
+        //virtual void serialize(ostream& output, const SimulationInfo *sim_info);
 
         /**
          *  Creates a recorder class object for the connection.

@@ -118,6 +118,8 @@ class AllSpikingSynapses : public AllSynapses
          */
         virtual bool allowBackPropagation();
 
+        virtual void printSynapsesProps() const;
+
     protected:
         /**
          *  Setup the internal structure of the class (allocate memories and initialize them).
@@ -256,6 +258,8 @@ class AllSpikingSynapses : public AllSynapses
          *  (see issue#137).
          */
         virtual void setSynapseClassID();
+
+        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps) const;
 
     protected:
         /**

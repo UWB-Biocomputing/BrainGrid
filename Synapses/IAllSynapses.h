@@ -71,7 +71,7 @@ class IAllSynapses
          *  @param  input  istream to read from.
          *  @param  sim_info  SimulationInfo class to read information from.
          */
-        virtual void deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info) = 0;
+        //virtual void deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info) = 0;
 
         /**
          *  Write the synapses data to the stream.
@@ -79,7 +79,7 @@ class IAllSynapses
          *  @param  output  stream to print out to.
          *  @param  sim_info  SimulationInfo class to read information from.
          */
-        virtual void serialize(ostream& output, const SimulationInfo *sim_info) = 0;
+        //virtual void serialize(ostream& output, const SimulationInfo *sim_info) = 0;
 
         /**
          *  Adds a Synapse to the model, connecting two Neurons.
@@ -121,6 +121,8 @@ class IAllSynapses
          *  @return   1 or -1, or 0 if error
          */
         virtual int synSign(const synapseType type) = 0;
+
+        virtual void printSynapsesProps() const = 0;
 
 #if defined(USE_GPU)
     public:
@@ -219,6 +221,8 @@ class IAllSynapses
          *  (see issue#137).
          */
         virtual void setSynapseClassID() = 0;
+
+        virtual void printGPUSynapsesProps( void* allSynapsesDeviceProps ) const = 0;
 
 #else // !defined(USE_GPU)
     public:

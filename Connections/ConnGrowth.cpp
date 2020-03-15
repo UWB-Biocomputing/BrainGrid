@@ -53,6 +53,7 @@ ConnGrowth::ConnGrowth() : Connections()
     area = NULL;
     outgrowth = NULL;
     deltaR = NULL;
+    radiiSize = 0;
 }
 
 ConnGrowth::~ConnGrowth()
@@ -71,6 +72,7 @@ ConnGrowth::~ConnGrowth()
 void ConnGrowth::setupConnections(const SimulationInfo *sim_info, Layout *layout, IAllNeurons *neurons, IAllSynapses *synapses)
 {
     int num_neurons = sim_info->totalNeurons;
+    radiiSize = num_neurons;
 
     W = new CompleteMatrix(MATRIX_TYPE, MATRIX_INIT, num_neurons, num_neurons, 0);
     radii = new VectorMatrix(MATRIX_TYPE, MATRIX_INIT, 1, num_neurons, m_growth.startRadius);
@@ -104,6 +106,7 @@ void ConnGrowth::cleanupConnections()
     area = NULL;
     outgrowth = NULL;
     deltaR = NULL;
+    radiiSize = 0;
 }
 
 /*
@@ -232,7 +235,7 @@ void ConnGrowth::printParameters(ostream &output) const
  *  @param  input    istream to read status from.
  *  @param  sim_info SimulationInfo class to read information from.
  */
-void ConnGrowth::deserialize(istream& input, const SimulationInfo *sim_info)
+/*void ConnGrowth::deserialize(istream& input, const SimulationInfo *sim_info)
 {
     // read the radii
     for (int i = 0; i < sim_info->totalNeurons; i++) {
@@ -243,7 +246,7 @@ void ConnGrowth::deserialize(istream& input, const SimulationInfo *sim_info)
     for (int i = 0; i < sim_info->totalNeurons; i++) {
             input >> (*rates)[i]; input.ignore();
     }
-}
+}*/
 
 /*
  *  Writes the intermediate connection status to ostream.
@@ -251,7 +254,7 @@ void ConnGrowth::deserialize(istream& input, const SimulationInfo *sim_info)
  *  @param  output   ostream to write status to.
  *  @param  sim_info SimulationInfo class to read information from.
  */
-void ConnGrowth::serialize(ostream& output, const SimulationInfo *sim_info)
+/*void ConnGrowth::serialize(ostream& output, const SimulationInfo *sim_info)
 {
     // write the final radii
     for (int i = 0; i < sim_info->totalNeurons; i++) {
@@ -262,7 +265,7 @@ void ConnGrowth::serialize(ostream& output, const SimulationInfo *sim_info)
     for (int i = 0; i < sim_info->totalNeurons; i++) {
         output << (*rates)[i] << ends;
     }
-}
+}*/
 
 /*
  *  Update the connections status in every epoch.
@@ -491,4 +494,14 @@ IRecorder* ConnGrowth::createRecorder(const SimulationInfo *simInfo)
     }
 
     return simRecorder;
+}
+
+/**
+ *  Prints radii 
+ *  (either on CPU or GPU)
+ */
+void ConnGrowth::printRadii() const {
+	for (int i = 0; i < radiiSize; i++) {
+		cout << "radii[" << i << "] = " << (*radii)[i] << endl;
+	}
 }

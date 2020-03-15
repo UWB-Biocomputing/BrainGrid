@@ -166,7 +166,7 @@ void GPUSpikingModel::cleanupSim(SimulationInfo *sim_info)
  *  @param  input   istream to read from.
  *  @param  sim_info    used as a reference to set info for neurons and synapses.
  */
-void GPUSpikingModel::deserialize(istream& input, const SimulationInfo *sim_info)
+/*void GPUSpikingModel::deserialize(istream& input, const SimulationInfo *sim_info)
 {
   Model::deserialize(input, sim_info);
 
@@ -176,7 +176,7 @@ void GPUSpikingModel::deserialize(istream& input, const SimulationInfo *sim_info
   // Reinitialize device struct - Copy host neuron and synapse arrays into GPU device
   m_neurons->copyNeuronHostToDevice( m_allNeuronsDevice, sim_info );
   m_synapses->copySynapseHostToDevice( m_allSynapsesDevice, sim_info );
-}
+}*/
 
 /* 
  *  Advance everything in the model one time step. In this case, that
@@ -415,3 +415,28 @@ __global__ void calcSummationMapDevice(int totalNeurons,
   }
 }
 
+void GPUSpikingModel::copyGPUSynapseToCPUCluster(SimulationInfo *sim_info)
+{
+  // copy device synapse structs to host memory
+  m_synapses->copySynapseDeviceToHost(m_allSynapsesDevice, sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron );
+}
+
+/* 
+ *  Copy CPU Synapse data to GPU.
+ *
+ *  @param  sim_info    SimulationInfo to refer.
+ *  @param  clr_info    ClusterInfo to refer.
+ */
+void GPUSpikingModel::copyCPUSynapseToGPUCluster(SimulationInfo *sim_info)
+{
+  // copy host synapse structs to device memory
+  m_synapses->copySynapseHostToDevice(m_allSynapsesDevice, sim_info->totalNeurons, sim_info->maxSynapsesPerNeuron );
+}
+
+/* 
+ *  Print out SynapseProps on the GPU.
+ */
+void GPUSpikingModel::printGPUSynapsesPropsCluster() const
+{  
+  m_synapses->printGPUSynapsesProps( m_allSynapsesDevice );
+}

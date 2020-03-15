@@ -81,7 +81,23 @@ public:
          */
 	virtual void updateConnections(const SimulationInfo *sim_info);
 
-	/* -----------------
+        /**
+         *  Copy GPU Synapse data to CPU.
+         *
+         *  @param  sim_info    SimulationInfo to refer.
+         *  @param  clr_info    ClusterInfo to refer.
+         */
+        virtual void copyGPUSynapseToCPUCluster(SimulationInfo *sim_info);
+
+         /**
+         *  Copy CPU Synapse data to GPU.
+         *
+         *  @param  sim_info    SimulationInfo to refer.
+         *  @param  clr_info    ClusterInfo to refer.
+         */
+        virtual void copyCPUSynapseToGPUCluster(SimulationInfo *sim_info);
+	
+        /* -----------------
 	* # Helper Functions
 	* ------------------
 	*/

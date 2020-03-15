@@ -42,6 +42,12 @@
 #include "SimulationInfo.h"
 #include "IAllSynapses.h"
 
+/**
+ * cereal
+ */
+#include <cereal/types/vector.hpp>
+#include <vector>
+
 #ifdef _WIN32
 typedef unsigned _int8 uint8_t;
 #endif
@@ -81,7 +87,7 @@ class AllSynapses : public IAllSynapses
          *  @param  input  istream to read from.
          *  @param  sim_info  SimulationInfo class to read information from.
          */
-        virtual void deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info);
+        //virtual void deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info);
 
         /**
          *  Write the synapses data to the stream.
@@ -89,7 +95,7 @@ class AllSynapses : public IAllSynapses
          *  @param  output  stream to print out to.
          *  @param  sim_info  SimulationInfo class to read information from.
          */
-        virtual void serialize(ostream& output, const SimulationInfo *sim_info);
+        //virtual void serialize(ostream& output, const SimulationInfo *sim_info);
 
         /**
          *  Adds a Synapse to the model, connecting two Neurons.
@@ -131,6 +137,25 @@ class AllSynapses : public IAllSynapses
          *  @return   1 or -1, or 0 if error
          */
         int synSign(const synapseType type);
+
+        /**
+         *  Prints SynapsesProps data
+         */
+        virtual void printSynapsesProps() const;
+
+        /**
+         *  Cereal serialization method
+         *  (Serializes synapse weights, source neurons, and destination neurons)
+         */
+        template<class Archive>
+        void save(Archive & archive) const;
+
+        /**
+         *  Cereal deserialization method
+         *  (Deserializes synapse weights, source neurons, and destination neurons)
+         */
+        template<class Archive>
+        void load(Archive & archive);
 
     protected:
         /**
@@ -187,7 +212,7 @@ class AllSynapses : public IAllSynapses
 #endif // !defined(USE_GPU)
     public:
         // The factor to adjust overlapping area to synapse weight.
-        static const BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
+        static constexpr BGFLOAT SYNAPSE_STRENGTH_ADJUSTMENT = 1.0e-8;
  
         /**
          *  The location of the synapse.
@@ -314,3 +339,54 @@ struct AllSynapsesDeviceProperties
         int count_neurons;
 }; 
 #endif // defined(USE_GPU)
+
+/**
+ *  Cereal serialization method
+ *  (Serializes synapse weights, source neurons, and destination neurons)
+ */
+template<class Archive>
+void AllSynapses::save(Archive & archive) const
+{
+    // uses vector to save synapse weights, source neurons, and destination neurons
+    vector<BGFLOAT> WVector;
+    vector<int>sourceNeuronLayoutIndexVector;
+    vector<int>destNeuronLayoutIndexVector;
+
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        WVector.push_back(W[i]);
+        sourceNeuronLayoutIndexVector.push_back(sourceNeuronIndex[i]);
+        destNeuronLayoutIndexVector.push_back(destNeuronIndex[i]);
+    }
+
+    // serialization
+    archive(WVector, sourceNeuronLayoutIndexVector, destNeuronLayoutIndexVector);
+}
+
+/**
+ *  Cereal deserialization method
+ *  (Deserializes synapse weights, source neurons, and destination neurons)
+ */
+template<class Archive>
+void AllSynapses::load(Archive & archive) 
+{
+    // uses vectors to load synapse weights, source neurons, and destination neurons
+    vector<BGFLOAT> WVector;
+    vector<int>sourceNeuronLayoutIndexVector;
+    vector<int>destNeuronLayoutIndexVector;
+
+    // deserializing data to these vectors
+    archive(WVector, sourceNeuronLayoutIndexVector, destNeuronLayoutIndexVector);
+
+    // check to see if serialized data sizes matches object sizes  
+    if(WVector.size() != maxSynapsesPerNeuron * count_neurons) {
+        cerr << "Failed deserializing synapse weights, source neurons, and/or destination neurons. Please verify maxSynapsesPerNeuron and count_neurons data members in AllSynapsesProps class." << endl;
+        throw cereal::Exception("Deserialization Error");
+    }
+
+    // assigns serialized data to objects 
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        W[i] = WVector[i];
+        sourceNeuronIndex[i] = sourceNeuronLayoutIndexVector[i];
+        destNeuronIndex[i] = destNeuronLayoutIndexVector[i];
+    }
+}

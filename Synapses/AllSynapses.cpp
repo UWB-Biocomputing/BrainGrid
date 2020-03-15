@@ -64,6 +64,7 @@ void AllSynapses::setupSynapses(const int num_neurons, const int max_synapses)
         for (BGSIZE i = 0; i < max_total_synapses; i++) {
             summationPoint[i] = NULL;
             in_use[i] = false;
+            W[i] = 0;
         }
 
         for (int i = 0; i < num_neurons; i++) {
@@ -120,7 +121,7 @@ void AllSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
  *  @param  input  istream to read from.
  *  @param  sim_info  SimulationInfo class to read information from.
  */
-void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info)
+/*void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info)
 {
         // read the synapse data & create synapses
         int* read_synapses_counts= new int[sim_info->totalNeurons];
@@ -152,7 +153,7 @@ void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const Simula
                         synapse_counts[i] = read_synapses_counts[i];
         }
         delete[] read_synapses_counts;
-}
+}*/
 
 /*
  *  Write the synapses data to the stream.
@@ -160,7 +161,7 @@ void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const Simula
  *  @param  output  stream to print out to.
  *  @param  sim_info  SimulationInfo class to read information from.
  */
-void AllSynapses::serialize(ostream& output, const SimulationInfo *sim_info)
+/*void AllSynapses::serialize(ostream& output, const SimulationInfo *sim_info)
 {
     // write the synapse data
     int synapse_count = 0;
@@ -175,7 +176,7 @@ void AllSynapses::serialize(ostream& output, const SimulationInfo *sim_info)
             writeSynapse(output, iSyn);
         }
     }
-}
+}*/
 
 /*
  *  Sets the data for Synapse to input's data.
@@ -341,6 +342,7 @@ void AllSynapses::eraseSynapse(const int neuron_index, const BGSIZE iSyn)
     synapse_counts[neuron_index]--;
     in_use[iSyn] = false;
     summationPoint[iSyn] = NULL;
+    W[iSyn] = 0;
 }
 #endif // !defined(USE_GPU)
 
@@ -399,3 +401,33 @@ int AllSynapses::synSign(const synapseType type)
     return 0;
 }
 
+/*
+ *  Prints SynapsesProps data.
+ */
+void AllSynapses::printSynapsesProps() const
+{
+    cout << "This is SynapsesProps data:" << endl;
+    for(int i = 0; i < maxSynapsesPerNeuron * count_neurons; i++) {
+        if (W[i] != 0.0) {
+                cout << "W[" << i << "] = " << W[i];
+                cout << " sourNeuron: " << sourceNeuronIndex[i];
+                cout << " desNeuron: " << destNeuronIndex[i];
+                cout << " type: " << type[i];
+                cout << " psr: " << psr[i];
+                cout << " in_use:" << in_use[i];
+                if(summationPoint[i] != nullptr) {
+                     cout << " summationPoint: is created!" << endl;    
+                } else {
+                     cout << " summationPoint: is EMPTY!!!!!" << endl;  
+                }
+        }
+    }
+
+    for (int i = 0; i < count_neurons; i++) {
+        cout << "synapse_counts:" << "neuron[" << i  << "]" << synapse_counts[i] << endl;
+    }
+
+    cout << "total_synapse_counts:" << total_synapse_counts << endl;
+    cout << "maxSynapsesPerNeuron:" << maxSynapsesPerNeuron << endl;
+    cout << "count_neurons:" << count_neurons << endl;
+}

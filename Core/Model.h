@@ -69,7 +69,7 @@ class Model : public IModel
          *  @param  input       istream to read from.
          *  @param  sim_info    used as a reference to set info for neurons and synapses.
          */
-        virtual void deserialize(istream& input, const SimulationInfo *sim_info);
+        //virtual void deserialize(istream& input, const SimulationInfo *sim_info);
 
         /**
          * Serializes internal state for the current simulation.
@@ -79,7 +79,7 @@ class Model : public IModel
          *  @param  output          The filestream to write.
          *  @param  simulation_step The step of the simulation at the current time.
          */
-        virtual void serialize(ostream& output, const SimulationInfo *sim_info);
+        //virtual void serialize(ostream& output, const SimulationInfo *sim_info);
 
         /**
          * Writes simulation results to an output destination.
@@ -131,6 +131,9 @@ class Model : public IModel
          */
         virtual void updateHistory(const SimulationInfo *sim_info);
 
+        virtual void copyGPUSynapseToCPUCluster(SimulationInfo *sim_info) = 0;
+        virtual void copyCPUSynapseToGPUCluster(SimulationInfo *sim_info) = 0;
+
     protected:
 
         /* -----------------------------------------------------------------------------------------
@@ -153,6 +156,7 @@ class Model : public IModel
         // kind of a hack to do error handling for read params
         int m_read_params;
 
+    public:// 2020/03/14 Modified access level to public for allowing the access in BGDriver for serialization/deserialization
         // TODO
         Connections *m_conns;
 

@@ -378,22 +378,22 @@ class AllIZHNeurons : public AllIFNeurons
         /**
          *  Default value of Aconst.
          */
-        static const BGFLOAT DEFAULT_a = 0.0035;
+        static constexpr BGFLOAT DEFAULT_a = 0.0035;
 
         /**
          *  Default value of Bconst.
          */
-        static const BGFLOAT DEFAULT_b = 0.2;
+        static constexpr BGFLOAT DEFAULT_b = 0.2;
 
         /**
          *  Default value of Cconst.
          */
-        static const BGFLOAT DEFAULT_c = -50;
+        static constexpr BGFLOAT DEFAULT_c = -50;
 
         /**
          *  Default value of Dconst.
          */
-        static const BGFLOAT DEFAULT_d = 2;
+        static constexpr BGFLOAT DEFAULT_d = 2;
 
         /**
          *  Min/max values of Aconst for excitatory neurons.

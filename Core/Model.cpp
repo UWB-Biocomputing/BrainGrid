@@ -59,7 +59,7 @@ Model::~Model()
  *  @param  input       istream to read from.
  *  @param  sim_info    used as a reference to set info for neurons and synapses.
  */
-void Model::deserialize(istream& input, const SimulationInfo *sim_info)
+/*void Model::deserialize(istream& input, const SimulationInfo *sim_info)
 {
     // read the neurons data & create neurons
     m_neurons->deserialize(input, sim_info);
@@ -72,7 +72,7 @@ void Model::deserialize(istream& input, const SimulationInfo *sim_info)
 
     // create a synapse index map 
     m_synapses->createSynapseImap(m_synapseIndexMap, sim_info);
-}
+}*/
 
 /*
  * Serializes internal state for the current simulation.
@@ -82,7 +82,7 @@ void Model::deserialize(istream& input, const SimulationInfo *sim_info)
  *  @param  output          The filestream to write.
  *  @param  simulation_step The step of the simulation at the current time.
  */
-void Model::serialize(ostream& output, const SimulationInfo *sim_info)
+/*void Model::serialize(ostream& output, const SimulationInfo *sim_info)
 {
     // write the neurons data
     output << sim_info->totalNeurons << ends;
@@ -95,7 +95,7 @@ void Model::serialize(ostream& output, const SimulationInfo *sim_info)
     m_conns->serialize(output, sim_info);
 
     output << flush;
-}
+}*/
 
 /*
  *  Save simulation results to an output destination.

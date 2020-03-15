@@ -57,6 +57,32 @@ void SingleThreadedSpikingModel::updateConnections(const SimulationInfo *sim_inf
     }
 }
 
+/**
+ *  Copy GPU Synapse data to CPU.
+ *  (No implementation here because of inheritance structure. Only GPUCluster has implementation)
+ *
+ *  @param  sim_info    SimulationInfo to refer.
+ *  @param  clr_info    ClusterInfo to refer.
+ */
+void SingleThreadedSpikingModel::copyGPUSynapseToCPUCluster(SimulationInfo *sim_info)
+{
+   cerr << "ERROR: SingleThreadedCluster::copyGPUSynapseToCPUCluster() was called." << endl;
+   exit(EXIT_FAILURE);
+}
+
+ /**
+ *  Copy CPU Synapse data to GPU.
+ *  (No implementation here because of inheritance structure. Only GPUCluster has implementation)
+ *
+ *  @param  sim_info    SimulationInfo to refer.
+ *  @param  clr_info    ClusterInfo to refer.
+ */
+void SingleThreadedSpikingModel::copyCPUSynapseToGPUCluster(SimulationInfo *sim_info)
+{
+   cerr << "ERROR: SingleThreadedCluster::copyCPUSynapseToGPUCluster() was called." << endl;
+   exit(EXIT_FAILURE);
+}
+
 /* -----------------
  * # Helper Functions
  * ------------------

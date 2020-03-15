@@ -136,6 +136,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          */
         virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
 
+        virtual void printSynapsesProps() const;
     protected:
         /**
          *  Setup the internal structure of the class (allocate memories and initialize them).
@@ -244,6 +245,8 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  (see issue#137).
          */
         virtual void setSynapseClassID();
+
+        virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps) const;
 
     protected:
         /**

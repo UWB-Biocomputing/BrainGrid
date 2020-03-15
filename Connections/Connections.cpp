@@ -78,3 +78,30 @@ void Connections::updateSynapsesWeights(const int num_neurons, IAllNeurons &neur
 {
 }
 #endif // !USE_GPU
+
+
+void Connections::createSynapsesFromWeights(const int num_neurons, const SimulationInfo *sim_info, Layout *layout, IAllNeurons &ineurons, IAllSynapses &isynapses) 
+{
+    AllNeurons &neurons = dynamic_cast<AllNeurons&>(ineurons);
+    AllSynapses &synapses = dynamic_cast<AllSynapses&>(isynapses);
+
+    // for each neuron
+    for (int iNeuron = 0; iNeuron < num_neurons; iNeuron++) {
+        // for each synapse in the neuron
+        for (BGSIZE synapse_index = 0; synapse_index < sim_info->maxSynapsesPerNeuron; synapse_index++) {
+            BGSIZE iSyn = sim_info->maxSynapsesPerNeuron * iNeuron + synapse_index;
+            // if the synapse weight is not zero (which means there is a connection), create the synapse
+            if(synapses.W[iSyn] != 0.0) {
+                BGFLOAT theW = synapses.W[iSyn];
+                BGFLOAT* sum_point = &( neurons.summation_map[iNeuron] );
+                int src_neuron = synapses.sourceNeuronIndex[iSyn];
+                int dest_neuron = synapses.destNeuronIndex[iSyn];
+                synapseType type = layout->synType(src_neuron, dest_neuron);
+                synapses.synapse_counts[iNeuron]++;
+                synapses.createSynapse(iSyn, src_neuron, dest_neuron, sum_point, sim_info->deltaT, type);
+                synapses.W[iSyn] = theW;
+            }
+        }
+    }
+    
+}

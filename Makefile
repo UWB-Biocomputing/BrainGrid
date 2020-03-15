@@ -33,14 +33,15 @@ RNGDIR = $(MAIN)/RNG
 SYNAPSEDIR = $(MAIN)/Synapses
 XMLDIR = $(MAIN)/tinyxml
 UTILDIR = $(MAIN)/Utils
+CEREALDIR = $(MAIN)
 
 # cuda
 CUDALIBDIR = /usr/local/cuda/lib64
 
 # hdf5
 ifeq ($(CUSEHDF5), yes)
-	H5INCDIR = /usr/include/hdf5/serial		   # include dir
-	H5LIBDIR = /usr/lib/x86_64-linux-gnu/hdf5/serial/  # library dir
+	H5INCDIR = /opt/hdf5/latest/include/		   # include dir
+	H5LIBDIR = /opt/hdf5/latest/lib/               # library dir
 	#H5LIBDIR = /usr/lib/x86_64-linux-gnu/	 	   # another library dir
 else
 	H5INCDIR = .
@@ -81,13 +82,13 @@ endif
 
 INCDIRS = -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) \
           -I$(MATRIXDIR) -I$(NEURONDIR) -I$(PARAMDIR) -I$(RECORDERDIR) \
-          -I$(RNGDIR) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(XMLDIR)
+          -I$(RNGDIR) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(XMLDIR) -I$(CEREALDIR)
 
-CXXFLAGS = -O2 -std=c++98 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) 
-CGPUFLAGS = -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
+CXXFLAGS = -O2 -std=c++11 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) 
+CGPUFLAGS = -std=c++11 -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -L$(CUDALIBDIR) -lcuda -lcudart
-NVCCFLAGS =  -g -arch=sm_20 -rdc=true $(INCDIRS)
+NVCCFLAGS = -g -arch=sm_35 -rdc=true $(INCDIRS)
 
 ################################################################################
 # Objects

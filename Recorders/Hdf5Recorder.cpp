@@ -54,28 +54,28 @@ void Hdf5Recorder::init(const string& stateOutputFileName)
     // catch failure caused by the H5File operations
     catch( FileIException error )
     {
-        error.printError();
+        error.printErrorStack();
         return;
     }
 
     // catch failure caused by the DataSet operations
     catch( DataSetIException error )
     {
-        error.printError();
+        error.printErrorStack();
         return;
     }
 
     // catch failure caused by the DataSpace operations
     catch( DataSpaceIException error )
     {
-        error.printError();
+        error.printErrorStack();
         return;
     }
 
     // catch failure caused by the DataType operations
     catch( DataTypeIException error )
     {
-        error.printError();
+        error.printErrorStack();
         return;
     }
 }
@@ -268,28 +268,28 @@ void Hdf5Recorder::compileHistories(IAllNeurons &neurons)
     // catch failure caused by the H5File operations
     catch( FileIException error )
     {
-        error.printError();
+        error.printErrorStack();
         return;
     }
 
     // catch failure caused by the DataSet operations
     catch( DataSetIException error )
     {
-        error.printError();
+        error.printErrorStack();
         return;
     }
 
     // catch failure caused by the DataSpace operations
     catch( DataSpaceIException error )
     {
-        error.printError();
+        error.printErrorStack();
         return;
     }
 
     // catch failure caused by the DataType operations
     catch( DataTypeIException error )
     {
-        error.printError();
+        error.printErrorStack();
         return;
     }
 
@@ -446,14 +446,14 @@ void Hdf5Recorder::saveSimData(const IAllNeurons &neurons)
     // catch failure caused by the DataSet operations
     catch (DataSetIException error)
     {
-        error.printError();
+        error.printErrorStack();
         return;
     }
 
     // catch failure caused by the DataSpace operations
     catch (DataSpaceIException error)
     {
-        error.printError();
+        error.printErrorStack();
         return;
     }
 }
