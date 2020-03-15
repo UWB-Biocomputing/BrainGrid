@@ -367,7 +367,7 @@ void printKeyStateInfo(SimulationInfo *simInfo)
 {        
 #if defined(USE_GPU)
     // Prints out SynapsesProps on the GPU
-    dynamic_cast<GPUSpikingModel *>(simInfo->model)->printGPUSynapsesProps(); 
+    dynamic_cast<GPUSpikingModel *>(simInfo->model)->printGPUSynapsesPropsCluster(); 
     
     // Prints out radii on the GPU (only if it is a connGrowth model)
     if(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns) != nullptr) {
