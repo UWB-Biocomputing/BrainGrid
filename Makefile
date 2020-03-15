@@ -84,11 +84,11 @@ INCDIRS = -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) \
           -I$(MATRIXDIR) -I$(NEURONDIR) -I$(PARAMDIR) -I$(RECORDERDIR) \
           -I$(RNGDIR) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(XMLDIR) -I$(CEREALDIR)
 
-CXXFLAGS = -O2 -std=c++11 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) 
-CGPUFLAGS = -std=c++11 -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
+CXXFLAGS = -O2 -std=c++98 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) 
+CGPUFLAGS = -DUSE_GPU $(PMFLAGS) $(H5FLAGS)
 LDFLAGS = -lstdc++ 
 LGPUFLAGS = -L$(CUDALIBDIR) -lcuda -lcudart
-NVCCFLAGS = -g -arch=sm_35 -rdc=true $(INCDIRS)
+NVCCFLAGS = -g -arch=sm_20 -rdc=true $(INCDIRS)
 
 ################################################################################
 # Objects
