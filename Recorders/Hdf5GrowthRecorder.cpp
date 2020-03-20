@@ -171,6 +171,9 @@ void Hdf5GrowthRecorder::compileHistories(IAllNeurons &neurons)
     VectorMatrix& rates = (*dynamic_cast<ConnGrowth*>(pConn)->rates);
     VectorMatrix& radii = (*dynamic_cast<ConnGrowth*>(pConn)->radii);
 
+    DEBUG(cerr << "Hdf5GrowthRecorder::compileHistories" << endl;);
+    DEBUG(cerr << "rates[9498]"<<(*dynamic_cast<ConnGrowth*>(pConn)->rates)[9498]<< endl;);
+
     // output spikes
     for (int iNeuron = 0; iNeuron < m_sim_info->totalNeurons; iNeuron++)
     {

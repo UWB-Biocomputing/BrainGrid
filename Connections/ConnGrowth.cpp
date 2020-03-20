@@ -308,8 +308,8 @@ void ConnGrowth::updateConns(IAllNeurons &neurons, const SimulationInfo *sim_inf
         if ( i == 9498) {
             DEBUG(cerr << "ConnGrowth::updateConns" << endl;)
             DEBUG(cerr << "CurrentEpoch" << sim_info->currentStep<< endl;)
-            DEBUG(cerr << "(*rates)[i]"<< (*rates)[i]<< endl;)
-            DEBUG(cerr << "spNeurons.spikeCount[i]" << spNeurons.spikeCount[i] << endl;)
+            DEBUG(cerr << "(*rates)[9498]"<< (*rates)[i]<< endl;)
+            DEBUG(cerr << "spNeurons.spikeCount[9498]" << spNeurons.spikeCount[i] << endl;)
         }
     }
 
@@ -317,6 +317,7 @@ void ConnGrowth::updateConns(IAllNeurons &neurons, const SimulationInfo *sim_inf
     (*outgrowth) = 1.0 - 2.0 / (1.0 + exp((m_growth.epsilon - *rates / m_growth.maxRate) / m_growth.beta));
     (*deltaR) = sim_info->epochDuration * m_growth.rho * *outgrowth;
     (*radii) += (*deltaR);
+    DEBUG(cerr << "radii[9498]" << (*radii)[9498]<< endl;)
 }
 
 /*

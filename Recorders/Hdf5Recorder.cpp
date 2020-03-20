@@ -199,6 +199,10 @@ void Hdf5Recorder::compileHistories(IAllNeurons &neurons)
         uint64_t* pSpikes = spNeurons.spike_history[iNeuron];
 
         int& spike_count = spNeurons.spikeCount[iNeuron];
+        if(iNeuron == 9498) {
+            DEBUG(cerr << "Hdf5Recorder::compileHistories()" <<endl;)
+            DEBUG(cerr<<"spNeurons.spikeCount[9498]"<< spNeurons.spikeCount[iNeuron] << endl;)
+        }
         int& offset = spNeurons.spikeCountOffset[iNeuron];
         for (int i = 0, idxSp = offset; i < spike_count; i++, idxSp++)
         {

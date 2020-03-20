@@ -9,6 +9,7 @@
 
 #include "Simulator.h"
 #include "Model.h"
+#include "AllLIFNeurons.h"
 
 /*
  *  Constructor
@@ -192,8 +193,7 @@ void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_in
 
     if (currentStep >= 150 && currentStep <=160) {
       DEBUG(cerr << "Simulator::advanceUntilGrowth (Before)" << endl;)
-      DEBUG(cerr << "currentStep" << currentStep << endl;)
-      DEBUG(cerr << "9498spikeCount" << dynamic_cast<AllSpikingNeurons *>(dynamic_cast<Model *>(sim_info->model)->m_neurons)->spikeCount[9498] << endl;)
+      DEBUG(cerr << "9498spikeCount" << dynamic_cast<AllLIFNeurons *>(dynamic_cast<Model *>(sim_info->model)->m_neurons)->spikeCount[9498] << endl;)
     }
     while (g_simulationStep < endStep) {
       DEBUG_LOW(
@@ -218,9 +218,8 @@ void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_in
       g_simulationStep++;
     }
     if (currentStep >= 150 && currentStep <=160) {
-      DEBUG(cerr << "Simulator::advanceUntilGrowth (after" << endl;)
-      DEBUG(cerr << "currentStep" << currentStep << endl;)
-      DEBUG(cerr << "9498spikeCount" << dynamic_cast<AllSpikingNeurons *>(dynamic_cast<Model *>(sim_info->model)->m_neurons)->spikeCount[9498] << endl;)
+      DEBUG(cerr << "Simulator::advanceUntilGrowth (after)" << endl;)
+      DEBUG(cerr << "9498spikeCount" << dynamic_cast<AllLIFNeurons *>(dynamic_cast<Model *>(sim_info->model)->m_neurons)->spikeCount[9498] << endl;)
     }
 }
 
