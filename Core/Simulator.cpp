@@ -8,6 +8,7 @@
  */
 
 #include "Simulator.h"
+#include "Model.h"
 
 /*
  *  Constructor
@@ -189,6 +190,11 @@ void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_in
 
   DEBUG_MID(sim_info->model->logSimStep(sim_info);) // Generic model debug call
 
+    if (currentStep >= 150 && currentStep <=160) {
+      DEBUG(cerr << "Simulator::advanceUntilGrowth (Before)" << endl;)
+      DEBUG(cerr << "currentStep" << currentStep << endl;)
+      DEBUG(cerr << "9498spikeCount" << dynamic_cast<AllSpikingNeurons *>(dynamic_cast<Model *>(sim_info->model)->m_neurons)->spikeCount[9498] << endl;)
+    }
     while (g_simulationStep < endStep) {
       DEBUG_LOW(
 		// Output status once every 10,000 steps
@@ -210,6 +216,11 @@ void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_in
       sim_info->model->advance(sim_info);
 
       g_simulationStep++;
+    }
+    if (currentStep >= 150 && currentStep <=160) {
+      DEBUG(cerr << "Simulator::advanceUntilGrowth (after" << endl;)
+      DEBUG(cerr << "currentStep" << currentStep << endl;)
+      DEBUG(cerr << "9498spikeCount" << dynamic_cast<AllSpikingNeurons *>(dynamic_cast<Model *>(sim_info->model)->m_neurons)->spikeCount[9498] << endl;)
     }
 }
 
