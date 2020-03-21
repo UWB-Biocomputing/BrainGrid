@@ -171,8 +171,9 @@ void Hdf5GrowthRecorder::compileHistories(IAllNeurons &neurons)
     VectorMatrix& rates = (*dynamic_cast<ConnGrowth*>(pConn)->rates);
     VectorMatrix& radii = (*dynamic_cast<ConnGrowth*>(pConn)->radii);
 
-    DEBUG(cerr << "Hdf5GrowthRecorder::compileHistories" << endl;);
+    DEBUG(cerr << "Hdf5GrowthRecorder::compileHistories (before)" << endl;);
     DEBUG(cerr << "rates[9498]"<<(*dynamic_cast<ConnGrowth*>(pConn)->rates)[9498]<< endl;);
+    DEBUG(cerr << "radii[9498]"<<(*dynamic_cast<ConnGrowth*>(pConn)->radii)[9498]<< endl;);
 
     // output spikes
     for (int iNeuron = 0; iNeuron < m_sim_info->totalNeurons; iNeuron++)
@@ -190,6 +191,10 @@ void Hdf5GrowthRecorder::compileHistories(IAllNeurons &neurons)
 
         DEBUG_MID(cout << "radii[" << iNeuron << ":" << radii[iNeuron] << "]" << endl;)
     }
+
+    DEBUG(cerr << "Hdf5GrowthRecorder::compileHistories (after)" << endl;);
+    DEBUG(cerr << "rates[9498]"<<ratesHistory[9498]<< endl;);
+    DEBUG(cerr << "radii[9498]"<<radiiHistory[9498]<< endl;);
 
     writeRadiiRates();
 }
@@ -218,6 +223,8 @@ void Hdf5GrowthRecorder::writeRadiiRates()
         dataspace = new DataSpace(dataSetRadiiHist->getSpace());
         dataspace->selectHyperslab(H5S_SELECT_SET, count, offset);
         dataSetRadiiHist->write(radiiHistory, H5_FLOAT, *memspace, *dataspace); 
+        DEBUG(cerr << "Hdf5GrowthRecorder::writeRadiiRates()" << endl;);
+        DEBUG(cerr << "radii[9498]"<<radiiHistory[9498]<< endl;); 
         delete dataspace;
         delete memspace;
 
@@ -232,6 +239,8 @@ void Hdf5GrowthRecorder::writeRadiiRates()
         dataspace = new DataSpace(dataSetRadiiHist->getSpace());
         dataspace->selectHyperslab(H5S_SELECT_SET, count, offset);
         dataSetRatesHist->write(ratesHistory, H5_FLOAT, *memspace, *dataspace); 
+        DEBUG(cerr << "Hdf5GrowthRecorder::writeRadiiRates()" << endl;);
+        DEBUG(cerr << "rates[9498]"<<ratesHistory[9498]<< endl;);
         delete dataspace;
         delete memspace;
     }
