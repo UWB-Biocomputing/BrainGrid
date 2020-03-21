@@ -97,6 +97,8 @@ void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info)
  */
 void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap)
 {
+    DEBUG(cerr<<"AllSpikingNeurons::advanceNeurons(before)" << endl;)
+    DEBUG(cerr<<"spikeCount[9497]"<<spikeCount[9497]<<endl;)
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
     AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
@@ -144,6 +146,8 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
             hasFired[idx] = false;
         }
     }
+    DEBUG(cerr<<"AllSpikingNeurons::advanceNeurons(after)" << endl;)
+    DEBUG(cerr<<"spikeCount[9497]"<<spikeCount[9497]<<endl;)
 }
 
 /*
