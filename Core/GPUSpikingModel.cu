@@ -22,6 +22,7 @@
  \** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - **/
 
 #include "GPUSpikingModel.h"
+#include "AllDSSynapses.h"
 
 #ifdef PERFORMANCE_METRICS
 float g_time;
@@ -223,6 +224,10 @@ void GPUSpikingModel::advance(const SimulationInfo *sim_info)
  cudaLapTime(t_gpu_calcSummation);
 #endif // PERFORMANCE_METRICS
 }
+
+
+
+
 
 /*
  * Add psr of all incoming synapses to summation points.
@@ -439,4 +444,16 @@ void GPUSpikingModel::copyCPUSynapseToGPUCluster(SimulationInfo *sim_info)
 void GPUSpikingModel::printGPUSynapsesPropsCluster() const
 {  
   m_synapses->printGPUSynapsesProps( m_allSynapsesDevice );
+}
+
+
+void GPUSpikingModel::debugCopyAllOthers(const SimulationInfo *sim_info)
+{
+  dynamic_cast<AllIFNeurons*>(m_neurons)->copyNeuronDeviceToHost2(m_allNeuronsDevice, sim_info);
+}
+
+void GPUSpikingModel::debugCopySynapse(const SimulationInfo *sim_info)
+{
+  m_synapses->copyDeviceSynapseCountsToHost(m_allSynapsesDevice, sim_info );
+  dynamic_cast<AllDSSynapses*>(m_synapses)->copySynapseDeviceToHost2(m_allSynapsesDevice, sim_info);
 }

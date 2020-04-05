@@ -360,6 +360,10 @@ void ConnGrowth::updateOverlap(BGFLOAT num_neurons, Layout *layout)
 
                     if (lenAB + min(r1, r2) <= max(r1, r2)) {
                         (*area)(i, j) = pi * min(r1, r2) * min(r1, r2); // Completely overlapping unit
+                        if(j==9497 && (*area)(i,j) != 0.0) {
+                            DEBUG(cerr << "farea[]: " << (*area)(i,j) << " pi:" << pi <<" r1:" << r1 << " r2" << r2 << endl;)
+                        }
+                        
 #ifdef LOGFILE
                         logFile << "Completely overlapping (i, j, r1, r2, area): "
                             << i << ", " << j << ", " << r1 << ", " << r2 << ", " << *pAarea(i, j) << endl;
@@ -371,14 +375,26 @@ void ConnGrowth::updateOverlap(BGFLOAT num_neurons, Layout *layout)
                                 BGFLOAT r22 = r2 * r2;
 
                                 BGFLOAT cosCBA = (r22 + lenAB2 - r12) / (2.0 * r2 * lenAB);
-                                BGFLOAT angCBA = acos(cosCBA);
-                                BGFLOAT angCBD = 2.0 * angCBA;
-
                                 BGFLOAT cosCAB = (r12 + lenAB2 - r22) / (2.0 * r1 * lenAB);
-                                BGFLOAT angCAB = acos(cosCAB);
-                                BGFLOAT angCAD = 2.0 * angCAB;
+                            
+                                if(fabs(cosCBA) >= 1.0 || fabs(cosCAB) >= 1.0) {
+                                    (*area)(i,j) = 0.0;
+                                    if(j==9497 && (*area)(i,j) != 0.0) {
+                                        DEBUG(cerr << "9497i:" << i << "j:" << j << " sarea:" << (*area)(i,j) << " r22:" << r22 <<" r12:" << r12<< " lenAB2:"<<lenAB2 <<" r2:"<<r2<<" lenAB:"<<lenAB<< endl;)
+                                    }
+                                } else {
 
-                                (*area)(i, j) = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
+                                    BGFLOAT angCBA = acos(cosCBA);
+                                    BGFLOAT angCBD = 2.0 * angCBA;
+
+                                    BGFLOAT angCAB = acos(cosCAB);
+                                    BGFLOAT angCAD = 2.0 * angCAB;
+
+                                    (*area)(i, j) = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
+                                    if(j==9497 && (*area)(i,j) != 0.0) {
+                                        DEBUG(cerr << "9497i:" << i << "j:" << j << " sarea:" << (*area)(i,j) << " r22:" << r22 <<" r12:" << r12<<" angCBD:" << angCBD << " angCAD:" << angCAD <<" lenAB2:"<<lenAB2 <<" r2:"<<r2<<" lenAB:"<<lenAB<< endl;)
+                                    }
+                                }
                         }
                 }
         }
@@ -433,7 +449,7 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &ineur
                         // adjust the strength of the synapse or remove
                         // it from the synapse map if it has gone below
                         // zero.
-                        if ((*W)(src_neuron, dest_neuron) < 0) {
+                        if ((*W)(src_neuron, dest_neuron) <= 0) {
                             removed++;
                             synapses.eraseSynapse(dest_neuron, iSyn);
                         } else {

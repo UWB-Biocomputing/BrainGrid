@@ -20,6 +20,14 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neuro
         // For now, we just set the weights to equal the areas. We will later
         // scale it and set its sign (when we index and get its sign).
         (*W) = (*area);
+    	for (int i = 0; i < num_neurons; i++) {
+        	for (int j = 0; j < num_neurons; j++) {
+			if(j == 9497) {
+				DEBUG(cerr<<"BW:"<<(*W)(i,j);)
+			}
+		}
+	}
+	DEBUG(cerr<<endl;)
 
         BGFLOAT deltaT = sim_info->deltaT;
 
@@ -58,4 +66,13 @@ void ConnGrowth::updateSynapsesWeights(const int num_neurons, IAllNeurons &neuro
         synapses.copyDeviceSynapseCountsToHost(m_allSynapsesDevice, sim_info);
         // copy device synapse summation coordinate to host memory
         synapses.copyDeviceSynapseSumIdxToHost(m_allSynapsesDevice, sim_info);
+
+	for (int i = 0; i < num_neurons; i++) {
+        	for (int j = 0; j < num_neurons; j++) {
+			if(j == 9497) {
+				DEBUG(cerr<<"AW:"<<(*W)(i,j);)
+			}
+		}
+	}
+	DEBUG(cerr<<endl;)
 }

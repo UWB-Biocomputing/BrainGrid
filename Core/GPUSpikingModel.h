@@ -62,6 +62,7 @@
 #include "Model.h"
 #include "AllSpikingNeurons.h"
 #include "AllSpikingSynapses.h"
+#include "AllIFNeurons.h"
 #ifdef __CUDACC__
 #include "Book.h"
 #endif
@@ -127,6 +128,7 @@ public:
          */
 	virtual void advance(const SimulationInfo *sim_info);
 
+
         /**
          * Modifies connections between neurons based on current state of the network and behavior
          * over the past epoch. Should be called once every epoch.
@@ -156,6 +158,9 @@ public:
 	*  Print out SynapseProps on the GPU.
 	*/
 	void printGPUSynapsesPropsCluster() const;
+    
+    void debugCopyAllOthers(const SimulationInfo *sim_info);
+    void debugCopySynapse(const SimulationInfo *sim_info);
 
 protected:
         /**

@@ -816,6 +816,7 @@ __device__ void eraseSpikingSynapse( AllSpikingSynapsesDeviceProperties* allSyna
     BGSIZE iSync = maxSynapses * neuron_index + synapse_offset;
     allSynapsesDevice->synapse_counts[neuron_index]--;
     allSynapsesDevice->in_use[iSync] = false;
+    allSynapsesDevice->W[iSync] = 0;
 }
 
 /*
@@ -890,7 +891,7 @@ __global__ void updateSynapsesWeightsDevice( int num_neurons, BGFLOAT deltaT, BG
                     // adjust the strength of the synapse or remove
                     // it from the synapse map if it has gone below
                     // zero.
-                    if (W_d[src_neuron * num_neurons + dest_neuron] < 0) {
+                    if (W_d[src_neuron * num_neurons + dest_neuron] <= 0) {
                         removed++;
                         eraseSpikingSynapse(allSynapsesDevice, dest_neuron, synapse_index, maxSynapses);
                     } else {

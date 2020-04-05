@@ -163,6 +163,7 @@ class AllIFNeurons : public AllSpikingNeurons
          *  @param  sim_info           SimulationInfo to refer from.
          */
         virtual void copyNeuronDeviceToHost( void* allNeuronsDevice, const SimulationInfo *sim_info );
+        virtual void copyNeuronDeviceToHost2( void* allNeuronsDevice, const SimulationInfo *sim_info );
 
         /**
          *  Copy spike history data stored in device memory to host.
@@ -224,6 +225,7 @@ class AllIFNeurons : public AllSpikingNeurons
          *  @param  sim_info           SimulationInfo to refer from.
          */
 	void copyDeviceToHost( AllIFNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info );
+    void copyDeviceToHost2( AllIFNeuronsDeviceProperties& allNeurons, const SimulationInfo *sim_info );
 
 #endif // defined(USE_GPU)
 

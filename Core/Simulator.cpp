@@ -8,7 +8,10 @@
  */
 
 #include "Simulator.h"
-
+#include "AllLIFNeurons.h"
+#include "Model.h"
+#include "GPUSpikingModel.h"
+#include "AllDSSynapses.h"
 /*
  *  Constructor
  */
@@ -154,7 +157,11 @@ void Simulator::simulate(SimulationInfo *sim_info)
       // Start timer for connection update
       sim_info->short_timer.start();
 #endif
+
     sim_info->model->updateConnections(sim_info);
+    dynamic_cast<GPUSpikingModel *>(sim_info->model)->debugCopySynapse(sim_info);
+    //copyGPUSynapseToCPU(sim_info);
+    DEBUG(cerr <<currentStep << "aSynapseCount:" << dynamic_cast<AllDSSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->synapse_counts[9497] << endl;)
 
     sim_info->model->updateHistory(sim_info);
 
@@ -206,8 +213,27 @@ void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_in
 	  sim_info->pInput->inputStimulus(sim_info);
 
       // Advance the Network one time step
+        
       sim_info->model->advance(sim_info);
 
+      if(currentStep == 152 || currentStep == 153) {
+          if(g_simulationStep % 100 == 0) {
+              dynamic_cast<GPUSpikingModel *>(sim_info->model)->debugCopyAllOthers(sim_info);
+              DEBUG(cerr <<"Epoch:"<<currentStep << "timeStep:"<<g_simulationStep<< " AsumMap:" << dynamic_cast<AllLIFNeurons *>(dynamic_cast<Model *>(sim_info->model)->m_neurons)->summation_map[9497]<<" Asc:" << dynamic_cast<AllLIFNeurons *>(dynamic_cast<Model *>(sim_info->model)->m_neurons)->spikeCount[9497] << " AVm:" << dynamic_cast<AllLIFNeurons *>(dynamic_cast<Model *>(sim_info->model)->m_neurons)->Vm[9497]<<" AhasFired:"<<dynamic_cast<AllLIFNeurons *>(dynamic_cast<Model *>(sim_info->model)->m_neurons)->hasFired[9497]<<" AnStepsInRefr: "<<dynamic_cast<AllLIFNeurons *>(dynamic_cast<Model *>(sim_info->model)->m_neurons)->nStepsInRefr[9497]<<endl;)
+              dynamic_cast<GPUSpikingModel *>(sim_info->model)->debugCopySynapse(sim_info);
+              for(int i = 0; i < 200*10000; i++) {
+                  if(dynamic_cast<AllDSSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->in_use[i] == true && dynamic_cast<AllDSSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->destNeuronIndex[i] == 9497) {
+                      DEBUG(cerr<<"psr:" << dynamic_cast<AllDSSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->psr[i];)
+                      DEBUG(cerr<<"W:" << dynamic_cast<AllDSSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->W[i];)
+                      //DEBUG(cerr<<"r:" << dynamic_cast<AllDSSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->r[i];)
+                      //DEBUG(cerr<<"u:" << dynamic_cast<AllDSSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->u[i];)
+                  }
+              }
+              DEBUG(cerr<<endl;)
+              DEBUG(cerr <<"ASynapseCount:" << dynamic_cast<AllDSSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->synapse_counts[9497] << endl;)
+          }
+      }
+        
       g_simulationStep++;
     }
 }

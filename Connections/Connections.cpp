@@ -84,7 +84,7 @@ void Connections::createSynapsesFromWeights(const int num_neurons, const Simulat
 {
     AllNeurons &neurons = dynamic_cast<AllNeurons&>(ineurons);
     AllSynapses &synapses = dynamic_cast<AllSynapses&>(isynapses);
-
+    
     // for each neuron
     for (int iNeuron = 0; iNeuron < num_neurons; iNeuron++) {
         // for each synapse in the neuron
@@ -93,15 +93,15 @@ void Connections::createSynapsesFromWeights(const int num_neurons, const Simulat
             // if the synapse weight is not zero (which means there is a connection), create the synapse
             if(synapses.W[iSyn] != 0.0) {
                 BGFLOAT theW = synapses.W[iSyn];
-                BGFLOAT* sum_point = &( neurons.summation_map[iNeuron] );
                 int src_neuron = synapses.sourceNeuronIndex[iSyn];
                 int dest_neuron = synapses.destNeuronIndex[iSyn];
+                BGFLOAT* sum_point = &( neurons.summation_map[dest_neuron] );
                 synapseType type = layout->synType(src_neuron, dest_neuron);
-                synapses.synapse_counts[iNeuron]++;
+                synapses.synapse_counts[dest_neuron]++;
                 synapses.createSynapse(iSyn, src_neuron, dest_neuron, sum_point, sim_info->deltaT, type);
                 synapses.W[iSyn] = theW;
             }
         }
     }
-    
+
 }

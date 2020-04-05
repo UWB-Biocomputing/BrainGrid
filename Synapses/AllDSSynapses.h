@@ -206,6 +206,7 @@ class AllDSSynapses : public AllSpikingSynapses
          *  @param  sim_info           SimulationInfo to refer from.
          */
         virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info );
+        void copySynapseDeviceToHost2( void* allSynapsesDevice, const SimulationInfo *sim_info );
 
         /**
          *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
@@ -260,6 +261,7 @@ class AllDSSynapses : public AllSpikingSynapses
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
         void copyDeviceToHost( AllDSSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info );
+        void copyDeviceToHost2( AllDSSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info );
 #else // !defined(USE_GPU)
     protected:
         /**
