@@ -27,6 +27,12 @@ void AllLIFNeurons::advanceNeuron(const int index, const SimulationInfo *sim_inf
     BGFLOAT &C1 = this->C1[index];
     BGFLOAT &C2 = this->C2[index];
     int &nStepsInRefr = this->nStepsInRefr[index];
+    //if(index == 4) {
+        //cout << "Vm:"<<Vm << endl;
+        //if(Vm >= 0.0136) {
+          //  cout<<"ThisisFIRE!!!!!!"<<endl;
+        //}
+    //}
 
     if (nStepsInRefr > 0) {
         // is neuron refractory?

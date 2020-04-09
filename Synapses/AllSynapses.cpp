@@ -328,6 +328,11 @@ void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *n
     for (BGSIZE i = 0; i < total_synapse_counts; i++) {
         BGSIZE iSyn = synapseIndexMap->incomingSynapseIndexMap[i];
         advanceSynapse(iSyn, sim_info, neurons);
+        /*if (W[i] != 0.0) {
+            cout << "W[" << i << "] = " << W[i];
+            cout << " sourNeuron: " << sourceNeuronIndex[i];
+            cout << " desNeuron: " << destNeuronIndex[i]<<endl;
+        }*/
     }
 }
 

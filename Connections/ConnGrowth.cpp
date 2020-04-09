@@ -305,19 +305,12 @@ void ConnGrowth::updateConns(IAllNeurons &neurons, const SimulationInfo *sim_inf
         // Calculate firing rate
         assert(spNeurons.spikeCount[i] < max_spikes);
         (*rates)[i] = spNeurons.spikeCount[i] / sim_info->epochDuration;
-        if ( i == 9497) {
-            DEBUG(cerr << "ConnGrowth::updateConns" << endl;)
-            DEBUG(cerr << "CurrentEpoch" << sim_info->currentStep<< endl;)
-            DEBUG(cerr << "(*rates)[9497]"<< (*rates)[i]<< endl;)
-            DEBUG(cerr << "spNeurons.spikeCount[9497]" << spNeurons.spikeCount[i] << endl;)
-        }
     }
 
     // compute neuron radii change and assign new values
     (*outgrowth) = 1.0 - 2.0 / (1.0 + exp((m_growth.epsilon - *rates / m_growth.maxRate) / m_growth.beta));
     (*deltaR) = sim_info->epochDuration * m_growth.rho * *outgrowth;
     (*radii) += (*deltaR);
-    DEBUG(cerr << "radii[9497]" << (*radii)[9497]<< endl;)
 }
 
 /*

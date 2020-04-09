@@ -42,14 +42,6 @@ void SingleThreadedSpikingModel::advance(const SimulationInfo *sim_info)
     m_synapses->advanceSynapses(sim_info, m_neurons, m_synapseIndexMap);
 }
 
-void SingleThreadedSpikingModel::advance2(const SimulationInfo *sim_info)
-{
-
-}
-void SingleThreadedSpikingModel::advance3(const SimulationInfo *sim_info)
-{
-
-}
 
 /*
  *  Update the connection of all the Neurons and Synapses of the simulation.

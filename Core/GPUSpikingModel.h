@@ -159,8 +159,7 @@ public:
 	*/
 	void printGPUSynapsesPropsCluster() const;
     
-    void debugCopyAllOthers(const SimulationInfo *sim_info);
-    void debugCopySynapse(const SimulationInfo *sim_info);
+
 
 protected:
         /**

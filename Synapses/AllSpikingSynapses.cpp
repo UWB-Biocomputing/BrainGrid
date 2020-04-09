@@ -374,7 +374,7 @@ void AllSpikingSynapses::printSynapsesProps() const
         if (W[i] != 0.0) {
             cout << "decay[" << i << "] = " << decay[i];
             cout << " tau: " << tau[i];
-            cout << " total_delay: " << total_delay[i];
+            cout << " total_delay: " << total_delay[i]<<endl;
         }
     }
 }
