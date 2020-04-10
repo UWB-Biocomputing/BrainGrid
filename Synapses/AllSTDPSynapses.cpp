@@ -426,7 +426,7 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
             }
             if(temp != this->W[iSyn]) {
                 cout << "differentPost:";
-                cout << "Prebefore:" << this->W[iSyn];
+                cout << "Postbefore:" << this->W[iSyn];
                 cout << "Postafter:" << this->W[iSyn] << endl;
             }
         }

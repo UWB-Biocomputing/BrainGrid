@@ -111,7 +111,7 @@ void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationI
         if (hasFired[idx]) {
             DEBUG_MID(cout << " !! Neuron" << idx << "has Fired @ t: " << g_simulationStep * sim_info->deltaT << endl;)
 
-            //assert( spikeCount[idx] < max_spikes );
+            assert( spikeCount[idx] < max_spikes );
 
             // notify outgoing synapses
             BGSIZE synapse_counts;
