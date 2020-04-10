@@ -215,7 +215,7 @@ void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_in
 #if defined(USE_GPU)
         sim_info->model->copyGPUSynapseToCPUCluster(sim_info);
 #endif 
-        cout << "W[" << 0 << "] = " << dynamic_cast<AllSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->W[0];
+        cout << "W[" << 0 << "] = " << dynamic_cast<AllSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->W[0]<<endl;
         //for(int i = 0; i < sim_info->maxSynapsesPerNeuron * sim_info->totalNeurons; i++) {
           //if (dynamic_cast<AllSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->W[i] != 0.0) {
             //cout << "W[" << i << "] = " << dynamic_cast<AllSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->W[i];
