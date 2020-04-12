@@ -128,6 +128,8 @@ __global__ void advanceLIFNeuronsDevice( int totalNeurons, int maxSynapses, int 
                 // reset to 'Vreset'
                 vm = allNeuronsDevice->Vreset[idx];
 
+		assert( spikeCount < maxSpikes );
+
                 // notify outgoing synapses of spike
                 BGSIZE synapse_counts = synapseIndexMapDevice->outgoingSynapseCount[idx];
                 if (synapse_counts != 0) {

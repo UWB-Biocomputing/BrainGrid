@@ -251,13 +251,15 @@ void AllSTDPSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
  */
 void AllSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT *sum_point, const BGFLOAT deltaT, synapseType type)
 {
+
+    total_delayPost[iSyn] = 0;//Apr 12th 2020 move this line so that when AllSpikingSynapses::createSynapse() is called, inside this method the initSpikeQueue() method can be called successfully
     AllSpikingSynapses::createSynapse(iSyn, source_index, dest_index, sum_point, deltaT, type);
 
     Apos[iSyn] = 0.5;
     Aneg[iSyn] = -0.5;
     STDPgap[iSyn] = 2e-3;
 
-    total_delayPost[iSyn] = 0;
+    //total_delayPost[iSyn] = 0;
 
     tauspost[iSyn] = 75e-3;
     tauspre[iSyn] = 34e-3;

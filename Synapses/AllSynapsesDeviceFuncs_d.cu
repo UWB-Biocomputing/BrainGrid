@@ -637,7 +637,7 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
     allSynapsesDevice->mupos[iSyn] = 0;
     allSynapsesDevice->muneg[iSyn] = 0;
 
-    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
+    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = true;
 }
 
 /*
