@@ -108,6 +108,7 @@ __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesD
     BGFLOAT Apos = allSynapsesDevice->Apos[iSyn];
     BGFLOAT Wex = allSynapsesDevice->Wex[iSyn];
     BGFLOAT &W = allSynapsesDevice->W[iSyn];
+    synapseType type = allSynapsesDevice->type[iSyn];
     BGFLOAT dw;
 
     if (delta < -STDPgap) {
@@ -120,7 +121,8 @@ __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesD
         return;
     }
 
-    W += epost * epre * dw;
+    //W += epost * epre * dw;
+    W += synSign(type) * epost * epre * dw;
 
     // check the sign
     if ((Wex < 0 && W > 0) || (Wex > 0 && W < 0)) W = 0;
@@ -271,7 +273,8 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
             spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPre, -2, max_spikes);
             if (spikeHistory > 0 && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
-                delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
+                //delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
+                delta = static_cast<BGFLOAT>(simulationStep - spikeHistory) * deltaT;
                 epre = 1.0 - exp(-delta / tauspre);
             } else {
                 epre = 1.0;
@@ -285,7 +288,8 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                 if (spikeHistory == ULONG_MAX)
                     break;
                 // delta is the spike interval between pre-post spikes
-                delta = (spikeHistory - (int64_t)simulationStep) * deltaT;
+                //delta = (spikeHistory - (int64_t)simulationStep) * deltaT;
+                delta = -static_cast<BGFLOAT>(simulationStep - spikeHistory) * deltaT;
 
                 DEBUG_SYNAPSE(
                     printf("advanceSTDPSynapsesDevice: fPre\n");
@@ -303,7 +307,8 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                     spikeHistory2 = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPost, offIndex-1, max_spikes);
                     if (spikeHistory2 == ULONG_MAX)
                         break;
-                    epost = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspost);
+                    //epost = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspost);
+                    epost = 1.0 - exp(-(static_cast<BGFLOAT>(spikeHistory - spikeHistory2) * deltaT) / tauspost);
                 } else {
                     epost = 1.0;
                 }
@@ -333,7 +338,8 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
             spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPost, -2, max_spikes);
             if (spikeHistory > 0 && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
-                delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
+                //delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
+                delta = static_cast<BGFLOAT>(simulationStep - spikeHistory) * deltaT;
                 epost = 1.0 - exp(-delta / tauspost);
             } else {
                 epost = 1.0;
@@ -347,8 +353,9 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                 if (spikeHistory == ULONG_MAX)
                     break;
                 // delta is the spike interval between post-pre spikes
-                delta = ((int64_t)simulationStep - spikeHistory - total_delay) * deltaT;
-
+                //delta = ((int64_t)simulationStep - spikeHistory - total_delay) * deltaT;
+                delta = static_cast<BGFLOAT>((int64_t)simulationStep - (int64_t)spikeHistory - total_delay) * deltaT;
+                
                 DEBUG_SYNAPSE(
                     printf("advanceSTDPSynapsesDevice: fPost\n");
                     printf("          iSyn: %d\n", iSyn);
@@ -365,7 +372,8 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                     spikeHistory2 = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPre, offIndex-1, max_spikes);
                     if (spikeHistory2 == ULONG_MAX)
                         break;
-                    epre = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspre);
+                    //epre = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspre);
+                    epre = 1.0 - exp(-(static_cast<BGFLOAT>(spikeHistory - spikeHistory2) * deltaT) / tauspre);
                 } else {
                     epre = 1.0;
                 }
@@ -621,23 +629,29 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
     uint32_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
     assert( size <= BYTES_OF_DELAYQUEUE );
 
-    allSynapsesDevice->Apos[iSyn] = 0.5;
-    allSynapsesDevice->Aneg[iSyn] = -0.5;
+    //allSynapsesDevice->Apos[iSyn] = 0.5;
+    //allSynapsesDevice->Aneg[iSyn] = -0.5;
+    allSynapsesDevice->Apos[iSyn] = 1.01;
+    allSynapsesDevice->Aneg[iSyn] = -0.52;
     allSynapsesDevice->STDPgap[iSyn] = 2e-3;
 
     allSynapsesDevice->total_delayPost[iSyn] = 0;
 
-    allSynapsesDevice->tauspost[iSyn] = 0;
-    allSynapsesDevice->tauspre[iSyn] = 0;
+    //allSynapsesDevice->tauspost[iSyn] = 0;
+    //allSynapsesDevice->tauspre[iSyn] = 0;
+    allSynapsesDevice->tauspost[iSyn] = 28e-3;
+    allSynapsesDevice->tauspre[iSyn] = 88e-3;
 
-    allSynapsesDevice->taupos[iSyn] = 15e-3;
-    allSynapsesDevice->tauneg[iSyn] = 35e-3;
+    //allSynapsesDevice->taupos[iSyn] = 15e-3;
+    //allSynapsesDevice->tauneg[iSyn] = 35e-3;
+    allSynapsesDevice->taupos[iSyn] = 14.8e-3;
+    allSynapsesDevice->tauneg[iSyn] = 33.8e-3;
     allSynapsesDevice->Wex[iSyn] = 1.0;
 
     allSynapsesDevice->mupos[iSyn] = 0;
     allSynapsesDevice->muneg[iSyn] = 0;
 
-    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
+    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = true;
 }
 
 /*
@@ -727,23 +741,29 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
     uint32_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
     assert( size <= BYTES_OF_DELAYQUEUE );
 
-    allSynapsesDevice->Apos[iSyn] = 0.5;
-    allSynapsesDevice->Aneg[iSyn] = -0.5;
+    //allSynapsesDevice->Apos[iSyn] = 0.5;
+    //allSynapsesDevice->Aneg[iSyn] = -0.5;
+    allSynapsesDevice->Apos[iSyn] = 1.01;
+    allSynapsesDevice->Aneg[iSyn] = -0.52;
     allSynapsesDevice->STDPgap[iSyn] = 2e-3;
 
     allSynapsesDevice->total_delayPost[iSyn] = 0;
 
-    allSynapsesDevice->tauspost[iSyn] = 0;
-    allSynapsesDevice->tauspre[iSyn] = 0;
+    //allSynapsesDevice->tauspost[iSyn] = 0;
+    //allSynapsesDevice->tauspre[iSyn] = 0;
+    allSynapsesDevice->tauspost[iSyn] = 28e-3;
+    allSynapsesDevice->tauspre[iSyn] = 88e-3;
 
-    allSynapsesDevice->taupos[iSyn] = 15e-3;
-    allSynapsesDevice->tauneg[iSyn] = 35e-3;
+    //allSynapsesDevice->taupos[iSyn] = 15e-3;
+    //allSynapsesDevice->tauneg[iSyn] = 35e-3;
+    allSynapsesDevice->taupos[iSyn] = 14.8e-3;
+    allSynapsesDevice->tauneg[iSyn] = 33.8e-3;
     allSynapsesDevice->Wex[iSyn] = 1.0;
 
     allSynapsesDevice->mupos[iSyn] = 0;
     allSynapsesDevice->muneg[iSyn] = 0;
 
-    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
+    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = true;
 }
 
 /*
