@@ -126,6 +126,9 @@ class AllDSSynapses : public AllSpikingSynapses
          */
         virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
         
+        /**
+         *  Prints SynapsesProps data.
+         */
         virtual void printSynapsesProps() const;
     
     protected:
@@ -206,7 +209,6 @@ class AllDSSynapses : public AllSpikingSynapses
          *  @param  sim_info           SimulationInfo to refer from.
          */
         virtual void copySynapseDeviceToHost( void* allSynapsesDevice, const SimulationInfo *sim_info );
-        void copySynapseDeviceToHost2( void* allSynapsesDevice, const SimulationInfo *sim_info );
 
         /**
          *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
@@ -219,7 +221,12 @@ class AllDSSynapses : public AllSpikingSynapses
          *  (see issue#137).
          */
         virtual void setSynapseClassID();
-
+        
+        /**
+         *  Prints GPU SynapsesProps data.
+         * 
+         *  @param  allSynapsesDeviceProps   Reference to the corresponding SynapsesDeviceProperties struct on device memory.
+         */
         virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps) const;
 
     protected:
@@ -261,7 +268,6 @@ class AllDSSynapses : public AllSpikingSynapses
          *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
          */
         void copyDeviceToHost( AllDSSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info );
-        void copyDeviceToHost2( AllDSSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info );
 #else // !defined(USE_GPU)
     protected:
         /**

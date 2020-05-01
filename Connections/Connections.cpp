@@ -79,7 +79,15 @@ void Connections::updateSynapsesWeights(const int num_neurons, IAllNeurons &neur
 }
 #endif // !USE_GPU
 
-
+/*
+ *  Creates synapses from synapse weights saved in the serialization file.
+ *
+ *  @param  num_neurons Number of neurons to update.
+ *  @param  sim_info    SimulationInfo to refer from.
+ *  @param  layout      Layout information of the neunal network.
+ *  @param  ineurons    The Neuron list to search from.
+ *  @param  isynapses   The Synapse list to search from.
+ */
 void Connections::createSynapsesFromWeights(const int num_neurons, const SimulationInfo *sim_info, Layout *layout, IAllNeurons &ineurons, IAllSynapses &isynapses) 
 {
     AllNeurons &neurons = dynamic_cast<AllNeurons&>(ineurons);
@@ -93,11 +101,11 @@ void Connections::createSynapsesFromWeights(const int num_neurons, const Simulat
             // if the synapse weight is not zero (which means there is a connection), create the synapse
             if(synapses.W[iSyn] != 0.0) {
                 BGFLOAT theW = synapses.W[iSyn];
+                BGFLOAT* sum_point = &( neurons.summation_map[iNeuron] );
                 int src_neuron = synapses.sourceNeuronIndex[iSyn];
                 int dest_neuron = synapses.destNeuronIndex[iSyn];
-                BGFLOAT* sum_point = &( neurons.summation_map[dest_neuron] );
                 synapseType type = layout->synType(src_neuron, dest_neuron);
-                synapses.synapse_counts[dest_neuron]++;
+                synapses.synapse_counts[iNeuron]++;
                 synapses.createSynapse(iSyn, src_neuron, dest_neuron, sum_point, sim_info->deltaT, type);
                 synapses.W[iSyn] = theW;
             }

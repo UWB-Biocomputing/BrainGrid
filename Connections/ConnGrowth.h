@@ -134,22 +134,6 @@ class ConnGrowth : public Connections
         virtual void printParameters(ostream &output) const;
 
         /**
-         *  Reads the intermediate connection status from istream.
-         *
-         *  @param  input    istream to read status from.
-         *  @param  sim_info SimulationInfo class to read information from.
-         */
-        //virtual void deserialize(istream& input, const SimulationInfo *sim_info);
-
-        /**
-         *  Writes the intermediate connection status to ostream.
-         *
-         *  @param  output   ostream to write status to.
-         *  @param  sim_info SimulationInfo class to read information from.
-         */
-        //virtual void serialize(ostream& output, const SimulationInfo *sim_info);
-
-        /**
          *  Update the connections status in every epoch.
          *
          *  @param  neurons  The Neuron list to search from.
@@ -176,16 +160,15 @@ class ConnGrowth : public Connections
         template<class Archive>
         void save(Archive & archive) const;
 
-         /**
+        /**
          *  Cereal deserialization method
          *  (Deserializes radii)
          */
         template<class Archive>
         void load(Archive & archive);  
 
-         /**
+        /**
          *  Prints radii 
-         *  (either on CPU or GPU)
          */
         void printRadii() const;
 #if defined(USE_GPU)
@@ -301,7 +284,7 @@ void ConnGrowth::save(Archive & archive) const {
     archive(radiiVector);
 }
 
- /**
+/**
  *  Cereal deserialization method
  *  (Deserializes radii)
  */

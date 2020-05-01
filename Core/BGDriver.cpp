@@ -132,6 +132,7 @@ int main(int argc, char* argv[]) {
 
     // Serializes internal state for the current simulation
     if (!simInfo->memOutputFileName.empty()) {
+
         // Serialization
         serializeSynapseInfo(simInfo, simulator);
 
@@ -140,6 +141,7 @@ int main(int argc, char* argv[]) {
         cout << "------------------------------After Serialization:------------------------------" << endl;
         printKeyStateInfo(simInfo);
         )
+
     }
 
     // Tell simulation to clean-up and run any post-simulation logic.
@@ -361,37 +363,29 @@ bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo)
  *  (Used for serialization/deserialization verification)
  *
  *  @param  simInfo   SimulationInfo class to read information from.
- *  @param  cluster   Cluster class object to be created.
  */
 void printKeyStateInfo(SimulationInfo *simInfo)
 {        
 #if defined(USE_GPU)
     // Prints out SynapsesProps on the GPU
-    dynamic_cast<GPUSpikingModel *>(simInfo->model)->printGPUSynapsesPropsCluster(); 
-    
-    // Prints out radii on the GPU (only if it is a connGrowth model)
-    if(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns) != nullptr) {
-        dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->printRadii();
-    }
+    dynamic_cast<GPUSpikingModel *>(simInfo->model)->printGPUSynapsesPropsModel();   
 #else
     // Prints out SynapsesProps on the CPU
     dynamic_cast<AllSynapses *>(dynamic_cast<Model *>(simInfo->model)->m_synapses)->printSynapsesProps(); 
-    
-    // Prints out radii on the CPU (only if it is a connGrowth model)
+#endif
+    // Prints out radii on the CPU (only if it is a connGrowth model) (radii is only calculated on CPU, for both CPU-based and GPU-based simulation)
     if(dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns) != nullptr) {
         dynamic_cast<ConnGrowth *>(dynamic_cast<Model *>(simInfo->model)->m_conns)->printRadii();
-    }
-#endif       
+    }      
 }
 
 /*
  *  Serializes synapse weights, source neurons, destination neurons, 
- *  maxSynapsesPerNeuron, totalClusterNeurons, and 
+ *  maxSynapsesPerNeuron, totalNeurons, and
  *  if running a connGrowth model, serializes radii as well 
  *
  *  @param  simInfo   SimulationInfo class to read information from.
  *  @param  simulator Simulator class to perform actions.
- *  @param  cluster   Cluster class object to be created.
  */
 void serializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator)
 {
@@ -418,20 +412,18 @@ void serializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator)
 }
 
 /*
- *  Deserializes synapse weights, source neurons, destination neurons, 
- *  maxSynapsesPerNeuron, totalClusterNeurons, and 
+ *  Deserializes synapse weights, source neurons, destination neurons,
+ *  maxSynapsesPerNeuron, totalNeurons, and
  *  if running a connGrowth model and radii is in serialization file, deserializes radii as well
  *
  *  @param  simInfo   SimulationInfo class to read information from.
  *  @param  simulator Simulator class to perform actions.
- *  @param  cluster   Cluster class object to be created.
- *  @param  clusterInfo   ClusterInfo class to be ceated.
  *  @returns    true if successful, false otherwise.
  */
 bool deserializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator)
 {
-   // We can deserialize from a variety of archive file formats. Below, comment
-   // out all but the line that is compatible with the desired format.
+    // We can deserialize from a variety of archive file formats. Below, comment
+    // out all but the line that is compatible with the desired format.
     ifstream memory_in(simInfo->memInputFileName.c_str());
     //ifstream memory_in (simInfo->memInputFileName.c_str(), std::ios::binary);
 
@@ -441,8 +433,8 @@ bool deserializeSynapseInfo(SimulationInfo *simInfo, Simulator *simulator)
         return false;
     }
 
-   // We can deserialize from a variety of archive file formats. Below, comment
-   // out all but the line that corresponds to the desired format.
+    // We can deserialize from a variety of archive file formats. Below, comment
+    // out all but the line that corresponds to the desired format.
     cereal::XMLInputArchive archive(memory_in);
     //cereal::BinaryInputArchive archive(memory_in);
 

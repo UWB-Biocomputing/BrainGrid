@@ -114,14 +114,6 @@ public:
 	virtual void cleanupSim(SimulationInfo *sim_info);
 
         /**
-         *  Loads the simulation based on istream input.
-         *
-         *  @param  input       istream to read from.
-         *  @param  sim_info    used as a reference to set info for neurons and synapses.
-         */
-        //virtual void deserialize(istream& input, const SimulationInfo *sim_info);
-
-        /**
          * Advances network state one simulation step.
          *
          * @param sim_info - parameters defining the simulation to be run with the given collection of neurons.
@@ -142,25 +134,21 @@ public:
 	 *  Copy GPU Synapse data to CPU.
 	 *
 	 *  @param  sim_info    SimulationInfo to refer.
-	 *  @param  clr_info    ClusterInfo to refer.
 	 */
-	virtual void copyGPUSynapseToCPUCluster(SimulationInfo *sim_info);
+	virtual void copyGPUSynapseToCPUModel(SimulationInfo *sim_info);
 
 	/**
 	 *  Copy CPU Synapse data to GPU.
 	 *
 	 *  @param  sim_info    SimulationInfo to refer.
-	 *  @param  clr_info    ClusterInfo to refer.
 	 */
-	virtual void copyCPUSynapseToGPUCluster(SimulationInfo *sim_info);
+	virtual void copyCPUSynapseToGPUModel(SimulationInfo *sim_info);
 
 	/**
-	*  Print out SynapseProps on the GPU.
-	*/
-	void printGPUSynapsesPropsCluster() const;
+	 *  Print out SynapseProps on the GPU.
+	 */
+	void printGPUSynapsesPropsModel() const;
     
-
-
 protected:
         /**
         * Allocates  and initializes memories on CUDA device.

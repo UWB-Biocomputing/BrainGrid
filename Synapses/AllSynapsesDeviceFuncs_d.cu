@@ -113,22 +113,29 @@ __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesD
 
     if (delta < -STDPgap) {
         // Depression
-        dw = pow(W, muneg) * Aneg * exp(delta / tauneg);
+        dw = pow(fabs(W) / Wex,  muneg) * Aneg * exp(delta / tauneg);  // normalize
     } else if (delta > STDPgap) {
         // Potentiation
-        dw = pow(Wex - W, mupos) * Apos * exp(-delta / taupos);
+        dw = pow(fabs(Wex - fabs(W)) / Wex,  mupos) * Apos * exp(-delta / taupos); // normalize
     } else {
         return;
     }
 
-    //W += epost * epre * dw;
-    W += synSign(type) * epost * epre * dw;
+    // dw is the percentage change in synaptic strength; add 1.0 to become the scaling ratio
+    dw = 1.0 + dw * epre * epost;
 
-    // check the sign
-    if ((Wex < 0 && W > 0) || (Wex > 0 && W < 0)) W = 0;
+    // if scaling ratio is less than zero, set it to zero so this synapse, its strength is always zero
+    if (dw < 0) {
+        dw = 0;
+    }
 
-    // check for greater Wmax
-    if (fabs(W) > fabs(Wex)) W = Wex;
+    // current weight multiplies dw (scaling ratio) to generate new weight
+    W *= dw;
+
+    // if new weight is bigger than Wex (maximum allowed weight), then set it to Wex
+    if (fabs(W) > Wex) {
+        W = synSign(type) * Wex;
+    }
 
     DEBUG_SYNAPSE(
         printf("AllSTDPSynapses::stdpLearning:\n");
@@ -245,6 +252,36 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
 
     BGSIZE iSyn = synapseIndexMapDevice->incomingSynapseIndexMap[idx];
 
+    // If the synapse is inhibitory or its weight is zero, update synapse state using AllSpikingSynapses::advanceSynapse method
+    BGFLOAT &W = allSynapsesDevice->W[iSyn];
+    if(W <= 0.0) {
+        BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
+        BGFLOAT decay = allSynapsesDevice->decay[iSyn];
+
+        // Checks if there is an input spike in the queue.
+        bool isFired = isSpikingSynapsesSpikeQueueDevice(allSynapsesDevice, iSyn);
+
+        // is an input in the queue?
+        if (isFired) {
+                switch (classSynapses_d) {
+                case classAllSTDPSynapses:
+                        changeSpikingSynapsesPSRDevice(static_cast<AllSpikingSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
+                        break;
+                case classAllSpikingSynapses:
+                        changeSpikingSynapsesPSRDevice(static_cast<AllSpikingSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
+                        break;
+                case classAllDSSynapses:
+                        changeDSSynapsePSRDevice(static_cast<AllDSSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
+                        break;
+                default:
+                        assert(false);
+                }
+        }
+        // decay the post spike response
+        psr *= decay;
+        return;
+    }
+
     BGFLOAT &decay = allSynapsesDevice->decay[iSyn];
     BGFLOAT &psr = allSynapsesDevice->psr[iSyn];
 
@@ -273,7 +310,6 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
             spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPre, -2, max_spikes);
             if (spikeHistory > 0 && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
-                //delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
                 delta = static_cast<BGFLOAT>(simulationStep - spikeHistory) * deltaT;
                 epre = 1.0 - exp(-delta / tauspre);
             } else {
@@ -288,7 +324,6 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                 if (spikeHistory == ULONG_MAX)
                     break;
                 // delta is the spike interval between pre-post spikes
-                //delta = (spikeHistory - (int64_t)simulationStep) * deltaT;
                 delta = -static_cast<BGFLOAT>(simulationStep - spikeHistory) * deltaT;
 
                 DEBUG_SYNAPSE(
@@ -307,7 +342,6 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                     spikeHistory2 = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPost, offIndex-1, max_spikes);
                     if (spikeHistory2 == ULONG_MAX)
                         break;
-                    //epost = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspost);
                     epost = 1.0 - exp(-(static_cast<BGFLOAT>(spikeHistory - spikeHistory2) * deltaT) / tauspost);
                 } else {
                     epost = 1.0;
@@ -338,7 +372,6 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
             spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPost, -2, max_spikes);
             if (spikeHistory > 0 && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
-                //delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
                 delta = static_cast<BGFLOAT>(simulationStep - spikeHistory) * deltaT;
                 epost = 1.0 - exp(-delta / tauspost);
             } else {
@@ -353,7 +386,6 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                 if (spikeHistory == ULONG_MAX)
                     break;
                 // delta is the spike interval between post-pre spikes
-                //delta = ((int64_t)simulationStep - spikeHistory - total_delay) * deltaT;
                 delta = static_cast<BGFLOAT>((int64_t)simulationStep - (int64_t)spikeHistory - total_delay) * deltaT;
                 
                 DEBUG_SYNAPSE(
@@ -372,7 +404,6 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                     spikeHistory2 = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPre, offIndex-1, max_spikes);
                     if (spikeHistory2 == ULONG_MAX)
                         break;
-                    //epre = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspre);
                     epre = 1.0 - exp(-(static_cast<BGFLOAT>(spikeHistory - spikeHistory2) * deltaT) / tauspre);
                 } else {
                     epre = 1.0;
@@ -629,21 +660,18 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
     uint32_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
     assert( size <= BYTES_OF_DELAYQUEUE );
 
-    //allSynapsesDevice->Apos[iSyn] = 0.5;
-    //allSynapsesDevice->Aneg[iSyn] = -0.5;
+    // May 1st 2020 
+    // Use constants from Froemke and Dan (2002). 
+    // Spike-timing-dependent synaptic modification induced by natural spike trains. Nature 416 (3/2002)
     allSynapsesDevice->Apos[iSyn] = 1.01;
     allSynapsesDevice->Aneg[iSyn] = -0.52;
     allSynapsesDevice->STDPgap[iSyn] = 2e-3;
 
     allSynapsesDevice->total_delayPost[iSyn] = 0;
 
-    //allSynapsesDevice->tauspost[iSyn] = 0;
-    //allSynapsesDevice->tauspre[iSyn] = 0;
-    allSynapsesDevice->tauspost[iSyn] = 28e-3;
-    allSynapsesDevice->tauspre[iSyn] = 88e-3;
+    allSynapsesDevice->tauspost[iSyn] = 75e-3;
+    allSynapsesDevice->tauspre[iSyn] = 34e-3;
 
-    //allSynapsesDevice->taupos[iSyn] = 15e-3;
-    //allSynapsesDevice->tauneg[iSyn] = 35e-3;
     allSynapsesDevice->taupos[iSyn] = 14.8e-3;
     allSynapsesDevice->tauneg[iSyn] = 33.8e-3;
     allSynapsesDevice->Wex[iSyn] = 1.0;
@@ -651,7 +679,7 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
     allSynapsesDevice->mupos[iSyn] = 0;
     allSynapsesDevice->muneg[iSyn] = 0;
 
-    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = true;
+    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
 }
 
 /*
@@ -741,21 +769,18 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
     uint32_t size = allSynapsesDevice->total_delay[iSyn] / ( sizeof(uint8_t) * 8 ) + 1;
     assert( size <= BYTES_OF_DELAYQUEUE );
 
-    //allSynapsesDevice->Apos[iSyn] = 0.5;
-    //allSynapsesDevice->Aneg[iSyn] = -0.5;
+    // May 1st 2020 
+    // Use constants from Froemke and Dan (2002). 
+    // Spike-timing-dependent synaptic modification induced by natural spike trains. Nature 416 (3/2002)
     allSynapsesDevice->Apos[iSyn] = 1.01;
     allSynapsesDevice->Aneg[iSyn] = -0.52;
     allSynapsesDevice->STDPgap[iSyn] = 2e-3;
 
     allSynapsesDevice->total_delayPost[iSyn] = 0;
 
-    //allSynapsesDevice->tauspost[iSyn] = 0;
-    //allSynapsesDevice->tauspre[iSyn] = 0;
-    allSynapsesDevice->tauspost[iSyn] = 28e-3;
-    allSynapsesDevice->tauspre[iSyn] = 88e-3;
+    allSynapsesDevice->tauspost[iSyn] = 75e-3;
+    allSynapsesDevice->tauspre[iSyn] = 34e-3;
 
-    //allSynapsesDevice->taupos[iSyn] = 15e-3;
-    //allSynapsesDevice->tauneg[iSyn] = 35e-3;
     allSynapsesDevice->taupos[iSyn] = 14.8e-3;
     allSynapsesDevice->tauneg[iSyn] = 33.8e-3;
     allSynapsesDevice->Wex[iSyn] = 1.0;
@@ -763,7 +788,7 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
     allSynapsesDevice->mupos[iSyn] = 0;
     allSynapsesDevice->muneg[iSyn] = 0;
 
-    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = true;
+    allSynapsesDevice->useFroemkeDanSTDP[iSyn] = false;
 }
 
 /*

@@ -161,24 +161,6 @@ void GPUSpikingModel::cleanupSim(SimulationInfo *sim_info)
 #endif // PERFORMANCE_METRICS
 }
 
-/*
- *  Loads the simulation based on istream input.
- *
- *  @param  input   istream to read from.
- *  @param  sim_info    used as a reference to set info for neurons and synapses.
- */
-/*void GPUSpikingModel::deserialize(istream& input, const SimulationInfo *sim_info)
-{
-  Model::deserialize(input, sim_info);
-
-  // copy inverse map to the device memory
-  copySynapseIndexMapHostToDevice(*m_synapseIndexMap, sim_info->totalNeurons);
-
-  // Reinitialize device struct - Copy host neuron and synapse arrays into GPU device
-  m_neurons->copyNeuronHostToDevice( m_allNeuronsDevice, sim_info );
-  m_synapses->copySynapseHostToDevice( m_allSynapsesDevice, sim_info );
-}*/
-
 /* 
  *  Advance everything in the model one time step. In this case, that
  *  means calling all of the kernels that do the "micro step" updating
@@ -420,7 +402,12 @@ __global__ void calcSummationMapDevice(int totalNeurons,
   }
 }
 
-void GPUSpikingModel::copyGPUSynapseToCPUCluster(SimulationInfo *sim_info)
+/* 
+ *  Copy GPU Synapse data to CPU.
+ *
+ *  @param  sim_info    SimulationInfo to refer.
+ */
+void GPUSpikingModel::copyGPUSynapseToCPUModel(SimulationInfo *sim_info)
 {
   // copy device synapse structs to host memory
   m_synapses->copySynapseDeviceToHost(m_allSynapsesDevice, sim_info );
@@ -430,9 +417,8 @@ void GPUSpikingModel::copyGPUSynapseToCPUCluster(SimulationInfo *sim_info)
  *  Copy CPU Synapse data to GPU.
  *
  *  @param  sim_info    SimulationInfo to refer.
- *  @param  clr_info    ClusterInfo to refer.
  */
-void GPUSpikingModel::copyCPUSynapseToGPUCluster(SimulationInfo *sim_info)
+void GPUSpikingModel::copyCPUSynapseToGPUModel(SimulationInfo *sim_info)
 {
   // copy host synapse structs to device memory
   m_synapses->copySynapseHostToDevice( m_allSynapsesDevice, sim_info );
@@ -441,7 +427,7 @@ void GPUSpikingModel::copyCPUSynapseToGPUCluster(SimulationInfo *sim_info)
 /* 
  *  Print out SynapseProps on the GPU.
  */
-void GPUSpikingModel::printGPUSynapsesPropsCluster() const
+void GPUSpikingModel::printGPUSynapsesPropsModel() const
 {  
   m_synapses->printGPUSynapsesProps( m_allSynapsesDevice );
 }

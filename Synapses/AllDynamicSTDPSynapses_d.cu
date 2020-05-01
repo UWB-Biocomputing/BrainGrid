@@ -212,7 +212,11 @@ void AllDynamicSTDPSynapses::setSynapseClassID()
     HANDLE_ERROR( cudaMemcpyToSymbol(classSynapses_d, &classSynapses_h, sizeof(enumClassSynapses)) );
 }
 
-
+/*
+ *  Prints GPU SynapsesProps data.
+ *   
+ *  @param  allSynapsesDeviceProps   Reference to the corresponding SynapsesDeviceProperties struct on device memory.
+ */
 void AllDynamicSTDPSynapses::printGPUSynapsesProps( void* allSynapsesDeviceProps ) const
 {
     AllDynamicSTDPSynapsesDeviceProperties allSynapsesProps;

@@ -188,7 +188,6 @@ void Hdf5GrowthRecorder::compileHistories(IAllNeurons &neurons)
         DEBUG_MID(cout << "radii[" << iNeuron << ":" << radii[iNeuron] << "]" << endl;)
     }
 
-
     writeRadiiRates();
 }
 
@@ -216,7 +215,6 @@ void Hdf5GrowthRecorder::writeRadiiRates()
         dataspace = new DataSpace(dataSetRadiiHist->getSpace());
         dataspace->selectHyperslab(H5S_SELECT_SET, count, offset);
         dataSetRadiiHist->write(radiiHistory, H5_FLOAT, *memspace, *dataspace); 
-
         delete dataspace;
         delete memspace;
 
@@ -231,7 +229,6 @@ void Hdf5GrowthRecorder::writeRadiiRates()
         dataspace = new DataSpace(dataSetRadiiHist->getSpace());
         dataspace->selectHyperslab(H5S_SELECT_SET, count, offset);
         dataSetRatesHist->write(ratesHistory, H5_FLOAT, *memspace, *dataspace); 
-
         delete dataspace;
         delete memspace;
     }

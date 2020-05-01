@@ -116,69 +116,6 @@ void AllSynapses::resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT)
 }
 
 /*
- *  Sets the data for Synapses to input's data.
- *
- *  @param  input  istream to read from.
- *  @param  sim_info  SimulationInfo class to read information from.
- */
-/*void AllSynapses::deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info)
-{
-        // read the synapse data & create synapses
-        int* read_synapses_counts= new int[sim_info->totalNeurons];
-        for (int i = 0; i < sim_info->totalNeurons; i++) {
-                read_synapses_counts[i] = 0;
-        }
-
-        int synapse_count;
-        input >> synapse_count; input.ignore();
-        for (int i = 0; i < synapse_count; i++) {
-                // read the synapse data and add it to the list
-                // create synapse
-                int neuron_index;
-                input >> neuron_index; input.ignore();
-
-                int synapse_index = read_synapses_counts[neuron_index];
-                BGSIZE iSyn = maxSynapsesPerNeuron * neuron_index + synapse_index;
-
-                sourceNeuronIndex[iSyn] = neuron_index;
-
-                readSynapse(input, iSyn);
-
-                summationPoint[iSyn] = &(dynamic_cast<AllNeurons&>(neurons).summation_map[destNeuronIndex[iSyn]]);
-
-                read_synapses_counts[neuron_index]++;
-        }
-
-        for (int i = 0; i < sim_info->totalNeurons; i++) {
-                        synapse_counts[i] = read_synapses_counts[i];
-        }
-        delete[] read_synapses_counts;
-}*/
-
-/*
- *  Write the synapses data to the stream.
- *
- *  @param  output  stream to print out to.
- *  @param  sim_info  SimulationInfo class to read information from.
- */
-/*void AllSynapses::serialize(ostream& output, const SimulationInfo *sim_info)
-{
-    // write the synapse data
-    int synapse_count = 0;
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        synapse_count += synapse_counts[i];
-    }
-    output << synapse_count << ends;
-
-    for (int neuron_index = 0; neuron_index < sim_info->totalNeurons; neuron_index++) {
-        for (BGSIZE synapse_index = 0; synapse_index < synapse_counts[neuron_index]; synapse_index++) {
-            BGSIZE iSyn = maxSynapsesPerNeuron * neuron_index + synapse_index;
-            writeSynapse(output, iSyn);
-        }
-    }
-}*/
-
-/*
  *  Sets the data for Synapse to input's data.
  *
  *  @param  input  istream to read from.
@@ -328,11 +265,6 @@ void AllSynapses::advanceSynapses(const SimulationInfo *sim_info, IAllNeurons *n
     for (BGSIZE i = 0; i < total_synapse_counts; i++) {
         BGSIZE iSyn = synapseIndexMap->incomingSynapseIndexMap[i];
         advanceSynapse(iSyn, sim_info, neurons);
-        /*if (W[i] != 0.0) {
-            cout << "W[" << i << "] = " << W[i];
-            cout << " sourNeuron: " << sourceNeuronIndex[i];
-            cout << " desNeuron: " << destNeuronIndex[i]<<endl;
-        }*/
     }
 }
 

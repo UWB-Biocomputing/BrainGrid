@@ -341,10 +341,10 @@ void AllSpikingSynapses::advanceSynapses(void* allSynapsesDevice, void* allNeuro
     advanceSpikingSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( total_synapse_counts, (SynapseIndexMap*)synapseIndexMapDevice, g_simulationStep, sim_info->deltaT, (AllSpikingSynapsesDeviceProperties*)allSynapsesDevice );
 }
 
-/**
+/*
  *  Prints GPU SynapsesProps data.
- * 
- *  @param  allSynapsesDeviceProps   Reference to the AllSpikingSynapsesProps class on device memory.
+ *   
+ *  @param  allSynapsesDeviceProps   Reference to the corresponding SynapsesDeviceProperties struct on device memory.
  */
 void AllSpikingSynapses::printGPUSynapsesProps( void* allSynapsesDeviceProps ) const
 {

@@ -42,7 +42,6 @@ void SingleThreadedSpikingModel::advance(const SimulationInfo *sim_info)
     m_synapses->advanceSynapses(sim_info, m_neurons, m_synapseIndexMap);
 }
 
-
 /*
  *  Update the connection of all the Neurons and Synapses of the simulation.
  *
@@ -60,27 +59,25 @@ void SingleThreadedSpikingModel::updateConnections(const SimulationInfo *sim_inf
 
 /**
  *  Copy GPU Synapse data to CPU.
- *  (No implementation here because of inheritance structure. Only GPUCluster has implementation)
+ *  (No implementation here because of inheritance structure. Only GPUModel has implementation)
  *
  *  @param  sim_info    SimulationInfo to refer.
- *  @param  clr_info    ClusterInfo to refer.
  */
-void SingleThreadedSpikingModel::copyGPUSynapseToCPUCluster(SimulationInfo *sim_info)
+void SingleThreadedSpikingModel::copyGPUSynapseToCPUModel(SimulationInfo *sim_info)
 {
-   cerr << "ERROR: SingleThreadedCluster::copyGPUSynapseToCPUCluster() was called." << endl;
+   cerr << "ERROR: SingleThreadedSpikingModel::copyGPUSynapseToCPUModel() was called." << endl;
    exit(EXIT_FAILURE);
 }
 
- /**
+/**
  *  Copy CPU Synapse data to GPU.
- *  (No implementation here because of inheritance structure. Only GPUCluster has implementation)
+ *  (No implementation here because of inheritance structure. Only GPUModel has implementation)
  *
  *  @param  sim_info    SimulationInfo to refer.
- *  @param  clr_info    ClusterInfo to refer.
  */
-void SingleThreadedSpikingModel::copyCPUSynapseToGPUCluster(SimulationInfo *sim_info)
+void SingleThreadedSpikingModel::copyCPUSynapseToGPUModel(SimulationInfo *sim_info)
 {
-   cerr << "ERROR: SingleThreadedCluster::copyCPUSynapseToGPUCluster() was called." << endl;
+   cerr << "ERROR: SingleThreadedSpikingModel::copyCPUSynapseToGPUModel() was called." << endl;
    exit(EXIT_FAILURE);
 }
 

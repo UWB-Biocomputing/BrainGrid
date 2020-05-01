@@ -2,8 +2,8 @@
 <BGSimParams>
   <SimInfoParams name="SimInfoParams">
     <PoolSize name="PoolSize">
-      <x name="x">10</x>
-      <y name="y">10</y>
+      <x name="x">30</x>
+      <y name="y">30</y>
       <z name="z">1</z>
     </PoolSize>
     <SimParams name="SimParams">
@@ -18,7 +18,7 @@
       <value name="value">1</value>
     </Seed>
     <OutputParams name="OutputParams">
-      <stateOutputFileName name="stateOutputFileName">results/test-small-connected-out.xml</stateOutputFileName>
+      <stateOutputFileName name="stateOutputFileName">results/test-medium-out.xml</stateOutputFileName>
     </OutputParams>
   </SimInfoParams>
 
@@ -69,16 +69,16 @@
       </StaticConnectionsParams>
       <StaticConnectionsWeight name="StaticConnectionsWeight">
           <minExc name="minExc">0</minExc>
-          <maxExc name="maxExc">0.5e-7</maxExc>
-          <minInh name="minInh">-0.5e-7</minInh>
+          <maxExc name="maxExc">0</maxExc>
+          <minInh name="minInh">0</minInh>
           <maxInh name="maxInh">0</maxInh>
       </StaticConnectionsWeight>
     </ConnectionsParams>
 
     <LayoutParams class="FixedLayout" name="LayoutParams">
       <LayoutFiles name="LayoutFiles">
-        <activeNListFileName name="activeNListFileName" type="InputFile">configfiles/NList/ActiveNList10x10-0.1.xml</activeNListFileName>
-        <inhNListFileName name="inhNListFileName" type="InputFile">configfiles/NList/InhibitoryNList10x10-0.02.xml</inhNListFileName>
+        <activeNListFileName name="activeNListFileName" type="InputFile">configfiles/NList/ActiveNList30x30-0.01.xml</activeNListFileName>
+        <inhNListFileName name="inhNListFileName" type="InputFile">configfiles/NList/InhibitoryNList30x30-0.02.xml</inhNListFileName>
         <probedNListFileName name="prbNListFileName" type="InputFile"/>
       </LayoutFiles>
     </LayoutParams>

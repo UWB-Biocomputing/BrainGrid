@@ -230,44 +230,6 @@ void ConnGrowth::printParameters(ostream &output) const
 }
 
 /*
- *  Reads the intermediate connection status from istream.
- *
- *  @param  input    istream to read status from.
- *  @param  sim_info SimulationInfo class to read information from.
- */
-/*void ConnGrowth::deserialize(istream& input, const SimulationInfo *sim_info)
-{
-    // read the radii
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-            input >> (*radii)[i]; input.ignore();
-    }
-
-    // read the rates
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-            input >> (*rates)[i]; input.ignore();
-    }
-}*/
-
-/*
- *  Writes the intermediate connection status to ostream.
- *
- *  @param  output   ostream to write status to.
- *  @param  sim_info SimulationInfo class to read information from.
- */
-/*void ConnGrowth::serialize(ostream& output, const SimulationInfo *sim_info)
-{
-    // write the final radii
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        output << (*radii)[i] << ends;
-    }
-
-    // write the final rates
-    for (int i = 0; i < sim_info->totalNeurons; i++) {
-        output << (*rates)[i] << ends;
-    }
-}*/
-
-/*
  *  Update the connections status in every epoch.
  *
  *  @param  neurons  The Neuron list to search from.
@@ -353,9 +315,6 @@ void ConnGrowth::updateOverlap(BGFLOAT num_neurons, Layout *layout)
 
                     if (lenAB + min(r1, r2) <= max(r1, r2)) {
                         (*area)(i, j) = pi * min(r1, r2) * min(r1, r2); // Completely overlapping unit
-                        if(j==9497 && (*area)(i,j) != 0.0) {
-                            DEBUG(cerr << "farea[]: " << (*area)(i,j) << " pi:" << pi <<" r1:" << r1 << " r2" << r2 << endl;)
-                        }
                         
 #ifdef LOGFILE
                         logFile << "Completely overlapping (i, j, r1, r2, area): "
@@ -372,9 +331,6 @@ void ConnGrowth::updateOverlap(BGFLOAT num_neurons, Layout *layout)
                             
                                 if(fabs(cosCBA) >= 1.0 || fabs(cosCAB) >= 1.0) {
                                     (*area)(i,j) = 0.0;
-                                    if(j==9497 && (*area)(i,j) != 0.0) {
-                                        DEBUG(cerr << "9497i:" << i << "j:" << j << " sarea:" << (*area)(i,j) << " r22:" << r22 <<" r12:" << r12<< " lenAB2:"<<lenAB2 <<" r2:"<<r2<<" lenAB:"<<lenAB<< endl;)
-                                    }
                                 } else {
 
                                     BGFLOAT angCBA = acos(cosCBA);
@@ -384,9 +340,6 @@ void ConnGrowth::updateOverlap(BGFLOAT num_neurons, Layout *layout)
                                     BGFLOAT angCAD = 2.0 * angCAB;
 
                                     (*area)(i, j) = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
-                                    if(j==9497 && (*area)(i,j) != 0.0) {
-                                        DEBUG(cerr << "9497i:" << i << "j:" << j << " sarea:" << (*area)(i,j) << " r22:" << r22 <<" r12:" << r12<<" angCBD:" << angCBD << " angCAD:" << angCAD <<" lenAB2:"<<lenAB2 <<" r2:"<<r2<<" lenAB:"<<lenAB<< endl;)
-                                    }
                                 }
                         }
                 }
@@ -514,7 +467,6 @@ IRecorder* ConnGrowth::createRecorder(const SimulationInfo *simInfo)
 
 /**
  *  Prints radii 
- *  (either on CPU or GPU)
  */
 void ConnGrowth::printRadii() const {
 	for (int i = 0; i < radiiSize; i++) {

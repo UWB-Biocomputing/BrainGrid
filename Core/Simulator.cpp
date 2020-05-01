@@ -74,7 +74,7 @@ void Simulator::finish(SimulationInfo *sim_info)
  *  @param  sim_info    parameters for the simulation.
  */
 void Simulator::copyGPUSynapseToCPU(SimulationInfo *sim_info) {
-  sim_info->model->copyGPUSynapseToCPUCluster(sim_info); 
+  sim_info->model->copyGPUSynapseToCPUModel(sim_info); 
 }
 
  /**
@@ -83,7 +83,7 @@ void Simulator::copyGPUSynapseToCPU(SimulationInfo *sim_info) {
  *  @param  sim_info    parameters for the simulation.
  */
 void Simulator::copyCPUSynapseToGPU(SimulationInfo *sim_info) {
-  sim_info->model->copyCPUSynapseToGPUCluster(sim_info); 
+  sim_info->model->copyCPUSynapseToGPUModel(sim_info); 
 }		
 
 /*
@@ -157,7 +157,6 @@ void Simulator::simulate(SimulationInfo *sim_info)
       // Start timer for connection update
       sim_info->short_timer.start();
 #endif
-
     sim_info->model->updateConnections(sim_info);
     sim_info->model->updateHistory(sim_info);
 
@@ -191,6 +190,7 @@ void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_in
     + static_cast<uint64_t>(sim_info->epochDuration / sim_info->deltaT);
 
   DEBUG_MID(sim_info->model->logSimStep(sim_info);) // Generic model debug call
+    
     while (g_simulationStep < endStep) {
       DEBUG_LOW(
 		// Output status once every 10,000 steps
@@ -208,23 +208,9 @@ void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_in
         if (sim_info->pInput != NULL)
 	  sim_info->pInput->inputStimulus(sim_info);
 
-      // Advance the Network one time step
-        
+      // Advance the Network one time step 
       sim_info->model->advance(sim_info);
-      if(g_simulationStep % 10000 == 0) {
-#if defined(USE_GPU)
-        sim_info->model->copyGPUSynapseToCPUCluster(sim_info);
-#endif 
-        cout << "W[" << 0 << "] = " << dynamic_cast<AllSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->W[0]<<endl;
-        //for(int i = 0; i < sim_info->maxSynapsesPerNeuron * sim_info->totalNeurons; i++) {
-          //if (dynamic_cast<AllSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->W[i] != 0.0) {
-            //cout << "W[" << i << "] = " << dynamic_cast<AllSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->W[i];
-            //cout << " sourNeuron: " << dynamic_cast<AllSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->sourceNeuronIndex[i];
-            //cout << " desNeuron: " << dynamic_cast<AllSynapses *>(dynamic_cast<Model *>(sim_info->model)->m_synapses)->destNeuronIndex[i]<<endl;
-          //}
-        //}
-      }
-        
+
       g_simulationStep++;
     }
 }
@@ -238,39 +224,3 @@ void Simulator::saveData(SimulationInfo *sim_info) const
 {
   sim_info->model->saveData(sim_info);
 }
-
-/*
- * Deserializes internal state from a prior run of the simulation.
- * This allows simulations to be continued from a particular point, to be restarted, or to be
- * started from a known state.
- *
- *  @param memory_in - where to read the state from.
- *  @param  sim_info    parameters for the simulation. 
- */
-/*void Simulator::deserialize(istream &memory_in, SimulationInfo *sim_info)
-{
-  // read the neuron data
-  memory_in >> sim_info->totalNeurons; memory_in.ignore();
-  sim_info->model->deserialize(memory_in, sim_info);
-
-  // Init history matrices with current values
-  sim_info->simRecorder->initValues();
-}*/
-
-/*
- * Serializes internal state for the current simulation.
- * This allows simulations to be continued from a particular point, to be restarted, or to be
- * started from a known state.
- * This method needs to be debugged to verify that it works.
- *
- *  @param memory_out - where to write the state to.
- *  @param  sim_info    parameters for the simulation. 
- */
-/*void Simulator::serialize(ostream &memory_out, SimulationInfo *sim_info) const
-{
-  cerr << "Simulator::writeSimMemory was called. " << endl;
-  // get history matrices with current values
-  sim_info->simRecorder->getValues();
-
-  sim_info->model->serialize(memory_out, sim_info);
-}*/

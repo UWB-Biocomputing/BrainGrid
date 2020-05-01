@@ -47,6 +47,30 @@
  * Some models in this simulator is a rewrite of CSIM (2006) and other
  * work (Stiber and Kawasaki (2007?))
  */
+
+/** 
+ *  05/01/2020
+ *  Changed the default weight update rule and all formula constants using the 
+ *  independent model (a basic STDP model) and multiplicative model in
+ *  Froemke and Dan (2002). Spike-timing-dependent synaptic modification induced by natural spike
+ *  trains. Nature 416 (3/2002)
+ * 
+ *  Independent model:
+ *  \f$Delta = t_{post}-t_{pre}\f$ with presynaptic spike at time \f$t_{pre}\f$ and
+ *  postsynaptic spike at time \f$t_{post}\f$. Then, the weight update is given by
+ *  \f$dw =  Apos * exp(-Delta/taupos)\f$ for \f$Delta > 0\f$, and \f$dw =  Aneg *
+ *  exp(-Delta/tauneg)\f$ for \f$Delta < 0\f$. dw is the percentage change in synaptic weight.
+ *  (set \f$useFroemkeDanSTDP=false\f$ and \f$mupos=muneg=0\f$ for this basic update rule).
+ *  
+ *  Multiplicative model:
+ *  \f$dw = 1.0 + dw * epre * epost\f$ dw is percent change, so adding 1.0 become the scale ratio
+ *  \f$W = W * dw\f$ multiply dw (scale ratio) to the current weight to get the new weight
+ *  
+ *  Note1:This time we don't use useFroemkeDanSTDP (useFroemkeDanSTDP= false) and mupos and muneg (mupos=muneg=0)
+ *  Note2:Based on the FroemkeDan paper, the STDP learning rule only applies to excititory synapses, so we
+ *  implement it to have only excititory neurons do STDP weight adjustment 
+ */
+
 #pragma once
 
 #include "AllSTDPSynapses.h"
@@ -116,7 +140,10 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  @param  type        Type of the Synapse to create.
          */
         virtual void createSynapse(const BGSIZE iSyn, int source_index, int dest_index, BGFLOAT* sp, const BGFLOAT deltaT, synapseType type);
-        
+                              
+        /**
+         *  Prints SynapsesProps data.
+         */
         virtual void printSynapsesProps() const;
     protected:
         /**
@@ -208,7 +235,12 @@ class AllDynamicSTDPSynapses : public AllSTDPSynapses
          *  (see issue#137).
          */
         virtual void setSynapseClassID();
-
+        
+        /**
+         *  Prints GPU SynapsesProps data.
+         * 
+         *  @param  allSynapsesDeviceProps   Reference to the corresponding SynapsesDeviceProperties struct on device memory.
+         */
         virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps) const;
 
     protected:

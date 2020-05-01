@@ -290,8 +290,8 @@ void AllSTDPSynapses::setSynapseClassID()
 
 /*
  *  Prints GPU SynapsesProps data.
- * 
- *  @param  allSynapsesDeviceProps   Reference to the AllSTDPSynapsesProps class on device memory.
+ *   
+ *  @param  allSynapsesDeviceProps   Reference to the corresponding SynapsesDeviceProperties struct on device memory.
  */
 void AllSTDPSynapses::printGPUSynapsesProps( void* allSynapsesDeviceProps ) const
 {

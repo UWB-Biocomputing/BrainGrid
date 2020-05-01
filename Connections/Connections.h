@@ -93,22 +93,6 @@ class Connections
         virtual void printParameters(ostream &output) const = 0;
 
         /**
-         *  Reads the intermediate connection status from istream.
-         *
-         *  @param  input    istream to read status from.
-         *  @param  sim_info SimulationInfo class to read information from.
-         */
-        //virtual void deserialize(istream& input, const SimulationInfo *sim_info) = 0;
-
-        /**
-         *  Writes the intermediate connection status to ostream.
-         *
-         *  @param  output   ostream to write status to.
-         *  @param  sim_info SimulationInfo class to read information from.
-         */
-        //virtual void serialize(ostream& output, const SimulationInfo *sim_info) = 0;
-
-        /**
          *  Update the connections status in every epoch.
          *
          *  @param  neurons  The Neuron list to search from.
@@ -128,6 +112,15 @@ class Connections
          */
         virtual IRecorder* createRecorder(const SimulationInfo *sim_info) = 0;
 
+        /**
+         *  Creates synapses from synapse weights saved in the serialization file.
+         *  
+         *  @param  num_neurons Number of neurons to update.
+         *  @param  sim_info    SimulationInfo to refer from.
+         *  @param  layout      Layout information of the neunal network.
+         *  @param  ineurons    The Neuron list to search from.
+         *  @param  isynapses   The Synapse list to search from.
+         */
         void createSynapsesFromWeights(const int num_neurons, const SimulationInfo *sim_info, Layout *layout, IAllNeurons &ineurons, IAllSynapses &isynapses);
 #if defined(USE_GPU)
     public:

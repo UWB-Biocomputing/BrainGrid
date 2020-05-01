@@ -82,22 +82,6 @@ class AllSynapses : public IAllSynapses
         virtual void resetSynapse(const BGSIZE iSyn, const BGFLOAT deltaT);
 
         /**
-         *  Sets the data for Synapses to input's data.
-         *
-         *  @param  input  istream to read from.
-         *  @param  sim_info  SimulationInfo class to read information from.
-         */
-        //virtual void deserialize(istream& input, IAllNeurons &neurons, const SimulationInfo *sim_info);
-
-        /**
-         *  Write the synapses data to the stream.
-         *
-         *  @param  output  stream to print out to.
-         *  @param  sim_info  SimulationInfo class to read information from.
-         */
-        //virtual void serialize(ostream& output, const SimulationInfo *sim_info);
-
-        /**
          *  Adds a Synapse to the model, connecting two Neurons.
          *
          *  @param  iSyn        Index of the synapse to be added.
@@ -139,7 +123,7 @@ class AllSynapses : public IAllSynapses
         int synSign(const synapseType type);
 
         /**
-         *  Prints SynapsesProps data
+         *  Prints SynapsesProps data.
          */
         virtual void printSynapsesProps() const;
 
@@ -379,7 +363,7 @@ void AllSynapses::load(Archive & archive)
 
     // check to see if serialized data sizes matches object sizes  
     if(WVector.size() != maxSynapsesPerNeuron * count_neurons) {
-        cerr << "Failed deserializing synapse weights, source neurons, and/or destination neurons. Please verify maxSynapsesPerNeuron and count_neurons data members in AllSynapsesProps class." << endl;
+        cerr << "Failed deserializing synapse weights, source neurons, and/or destination neurons. Please verify maxSynapsesPerNeuron and count_neurons data members in AllSynapses class." << endl;
         throw cereal::Exception("Deserialization Error");
     }
 

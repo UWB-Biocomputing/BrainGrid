@@ -97,8 +97,6 @@ void AllSpikingNeurons::clearSpikeCounts(const SimulationInfo *sim_info)
  */
 void AllSpikingNeurons::advanceNeurons(IAllSynapses &synapses, const SimulationInfo *sim_info, const SynapseIndexMap *synapseIndexMap)
 {
-    //DEBUG(cerr<<"AllSpikingNeurons::advanceNeurons(before)" << endl;)
-    //DEBUG(cerr<<"spikeCount[9497]"<<spikeCount[9497]<<endl;)
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
 
     AllSpikingSynapses &spSynapses = dynamic_cast<AllSpikingSynapses&>(synapses);
@@ -163,7 +161,6 @@ void AllSpikingNeurons::fire(const int index, const SimulationInfo *sim_info) co
     int max_spikes = (int) ((sim_info->epochDuration * sim_info->maxFiringRate));
     int idxSp = (spikeCount[index] + spikeCountOffset[index]) % max_spikes;
     spike_history[index][idxSp] = g_simulationStep;
-    //cout<<"Fire:spikehistoryIndex:"<<index<<endl;
 
     DEBUG_SYNAPSE(
         cout << "AllSpikingNeurons::fire:" << endl;

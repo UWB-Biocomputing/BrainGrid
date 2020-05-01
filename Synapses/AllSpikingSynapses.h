@@ -118,6 +118,9 @@ class AllSpikingSynapses : public AllSynapses
          */
         virtual bool allowBackPropagation();
 
+        /**
+         *  Prints SynapsesProps data.
+         */
         virtual void printSynapsesProps() const;
 
     protected:
@@ -258,7 +261,12 @@ class AllSpikingSynapses : public AllSynapses
          *  (see issue#137).
          */
         virtual void setSynapseClassID();
-
+        
+        /**
+         *  Prints GPU SynapsesProps data.
+         * 
+         *  @param  allSynapsesDeviceProps   Reference to the corresponding SynapsesDeviceProperties struct on device memory.
+         */
         virtual void printGPUSynapsesProps(void* allSynapsesDeviceProps) const;
 
     protected:

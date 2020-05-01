@@ -195,52 +195,6 @@ void AllDSSynapses::copyDeviceToHost( AllDSSynapsesDeviceProperties& allSynapses
                 max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
 }
 
-void AllDSSynapses::copySynapseDeviceToHost2( void* allSynapsesDevice, const SimulationInfo *sim_info ) {
-	// copy everything necessary
-	AllDSSynapsesDeviceProperties allSynapses;
-
-        HANDLE_ERROR( cudaMemcpy ( &allSynapses, allSynapsesDevice, sizeof( AllDSSynapsesDeviceProperties ), cudaMemcpyDeviceToHost ) );
-
-	copyDeviceToHost2( allSynapses, sim_info );
-}
-
-/*
- *  Copy all synapses' data from device to host.
- *  (Helper function of copySynapseDeviceToHost)
- *
- *  @param  allSynapsesDevice     Reference to the AllDSSynapsesDeviceProperties struct 
- *                                on device memory.
- *  @param  num_neurons           Number of neurons.
- *  @param  maxSynapsesPerNeuron  Maximum number of synapses per neuron.
- */
-void AllDSSynapses::copyDeviceToHost2( AllDSSynapsesDeviceProperties& allSynapses, const SimulationInfo *sim_info ) {
-
-	int num_neurons = sim_info->totalNeurons;
-	BGSIZE max_total_synapses = sim_info->maxSynapsesPerNeuron * num_neurons;
-
-        HANDLE_ERROR( cudaMemcpy ( lastSpike, allSynapses.lastSpike,
-                max_total_synapses * sizeof( uint64_t ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( r, allSynapses.r,
-                max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( u, allSynapses.u,
-                max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( D, allSynapses.D,
-                max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( U, allSynapses.U,
-                max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( F, allSynapses.F,
-                max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( psr, allSynapses.psr,
-                max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( sourceNeuronIndex, allSynapses.sourceNeuronIndex,
-                max_total_synapses * sizeof( int ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( destNeuronIndex, allSynapses.destNeuronIndex,
-                max_total_synapses * sizeof( int ), cudaMemcpyDeviceToHost ) );
-        HANDLE_ERROR( cudaMemcpy ( W, allSynapses.W,
-                max_total_synapses * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-
-}
-
 /**     
  *  Set synapse class ID defined by enumClassSynapses for the caller's Synapse class.
  *  The class ID will be set to classSynapses_d in device memory,
@@ -261,7 +215,7 @@ void AllDSSynapses::setSynapseClassID()
 /*
  *  Prints GPU SynapsesProps data.
  * 
- *  @param  allSynapsesDeviceProps   Reference to the AllDSSynapsesProps class on device memory.
+ *  @param  allSynapsesDeviceProps   Reference to the corresponding SynapsesDeviceProperties struct on device memory.
  */
 void AllDSSynapses::printGPUSynapsesProps( void* allSynapsesDeviceProps ) const
 {
