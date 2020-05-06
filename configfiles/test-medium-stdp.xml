@@ -79,7 +79,7 @@
       <LayoutFiles name="LayoutFiles">
         <activeNListFileName name="activeNListFileName" type="InputFile">configfiles/NList/ActiveNList30x30-0.01.xml</activeNListFileName>
         <inhNListFileName name="inhNListFileName" type="InputFile">configfiles/NList/InhibitoryNList30x30-0.02.xml</inhNListFileName>
-        <probedNListFileName name="prbNListFileName" type="InputFile"/>
+        <probedNListFileName name="prbNListFileName" type="InputFile">configfiles/NList/probedNList_medium_stdp.xml</probedNListFileName>
       </LayoutFiles>
     </LayoutParams>
   </ModelParams>
