@@ -5,7 +5,32 @@
 
 
 // a device variable to store synapse class ID.
-__device__ enumClassSynapses classSynapses_d = undefClassSynapses; 
+__device__ enumClassSynapses classSynapses_d = undefClassSynapses;
+
+/* ------------------------------------*\
+|* # Device Functions for utility
+\* ------------------------------------*/
+
+/*
+ * Return 1 if originating neuron is excitatory, -1 otherwise.
+ *
+ * @param[in] t  synapseType I to I, I to E, E to I, or E to E
+ * @return 1 or -1
+ */
+__device__ int synSign( synapseType t )
+{
+        switch ( t )
+        {
+        case II:
+        case IE:
+                return -1;
+        case EI:
+        case EE:
+                return 1;
+        }
+
+        return 0;
+}
 
 /* --------------------------------------*\
 |* # Device Functions for advanceSynapses
@@ -280,11 +305,11 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                 case classAllSTDPSynapses:
                         changeSpikingSynapsesPSRDevice(static_cast<AllSpikingSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
                         break;
-                case classAllSpikingSynapses:
-                        changeSpikingSynapsesPSRDevice(static_cast<AllSpikingSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
-                        break;
-                case classAllDSSynapses:
-                        changeDSSynapsePSRDevice(static_cast<AllDSSynapsesDeviceProperties*>(allSynapsesDevice), iSyn, simulationStep, deltaT);
+                case classAllDynamicSTDPSynapses:
+                	// Note: we cast void * over the allSynapsesDevice, then recast it, 
+                	// because AllDSSynapsesDeviceProperties inherited properties from 
+                	// the AllDSSynapsesDeviceProperties and the AllSTDPSynapsesDeviceProperties.
+			changeDSSynapsePSRDevice(static_cast<AllDSSynapsesDeviceProperties*>((void *)allSynapsesDevice), iSyn, simulationStep, deltaT);
                         break;
                 default:
                         assert(false);
@@ -439,27 +464,6 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
 /* ------------------------------------*\
 |* # Device Functions for createSynapse
 \* ------------------------------------*/
-
-/*
- * Return 1 if originating neuron is excitatory, -1 otherwise.
- *
- * @param[in] t  synapseType I to I, I to E, E to I, or E to E
- * @return 1 or -1
- */
-__device__ int synSign( synapseType t )
-{
-        switch ( t )
-        {
-        case II:
-        case IE:
-                return -1;
-        case EI:
-        case EE:
-                return 1;
-        }
-
-        return 0;
-}
 
 /*
  *  Create a Spiking Synapse and connect it to the model.
