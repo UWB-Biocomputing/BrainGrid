@@ -146,8 +146,8 @@ __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesD
         return;
     }
 
-    int preindex = allSynapsesDevic->sourceNeuronIndex[iSyn];
-    int postindex = allSynapsesDevic->destNeuronIndex[iSyn];
+    int preindex = allSynapsesDevice->sourceNeuronIndex[iSyn];
+    int postindex = allSynapsesDevice->destNeuronIndex[iSyn];
 
     printf("preindex:%d\n", preindex);
     printf("postindex:%d\n", postindex);
