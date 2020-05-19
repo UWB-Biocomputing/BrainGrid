@@ -121,6 +121,15 @@ __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesD
         return;
     }
 
+    int preindex = allSynapsesDevic->sourceNeuronIndex[iSyn];
+    int postindex = allSynapsesDevic->destNeuronIndex[iSyn];
+
+    printf("preindex:%d\n", preindex);
+    printf("postindex:%d\n", postindex);
+
+    printf("delta:%f\n", delta);
+    printf("dw:%f\n", dw);
+
     // dw is the percentage change in synaptic strength; add 1.0 to become the scaling ratio
     dw = 1.0 + dw * epre * epost;
 
@@ -129,6 +138,8 @@ __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesD
         dw = 0;
     }
 
+    printf("Wbefore:%f\n", W);
+
     // current weight multiplies dw (scaling ratio) to generate new weight
     W *= dw;
 
@@ -136,6 +147,8 @@ __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesD
     if (fabs(W) > Wex) {
         W = synSign(type) * Wex;
     }
+
+    printf("Wafter:%f\n", W);
 
     DEBUG_SYNAPSE(
         printf("AllSTDPSynapses::stdpLearning:\n");
@@ -385,8 +398,13 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                 spikeHistory = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPre, offIndex, max_spikes);
                 if (spikeHistory == ULONG_MAX)
                     break;
+
+                if(spikeHistory + total_delay > simulationStep) {
+                    --offIndex;
+                    continue;
+                }
                 // delta is the spike interval between post-pre spikes
-                delta = static_cast<BGFLOAT>((int64_t)simulationStep - (int64_t)spikeHistory - total_delay) * deltaT;
+                delta = static_cast<BGFLOAT>(simulationStep - spikeHistory - total_delay) * deltaT;
                 
                 DEBUG_SYNAPSE(
                     printf("advanceSTDPSynapsesDevice: fPost\n");
@@ -398,7 +416,7 @@ __global__ void advanceSTDPSynapsesDevice ( int total_synapse_counts, SynapseInd
                     printf("          delta: %f\n\n", delta);
                 );
 
-                if (delta <= 0 || delta >= 3.0 * taupos)
+                if (delta >= 3.0 * taupos)
                     break;
                 if (useFroemkeDanSTDP) {
                     spikeHistory2 = getSTDPSynapseSpikeHistoryDevice(allNeuronsDevice, idxPre, offIndex-1, max_spikes);
@@ -674,7 +692,7 @@ __device__ void createSTDPSynapse(AllSTDPSynapsesDeviceProperties* allSynapsesDe
 
     allSynapsesDevice->taupos[iSyn] = 14.8e-3;
     allSynapsesDevice->tauneg[iSyn] = 33.8e-3;
-    allSynapsesDevice->Wex[iSyn] = 1.0;
+    allSynapsesDevice->Wex[iSyn] = 5.0265e-7;
 
     allSynapsesDevice->mupos[iSyn] = 0;
     allSynapsesDevice->muneg[iSyn] = 0;
@@ -783,7 +801,7 @@ __device__ void createDynamicSTDPSynapse(AllDynamicSTDPSynapsesDeviceProperties*
 
     allSynapsesDevice->taupos[iSyn] = 14.8e-3;
     allSynapsesDevice->tauneg[iSyn] = 33.8e-3;
-    allSynapsesDevice->Wex[iSyn] = 1.0;
+    allSynapsesDevice->Wex[iSyn] = 5.0265e-7;
 
     allSynapsesDevice->mupos[iSyn] = 0;
     allSynapsesDevice->muneg[iSyn] = 0;

@@ -356,7 +356,7 @@ class AllSTDPSynapses : public AllSpikingSynapses
          *  @param  epost       Params for the rule given in Froemke and Dan (2002).
          *  @param  epre        Params for the rule given in Froemke and Dan (2002).
          */
-        void stdpLearning(const BGSIZE iSyn,double delta, double epost, double epre, string thetype, int64_t g_simulationStep, int64_t spikeHistory);
+        void stdpLearning(const BGSIZE iSyn,double delta, double epost, double epre);
 
 #endif
     public:

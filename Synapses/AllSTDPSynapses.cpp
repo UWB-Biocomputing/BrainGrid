@@ -268,7 +268,7 @@ void AllSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, int des
     taupos[iSyn] = 14.8e-3;
     tauneg[iSyn] = 33.8e-3;
 
-    Wex[iSyn] = 1.0;
+    Wex[iSyn] = 5.0265e-7;
 
     mupos[iSyn] = 0;
     muneg[iSyn] = 0;
@@ -362,7 +362,7 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
                 } else {
                     epost = 1.0;
                 }
-                stdpLearning(iSyn, delta, epost, epre, "prepost",g_simulationStep, spikeHistory);
+                stdpLearning(iSyn, delta, epost, epre);
                 --offIndex;
             }
 
@@ -389,9 +389,13 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
                 spikeHistory = spNeurons->getSpikeHistory(idxPre, offIndex, sim_info);
                 if (spikeHistory == ULONG_MAX)
                     break;
+                    
+                if(spikeHistory + total_delay > g_simulationStep) {
+                    --offIndex;
+                    continue;
+                }
                 // delta is the spike interval between post-pre spikes
-                delta = static_cast<BGFLOAT>((int64_t)g_simulationStep - (int64_t)spikeHistory - total_delay) * deltaT;
-                
+                delta = static_cast<BGFLOAT>(g_simulationStep - spikeHistory - total_delay) * deltaT;
                 DEBUG_SYNAPSE(
                     cout << "AllSTDPSynapses::advanceSynapse: fPost" << endl;
                     cout << "          iSyn: " << iSyn << endl;
@@ -402,7 +406,7 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
                     cout << "          delta: " << delta << endl << endl;
                 );
 
-                if (delta <= 0 || delta >= 3.0 * taupos)
+                if (delta >= 3.0 * taupos)
                     break;
                 if (useFroemkeDanSTDP) {
                     spikeHistory2 = spNeurons->getSpikeHistory(idxPre, offIndex-1, sim_info);
@@ -412,7 +416,7 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
                 } else {
                     epre = 1.0;
                 }
-                stdpLearning(iSyn, delta, epost, epre, "postpre", g_simulationStep, spikeHistory);
+                stdpLearning(iSyn, delta, epost, epre);
                 --offIndex;
             }
         }
@@ -441,7 +445,7 @@ void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const SimulationInfo *si
  *  @param  epost       Params for the rule given in Froemke and Dan (2002).
  *  @param  epre        Params for the rule given in Froemke and Dan (2002).
  */
-void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost, double epre, string thetype, int64_t g_simulationStep, int64_t spikeHistory)
+void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost, double epre)
 {
     BGFLOAT STDPgap = this->STDPgap[iSyn];
     BGFLOAT muneg = this->muneg[iSyn];
@@ -468,10 +472,6 @@ void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost
     int preindex = this->sourceNeuronIndex[iSyn];
     int postindex = this->destNeuronIndex[iSyn];
 
-
-    cout << "type:" << thetype <<endl;
-    cout <<"g_simulationStep:" << g_simulationStep<<endl;
-    cout <<"spikeHistory:" << spikeHistory<<endl;
     cout<<"preindex:"<<preindex<<endl;
     cout<<"postindex:"<<postindex<<endl;
 
@@ -480,8 +480,6 @@ void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost
 
     // dw is the percentage change in synaptic strength; add 1.0 to become the scaling ratio
     dw = 1.0 + dw * epre * epost;
-
-    //if(dw <0) {cout<<"dwlessthenzero"<<endl;}
 
     // if scaling ratio is less than zero, set it to zero so this synapse, its strength is always zero
     if (dw < 0) {
@@ -493,14 +491,12 @@ void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost
     // current weight multiplies dw (scaling ratio) to generate new weight
     W *= dw;
 
-    cout <<"Wafter:"<<W<<endl;
-
     // if new weight is bigger than Wex (maximum allowed weight), then set it to Wex
     if (fabs(W) > Wex) {
         W = synSign(type) * Wex;
     }
 
-    //cout <<"Wafterafter:"<<W<<endl;
+    cout <<"Wafter:"<<W<<endl;
 
     DEBUG_SYNAPSE(
         cout << "AllSTDPSynapses::stdpLearning:" << endl;
