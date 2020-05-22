@@ -55,6 +55,7 @@ def plot(filename, hist):
     # fig_1: Plot burstiness index vs. time for spike records
     #-------------------------------------------------------------------------
     fig_1 = plt.figure(figsize=(20,12))
+    plt.title('Burstiness index: ' + filename)
     plt.xlabel('Time (s)')
     plt.ylabel('Burstiness Index')
     plt.plot((f15-0.15) / 0.85)

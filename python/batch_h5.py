@@ -16,6 +16,8 @@ import math
 import sys
 import numpy as np
 import plotRadiusAndFiringRateChanges
+import plotBurstinessIndex
+import plotRasterNeuralActivity
 
 args = sys.argv
 filename = args[1]
@@ -45,5 +47,15 @@ yloc = f['yloc'][()]					# every neuron's y location
 # Plot radius and firing rate changes and save the figures
 #
 plotRadiusAndFiringRateChanges.plot(filename, Tsim, neuronTypes, radiiHistory, ratesHistory, starterNeurons, xloc, yloc)
+
+#
+# Plot burstiness index vs. time for spike records
+#
+plotBurstinessIndex.plot(filename, burstinessHist)
+
+#
+# Creates a raster plot of neural activity
+#
+plotRasterNeuralActivity.plot(filename, ratesHistory, Tsim)
 
 f.close()
