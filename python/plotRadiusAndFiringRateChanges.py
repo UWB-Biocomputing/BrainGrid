@@ -74,7 +74,7 @@ def plot(filename, Tsim, neuronTypes, radiiHistory, ratesHistory, starterNeurons
     
     labels = ['starter neurons', 'excitatory neurons', 'inhibitory neurons', 'edge neurons', 'corner neurons']
     fig_1_1.legend((p1[0], p2[0], p3[0], p4[0], p5[0]), labels, loc='upper right')
-    fig_1_1.savefig(basename + '_RFRC_fig_1_1.png')
+    fig_1_1.savefig(basename + '_RadiusAndFiringRateChanges_1.png')
  
     #-------------------------------------------------------------------------
     # fig_1_2: Plot radii and firing changes (starter neurons)
@@ -94,7 +94,7 @@ def plot(filename, Tsim, neuronTypes, radiiHistory, ratesHistory, starterNeurons
     ax_2_2.set_ylim([0,maxRates])
     ax_2_2.plot(ratesHistory[:,bStarterNeurons], 'b')
     
-    fig_1_2.savefig(basename + '_RFRC_fig_1_2.png')
+    fig_1_2.savefig(basename + '_RadiusAndFiringRateChanges_2.png')
     
     #-------------------------------------------------------------------------
     # fig_1_3: Plot radii and firing changes (excitatory neurons)
@@ -114,7 +114,7 @@ def plot(filename, Tsim, neuronTypes, radiiHistory, ratesHistory, starterNeurons
     ax_3_2.set_ylim([0,maxRates])
     ax_3_2.plot(ratesHistory[:,excNeurons], 'k') 
     
-    fig_1_3.savefig(basename + '_RFRC_fig_1_3.png')
+    fig_1_3.savefig(basename + '_RadiusAndFiringRateChanges_3.png')
     
     #-------------------------------------------------------------------------
     # fig_1_4: Plot radii and firing changes (inhibitory neurons)
@@ -134,7 +134,7 @@ def plot(filename, Tsim, neuronTypes, radiiHistory, ratesHistory, starterNeurons
     ax_4_2.set_ylim([0,maxRates])
     ax_4_2.plot(ratesHistory[:,inhNeurons], 'r')
     
-    fig_1_4.savefig(basename + '_RFRC_fig_1_4.png')
+    fig_1_4.savefig(basename + '_RadiusAndFiringRateChanges_4.png')
     
     #-------------------------------------------------------------------------
     # fig_1_5: Plot radii and firing changes (edge neurons)
@@ -154,7 +154,7 @@ def plot(filename, Tsim, neuronTypes, radiiHistory, ratesHistory, starterNeurons
     ax_5_2.set_ylim([0,maxRates])
     ax_5_2.plot(ratesHistory[:,edgeNeurons], 'g')
     
-    fig_1_5.savefig(basename + '_RFRC_fig_1_5.png')
+    fig_1_5.savefig(basename + '_RadiusAndFiringRateChanges_5.png')
     
     #-------------------------------------------------------------------------
     # fig_1_6: Plot radii and firing changes (corner neurons)
@@ -174,6 +174,6 @@ def plot(filename, Tsim, neuronTypes, radiiHistory, ratesHistory, starterNeurons
     ax_6_2.set_ylim([0,maxRates])
     ax_6_2.plot(ratesHistory[:,cornerNeurons], 'c')
     
-    fig_1_6.savefig(basename + '_RFRC_fig_1_6.png')
+    fig_1_6.savefig(basename + '_RadiusAndFiringRateChanges_6.png')
 
     return

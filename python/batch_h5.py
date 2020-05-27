@@ -19,6 +19,7 @@ import plotRadiusAndFiringRateChanges
 import plotBurstinessIndex
 import plotRasterNeuralActivity
 import plotFinalConnectivityRadii
+import plotFinalRates
 
 args = sys.argv
 filename = args[1]
@@ -64,6 +65,11 @@ plotRasterNeuralActivity.plot(filename, ratesHistory, Tsim)
 #
 plotFinalConnectivityRadii.plot(filename, xloc, yloc, radiiHistory, neuronTypes, starterNeurons)
 
-plt.show()
+#
+# Plot circles showing firing rate
+#
+plotFinalRates.plot(filename, xloc, yloc, ratesHistory, neuronTypes, starterNeurons)
+
+#plt.show()
 
 f.close()
