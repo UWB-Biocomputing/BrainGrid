@@ -18,6 +18,7 @@ import numpy as np
 import plotRadiusAndFiringRateChanges
 import plotBurstinessIndex
 import plotRasterNeuralActivity
+import plotFinalConnectivityRadii
 
 args = sys.argv
 filename = args[1]
@@ -57,5 +58,12 @@ plotBurstinessIndex.plot(filename, burstinessHist)
 # Creates a raster plot of neural activity
 #
 plotRasterNeuralActivity.plot(filename, ratesHistory, Tsim)
+
+#
+# Plot circles showing connectivity radii
+#
+plotFinalConnectivityRadii.plot(filename, xloc, yloc, radiiHistory, neuronTypes, starterNeurons)
+
+plt.show()
 
 f.close()

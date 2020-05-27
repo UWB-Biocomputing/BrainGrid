@@ -24,7 +24,7 @@ def plot(filename, rates, Tsim):
     basename = os.path.splitext(os.path.basename(filename))[0]  # base name of the input file
     [m, n] = rates.shape   # m - number of epoch, n - number of neurons
     
-    fig_1 = plt.figure(figsize=(20,12))
+    fig_3 = plt.figure(figsize=(20,12))
     plt.title('Raster plot: ' + filename)
     plt.xlabel('Time (s) x %d' % Tsim)
     plt.ylabel('Neuron Number')
@@ -35,7 +35,6 @@ def plot(filename, rates, Tsim):
         st = [i for i, x in enumerate(rates[:, c]) if x != 0]
         plt.plot(st, c*np.ones(len(st)), 'k')
     
-    fig_1.savefig(basename + '_RPNA_fig_1.png')
-    plt.show()
+    fig_3.savefig(basename + '_RPNA_fig_3.png')
     
     return

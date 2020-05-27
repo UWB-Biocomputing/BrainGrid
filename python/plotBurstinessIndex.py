@@ -52,15 +52,14 @@ def plot(filename, hist):
             f15[n] = sp15 / spikes
     
     #-------------------------------------------------------------------------
-    # fig_1: Plot burstiness index vs. time for spike records
+    # fig_2: Plot burstiness index vs. time for spike records
     #-------------------------------------------------------------------------
-    fig_1 = plt.figure(figsize=(20,12))
+    fig_2 = plt.figure(figsize=(20,12))
     plt.title('Burstiness index: ' + filename)
     plt.xlabel('Time (s)')
     plt.ylabel('Burstiness Index')
     plt.plot((f15-0.15) / 0.85)
-    fig_1.savefig(basename + '_BSTI_fig_1.png')
-    plt.show() 
+    fig_2.savefig(basename + '_BSTI_fig_2.png')
 
     return
 
