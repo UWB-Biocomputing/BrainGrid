@@ -178,17 +178,17 @@ CUDA_CALLABLE void EventQueue::addAnEvent(const BGSIZE idx, const CLUSTER_INDEX_
         // Therefore we need atomicaly set spiking data here.
 
         BGQUEUE_ELEMENT oldQueueEvent, newQueueEvent, currQueueEvent = m_queueEvent[idx];
-        assert( !(currQueueEvent & (0x1 << idxQueue)) );
+        assert( !(currQueueEvent & (BGQUEUE_ELEMENT(0x1) << idxQueue)) );
         do {
             oldQueueEvent = currQueueEvent;
-            newQueueEvent = currQueueEvent | (0x1 << idxQueue);
+            newQueueEvent = currQueueEvent | (BGQUEUE_ELEMENT(0x1) << idxQueue);
             currQueueEvent = __sync_val_compare_and_swap(&m_queueEvent[idx], oldQueueEvent, newQueueEvent);
         } while (currQueueEvent != oldQueueEvent);
 #else // __CUDA_ARCH__
         // set a spike
         BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
-        assert( !(queue & (0x1 << idxQueue)) );
-        queue |= (0x1 << idxQueue);
+        assert( !(queue & (BGQUEUE_ELEMENT(0x1) << idxQueue)) );
+        queue |= (BGQUEUE_ELEMENT(0x1) << idxQueue);
 #endif // __CUDA_ARCH__
     }
 }
@@ -304,8 +304,8 @@ __device__ void EventQueue::processInterClustersIncomingEventsInDevice(int idx)
     idxQueue = ( idxQueue >= LENGTH_OF_DELAYQUEUE ) ? idxQueue - LENGTH_OF_DELAYQUEUE : idxQueue;
 
     // set a spike
-    assert( !(queue & (0x1 << idxQueue)) );
-    queue |= (0x1 << idxQueue);
+    assert( !(queue & (BGQUEUE_ELEMENT(0x1) << idxQueue)) );
+    queue |= (BGQUEUE_ELEMENT(0x1) << idxQueue);
 }
 
 #endif // USE_GPU
@@ -331,8 +331,8 @@ CUDA_CALLABLE void EventQueue::addAnEvent(const BGSIZE idx, const int delay, int
 
     // set a spike
     BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
-    assert( !(queue & (0x1 << idxQueue)) );
-    queue |= (0x1 << idxQueue);
+    assert( !(queue & (BGQUEUE_ELEMENT(0x1) << idxQueue)) );
+    queue |= (BGQUEUE_ELEMENT(0x1) << idxQueue);
 }
 
 /*
@@ -350,8 +350,8 @@ CUDA_CALLABLE bool EventQueue::checkAnEvent(const BGSIZE idx, int iStepOffset)
         idxQueue -= LENGTH_OF_DELAYQUEUE;
     }
     BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
-    bool r = queue & (0x1 << idxQueue);
-    queue &= ~(0x1 << idxQueue);
+    bool r = queue & (BGQUEUE_ELEMENT(0x1) << idxQueue);
+    queue &= ~(BGQUEUE_ELEMENT(0x1) << idxQueue);
 
     return r;
 }
@@ -385,17 +385,17 @@ CUDA_CALLABLE bool EventQueue::checkAnEvent(const BGSIZE idx, const int delay, i
     // Therefore we need atomicaly check and reset spiking data here.
 
     BGQUEUE_ELEMENT oldQueueEvent, newQueueEvent, currQueueEvent = m_queueEvent[idx];
-    bool r = currQueueEvent & (0x1 << idxQueue);
+    bool r = currQueueEvent & (BGQUEUE_ELEMENT(0x1) << idxQueue);
     do {
         oldQueueEvent = currQueueEvent;
-        newQueueEvent = currQueueEvent & ~(0x1 << idxQueue);
+        newQueueEvent = currQueueEvent & ~(BGQUEUE_ELEMENT(0x1) << idxQueue);
         currQueueEvent = __sync_val_compare_and_swap(&m_queueEvent[idx], oldQueueEvent, newQueueEvent);
     } while (currQueueEvent != oldQueueEvent);
 #else // USE_GPU
     // check and reset a spike
     BGQUEUE_ELEMENT &queue = m_queueEvent[idx];
-    bool r = queue & (0x1 << idxQueue);
-    queue &= ~(0x1 << idxQueue);
+    bool r = queue & (BGQUEUE_ELEMENT(0x1) << idxQueue);
+    queue &= ~(BGQUEUE_ELEMENT(0x1) << idxQueue);
 #endif // USE_GPU
 
     return r;
