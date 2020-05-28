@@ -184,7 +184,7 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
             spikeHistory = spNeurons->getSpikeHistory(idxPre, -2, maxSpikes, pINeuronsProps);
             if (spikeHistory != ULONG_MAX && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
-                delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
+                delta = static_cast<BGFLOAT>(simulationStep - spikeHistory) * deltaT;
                 epre = 1.0 - exp(-delta / tauspre);
             } else {
                 epre = 1.0;
@@ -199,7 +199,7 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
                     break;
                 // delta is the spike interval between pre-post spikes
                 // (include pre-synaptic transmission delay)
-                delta = (spikeHistory - (int64_t)simulationStep) * deltaT;
+                delta = -static_cast<BGFLOAT>(simulationStep - spikeHistory) * deltaT;
 
                 DEBUG_SYNAPSE(
                     printf("AllSTDPSynapses::advanceSynapse: fPre\n");
@@ -217,7 +217,7 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
                     spikeHistory2 = spNeurons->getSpikeHistory(idxPost, offIndex-1, maxSpikes, pINeuronsProps);
                     if (spikeHistory2 == ULONG_MAX)
                         break;
-                    epost = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspost);
+                    epost = 1.0 - exp(-(static_cast<BGFLOAT>(spikeHistory - spikeHistory2) * deltaT) / tauspost);
                 } else {
                     epost = 1.0;
                 }
@@ -235,7 +235,7 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
             spikeHistory = spNeurons->getSpikeHistory(idxPost, -2, maxSpikes, pINeuronsProps);
             if (spikeHistory != ULONG_MAX && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
-                delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
+                delta = static_cast<BGFLOAT>(simulationStep - spikeHistory) * deltaT;
                 epost = 1.0 - exp(-delta / tauspost);
             } else {
                 epost = 1.0;
@@ -249,7 +249,7 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
                 if (spikeHistory == ULONG_MAX)
                     break;
                 // delta is the spike interval between post-pre spikes
-                delta = ((int64_t)simulationStep - spikeHistory - total_delay) * deltaT;
+                delta = static_cast<BGFLOAT>((int64_t)simulationStep - (int64_t)spikeHistory - total_delay) * deltaT;
 
                 DEBUG_SYNAPSE(
                     printf("AllSTDPSynapses::advanceSynapse: fPost\n");
@@ -267,7 +267,7 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
                     spikeHistory2 = spNeurons->getSpikeHistory(idxPre, offIndex-1, maxSpikes, pINeuronsProps);
                     if (spikeHistory2 == ULONG_MAX)
                         break;                
-                    epre = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspre);
+                    epre = 1.0 - exp(-(static_cast<BGFLOAT>(spikeHistory - spikeHistory2) * deltaT) / tauspre);
                 } else {
                     epre = 1.0;
                 }
