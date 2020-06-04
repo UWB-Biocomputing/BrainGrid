@@ -469,15 +469,6 @@ void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost
         return;
     }
 
-    int preindex = this->sourceNeuronIndex[iSyn];
-    int postindex = this->destNeuronIndex[iSyn];
-
-    cout<<"preindex:"<<preindex<<endl;
-    cout<<"postindex:"<<postindex<<endl;
-
-    cout <<"delta:"<<delta<<endl;
-    cout <<"dw:"<<dw<<endl;
-
     // dw is the percentage change in synaptic strength; add 1.0 to become the scaling ratio
     dw = 1.0 + dw * epre * epost;
 
@@ -486,8 +477,6 @@ void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost
         dw = 0;
     }
 
-    cout <<"Wbefore:"<<W<<endl;
-
     // current weight multiplies dw (scaling ratio) to generate new weight
     W *= dw;
 
@@ -495,8 +484,6 @@ void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta, double epost
     if (fabs(W) > Wex) {
         W = synSign(type) * Wex;
     }
-
-    cout <<"Wafter:"<<W<<endl;
 
     DEBUG_SYNAPSE(
         cout << "AllSTDPSynapses::stdpLearning:" << endl;

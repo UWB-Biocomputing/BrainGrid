@@ -146,15 +146,6 @@ __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesD
         return;
     }
 
-    int preindex = allSynapsesDevice->sourceNeuronIndex[iSyn];
-    int postindex = allSynapsesDevice->destNeuronIndex[iSyn];
-
-    printf("preindex:%d\n", preindex);
-    printf("postindex:%d\n", postindex);
-
-    printf("delta:%f\n", delta);
-    printf("dw:%f\n", dw);
-
     // dw is the percentage change in synaptic strength; add 1.0 to become the scaling ratio
     dw = 1.0 + dw * epre * epost;
 
@@ -163,8 +154,6 @@ __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesD
         dw = 0;
     }
 
-    printf("Wbefore:%f\n", W);
-
     // current weight multiplies dw (scaling ratio) to generate new weight
     W *= dw;
 
@@ -172,8 +161,6 @@ __device__ void stdpLearningDevice(AllSTDPSynapsesDeviceProperties* allSynapsesD
     if (fabs(W) > Wex) {
         W = synSign(type) * Wex;
     }
-
-    printf("Wafter:%f\n", W);
 
     DEBUG_SYNAPSE(
         printf("AllSTDPSynapses::stdpLearning:\n");
