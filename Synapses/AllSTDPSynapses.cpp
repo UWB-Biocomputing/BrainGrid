@@ -268,7 +268,7 @@ void AllSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_index, int des
     taupos[iSyn] = 14.8e-3;
     tauneg[iSyn] = 33.8e-3;
 
-    Wex[iSyn] = 5.0265e-7;
+    Wex[iSyn] = 5.0265e-7; // this is based on overlap of 2 neurons' radii (r=4) of outgrowth, scale it by SYNAPSE_STRENGTH_ADJUSTMENT. 
 
     mupos[iSyn] = 0;
     muneg[iSyn] = 0;

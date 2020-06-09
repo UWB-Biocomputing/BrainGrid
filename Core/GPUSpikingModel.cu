@@ -22,7 +22,6 @@
  \** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - **/
 
 #include "GPUSpikingModel.h"
-#include "AllDSSynapses.h"
 
 #ifdef PERFORMANCE_METRICS
 float g_time;
@@ -206,10 +205,6 @@ void GPUSpikingModel::advance(const SimulationInfo *sim_info)
  cudaLapTime(t_gpu_calcSummation);
 #endif // PERFORMANCE_METRICS
 }
-
-
-
-
 
 /*
  * Add psr of all incoming synapses to summation points.

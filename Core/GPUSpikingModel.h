@@ -62,7 +62,6 @@
 #include "Model.h"
 #include "AllSpikingNeurons.h"
 #include "AllSpikingSynapses.h"
-#include "AllIFNeurons.h"
 #ifdef __CUDACC__
 #include "Book.h"
 #endif

@@ -8,10 +8,7 @@
  */
 
 #include "Simulator.h"
-#include "AllLIFNeurons.h"
-#include "Model.h"
-#include "GPUSpikingModel.h"
-#include "AllDSSynapses.h"
+
 /*
  *  Constructor
  */
@@ -158,6 +155,7 @@ void Simulator::simulate(SimulationInfo *sim_info)
       sim_info->short_timer.start();
 #endif
     sim_info->model->updateConnections(sim_info);
+      
     sim_info->model->updateHistory(sim_info);
 
 #ifdef PERFORMANCE_METRICS
@@ -190,7 +188,7 @@ void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_in
     + static_cast<uint64_t>(sim_info->epochDuration / sim_info->deltaT);
 
   DEBUG_MID(sim_info->model->logSimStep(sim_info);) // Generic model debug call
-    
+
     while (g_simulationStep < endStep) {
       DEBUG_LOW(
 		// Output status once every 10,000 steps
@@ -208,7 +206,7 @@ void Simulator::advanceUntilGrowth(const int currentStep, SimulationInfo *sim_in
         if (sim_info->pInput != NULL)
 	  sim_info->pInput->inputStimulus(sim_info);
 
-      // Advance the Network one time step 
+      // Advance the Network one time step
       sim_info->model->advance(sim_info);
 
       g_simulationStep++;
