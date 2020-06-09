@@ -47,25 +47,27 @@ CUDA_CALLABLE void AllSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_
 {
     AllSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
-    AllSpikingSynapses::createSynapse(iSyn, source_index, dest_index, sum_point, deltaT, type);
-
-    pSynapsesProps->Apos[iSyn] = 0.5;
-    pSynapsesProps->Aneg[iSyn] = -0.5;
-    pSynapsesProps->STDPgap[iSyn] = 2e-3;
-
     pSynapsesProps->total_delayPost[iSyn] = 0;
+    AllSpikingSynapses::createSynapse(iSyn, source_index, dest_index, sum_point, deltaT, type);
+    
+    // May 1st 2020 
+    // Use constants from Froemke and Dan (2002). 
+    // Spike-timing-dependent synaptic modification induced by natural spike trains. Nature 416 (3/2002)
+    pSynapsesProps->Apos[iSyn] = 1.01;
+    pSynapsesProps->Aneg[iSyn] = -0.52;
+    pSynapsesProps->STDPgap[iSyn] = 2e-3;
 
     pSynapsesProps->tauspost[iSyn] = 75e-3;
     pSynapsesProps->tauspre[iSyn] = 34e-3;
 
-    pSynapsesProps->taupos[iSyn] = 15e-3;
-    pSynapsesProps->tauneg[iSyn] = 35e-3;
-    pSynapsesProps->Wex[iSyn] = 1.0;
+    pSynapsesProps->taupos[iSyn] = 14.8e-3;
+    pSynapsesProps->tauneg[iSyn] = 33.8e-3;
+    pSynapsesProps->Wex[iSyn] = 5.0265e-7;
 
     pSynapsesProps->mupos[iSyn] = 0;
     pSynapsesProps->muneg[iSyn] = 0;
 
-    pSynapsesProps->useFroemkeDanSTDP[iSyn] = true;
+    pSynapsesProps->useFroemkeDanSTDP[iSyn] = false;
 
     // initializes the queues for the Synapses
     pSynapsesProps->postSpikeQueue->clearAnEvent(iSyn);
@@ -123,6 +125,13 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
 {
     AllSTDPSynapsesProps *pSynapsesProps = reinterpret_cast<AllSTDPSynapsesProps*>(m_pSynapsesProps);
 
+    // If the synapse is inhibitory or its weight is zero, update synapse state using AllSpikingSynapses::advanceSynapse method
+    BGFLOAT &W = pSynapsesProps->W[iSyn];
+    if(W <= 0.0) {
+        AllSpikingSynapses::advanceSynapse(iSyn, deltaT, neurons, simulationStep, iStepOffset, maxSpikes, pINeuronsProps);
+        return;
+    }
+
     BGFLOAT &decay = pSynapsesProps->decay[iSyn];
     BGFLOAT &psr = pSynapsesProps->psr[iSyn];
 
@@ -154,7 +163,7 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
             spikeHistory = spNeurons->getSpikeHistory(idxPre, -2, maxSpikes, pINeuronsProps);
             if (spikeHistory != ULONG_MAX && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
-                delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
+                delta = static_cast<BGFLOAT>(simulationStep - spikeHistory) * deltaT;
                 epre = 1.0 - exp(-delta / tauspre);
             } else {
                 epre = 1.0;
@@ -169,8 +178,7 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
                     break;
                 // delta is the spike interval between pre-post spikes
                 // (include pre-synaptic transmission delay)
-                delta = (spikeHistory - (int64_t)simulationStep) * deltaT;
-
+                delta = -static_cast<BGFLOAT>(simulationStep - spikeHistory) * deltaT;
                 DEBUG_SYNAPSE(
                     printf("AllSTDPSynapses::advanceSynapse: fPre\n");
                     printf("          iSyn: %d\n", iSyn);
@@ -187,7 +195,7 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
                     spikeHistory2 = spNeurons->getSpikeHistory(idxPost, offIndex-1, maxSpikes, pINeuronsProps);
                     if (spikeHistory2 == ULONG_MAX)
                         break;
-                    epost = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspost);
+                    epost = 1.0 - exp(-(static_cast<BGFLOAT>(spikeHistory - spikeHistory2) * deltaT) / tauspost);
                 } else {
                     epost = 1.0;
                 }
@@ -205,7 +213,7 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
             spikeHistory = spNeurons->getSpikeHistory(idxPost, -2, maxSpikes, pINeuronsProps);
             if (spikeHistory != ULONG_MAX && useFroemkeDanSTDP) {
                 // delta will include the transmission delay
-                delta = ((int64_t)simulationStep - spikeHistory) * deltaT;
+                delta = static_cast<BGFLOAT>(simulationStep - spikeHistory) * deltaT;
                 epost = 1.0 - exp(-delta / tauspost);
             } else {
                 epost = 1.0;
@@ -218,9 +226,13 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
                 spikeHistory = spNeurons->getSpikeHistory(idxPre, offIndex, maxSpikes, pINeuronsProps);
                 if (spikeHistory == ULONG_MAX)
                     break;
+                
+                if(spikeHistory + total_delay > simulationStep) {
+                    --offIndex;
+                    continue;
+                }
                 // delta is the spike interval between post-pre spikes
-                delta = ((int64_t)simulationStep - spikeHistory - total_delay) * deltaT;
-
+                delta = static_cast<BGFLOAT>(simulationStep - spikeHistory - total_delay) * deltaT;
                 DEBUG_SYNAPSE(
                     printf("AllSTDPSynapses::advanceSynapse: fPost\n");
                     printf("          iSyn: %d\n", iSyn);
@@ -231,13 +243,13 @@ CUDA_CALLABLE void AllSTDPSynapses::advanceSynapse(const BGSIZE iSyn, const BGFL
                     printf("          delta: %f\n\n", delta);
                 );
 
-                if (delta <= 0 || delta >= 3.0 * taupos)
+                if (delta >= 3.0 * taupos)
                     break;
                 if (useFroemkeDanSTDP) {
                     spikeHistory2 = spNeurons->getSpikeHistory(idxPre, offIndex-1, maxSpikes, pINeuronsProps);
                     if (spikeHistory2 == ULONG_MAX)
                         break;                
-                    epre = 1.0 - exp(-((spikeHistory - spikeHistory2) * deltaT) / tauspre);
+                    epre = 1.0 - exp(-(static_cast<BGFLOAT>(spikeHistory - spikeHistory2) * deltaT) / tauspre);
                 } else {
                     epre = 1.0;
                 }
@@ -272,25 +284,34 @@ CUDA_CALLABLE void AllSTDPSynapses::stdpLearning(const BGSIZE iSyn, double delta
     BGFLOAT Apos = pSynapsesProps->Apos[iSyn];
     BGFLOAT Wex = pSynapsesProps->Wex[iSyn];
     BGFLOAT &W = pSynapsesProps->W[iSyn];
+    synapseType type = pSynapsesProps->type[iSyn];
     BGFLOAT dw;
 
     if (delta < -STDPgap) {
-        // Depression
-        dw = pow(W, muneg) * Aneg * exp(delta / tauneg);
+        // depression
+        dw = pow(fabs(W) / Wex,  muneg) * Aneg * exp(delta / tauneg);  // normalize
     } else if (delta > STDPgap) {
-        // Potentiation
-        dw = pow(Wex - W, mupos) * Apos * exp(-delta / taupos);
+        // potentiation
+        dw = pow(fabs(Wex - fabs(W)) / Wex,  mupos) * Apos * exp(-delta / taupos); // normalize
     } else {
         return;
     }
 
-    W += epost * epre * dw;
+    // dw is the percentage change in synaptic strength; add 1.0 to become the scaling ratio
+    dw = 1.0 + dw * epre * epost;
 
-    // check the sign
-    if ((Wex < 0 && W > 0) || (Wex > 0 && W < 0)) W = 0;
+    // if scaling ratio is less than zero, set it to zero so this synapse, its strength is always zero
+    if (dw < 0) {
+        dw = 0;
+    }
 
-    // check for greater Wmax
-    if (fabs(W) > fabs(Wex)) W = Wex;
+    // current weight multiplies dw (scaling ratio) to generate new weight
+    W *= dw;
+
+    // if new weight is bigger than Wex (maximum allowed weight), then set it to Wex
+    if (fabs(W) > Wex) {
+        W = synSign(type) * Wex;
+    }
 
     DEBUG_SYNAPSE(
         printf("AllSTDPSynapses::stdpLearning: fPost\n");

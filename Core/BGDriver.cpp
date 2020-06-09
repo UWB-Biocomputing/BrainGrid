@@ -260,7 +260,7 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
         clusterInfo->deviceId = g_deviceId + iCluster;
 #endif // USE_GPU
 
-        // save the cluser information to the vector
+        // save the cluster information to the vector
         vtClrInfo.push_back(clusterInfo); 
 
         // create a cluster

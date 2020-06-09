@@ -293,7 +293,7 @@ void AllIFNeuronsProps::copyDeviceToHost( AllIFNeuronsProps& allNeuronsProps, co
 
     checkCudaErrors( cudaMemcpy ( C1, allNeuronsProps.C1, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
     checkCudaErrors( cudaMemcpy ( C2, allNeuronsProps.C2, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
-    checkCudaErrors( cudaMemcpy ( Cm, allNeuronsProps.C1, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaMemcpy ( Cm, allNeuronsProps.Cm, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
     checkCudaErrors( cudaMemcpy ( I0, allNeuronsProps.I0, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
     checkCudaErrors( cudaMemcpy ( Iinject, allNeuronsProps.Iinject, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );
     checkCudaErrors( cudaMemcpy ( Inoise, allNeuronsProps.Inoise, size * sizeof( BGFLOAT ), cudaMemcpyDeviceToHost ) );

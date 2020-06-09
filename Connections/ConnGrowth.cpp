@@ -364,14 +364,19 @@ void ConnGrowth::updateOverlap(BGFLOAT num_neurons, Layout *layout)
                                 BGFLOAT r22 = r2 * r2;
 
                                 BGFLOAT cosCBA = (r22 + lenAB2 - r12) / (2.0 * r2 * lenAB);
-                                BGFLOAT angCBA = acos(cosCBA);
-                                BGFLOAT angCBD = 2.0 * angCBA;
-
                                 BGFLOAT cosCAB = (r12 + lenAB2 - r22) / (2.0 * r1 * lenAB);
-                                BGFLOAT angCAB = acos(cosCAB);
-                                BGFLOAT angCAD = 2.0 * angCAB;
 
-                                (*area)(i, j) = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
+                                if(fabs(cosCBA) >= 1.0 || fabs(cosCAB) >= 1.0) {
+                                    (*area)(i,j) = 0.0;
+                                } else {
+                                    BGFLOAT angCBA = acos(cosCBA);
+                                    BGFLOAT angCBD = 2.0 * angCBA;
+                                    
+                                    BGFLOAT angCAB = acos(cosCAB);
+                                    BGFLOAT angCAD = 2.0 * angCAB;
+
+                                    (*area)(i, j) = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
+                                }
                         }
                 }
         }
@@ -433,7 +438,7 @@ void ConnGrowth::updateSynapsesWeights(const SimulationInfo *sim_info, Layout *l
                             // adjust the strength of the synapse or remove
                             // it from the synapse map if it has gone below
                             // zero.
-                            if ((*W)(src_neuron, dest_neuron) < 0) {
+                            if ((*W)(src_neuron, dest_neuron) <= 0) {
                                 removed++;
                                 synapses->eraseSynapse(iNeuron, iSyn);
                             } else {

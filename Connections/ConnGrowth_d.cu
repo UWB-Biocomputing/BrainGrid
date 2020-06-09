@@ -337,14 +337,19 @@ __global__ void updateSynapsesWeightsDevice( IAllSynapses* synapsesDevice, int n
                 BGFLOAT r22 = r2 * r2;
 
                 BGFLOAT cosCBA = (r22 + lenAB2 - r12) / (2.0 * r2 * lenAB);
-                BGFLOAT angCBA = acos(cosCBA);
-                BGFLOAT angCBD = 2.0 * angCBA;
-
                 BGFLOAT cosCAB = (r12 + lenAB2 - r22) / (2.0 * r1 * lenAB);
-                BGFLOAT angCAB = acos(cosCAB);
-                BGFLOAT angCAD = 2.0 * angCAB;
 
-                area = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
+                if(fabs(cosCBA) >= 1.0 || fabs(cosCAB) >= 1.0) {
+                    (*area)(i,j) = 0.0;
+                } else {
+                    BGFLOAT angCBA = acos(cosCBA);
+                    BGFLOAT angCBD = 2.0 * angCBA;
+
+                    BGFLOAT angCAB = acos(cosCAB);
+                    BGFLOAT angCAD = 2.0 * angCAB;
+
+                    (*area)(i, j) = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
+                }
             }
         }
 
@@ -368,7 +373,7 @@ __global__ void updateSynapsesWeightsDevice( IAllSynapses* synapsesDevice, int n
                     // zero.
 
                     // W_d[] is indexed by (dest_neuron (local index) * totalNeurons + src_neuron)
-                    if (area < 0) {
+                    if (area <= 0) {
                         removed++;
                         synapsesDevice->eraseSynapse(iNeuron, iSyn);
                     } else {
