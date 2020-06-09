@@ -340,7 +340,7 @@ __global__ void updateSynapsesWeightsDevice( IAllSynapses* synapsesDevice, int n
                 BGFLOAT cosCAB = (r12 + lenAB2 - r22) / (2.0 * r1 * lenAB);
 
                 if(fabs(cosCBA) >= 1.0 || fabs(cosCAB) >= 1.0) {
-                    (*area)(i,j) = 0.0;
+                    area = 0.0;
                 } else {
                     BGFLOAT angCBA = acos(cosCBA);
                     BGFLOAT angCBD = 2.0 * angCBA;
@@ -348,7 +348,7 @@ __global__ void updateSynapsesWeightsDevice( IAllSynapses* synapsesDevice, int n
                     BGFLOAT angCAB = acos(cosCAB);
                     BGFLOAT angCAD = 2.0 * angCAB;
 
-                    (*area)(i, j) = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
+                    area = 0.5 * (r22 * (angCBD - sin(angCBD)) + r12 * (angCAD - sin(angCAD)));
                 }
             }
         }
