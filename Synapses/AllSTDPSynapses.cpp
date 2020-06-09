@@ -62,7 +62,7 @@ CUDA_CALLABLE void AllSTDPSynapses::createSynapse(const BGSIZE iSyn, int source_
 
     pSynapsesProps->taupos[iSyn] = 14.8e-3;
     pSynapsesProps->tauneg[iSyn] = 33.8e-3;
-    pSynapsesProps->Wex[iSyn] = 5.0265e-7;
+    pSynapsesProps->Wex[iSyn] = 5.0265e-7; // this is based on overlap of 2 neurons' radii (r=4) of outgrowth, scale it by SYNAPSE_STRENGTH_ADJUSTMENT. 
 
     pSynapsesProps->mupos[iSyn] = 0;
     pSynapsesProps->muneg[iSyn] = 0;
