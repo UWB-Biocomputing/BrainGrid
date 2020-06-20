@@ -30,7 +30,7 @@
    
    4.2 Configuring the model
 
-5. [Implementation](braingrid_implmentation)
+5. [Implementation](braingrid_implementation)
 
    4.1 the Growth Model
    
