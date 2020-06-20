@@ -29,3 +29,9 @@
    4.1 Use built-in models
    
    4.2 Configuring the model
+
+5. [Implementation](braingrid_implmentation)
+
+   4.1 the Growth Model
+   
+   4.2 Serialization and Deserialization
