@@ -1,12 +1,4 @@
 ################################################################################
-# Default Target
-# -----------------------------------------------------------------------------
-# growth	 - single threaded
-# growth_cuda	 - multithreaded
-################################################################################
-all: growth growth_cuda
-
-################################################################################
 # Conditional Flags
 # -----------------------------------------------------------------------------
 # CUSEHDF5:	 yes - use hdf5 file format 
@@ -15,10 +7,25 @@ all: growth growth_cuda
 #		 no  - not showing performance results
 # CVALIDATION:   yes - make validation version (see issue #239)
 #                no  - make production version
+# CBOOSTPYTHON   yes - make python interface libraries
+#                no  - make executables
 ################################################################################
 CUSEHDF5 = no
 CPMETRICS = no
 CVALIDATION = no
+CBOOSTPYTHON = no
+
+################################################################################
+# Default Target
+# -----------------------------------------------------------------------------
+# growth	 - single threaded
+# growth_cuda	 - multithreaded
+################################################################################
+ifeq ($(CBOOSTPYTHON), yes)
+all: growth.so
+else
+all: growth growth_cuda
+endif
 
 ################################################################################
 # Source Directories
@@ -88,11 +95,19 @@ else
         VDFLAGS =
 endif
 
+ifeq ($(CBOOSTPYTHON), yes)
+	PYTHONINCDIR = /usr/include/python3.6m
+	BPFLAG = -fPIC -DBOOST_PYTHON
+	LBOOSTPYTHONFLAGS = -lboost_python36
+else
+	PYTHONINCDIR = .
+endif
+
 INCDIRS = -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) \
           -I$(MATRIXDIR) -I$(NEURONDIR) -I$(PARAMDIR) -I$(RECORDERDIR) \
-          -I$(RNGDIR) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(XMLDIR) 
+          -I$(RNGDIR) -I$(SYNAPSEDIR) -I$(UTILDIR) -I$(XMLDIR) -I$(PYTHONINCDIR)
 
-CXXFLAGS = -O2 -std=c++11 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) $(VDFLAGS)
+CXXFLAGS = -O2 -std=c++11 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) $(VDFLAGS) $(BPFLAG)
 CGPUFLAGS = -std=c++11 -DUSE_GPU $(PMFLAGS) $(H5FLAGS) $(VDFLAGS)
 CXXLDFLAGS = -lstdc++ -pthread
 LGPUFLAGS = -lstdc++ -L$(CUDALIBDIR) -lcuda -lcudart -lcudadevrt -arch=sm_35
@@ -102,55 +117,41 @@ NVCCFLAGS = -arch=sm_35 -dc -DDEBUG_OUT $(INCDIRS) -I/usr/local/cuda/samples/com
 # Objects
 ################################################################################
 
-ifeq ($(CUSEHDF5), yes)
-CUDAOBJS =   \
-		$(COREDIR)/GPUSpikingCluster.o \
-		$(COREDIR)/Model_cuda.o \
-		$(NEURONDIR)/AllNeurons_cuda.o \
-		$(NEURONDIR)/AllSpikingNeurons_cuda.o \
-		$(NEURONDIR)/AllIFNeurons_cuda.o \
-		$(NEURONDIR)/AllLIFNeurons_cuda.o \
-		$(NEURONDIR)/AllIZHNeurons_cuda.o \
-                $(NEURONDIR)/AllNeuronsProps_cuda.o \
-                $(NEURONDIR)/AllSpikingNeuronsProps_cuda.o \
-                $(NEURONDIR)/AllIFNeuronsProps_cuda.o \
-                $(NEURONDIR)/AllIZHNeuronsProps_cuda.o \
-		$(SYNAPSEDIR)/AllSynapses_cuda.o \
-		$(SYNAPSEDIR)/AllSpikingSynapses_cuda.o \
-		$(SYNAPSEDIR)/AllDSSynapses_cuda.o \
-		$(SYNAPSEDIR)/AllSTDPSynapses_cuda.o \
-		$(SYNAPSEDIR)/AllDynamicSTDPSynapses_cuda.o \
-		$(SYNAPSEDIR)/AllSynapsesProps_cuda.o \
-		$(SYNAPSEDIR)/AllSpikingSynapsesProps_cuda.o \
-		$(SYNAPSEDIR)/AllDSSynapsesProps_cuda.o \
-		$(SYNAPSEDIR)/AllSTDPSynapsesProps_cuda.o \
-		$(SYNAPSEDIR)/AllDynamicSTDPSynapsesProps_cuda.o \
-		$(CONNDIR)/Connections_cuda.o \
-		$(CONNDIR)/ConnGrowth_cuda.o \
-		$(CONNDIR)/ConnStatic_cuda.o \
-		$(CONNDIR)/ConnGrowth_d.o \
-		$(CONNDIR)/ConnStatic_d.o \
-		$(LAYOUTDIR)/Layout_cuda.o \
-		$(RNGDIR)/MersenneTwister_d.o \
+ifeq ($(CBOOSTPYTHON), yes)
+PYTHONWRAPPEROBJS = \
+                $(COREDIR)/PythonWrapper.o
+endif
+
+COREOBJS = \
+		$(COREDIR)/BGDriver.o  \
+                $(COREDIR)/Model.o \
+                $(COREDIR)/SingleThreadedCluster.o \
+                $(COREDIR)/FClassOfCategory.o \
+                $(COREDIR)/EventQueue.o \
+                $(COREDIR)/InterClustersEventHandler.o \
+                $(COREDIR)/SynapseIndexMap.o 
+
+CORECUDAOBJS = \
 		$(COREDIR)/BGDriver_cuda.o \
-		$(INPUTDIR)/GpuSInputRegular.o \
-		$(INPUTDIR)/GpuSInputPoisson.o \
-		$(INPUTDIR)/SInputRegular_cuda.o \
-		$(INPUTDIR)/SInputPoisson_cuda.o \
-		$(INPUTDIR)/FSInput_cuda.o \
+		$(COREDIR)/Model_cuda.o \
+		$(COREDIR)/GPUSpikingCluster.o \
 		$(COREDIR)/FClassOfCategory_cuda.o \
 		$(COREDIR)/EventQueue_cuda.o \
 		$(COREDIR)/InterClustersEventHandler_cuda.o \
-		$(COREDIR)/SynapseIndexMap_cuda.o \
-		$(RECORDERDIR)/XmlRecorder_cuda.o \
-		$(RECORDERDIR)/XmlGrowthRecorder_cuda.o \
-                $(RECORDERDIR)/Hdf5Recorder_cuda.o \
-                $(RECORDERDIR)/Hdf5GrowthRecorder_cuda.o \
-		$(UTILDIR)/Global_cuda.o
-else
-CUDAOBJS =   \
-                $(COREDIR)/GPUSpikingCluster.o \
-                $(COREDIR)/Model_cuda.o \
+		$(COREDIR)/SynapseIndexMap_cuda.o 
+
+NEURONSOBJS = \
+                $(NEURONDIR)/AllNeurons.o \
+                $(NEURONDIR)/AllSpikingNeurons.o \
+                $(NEURONDIR)/AllIFNeurons.o \
+                $(NEURONDIR)/AllLIFNeurons.o \
+                $(NEURONDIR)/AllIZHNeurons.o \
+                $(NEURONDIR)/AllNeuronsProps.o \
+                $(NEURONDIR)/AllSpikingNeuronsProps.o \
+                $(NEURONDIR)/AllIFNeuronsProps.o \
+                $(NEURONDIR)/AllIZHNeuronsProps.o 
+
+NEURONSCUDAOBJS = \
                 $(NEURONDIR)/AllNeurons_cuda.o \
                 $(NEURONDIR)/AllSpikingNeurons_cuda.o \
                 $(NEURONDIR)/AllIFNeurons_cuda.o \
@@ -159,38 +160,100 @@ CUDAOBJS =   \
                 $(NEURONDIR)/AllNeuronsProps_cuda.o \
                 $(NEURONDIR)/AllSpikingNeuronsProps_cuda.o \
                 $(NEURONDIR)/AllIFNeuronsProps_cuda.o \
-                $(NEURONDIR)/AllIZHNeuronsProps_cuda.o \
+                $(NEURONDIR)/AllIZHNeuronsProps_cuda.o 
+
+SYNAPSESOBJS = \
+                $(SYNAPSEDIR)/AllSynapses.o \
+                $(SYNAPSEDIR)/AllSpikingSynapses.o \
+                $(SYNAPSEDIR)/AllDSSynapses.o \
+                $(SYNAPSEDIR)/AllSTDPSynapses.o \
+                $(SYNAPSEDIR)/AllDynamicSTDPSynapses.o \
+                $(SYNAPSEDIR)/AllSynapsesProps.o \
+                $(SYNAPSEDIR)/AllSpikingSynapsesProps.o \
+                $(SYNAPSEDIR)/AllDSSynapsesProps.o \
+                $(SYNAPSEDIR)/AllSTDPSynapsesProps.o \
+                $(SYNAPSEDIR)/AllDynamicSTDPSynapsesProps.o 
+
+SYNAPSESCUDAOBJS = \
                 $(SYNAPSEDIR)/AllSynapses_cuda.o \
                 $(SYNAPSEDIR)/AllSpikingSynapses_cuda.o \
                 $(SYNAPSEDIR)/AllDSSynapses_cuda.o \
                 $(SYNAPSEDIR)/AllSTDPSynapses_cuda.o \
                 $(SYNAPSEDIR)/AllDynamicSTDPSynapses_cuda.o \
-		$(SYNAPSEDIR)/AllSynapsesProps_cuda.o \
-		$(SYNAPSEDIR)/AllSpikingSynapsesProps_cuda.o \
-		$(SYNAPSEDIR)/AllDSSynapsesProps_cuda.o \
-		$(SYNAPSEDIR)/AllSTDPSynapsesProps_cuda.o \
-		$(SYNAPSEDIR)/AllDynamicSTDPSynapsesProps_cuda.o \
-                $(CONNDIR)/Connections_cuda.o \
-                $(CONNDIR)/ConnGrowth_cuda.o \
-                $(CONNDIR)/ConnStatic_cuda.o \
-                $(CONNDIR)/ConnGrowth_d.o \
-                $(CONNDIR)/ConnStatic_d.o \
-                $(LAYOUTDIR)/Layout_cuda.o \
-                $(RNGDIR)/MersenneTwister_d.o \
-                $(COREDIR)/BGDriver_cuda.o \
-                $(INPUTDIR)/GpuSInputRegular.o \
-                $(INPUTDIR)/GpuSInputPoisson.o \
-                $(INPUTDIR)/SInputRegular_cuda.o \
-                $(INPUTDIR)/SInputPoisson_cuda.o \
-                $(INPUTDIR)/FSInput_cuda.o \
-                $(COREDIR)/FClassOfCategory_cuda.o \
-                $(COREDIR)/EventQueue_cuda.o \
-                $(COREDIR)/InterClustersEventHandler_cuda.o \
-                $(COREDIR)/SynapseIndexMap_cuda.o \
+                $(SYNAPSEDIR)/AllSynapsesProps_cuda.o \
+                $(SYNAPSEDIR)/AllSpikingSynapsesProps_cuda.o \
+                $(SYNAPSEDIR)/AllDSSynapsesProps_cuda.o \
+                $(SYNAPSEDIR)/AllSTDPSynapsesProps_cuda.o \
+                $(SYNAPSEDIR)/AllDynamicSTDPSynapsesProps_cuda.o 
+
+INPUTOBJS = \
+		$(INPUTDIR)/HostSInputRegular.o \
+		$(INPUTDIR)/SInputRegular.o \
+		$(INPUTDIR)/HostSInputPoisson.o \
+		$(INPUTDIR)/SInputPoisson.o \
+		$(INPUTDIR)/FSInput.o 
+
+INPUTCUDAOBJS = \
+		$(INPUTDIR)/GpuSInputRegular.o \
+		$(INPUTDIR)/GpuSInputPoisson.o \
+		$(INPUTDIR)/SInputRegular_cuda.o \
+		$(INPUTDIR)/SInputPoisson_cuda.o \
+		$(INPUTDIR)/FSInput_cuda.o 
+
+CONNOBJS = \
+		$(CONNDIR)/Connections.o \
+		$(CONNDIR)/ConnGrowth.o \
+		$(CONNDIR)/ConnStatic.o 
+
+CONNCUDAOBJS = \
+		$(CONNDIR)/Connections_cuda.o \
+		$(CONNDIR)/ConnGrowth_cuda.o \
+		$(CONNDIR)/ConnStatic_cuda.o \
+		$(CONNDIR)/ConnGrowth_d.o \
+		$(CONNDIR)/ConnStatic_d.o 
+
+ifeq ($(CUSEHDF5), yes)
+RECORDEROBJS = \
+		$(RECORDERDIR)/XmlRecorder.o \
+		$(RECORDERDIR)/XmlGrowthRecorder.o \
+		$(RECORDERDIR)/Hdf5Recorder.o \
+		$(RECORDERDIR)/Hdf5GrowthRecorder.o 
+
+RECORDERCUDAOBJS = \
+		$(RECORDERDIR)/XmlRecorder_cuda.o \
+		$(RECORDERDIR)/XmlGrowthRecorder_cuda.o \
+                $(RECORDERDIR)/Hdf5Recorder_cuda.o \
+                $(RECORDERDIR)/Hdf5GrowthRecorder_cuda.o 
+else
+RECORDEROBJS = \
+                $(RECORDERDIR)/XmlRecorder.o \
+                $(RECORDERDIR)/XmlGrowthRecorder.o 
+
+RECORDERCUDAOBJS = \
                 $(RECORDERDIR)/XmlRecorder_cuda.o \
-                $(RECORDERDIR)/XmlGrowthRecorder_cuda.o \
-                $(UTILDIR)/Global_cuda.o
+                $(RECORDERDIR)/XmlGrowthRecorder_cuda.o 
 endif
+
+CUDAOBJS =   \
+		$(CORECUDAOBJS) \
+		$(NEURONSCUDAOBJS) \
+		$(SYNAPSESCUDAOBJS) \
+		$(INPUTCUDAOBJS) \
+		$(CONNCUDAOBJS) \
+		$(RECORDERCUDAOBJS) \
+		$(LAYOUTDIR)/Layout_cuda.o \
+		$(RNGDIR)/MersenneTwister_d.o \
+		$(UTILDIR)/Global_cuda.o
+
+SINGLEOBJS = \
+		$(COREOBJS) \
+		$(NEURONSOBJS) \
+		$(SYNAPSESOBJS) \
+		$(INPUTOBJS) \
+		$(CONNOBJS) \
+		$(RECORDEROBJS) \
+		$(LAYOUTDIR)/Layout.o \
+		$(UTILDIR)/Global.o 
 
 LIBOBJS =   \
 		$(COREDIR)/Simulator.o \
@@ -212,89 +275,6 @@ PARAMOBJS =	$(PARAMDIR)/ParamContainer.o
 RNGOBJS =	$(RNGDIR)/Norm.o \
 		$(RNGDIR)/MersenneTwister.o
 
-ifeq ($(CUSEHDF5), yes)
-SINGLEOBJS =	$(COREDIR)/BGDriver.o  \
-		$(COREDIR)/Model.o \
-		$(COREDIR)/SingleThreadedCluster.o \
-		$(INPUTDIR)/HostSInputRegular.o \
-		$(INPUTDIR)/SInputRegular.o \
-		$(INPUTDIR)/HostSInputPoisson.o \
-		$(INPUTDIR)/SInputPoisson.o \
-		$(INPUTDIR)/FSInput.o \
-		$(COREDIR)/FClassOfCategory.o \
-		$(COREDIR)/EventQueue.o \
-		$(COREDIR)/InterClustersEventHandler.o \
-		$(COREDIR)/SynapseIndexMap.o \
-		$(NEURONDIR)/AllNeurons.o \
-		$(NEURONDIR)/AllSpikingNeurons.o \
-		$(NEURONDIR)/AllIFNeurons.o \
-		$(NEURONDIR)/AllLIFNeurons.o \
-		$(NEURONDIR)/AllIZHNeurons.o \
-		$(NEURONDIR)/AllNeuronsProps.o \
-		$(NEURONDIR)/AllSpikingNeuronsProps.o \
-		$(NEURONDIR)/AllIFNeuronsProps.o \
-		$(NEURONDIR)/AllIZHNeuronsProps.o \
-		$(SYNAPSEDIR)/AllSynapses.o \
-		$(SYNAPSEDIR)/AllSpikingSynapses.o \
-		$(SYNAPSEDIR)/AllDSSynapses.o \
-		$(SYNAPSEDIR)/AllSTDPSynapses.o \
-		$(SYNAPSEDIR)/AllDynamicSTDPSynapses.o \
-		$(SYNAPSEDIR)/AllSynapsesProps.o \
-		$(SYNAPSEDIR)/AllSpikingSynapsesProps.o \
-		$(SYNAPSEDIR)/AllDSSynapsesProps.o \
-		$(SYNAPSEDIR)/AllSTDPSynapsesProps.o \
-		$(SYNAPSEDIR)/AllDynamicSTDPSynapsesProps.o \
-		$(CONNDIR)/Connections.o \
-		$(CONNDIR)/ConnGrowth.o \
-		$(CONNDIR)/ConnStatic.o \
-		$(LAYOUTDIR)/Layout.o \
-		$(RECORDERDIR)/XmlRecorder.o \
-		$(RECORDERDIR)/XmlGrowthRecorder.o \
-		$(RECORDERDIR)/Hdf5Recorder.o \
-		$(RECORDERDIR)/Hdf5GrowthRecorder.o \
-		$(UTILDIR)/Global.o 
-else
-SINGLEOBJS =    $(COREDIR)/BGDriver.o  \
-                $(COREDIR)/Model.o \
-                $(COREDIR)/SingleThreadedCluster.o \
-                $(INPUTDIR)/HostSInputRegular.o \
-                $(INPUTDIR)/SInputRegular.o \
-                $(INPUTDIR)/HostSInputPoisson.o \
-                $(INPUTDIR)/SInputPoisson.o \
-                $(INPUTDIR)/FSInput.o \
-                $(COREDIR)/FClassOfCategory.o \
-                $(COREDIR)/EventQueue.o \
-                $(COREDIR)/InterClustersEventHandler.o \
-                $(COREDIR)/SynapseIndexMap.o \
-                $(NEURONDIR)/AllNeurons.o \
-                $(NEURONDIR)/AllSpikingNeurons.o \
-                $(NEURONDIR)/AllIFNeurons.o \
-                $(NEURONDIR)/AllLIFNeurons.o \
-                $(NEURONDIR)/AllIZHNeurons.o \
-		$(NEURONDIR)/AllNeuronsProps.o \
-		$(NEURONDIR)/AllSpikingNeuronsProps.o \
-		$(NEURONDIR)/AllIFNeuronsProps.o \
-		$(NEURONDIR)/AllIZHNeuronsProps.o \
-                $(SYNAPSEDIR)/AllSynapses.o \
-                $(SYNAPSEDIR)/AllSpikingSynapses.o \
-                $(SYNAPSEDIR)/AllDSSynapses.o \
-                $(SYNAPSEDIR)/AllSTDPSynapses.o \
-                $(SYNAPSEDIR)/AllDynamicSTDPSynapses.o \
-		$(SYNAPSEDIR)/AllSynapsesProps.o \
-		$(SYNAPSEDIR)/AllSpikingSynapsesProps.o \
-		$(SYNAPSEDIR)/AllDSSynapsesProps.o \
-		$(SYNAPSEDIR)/AllSTDPSynapsesProps.o \
-		$(SYNAPSEDIR)/AllDynamicSTDPSynapsesProps.o \
-                $(CONNDIR)/Connections.o \
-                $(CONNDIR)/ConnGrowth.o \
-                $(CONNDIR)/ConnStatic.o \
-                $(LAYOUTDIR)/Layout.o \
-                $(RECORDERDIR)/XmlRecorder.o \
-                $(RECORDERDIR)/XmlGrowthRecorder.o \
-                $(UTILDIR)/Global.o
-endif
-
-
 XMLOBJS =	$(XMLDIR)/tinyxml.o \
 		$(XMLDIR)/tinyxmlparser.o \
 		$(XMLDIR)/tinyxmlerror.o \
@@ -312,6 +292,9 @@ growth: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS
 # ------------------------------------------------------------------------------
 growth_cuda: 	$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS) 
 		$(LD_cuda) -o growth_cuda $(LH5FLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) 
+
+growth.so: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(PYTHONWRAPPEROBJS)
+	$(LD) -shared -o growth.so -g $(CXXLDFLAGS) $(LH5FLAGS) $(LBOOSTPYTHONFLAGS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(LIBOBJS) $(PYTHONWRAPPEROBJS)
 
 # make clean
 # ------------------------------------------------------------------------------
@@ -653,6 +636,9 @@ $(INPUTDIR)/GpuSInputRegular.o: $(INPUTDIR)/GpuSInputRegular.cu $(INPUTDIR)/ISIn
 
 $(INPUTDIR)/GpuSInputPoisson.o: $(INPUTDIR)/GpuSInputPoisson.cu $(INPUTDIR)/ISInput.h $(INPUTDIR)/GpuSInputPoisson.h
 	nvcc $(NVCCFLAGS) $(INPUTDIR)/GpuSInputPoisson.cu $(CGPUFLAGS) -o $(INPUTDIR)/GpuSInputPoisson.o
+ 
+$(COREDIR)/PythonWrapper.o: $(COREDIR)/PythonWrapper.cpp 
+	$(CXX) $(CXXFLAGS) $(COREDIR)/PythonWrapper.cpp -o $(COREDIR)/PythonWrapper.o
 
 # Single Threaded
 # ------------------------------------------------------------------------------

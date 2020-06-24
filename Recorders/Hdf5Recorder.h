@@ -52,7 +52,7 @@ class Hdf5Recorder : public IRecorder
 public:
     //! THe constructor and destructor
     Hdf5Recorder(const SimulationInfo* sim_info);
-    ~Hdf5Recorder();
+    virtual ~Hdf5Recorder();
 
     /**
      * Initialize data

@@ -40,7 +40,7 @@ class XmlGrowthRecorder : public XmlRecorder
 public:
     //! THe constructor and destructor
     XmlGrowthRecorder(const SimulationInfo* sim_info);
-    ~XmlGrowthRecorder();
+    virtual ~XmlGrowthRecorder();
 
     /**
      * Init radii and rates history matrices with default values

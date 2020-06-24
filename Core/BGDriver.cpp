@@ -31,10 +31,13 @@
 using namespace std;
 
 // functions
+bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo);
 bool LoadAllParameters(SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 void printParams(SimulationInfo *simInfo);
-bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo);
 bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
+IRecorder* createRecorder(const SimulationInfo *simInfo);
+
+#if !defined(BOOST_PYTHON)
 
 /*
  *  Main for Simulator. Handles command line arguments and loads parameters
@@ -68,7 +71,7 @@ int main(int argc, char* argv[]) {
     }
 
     // create & init simulation recorder
-    simInfo->simRecorder = simInfo->model->getConnections()->createRecorder(simInfo);
+    simInfo->simRecorder = createRecorder(simInfo); 
     if (simInfo->simRecorder == NULL) {
         cerr << "! ERROR: invalid state output file name extension." << endl;
         return -1;
@@ -158,6 +161,8 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+
+#endif // !BOOST_PYTHON
 
 /*
  *  Create instances of all model classes.
@@ -271,12 +276,12 @@ bool createAllModelClassInstances(TiXmlDocument* simDoc, SimulationInfo *simInfo
  *  Load parameters from a file.
  *
  *  @param  simInfo       SimulationInfo class to read information from.
- *  @param  cluster       Cluster class object to be created.
- *  @param  clusterInfo   ClusterInfo class to be ceated.
+ *  @param  vtClr         Vector to store Cluster class objects to be created.
+ *  @param  vtClrInfo     Vector to store ClusterInfo class objects to be ceated.
  *  @return true if successful, false if not
  */
-bool LoadAllParameters(SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo)
-{
+bool LoadAllParameters(SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo) {
+
     DEBUG(cerr << "reading parameters from xml file" << endl;)
 
     TiXmlDocument simDoc(simInfo->stateInputFileName.c_str());
@@ -308,6 +313,16 @@ bool LoadAllParameters(SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector
     DEBUG(printParams(simInfo);)
 
     return true;
+}
+
+/*
+ *  Create & init simulation recorder.
+ *
+ *  @param simInfo   SimulationInfo class to read information from.
+ */
+IRecorder* createRecorder(const SimulationInfo *simInfo)
+{
+    return simInfo->model->getConnections()->createRecorder(simInfo); 
 }
 
 /*
@@ -389,3 +404,4 @@ bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo)
 
     return true;
 }
+

@@ -39,7 +39,7 @@ class XmlRecorder : public IRecorder
 public:
     //! THe constructor and destructor
     XmlRecorder(const SimulationInfo* sim_info);
-    ~XmlRecorder();
+    virtual ~XmlRecorder();
 
     /**
      * Initialize data
@@ -87,7 +87,7 @@ protected:
     void getStarterNeuronMatrix(VectorMatrix& matrix, const bool* starter_map, const SimulationInfo *sim_info);
 
     // a file stream for xml output
-    ofstream stateOut;
+    ofstream *stateOut;
 
     // burstiness Histogram goes through the
     VectorMatrix burstinessHist;

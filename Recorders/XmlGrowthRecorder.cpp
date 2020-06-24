@@ -140,7 +140,7 @@ void XmlGrowthRecorder::saveSimData(vector<Cluster *> &vtClr, vector<ClusterInfo
     }
 
     // Write XML header information:
-    stateOut << "<?xml version=\"1.0\" standalone=\"no\"?>\n" << "<!-- State output file for the DCT growth modeling-->\n";
+    *stateOut << "<?xml version=\"1.0\" standalone=\"no\"?>\n" << "<!-- State output file for the DCT growth modeling-->\n";
     //stateOut << version; TODO: version
 
     // Write the core state information:
@@ -151,14 +151,14 @@ void XmlGrowthRecorder::saveSimData(vector<Cluster *> &vtClr, vector<ClusterInfo
         (*yloc)[i] = m_model->getLayout()->yloc[i];    
     }
 
-    stateOut << "<SimState>\n";
-    stateOut << "   " << radiiHistory.toXML("radiiHistory") << endl;
-    stateOut << "   " << ratesHistory.toXML("ratesHistory") << endl;
-    stateOut << "   " << burstinessHist.toXML("burstinessHist") << endl;
-    stateOut << "   " << spikesHistory.toXML("spikesHistory") << endl;
-    stateOut << "   " << xloc->toXML("xloc") << endl;
-    stateOut << "   " << yloc->toXML("yloc") << endl;
-    stateOut << "   " << neuronTypes.toXML("neuronTypes") << endl;
+    *stateOut << "<SimState>\n";
+    *stateOut << "   " << radiiHistory.toXML("radiiHistory") << endl;
+    *stateOut << "   " << ratesHistory.toXML("ratesHistory") << endl;
+    *stateOut << "   " << burstinessHist.toXML("burstinessHist") << endl;
+    *stateOut << "   " << spikesHistory.toXML("spikesHistory") << endl;
+    *stateOut << "   " << xloc->toXML("xloc") << endl;
+    *stateOut << "   " << yloc->toXML("yloc") << endl;
+    *stateOut << "   " << neuronTypes.toXML("neuronTypes") << endl;
 
     delete xloc;
     delete yloc;
@@ -169,21 +169,21 @@ void XmlGrowthRecorder::saveSimData(vector<Cluster *> &vtClr, vector<ClusterInfo
     {
         VectorMatrix starterNeurons(MATRIX_TYPE, MATRIX_INIT, 1, num_starter_neurons);
         getStarterNeuronMatrix(starterNeurons, m_model->getLayout()->starter_map, m_sim_info);
-        stateOut << "   " << starterNeurons.toXML("starterNeurons") << endl;
+        *stateOut << "   " << starterNeurons.toXML("starterNeurons") << endl;
     }
 
     // Write neuron thresold
-    stateOut << "   " << neuronThresh.toXML("neuronThresh") << endl;
+    *stateOut << "   " << neuronThresh.toXML("neuronThresh") << endl;
 
     // write time between growth cycles
-    stateOut << "   <Matrix name=\"Tsim\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
-    stateOut << "   " << m_sim_info->epochDuration << endl;
-    stateOut << "</Matrix>" << endl;
+    *stateOut << "   <Matrix name=\"Tsim\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
+    *stateOut << "   " << m_sim_info->epochDuration << endl;
+    *stateOut << "</Matrix>" << endl;
 
     // write simulation end time
-    stateOut << "   <Matrix name=\"simulationEndTime\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
-    stateOut << "   " << g_simulationStep * m_sim_info->deltaT << endl;
-    stateOut << "</Matrix>" << endl;
-    stateOut << "</SimState>" << endl;
+    *stateOut << "   <Matrix name=\"simulationEndTime\" type=\"complete\" rows=\"1\" columns=\"1\" multiplier=\"1.0\">" << endl;
+    *stateOut << "   " << g_simulationStep * m_sim_info->deltaT << endl;
+    *stateOut << "</Matrix>" << endl;
+    *stateOut << "</SimState>" << endl;
 }
 
