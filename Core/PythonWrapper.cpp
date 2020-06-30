@@ -43,6 +43,7 @@ boost::python::object transfer_to_python(T* t)
 
 /*
  *  Convert C++ vector to Python list
+ *  Assume that the vector contains C++ object pointers.
  *
  *  @param vector  C++ vector.
  *  @returns       Python list.
@@ -149,7 +150,11 @@ object getModel(const SimulationInfo *simInfo)
     return object(transfer_to_python(simInfo->model));
 }
 
+#if defined(USE_GPU)
+BOOST_PYTHON_MODULE(growth_cuda)
+#else // USE_GPU
 BOOST_PYTHON_MODULE(growth)
+#endif // USE_GPU
 {
     class_<IRecorder, boost::noncopyable>("IRecorder", no_init)
         .def("init", pure_virtual(&IRecorder::init))
@@ -182,8 +187,13 @@ BOOST_PYTHON_MODULE(growth)
         .add_property("model", &getModel)
     ;
 
+#if defined(USE_GPU)
+    class_<GPUSpikingCluster>("GPUSpikingCluster", init<IAllNeurons *, IAllSynapses *>())
+    ;
+#else // USE_GPU
     class_<SingleThreadedCluster>("SingleThreadedCluster", init<IAllNeurons *, IAllSynapses *>())
     ;
+#endif // USE_GPU
 
     class_<ClusterInfo>("ClusterInfo")
     ;

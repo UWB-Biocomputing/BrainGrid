@@ -22,7 +22,7 @@ CBOOSTPYTHON = no
 # growth_cuda	 - multithreaded
 ################################################################################
 ifeq ($(CBOOSTPYTHON), yes)
-all: growth.so
+all: growth.so growth_cuda.so
 else
 all: growth growth_cuda
 endif
@@ -98,9 +98,13 @@ endif
 ifeq ($(CBOOSTPYTHON), yes)
 	PYTHONINCDIR = /usr/include/python3.6m
 	BPFLAG = -fPIC -DBOOST_PYTHON
+	BPFLAGCUDA = --compiler-options '-fPIC' -DBOOST_PYTHON
 	LBOOSTPYTHONFLAGS = -lboost_python36
 else
 	PYTHONINCDIR = .
+	BPFLAG =
+	BPFLAGCUDA =
+	LBOOSTPYTHONFLAGS =      
 endif
 
 INCDIRS = -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) \
@@ -110,8 +114,8 @@ INCDIRS = -I$(CONNDIR) -I$(COREDIR) -I$(H5INCDIR) -I$(INPUTDIR) -I$(LAYOUTDIR) \
 CXXFLAGS = -O2 -std=c++11 -s -Wall -g -pg -c -DTIXML_USE_STL -DDEBUG_OUT $(INCDIRS) $(PMFLAGS) $(H5FLAGS) $(VDFLAGS) $(BPFLAG)
 CGPUFLAGS = -std=c++11 -DUSE_GPU $(PMFLAGS) $(H5FLAGS) $(VDFLAGS)
 CXXLDFLAGS = -lstdc++ -pthread
-LGPUFLAGS = -lstdc++ -L$(CUDALIBDIR) -lcuda -lcudart -lcudadevrt -arch=sm_35
-NVCCFLAGS = -arch=sm_35 -dc -DDEBUG_OUT $(INCDIRS) -I/usr/local/cuda/samples/common/inc
+LGPUFLAGS = -lstdc++ -L$(CUDALIBDIR) -lcuda -lcudart -lcudadevrt -arch=sm_70
+NVCCFLAGS = -arch=sm_70 -dc -DDEBUG_OUT $(BPFLAGCUDA) $(INCDIRS) -I/usr/local/cuda/samples/common/inc
 
 ################################################################################
 # Objects
@@ -120,6 +124,9 @@ NVCCFLAGS = -arch=sm_35 -dc -DDEBUG_OUT $(INCDIRS) -I/usr/local/cuda/samples/com
 ifeq ($(CBOOSTPYTHON), yes)
 PYTHONWRAPPEROBJS = \
                 $(COREDIR)/PythonWrapper.o
+
+PYTHONWRAPPERCUDAOBJS = \
+                $(COREDIR)/PythonWrapper_cuda.o
 endif
 
 COREOBJS = \
@@ -295,6 +302,9 @@ growth_cuda: 	$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHE
 
 growth.so: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(PYTHONWRAPPEROBJS)
 	$(LD) -shared -o growth.so -g $(CXXLDFLAGS) $(LH5FLAGS) $(LBOOSTPYTHONFLAGS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(LIBOBJS) $(PYTHONWRAPPEROBJS)
+
+growth_cuda.so:	$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS)  $(PYTHONWRAPPERCUDAOBJS)
+		$(LD_cuda) -shared -o growth_cuda.so $(LH5FLAGS) $(LBOOSTPYTHONFLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(PYTHONWRAPPERCUDAOBJS)
 
 # make clean
 # ------------------------------------------------------------------------------
@@ -637,8 +647,13 @@ $(INPUTDIR)/GpuSInputRegular.o: $(INPUTDIR)/GpuSInputRegular.cu $(INPUTDIR)/ISIn
 $(INPUTDIR)/GpuSInputPoisson.o: $(INPUTDIR)/GpuSInputPoisson.cu $(INPUTDIR)/ISInput.h $(INPUTDIR)/GpuSInputPoisson.h
 	nvcc $(NVCCFLAGS) $(INPUTDIR)/GpuSInputPoisson.cu $(CGPUFLAGS) -o $(INPUTDIR)/GpuSInputPoisson.o
  
+# Python Wrapper
+# ------------------------------------------------------------------------------
 $(COREDIR)/PythonWrapper.o: $(COREDIR)/PythonWrapper.cpp 
 	$(CXX) $(CXXFLAGS) $(COREDIR)/PythonWrapper.cpp -o $(COREDIR)/PythonWrapper.o
+
+$(COREDIR)/PythonWrapper_cuda.o: $(COREDIR)/PythonWrapper.cpp
+	nvcc $(NVCCFLAGS) $(COREDIR)/PythonWrapper.cpp -x cu $(CGPUFLAGS) -o $(COREDIR)/PythonWrapper_cuda.o
 
 # Single Threaded
 # ------------------------------------------------------------------------------
