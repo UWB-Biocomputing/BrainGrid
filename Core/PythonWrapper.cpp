@@ -3,11 +3,14 @@
 
 #include "XmlGrowthRecorder.h"
 #include "Simulator.h"
+#if defined(USE_HDF5)
+#include "Hdf5GrowthRecorder.h"
+#endif // USE_HDF5
 #if defined(USE_GPU)
     #include "GPUSpikingCluster.h"
-#else
+#else // USE_GPU
     #include "SingleThreadedCluster.h"
-#endif
+#endif // USE_GPU
 
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
@@ -172,6 +175,16 @@ BOOST_PYTHON_MODULE(growth)
 
     class_<XmlGrowthRecorder, bases<XmlRecorder>>("XmlGrowthRecorder", init<const SimulationInfo*>())
     ;
+
+#if defined(USE_HDF5)
+    class_<Hdf5Recorder, bases<IRecorder>>("Hdf5Recorder", init<const SimulationInfo*>())
+        .def("term", &Hdf5Recorder::term)
+    ;
+
+    class_<Hdf5GrowthRecorder, bases<Hdf5Recorder>>("Hdf5GrowthRecorder", init<const SimulationInfo*>())
+        .def("term", &Hdf5GrowthRecorder::term)
+    ;
+#endif // USE_HDF5
 
     class_<IModel, boost::noncopyable>("IModel", no_init)
     ;

@@ -82,7 +82,12 @@ else
 endif
 	
 ifeq ($(CUSEHDF5), yes)
+ifeq ($(CBOOSTPYTHON), yes)
+	LH5FLAGS =  -shlib -L$(H5LIBDIR) -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5 -lsz
+	LH5FLAGSCUDA = -L$(H5LIBDIR) -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5 -lsz
+else
 	LH5FLAGS =  -L$(H5LIBDIR) -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5 -lsz
+endif
 	H5FLAGS = -DUSE_HDF5
 else
 	LH5FLAGS =
@@ -304,12 +309,12 @@ growth.so: $(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLO
 	$(LD) -shared -o growth.so -g $(CXXLDFLAGS) $(LH5FLAGS) $(LBOOSTPYTHONFLAGS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(SINGLEOBJS) $(XMLOBJS) $(LIBOBJS) $(PYTHONWRAPPEROBJS)
 
 growth_cuda.so:	$(LIBOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(CUDAOBJS)  $(PYTHONWRAPPERCUDAOBJS)
-		$(LD_cuda) -shared -o growth_cuda.so $(LH5FLAGS) $(LBOOSTPYTHONFLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(PYTHONWRAPPERCUDAOBJS)
+		$(LD_cuda) -shared -o growth_cuda.so $(LH5FLAGSCUDA) $(LBOOSTPYTHONFLAGS) $(LGPUFLAGS) $(LIBOBJS) $(CUDAOBJS) $(MATRIXOBJS) $(PARAMOBJS) $(RNGOBJS) $(XMLOBJS) $(OTHEROBJS) $(PYTHONWRAPPERCUDAOBJS)
 
 # make clean
 # ------------------------------------------------------------------------------
 clean:
-	rm -f $(COREDIR)/*.o $(CONNDIR)/*.o $(INPUTDIR)/*.o $(LAYOUTDIR)/*.o $(MATRIXDIR)/*.o $(NEURONDIR)/*.o $(PARAMDIR)/*.o $(RECORDERDIR)/*.o $(RNGDIR)/*.o $(SYNAPSEDIR)/*.o $(XMLDIR)/*.o $(UTILDIR)/*.o ./growth ./growth_cuda
+	rm -f $(COREDIR)/*.o $(CONNDIR)/*.o $(INPUTDIR)/*.o $(LAYOUTDIR)/*.o $(MATRIXDIR)/*.o $(NEURONDIR)/*.o $(PARAMDIR)/*.o $(RECORDERDIR)/*.o $(RNGDIR)/*.o $(SYNAPSEDIR)/*.o $(XMLDIR)/*.o $(UTILDIR)/*.o ./growth ./growth_cuda ./growth.so ./growth_cuda.so
 
 ################################################################################
 # Build Source Files
