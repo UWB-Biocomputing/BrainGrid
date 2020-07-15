@@ -232,6 +232,11 @@ class AllIZHNeuronsProps : public AllIFNeuronsProps
          */
         static constexpr BGFLOAT DEFAULT_d = 2;
 
+#if defined(BOOST_PYTHON)
+    public:
+#else // BOOST_PYTHON
+    private:
+#endif // BOOST_PYTHON
         /**
          *  Min/max values of Aconst for excitatory neurons.
          */

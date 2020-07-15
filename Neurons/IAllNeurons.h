@@ -20,6 +20,14 @@ class IAllNeurons
     public:
         CUDA_CALLABLE virtual ~IAllNeurons() {}
 
+#if defined(BOOST_PYTHON)
+        /**
+          *  This function is called when Python variable that stores
+          *  the neurons class object is destroyed.
+          */
+        virtual void destroy() = 0;
+#endif // BOOST_PYTHON
+
         /**
          *  Assignment operator: copy neurons parameters.
          *

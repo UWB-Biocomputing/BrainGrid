@@ -266,7 +266,11 @@ class AllIFNeuronsProps : public AllSpikingNeuronsProps
          */
         BGFLOAT *Tau;
 
+#if defined(BOOST_PYTHON)
+    public:
+#else // BOOST_PYTHON
     private:
+#endif // BOOST_PYTHON
         /**
          * Min/max values of Iinject.
          */

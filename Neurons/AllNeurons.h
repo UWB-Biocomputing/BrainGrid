@@ -49,6 +49,14 @@ class AllNeurons : public IAllNeurons
         CUDA_CALLABLE AllNeurons();
         CUDA_CALLABLE virtual ~AllNeurons();
 
+#if defined(BOOST_PYTHON)
+        /**
+          *  This function is called when Python variable that stores
+          *  the neurons class object is destroyed.
+          */
+        virtual void destroy();
+#endif // BOOST_PYTHON
+
         /**
          *  Cleanup the class.
          *  Deallocate memories.

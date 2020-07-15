@@ -55,6 +55,14 @@ class AllSynapses : public IAllSynapses
         CUDA_CALLABLE AllSynapses();
         CUDA_CALLABLE virtual ~AllSynapses();
 
+#if defined(BOOST_PYTHON)
+        /*
+         *  This function is called when Python variable that stores
+         *  the synapses class object is destroyed.
+         */
+        virtual void destroy();
+#endif // BOOST_PYTHON
+
         /**
          *  Assignment operator: copy synapses parameters.
          *

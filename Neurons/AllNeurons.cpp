@@ -9,6 +9,16 @@ CUDA_CALLABLE AllNeurons::~AllNeurons()
 {
 }
 
+#if defined(BOOST_PYTHON)
+/**
+ *  This function is called when Python variable that stores
+ *  the neurons class object is destroyed.
+ */
+void AllNeurons::destroy()
+{
+}
+#endif // BOOST_PYTHON
+
 /*
  *  Assignment operator: copy neurons parameters.
  *

@@ -11,6 +11,16 @@ CUDA_CALLABLE AllSynapses::~AllSynapses()
 {
 }
 
+#if defined(BOOST_PYTHON)
+/*
+ *  This function is called when Python variable that stores
+ *  the synapses class object is destroyed.
+ */
+void AllSynapses::destroy()
+{
+}
+#endif // BOOST_PYTHON
+
 /*
  *  Assignment operator: copy synapses parameters.
  *

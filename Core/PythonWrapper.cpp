@@ -11,9 +11,20 @@
 #else // USE_GPU
     #include "SingleThreadedCluster.h"
 #endif // USE_GPU
+#include "AllLIFNeurons.h"
+#include "AllIZHNeurons.h"
+#include "AllDSSynapses.h"
+#include "AllDynamicSTDPSynapses.h"
+#include "ConnStatic.h"
+#include "ConnGrowth.h"
+#include "FixedLayout.h"
+#include "DynamicLayout.h"
 
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
+
+#include "array_ref.h"
+#include "array_indexing_suite.h"
 
 extern bool LoadAllParameters(SimulationInfo *simInfo, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
 extern bool parseCommandLine(int argc, char* argv[], SimulationInfo *simInfo);
@@ -141,6 +152,36 @@ object getRecorder(const SimulationInfo *simInfo)
 }
 
 /*
+ *  Get neurons' property object pointer.
+ *  This function is called through 'neuronsProps' property.
+ *  (ex. neuronsProps = neurons.neuronsProps)
+ *
+ *  @param neurons   AllNeurons class pointer that owns the neurons
+ *                   property object.
+ *  @returns         Neurons' property object pointer wrapped by boost:python::object.
+ *       
+ */
+object getNeuronsProperty(const AllNeurons *neurons)
+{
+    return object(boost::ref(neurons->m_pNeuronsProps));
+}
+
+/*
+ *  Get synapses' property object pointer.
+ *  This function is called through 'synapsesProps' property.
+ *  (ex. synapsesProps = synapses.synapsesProps)
+ *
+ *  @param neurons   AllSynapsess class pointer that owns the synapses
+ *                   property object.
+ *  @returns         Synapses' property object pointer wrapped by boost:python::object.
+ *       
+ */
+object getSynapsesProperty(const AllSynapses *synapses)
+{
+    return object(boost::ref(synapses->m_pSynapsesProps));
+}
+
+/*
  *  Get model object from SimulationInfo.
  *  (model property in simulatorInfo)
  *  The ownership of the C++ object will be transfered to Python.
@@ -153,12 +194,34 @@ object getModel(const SimulationInfo *simInfo)
     return object(transfer_to_python(simInfo->model));
 }
 
+/*
+ *  Create a AllLIFNeurons class object and return a shared pointer of it. 
+ *  This function is the replacement of default constructor.
+ */
+boost::shared_ptr<AllLIFNeurons> create_AllLIFNeurons()
+{
+    return boost::shared_ptr<AllLIFNeurons>( new AllLIFNeurons(), boost::mem_fn(&AllLIFNeurons::destroy) );
+}
+
+/*
+ *  Create a AllDSSynapses class object and return a shared pointer of it. 
+ *  This function is the replacement of default constructor.
+ */
+boost::shared_ptr<AllDSSynapses> create_AllDSSynapses()
+{
+    return boost::shared_ptr<AllDSSynapses>( new AllDSSynapses(), boost::mem_fn(&AllDSSynapses::destroy) );
+}
+
 #if defined(USE_GPU)
 BOOST_PYTHON_MODULE(growth_cuda)
 #else // USE_GPU
 BOOST_PYTHON_MODULE(growth)
 #endif // USE_GPU
 {
+    class_<array_ref<BGFLOAT>>( "bgfloat_array" )
+        .def( array_indexing_suite<array_ref<BGFLOAT>>() )
+        ;
+
     class_<IRecorder, boost::noncopyable>("IRecorder", no_init)
         .def("init", pure_virtual(&IRecorder::init))
         .def("initDefaultValues", pure_virtual(&IRecorder::initDefaultValues))
@@ -189,13 +252,10 @@ BOOST_PYTHON_MODULE(growth)
     class_<IModel, boost::noncopyable>("IModel", no_init)
     ;
 
+    class_<Model, bases<IModel>>("Model", init<Connections*, Layout*, vector<Cluster*>&, vector<ClusterInfo*>&>())
+    ;
+
     class_<SimulationInfo>("SimulationInfo")
-        .def_readwrite("numClusters", &SimulationInfo::numClusters)
-        .def_readwrite("stateOutputFileName", &SimulationInfo::stateOutputFileName)
-        .def_readwrite("stateInputFileName", &SimulationInfo::stateInputFileName)
-        .def_readwrite("memInputFileName", &SimulationInfo::memInputFileName)
-        .def_readwrite("memOutputFileName", &SimulationInfo::memOutputFileName)
-        .def_readwrite("stimulusInputFileName", &SimulationInfo::stimulusInputFileName)
         .add_property("simRecorder", &getRecorder, &setRecorder)
         .add_property("model", &getModel)
     ;
@@ -221,6 +281,212 @@ BOOST_PYTHON_MODULE(growth)
     def("parseCommandLine", parseCommandLineWrapper);
     def("LoadAllParameters", LoadAllParametersWrapper);
     def("createRecorder", createRecorder, return_value_policy<manage_new_object>());
+
+    // Neurons classes
+    class_<IAllNeurons, boost::noncopyable>("IAllNeurons", no_init)
+        .def("createNeuronsProps", pure_virtual(&IAllNeurons::createNeuronsProps))
+    ;
+
+    class_<AllNeurons, boost::noncopyable, bases<IAllNeurons>>("AllNeurons", no_init)
+        .add_property("neuronsProps", &getNeuronsProperty)
+    ;
+
+    class_<AllSpikingNeurons, boost::noncopyable, bases<AllNeurons>>("AllSpikingNeurons", no_init)
+    ;
+
+    class_<AllIFNeurons, boost::noncopyable, bases<AllSpikingNeurons>>("AllIFNeurons", no_init)
+        .def("createNeuronsProps", &AllIFNeurons::createNeuronsProps)
+    ;
+
+    class_<AllLIFNeurons, boost::shared_ptr<AllLIFNeurons>, boost::noncopyable, bases<AllIFNeurons>>("AllLIFNeurons", no_init)
+        // We need to replace the original constructor.
+        // Because neurons class object will be deleted by cluster calss, 
+        // we need to suppress deletion by Python.
+        .def("__init__", make_constructor(create_AllLIFNeurons))
+    ;
+
+    class_<AllIZHNeurons, bases<AllIFNeurons>>("AllIZHNeurons")
+        .def("createNeuronsProps", &AllIZHNeurons::createNeuronsProps)
+    ;
+
+    // Neurons property classes
+    class_<IAllNeuronsProps, boost::noncopyable>("IAllNeuronsProps", no_init)
+    ;
+
+    class_<AllNeuronsProps, bases<IAllNeuronsProps>>("AllNeuronsProps")
+    ;
+
+    class_<AllSpikingNeuronsProps, bases<AllNeuronsProps>>("AllSpikingNeuronsProps")
+    ;
+
+    class_<AllIFNeuronsProps, bases<AllSpikingNeuronsProps>>("AllIFNeuronsProps")
+        .add_property("Iinject", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIFNeuronsProps * )>(
+                      []( AllIFNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_Iinject );
+                      }))
+        .add_property("Inoise", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIFNeuronsProps * )>(
+                      []( AllIFNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_Inoise );
+                      }))
+        .add_property("Vthresh", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIFNeuronsProps * )>(
+                      []( AllIFNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_Vthresh );
+                      }))
+        .add_property("Vresting", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIFNeuronsProps * )>(
+                      []( AllIFNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_Vresting );
+                      }))
+        .add_property("Vreset", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIFNeuronsProps * )>(
+                      []( AllIFNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_Vreset );
+                      }))
+        .add_property("Vinit", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIFNeuronsProps * )>(
+                      []( AllIFNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_Vinit );
+                      }))
+        .add_property("starter_Vthresh", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIFNeuronsProps * )>(
+                      []( AllIFNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_starter_Vthresh );
+                      }))
+        .add_property("starter_Vreset", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIFNeuronsProps * )>(
+                      []( AllIFNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_starter_Vreset );
+                      }))
+    ;
+
+    class_<AllIZHNeuronsProps, bases<AllIFNeuronsProps>>("AllIZHNeuronsProps")
+        .add_property("excAconst", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIZHNeuronsProps * )>(
+                      []( AllIZHNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_excAconst );
+                      }))
+        .add_property("inhAconst", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIZHNeuronsProps * )>(
+                      []( AllIZHNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_inhAconst );
+                      }))
+        .add_property("excBconst", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIZHNeuronsProps * )>(
+                      []( AllIZHNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_excBconst );
+                      }))
+        .add_property("inhBconst", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIZHNeuronsProps * )>(
+                      []( AllIZHNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_inhBconst );
+                      }))
+        .add_property("excCconst", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIZHNeuronsProps * )>(
+                      []( AllIZHNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_excCconst );
+                      }))
+        .add_property("inhCconst", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIZHNeuronsProps * )>(
+                      []( AllIZHNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_inhCconst );
+                      }))
+        .add_property("excDconst", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIZHNeuronsProps * )>(
+                      []( AllIZHNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_excDconst );
+                      }))
+        .add_property("inhDconst", 
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( AllIZHNeuronsProps * )>(
+                      []( AllIZHNeuronsProps *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_inhDconst );
+                      }))
+    ;
+    // Synapses classes
+    class_<IAllSynapses, boost::noncopyable>("IAllSynapses", no_init)
+        .def("createSynapsesProps", pure_virtual(&IAllSynapses::createSynapsesProps))
+    ;
+
+    class_<AllSynapses, boost::noncopyable, bases<IAllSynapses>>("AllSynapses", no_init)
+        .add_property("synapsesProps", &getSynapsesProperty)
+    ;
+
+    class_<AllSpikingSynapses, bases<AllSynapses>>("AllSpikingSynapses")
+        .def("createSynapsesProps", &AllSpikingSynapses::createSynapsesProps)
+    ;
+
+    class_<AllDSSynapses, boost::shared_ptr<AllDSSynapses>, bases<AllSpikingSynapses>>("AllDSSynapses", no_init)
+        // We need to replace the original constructor.
+        // Because neurons class object will be deleted by cluster calss, 
+        // we need to suppress deletion by Python.
+        .def("__init__", make_constructor(create_AllDSSynapses))
+        .def("createSynapsesProps", &AllDSSynapses::createSynapsesProps)
+    ;
+
+    class_<AllSTDPSynapses, bases<AllSpikingSynapses>>("AllSTDPSynapses")
+        .def("createSynapsesProps", &AllSTDPSynapses::createSynapsesProps)
+    ;
+
+    class_<AllDynamicSTDPSynapses, bases<AllSTDPSynapses>>("AllDynamicSTDPSynapses")
+        .def("createSynapsesProps", &AllDynamicSTDPSynapses::createSynapsesProps)
+    ;
+
+    // Synapses property classes
+    class_<IAllSynapsesProps, boost::noncopyable>("IAllSynapsesProps", no_init)
+    ;
+
+    class_<AllSynapsesProps, bases<IAllSynapsesProps>>("AllSynapsesProps")
+    ;
+
+    class_<AllSpikingSynapsesProps, bases<AllSynapsesProps>>("AllSpikingSynapsesProps")
+    ;
+
+    class_<AllDSSynapsesProps, bases<AllSpikingSynapsesProps>>("AllDSSynapsesProps")
+    ;
+
+    class_<AllSTDPSynapsesProps, bases<AllSpikingSynapsesProps>>("AllSTDPSynapsesProps")
+    ;
+
+    class_<AllDynamicSTDPSynapsesProps, bases<AllSTDPSynapsesProps>>("AllDynamicSTDPSynapsesProps")
+    ;
+
+    // Connections classes
+    class_<Connections, boost::noncopyable>("Connections", no_init)
+    ;
+
+    class_<ConnStatic, bases<Connections>>("ConnStatic")
+    ;
+
+    class_<ConnGrowth, bases<Connections>>("ConnGrowth")
+    ;
+
+    // Layout classes
+    class_<Layout, boost::noncopyable>("Layout", no_init)
+    ;
+
+    class_<FixedLayout, bases<Layout>>("FixedLayout")
+    ;
+
+    class_<DynamicLayout, bases<Layout>>("DynamicLayout")
+    ;
 };
 
 #endif // BOOST_PYTHON
