@@ -18,7 +18,7 @@
          <value name="value">1</value>
       </Seed>
       <OutputParams name="OutputParams">
-         <stateOutputFileName name="stateOutputFileName">results/test-tiny-out.xml</stateOutputFileName>
+         <stateOutputFileName name="stateOutputFileName">results/test-tiny-out.h5</stateOutputFileName>
       </OutputParams>
    </SimInfoParams>
 
@@ -77,7 +77,7 @@
     <LayoutFiles name="LayoutFiles">
         <activeNListFileName name="activeNListFileName" type="InputFile">configfiles/NList/ActiveNList2x2.xml</activeNListFileName>
         <inhNListFileName name="inhNListFileName" type="InputFile">configfiles/NList/InhibitoryNList2x2.xml</inhNListFileName>
-        <probedNListFileName name="prbNListFileName" type="InputFile"/>
+        <probedNListFileName name="prbNListFileName" type="InputFile">configfiles/NList/ProbedNList2x2.xml</probedNListFileName>
     </LayoutFiles>
 </LayoutParams>
     </ModelParams>

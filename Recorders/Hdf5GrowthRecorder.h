@@ -58,7 +58,8 @@ public:
      * Initialize data
      * @param[in] stateOutputFileName       File name to save histories
      */
-    virtual void init(const string& stateOutputFileName);
+   // TODO: Commenting this out; need to verify that it can be inherited
+   // virtual void init(const string& stateOutputFileName);
 
     /**
      * Init radii and rates history matrices with default values

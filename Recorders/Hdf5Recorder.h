@@ -118,6 +118,9 @@ protected:
     DataSet* dataSetSpikesProbedNeurons;
     DataSet* dataSetProbedNeurons;
 
+   // Keep track of where we are in incrementally writing spikes
+    hsize_t* offsetSpikesProbedNeurons;
+
     // burstiness Histogram goes through the
     int* burstinessHist;
 

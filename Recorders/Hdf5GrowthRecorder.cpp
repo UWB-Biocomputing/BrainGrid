@@ -24,51 +24,6 @@ Hdf5GrowthRecorder::~Hdf5GrowthRecorder()
 }
 
 /*
- * Initialize data.
- * Create a new hdf5 file with default properties.
- *
- * @param[in] stateOutputFileName	File name to save histories
- */
-void Hdf5GrowthRecorder::init(const string& stateOutputFileName)
-{
-    try
-    {
-        // create a new file using the default property lists
-        stateOut = new H5File( stateOutputFileName, H5F_ACC_TRUNC );
-
-        initDataSet();
-    }
-    
-    // catch failure caused by the H5File operations
-    catch( FileIException error )
-    {
-        error.printErrorStack();
-        return;
-    }
-
-    // catch failure caused by the DataSet operations
-    catch( DataSetIException error )
-    {
-        error.printErrorStack();
-        return;
-    }
-
-    // catch failure caused by the DataSpace operations
-    catch( DataSpaceIException error )
-    {
-        error.printErrorStack();
-        return;
-    }
-
-    // catch failure caused by the DataType operations
-    catch( DataTypeIException error )
-    {
-        error.printErrorStack();
-        return;
-    }
-}
-
-/*
  *  Create data spaces and data sets of the hdf5 for recording histories.
  */
 void Hdf5GrowthRecorder::initDataSet()
@@ -171,7 +126,7 @@ void Hdf5GrowthRecorder::compileHistories(IAllNeurons &neurons)
     VectorMatrix& rates = (*dynamic_cast<ConnGrowth*>(pConn)->rates);
     VectorMatrix& radii = (*dynamic_cast<ConnGrowth*>(pConn)->radii);
 
-    // output spikes
+    // output radii and rates
     for (int iNeuron = 0; iNeuron < m_sim_info->totalNeurons; iNeuron++)
     {
         // record firing rate to history matrix
