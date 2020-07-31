@@ -18,7 +18,7 @@
          <value name="value">777</value>
       </Seed>
       <OutputParams name="OutputParams">
-         <stateOutputFileName name="stateOutputFileName">probed/half_tR_1.0--fE_0.90_10000.h5</stateOutputFileName>
+         <stateOutputFileName name="stateOutputFileName">results/half_tR_1.0--fE_0.90_10000.h5</stateOutputFileName>
       </OutputParams>
    </SimInfoParams>
 

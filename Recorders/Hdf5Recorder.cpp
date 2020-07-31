@@ -270,7 +270,6 @@ void Hdf5Recorder::compileHistories(IAllNeurons &neurons)
          // compile spikes time of the probed neuron (append spikes time)
          if (fProbe)
          {
-            DEBUG(cerr << "\tCompiling spike " << i << " at offset " << idxSp << " for neuron " << iNeuron << endl;)
             spikesProbedNeurons[iProbe].insert(spikesProbedNeurons[iProbe].end(), pSpikes[idxSp]);
          }
       }
