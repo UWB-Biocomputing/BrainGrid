@@ -22,6 +22,7 @@
 
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
+#include <boost/foreach.hpp>
 
 #include "array_ref.h"
 #include "array_indexing_suite.h"
@@ -70,6 +71,44 @@ void std_vector_to_py_list(std::vector<T> vector, boost::python::list &list) {
         list.append(transfer_to_python(*iter));
     }
 }
+
+/*
+ *  Convert Python list to C++ vector
+ *  Assume that the vector contains C++ object pointers.
+ *
+ *  @param o       Python list
+ *  @param vector  C++ vector.
+ */
+template<typename T>
+void python_to_vector(boost::python::object o, vector<T>* v) {
+    stl_input_iterator<T> begin(o);
+    stl_input_iterator<T> end;
+    v->clear();
+    v->insert(v->end(), begin, end);
+}
+
+typedef vector<int> int_vector;
+
+/*
+ *  Python lvalue converter
+ *  Boost Python converter that allowed to convert C++ vector to Python list.
+ *  This converter will be specified in to_python_converter<>.
+ */
+template<typename T_>
+class vector_to_pylist_converter {
+public:
+    typedef T_ native_type;
+
+    static PyObject* convert(native_type const& v) {
+        namespace py = boost::python;
+        py::list retval;
+        BOOST_FOREACH(typename boost::range_value<native_type>::type i, v)
+        {
+            retval.append(py::object(i));
+        }
+        return py::incref(retval.ptr());
+    }
+};
 
 /*
  *  Load parameters from a file.
@@ -195,12 +234,239 @@ object getModel(const SimulationInfo *simInfo)
 }
 
 /*
+ *  Set model object to SimulationInfo.
+ *
+ *  @param simInfo   SimulationInfo class to read information from.
+ */
+void setModel(SimulationInfo *simInfo, IModel *model)
+{
+    simInfo->model = model;
+}
+
+/*
+ *  Get epsilon value (null firing rate) in growth parameter
+ *
+ *  @param connG   ConnGrowth class to read information from.
+ *  @returns       epsilon value.
+ */
+BGFLOAT getConnGrowth_epsilon(const ConnGrowth *connG)
+{
+    return connG->m_growth.epsilon;
+}
+
+/*
+ *   Set epsilon value to ConnGrowth object.
+ *
+ *   @param connG      ConnGrowth class to be set the value.
+ *   @param epsilon    epsilon value to set.
+ */
+void setConnGrowth_epsilon(ConnGrowth *connG, BGFLOAT epsilon)
+{
+    connG->m_growth.epsilon = epsilon;    
+}
+
+/*
+ *  Get beta value (sensitivity of outgrowth to firing rate) in growth parameter
+ *
+ *  @param connG   ConnGrowth class to read information from.
+ *  @returns       beta value.
+ */
+BGFLOAT getConnGrowth_beta(const ConnGrowth *connG)
+{
+    return connG->m_growth.beta;
+}
+
+/*
+ *   Set beta value to ConnGrowth object.
+ *
+ *   @param connG   ConnGrowth class to be set the value.
+ *   @param beta    beta value to set.
+ */
+void setConnGrowth_beta(ConnGrowth *connG, BGFLOAT beta)
+{
+    connG->m_growth.beta = beta;    
+}
+
+/*
+ *  Get rho value (outgrowth rate constant) in growth parameter
+ *
+ *  @param connG   ConnGrowth class to read information from.
+ *  @returns       rho value.
+ */
+BGFLOAT getConnGrowth_rho(const ConnGrowth *connG)
+{
+    return connG->m_growth.rho;
+}
+
+/*
+ *   Set rho value to ConnGrowth object.
+ *
+ *   @param connG      ConnGrowth class to be set the value.
+ *   @param rho        rho value to set.
+ */
+void setConnGrowth_rho(ConnGrowth *connG, BGFLOAT rho)
+{
+    connG->m_growth.rho = rho;    
+}
+
+/*
+ *  Get targetRate value (Spikes/second) in growth parameter
+ *
+ *  @param connG   ConnGrowth class to read information from.
+ *  @returns       targetRate value.
+ */
+BGFLOAT getConnGrowth_targetRate(const ConnGrowth *connG)
+{
+    return connG->m_growth.targetRate;
+}
+
+/*
+ *   Set targetRat value to ConnGrowth object.
+ *
+ *   @param connG      ConnGrowth class to be set the value.
+ *   @param targetRat  targetRat value to set.
+ */
+void setConnGrowth_targetRate(ConnGrowth *connG, BGFLOAT targetRate)
+{
+    connG->m_growth.targetRate = targetRate;    
+}
+
+/*
+ *  Get minRadius value in growth parameter
+ *
+ *  @param connG   ConnGrowth class to read information from.
+ *  @returns       minRadius value.
+ */
+BGFLOAT getConnGrowth_minRadius(const ConnGrowth *connG)
+{
+    return connG->m_growth.minRadius;
+}
+
+/*
+ *   Set minRadius value to ConnGrowth object.
+ *
+ *   @param connG      ConnGrowth class to be set the value.
+ *   @param minRadius  minRadius value to set.
+ */
+void setConnGrowth_minRadius(ConnGrowth *connG, BGFLOAT minRadius)
+{
+    connG->m_growth.minRadius = minRadius;    
+}
+
+/*
+ *  Get startRadius value in growth parameter
+ *
+ *  @param connG   ConnGrowth class to read information from.
+ *  @returns       startRadius value.
+ */
+BGFLOAT getConnGrowth_startRadius(const ConnGrowth *connG)
+{
+    return connG->m_growth.startRadius;
+}
+
+/*
+ *   Set startRadius value to ConnGrowth object.
+ *
+ *   @param connG        ConnGrowth class to be set the value.
+ *   @param startRadius  startRadius value to set.
+ */
+void setConnGrowth_startRadius(ConnGrowth *connG, BGFLOAT startRadius)
+{
+    connG->m_growth.minRadius = startRadius;    
+}
+
+/*
+ *  Get maxRate (= targetRate / epsilon) value in growth parameter
+ *
+ *  @param connG   ConnGrowth class to read information from.
+ *  @returns       maxRate value.
+ */
+BGFLOAT getConnGrowth_maxRate(const ConnGrowth *connG)
+{
+    return connG->m_growth.maxRate;
+}
+
+/*
+ *   Set maxRate value to ConnGrowth object.
+ *
+ *   @param connG    ConnGrowth class to be set the value.
+ *   @param maxRate  maxRate value to set.
+ */
+void setConnGrowth_maxRate(ConnGrowth *connG, BGFLOAT maxRate)
+{
+    connG->m_growth.maxRate = maxRate;    
+}
+
+
+/*
+ *  Get Endogenously active neurons list.
+ *
+ *  @param layout  Layoiut class to read information from.
+ *  @returns       Endogenously active neurons list
+ */
+int_vector const&  getLayout_endogenously_active_neuron_list(Layout *layout) 
+{
+    return layout->m_endogenously_active_neuron_list;
+}
+
+/*
+ *   Set Endogenously active neurons list to Layout class object.
+ *
+ *   @param layout   Layout class to be set the list.
+ *   @param list     Endogenously active neurons list to set.
+ */
+void setLayout_endogenously_active_neuron_list(Layout *layout, boost::python::list &list)
+{
+    python_to_vector(list, &(layout->m_endogenously_active_neuron_list));
+}
+
+/*
+ *  Get Inhibitory neurons list.
+ *
+ *  @param layout  Layoiut class to read information from.
+ *  @returns       Inhibitory neurons list.
+ */
+int_vector const& getLayout_inhibitory_neuron_layout(Layout *layout) 
+{
+    return layout->m_inhibitory_neuron_layout;
+}
+
+/*
+ *   Set Inhibitory neurons list to Layout class object.
+ *
+ *   @param layout   Layout class to be set the list.
+ *   @param list     Inhibitory neurons list to set.
+ */
+void setLayout_inhibitory_neuron_layout(Layout *layout, boost::python::list &list)
+{
+    python_to_vector(list, &(layout->m_inhibitory_neuron_layout));
+}
+
+/*
  *  Create a AllLIFNeurons class object and return a shared pointer of it. 
  *  This function is the replacement of default constructor.
  */
 boost::shared_ptr<AllLIFNeurons> create_AllLIFNeurons()
 {
     return boost::shared_ptr<AllLIFNeurons>( new AllLIFNeurons(), boost::mem_fn(&AllLIFNeurons::destroy) );
+}
+
+/*
+ *  Create a AllIZHNeurons class object and return a shared pointer of it. 
+ *  This function is the replacement of default constructor.
+ */
+boost::shared_ptr<AllIZHNeurons> create_AllIZHNeurons()
+{
+    return boost::shared_ptr<AllIZHNeurons>( new AllIZHNeurons(), boost::mem_fn(&AllIZHNeurons::destroy) );
+}
+
+/*
+ *  Create a AllSpikingSynapses class object and return a shared pointer of it. 
+ *  This function is the replacement of default constructor.
+ */
+boost::shared_ptr<AllSpikingSynapses> create_AllSpikingSynapses()
+{
+    return boost::shared_ptr<AllSpikingSynapses>( new AllSpikingSynapses(), boost::mem_fn(&AllSpikingSynapses::destroy) );
 }
 
 /*
@@ -212,12 +478,86 @@ boost::shared_ptr<AllDSSynapses> create_AllDSSynapses()
     return boost::shared_ptr<AllDSSynapses>( new AllDSSynapses(), boost::mem_fn(&AllDSSynapses::destroy) );
 }
 
+/*
+ *  Create a AllSTDPSynapses class object and return a shared pointer of it. 
+ *  This function is the replacement of default constructor.
+ */
+boost::shared_ptr<AllSTDPSynapses> create_AllSTDPSynapses()
+{
+    return boost::shared_ptr<AllSTDPSynapses>( new AllSTDPSynapses(), boost::mem_fn(&AllSTDPSynapses::destroy) );
+}
+
+/*
+ *  Create a AllDynamicSTDPSynapses class object and return a shared pointer of it. 
+ *  This function is the replacement of default constructor.
+ */
+boost::shared_ptr<AllDynamicSTDPSynapses> create_AllDynamicSTDPSynapses()
+{
+    return boost::shared_ptr<AllDynamicSTDPSynapses>( new AllDynamicSTDPSynapses(), boost::mem_fn(&AllDynamicSTDPSynapses::destroy) );
+}
+
+/*
+ *  Create a Model class object and return a shared pointer of it. 
+ *  Convert Python list to C++ vector.
+ *  This function is the replacement of default constructor.
+ */
+boost::shared_ptr<Model> create_Model(Connections* conns, Layout* layout, boost::python::list &ltClr, boost::python::list &ltClrInfo)
+{
+    static vector<ClusterInfo *> vtClrInfo;   // Vector of Cluster information
+    static vector<Cluster *> vtClr;           // Vector of Cluster object
+
+    // convert Python list to C++ vector
+    python_to_vector(ltClr, &vtClr);
+    python_to_vector(ltClrInfo, &vtClrInfo);
+
+    return boost::shared_ptr<Model>( new Model(conns, layout, vtClr, vtClrInfo) );
+}
+
+/*
+ *  Create a ConnStatic class object and return a shared pointer of it. 
+ *  This function is the replacement of default constructor.
+ */
+boost::shared_ptr<ConnStatic> create_ConnStatic()
+{
+    return boost::shared_ptr<ConnStatic>( new ConnStatic(), boost::mem_fn(&ConnStatic::destroy) );
+}
+
+/*
+ *  Create a ConnGrowth class object and return a shared pointer of it. 
+ *  This function is the replacement of default constructor.
+ */
+boost::shared_ptr<ConnGrowth> create_ConnGrowth()
+{
+    return boost::shared_ptr<ConnGrowth>( new ConnGrowth(), boost::mem_fn(&ConnGrowth::destroy) );
+}
+
+/*
+ *  Create a FixedLayout class object and return a shared pointer of it. 
+ *  This function is the replacement of default constructor.
+ */
+boost::shared_ptr<FixedLayout> create_FixedLayout()
+{
+    return boost::shared_ptr<FixedLayout>( new FixedLayout(), boost::mem_fn(&FixedLayout::destroy) );
+}
+
+/*
+ *  Create a DynamicLayout class object and return a shared pointer of it. 
+ *  This function is the replacement of default constructor.
+ */
+boost::shared_ptr<DynamicLayout> create_DynamicLayout()
+{
+    return boost::shared_ptr<DynamicLayout>( new DynamicLayout(), boost::mem_fn(&DynamicLayout::destroy) );
+}
+
 #if defined(USE_GPU)
 BOOST_PYTHON_MODULE(growth_cuda)
 #else // USE_GPU
 BOOST_PYTHON_MODULE(growth)
 #endif // USE_GPU
 {
+    // Register C++ vector to python list converter
+    to_python_converter<int_vector, vector_to_pylist_converter<int_vector>>();
+
     class_<array_ref<BGFLOAT>>( "bgfloat_array" )
         .def( array_indexing_suite<array_ref<BGFLOAT>>() )
         ;
@@ -252,23 +592,42 @@ BOOST_PYTHON_MODULE(growth)
     class_<IModel, boost::noncopyable>("IModel", no_init)
     ;
 
-    class_<Model, bases<IModel>>("Model", init<Connections*, Layout*, vector<Cluster*>&, vector<ClusterInfo*>&>())
+    //class_<Model, bases<IModel>>("Model", init<Connections*, Layout*, vector<Cluster*>&, vector<ClusterInfo*>&>())
+    class_<Model, boost::shared_ptr<Model>, bases<IModel>>("Model", no_init)
+        .def("__init__", make_constructor(create_Model))
     ;
 
     class_<SimulationInfo>("SimulationInfo")
         .add_property("simRecorder", &getRecorder, &setRecorder)
-        .add_property("model", &getModel)
+        .add_property("model", &getModel, &setModel)
+        .def_readwrite("width", &SimulationInfo::width)
+        .def_readwrite("height", &SimulationInfo::height)
+        .def_readwrite("totalNeurons", &SimulationInfo::totalNeurons)
+        .def_readwrite("maxSteps", &SimulationInfo::maxSteps)
+        .def_readwrite("epochDuration", &SimulationInfo::epochDuration)
+        .def_readwrite("maxFiringRate", &SimulationInfo::maxFiringRate)
+        .def_readwrite("maxSynapsesPerNeuron", &SimulationInfo::maxSynapsesPerNeuron)
+        .def_readwrite("seed", &SimulationInfo::seed)
+        .def_readwrite("numClusters", &SimulationInfo::numClusters)
+        .def_readwrite("stateOutputFileName", &SimulationInfo::stateOutputFileName)
+    ;
+
+    class_<Cluster, boost::noncopyable>("Cluster", no_init)
     ;
 
 #if defined(USE_GPU)
-    class_<GPUSpikingCluster>("GPUSpikingCluster", init<IAllNeurons *, IAllSynapses *>())
+    class_<GPUSpikingCluster, bases<Cluster>>("GPUSpikingCluster", init<IAllNeurons *, IAllSynapses *>())
     ;
 #else // USE_GPU
-    class_<SingleThreadedCluster>("SingleThreadedCluster", init<IAllNeurons *, IAllSynapses *>())
+    class_<SingleThreadedCluster, bases<Cluster>>("SingleThreadedCluster", init<IAllNeurons *, IAllSynapses *>())
     ;
 #endif // USE_GPU
 
     class_<ClusterInfo>("ClusterInfo")
+        .def_readwrite("clusterID", &ClusterInfo::clusterID)
+        .def_readwrite("clusterNeuronsBegin", &ClusterInfo::clusterNeuronsBegin)
+        .def_readwrite("totalClusterNeurons", &ClusterInfo::totalClusterNeurons)
+        .def_readwrite("seed", &ClusterInfo::seed)
     ;
 
     class_<Simulator>("Simulator")
@@ -300,12 +659,16 @@ BOOST_PYTHON_MODULE(growth)
 
     class_<AllLIFNeurons, boost::shared_ptr<AllLIFNeurons>, boost::noncopyable, bases<AllIFNeurons>>("AllLIFNeurons", no_init)
         // We need to replace the original constructor.
-        // Because neurons class object will be deleted by cluster calss, 
+        // Because neurons class object will be deleted by cluster class, 
         // we need to suppress deletion by Python.
         .def("__init__", make_constructor(create_AllLIFNeurons))
     ;
 
-    class_<AllIZHNeurons, bases<AllIFNeurons>>("AllIZHNeurons")
+    class_<AllIZHNeurons, boost::shared_ptr<AllIZHNeurons>, boost::noncopyable, bases<AllIFNeurons>>("AllIZHNeurons", no_init)
+        // We need to replace the original constructor.
+        // Because neurons class object will be deleted by cluster class, 
+        // we need to suppress deletion by Python.
+        .def("__init__", make_constructor(create_AllIZHNeurons))
         .def("createNeuronsProps", &AllIZHNeurons::createNeuronsProps)
     ;
 
@@ -429,23 +792,35 @@ BOOST_PYTHON_MODULE(growth)
         .add_property("synapsesProps", &getSynapsesProperty)
     ;
 
-    class_<AllSpikingSynapses, bases<AllSynapses>>("AllSpikingSynapses")
+    class_<AllSpikingSynapses, boost::shared_ptr<AllSpikingSynapses>, bases<AllSynapses>>("AllSpikingSynapses", no_init)
+        // We need to replace the original constructor.
+        // Because neurons class object will be deleted by cluster class, 
+        // we need to suppress deletion by Python.
+        .def("__init__", make_constructor(create_AllSpikingSynapses))
         .def("createSynapsesProps", &AllSpikingSynapses::createSynapsesProps)
     ;
 
     class_<AllDSSynapses, boost::shared_ptr<AllDSSynapses>, bases<AllSpikingSynapses>>("AllDSSynapses", no_init)
         // We need to replace the original constructor.
-        // Because neurons class object will be deleted by cluster calss, 
+        // Because neurons class object will be deleted by cluster class, 
         // we need to suppress deletion by Python.
         .def("__init__", make_constructor(create_AllDSSynapses))
         .def("createSynapsesProps", &AllDSSynapses::createSynapsesProps)
     ;
 
-    class_<AllSTDPSynapses, bases<AllSpikingSynapses>>("AllSTDPSynapses")
+    class_<AllSTDPSynapses, boost::shared_ptr<AllSTDPSynapses>, bases<AllSpikingSynapses>>("AllSTDPSynapses", no_init)
+        // We need to replace the original constructor.
+        // Because neurons class object will be deleted by cluster class, 
+        // we need to suppress deletion by Python.
+        .def("__init__", make_constructor(create_AllSTDPSynapses))
         .def("createSynapsesProps", &AllSTDPSynapses::createSynapsesProps)
     ;
 
-    class_<AllDynamicSTDPSynapses, bases<AllSTDPSynapses>>("AllDynamicSTDPSynapses")
+    class_<AllDynamicSTDPSynapses, boost::shared_ptr<AllDynamicSTDPSynapses>, bases<AllSTDPSynapses>>("AllDynamicSTDPSynapses", no_init)
+        // We need to replace the original constructor.
+        // Because neurons class object will be deleted by cluster class, 
+        // we need to suppress deletion by Python.
+        .def("__init__", make_constructor(create_AllDynamicSTDPSynapses))
         .def("createSynapsesProps", &AllDynamicSTDPSynapses::createSynapsesProps)
     ;
 
@@ -472,20 +847,48 @@ BOOST_PYTHON_MODULE(growth)
     class_<Connections, boost::noncopyable>("Connections", no_init)
     ;
 
-    class_<ConnStatic, bases<Connections>>("ConnStatic")
+    class_<ConnStatic, boost::shared_ptr<ConnStatic>, bases<Connections>>("ConnStatic", no_init)
+        // We need to replace the original constructor.
+        // Because connections class object will be deleted by model class, 
+        // we need to suppress deletion by Python.
+        .def("__init__", make_constructor(create_ConnStatic))
     ;
 
-    class_<ConnGrowth, bases<Connections>>("ConnGrowth")
+    class_<ConnGrowth, boost::shared_ptr<ConnGrowth>, bases<Connections>>("ConnGrowth", no_init)
+        // We need to replace the original constructor.
+        // Because connections class object will be deleted by model class, 
+        // we need to suppress deletion by Python.
+        .def("__init__", make_constructor(create_ConnGrowth))
+        .add_property("epsilon", &getConnGrowth_epsilon, &setConnGrowth_epsilon)
+        .add_property("beta", &getConnGrowth_beta, &setConnGrowth_beta)
+        .add_property("rho", &getConnGrowth_rho, &setConnGrowth_rho)
+        .add_property("targetRate", &getConnGrowth_targetRate, &setConnGrowth_targetRate)
+        .add_property("minRadius", &getConnGrowth_minRadius, &setConnGrowth_minRadius)
+        .add_property("startRadius", &getConnGrowth_startRadius, &setConnGrowth_startRadius)
+        .add_property("maxRate", &getConnGrowth_maxRate, &setConnGrowth_maxRate)
     ;
 
     // Layout classes
     class_<Layout, boost::noncopyable>("Layout", no_init)
+        .def("get_endogenously_active_neuron_list", &getLayout_endogenously_active_neuron_list, return_value_policy<copy_const_reference>())
+        .def("set_endogenously_active_neuron_list", &setLayout_endogenously_active_neuron_list)
+        .def_readwrite("num_endogenously_active_neurons", &Layout::num_endogenously_active_neurons)
+        .def("get_inhibitory_neuron_layout", &getLayout_inhibitory_neuron_layout, return_value_policy<copy_const_reference>())
+        .def("set_inhibitory_neuron_layout", &setLayout_inhibitory_neuron_layout)
     ;
 
-    class_<FixedLayout, bases<Layout>>("FixedLayout")
+    class_<FixedLayout, boost::shared_ptr<FixedLayout>, bases<Layout>>("FixedLayout", no_init)
+        // We need to replace the original constructor.
+        // Because layout class object will be deleted by model class, 
+        // we need to suppress deletion by Python.
+        .def("__init__", make_constructor(create_FixedLayout))
     ;
 
-    class_<DynamicLayout, bases<Layout>>("DynamicLayout")
+    class_<DynamicLayout, boost::shared_ptr<DynamicLayout>, bases<Layout>>("DynamicLayout", no_init)
+        // We need to replace the original constructor.
+        // Because layout class object will be deleted by model class, 
+        // we need to suppress deletion by Python.
+        .def("__init__", make_constructor(create_DynamicLayout))
     ;
 };
 

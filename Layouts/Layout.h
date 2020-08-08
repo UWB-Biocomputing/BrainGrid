@@ -32,6 +32,14 @@ class Layout
         Layout();
         virtual ~Layout();
 
+#if defined(BOOST_PYTHON)
+        /**
+          *  This function is called when Python variable that stores
+          *  the neurons class object is destroyed.
+          */
+        virtual void destroy();
+#endif // BOOST_PYTHON
+
         /**
          *  Setup the internal structure of the class. 
          *  Allocate memories to store all layout state.
@@ -106,6 +114,9 @@ class Layout
         //! Number of parameters read.
         int nParams;
 
+#if defined(BOOST_PYTHON)
+    public:
+#endif // BOOST_PYTHON
         //! Endogenously active neurons list. 
         vector<int> m_endogenously_active_neuron_list;
 

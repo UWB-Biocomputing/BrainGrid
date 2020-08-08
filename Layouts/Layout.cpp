@@ -38,6 +38,16 @@ Layout::~Layout()
     starter_map = NULL;
 }
 
+#if defined(BOOST_PYTHON)
+/**
+  *  This function is called when Python variable that stores
+  *  the neurons class object is destroyed.
+  */
+void Layout::destroy()
+{
+}
+#endif // BOOST_PYTHON
+
 /*
  *  Setup the internal structure of the class. 
  *  Allocate memories to store all layout state.

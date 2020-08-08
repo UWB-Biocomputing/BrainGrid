@@ -47,4 +47,13 @@ Connections::~Connections()
 {
 }
 
+#if defined(BOOST_PYTHON)
+/** 
+  *  This function is called when Python variable that stores
+  *  the neurons class object is destroyed.
+  */
+void Connections::destroy()
+{
+}
+#endif // BOOST_PYTHON
 
