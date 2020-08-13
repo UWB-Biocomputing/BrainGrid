@@ -35,7 +35,7 @@ neuronsProps.Vreset[1] = 13.5e-03
 neuronsProps.Vinit[0] = 13.0e-03
 neuronsProps.Vinit[1] = 13.0e-03
 neuronsProps.starter_Vthresh[0] = 13.565e-3
-neuronsProps.starter_Vthresh[1] = 13.565e-3
+neuronsProps.starter_Vthresh[1] = 13.655e-3
 neuronsProps.starter_Vreset[0] = 13.0e-3
 neuronsProps.starter_Vreset[1] = 13.0e-3
 
@@ -74,10 +74,6 @@ cluster = growth.SingleThreadedCluster(neurons, synapses)
 
 vtClr = [cluster]
 vtClrInfo = [clusterInfo]
-
-# Save the C++ object in Python variable and transfer the ownership of the object
-# to Python.
-model = simInfo.model
 
 # Create a model
 # To keep the C++ model object alive, we need to save the C++ model object pointer

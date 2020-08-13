@@ -372,7 +372,7 @@ BGFLOAT getConnGrowth_startRadius(const ConnGrowth *connG)
  */
 void setConnGrowth_startRadius(ConnGrowth *connG, BGFLOAT startRadius)
 {
-    connG->m_growth.minRadius = startRadius;    
+    connG->m_growth.startRadius = startRadius;    
 }
 
 /*
@@ -592,7 +592,6 @@ BOOST_PYTHON_MODULE(growth)
     class_<IModel, boost::noncopyable>("IModel", no_init)
     ;
 
-    //class_<Model, bases<IModel>>("Model", init<Connections*, Layout*, vector<Cluster*>&, vector<ClusterInfo*>&>())
     class_<Model, boost::shared_ptr<Model>, bases<IModel>>("Model", no_init)
         .def("__init__", make_constructor(create_Model))
     ;
