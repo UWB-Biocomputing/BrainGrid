@@ -5,62 +5,78 @@ import growth
 simInfo = growth.SimulationInfo()
 
 # Set simulation parameters
-simInfo.epochDuration = 100
-simInfo.width = 10
-simInfo.height = 10
+simInfo.epochDuration = 1
+simInfo.width = 40
+simInfo.height = 25
 simInfo.totalNeurons = simInfo.width * simInfo.height
-simInfo.maxSteps = 300
-simInfo.maxFiringRate = 200
-simInfo.maxSynapsesPerNeuron = 200
+simInfo.maxSteps = 1
+simInfo.maxFiringRate = 1000
+simInfo.maxSynapsesPerNeuron = 1000
 simInfo.seed = 777
-simInfo.stateOutputFileName = "results/tR_1.0--fE_0.98_historyDump.h5"
+simInfo.stateOutputFileName = "results/static_izh_historyDump.h5"
 simInfo.numClusters = 1
 
 # Create an instance of the neurons class
-neurons = growth.AllLIFNeurons()
+neurons = growth.AllIZHNeurons()
 neurons.createNeuronsProps()
 neuronsProps = neurons.neuronsProps
 
 # Set neurons parameters
 neuronsProps.Iinject[0] = 13.5e-09
 neuronsProps.Iinject[1] = 13.5e-09
-neuronsProps.Inoise[0] = 1.0e-09
-neuronsProps.Inoise[1] = 1.5e-09
-neuronsProps.Vthresh[0] = 15.0e-03
-neuronsProps.Vthresh[1] = 15.0e-03
+neuronsProps.Inoise[0] = 0.5e-06
+neuronsProps.Inoise[1] = 0.7329e-06
+neuronsProps.Vthresh[0] = 30.0e-03
+neuronsProps.Vthresh[1] = 30.0e-03
 neuronsProps.Vresting[0] = 0.0
 neuronsProps.Vresting[1] = 0.0
-neuronsProps.Vreset[0] = 13.5e-03
-neuronsProps.Vreset[1] = 13.5e-03
-neuronsProps.Vinit[0] = 13.0e-03
-neuronsProps.Vinit[1] = 13.0e-03
+neuronsProps.Vreset[0] = -0.065
+neuronsProps.Vreset[1] = -0.065
+neuronsProps.Vinit[0] = -0.065
+neuronsProps.Vinit[1] = -0.065
 neuronsProps.starter_Vthresh[0] = 13.565e-3
 neuronsProps.starter_Vthresh[1] = 13.655e-3
 neuronsProps.starter_Vreset[0] = 13.0e-3
 neuronsProps.starter_Vreset[1] = 13.0e-3
+neuronsProps.excAconst[0] = 0.02
+neuronsProps.excAconst[1] = 0.02
+neuronsProps.inhAconst[0] = 0.02
+neuronsProps.inhAconst[1] = 0.1
+neuronsProps.excBconst[0] = 0.2
+neuronsProps.excBconst[1] = 0.2
+neuronsProps.inhBconst[0] = 0.2
+neuronsProps.inhBconst[1] = 0.25
+neuronsProps.excCconst[0] = -65
+neuronsProps.excCconst[1] = -50
+neuronsProps.inhCconst[0] = -65
+neuronsProps.inhCconst[1] = -65
+neuronsProps.excDconst[0] = 2
+neuronsProps.excDconst[1] = 8
+neuronsProps.inhDconst[0] = 2
+neuronsProps.inhDconst[1] = 2
 
 # Create an instance of the synapses class
-synapses = growth.AllDSSynapses()
+synapses = growth.AllSpikingSynapses()
 synapses.createSynapsesProps()
 synapsesProps = synapses.synapsesProps
 
 # Create an instance of the connections class
-conns = growth.ConnGrowth()
+conns = growth.ConnStatic()
 
 # Set connections parameters
-conns.epsilon = 0.6
-conns.beta = 0.1
-conns.rho = 0.0001
-conns.targetRate = 1.0
-conns.minRadius = 0.1
-conns.startRadius = 0.4
-conns.maxRate = conns.targetRate / conns.epsilon
+conns.nConnsPerNeuron = 999
+conns.threshConnsRadius = 50
+conns.pRewiring = 0
+conns.excWeight[0] = 0
+conns.excWeight[1] = 0.5e-7
+conns.inhWeight[0] = -0.5e-7
+conns.inhWeight[1] = 0
 
 # Create an instance of the layout class
 layout = growth.FixedLayout()
-layout.set_endogenously_active_neuron_list( [7, 11, 14, 37, 41, 44, 67, 71, 74, 97] )
-layout.num_endogenously_active_neurons = len(layout.get_endogenously_active_neuron_list())
-layout.set_inhibitory_neuron_layout( [33, 66] )
+layout.num_endogenously_active_neurons = 0
+layout.set_inhibitory_neuron_layout(list(range(800, 1000)))
+layout.set_probed_neuron_list(list(range(0, 1000)))
 
 # Create clustersInfo
 clusterInfo = growth.ClusterInfo()
@@ -83,7 +99,7 @@ model = growth.Model(conns, layout, vtClr, vtClrInfo)
 simInfo.model = model
 
 # create & init simulation recorder
-# To keep the C++ recorder object alive we need to save the C++ recorder object pointer 
+# To keep the C++ recorder object alive we need to save the C++ recorder object pointer
 # in the python variable so that python can manage the C++ recorder object.
 # When the Python variable (recorder) is destroyed, the C++ recorder object is also deleted.
 recorder = growth.createRecorder(simInfo)

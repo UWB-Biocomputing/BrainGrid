@@ -443,6 +443,28 @@ void setLayout_inhibitory_neuron_layout(Layout *layout, boost::python::list &lis
 }
 
 /*
+ *  Get Probed neurons list.
+ *
+ *  @param layout  Layoiut class to read information from.
+ *  @returns       Probed neurons list.
+ */
+int_vector const& getLayout_probed_neuron_list(Layout *layout) 
+{
+    return layout->m_probed_neuron_list;
+}
+
+/*
+ *   Set Probed neurons list to Layout class object.
+ *
+ *   @param layout   Layout class to be set the list.
+ *   @param list     Probed neurons list to set.
+ */
+void setLayout_probed_neuron_list(Layout *layout, boost::python::list &list)
+{
+    python_to_vector(list, &(layout->m_probed_neuron_list));
+}
+
+/*
  *  Create a AllLIFNeurons class object and return a shared pointer of it. 
  *  This function is the replacement of default constructor.
  */
@@ -851,6 +873,21 @@ BOOST_PYTHON_MODULE(growth)
         // Because connections class object will be deleted by model class, 
         // we need to suppress deletion by Python.
         .def("__init__", make_constructor(create_ConnStatic))
+        .def_readwrite("nConnsPerNeuron", &ConnStatic::m_nConnsPerNeuron)
+        .def_readwrite("threshConnsRadius", &ConnStatic::m_threshConnsRadius)
+        .def_readwrite("pRewiring", &ConnStatic::m_pRewiring)
+        .add_property("excWeight",
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( ConnStatic * )>(
+                      []( ConnStatic *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_excWeight );
+                      }))
+        .add_property("inhWeight",
+                   /* getter that returns an array_ref view into the array */
+                   static_cast<array_ref<BGFLOAT>(*)( ConnStatic * )>(
+                      []( ConnStatic *obj ) {
+                        return array_ref<BGFLOAT>( obj->m_inhWeight );
+                      }))
     ;
 
     class_<ConnGrowth, boost::shared_ptr<ConnGrowth>, bases<Connections>>("ConnGrowth", no_init)
@@ -874,6 +911,8 @@ BOOST_PYTHON_MODULE(growth)
         .def_readwrite("num_endogenously_active_neurons", &Layout::num_endogenously_active_neurons)
         .def("get_inhibitory_neuron_layout", &getLayout_inhibitory_neuron_layout, return_value_policy<copy_const_reference>())
         .def("set_inhibitory_neuron_layout", &setLayout_inhibitory_neuron_layout)
+        .def("get_probed_neuron_list", &getLayout_probed_neuron_list, return_value_policy<copy_const_reference>())
+        .def("set_probed_neuron_list", &setLayout_probed_neuron_list)
     ;
 
     class_<FixedLayout, boost::shared_ptr<FixedLayout>, bases<Layout>>("FixedLayout", no_init)

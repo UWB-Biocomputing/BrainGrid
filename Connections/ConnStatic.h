@@ -134,7 +134,11 @@ class ConnStatic : public Connections
          */
         virtual IRecorder* createRecorder(const SimulationInfo *sim_info);
 
+#if defined(BOOST_PYTHON)
+    public:
+#else // BOOSTPYTHON
     private:
+#endif // BOOSTPYTHON
         //! number of maximum connections per neurons
         int m_nConnsPerNeuron;
 
