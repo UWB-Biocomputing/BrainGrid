@@ -658,7 +658,7 @@ $(COREDIR)/PythonWrapper.o: $(COREDIR)/PythonWrapper.cpp
 	$(CXX) $(CXXFLAGS) $(COREDIR)/PythonWrapper.cpp -o $(COREDIR)/PythonWrapper.o
 
 $(COREDIR)/PythonWrapper_cuda.o: $(COREDIR)/PythonWrapper.cpp
-	nvcc $(NVCCFLAGS) $(COREDIR)/PythonWrapper.cpp -x cu $(CGPUFLAGS) -o $(COREDIR)/PythonWrapper_cuda.o
+	$(CXX) $(CXXFLAGS) $(COREDIR)/PythonWrapper.cpp -I/usr/local/cuda/include $(CGPUFLAGS) -o $(COREDIR)/PythonWrapper_cuda.o
 
 # Single Threaded
 # ------------------------------------------------------------------------------

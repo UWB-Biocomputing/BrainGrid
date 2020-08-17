@@ -649,6 +649,9 @@ BOOST_PYTHON_MODULE(growth)
         .def_readwrite("clusterNeuronsBegin", &ClusterInfo::clusterNeuronsBegin)
         .def_readwrite("totalClusterNeurons", &ClusterInfo::totalClusterNeurons)
         .def_readwrite("seed", &ClusterInfo::seed)
+#if defined(USE_GPU)
+        .def_readwrite("deviceId", &ClusterInfo::deviceId)
+#endif // USE_GPU
     ;
 
     class_<Simulator>("Simulator")
@@ -849,7 +852,7 @@ BOOST_PYTHON_MODULE(growth)
     class_<IAllSynapsesProps, boost::noncopyable>("IAllSynapsesProps", no_init)
     ;
 
-    class_<AllSynapsesProps, bases<IAllSynapsesProps>>("AllSynapsesProps")
+    class_<AllSynapsesProps, boost::noncopyable, bases<IAllSynapsesProps>>("AllSynapsesProps", no_init)
     ;
 
     class_<AllSpikingSynapsesProps, bases<AllSynapsesProps>>("AllSpikingSynapsesProps")
