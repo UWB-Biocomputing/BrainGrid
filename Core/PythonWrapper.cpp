@@ -571,6 +571,17 @@ boost::shared_ptr<DynamicLayout> create_DynamicLayout()
     return boost::shared_ptr<DynamicLayout>( new DynamicLayout(), boost::mem_fn(&DynamicLayout::destroy) );
 }
 
+/*
+ *  Deep copy neuons's parameters
+ *
+ *   @param l_neurons   Neurons class object to copy to.
+ *   @param l_neurons   Neurons class object to copy from.
+ */
+void copyNeurons(IAllNeurons *l_neurons, IAllNeurons *r_neurons)
+{
+    *l_neurons = *r_neurons;
+}
+
 #if defined(USE_GPU)
 BOOST_PYTHON_MODULE(growth_cuda)
 #else // USE_GPU
@@ -664,6 +675,7 @@ BOOST_PYTHON_MODULE(growth)
     def("parseCommandLine", parseCommandLineWrapper);
     def("LoadAllParameters", LoadAllParametersWrapper);
     def("createRecorder", createRecorder, return_value_policy<manage_new_object>());
+    def("copyNeurons", copyNeurons);
 
     // Neurons classes
     class_<IAllNeurons, boost::noncopyable>("IAllNeurons", no_init)
