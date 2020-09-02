@@ -3,7 +3,7 @@
 #########################################################################
 #
 # @file		batch_h5.py
-# @author	Fumitaka Kaewasaki
+# @author	Fumitaka Kawasaki
 # @date		5/14/2020
 #
 # @brief	Main driver for plot figures
