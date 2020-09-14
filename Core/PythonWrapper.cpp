@@ -191,6 +191,26 @@ object getRecorder(const SimulationInfo *simInfo)
 }
 
 /*
+ *  Set the current simulation step.
+ *
+ *  @param step     The simulation step to set.
+ */
+void setSimulationStep(uint64_t step)
+{
+    g_simulationStep = step;
+}
+
+/*
+ *  Get the current simulation step.
+ *
+ *  @returns  The current simulation step.
+ */
+uint64_t getSimulationStep()
+{
+    return g_simulationStep;
+}
+
+/*
  *  Get neurons' property object pointer.
  *  This function is called through 'neuronsProps' property.
  *  (ex. neuronsProps = neurons.neuronsProps)
@@ -582,6 +602,18 @@ void copyNeurons(IAllNeurons *l_neurons, IAllNeurons *r_neurons)
     *l_neurons = *r_neurons;
 }
 
+/*
+ *  Get neuron's membrane voltage
+ *
+ *  @param props   Neuron's property to get from.
+ *  @param i       Neuron's index.
+ *  @returns       Neuron'smembrane voltage.
+ */
+BGFLOAT get_Vm(AllIFNeuronsProps* props, int i)
+{
+    return (props->Vm)[i];
+}
+
 #if defined(USE_GPU)
 BOOST_PYTHON_MODULE(growth_cuda)
 #else // USE_GPU
@@ -590,6 +622,14 @@ BOOST_PYTHON_MODULE(growth)
 {
     // Register C++ vector to python list converter
     to_python_converter<int_vector, vector_to_pylist_converter<int_vector>>();
+
+    def("parseCommandLine", parseCommandLineWrapper);
+    def("LoadAllParameters", LoadAllParametersWrapper);
+    def("createRecorder", createRecorder, return_value_policy<manage_new_object>());
+    def("copyNeurons", copyNeurons);
+    def("setSimulationStep", setSimulationStep);
+    def("getSimulationStep", getSimulationStep);
+    def("get_Vm", get_Vm);
 
     class_<array_ref<BGFLOAT>>( "bgfloat_array" )
         .def( array_indexing_suite<array_ref<BGFLOAT>>() )
@@ -627,6 +667,9 @@ BOOST_PYTHON_MODULE(growth)
 
     class_<Model, boost::shared_ptr<Model>, bases<IModel>>("Model", no_init)
         .def("__init__", make_constructor(create_Model))
+        .def("advance", &Model::advance)
+        .def("updateConnections", &Model::updateConnections)
+        .def("updateHistory", &Model::updateHistory)
     ;
 
     class_<SimulationInfo>("SimulationInfo")
@@ -635,10 +678,13 @@ BOOST_PYTHON_MODULE(growth)
         .def_readwrite("width", &SimulationInfo::width)
         .def_readwrite("height", &SimulationInfo::height)
         .def_readwrite("totalNeurons", &SimulationInfo::totalNeurons)
+        .def_readwrite("currentStep", &SimulationInfo::currentStep)
         .def_readwrite("maxSteps", &SimulationInfo::maxSteps)
         .def_readwrite("epochDuration", &SimulationInfo::epochDuration)
         .def_readwrite("maxFiringRate", &SimulationInfo::maxFiringRate)
         .def_readwrite("maxSynapsesPerNeuron", &SimulationInfo::maxSynapsesPerNeuron)
+        .def_readwrite("minSynapticTransDelay", &SimulationInfo::minSynapticTransDelay)
+        .def_readwrite("deltaT", &SimulationInfo::deltaT)
         .def_readwrite("seed", &SimulationInfo::seed)
         .def_readwrite("numClusters", &SimulationInfo::numClusters)
         .def_readwrite("stateOutputFileName", &SimulationInfo::stateOutputFileName)
@@ -668,14 +714,10 @@ BOOST_PYTHON_MODULE(growth)
     class_<Simulator>("Simulator")
         .def("setup", &Simulator::setup)
         .def("simulate", &Simulator::simulate)
+        .def("advanceUntilGrowth", &Simulator::advanceUntilGrowth)
         .def("saveData", &Simulator::saveData)
         .def("finish", &Simulator::finish)
     ;
-
-    def("parseCommandLine", parseCommandLineWrapper);
-    def("LoadAllParameters", LoadAllParametersWrapper);
-    def("createRecorder", createRecorder, return_value_policy<manage_new_object>());
-    def("copyNeurons", copyNeurons);
 
     // Neurons classes
     class_<IAllNeurons, boost::noncopyable>("IAllNeurons", no_init)

@@ -13,7 +13,7 @@ simInfo.maxSteps = 1
 simInfo.maxFiringRate = 1000
 simInfo.maxSynapsesPerNeuron = 1000
 simInfo.seed = 777
-simInfo.stateOutputFileName = "results/static_izh_historyDump.h5"
+simInfo.stateOutputFileName = "../results/static_izh_historyDump.h5"
 simInfo.numClusters = 1
 
 # Create an instance of the neurons class

@@ -2,12 +2,12 @@
 
 #########################################################################
 #
-# @file         plotIzhSpikes.py
+# @file         plot_py_single.py
 # @author       Fumitaka Kawasaki
-# @date         9/2/2020
+# @date         9/14/2020
 #
-# @brief        A python script to show the results of static_izh_1000.xml 
-#               description file.
+# @brief        A python script to show the results of py_single.py
+#               python script (membrane voltage).
 #
 #########################################################################
 
@@ -18,18 +18,17 @@ import sys
 import numpy as np
 import os
 
-args = sys.argv
-filename = args[1]
+filename1 = '../results/single_historyDump.h5'
+filename2 = '../results/vmLog.h5'
 
-f = h5py.File(filename, 'r')
+f1 = h5py.File(filename1, 'r')
 
 #-------------------------------------------------------------------------
 # Retrieve data from the HDF5 file
 #-------------------------------------------------------------------------
-spikesProbedNeurons = f['spikesProbedNeurons'][()]      # spike events time of every neuron
-spikesHistory = f['spikesHistory'][()]                  # spike count of every neuron of every epoch
+spikesProbedNeurons = f1['spikesProbedNeurons'][()]      # spike events time of every neuron
 
-basename = os.path.splitext(os.path.basename(filename))[0]  # base name of the input file
+basename1 = os.path.splitext(os.path.basename(filename1))[0]  # base name of the input file
 [m, n] = spikesProbedNeurons.shape   # m - max number of event, n - number of neurons
 firings_neuron = list()
 firings_time = list()
@@ -40,24 +39,31 @@ for i in range(0, n):
             firings_time.append(spikesProbedNeurons[j, i])
             firings_neuron.append(i)
 
+# Read the membrane voltage record
+basename2 = os.path.splitext(os.path.basename(filename2))[0]  # base name of the input file
+f2 = h5py.File(filename2)
+logTime = f2['logTime'][()]
+logVm = f2['logVm'][()]
+
 #-------------------------------------------------------------------------
 # fig_1: Plot spike raster graph
 #-------------------------------------------------------------------------
 fig_1 = plt.figure(figsize=(20,12))
-plt.title('Spike raster graph: ' + filename)
-plt.xlabel('time (0.1 msec)')
-plt.ylabel('neuron number')
-plt.xlim([0,10000])
-plt.ylim([0,1000])
-plt.plot(firings_time, firings_neuron, '.')
+ax_1 = fig_1.add_subplot(2,1,1)
+ax_1.set_title('Spike raster graph: ' + basename1)
+ax_1.set_ylabel('neuron number')
+ax_1.set_xlim([0,10000])
+ax_1.set_ylim([0.5,1.5])
+ax_1.eventplot(firings_time)
 
 #-------------------------------------------------------------------------
-# fig_2: Plot populational spike activity
+# fig_2: Plot membrane voltage
 #-------------------------------------------------------------------------
-fig_2 = plt.figure(figsize=(20,12))
-plt.title('Populational spike activity: ' + filename)
-plt.xlabel('time (10 msec)')
-plt.ylabel('number of spikes')
-plt.plot(spikesHistory)
+ax_2 = fig_1.add_subplot(2,1,2)
+ax_2.set_title('Membrane voltage: ' + basename2)
+ax_2.set_xlabel('time (0.1 msec)')
+ax_2.set_ylabel('membrane voltage (V)')
+ax_2.set_xlim([0,10000])
+ax_2.plot(logTime, logVm)
 
 plt.show()

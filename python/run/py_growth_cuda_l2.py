@@ -14,7 +14,7 @@ simInfo.maxSteps = 600
 simInfo.maxFiringRate = 200
 simInfo.maxSynapsesPerNeuron = 200
 simInfo.seed = 777
-simInfo.stateOutputFileName = "results/tR_1.0--fE_0.98_10000_historyDump.h5"
+simInfo.stateOutputFileName = "../results/tR_1.0--fE_0.98_10000_historyDump.h5"
 simInfo.numClusters = 1
 
 # Create an instance of the neurons class

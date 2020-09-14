@@ -1,59 +1,58 @@
+#!/home/NETID/lundvm/anaconda3/bin/python3
+
+#########################################################################
+#
+# @file         py_single.py
+# @author       Fumitaka Kawasaki
+# @date         9/14/2020
+#
+# @brief        Run one second simulation with a single LIF active neuron 
+#               and record the membrane voltage (vm) of the neuron.
+#
+#########################################################################
+
 import sys
 import growth
+import h5py
 
 # create simulation info object
 simInfo = growth.SimulationInfo()
 
 # Set simulation parameters
 simInfo.epochDuration = 1
-simInfo.width = 40
-simInfo.height = 25
+simInfo.width = 1
+simInfo.height = 1
 simInfo.totalNeurons = simInfo.width * simInfo.height
 simInfo.maxSteps = 1
-simInfo.maxFiringRate = 1000
-simInfo.maxSynapsesPerNeuron = 1000
+simInfo.maxFiringRate = 200
+simInfo.maxSynapsesPerNeuron = 200
 simInfo.seed = 777
-simInfo.stateOutputFileName = "../results/static_izh_historyDump.h5"
+simInfo.stateOutputFileName = "../results/single_historyDump.h5"
 simInfo.numClusters = 1
+#simInfo.minSynapticTransDelay = 1
 
 # Create an instance of the neurons class
-neurons = growth.AllIZHNeurons()
+neurons = growth.AllLIFNeurons()
 neurons.createNeuronsProps()
 neuronsProps = neurons.neuronsProps
 
 # Set neurons parameters
 neuronsProps.Iinject[0] = 13.5e-09
 neuronsProps.Iinject[1] = 13.5e-09
-neuronsProps.Inoise[0] = 0.5e-06
-neuronsProps.Inoise[1] = 0.7329e-06
-neuronsProps.Vthresh[0] = 30.0e-03
-neuronsProps.Vthresh[1] = 30.0e-03
+neuronsProps.Inoise[0] = 1.0e-09
+neuronsProps.Inoise[1] = 1.5e-09
+neuronsProps.Vthresh[0] = 15.0e-03
+neuronsProps.Vthresh[1] = 15.0e-03
 neuronsProps.Vresting[0] = 0.0
 neuronsProps.Vresting[1] = 0.0
-neuronsProps.Vreset[0] = -0.065
-neuronsProps.Vreset[1] = -0.065
-neuronsProps.Vinit[0] = -0.065
-neuronsProps.Vinit[1] = -0.065
+neuronsProps.Vreset[0] = 13.5e-03
+neuronsProps.Vreset[1] = 13.5e-03
+neuronsProps.Vinit[0] = 13.0e-03
+neuronsProps.Vinit[1] = 13.0e-03
 neuronsProps.starter_Vthresh[0] = 13.565e-3
 neuronsProps.starter_Vthresh[1] = 13.655e-3
 neuronsProps.starter_Vreset[0] = 13.0e-3
 neuronsProps.starter_Vreset[1] = 13.0e-3
-neuronsProps.excAconst[0] = 0.02
-neuronsProps.excAconst[1] = 0.02
-neuronsProps.inhAconst[0] = 0.02
-neuronsProps.inhAconst[1] = 0.1
-neuronsProps.excBconst[0] = 0.2
-neuronsProps.excBconst[1] = 0.2
-neuronsProps.inhBconst[0] = 0.2
-neuronsProps.inhBconst[1] = 0.25
-neuronsProps.excCconst[0] = -65
-neuronsProps.excCconst[1] = -50
-neuronsProps.inhCconst[0] = -65
-neuronsProps.inhCconst[1] = -65
-neuronsProps.excDconst[0] = 2
-neuronsProps.excDconst[1] = 8
-neuronsProps.inhDconst[0] = 2
-neuronsProps.inhDconst[1] = 2
 
 # Create an instance of the synapses class
 synapses = growth.AllSpikingSynapses()
@@ -64,19 +63,20 @@ synapsesProps = synapses.synapsesProps
 conns = growth.ConnStatic()
 
 # Set connections parameters
-conns.nConnsPerNeuron = 999
-conns.threshConnsRadius = 50
+conns.nConnsPerNeuron = 0
+conns.threshConnsRadius = 0
 conns.pRewiring = 0
 conns.excWeight[0] = 0
-conns.excWeight[1] = 0.5e-7
-conns.inhWeight[0] = -0.5e-7
+conns.excWeight[1] = 0
+conns.inhWeight[0] = 0
 conns.inhWeight[1] = 0
 
 # Create an instance of the layout class
 layout = growth.FixedLayout()
-layout.num_endogenously_active_neurons = 0
-layout.set_inhibitory_neuron_layout(list(range(800, 1000)))
-layout.set_probed_neuron_list(list(range(0, 1000)))
+layout.set_endogenously_active_neuron_list( [0] )
+layout.num_endogenously_active_neurons = len(layout.get_endogenously_active_neuron_list())
+layout.set_inhibitory_neuron_layout(list())
+layout.set_probed_neuron_list(list(range(0, 1)))
 
 # Create clustersInfo
 clusterInfo = growth.ClusterInfo()
@@ -112,18 +112,49 @@ simInfo.simRecorder = recorder
 
 # create the simulator
 simulator = growth.Simulator()
-
 # setup simulation
 simulator.setup(simInfo)
 
+logTime = list()
+logVm = list()
+
 # Run simulation
-simulator.simulate(simInfo)
+
+# Main simulation loop - execute maxSteps
+for currentStep in range(1, simInfo.maxSteps+1):
+    simInfo.currentStep = currentStep
+
+    # advanceUntilGrowth
+    g_simulationStep = growth.getSimulationStep()
+    # Compute step number at end of this simulation epoch
+    endStep = int(g_simulationStep + simInfo.epochDuration / simInfo.deltaT)
+
+    # Advance simulation to next growth cycle
+    # This should simulate all neuron and synapse activity for one epoch.
+    while g_simulationStep < endStep:
+        # incremental step
+        iStep = endStep - g_simulationStep
+        iStep = iStep if (iStep < simInfo.minSynapticTransDelay) else simInfo.minSynapticTransDelay
+        # Advance the Network iStep time step
+        model.advance(simInfo, int(iStep))
+        g_simulationStep += iStep 
+        growth.setSimulationStep(g_simulationStep)
+
+        # Get the neuron's membrane voltge of neuron 0
+        Vm = growth.get_Vm(neuronsProps, 0)
+
+        # log the voltage
+        logTime.append(g_simulationStep)
+        logVm.append(Vm)
+
+    model.updateConnections(simInfo)
+    model.updateHistory(simInfo)
 
 # Writes simulation results to an output destination
 simulator.saveData(simInfo)
 
 # Tell simulation to clean-up and run any post-simulation logic.
-simulator.finish(simInfo)
+simulator.finish(siminfo)
 
 # terminates the simulation recorder
 recorder.term()
@@ -135,3 +166,9 @@ recorder.term()
 #     - Simulator
 #     - Recorder
 #     - Model
+
+# Save the neuron's membrane voltage record
+with h5py.File('../results/vmLog.h5', 'w') as f:
+    f.create_dataset('logTime', data=logTime)
+    f.create_dataset('logVm', data=logVm)
+
