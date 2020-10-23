@@ -2,12 +2,13 @@
 
 #########################################################################
 #
-# @file         py_single.py
+# @file         py_input_poisson_single.py
 # @author       Fumitaka Kawasaki
-# @date         9/14/2020
+# @date         10/23/2020
 #
-# @brief        Run one second simulation with a single LIF active neuron 
-#               and record the membrane voltage (vm) of the neuron.
+# @brief        Run one second simulation with a single LIF neuron, 
+#               pour poisson input spike train, and record the psr of the synapse
+#               and the membrane voltage (vm) of the neuron.
 #
 #########################################################################
 
@@ -73,9 +74,9 @@ conns.inhWeight[1] = 0
 
 # Create an instance of the layout class
 layout = growth.FixedLayout()
-layout.set_endogenously_active_neuron_list( [0] )
+layout.set_endogenously_active_neuron_list(list()) # no active neurons
 layout.num_endogenously_active_neurons = len(layout.get_endogenously_active_neuron_list())
-layout.set_inhibitory_neuron_layout(list())
+layout.set_inhibitory_neuron_layout(list()) # no inhibitory neurons
 layout.set_probed_neuron_list( [0] )
 
 # Create clustersInfo
@@ -110,13 +111,26 @@ if recorder == None:
 # Set the C++ recorder object in the C++ internal simInfo structure.
 simInfo.simRecorder = recorder
 
+# Create a stimulus input object
+maskIndex = []  # masks for the input
+fr_mean = 10.0  # mean frequency
+weight = 50.0   # synapse weight
+sinput = growth.HostSInputPoisson(simInfo, fr_mean, weight, maskIndex)
+simInfo.pInput = sinput
+
 # create the simulator
 simulator = growth.Simulator()
+
 # setup simulation
 simulator.setup(simInfo)
 
+# get the synapses properties for the input layer
+synapsesSInput = clusterInfo.synapsesSInput
+synapsesSInputProps = synapsesSInput.synapsesProps 
+
 logTime = list()
 logVm = list()
+logPsr = list()
 
 # Run simulation
 
@@ -143,12 +157,20 @@ for currentStep in range(1, simInfo.maxSteps+1):
         # Get the neuron's membrane voltge of neuron 0
         Vm = growth.get_Vm(neuronsProps, 0)
 
+        # Get the synapse's psr of the input layer synapse 0
+        psr = growth.get_psr(synapsesSInputProps, 0)
+
         # log the voltage
         logTime.append(g_simulationStep)
         logVm.append(Vm)
+        logPsr.append(psr)
 
     model.updateConnections(simInfo)
     model.updateHistory(simInfo)
+
+# Terminate the stimulus input
+if sinput != None:
+    sinput.term(simInfo, vtClrInfo)
 
 # Writes simulation results to an output destination
 simulator.saveData(simInfo)
@@ -166,9 +188,11 @@ recorder.term()
 #     - Simulator
 #     - Recorder
 #     - Model
+#     - SInput
 
 # Save the neuron's membrane voltage record
 with h5py.File('../results/vmLog.h5', 'w') as f:
     f.create_dataset('logTime', data=logTime)
     f.create_dataset('logVm', data=logVm)
+    f.create_dataset('logPsr', data=logPsr)
 
