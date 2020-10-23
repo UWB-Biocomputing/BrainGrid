@@ -13,9 +13,11 @@
  * The constructor for HostSInputPoisson.
  *
  * @param[in] psi       Pointer to the simulation information
- * @param[in] parms     TiXmlElement to examine.
+ * @param[in] fr_mean   Firing rate (per sec)
+ * @param[in] weight    Synapse weight
+ * @param[in] maskIndex Input masks index
  */
-HostSInputPoisson::HostSInputPoisson(SimulationInfo* psi, TiXmlElement* parms) : SInputPoisson(psi, parms)
+HostSInputPoisson::HostSInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> &maskIndex) : SInputPoisson(psi, fr_mean, weight, maskIndex)
 {
     
 }
@@ -47,7 +49,7 @@ void HostSInputPoisson::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrIn
  * @param[in] psi             Pointer to the simulation information.
  * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void HostSInputPoisson::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
+void HostSInputPoisson::term(SimulationInfo* psi, vector<ClusterInfo *> const&vtClrInfo)
 {
     SInputPoisson::term(psi, vtClrInfo);
 }
@@ -64,6 +66,11 @@ void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pc
 {
     if (m_fSInput == false)
         return;
+
+    AllSynapses *pSynapses = dynamic_cast<AllSynapses*>(pci->synapsesSInput);
+    int maxSpikes = (int) ((psi->epochDuration * psi->maxFiringRate));
+    uint64_t simulationStep = g_simulationStep + iStepOffset;
+    AllSynapsesProps* pSynapsesProps = pSynapses->m_pSynapsesProps;
 
     int neuronLayoutIndex = pci->clusterNeuronsBegin;
     int totalClusterNeurons = pci->totalClusterNeurons;
@@ -89,11 +96,11 @@ void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pc
         }
 
         // process synapse & apply psr to the summation point
-        AllSynapses *pSynapses = dynamic_cast<AllSynapses*>(pci->synapsesSInput);
-        int maxSpikes = (int) ((psi->epochDuration * psi->maxFiringRate));
-        uint64_t simulationStep = g_simulationStep + iStepOffset;
-
         pSynapses->advanceSynapse(iSyn, psi->deltaT, NULL, simulationStep, iStepOffset, maxSpikes, NULL);
+
+        BGFLOAT &summationPoint = *(pSynapsesProps->summationPoint[iSyn]);
+        BGFLOAT &psr = pSynapsesProps->psr[iSyn];
+        summationPoint += psr;
     }
 }
 

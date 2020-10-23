@@ -7,74 +7,28 @@
  */
 
 #include "SInputRegular.h"
-#include "tinyxml.h"
-
-void getValueList(const string& valString, vector<BGFLOAT>* pList);
 
 /*
  * constructor
  *
- * @param[in] psi       Pointer to the simulation information
- * @param[in] parms     Pointer to xml parms element
+ * @param[in] psi          Pointer to the simulation information
+ * @param[in] duration     Duration of a pulse in second
+ * @param[in] interval     Interval between pulses in second
+ * @parm[in] sync          'yes, 'no', or 'wave'
+ * @param[in] initValues   Initial input values
  */
-SInputRegular::SInputRegular(SimulationInfo* psi, TiXmlElement* parms) :
+SInputRegular::SInputRegular(SimulationInfo* psi, BGFLOAT duration, BGFLOAT interval, string &sync, vector<BGFLOAT> &initValues) :
     m_values(NULL),
     m_nShiftValues(NULL)
 {
     m_fSInput = false;
-
-    // read duration, interval and sync
-    TiXmlElement* temp = NULL;
-    string sync;
-    if (( temp = parms->FirstChildElement( "IntParams" ) ) != NULL) { if (temp->QueryFLOATAttribute("duration", &m_duration ) != TIXML_SUCCESS) {
-            cerr << "error IntParams:duration" << endl;
-            return;
-        }
-        if (temp->QueryFLOATAttribute("interval", &m_interval ) != TIXML_SUCCESS) {
-            cerr << "error IntParams:interval" << endl;
-            return;
-        }
-        if (temp->QueryValueAttribute("sync", &sync ) != TIXML_SUCCESS) {
-            cerr << "error IntParams:sync" << endl;
-            return;
-        }
-    }
-    else
-    {
-        cerr << "missing IntParams" << endl;
-        return;
-    }
+    m_duration = duration;
+    m_interval = interval;
 
     // initialize duration ,interval and cycle
     m_nStepsDuration = static_cast<int> ( m_duration / psi->deltaT + 0.5 );
     m_nStepsInterval = static_cast<int> ( m_interval / psi->deltaT + 0.5 );
     m_nStepsCycle = m_nStepsDuration + m_nStepsInterval;
-
-    // read initial values
-    if ((temp = parms->FirstChildElement( "Values")) != NULL)
-    {
-        TiXmlNode* pNode = NULL;
-        while ((pNode = temp->IterateChildren(pNode)) != NULL)
-        {
-            if (strcmp(pNode->Value(), "I") == 0)
-            {
-                getValueList(pNode->ToElement()->GetText(), &m_initValues);
-            }
-            else
-            {
-                cerr << "error I" << endl;
-                return;
-            }
-        }
-    }
-    else
-    {
-        cerr << "missing Values" << endl;
-        return;
-    }
-
-    // we assume that initial values are in 10x10 matrix
-    assert(m_initValues.size() == 100);
 
     // allocate memory for input values
     m_values = new BGFLOAT[psi->totalNeurons];
@@ -82,9 +36,7 @@ SInputRegular::SInputRegular(SimulationInfo* psi, TiXmlElement* parms) :
     // initialize values
     for (int i = 0; i < psi->height; i++)
         for (int j = 0; j < psi->width; j++)
-            m_values[i * psi->width + j] = m_initValues[(i % 10) * 10 + j % 10];
-
-    m_initValues.clear();
+            m_values[i * psi->width + j] = initValues[(i % 10) * 10 + j % 10];
 
     // allocate memory for shift values
     m_nShiftValues = new int[psi->totalNeurons];
@@ -137,7 +89,7 @@ void SInputRegular::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
  * @param[in] psi             Pointer to the simulation information.
  * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void SInputRegular::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
+void SInputRegular::term(SimulationInfo* psi, vector<ClusterInfo *> const&vtClrInfo)
 {
 }
 

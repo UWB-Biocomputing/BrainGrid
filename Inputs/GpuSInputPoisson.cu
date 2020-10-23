@@ -13,9 +13,11 @@
  * constructor
  *
  * @param[in] psi       Pointer to the simulation information
- * @param[in] parms     TiXmlElement to examine.
+ * @param[in] fr_mean   Firing rate (per sec)
+ * @param[in] weight    Synapse weight
+ * @param[in] maskIndex Input masks index
  */
-GpuSInputPoisson::GpuSInputPoisson(SimulationInfo* psi, TiXmlElement* parms) : SInputPoisson(psi, parms)
+GpuSInputPoisson::GpuSInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> &maskIndex) : SInputPoisson(psi, fr_mean, weight, maskIndex)
 {
 }
 
@@ -49,7 +51,7 @@ void GpuSInputPoisson::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInf
  * @param[in] psi             Pointer to the simulation information.
  * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void GpuSInputPoisson::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
+void GpuSInputPoisson::term(SimulationInfo* psi, vector<ClusterInfo *> const&vtClrInfo)
 {
     if (m_fSInput)
         deleteDeviceValues(vtClrInfo);

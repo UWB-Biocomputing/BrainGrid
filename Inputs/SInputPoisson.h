@@ -40,14 +40,14 @@ class SInputPoisson : public ISInput
 {
 public:
     //! The constructor for SInputPoisson.
-    SInputPoisson(SimulationInfo* psi, TiXmlElement* parms);
+    SInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> &maskIndex);
     ~SInputPoisson();
 
     //! Initialize data.
     virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     //! Terminate process.
-    virtual void term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
+    virtual void term(SimulationInfo* psi, vector<ClusterInfo *> const&vtClrInfo);
 
 protected:
     //! True if stimuls input is on.

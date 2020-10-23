@@ -7,42 +7,21 @@
  */
 
 #include "SInputPoisson.h"
-#include "tinyxml.h"
 #include "AllDSSynapses.h"
-
-extern void getValueList(const string& valString, vector<BGFLOAT>* pList);
 
 /*
  * constructor
- * @param[in] parms     Pointer to xml parms element
+ * @param[in] psi       Pointer to the simulation information parms element
+ * @param[in] fr_mean   Firing rate (per sec)
+ * @param[in] weight    Synapse weight
+ * @param[in] maskIndex Input masks index
  */
-SInputPoisson::SInputPoisson(SimulationInfo* psi, TiXmlElement* parms) :
+SInputPoisson::SInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> &maskIndex) :
     m_nISIs(NULL),
     m_masks(NULL)
 {
     m_fSInput = false;
-
-    // read fr_mean and weight
-    TiXmlElement* temp = NULL;
-    string sync;
-    BGFLOAT fr_mean;	// firing rate (per sec)
-
-    if (( temp = parms->FirstChildElement( "IntParams" ) ) != NULL) 
-    { 
-        if (temp->QueryFLOATAttribute("fr_mean", &fr_mean ) != TIXML_SUCCESS) {
-            cerr << "error IntParams:fr_mean" << endl;
-            return;
-        }
-        if (temp->QueryFLOATAttribute("weight", &m_weight ) != TIXML_SUCCESS) {
-            cerr << "error IntParams:weight" << endl;
-            return;
-        }
-    }
-    else
-    {
-        cerr << "missing IntParams" << endl;
-        return;
-    }
+    m_weight = weight;
 
      // initialize firng rate, inverse firing rate
     fr_mean = fr_mean / 1000;	// firing rate per msec
@@ -55,54 +34,17 @@ SInputPoisson::SInputPoisson(SimulationInfo* psi, TiXmlElement* parms) :
     // allocate memory for input masks
     m_masks = new bool[psi->totalNeurons];
 
-    // read mask values and set it to masks
-    vector<BGFLOAT> maskIndex;
-    if ((temp = parms->FirstChildElement( "Masks")) != NULL)
-    {
-       TiXmlNode* pNode = NULL;
-        while ((pNode = temp->IterateChildren(pNode)) != NULL)
-        {
-            if (strcmp(pNode->Value(), "M") == 0)
-            {
-                getValueList(pNode->ToElement()->GetText(), &maskIndex);
-
-                memset(m_masks, false, sizeof(bool) * psi->totalNeurons);
-                for (uint32_t i = 0; i < maskIndex.size(); i++)
-                    m_masks[static_cast<int> ( maskIndex[i] )] = true;
-            }
-            else if (strcmp(pNode->Value(), "LayoutFiles") == 0)
-            {
-                string maskNListFileName;
-
-                if (pNode->ToElement()->QueryValueAttribute( "maskNListFileName", &maskNListFileName ) == TIXML_SUCCESS)
-                {
-                    TiXmlDocument simDoc( maskNListFileName.c_str( ) );
-                    if (!simDoc.LoadFile( ))
-                    {
-                        cerr << "Failed loading positions of stimulus input mask neurons list file " << maskNListFileName << ":" << "\n\t"
-                             << simDoc.ErrorDesc( ) << endl;
-                        cerr << " error: " << simDoc.ErrorRow( ) << ", " << simDoc.ErrorCol( ) << endl;
-                        break;
-                    }
-                    TiXmlNode* temp2 = NULL;
-                    if (( temp2 = simDoc.FirstChildElement( "M" ) ) == NULL)
-                    {
-                        cerr << "Could not find <M> in positons of stimulus input mask neurons list file " << maskNListFileName << endl;
-                        break;
-                    }
-                    getValueList(temp2->ToElement()->GetText(), &maskIndex);
-
-                    memset(m_masks, false, sizeof(bool) * psi->totalNeurons);
-                    for (uint32_t i = 0; i < maskIndex.size(); i++)
-                        m_masks[static_cast<int> ( maskIndex[i] )] = true;
-                }
-            }
-        }
+    // set mask values
+    memset(m_masks, false, sizeof(bool) * psi->totalNeurons);
+    if (maskIndex.size() == 0)
+    { 
+        // when no mask is specified, set it all true
+        memset(m_masks, true, sizeof(bool) * psi->totalNeurons);
     }
     else
     {
-        // when no mask is specified, set it all true
-        memset(m_masks, true, sizeof(bool) * psi->totalNeurons);
+        for (uint32_t i = 0; i < maskIndex.size(); i++)
+            m_masks[static_cast<int> ( maskIndex[i] )] = true;
     }
 
     m_fSInput = true;
@@ -139,6 +81,7 @@ void SInputPoisson::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
         // create an input synapse layer
         // TODO: do we need to support other types of synapses?
         clr_info->synapsesSInput = new AllDSSynapses();
+        clr_info->synapsesSInput->createSynapsesProps();
 
         // HACK!!! avoid to overwrite eventHandler in setupSynapses
         InterClustersEventHandler* t_eventHandler = clr_info->eventHandler;
@@ -174,7 +117,7 @@ void SInputPoisson::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
  *  @param[in] psi             Pointer to the simulation information.
  *  @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void SInputPoisson::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
+void SInputPoisson::term(SimulationInfo* psi, vector<ClusterInfo *> const&vtClrInfo)
 {
     // clear memory for interval counter
     if (m_nISIs != NULL)

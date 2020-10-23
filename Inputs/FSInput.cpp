@@ -15,6 +15,8 @@
 #endif
 #include "tinyxml.h"
 
+extern void getValueList(const string& valString, vector<BGFLOAT>* pList);
+
 /*
  * constructor
  */
@@ -82,18 +84,129 @@ ISInput* FSInput::CreateInstance(SimulationInfo* psi)
 
     if (name == "SInputRegular")
     {
+        // read duration, interval and sync
+        BGFLOAT duration;    // duration of a pulse in second
+        BGFLOAT interval;    // interval between pulses in second
+        string sync;
+
+        if (( temp = parms->FirstChildElement( "IntParams" ) ) != NULL) 
+        { 
+            if (temp->QueryFLOATAttribute("duration", &duration ) != TIXML_SUCCESS) {
+                cerr << "error IntParams:duration" << endl;
+                return NULL;
+            }
+            if (temp->QueryFLOATAttribute("interval", &interval ) != TIXML_SUCCESS) {
+                cerr << "error IntParams:interval" << endl;
+                return NULL;
+            }
+            if (temp->QueryValueAttribute("sync", &sync ) != TIXML_SUCCESS) {
+                cerr << "error IntParams:sync" << endl;
+                return NULL;
+            }
+        }
+        else
+        {
+            cerr << "missing IntParams" << endl;
+            return NULL;
+        }
+
+        // read initial values
+        vector<BGFLOAT> initValues;
+        if ((temp = parms->FirstChildElement( "Values")) != NULL)
+        {
+            TiXmlNode* pNode = NULL;
+            while ((pNode = temp->IterateChildren(pNode)) != NULL)
+            {
+                if (strcmp(pNode->Value(), "I") == 0)
+                {
+                    getValueList(pNode->ToElement()->GetText(), &initValues);
+                }
+                else
+                {
+                    cerr << "error I" << endl;
+                    return NULL;
+                }
+            }
+        }
+        else
+        {
+            cerr << "missing Values" << endl;
+            return NULL;
+        }
+
+        // we assume that initial values are in 10x10 matrix
+        assert(initValues.size() == 100);
+
 #if defined(USE_GPU)
-        pInput = new GpuSInputRegular(psi, parms);
+        pInput = new GpuSInputRegular(psi, duration, interval, sync, initValues);
 #else
-        pInput = new HostSInputRegular(psi, parms);
+        pInput = new HostSInputRegular(psi, duration, interval, sync, initValues);
 #endif
     }
     else if (name == "SInputPoisson")
     {
+        BGFLOAT fr_mean;	// firing rate (per sec)
+        BGFLOAT weight;		// synapse weight
+
+        if (( temp = parms->FirstChildElement( "IntParams" ) ) != NULL)
+        {
+            if (temp->QueryFLOATAttribute("fr_mean", &fr_mean ) != TIXML_SUCCESS) {
+                cerr << "error IntParams:fr_mean" << endl;
+                return NULL;
+            }
+            if (temp->QueryFLOATAttribute("weight", &weight ) != TIXML_SUCCESS) {
+                cerr << "error IntParams:weight" << endl;
+                return NULL;
+            }
+        }
+        else
+        {
+            cerr << "missing IntParams" << endl;
+            return NULL;
+        }
+
+        // read mask values and set it to masks
+        vector<BGFLOAT> maskIndex;
+        if ((temp = parms->FirstChildElement( "Masks")) != NULL)
+        {
+           TiXmlNode* pNode = NULL;
+            while ((pNode = temp->IterateChildren(pNode)) != NULL)
+            {
+                if (strcmp(pNode->Value(), "M") == 0)
+                {
+                    getValueList(pNode->ToElement()->GetText(), &maskIndex);
+                }
+                else if (strcmp(pNode->Value(), "LayoutFiles") == 0)
+                {
+                    string maskNListFileName;
+
+                    if (pNode->ToElement()->QueryValueAttribute( "maskNListFileName", &maskNListFileName ) == TIXML_SUCCESS)
+                    {
+                        TiXmlDocument simDoc( maskNListFileName.c_str( ) );
+                        if (!simDoc.LoadFile( ))
+                        {
+                            cerr << "Failed loading positions of stimulus input mask neurons list file " << maskNListFileName << ":" << "\n\t"
+                                 << simDoc.ErrorDesc( ) << endl;
+                            cerr << " error: " << simDoc.ErrorRow( ) << ", " << simDoc.ErrorCol( ) << endl;
+                            break;
+                        }
+                        TiXmlNode* temp2 = NULL;
+                        if (( temp2 = simDoc.FirstChildElement( "M" ) ) == NULL)
+                        {
+                            cerr << "Could not find <M> in positons of stimulus input mask neurons list file " << maskNListFileName << endl;
+                            break;
+                        }
+                        getValueList(temp2->ToElement()->GetText(), &maskIndex);
+                    }
+                }
+            }
+        }
+
+        // create a stimulus input object
 #if defined(USE_GPU)
-        pInput = new GpuSInputPoisson(psi, parms);
+        pInput = new GpuSInputPoisson(psi, fr_mean, weight, maskIndex);
 #else
-        pInput = new HostSInputPoisson(psi, parms);
+        pInput = new HostSInputPoisson(psi, fr_mean, weight, maskIndex);
 #endif
     }
     else

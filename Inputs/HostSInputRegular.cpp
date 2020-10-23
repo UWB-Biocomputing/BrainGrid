@@ -11,10 +11,13 @@
 /*
  * constructor
  *
- * @param[in] psi       Pointer to the simulation information
- * @param[in] parms     TiXmlElement to examine.
+ * @param[in] psi          Pointer to the simulation information
+ * @param[in] duration     Duration of a pulse in second
+ * @param[in] interval     Interval between pulses in second
+ * @parm[in] sync          'yes, 'no', or 'wave'
+ * @param[in] initValues   Initial input values
  */
-HostSInputRegular::HostSInputRegular(SimulationInfo* psi, TiXmlElement* parms) : SInputRegular(psi, parms)
+HostSInputRegular::HostSInputRegular(SimulationInfo* psi, BGFLOAT duration, BGFLOAT interval, string &sync, vector<BGFLOAT> &initValues) : SInputRegular(psi, duration, interval, sync, initValues)
 {
     
 }
@@ -43,7 +46,7 @@ void HostSInputRegular::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrIn
  * @param[in] psi             Pointer to the simulation information.
  * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void HostSInputRegular::term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
+void HostSInputRegular::term(SimulationInfo* psi, vector<ClusterInfo *> const&vtClrInfo)
 {
     if (m_values != NULL)
         delete[] m_values;

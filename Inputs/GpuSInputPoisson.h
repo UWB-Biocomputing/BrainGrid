@@ -38,14 +38,14 @@ class GpuSInputPoisson : public SInputPoisson
 {
 public:
     //! The constructor for GpuSInputPoisson.
-    GpuSInputPoisson(SimulationInfo* psi, TiXmlElement* parms);
+    GpuSInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> &maskIndex);
     ~GpuSInputPoisson();
 
     //! Initialize data.
     virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     //! Terminate process.
-    virtual void term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
+    virtual void term(SimulationInfo* psi, vector<ClusterInfo *> const&vtClrInfo);
 
     //! Process input stimulus for each time step.
     virtual void inputStimulus(const SimulationInfo* psi, ClusterInfo *pci, int iStepOffset);

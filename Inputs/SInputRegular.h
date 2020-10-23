@@ -38,14 +38,14 @@ class SInputRegular : public ISInput
 {
 public:
     //! The constructor for SInputRegular.
-    SInputRegular(SimulationInfo* psi, TiXmlElement* parms);
+    SInputRegular(SimulationInfo* psi, BGFLOAT duration, BGFLOAT interval, string &sync, vector<BGFLOAT> &initValues);
     ~SInputRegular();
 
     //! Initialize data.
     virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     //! Terminate process.
-    virtual void term(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
+    virtual void term(SimulationInfo* psi, vector<ClusterInfo *> const&vtClrInfo);
 
     //! Advance input stimulus state.
     virtual void advanceSInputState(const ClusterInfo *pci, int iStep);
@@ -68,9 +68,6 @@ protected:
 
     //! The number of time steps for interval between pulses. 
     int m_nStepsInterval;
-
-    //! Initial input values
-    vector<BGFLOAT> m_initValues;
 
     //! Input values, where each entry corresponds with a summationPoint.
     BGFLOAT *m_values;
