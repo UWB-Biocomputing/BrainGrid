@@ -19,6 +19,8 @@
 #include "ConnGrowth.h"
 #include "FixedLayout.h"
 #include "DynamicLayout.h"
+#include "HostSInputRegular.h"
+#include "HostSInputPoisson.h"
 
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
@@ -88,6 +90,7 @@ void python_to_vector(boost::python::object o, vector<T>* v) {
 }
 
 typedef vector<int> int_vector;
+typedef vector<ClusterInfo *> ci_vector;
 
 /*
  *  Python lvalue converter
@@ -107,6 +110,36 @@ public:
             retval.append(py::object(i));
         }
         return py::incref(retval.ptr());
+    }
+};
+
+/*
+ *  Python rvalue converter
+ *  Boost Python converter that allowed to convert Python list to convert C++ vector.
+ *  This converter will be registered in converter::registry::push_back.
+ */
+template<typename T_>
+class pylist_to_vector_converter {
+public:
+    typedef T_ native_type;
+
+    static void* convertible(PyObject* pyo) {
+        if (!PySequence_Check(pyo))
+            return 0;
+
+        return pyo;
+    }
+
+    static void construct(PyObject* pyo, boost::python::converter::rvalue_from_python_stage1_data* data)
+    {
+        namespace py = boost::python;
+        native_type* storage = new(reinterpret_cast<py::converter::rvalue_from_python_storage<native_type>*>(data)->storage.bytes) native_type();
+        for (py::ssize_t i = 0, l = PySequence_Size(pyo); i < l; ++i) {
+            storage->push_back(
+                py::extract<typename boost::range_value<native_type>::type>(
+                    PySequence_GetItem(pyo, i)));
+        }
+        data->convertible = storage;
     }
 };
 
@@ -233,11 +266,21 @@ object getNeuronsProperty(const AllNeurons *neurons)
  *  @param neurons   AllSynapsess class pointer that owns the synapses
  *                   property object.
  *  @returns         Synapses' property object pointer wrapped by boost:python::object.
- *       
  */
 object getSynapsesProperty(const AllSynapses *synapses)
 {
     return object(boost::ref(synapses->m_pSynapsesProps));
+}
+
+/*
+ *  Get input layer synapses object pointer.
+ *
+ *  @param clrInfo   Cluster information in which the sysnapses are contained. 
+ *  @returns         Synapses object pointer wrapped by boost:python::object.
+ */
+object getSynapsesSInput(const ClusterInfo *clrInfo)
+{
+    return object(boost::ref(clrInfo->synapsesSInput));
 }
 
 /*
@@ -556,6 +599,21 @@ boost::shared_ptr<Model> create_Model(Connections* conns, Layout* layout, boost:
 }
 
 /*
+ *  Create a HostSInputPoisson class object and return a shared pointer of it. 
+ *  Convert Python list to C++ vector.
+ *  This function is the replacement of default constructor.
+ */
+boost::shared_ptr<HostSInputPoisson> create_HostSInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, boost::python::list &ltMaskIndex)
+{
+    static vector<BGFLOAT> maskIndex;
+
+    // convert Python list to C++ vector
+    python_to_vector(ltMaskIndex, &maskIndex);
+
+    return boost::shared_ptr<HostSInputPoisson>( new HostSInputPoisson(psi, fr_mean, weight, maskIndex) );
+}
+
+/*
  *  Create a ConnStatic class object and return a shared pointer of it. 
  *  This function is the replacement of default constructor.
  */
@@ -614,14 +672,36 @@ BGFLOAT get_Vm(AllIFNeuronsProps* props, int i)
     return (props->Vm)[i];
 }
 
+/*
+ *  Get synapses' psr
+ *
+ *  @param props   Synapses' property to get from.
+ */
+BGFLOAT get_psr(AllSynapsesProps* props, int i)
+{
+    return (props->psr)[i];
+}
+
 #if defined(USE_GPU)
 BOOST_PYTHON_MODULE(growth_cuda)
 #else // USE_GPU
 BOOST_PYTHON_MODULE(growth)
 #endif // USE_GPU
 {
+    using namespace boost::python;
+
     // Register C++ vector to python list converter
     to_python_converter<int_vector, vector_to_pylist_converter<int_vector>>();
+
+    // Register python list C++ vector converter
+    converter::registry::push_back(
+        &pylist_to_vector_converter<std::vector<ClusterInfo*>>::convertible,
+        &pylist_to_vector_converter<std::vector<ClusterInfo*>>::construct,
+        boost::python::type_id<std::vector<ClusterInfo*>>());
+
+    class_<array_ref<BGFLOAT>>( "bgfloat_array" )
+        .def( array_indexing_suite<array_ref<BGFLOAT>>() )
+        ;
 
     def("parseCommandLine", parseCommandLineWrapper);
     def("LoadAllParameters", LoadAllParametersWrapper);
@@ -630,10 +710,7 @@ BOOST_PYTHON_MODULE(growth)
     def("setSimulationStep", setSimulationStep);
     def("getSimulationStep", getSimulationStep);
     def("get_Vm", get_Vm);
-
-    class_<array_ref<BGFLOAT>>( "bgfloat_array" )
-        .def( array_indexing_suite<array_ref<BGFLOAT>>() )
-        ;
+    def("get_psr", get_psr);
 
     class_<IRecorder, boost::noncopyable>("IRecorder", no_init)
         .def("init", pure_virtual(&IRecorder::init))
@@ -666,106 +743,124 @@ BOOST_PYTHON_MODULE(growth)
     ;
 
     class_<Model, boost::shared_ptr<Model>, bases<IModel>>("Model", no_init)
-        .def("__init__", make_constructor(create_Model))
-        .def("advance", &Model::advance)
-        .def("updateConnections", &Model::updateConnections)
-        .def("updateHistory", &Model::updateHistory)
-    ;
+                .def("__init__", make_constructor(create_Model))
+		.def("advance", &Model::advance)
+		.def("updateConnections", &Model::updateConnections)
+		.def("updateHistory", &Model::updateHistory)
+	    ;
 
-    class_<SimulationInfo>("SimulationInfo")
-        .add_property("simRecorder", &getRecorder, &setRecorder)
-        .add_property("model", &getModel, &setModel)
-        .def_readwrite("width", &SimulationInfo::width)
-        .def_readwrite("height", &SimulationInfo::height)
-        .def_readwrite("totalNeurons", &SimulationInfo::totalNeurons)
-        .def_readwrite("currentStep", &SimulationInfo::currentStep)
-        .def_readwrite("maxSteps", &SimulationInfo::maxSteps)
-        .def_readwrite("epochDuration", &SimulationInfo::epochDuration)
-        .def_readwrite("maxFiringRate", &SimulationInfo::maxFiringRate)
-        .def_readwrite("maxSynapsesPerNeuron", &SimulationInfo::maxSynapsesPerNeuron)
-        .def_readwrite("minSynapticTransDelay", &SimulationInfo::minSynapticTransDelay)
-        .def_readwrite("deltaT", &SimulationInfo::deltaT)
-        .def_readwrite("seed", &SimulationInfo::seed)
-        .def_readwrite("numClusters", &SimulationInfo::numClusters)
-        .def_readwrite("stateOutputFileName", &SimulationInfo::stateOutputFileName)
-    ;
+	    class_<SimulationInfo>("SimulationInfo")
+		.add_property("simRecorder", &getRecorder, &setRecorder)
+		.add_property("model", &getModel, &setModel)
+		.def_readwrite("width", &SimulationInfo::width)
+		.def_readwrite("height", &SimulationInfo::height)
+		.def_readwrite("totalNeurons", &SimulationInfo::totalNeurons)
+		.def_readwrite("currentStep", &SimulationInfo::currentStep)
+		.def_readwrite("maxSteps", &SimulationInfo::maxSteps)
+		.def_readwrite("epochDuration", &SimulationInfo::epochDuration)
+		.def_readwrite("maxFiringRate", &SimulationInfo::maxFiringRate)
+		.def_readwrite("maxSynapsesPerNeuron", &SimulationInfo::maxSynapsesPerNeuron)
+		.def_readwrite("minSynapticTransDelay", &SimulationInfo::minSynapticTransDelay)
+		.def_readwrite("deltaT", &SimulationInfo::deltaT)
+		.def_readwrite("seed", &SimulationInfo::seed)
+		.def_readwrite("numClusters", &SimulationInfo::numClusters)
+		.def_readwrite("stateOutputFileName", &SimulationInfo::stateOutputFileName)
+		.def_readwrite("pInput", &SimulationInfo::pInput)
+	    ;
 
-    class_<Cluster, boost::noncopyable>("Cluster", no_init)
-    ;
+	    class_<Cluster, boost::noncopyable>("Cluster", no_init)
+	    ;
 
-#if defined(USE_GPU)
-    class_<GPUSpikingCluster, bases<Cluster>>("GPUSpikingCluster", init<IAllNeurons *, IAllSynapses *>())
-    ;
-#else // USE_GPU
-    class_<SingleThreadedCluster, bases<Cluster>>("SingleThreadedCluster", init<IAllNeurons *, IAllSynapses *>())
-    ;
-#endif // USE_GPU
+	#if defined(USE_GPU)
+	    class_<GPUSpikingCluster, bases<Cluster>>("GPUSpikingCluster", init<IAllNeurons *, IAllSynapses *>())
+	    ;
+	#else // USE_GPU
+	    class_<SingleThreadedCluster, bases<Cluster>>("SingleThreadedCluster", init<IAllNeurons *, IAllSynapses *>())
+	    ;
+	#endif // USE_GPU
 
-    class_<ClusterInfo>("ClusterInfo")
-        .def_readwrite("clusterID", &ClusterInfo::clusterID)
-        .def_readwrite("clusterNeuronsBegin", &ClusterInfo::clusterNeuronsBegin)
-        .def_readwrite("totalClusterNeurons", &ClusterInfo::totalClusterNeurons)
-        .def_readwrite("seed", &ClusterInfo::seed)
-#if defined(USE_GPU)
-        .def_readwrite("deviceId", &ClusterInfo::deviceId)
-#endif // USE_GPU
-    ;
+	    class_<ClusterInfo>("ClusterInfo")
+		.def_readwrite("clusterID", &ClusterInfo::clusterID)
+		.def_readwrite("clusterNeuronsBegin", &ClusterInfo::clusterNeuronsBegin)
+		.def_readwrite("totalClusterNeurons", &ClusterInfo::totalClusterNeurons)
+		.def_readwrite("seed", &ClusterInfo::seed)
+	#if defined(USE_GPU)
+		.def_readwrite("deviceId", &ClusterInfo::deviceId)
+	#endif // USE_GPU
+		.add_property("synapsesSInput", &getSynapsesSInput)
+	    ;
 
-    class_<Simulator>("Simulator")
-        .def("setup", &Simulator::setup)
-        .def("simulate", &Simulator::simulate)
-        .def("advanceUntilGrowth", &Simulator::advanceUntilGrowth)
-        .def("saveData", &Simulator::saveData)
-        .def("finish", &Simulator::finish)
-    ;
+	    class_<Simulator>("Simulator")
+		.def("setup", &Simulator::setup)
+		.def("simulate", &Simulator::simulate)
+		.def("advanceUntilGrowth", &Simulator::advanceUntilGrowth)
+		.def("saveData", &Simulator::saveData)
+		.def("finish", &Simulator::finish)
+	    ;
 
-    // Neurons classes
-    class_<IAllNeurons, boost::noncopyable>("IAllNeurons", no_init)
-        .def("createNeuronsProps", pure_virtual(&IAllNeurons::createNeuronsProps))
-    ;
+	    class_<ISInput, boost::noncopyable>("ISInput", no_init)
+		.def("term", pure_virtual(&ISInput::term))
+	    ;
 
-    class_<AllNeurons, boost::noncopyable, bases<IAllNeurons>>("AllNeurons", no_init)
-        .add_property("neuronsProps", &getNeuronsProperty)
-    ;
+	    class_<HostSInputRegular>("HostSInputRegular", init<SimulationInfo*, BGFLOAT, BGFLOAT, string&, vector<BGFLOAT> &>())
+	    ;
 
-    class_<AllSpikingNeurons, boost::noncopyable, bases<AllNeurons>>("AllSpikingNeurons", no_init)
-    ;
+	    class_<SInputPoisson, boost::noncopyable, bases<ISInput>>("SInputPoisson", no_init)
+		.def("term", (void(SInputPoisson::*)(SimulationInfo*, std::vector<ClusterInfo*> const&))&SInputPoisson::term)
+	    ;
 
-    class_<AllIFNeurons, boost::noncopyable, bases<AllSpikingNeurons>>("AllIFNeurons", no_init)
-        .def("createNeuronsProps", &AllIFNeurons::createNeuronsProps)
-    ;
+	    class_<HostSInputPoisson, boost::shared_ptr<HostSInputPoisson>, bases<SInputPoisson>>("HostSInputPoisson", no_init)
+		.def("__init__", make_constructor(create_HostSInputPoisson))
+		.def("term", (void(HostSInputPoisson::*)(SimulationInfo*, std::vector<ClusterInfo*> const&))&HostSInputPoisson::term)
+	    ;
 
-    class_<AllLIFNeurons, boost::shared_ptr<AllLIFNeurons>, boost::noncopyable, bases<AllIFNeurons>>("AllLIFNeurons", no_init)
-        // We need to replace the original constructor.
-        // Because neurons class object will be deleted by cluster class, 
-        // we need to suppress deletion by Python.
-        .def("__init__", make_constructor(create_AllLIFNeurons))
-    ;
+	    // Neurons classes
+	    class_<IAllNeurons, boost::noncopyable>("IAllNeurons", no_init)
+		.def("createNeuronsProps", pure_virtual(&IAllNeurons::createNeuronsProps))
+	    ;
 
-    class_<AllIZHNeurons, boost::shared_ptr<AllIZHNeurons>, boost::noncopyable, bases<AllIFNeurons>>("AllIZHNeurons", no_init)
-        // We need to replace the original constructor.
-        // Because neurons class object will be deleted by cluster class, 
-        // we need to suppress deletion by Python.
-        .def("__init__", make_constructor(create_AllIZHNeurons))
-        .def("createNeuronsProps", &AllIZHNeurons::createNeuronsProps)
-    ;
+	    class_<AllNeurons, boost::noncopyable, bases<IAllNeurons>>("AllNeurons", no_init)
+		.add_property("neuronsProps", &getNeuronsProperty)
+	    ;
 
-    // Neurons property classes
-    class_<IAllNeuronsProps, boost::noncopyable>("IAllNeuronsProps", no_init)
-    ;
+	    class_<AllSpikingNeurons, boost::noncopyable, bases<AllNeurons>>("AllSpikingNeurons", no_init)
+	    ;
 
-    class_<AllNeuronsProps, bases<IAllNeuronsProps>>("AllNeuronsProps")
-    ;
+	    class_<AllIFNeurons, boost::noncopyable, bases<AllSpikingNeurons>>("AllIFNeurons", no_init)
+		.def("createNeuronsProps", &AllIFNeurons::createNeuronsProps)
+	    ;
 
-    class_<AllSpikingNeuronsProps, bases<AllNeuronsProps>>("AllSpikingNeuronsProps")
-    ;
+	    class_<AllLIFNeurons, boost::shared_ptr<AllLIFNeurons>, boost::noncopyable, bases<AllIFNeurons>>("AllLIFNeurons", no_init)
+		// We need to replace the original constructor.
+		// Because neurons class object will be deleted by cluster class, 
+		// we need to suppress deletion by Python.
+		.def("__init__", make_constructor(create_AllLIFNeurons))
+	    ;
 
-    class_<AllIFNeuronsProps, bases<AllSpikingNeuronsProps>>("AllIFNeuronsProps")
-        .add_property("Iinject", 
-                   /* getter that returns an array_ref view into the array */
-                   static_cast<array_ref<BGFLOAT>(*)( AllIFNeuronsProps * )>(
-                      []( AllIFNeuronsProps *obj ) {
-                        return array_ref<BGFLOAT>( obj->m_Iinject );
+	    class_<AllIZHNeurons, boost::shared_ptr<AllIZHNeurons>, boost::noncopyable, bases<AllIFNeurons>>("AllIZHNeurons", no_init)
+		// We need to replace the original constructor.
+		// Because neurons class object will be deleted by cluster class, 
+		// we need to suppress deletion by Python.
+		.def("__init__", make_constructor(create_AllIZHNeurons))
+		.def("createNeuronsProps", &AllIZHNeurons::createNeuronsProps)
+	    ;
+
+	    // Neurons property classes
+	    class_<IAllNeuronsProps, boost::noncopyable>("IAllNeuronsProps", no_init)
+	    ;
+
+	    class_<AllNeuronsProps, bases<IAllNeuronsProps>>("AllNeuronsProps")
+	    ;
+
+	    class_<AllSpikingNeuronsProps, bases<AllNeuronsProps>>("AllSpikingNeuronsProps")
+	    ;
+
+	    class_<AllIFNeuronsProps, bases<AllSpikingNeuronsProps>>("AllIFNeuronsProps")
+		.add_property("Iinject", 
+			   /* getter that returns an array_ref view into the array */
+			   static_cast<array_ref<BGFLOAT>(*)( AllIFNeuronsProps * )>(
+			      []( AllIFNeuronsProps *obj ) {
+				return array_ref<BGFLOAT>( obj->m_Iinject );
                       }))
         .add_property("Inoise", 
                    /* getter that returns an array_ref view into the array */
