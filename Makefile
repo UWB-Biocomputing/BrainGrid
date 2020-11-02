@@ -203,6 +203,7 @@ INPUTOBJS = \
 		$(INPUTDIR)/SInputRegular.o \
 		$(INPUTDIR)/HostSInputPoisson.o \
 		$(INPUTDIR)/SInputPoisson.o \
+		$(INPUTDIR)/SInput.o \
 		$(INPUTDIR)/FSInput.o 
 
 INPUTCUDAOBJS = \
@@ -210,6 +211,7 @@ INPUTCUDAOBJS = \
 		$(INPUTDIR)/GpuSInputPoisson.o \
 		$(INPUTDIR)/SInputRegular_cuda.o \
 		$(INPUTDIR)/SInputPoisson_cuda.o \
+		$(INPUTDIR)/SInput_cuda.o \
 		$(INPUTDIR)/FSInput_cuda.o 
 
 CONNOBJS = \
@@ -627,6 +629,12 @@ $(INPUTDIR)/FSInput.o: $(INPUTDIR)/FSInput.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)
 
 $(INPUTDIR)/FSInput_cuda.o: $(INPUTDIR)/FSInput.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)/FSInput.h $(INPUTDIR)/HostSInputRegular.h $(INPUTDIR)/GpuSInputRegular.h $(INPUTDIR)/HostSInputPoisson.h $(INPUTDIR)/GpuSInputPoisson.h $(XMLDIR)/tinyxml.h
 	nvcc $(NVCCFLAGS) $(INPUTDIR)/FSInput.cpp -x cu $(CGPUFLAGS) -o $(INPUTDIR)/FSInput_cuda.o 
+
+$(INPUTDIR)/SInput.o: $(INPUTDIR)/SInput.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)/SInput.h $(XMLDIR)/tinyxml.h
+	$(CXX) $(CXXFLAGS) $(INPUTDIR)/SInput.cpp -o $(INPUTDIR)/SInput.o
+
+$(INPUTDIR)/SInput_cuda.o: $(INPUTDIR)/SInput.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)/SInput.h $(XMLDIR)/tinyxml.h
+	nvcc $(NVCCFLAGS) $(INPUTDIR)/SInput.cpp -x cu $(CGPUFLAGS) -o $(INPUTDIR)/SInput_cuda.o 
 
 $(INPUTDIR)/SInputRegular.o: $(INPUTDIR)/SInputRegular.cpp $(INPUTDIR)/ISInput.h $(INPUTDIR)/SInputRegular.h $(XMLDIR)/tinyxml.h
 	$(CXX) $(CXXFLAGS) $(INPUTDIR)/SInputRegular.cpp -o $(INPUTDIR)/SInputRegular.o

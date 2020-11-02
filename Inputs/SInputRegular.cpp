@@ -12,31 +12,26 @@
  * constructor
  *
  * @param[in] psi          Pointer to the simulation information
+ * @param[in] firingRate   Firing Rate (Hz)
  * @param[in] duration     Duration of a pulse in second
  * @param[in] interval     Interval between pulses in second
- * @parm[in] sync          'yes, 'no', or 'wave'
- * @param[in] initValues   Initial input values
+ * @param[in] sync         'yes, 'no', or 'wave'
+ * @param[in] weight       Synapse weight
+ * @param[in] maskIndex    Input masks index
  */
-SInputRegular::SInputRegular(SimulationInfo* psi, BGFLOAT duration, BGFLOAT interval, string &sync, vector<BGFLOAT> &initValues) :
-    m_values(NULL),
+SInputRegular::SInputRegular(SimulationInfo* psi, BGFLOAT firingRate, BGFLOAT duration, BGFLOAT interval, string const &sync, BGFLOAT weight, vector<BGFLOAT> const &maskIndex) :
+    SInput::SInput(psi, weight, maskIndex),
     m_nShiftValues(NULL)
 {
-    m_fSInput = false;
     m_duration = duration;
     m_interval = interval;
+    BGFLOAT isi = 1.0 / firingRate; // interval in second
+    m_nISI = static_cast<int>( isi / psi->deltaT + 0.5 ); // convert isi from sec to steps
 
     // initialize duration ,interval and cycle
     m_nStepsDuration = static_cast<int> ( m_duration / psi->deltaT + 0.5 );
     m_nStepsInterval = static_cast<int> ( m_interval / psi->deltaT + 0.5 );
     m_nStepsCycle = m_nStepsDuration + m_nStepsInterval;
-
-    // allocate memory for input values
-    m_values = new BGFLOAT[psi->totalNeurons];
-
-    // initialize values
-    for (int i = 0; i < psi->height; i++)
-        for (int j = 0; j < psi->width; j++)
-            m_values[i * psi->width + j] = initValues[(i % 10) * 10 + j % 10];
 
     // allocate memory for shift values
     m_nShiftValues = new int[psi->totalNeurons];
@@ -72,15 +67,21 @@ SInputRegular::~SInputRegular()
 /*
  * Initialize data.
  *
- * @param[in] psi       Pointer to the simulation information.
+ * @param[in] psi             Pointer to the simulation information.
+ * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
 void SInputRegular::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
+    if (m_fSInput == false)
+        return;
+
     // for each cluster
     for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++)
     {
         vtClrInfo[iCluster]->nStepsInCycle = 0;
     }
+
+    SInput::init(psi, vtClrInfo);
 }
 
 /*
@@ -89,32 +90,12 @@ void SInputRegular::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
  * @param[in] psi             Pointer to the simulation information.
  * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void SInputRegular::term(SimulationInfo* psi, vector<ClusterInfo *> const&vtClrInfo)
+void SInputRegular::term(SimulationInfo* psi, vector<ClusterInfo *> const &vtClrInfo)
 {
+    // clear memory for shift values
+    if (m_nShiftValues != NULL)
+        delete[] m_nShiftValues;
+
+    SInput::term(psi, vtClrInfo);
 }
 
-/* 
- * Helper function for input vaue list (copied from BGDriver.cpp and modified for BGFLOAT)
- */
-void getValueList(const string& valString, vector<BGFLOAT>* pList)
-{
-    std::istringstream valStream(valString);
-    BGFLOAT i;
-
-    // Parse integers out of the string and add them to a list
-    while (valStream.good())
-    {
-        valStream >> i;
-        pList->push_back(i);
-    }
-}
-
-/*
- * Advance input stimulus state.
- *
- * @param[in] pci             ClusterInfo class to read information from.
- * @param[in] iStep           Simulation steps to advance.
- */
-void SInputRegular::advanceSInputState(const ClusterInfo *pci, int iStep)
-{
-}

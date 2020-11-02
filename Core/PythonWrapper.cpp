@@ -90,7 +90,6 @@ void python_to_vector(boost::python::object o, vector<T>* v) {
 }
 
 typedef vector<int> int_vector;
-typedef vector<ClusterInfo *> ci_vector;
 
 /*
  *  Python lvalue converter
@@ -693,11 +692,16 @@ BOOST_PYTHON_MODULE(growth)
     // Register C++ vector to python list converter
     to_python_converter<int_vector, vector_to_pylist_converter<int_vector>>();
 
-    // Register python list C++ vector converter
+    // Register python list to C++ vector converter
     converter::registry::push_back(
         &pylist_to_vector_converter<std::vector<ClusterInfo*>>::convertible,
         &pylist_to_vector_converter<std::vector<ClusterInfo*>>::construct,
         boost::python::type_id<std::vector<ClusterInfo*>>());
+
+    converter::registry::push_back(
+        &pylist_to_vector_converter<std::vector<BGFLOAT>>::convertible,
+        &pylist_to_vector_converter<std::vector<BGFLOAT>>::construct,
+        boost::python::type_id<std::vector<BGFLOAT>>());
 
     class_<array_ref<BGFLOAT>>( "bgfloat_array" )
         .def( array_indexing_suite<array_ref<BGFLOAT>>() )
@@ -802,7 +806,12 @@ BOOST_PYTHON_MODULE(growth)
 		.def("term", pure_virtual(&ISInput::term))
 	    ;
 
-	    class_<HostSInputRegular>("HostSInputRegular", init<SimulationInfo*, BGFLOAT, BGFLOAT, string&, vector<BGFLOAT> &>())
+	    class_<SInputRegular, boost::noncopyable, bases<ISInput>>("SInputRegular", no_init)
+		.def("term", (void(SInputRegular::*)(SimulationInfo*, std::vector<ClusterInfo*> const&))&SInputPoisson::term)
+	    ;
+
+	    class_<HostSInputRegular, bases<SInputRegular>>("HostSInputRegular", init<SimulationInfo*, BGFLOAT, BGFLOAT, BGFLOAT, std::string const&, BGFLOAT, std::vector<BGFLOAT> const&>())
+		.def("term", (void(HostSInputRegular::*)(SimulationInfo*, std::vector<ClusterInfo*> const&)) &HostSInputRegular::term)
 	    ;
 
 	    class_<SInputPoisson, boost::noncopyable, bases<ISInput>>("SInputPoisson", no_init)
@@ -811,7 +820,7 @@ BOOST_PYTHON_MODULE(growth)
 
 	    class_<HostSInputPoisson, boost::shared_ptr<HostSInputPoisson>, bases<SInputPoisson>>("HostSInputPoisson", no_init)
 		.def("__init__", make_constructor(create_HostSInputPoisson))
-		.def("term", (void(HostSInputPoisson::*)(SimulationInfo*, std::vector<ClusterInfo*> const&))&HostSInputPoisson::term)
+		.def("term", (void(HostSInputPoisson::*)(SimulationInfo*, std::vector<ClusterInfo*> const&)) &HostSInputPoisson::term)
 	    ;
 
 	    // Neurons classes

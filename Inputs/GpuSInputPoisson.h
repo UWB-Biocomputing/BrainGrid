@@ -39,25 +39,26 @@ class GpuSInputPoisson : public SInputPoisson
 public:
     //! The constructor for GpuSInputPoisson.
     GpuSInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> &maskIndex);
-    ~GpuSInputPoisson();
+    virtual ~GpuSInputPoisson();
 
     //! Initialize data.
     virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
 
     //! Terminate process.
-    virtual void term(SimulationInfo* psi, vector<ClusterInfo *> const&vtClrInfo);
+    virtual void term(SimulationInfo* psi, vector<ClusterInfo *> const &vtClrInfo);
 
     //! Process input stimulus for each time step.
     virtual void inputStimulus(const SimulationInfo* psi, ClusterInfo *pci, int iStepOffset);
 
-    //! Advance input stimulus state.
+    // Process input stimulus for each time step.
     virtual void advanceSInputState(const ClusterInfo *pci, int iStep);
+
 private:
     //! Allocate GPU device memory and copy values
-    void allocDeviceValues( SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo, int *nISIs );
+    void allocDeviceValues( SimulationInfo* psi, ClusterInfo *pci, int *nISIs );
 
     //! Dellocate GPU device memory
-    void deleteDeviceValues( vector<ClusterInfo *> &vtClrInfo );
+    void deleteDeviceValues( ClusterInfo *pci );
 };
 
 #if defined(__CUDACC__)

@@ -38,9 +38,6 @@ HostSInputPoisson::~HostSInputPoisson()
 void HostSInputPoisson::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo)
 {
     SInputPoisson::init(psi, vtClrInfo);
-
-    if (m_fSInput == false)
-        return;
 }
 
 /*
@@ -102,16 +99,4 @@ void HostSInputPoisson::inputStimulus(const SimulationInfo* psi, ClusterInfo *pc
         BGFLOAT &psr = pSynapsesProps->psr[iSyn];
         summationPoint += psr;
     }
-}
-
-/*
- * Advance input stimulus state.
- *
- * @param[in] pci             ClusterInfo class to read information from.
- * @param[in] iStep           Simulation steps to advance.
- */
-void HostSInputPoisson::advanceSInputState(const ClusterInfo *pci, int iStep)
-{
-    // Advances synapses pre spike event queue state of the cluster iStep simulation step
-    dynamic_cast<AllSpikingSynapses*>(pci->synapsesSInput)->advanceSpikeQueue(iStep);
 }

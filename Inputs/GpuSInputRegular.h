@@ -36,8 +36,8 @@ class GpuSInputRegular : public SInputRegular
 {
 public:
     //! The constructor for SInputRegular.
-    GpuSInputRegular(SimulationInfo* psi, BGFLOAT duration, BGFLOAT interval, string &sync, vector<BGFLOAT> &initValues);
-    ~GpuSInputRegular();
+    GpuSInputRegular(SimulationInfo* psi, BGFLOAT duration, BGFLOAT interval, string &sync, BGFLOAT weight, vector<BGFLOAT> &maskIndex);
+    virtual ~GpuSInputRegular();
 
     //! Initialize data.
     virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
@@ -47,11 +47,34 @@ public:
 
     //! Process input stimulus for each time step.
     virtual void inputStimulus(const SimulationInfo* psi, ClusterInfo *pci, int iStepOffset);
+
+    // Process input stimulus for each time step.
+    virtual void advanceSInputState(const ClusterInfo *pci, int iStep);
+
+private:
+    //! Allocate GPU device memory and copy values
+    void allocDeviceValues( SimulationInfo* psi, ClusterInfo* pci, int *nShiftValues );
+
+    //! Dellocate GPU device memory
+    void deleteDeviceValues( ClusterInfo *pci );
 };
 
 //! Device function that processes input stimulus for each time step.
 #if defined(__CUDACC__)
-extern __global__ void inputStimulusDevice( int n, BGFLOAT* summationPoint_d, BGFLOAT* initValues_d, int* nShiftValues_d, int nStepsInCycle, int nStepsCycle, int nStepsDuration );
+__global__ void inputStimulusDevice( int n, bool* masks_d, int* nShiftValues_d, int nStepsInCycle, int nStepsCycle, int nStepsDuration, AllDSSynapsesProps* allSynapsesProps, CLUSTER_INDEX_TYPE clusterID, int iStepOffset );
+extern __global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapsesProps* allSynapsesDevice );
 #endif
 
+/**
+ * Adds a synapse to the network.  Requires the locations of the source and
+ * destination neurons.
+ *
+ * @param synapsesDevice         Pointer to the Synapses object in device memory.
+ * @param allSynapsesProps       Pointer to the Synapse structures in device memory.
+ * @param pSummationMap          Pointer to the summation point.
+ * @param width                  Width of neuron map (assumes square).
+ * @param deltaT                 The simulation time step size.
+ * @param weight                 Synapse weight.
+ */
+extern __global__ void initSynapsesDevice( IAllSynapses* synapsesDevice, int n, AllDSSynapsesProps* allSynapsesProps, BGFLOAT *pSummationMap, int width, const BGFLOAT deltaT, BGFLOAT weight );
 #endif // _GPUSINPUTREGULAR_H_

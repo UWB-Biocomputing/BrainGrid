@@ -15,7 +15,7 @@
 #endif
 #include "tinyxml.h"
 
-extern void getValueList(const string& valString, vector<BGFLOAT>* pList);
+void getValueList(const string& valString, vector<BGFLOAT>* pList);
 
 /*
  * constructor
@@ -87,7 +87,9 @@ ISInput* FSInput::CreateInstance(SimulationInfo* psi)
         // read duration, interval and sync
         BGFLOAT duration;    // duration of a pulse in second
         BGFLOAT interval;    // interval between pulses in second
-        string sync;
+        string sync;         // synchnonous flag - 'yes', 'no' or 'wave'
+        BGFLOAT weight;      // synapse weight
+        BGFLOAT firingRate;  // firing rate (Hz)
 
         if (( temp = parms->FirstChildElement( "IntParams" ) ) != NULL) 
         { 
@@ -103,6 +105,14 @@ ISInput* FSInput::CreateInstance(SimulationInfo* psi)
                 cerr << "error IntParams:sync" << endl;
                 return NULL;
             }
+            if (temp->QueryFLOATAttribute("weight", &weight ) != TIXML_SUCCESS) {
+                cerr << "error IntParams:weight" << endl;
+                return NULL;
+            }
+            if (temp->QueryFLOATAttribute("firingRate", &firingRate ) != TIXML_SUCCESS) {
+                cerr << "error IntParams:firingRate" << endl;
+                return NULL;
+            }
         }
         else
         {
@@ -110,37 +120,47 @@ ISInput* FSInput::CreateInstance(SimulationInfo* psi)
             return NULL;
         }
 
-        // read initial values
-        vector<BGFLOAT> initValues;
-        if ((temp = parms->FirstChildElement( "Values")) != NULL)
+        // read mask values and set it to masks
+        vector<BGFLOAT> maskIndex;
+        if ((temp = parms->FirstChildElement( "Masks")) != NULL)
         {
-            TiXmlNode* pNode = NULL;
+           TiXmlNode* pNode = NULL;
             while ((pNode = temp->IterateChildren(pNode)) != NULL)
             {
-                if (strcmp(pNode->Value(), "I") == 0)
+                if (strcmp(pNode->Value(), "M") == 0)
                 {
-                    getValueList(pNode->ToElement()->GetText(), &initValues);
+                    getValueList(pNode->ToElement()->GetText(), &maskIndex);
                 }
-                else
+                else if (strcmp(pNode->Value(), "LayoutFiles") == 0)
                 {
-                    cerr << "error I" << endl;
-                    return NULL;
+                    string maskNListFileName;
+
+                    if (pNode->ToElement()->QueryValueAttribute( "maskNListFileName", &maskNListFileName ) == TIXML_SUCCESS)
+                    {
+                        TiXmlDocument simDoc( maskNListFileName.c_str( ) );
+                        if (!simDoc.LoadFile( ))
+                        {
+                            cerr << "Failed loading positions of stimulus input mask neurons list file " << maskNListFileName << ":" << "\n\t"
+                                 << simDoc.ErrorDesc( ) << endl;
+                            cerr << " error: " << simDoc.ErrorRow( ) << ", " << simDoc.ErrorCol( ) << endl;
+                            break;
+                        }
+                        TiXmlNode* temp2 = NULL;
+                        if (( temp2 = simDoc.FirstChildElement( "M" ) ) == NULL)
+                        {
+                            cerr << "Could not find <M> in positons of stimulus input mask neurons list file " << maskNListFileName << endl;
+                            break;
+                        }
+                        getValueList(temp2->ToElement()->GetText(), &maskIndex);
+                    }
                 }
             }
         }
-        else
-        {
-            cerr << "missing Values" << endl;
-            return NULL;
-        }
-
-        // we assume that initial values are in 10x10 matrix
-        assert(initValues.size() == 100);
 
 #if defined(USE_GPU)
-        pInput = new GpuSInputRegular(psi, duration, interval, sync, initValues);
+        pInput = new GpuSInputRegular(psi, firingRate, duration, interval, sync, weight, maskIndex);
 #else
-        pInput = new HostSInputRegular(psi, duration, interval, sync, initValues);
+        pInput = new HostSInputRegular(psi, firingRate, duration, interval, sync, weight, maskIndex);
 #endif
     }
     else if (name == "SInputPoisson")
@@ -217,3 +237,18 @@ ISInput* FSInput::CreateInstance(SimulationInfo* psi)
     return pInput;
 }
 
+/* 
+ *  * Helper function for input vaue list (copied from BGDriver.cpp and modified for BGFLOAT)
+ *   */
+void getValueList(const string& valString, vector<BGFLOAT>* pList)
+{
+    std::istringstream valStream(valString);
+    BGFLOAT i;
+
+    // Parse integers out of the string and add them to a list
+     while (valStream.good())
+     {
+         valStream >> i;
+         pList->push_back(i);
+     }
+}

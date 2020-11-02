@@ -35,8 +35,8 @@ class HostSInputRegular : public SInputRegular
 {
 public:
     //! The constructor for HostSInputRegular.
-    HostSInputRegular(SimulationInfo* psi, BGFLOAT duration, BGFLOAT interval, string &sync, vector<BGFLOAT> &initValues);
-    ~HostSInputRegular();
+    HostSInputRegular(SimulationInfo* psi, BGFLOAT firingRate, BGFLOAT duration, BGFLOAT interval, string const &sync, BGFLOAT weight, vector<BGFLOAT> const &maskIndex);
+    virtual ~HostSInputRegular();
 
     //! Initialize data.
     virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);

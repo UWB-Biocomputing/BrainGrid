@@ -32,14 +32,15 @@
 #ifndef _SINPUTREGULAR_H_
 #define _SINPUTREGULAR_H_
 
-#include "ISInput.h"
+#include "SInput.h"
+#include "AllDSSynapses.h"
 
-class SInputRegular : public ISInput
+class SInputRegular : public SInput
 {
 public:
     //! The constructor for SInputRegular.
-    SInputRegular(SimulationInfo* psi, BGFLOAT duration, BGFLOAT interval, string &sync, vector<BGFLOAT> &initValues);
-    ~SInputRegular();
+    SInputRegular(SimulationInfo* psi, BGFLOAT firingRate, BGFLOAT duration, BGFLOAT interval, string const &sync, BGFLOAT weight, vector<BGFLOAT> const &maskIndex);
+    virtual ~SInputRegular();
 
     //! Initialize data.
     virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
@@ -47,13 +48,7 @@ public:
     //! Terminate process.
     virtual void term(SimulationInfo* psi, vector<ClusterInfo *> const&vtClrInfo);
 
-    //! Advance input stimulus state.
-    virtual void advanceSInputState(const ClusterInfo *pci, int iStep);
-
 protected:
-    //! True if stimuls input is on.
-    bool m_fSInput;
-
     //! Duration of a pulse in second.
     BGFLOAT m_duration;
 
@@ -69,11 +64,11 @@ protected:
     //! The number of time steps for interval between pulses. 
     int m_nStepsInterval;
 
-    //! Input values, where each entry corresponds with a summationPoint.
-    BGFLOAT *m_values;
-
     //! Shift values, which determin the synch of stimuli (all 0 when synchronous)
     int *m_nShiftValues;
+
+    //! Spikes interval in simulation steps.
+    int m_nISI;
 };
 
 #endif // _SINPUTREGULAR_H_

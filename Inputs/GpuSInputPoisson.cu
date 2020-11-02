@@ -41,8 +41,13 @@ void GpuSInputPoisson::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInf
     if (m_fSInput == false)
         return;
 
-    // allocate GPU device memory and copy values
-    allocDeviceValues(psi, vtClrInfo, m_nISIs);
+    // for each cluster
+    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
+        checkCudaErrors( cudaSetDevice( vtClrInfo[iCluster]->deviceId ) );
+
+        // allocate GPU device memory and copy values
+        allocDeviceValues(psi, vtClrInfo[iCluster], m_nISIs);
+    }
 }
 
 /*
@@ -51,10 +56,16 @@ void GpuSInputPoisson::init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInf
  * @param[in] psi             Pointer to the simulation information.
  * @param[in] vtClrInfo       Vector of ClusterInfo.
  */
-void GpuSInputPoisson::term(SimulationInfo* psi, vector<ClusterInfo *> const&vtClrInfo)
+void GpuSInputPoisson::term(SimulationInfo* psi, vector<ClusterInfo *> const &vtClrInfo)
 {
-    if (m_fSInput)
-        deleteDeviceValues(vtClrInfo);
+    if (m_fSInput) {
+        // for each cluster
+        for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) {
+            checkCudaErrors( cudaSetDevice( vtClrInfo[iCluster]->deviceId ) );
+
+            deleteDeviceValues(vtClrInfo[iCluster]);
+        }
+    }
 
     SInputPoisson::term(psi, vtClrInfo);
 }
@@ -110,101 +121,84 @@ void GpuSInputPoisson::advanceSInputState(const ClusterInfo *pci, int iStep)
  * Allocate GPU device memory and copy values
  *
  * @param[in] psi        Pointer to the simulation information.
- * @param[in] vtClrInfo  Vector of ClusterInfo.
+ * @param[in] pci        Pointer to the cluster information.
  * @param[in] nISIs      Pointer to the interval counter.
  */
-void GpuSInputPoisson::allocDeviceValues(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo, int *nISIs )
+void GpuSInputPoisson::allocDeviceValues(SimulationInfo* psi, ClusterInfo* pci, int *nISIs )
 {
-    // for each cluster
-    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++) 
+    int neuron_count = pci->totalClusterNeurons;
+
+    // Allocate GPU device memory
+    BGSIZE nISIs_d_size = neuron_count * sizeof (int);   // size of shift values
+    checkCudaErrors( cudaMalloc ( ( void ** ) &(pci->nISIs_d), nISIs_d_size ) );
+
+    // Copy values into device memory
+    int beginIdx = pci->clusterNeuronsBegin;
+    checkCudaErrors( cudaMemcpy ( pci->nISIs_d, &nISIs[beginIdx], nISIs_d_size, cudaMemcpyHostToDevice ) );
+
+    // create an input synapse layer in device
+    AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(pci->synapsesSInput)->m_pSynapsesProps;
+    pSynapsesProps->setupSynapsesDeviceProps( (void **)&(pci->synapsesPropsDeviceSInput), neuron_count, 1 ); 
+    pSynapsesProps->copySynapseHostToDeviceProps( pci->synapsesPropsDeviceSInput, neuron_count, 1 );
+
+    const int threadsPerBlock = 256;
+    int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
+
+    initSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( pci->synapsesDeviceSInput, neuron_count, pci->synapsesPropsDeviceSInput, pci->pClusterSummationMap, psi->width, psi->deltaT, m_weight );
+
+    // allocate memory for curand global state
+    checkCudaErrors( cudaMalloc ( &(pci->devStates_d), neuron_count * sizeof( curandState ) ) );
+
+    // allocate memory for synapse index map and initialize it
+    SynapseIndexMap synapseIndexMap;
+    BGSIZE* incomingSynapseIndexMap = new BGSIZE[neuron_count];
+
+    BGSIZE syn_i = 0;
+    for (int i = 0; i < neuron_count; i++, syn_i++)
     {
-        ClusterInfo *pci = vtClrInfo[iCluster];
-        int neuron_count = pci->totalClusterNeurons;
-
-        // Set device ID
-        checkCudaErrors( cudaSetDevice( pci->deviceId ) );
-
-        // Allocate GPU device memory
-        BGSIZE nISIs_d_size = neuron_count * sizeof (int);   // size of shift values
-        checkCudaErrors( cudaMalloc ( ( void ** ) &(pci->nISIs_d), nISIs_d_size ) );
-
-        // Copy values into device memory
-        int beginIdx = pci->clusterNeuronsBegin;
-        checkCudaErrors( cudaMemcpy ( pci->nISIs_d, &nISIs[beginIdx], nISIs_d_size, cudaMemcpyHostToDevice ) );
-
-        // create an input synapse layer in device
-        AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(pci->synapsesSInput)->m_pSynapsesProps;
-        pSynapsesProps->setupSynapsesDeviceProps( (void **)&(pci->synapsesPropsDeviceSInput), neuron_count, 1 ); 
-        pSynapsesProps->copySynapseHostToDeviceProps( pci->synapsesPropsDeviceSInput, neuron_count, 1 );
-
-        const int threadsPerBlock = 256;
-        int blocksPerGrid = ( neuron_count + threadsPerBlock - 1 ) / threadsPerBlock;
-
-        initSynapsesDevice <<< blocksPerGrid, threadsPerBlock >>> ( pci->synapsesDeviceSInput, neuron_count, pci->synapsesPropsDeviceSInput, pci->pClusterSummationMap, psi->width, psi->deltaT, m_weight );
-
-        // allocate memory for curand global state
-        checkCudaErrors( cudaMalloc ( &(pci->devStates_d), neuron_count * sizeof( curandState ) ) );
-
-        // allocate memory for synapse index map and initialize it
-        SynapseIndexMap synapseIndexMap;
-        BGSIZE* incomingSynapseIndexMap = new BGSIZE[neuron_count];
-
-        BGSIZE syn_i = 0;
-        for (int i = 0; i < neuron_count; i++, syn_i++)
-        {
-            incomingSynapseIndexMap[i] = syn_i;
-        }
-
-        checkCudaErrors( cudaMalloc( ( void ** ) &synapseIndexMap.incomingSynapseIndexMap, neuron_count * sizeof( BGSIZE ) ) );
-        checkCudaErrors( cudaMemcpy ( synapseIndexMap.incomingSynapseIndexMap, incomingSynapseIndexMap, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) ); 
-        checkCudaErrors( cudaMalloc( ( void ** ) &(pci->synapseIndexMapDeviceSInput), sizeof( SynapseIndexMap ) ) );
-        checkCudaErrors( cudaMemcpy ( pci->synapseIndexMapDeviceSInput, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
-
-        delete[] incomingSynapseIndexMap;
-
-        // allocate memory for masks for stimulus input and initialize it
-        checkCudaErrors( cudaMalloc ( &(pci->masks_d), neuron_count * sizeof( bool ) ) );
-        checkCudaErrors( cudaMemcpy ( pci->masks_d, &m_masks[beginIdx], neuron_count * sizeof( bool ), cudaMemcpyHostToDevice ) ); 
-
-        // setup seeds
-        setupSeeds <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->devStates_d, time(NULL) );
-
-      // create an AllSynapses class object in device
-      pci->synapsesSInput->createAllSynapsesInDevice(&(pci->synapsesDeviceSInput), pci->synapsesPropsDeviceSInput);
+        incomingSynapseIndexMap[i] = syn_i;
     }
+
+    checkCudaErrors( cudaMalloc( ( void ** ) &synapseIndexMap.incomingSynapseIndexMap, neuron_count * sizeof( BGSIZE ) ) );
+    checkCudaErrors( cudaMemcpy ( synapseIndexMap.incomingSynapseIndexMap, incomingSynapseIndexMap, neuron_count * sizeof( BGSIZE ), cudaMemcpyHostToDevice ) ); 
+    checkCudaErrors( cudaMalloc( ( void ** ) &(pci->synapseIndexMapDeviceSInput), sizeof( SynapseIndexMap ) ) );
+    checkCudaErrors( cudaMemcpy ( pci->synapseIndexMapDeviceSInput, &synapseIndexMap, sizeof( SynapseIndexMap ), cudaMemcpyHostToDevice ) );
+
+    delete[] incomingSynapseIndexMap;
+
+    // allocate memory for masks for stimulus input and initialize it
+    checkCudaErrors( cudaMalloc ( &(pci->masks_d), neuron_count * sizeof( bool ) ) );
+    checkCudaErrors( cudaMemcpy ( pci->masks_d, &m_masks[beginIdx], neuron_count * sizeof( bool ), cudaMemcpyHostToDevice ) ); 
+
+    // setup seeds
+    setupSeeds <<< blocksPerGrid, threadsPerBlock >>> ( neuron_count, pci->devStates_d, time(NULL) );
+
+    // create an AllSynapses class object in device
+    pci->synapsesSInput->createAllSynapsesInDevice(&(pci->synapsesDeviceSInput), pci->synapsesPropsDeviceSInput);
 }
 
 /*
  * Dellocate GPU device memory
  *
- * @param[in] vtClrInfo  Vector of ClusterInfo.
+ * @param[in] pci               Pointer to the cluster information.
  */
-void GpuSInputPoisson::deleteDeviceValues(vector<ClusterInfo *> &vtClrInfo )
+void GpuSInputPoisson::deleteDeviceValues( ClusterInfo* pci )
 {
-    // for each cluster
-    for (CLUSTER_INDEX_TYPE iCluster = 0; iCluster < vtClrInfo.size(); iCluster++)
-    {
-        ClusterInfo *pci = vtClrInfo[iCluster];
+    checkCudaErrors( cudaFree( pci->nISIs_d ) );
+    checkCudaErrors( cudaFree( pci->devStates_d ) );
+    checkCudaErrors( cudaFree( pci->masks_d ) );
 
-        // Set device ID
-        checkCudaErrors( cudaSetDevice( pci->deviceId ) );
+    AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(pci->synapsesSInput)->m_pSynapsesProps;
+    pSynapsesProps->cleanupSynapsesDeviceProps( pci->synapsesPropsDeviceSInput );
 
-        checkCudaErrors( cudaFree( pci->nISIs_d ) );
-        checkCudaErrors( cudaFree( pci->devStates_d ) );
-        checkCudaErrors( cudaFree( pci->masks_d ) );
+    // deallocate memory for synapse index map
+    SynapseIndexMap synapseIndexMap;
+    checkCudaErrors( cudaMemcpy ( &synapseIndexMap, pci->synapseIndexMapDeviceSInput, sizeof( SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
+    checkCudaErrors( cudaFree( synapseIndexMap.incomingSynapseIndexMap ) );
+    checkCudaErrors( cudaFree( pci->synapseIndexMapDeviceSInput ) );
 
-        AllSynapsesProps *pSynapsesProps = dynamic_cast<AllSynapses*>(pci->synapsesSInput)->m_pSynapsesProps;
-        pSynapsesProps->cleanupSynapsesDeviceProps( pci->synapsesPropsDeviceSInput );
-
-        // deallocate memory for synapse index map
-        SynapseIndexMap synapseIndexMap;
-        checkCudaErrors( cudaMemcpy ( &synapseIndexMap, pci->synapseIndexMapDeviceSInput, sizeof( SynapseIndexMap ), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaFree( synapseIndexMap.incomingSynapseIndexMap ) );
-        checkCudaErrors( cudaFree( pci->synapseIndexMapDeviceSInput ) );
-
-        // delete an AllSynapses class object in device
-        pci->synapsesSInput->deleteAllSynapsesInDevice(pci->synapsesDeviceSInput);
-    }
+    // delete an AllSynapses class object in device
+    pci->synapsesSInput->deleteAllSynapsesInDevice(pci->synapsesDeviceSInput);
 }
 
 // CUDA code for -----------------------------------------------------------------------

@@ -38,7 +38,7 @@ class HostSInputPoisson : public SInputPoisson
 public:
     // The constructor for HostSInputPoisson.
     HostSInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> &maskIndex);
-    ~HostSInputPoisson();
+    virtual ~HostSInputPoisson();
 
     // Initialize data.
     virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
@@ -48,9 +48,6 @@ public:
 
     // Process input stimulus for each time step.
     virtual void inputStimulus(const SimulationInfo* psi, ClusterInfo *pci, int iStepOffset);
-
-    // Process input stimulus for each time step.
-    virtual void advanceSInputState(const ClusterInfo *pci, int iStep);
 
 private:
 };

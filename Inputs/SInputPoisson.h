@@ -33,15 +33,15 @@
 #ifndef _SINPUTPOISSON_H_
 #define _SINPUTPOISSON_H_
 
-#include "ISInput.h"
+#include "SInput.h"
 #include "AllDSSynapses.h"
 
-class SInputPoisson : public ISInput
+class SInputPoisson : public SInput
 {
 public:
     //! The constructor for SInputPoisson.
     SInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> &maskIndex);
-    ~SInputPoisson();
+    virtual ~SInputPoisson();
 
     //! Initialize data.
     virtual void init(SimulationInfo* psi, vector<ClusterInfo *> &vtClrInfo);
@@ -50,23 +50,8 @@ public:
     virtual void term(SimulationInfo* psi, vector<ClusterInfo *> const&vtClrInfo);
 
 protected:
-    //! True if stimuls input is on.
-    bool m_fSInput;
-
-    //! synapse weight
-    BGFLOAT m_weight;
-
     //! inverse firing rate
     BGFLOAT m_lambda;
-
-    //! interval counter
-    int* m_nISIs;
-
-    //! Masks for stimulus input
-    bool* m_masks;
-
-    //! Maximum number of synapses per neuron (will be 1)
-    int m_maxSynapsesPerNeuron;
 };
 
 #endif // _SINPUTPOISSON_H_
