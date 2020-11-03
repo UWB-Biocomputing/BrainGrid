@@ -36,7 +36,7 @@ class GpuSInputRegular : public SInputRegular
 {
 public:
     //! The constructor for SInputRegular.
-    GpuSInputRegular(SimulationInfo* psi, BGFLOAT duration, BGFLOAT interval, string &sync, BGFLOAT weight, vector<BGFLOAT> &maskIndex);
+    GpuSInputRegular(SimulationInfo* psi, BGFLOAT firingRate, BGFLOAT duration, BGFLOAT interval, string const &sync, BGFLOAT weight, vector<BGFLOAT> &maskIndex);
     virtual ~GpuSInputRegular();
 
     //! Initialize data.
@@ -53,7 +53,7 @@ public:
 
 private:
     //! Allocate GPU device memory and copy values
-    void allocDeviceValues( SimulationInfo* psi, ClusterInfo* pci, int *nShiftValues );
+    void allocDeviceValues( SimulationInfo* psi, ClusterInfo* pci, int *nISIs, int *nShiftValues );
 
     //! Dellocate GPU device memory
     void deleteDeviceValues( ClusterInfo *pci );
@@ -61,7 +61,7 @@ private:
 
 //! Device function that processes input stimulus for each time step.
 #if defined(__CUDACC__)
-__global__ void inputStimulusDevice( int n, bool* masks_d, int* nShiftValues_d, int nStepsInCycle, int nStepsCycle, int nStepsDuration, AllDSSynapsesProps* allSynapsesProps, CLUSTER_INDEX_TYPE clusterID, int iStepOffset );
+__global__ void inputStimulusDevice( int n, int* nISIs_d, bool* masks_d, int* nShiftValues_d, int nStepsInCycle, int nISI, int nStepsCycle, int nStepsDuration, AllDSSynapsesProps* allSynapsesProps, CLUSTER_INDEX_TYPE clusterID, int iStepOffset );
 extern __global__ void applyI2SummationMap( int n, BGFLOAT* summationPoint_d, AllDSSynapsesProps* allSynapsesDevice );
 #endif
 
