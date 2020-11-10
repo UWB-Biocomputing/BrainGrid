@@ -37,7 +37,7 @@ class HostSInputPoisson : public SInputPoisson
 {
 public:
     // The constructor for HostSInputPoisson.
-    HostSInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> &maskIndex);
+    HostSInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> const &maskIndex);
     virtual ~HostSInputPoisson();
 
     // Initialize data.

@@ -17,7 +17,7 @@
  * @param[in] weight    Synapse weight
  * @param[in] maskIndex Input masks index
  */
-HostSInputPoisson::HostSInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> &maskIndex) : SInputPoisson(psi, fr_mean, weight, maskIndex)
+HostSInputPoisson::HostSInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> const &maskIndex) : SInputPoisson(psi, fr_mean, weight, maskIndex)
 {
     
 }

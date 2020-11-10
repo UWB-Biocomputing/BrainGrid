@@ -13,12 +13,12 @@
 /*
  *  Constructor
  */
-Model::Model(Connections *conns, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo) :
+Model::Model(Connections *conns, Layout *layout, vector<Cluster *> const &vtClr, vector<ClusterInfo *> const &vtClrInfo) :
     m_read_params(0),
     m_conns(conns),
     m_layout(layout),
-    m_vtClrInfo(vtClrInfo),
-    m_vtClr(vtClr)
+    m_vtClrInfo(const_cast<vector<ClusterInfo *> &>(vtClrInfo)),
+    m_vtClr(const_cast<vector<Cluster *> &>(vtClr))
 {
 }
 

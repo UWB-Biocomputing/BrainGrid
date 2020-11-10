@@ -16,7 +16,7 @@
  * @param[in] weight    Synapse weight
  * @param[in] maskIndex Input masks index
  */
-SInputPoisson::SInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> &maskIndex) :
+SInputPoisson::SInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> const &maskIndex) :
     SInput::SInput(psi, weight, maskIndex)
 {
      // initialize firng rate, inverse firing rate

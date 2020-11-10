@@ -40,7 +40,7 @@ class SInputPoisson : public SInput
 {
 public:
     //! The constructor for SInputPoisson.
-    SInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> &maskIndex);
+    SInputPoisson(SimulationInfo* psi, BGFLOAT fr_mean, BGFLOAT weight, vector<BGFLOAT> const &maskIndex);
     virtual ~SInputPoisson();
 
     //! Initialize data.

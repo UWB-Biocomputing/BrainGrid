@@ -57,7 +57,7 @@ using namespace std;
 class Model : public IModel
 {
     public:
-        Model(Connections *conns, Layout *layout, vector<Cluster *> &vtClr, vector<ClusterInfo *> &vtClrInfo);
+        Model(Connections *conns, Layout *layout, vector<Cluster *> const &vtClr, vector<ClusterInfo *> const &vtClrInfo);
         virtual ~Model();
 
         /**
