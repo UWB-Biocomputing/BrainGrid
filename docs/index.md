@@ -1,5 +1,7 @@
 # BrainGrid
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3354490.svg)](https://doi.org/10.5281/zenodo.3354490)
+
 ## Table of Contents
 
 1. [Introduction](braingrid_introduction)
